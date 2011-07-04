@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
+
 package com.dtrules.mapping;
 
 import java.util.ArrayList;
@@ -23,18 +26,24 @@ import java.util.HashMap;
  *
  */
 public class XMLHeader implements XMLNode {
-    static HashMap<String,Object> attribs = new HashMap<String,Object>();
-    static ArrayList<XMLNode> tags = new ArrayList<XMLNode>();
+    static ArrayList<XMLNode> tags = null;
     Object body;
     XMLNode parent;
     
-    
+    @Override
+	public int childCount() {
+		// TODO Auto-generated method stub
+		if(tags == null) return 0;
+		return tags.size();
+	}
+
     /* (non-Javadoc)
      * @see com.dtrules.mapping.XMLNode#addChild(com.dtrules.mapping.XMLNode)
      */
     @Override
     public void addChild(XMLNode node) {
-       tags.add(node);
+    	if(tags == null)tags = new ArrayList<XMLNode>(5);
+    	tags.add(node);
     }
 
     /* (non-Javadoc)
@@ -42,11 +51,12 @@ public class XMLHeader implements XMLNode {
      */
     @Override
     public void remove(XMLNode node){
-        tags.remove(node);
+        if(tags==null) return;
+    	tags.remove(node);
     }
 
     public HashMap<String, Object> getAttribs() {
-        return attribs;
+    	return null;
     }
 
     /* (non-Javadoc)
@@ -110,4 +120,20 @@ public class XMLHeader implements XMLNode {
     }
     
     public Type type(){ return Type.HEADER; }
+
+	@Override
+	public Object getAttrib(String key) {
+		return null;
+	}
+
+	@Override
+	public void setAttrib(String key, Object value) {
+		
+	}
+
+	@Override
+	public void clearRef() {
+		
+	}
+    
 }

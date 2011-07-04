@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,14 +14,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/  
+ **/
   
 package com.dtrules.interpreter.operators;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import com.dtrules.decisiontables.RDecisionTable;
 import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;
@@ -452,7 +452,6 @@ public class RControl {
         
         public void execute(DTState state) throws RulesException {
             RName    error        = state.datapop().rNameValue();
-            RName    error_table  = state.datapop().rNameValue();
             RName    table        = state.datapop().rNameValue();
             
             try{

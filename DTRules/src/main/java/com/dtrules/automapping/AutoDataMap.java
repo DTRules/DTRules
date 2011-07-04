@@ -1,6 +1,21 @@
-/**
+/** 
+ * Copyright 2004-2011 DTRules.com, Inc.
  * 
- */
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");  
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at  
+ *   
+ *      http://www.apache.org/licenses/LICENSE-2.0  
+ *   
+ * Unless required by applicable law or agreed to in writing, software  
+ * distributed under the License is distributed on an "AS IS" BASIS,  
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+ * See the License for the specific language governing permissions and  
+ * limitations under the License.  
+ **/
+
 package com.dtrules.automapping;
 
 import java.io.FileInputStream;
@@ -14,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-
 import com.dtrules.automapping.access.IAttribute;
 import com.dtrules.automapping.access.IDataSource;
+import com.dtrules.automapping.access.JavaAttribute;
 import com.dtrules.automapping.nodes.IMapNode;
 import com.dtrules.automapping.nodes.MapNodeAttribute;
 import com.dtrules.automapping.nodes.MapNodeList;
@@ -30,6 +45,38 @@ import com.dtrules.xmlparser.XMLPrinter;
 import com.dtrules.xmlparser.XMLTree;
 import com.dtrules.xmlparser.XMLTree.Node;
 
+/**
+ * The AutoDataMap interface is best used when mapping Java objects into DTRules.  There
+ * are a few assumptions made about these Java objects that you need to keep in mind.
+ * <br><br>
+ *        !!!NOTE IF YOU ARE LOSING DATA!!!! ... Data you know to be in your 
+ *        Java objects, but doesn't get written to your dataload files, or 
+ *        doesn't show up in your Rule Set.
+ * <br><br>
+ * First of all, we look at the accessors to find attributes of a Java object.  If your
+ * Java object doesn't have accessors defined, then this code isn't going to work for 
+ * you.
+ * <br><br>
+ * Second of all, all the accessors and even your class needs to be public.  If the 
+ * class isn't public (NOT just the accessors, but the class itself!!!) we are not going 
+ * to throw any errors, but we are not going to access any of your class' attributes 
+ * either.  
+ * <br><br>
+ * On the other hand, if your Java Objects don't really line up with the Entities and the
+ * attributes in your Rule Sets, or if you primarily will be consuming XML that is 
+ * generated to a spec that is independent of your Rule Set, the older DataMap object
+ * is a better way to go.
+ * <br><br>
+ * The AutoDataMap also handles the writing of data back out to your Java Objects, and
+ * is intended to also handle the transport of data between Java objects.  This latter
+ * functionality needs more development at the time of this writing, but the idea is to
+ * provide the same sort of abstraction of functionality to Java code that the Rule
+ * Sets enjoy, which might even go so far as to include the support for automated testing,
+ * management of expected test results, etc. that can be done with Rule Sets.
+ *    
+ * @author Paul Snow
+ *
+ */
 public class AutoDataMap {
     
     private final AutoDataMapDef      autoDataMapDef;           // Holds the state shared between sessions
@@ -353,12 +400,58 @@ public class AutoDataMap {
         new MapNodeAttribute(parent,labelname,type,attributeName,value);
     }
     
-    public void setList(String attributeName, List<Object> Objects){
-        pushLabel(attributeName, "");
-        for(Object object : Objects){
-            loadObjects(currentGroup.getDataSource().getName(object),object);
-        }
-        
+    /**
+     * Sets a list in the DataMap on an attribute that doesn't necessarily exist on the actual
+     * object.  If a list DOES exist, then whatever you do last will be what sticks, from the
+     * Rules Engine point of view.
+     * 
+     * Make sure the object you wish to insert the list upon is the "current node" in the 
+     * AutoDataMap state.
+     * 
+     * @param listname
+     * @param list
+     * @param subtype
+     */
+    @SuppressWarnings("unchecked")
+	public void setList(String listname, List list, String subtype){
+    	try {
+			MapType       mapType   = MapType.get(subtype);
+			MapNodeObject parent    = (MapNodeObject) getParent();
+			Label         labelObj  = parent.getSourceLabel();
+			
+			IAttribute a = labelObj.getAttribute(listname);
+    
+			if(a == null){
+			    a = JavaAttribute.newAttribute(
+			    		labelObj, 
+			    		listname, 
+			    		null, 
+			    		null, 
+			    		Class.forName(subtype), 
+			    		MapType.get("list"),
+			    		"list",
+			    		mapType,
+			    		subtype
+			    		);
+			    
+			    labelObj.getAttributes().add(a);
+			}
+			
+			MapNodeList mnl = new MapNodeList(a, parent);
+			
+			if(mapType.isPrimitive()){
+			    mnl.setSubType(a.getSubTypeText());
+			    mnl.setList((List<Object>)list);
+			}else {
+			    mnl.setSubType(a.getSubTypeText());
+			    mnl.setList((List<Object>)list);
+			    if( list!=null ) for(Object obj2 : ((List)list)){
+			        loadObjects(mnl, currentGroup,(String) null, obj2);
+			    }
+			}
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("subtype class not found: "+subtype);
+		}
     }
     
     @SuppressWarnings("unchecked")
@@ -371,6 +464,13 @@ public class AutoDataMap {
         boolean pruned = groupObj.isPruned(spec); 
         if(pruned) return;
         
+        if(object instanceof List){
+            for(Object child : ((List<Object>)object)){
+                loadObjects(parent,groupObj,dataSrc.getName(child),child);
+            }
+            return;
+        }
+        
         // Look up that label.
         Label labelObj = groupObj.findLabel(
                 label,
@@ -378,12 +478,7 @@ public class AutoDataMap {
                 spec);
         
         // If we haven't got a label for this sort of object yet, create one.
-        if(object instanceof List){
-            for(Object child : ((List<Object>)object)){
-                loadObjects(parent,groupObj,dataSrc.getName(child),child);
-            }
-            return;
-        }else if (labelObj == null  || !labelObj.isCached()){
+        if (labelObj == null  || !labelObj.isCached()){
         
             labelObj = dataSrc.createLabel(
                 this,
@@ -401,10 +496,16 @@ public class AutoDataMap {
             }
             return;
         }
+        loadObjects(parent, groupObj, labelObj, object);
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void loadObjects(IMapNode parent,  Group groupObj, Label labelObj, Object object){
         
-        MapNodeObject node = new MapNodeObject(groupObj, labelObj, parent);
+    	IDataSource dataSrc   = groupObj.getDataSource();
+        
+    	MapNodeObject node = new MapNodeObject(groupObj, labelObj, parent);
         node.setSource(object);
-        
         
         node.setKey(dataSrc.getKeyValue(node,object));
         
@@ -437,7 +538,7 @@ public class AutoDataMap {
                         mnl.setSubType(a.getSubTypeText());
                         mnl.setList((List<Object>)r);
                         if( r!=null ) for(Object obj2 : ((List)r)){
-                            loadObjects(mnl, groupObj, null, obj2);
+                            loadObjects(mnl, groupObj,(String) null, obj2);
                         }
                     }else if (a.getType() == MapType.MAP){
                         MapNodeMap mnm = new MapNodeMap(a,node);
@@ -445,7 +546,7 @@ public class AutoDataMap {
                     }else if (a.getType() == MapType.OBJECT){
                         if(r!=null) if(groupObj.isPruned(dataSrc.getSpec(r))) continue;
                         MapNodeRef mnr = new MapNodeRef (a, node);
-                        if(r!=null) loadObjects(mnr, groupObj, null, r);
+                        if(r!=null) loadObjects(mnr, groupObj, (String) null, r);
                     }
                 }
             }

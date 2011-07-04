@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,13 +14,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
 
 package com.dtrules.session;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,27 +69,24 @@ public class DateParser implements IDateParser {
     public String getTimeString(Date date){
     	return timeStringFormat.format(date);
     }
+    
     /**
      * Java is much more flexible in what it allows than what data entry necessarily
-     * needs to test.  So this routine checks against the calendar for a date matching
-     * the provided regex and separation character 
+     * needs to test. So this routine turns off this flexiblity when checking the format
+     * of date strings. 
      * @param date
      * @return
      */
     public boolean testFormat(
-		Date date, 
-		String dateString, 
-		String regexDate, 
-		String regexSeparator){
-		Pattern datepat = Pattern.compile(regexDate);
-		Matcher matcher = datepat.matcher(dateString);
-		if(!matcher.matches()) return false;
-		String parts [] = dateString.split(regexSeparator);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		if(cal.get(Calendar.DAY_OF_MONTH) != Integer.parseInt(parts[1])){
-			return false;
-		}
-		return true;
+		String date, String[] formats){
+    	for(String format : formats){
+    		try{
+    			SimpleDateFormat sdf = new SimpleDateFormat(format);
+    			sdf.setLenient(false);
+    			Date d = sdf.parse(date.trim());
+    			if(d != null )return true;
+    		}catch(ParseException e) {}
+    	}
+		return false;
 	}
 }

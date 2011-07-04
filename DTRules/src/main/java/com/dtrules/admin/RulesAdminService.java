@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -156,7 +158,6 @@ public class RulesAdminService implements IRulesAdminService{
 	/* (non-Javadoc)
 	 * @see com.dtrules.admin.IRulesAdminService#getAttributes(java.lang.String, java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	public List getAttributes(String rulesetname, String entityName) {
         if(rd==null)return null;
         try {
@@ -196,7 +197,6 @@ public class RulesAdminService implements IRulesAdminService{
         }
 	}
 	
-    @SuppressWarnings("unchecked")
     private List getList(Iterator iterator){
         List list = new ArrayList();
         while(iterator.hasNext()){

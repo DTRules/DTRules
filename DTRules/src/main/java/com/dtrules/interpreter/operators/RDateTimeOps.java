@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
   
 package com.dtrules.interpreter.operators;
 
@@ -23,6 +25,7 @@ import java.util.GregorianCalendar;
 
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RBoolean;
 import com.dtrules.interpreter.RInteger;
 import com.dtrules.interpreter.RNull;
@@ -468,29 +471,6 @@ public class RDateTimeOps {
           }  
         
           /**
-           * (date dateString dateRegex SeparatorRegex --> boolean )
-           * Returns true if the date provided strictly matches the dateString, 
-           * and the dateRegex.  It does this by breaking out the day and month
-           * from the dateString match the day and month returned by the calendar
-           * for that date.
-           *  
-           * @author Paul Snow
-           *
-           */
-          static class TestDateFormat extends ROperator {
-        	  TestDateFormat() {super("testdateformat"); }
-              public void execute(DTState state) throws RulesException {
-                  String sepRegex  = state.datapop().stringValue();
-                  String dateRegex = state.datapop().stringValue();
-                  String dateStr   = state.datapop().stringValue();
-                  Date   date      = state.datapop().timeValue();
-                  boolean result = state.getSession().getDateParser().testFormat(
-                		  date, dateStr, dateRegex, sepRegex);
-                  state.datapush(RBoolean.getRBoolean(result));
-              }
-          }
- 
-          /**
            * (date1 date2 --> int )
            * Returns the days between two dates.  This is the difference between
            * the dates, and is negative if date1 is before date2.
@@ -519,4 +499,27 @@ public class RDateTimeOps {
               }
           }
  
+          
+          /**
+           * (date <array of FormatStrings> --> boolean )
+           * Returns true if the date string can be parsed by one of the given
+           * format strings using the SimpleDateFormat class with its lenient 
+           * set to false.  Returns true if valid, and false if not valid.
+           *  
+           * @author Paul Snow
+           *
+           */
+          static class TestDateFormat extends ROperator {
+        	  TestDateFormat() {super("testdateformat"); }
+              public void execute(DTState state) throws RulesException {
+                  RArray formatStrings = state.datapop().rArrayValue();
+                  String formats[]     = new String[formatStrings.size()];
+                  for(int i=0; i<formats.length; i++){
+                	  formats[i]=formatStrings.get(i).stringValue();
+                  }
+                  String dateStr = state.datapop().stringValue();
+            	  boolean result = state.getSession().getDateParser().testFormat(dateStr,formats);
+                  state.datapush(RBoolean.getRBoolean(result));
+              }
+          }
 }

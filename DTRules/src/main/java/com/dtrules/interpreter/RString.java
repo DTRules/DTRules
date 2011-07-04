@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -15,8 +17,6 @@
  **/
   
 package com.dtrules.interpreter;
-
-import java.util.Map;
 
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.operators.ROperator;

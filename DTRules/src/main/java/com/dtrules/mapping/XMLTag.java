@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
+
 package com.dtrules.mapping;
 
 import java.util.ArrayList;
@@ -30,11 +33,11 @@ import java.util.HashMap;
  *
  */
 public class XMLTag implements XMLNode {
-    String                  tag;
-    HashMap<String, Object> attribs = new HashMap<String,Object>();
-    ArrayList<XMLNode>      tags    = new ArrayList<XMLNode>();
-    Object                  body    = null;
-    XMLNode                 parent;
+    private String                  tag;
+    private HashMap<String, Object> _attribs = null;
+    private ArrayList<XMLNode>      _tags    = null;
+    private Object                  body     = null;
+    private XMLNode                 parent;
     
     public XMLTag(String tag, XMLNode parent){
         this.tag    = tag;
@@ -43,8 +46,8 @@ public class XMLTag implements XMLNode {
     
     public String toString(){
         String r = "<"+tag;
-        for(String key : attribs.keySet()){
-            r +=" "+key +"='"+attribs.get(key).toString()+"'";
+        if(_attribs != null) for(String key : _attribs.keySet()){
+            r +=" "+key +"='"+_attribs.get(key).toString()+"'";
         }
         if(body != null){
             String b = body.toString();
@@ -52,7 +55,7 @@ public class XMLTag implements XMLNode {
                 b = b.substring(0,18)+"...";
             }
             r +=">"+b+"</"+tag+">";
-        }else if( tags.size()==0 ){
+        }else if( _tags == null || _tags.size()==0 ){
            r += "/>";
         }else{
            r += ">";
@@ -60,12 +63,23 @@ public class XMLTag implements XMLNode {
         return r;
     }
     
-    /* (non-Javadoc)
+    
+    @Override
+	public int childCount() {
+		// TODO Auto-generated method stub
+		if(_tags == null) return 0;
+		return _tags.size();
+	}
+
+	/* (non-Javadoc)
      * @see com.dtrules.mapping.XMLNode#addChild(com.dtrules.mapping.XMLNode)
      */
     @Override
     public void addChild(XMLNode node) {
-       tags.add(node);
+        if(_tags == null){
+        	_tags = new ArrayList<XMLNode>(5); 
+        }
+    	_tags.add(node);
     }
     
     /* (non-Javadoc)
@@ -73,7 +87,9 @@ public class XMLTag implements XMLNode {
      */
     @Override
     public void remove(XMLNode node){
-        tags.remove(node);
+        if(_tags!= null){
+        	_tags.remove(node);
+        }
     }
     
     /**
@@ -94,14 +110,14 @@ public class XMLTag implements XMLNode {
      * @return the tags
      */
     public ArrayList<XMLNode> getTags() {
-        return tags;
+        return _tags;
     }
 
     /**
      * @param tags the tags to set
      */
     public void setTags(ArrayList<XMLNode> tags) {
-        this.tags = tags;
+        this._tags = tags;
     }
 
     /**
@@ -134,13 +150,39 @@ public class XMLTag implements XMLNode {
         }
         this.parent = parent;
     }
-
-    /**
-     * @return the attribs
-     */
-    public HashMap<String, Object> getAttribs() {
-        return attribs;
-    }
     
     public Type type(){ return Type.TAG; }
+
+	@Override
+	public Object getAttrib(String key) {
+		if (_attribs == null) return null;
+		return _attribs.get(key);
+	}
+
+	@Override
+	public void setAttrib(String key, Object value) {
+		if(_attribs == null){
+			_attribs = new HashMap<String,Object>(2,1.0f);
+		}
+		_attribs.put(key,value);
+		
+	}
+
+    public HashMap<String,Object> getAttribs(){
+    	if(_attribs == null){
+    		_attribs = new HashMap<String,Object>(2,1.0f);
+    	}
+    	return _attribs;
+    }
+
+	@Override
+	public void clearRef() {
+		if(_attribs != null && _attribs.size()==0){
+			_attribs = null;
+		}
+		if(_tags !=null && _tags.size() == 0){
+			_tags = null;
+		}
+	}
 }
+    

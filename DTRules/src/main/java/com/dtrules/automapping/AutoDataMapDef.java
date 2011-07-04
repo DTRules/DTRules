@@ -1,6 +1,21 @@
-/*
+/** 
+ * Copyright 2004-2011 DTRules.com, Inc.
  * 
- */
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");  
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at  
+ *   
+ *      http://www.apache.org/licenses/LICENSE-2.0  
+ *   
+ * Unless required by applicable law or agreed to in writing, software  
+ * distributed under the License is distributed on an "AS IS" BASIS,  
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+ * See the License for the specific language governing permissions and  
+ * limitations under the License.  
+ **/
+
 package com.dtrules.automapping;
 
 import java.io.File;
@@ -35,7 +50,6 @@ public class AutoDataMapDef {
     // These are our supported Object types.  The basic two are Java and DTRules.
     // However, we want to simulate both of these using XML
     private Map<String,Label>       labels          = new HashMap<String,Label>();
-    private Map<String,Label>       bySpecs         = new HashMap<String,Label>();
     
     private Map<String,Group>       groups          = new HashMap<String,Group>();
    

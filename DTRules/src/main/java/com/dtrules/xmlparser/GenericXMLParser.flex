@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
 package com.dtrules.xmlparser;
 import java.util.*;
 import java.io.FileInputStream;
@@ -36,7 +38,7 @@ import java.io.IOException;
     int               		statestk []     = new int[1000];
     int               		statestkptr     = 0;
     ArrayList         		attribstk       = new ArrayList();
-    HashMap<String,String>    attribs         = new HashMap<String,String>();
+    HashMap<String,String>    attribs         = new HashMap<String,String>(2,1.0f);
     boolean           		printflg        = true;
     IGenericXMLParser2 		parser          = null;
     
@@ -53,7 +55,7 @@ import java.io.IOException;
        tagstk[tagstkptr++] = tag;
        currenttag = tag;
        attribstk.add(attribs);    // We save and restore the attribs hashmap
-       attribs = new HashMap();
+       attribs = new HashMap(2,1.0f);
     }
     
     String popTag(String endtag) {

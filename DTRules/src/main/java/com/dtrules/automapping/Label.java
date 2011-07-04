@@ -1,15 +1,25 @@
-/**
+/** 
+ * Copyright 2004-2011 DTRules.com, Inc.
  * 
- */
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");  
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at  
+ *   
+ *      http://www.apache.org/licenses/LICENSE-2.0  
+ *   
+ * Unless required by applicable law or agreed to in writing, software  
+ * distributed under the License is distributed on an "AS IS" BASIS,  
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+ * See the License for the specific language governing permissions and  
+ * limitations under the License.  
+ **/
+
 package com.dtrules.automapping;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import com.dtrules.automapping.access.JavaAttribute;
 import com.dtrules.automapping.access.IAttribute;
 import com.dtrules.xmlparser.XMLPrinter;
 
@@ -23,7 +33,6 @@ public class Label {
                                          //   the name of the JavaObject; In fact it often will not!)
     Group                group;          // The group to which this label belongs.
     private String       spec;           // Has to be a valid class name, if a CLASS.  If an entity,
-    @SuppressWarnings("unchecked")       //   and spec is null, objName is used as the Entity name. 
     private String       key;            // The object attribute to be used as a key
     private boolean      singular;       // True of only one of these labels should be created.
 
@@ -39,7 +48,7 @@ public class Label {
     Label(String name){
         this.name = name;
     }
-    
+   
     public String toString(){
         return name;
     }
@@ -211,6 +220,22 @@ public class Label {
         return attributes;
     }
 
+    /**
+     * Gets the IAttribute object on this Label by the same name.
+     * If no IAttribute of that name exists, a null is returned.
+     * @param name
+     * @return
+     */
+    public IAttribute getAttribute(String name){
+    	for(IAttribute a : attributes){
+    		if(a.getName().equals(name)){
+    			return a;
+    		}
+    	}
+    	return null;
+    }
+    
+    
     public void printXML(AutoDataMapDef autoDataMapDef, XMLPrinter xout){
         
         String _singular = singular ? "true" : "false";

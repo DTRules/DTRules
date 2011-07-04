@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="lib" path="lib/java-cup-11a.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.6-20091214.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/DSLCompiler2"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/DTRules"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/EL"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

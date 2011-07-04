@@ -1,0 +1,79 @@
+<decision_tables>
+<decision_table>
+<table_name>Test_Entry_Point</table_name>
+<xls_file>test_dt.xls</xls_file>
+<attribute_fields>
+<type>FIRST</type>
+<comments></comments>
+<policy_reference></policy_reference></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_description>for all things</context_description>
+<context_postfix>
+dup things forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>thing.value == 1</condition_description>
+<condition_postfix>
+thing.value 1 == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>thing.value == 2</condition_description>
+<condition_postfix>
+thing.value 2 == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="2"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>thing.value == 3</condition_description>
+<condition_postfix>
+thing.value 3 == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="3"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise 
+</condition_postfix>
+<condition_column column_value="*" column_number="4"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>add the policy statements to the job.notes</action_description>
+<action_postfix>
+policystatements job.notes true  addarray 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column>
+<action_column column_value="X" column_number="3"></action_column>
+<action_column column_value="X" column_number="4"></action_column></action_details></actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>thing.value == 1</policy_description>
+<policy_statement_postfix>&quot;thing.value == 1&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="2">
+<policy_description>thing.value == 2</policy_description>
+<policy_statement_postfix>&quot;thing.value == 2&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="3">
+<policy_description>thing.value == 3</policy_description>
+<policy_statement_postfix>&quot;thing.value == 3&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="4">
+<policy_description>thing.value is out of range, i.e.  {thing.value}</policy_description>
+<policy_statement_postfix>&quot;thing.value is out of range, i.e.  &quot; thing.value cvs strconcat &quot;&quot; strconcat</policy_statement_postfix></policy_statement></policy_statements></decision_table></decision_tables>

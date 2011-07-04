@@ -1,11 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1.jar"/>
-  <classpathentry kind="src" path="/DTRules"/>
-  <classpathentry kind="var" path="M2_REPO/java_cup/java-cup/11a/java-cup-11a.jar"/>
-  <classpathentry kind="var" path="M2_REPO/jsr94/jsr94/2.1/jsr94-2.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/poi/poi/3.2-FINAL/poi-3.2-FINAL.jar"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="/DTRules"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/java-cup-11a.jar"/>
+	<classpathentry kind="lib" path="lib/JFlex.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.6-20091214.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
+
 package com.dtrules.mapping;
 
 import java.util.ArrayList;
@@ -36,6 +39,11 @@ public interface XMLNode {
     public abstract void addChild(XMLNode node);
     
     /**
+     * Returns number of children
+     */
+    public int childCount();
+    
+    /**
      * Removes any reference to the given node from
      * this XML Node 
      */
@@ -54,12 +62,7 @@ public interface XMLNode {
      * @return the tags
      */
     public abstract ArrayList<XMLNode> getTags();
-
-    /**
-     * @param tags the tags to set
-     */
-    public abstract void setTags(ArrayList<XMLNode> tags);
-
+    
     /**
      * @return the body
      */
@@ -81,8 +84,21 @@ public interface XMLNode {
     public abstract void setParent(XMLTag parent);
 
     /**
-     * @return the attribs
+     * @return the attribute
      */
-    public abstract HashMap<String, Object> getAttribs();
+    public abstract Object getAttrib(String key);
 
+    /**
+     * Set the attribute
+     * @param key
+     * @param value
+     */
+    public abstract void setAttrib(String key, Object value);
+    
+    public abstract HashMap<String,Object> getAttribs();
+    
+    /**
+     * Clear any unused structures
+     */
+    public void clearRef();
 }

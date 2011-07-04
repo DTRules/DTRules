@@ -1,11 +1,24 @@
-/**
+/** 
+ * Copyright 2004-2011 DTRules.com, Inc.
  * 
- */
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");  
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at  
+ *   
+ *      http://www.apache.org/licenses/LICENSE-2.0  
+ *   
+ * Unless required by applicable law or agreed to in writing, software  
+ * distributed under the License is distributed on an "AS IS" BASIS,  
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+ * See the License for the specific language governing permissions and  
+ * limitations under the License.  
+ **/
+
 package com.dtrules.automapping.access;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import com.dtrules.automapping.Label;
 import com.dtrules.automapping.MapType;
@@ -23,7 +36,8 @@ public class JavaAttribute implements IAttribute {
     private String   setter;                // Setter name
     private Method   getMethod=null;        // getMethod for accessing this attribute
     private Method   setMethod=null;        // getMethod for accessing this attribute
-    private Class    typeClass;             // Class of the property
+    @SuppressWarnings("unchecked")
+	private Class    typeClass;             // Class of the property
     private MapType  type;                  // This is the property type.  The return 
     private String   typeText;				//   type for a getter, or parameter type for a setter.
     private MapType  subType;               // If a List or direct reference to a class, we need the subtype.
@@ -183,7 +197,8 @@ public class JavaAttribute implements IAttribute {
      * @param type
      * @return
      */
-    public static JavaAttribute newAttribute(
+    @SuppressWarnings("unchecked")
+	public static JavaAttribute newAttribute(
             Label   label, 
             String  name, 
             String  getter, 

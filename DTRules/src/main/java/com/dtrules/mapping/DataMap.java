@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
 
 package com.dtrules.mapping;
 
@@ -24,7 +26,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 import com.dtrules.automapping.AutoDataMap;
 import com.dtrules.infrastructure.RulesException;
@@ -166,7 +167,7 @@ public class DataMap implements IXMLPrinter{
      */
     static public void print(XMLPrinter xout, XMLNode tag){
         if(tag.type() == XMLNode.Type.TAG){ 
-                if(tag.getBody() == null && tag.getTags().size()>0){
+                if(tag.getBody() == null && tag.getTags()!=null && tag.getTags().size()>0){
                    if(tag.getTag()!=null){
                        xout.opentag(tag.getTag(),tag.getAttribs());
                    }
@@ -258,7 +259,7 @@ public class DataMap implements IXMLPrinter{
         }
         XMLNode newtag = new XMLTag(tag,t);
         if(t!=null){
-            t.getTags().add(newtag);
+            t.addChild(newtag);
         }
         tagStack.add(newtag);
     }
@@ -273,7 +274,7 @@ public class DataMap implements IXMLPrinter{
         }
         XMLNode newheader = new XMLHeader();
         newheader.setBody(header);
-        t.getTags().add(newheader);
+        t.addChild(newheader);
     }
 
     private void comment(String comment){
@@ -283,7 +284,7 @@ public class DataMap implements IXMLPrinter{
         }
         XMLNode newcomment = new XMLComment();
         newcomment.setBody(comment);
-        t.getTags().add(newcomment);
+        t.addChild(newcomment);
     }
 
     private XMLNode top(){
@@ -292,7 +293,7 @@ public class DataMap implements IXMLPrinter{
     }
     
     private void addValue(String key, Object value){
-        top().getAttribs().put(key, value);
+        top().setAttrib(key, value);
     }
     
     /* (non-Javadoc)
@@ -461,10 +462,8 @@ public class DataMap implements IXMLPrinter{
     @SuppressWarnings("unchecked")
     public void opentag(String tag, HashMap attribs){
         newtag(tag);
-        Set<String> keyset = attribs.keySet();
-        HashMap topAttribs = top().getAttribs();
-        for(String key : keyset){
-            topAttribs.put(key,attribs.get(key));
+        for(Object key : attribs.keySet()){
+            addValue((String)key,attribs.get(key));
         }
     }
     

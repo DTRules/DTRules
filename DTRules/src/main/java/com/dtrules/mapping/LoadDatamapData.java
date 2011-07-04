@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
 
 package com.dtrules.mapping;
 
@@ -165,7 +167,7 @@ public class LoadDatamapData extends LoadXMLData {
         String     sbody = o.toString();
         Date       date;
         try {
-            date = df_in.parse(sbody);                
+                date = df_in.parse(sbody);
         } catch (ParseException e) {
             try{
                date = df_out.parse(sbody);
@@ -230,8 +232,8 @@ public class LoadDatamapData extends LoadXMLData {
         	if((state.getes(i)).get(e.getName())!=null){
                 IREntity refto = state.getes(i);
                 
-                if(! refto.getName().equals(e.getName()))       // Update a reference to an Entity of the same name,
-        		   (state.getes(i)).put(null, e.getName(), e);  //  but only if it isn't a self reference.
+                if(! refto.getName().equals(e.getName()))           // Update a reference to an Entity of the same name,
+        		   (state.getes(i)).put(null,e.getName(), e);  //  but only if it isn't a self reference.
         		
         	}
         }

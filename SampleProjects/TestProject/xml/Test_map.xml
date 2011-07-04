@@ -1,0 +1,19 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='value' RAttribute='value' enclosure='thing' type='integer'></setattribute>
+			
+			<createentity entity='job'          tag='job'           id='id'></createentity>
+            <createentity entity='thing'        tag='thing'         id='id'></createentity>
+            
+        </map>
+		<entities>
+			<entity name='job'		 	number='1'></entity>
+			<entity name='thing' 		number='*'></entity>
+        </entities>
+
+		<initialization>
+			<initialentity entity='job' 		epush='true'></initialentity>
+        </initialization>
+    </XMLtoEDD>
+</mapping>

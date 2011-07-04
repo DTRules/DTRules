@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
   
 package com.dtrules.mapping;
 /**
@@ -53,9 +55,9 @@ public class LoadMapping implements IGenericXMLParser {
     IRObject      def;
     DTState       state;
     String        ruleSetName;
-    static DateFormat df_in   = new SimpleDateFormat ("yyyy-MM-dd");
+    DateFormat df_in   = new SimpleDateFormat ("yyyy-MM-dd");
 	
-	static DateFormat df_out  = new SimpleDateFormat ("MM/dd/yyyy");
+	DateFormat df_out  = new SimpleDateFormat ("MM/dd/yyyy");
 	
     
     public LoadMapping(Mapping _map){
@@ -223,12 +225,8 @@ public class LoadMapping implements IGenericXMLParser {
 			{
 				Date       date;
 				try {
-                    if(false && body.indexOf("7777")>=0){
-                        date = new Date(0x7FFFFFFFFFFFL);
-                    }else{
-                        date = df_in.parse(body);
-                    }    
-				} catch (ParseException e) {
+                    date = df_in.parse(body);
+            	} catch (ParseException e) {
                     try{
                        date = df_out.parse(body);
                     }catch (ParseException e2){

@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
   
 package com.dtrules.interpreter.operators;
 
@@ -26,7 +28,6 @@ import com.dtrules.mapping.XMLNode;
 import com.dtrules.mapping.XMLTag;
 import com.dtrules.session.DTState;
 
-@SuppressWarnings("unchecked")
 public class RXmlValueOps {
 	    static {
 	    	new SetXmlAttribute();
@@ -87,7 +88,7 @@ public class RXmlValueOps {
                 XMLNode   xmlNode    = state.datapop().xmlTagValue();
                 if(xmlNode == null) {
                     state.datapush(RNull.getRNull());
-                    state.traceInfo("GetXmlAttribute","tag",xmlNode.getTag(),"attribute",attribute,"value","null",null);
+                    state.traceInfo("GetXmlAttribute","tag","nullTag","attribute",attribute,"value","null",null);
                     return;
                 }
                 String    value     = (String) xmlNode.getAttribs().get(attribute);

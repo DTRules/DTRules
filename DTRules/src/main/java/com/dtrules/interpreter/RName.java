@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -16,9 +18,7 @@
   
 package com.dtrules.interpreter;
 
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.dtrules.infrastructure.RulesException;
@@ -34,35 +34,33 @@ public class RName extends ARObject implements Comparable<RName>{
     final String  postfix;
     
     /** 
-     * I started with a Hashmap here.  However, we can deadlock with multiple threads.  So
+     * I started with a HashMap here.  However, we can deadlock with multiple threads.  So
      * I tried two possible fixes, ConcurrentHashMap and Hashtable.  The latter gave me the
      * better performance with a Rule Set eating a large set of data.  We may look into this
      * further later... <br><br>
+     * 
      * Results from my testing:
      * 
-     *       Hashtable
+     * 		 Hashtable without caching:
+     * 
+     * 		 47.8  Multi_NY_Enrollment_Test
+     * 
+     *       HashMap
      *      
-     *       1   134.797 Copy (2) of dataloadAUTOASSIGNMENT090811_173319_287.xml
-     *       2   135.547 Copy of dataloadAUTOASSIGNMENT090811_173319_287.xml
-     *       3   135.718 dataloadAUTOASSIGNMENT090811_173319_287.xml
+     *		 44.3 Multi_NY_Enrollment_Test
      *       
-     *       ConcurrentHashMap
+     *       ConcurrentHashMap 
      *       
-     *       1   135.531 Copy (2) of dataloadAUTOASSIGNMENT090811_173319_287.xml
-     *       2   136.484 Copy of dataloadAUTOASSIGNMENT090811_173319_287.xml
-     *       3   137.407 dataloadAUTOASSIGNMENT090811_173319_287.xml
+     *		 44.6 Multi_NY_Enrollment_Test       
      *       
+     *       Hashtable
      *       
-     *       Hash Map
-     *       
-     *       1   135.703 Copy (2) of dataloadAUTOASSIGNMENT090811_173319_287.xml
-     *       2   135.813 Copy of dataloadAUTOASSIGNMENT090811_173319_287.xml
-     *       3   136.312 dataloadAUTOASSIGNMENT090811_173319_287.xml
+     *       44.5 Multi_NY_Enrollment_Test
      */
     
-//  static HashMap<String, RName> names = new HashMap<String,RName>();
-//  static ConcurrentHashMap<String, RName> names = new ConcurrentHashMap<String,RName>();
-    static Hashtable<String, RName> names = new Hashtable<String,RName>();
+//    static HashMap<String, RName> names = new HashMap<String,RName>();
+//    static ConcurrentHashMap<String, RName> names = new ConcurrentHashMap<String,RName>();
+  static Hashtable<String, RName> names = new Hashtable<String,RName>();
     
 	/**
 	 * This constructor should only be called by the other RName constructor.
@@ -195,7 +193,7 @@ public class RName extends ARObject implements Comparable<RName>{
 		rn = (RName) names.get(cname);
 		if(rn == null ) {
 			rn = new RName(_entity ,_name,_executable, lname.hashCode());
-			names.put(cname,rn);
+			names.put(cname,(RName)rn.getExecutable());
 		}
 		if(_executable) return (RName) rn.getExecutable();
 		return (RName) rn.getNonExecutable();

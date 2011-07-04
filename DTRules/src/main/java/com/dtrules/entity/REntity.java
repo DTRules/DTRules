@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -29,7 +31,6 @@ import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RXmlValue;
 import com.dtrules.mapping.XMLNode;
-import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RSession;
 
@@ -122,8 +123,8 @@ public class REntity extends ARObject implements IREntity {
         attributes = entity.attributes;
         values     = new ArrayList<IRObject>(entity.values);
         
-        put(null, name,this);                         //Patch up the self reference to point to self.
-        put(null, mappingKey,RNull.getRNull());       //Clear the mapping Key
+        put(null,name,this);                         //Patch up the self reference to point to self.
+        put(null,mappingKey,RNull.getRNull());       //Clear the mapping Key
 
         for(int i=0;i<values.size();i++){
             IRObject value     = values.get(i);
@@ -265,8 +266,8 @@ public class REntity extends ARObject implements IREntity {
             }
 		}
 		values.set(entry.index,value);
-	}
-		
+	}		
+	
 	/**
      * Looks up the name of an attribute,
      * and returns the associated value.  

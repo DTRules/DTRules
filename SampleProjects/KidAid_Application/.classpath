@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/DSLCompiler2"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/DTRules"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/EL"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,10 @@
+DTRules, a Decision Table based Rules Engine
+Copyright 2004-2011 DTRules.com
+
+DTRules was developed by Paul Snow to provide a readily 
+accessible version of a Decision Table based Rules Engine.  Its
+design and implementation is derived from the lessons learned 
+while implementing Decision Table based Rules Engines for the 
+Texas TIERS project, and for the Ohio OFAST project.
+
+For updates and documentation, go to http://DTRules.com

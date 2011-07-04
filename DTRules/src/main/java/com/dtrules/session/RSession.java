@@ -1,5 +1,7 @@
 /** 
- * Copyright 2004-2009 DTRules.com, Inc.
+ * Copyright 2004-2011 DTRules.com, Inc.
+ * 
+ * See http://DTRules.com for updates and documentation for the DTRules Rules Engine  
  *   
  * Licensed under the Apache License, Version 2.0 (the "License");  
  * you may not use this file except in compliance with the License.  
@@ -12,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
- **/ 
+ **/
 
 package com.dtrules.session;
 
@@ -50,6 +52,7 @@ public class RSession implements IRSession {
     ArrayList<DataMap>          registeredMaps = new ArrayList<DataMap>();  
     IDateParser					dateParser = new DateParser();
     
+    boolean                     printIds = true;
     
     public IDateParser getDateParser() {
 		return dateParser;
@@ -204,7 +207,7 @@ public class RSession implements IRSession {
                       }
                       dtstate.traceTagBegin("entity", 
                               "name",   ((REntity)value).getName().stringValue(),
-                              "id",     ((REntity)value).getID()+"");
+                              "id",     printIds ? ((REntity)value).getID()+"" : "");
                       
                       if(!(boundries.get(e)!= null && boundries.get(e).contains(value))){
                           dtstate.debug(" recurse\n");
@@ -395,7 +398,7 @@ public class RSession implements IRSession {
 	     if(tag==null)tag = e.getName().stringValue();
 	     IRObject id = e.get(RName.getRName("mapping*key"));
 	     String   idString = id!=null?id.stringValue():"--none--";
-         rpt.opentag(tag,"DTRulesId",e.getID()+"","id",idString);
+         rpt.opentag(tag,"DTRulesId",e.getID()+"","id",printIds ? idString : "");
          Set<RName> names = e.getAttributeSet();
          RName keys[] = sort(names);
          for(RName name : keys){
@@ -409,9 +412,9 @@ public class RSession implements IRSession {
  
 	 public void printArray(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, String name, RArray rarray)throws RulesException{
          if(name!=null && name.length()>0){
-             rpt.opentag(name, "id", rarray.getID());
+             rpt.opentag(name, "id", printIds ? rarray.getID():"");
          }else{
-             rpt.opentag("array", "id", rarray.getID());
+             rpt.opentag("array", "id",printIds ? rarray.getID():"");
          }
          for(IRObject element : rarray){
              printIRObject(rpt, entitypath, printed, state,"",element);
@@ -428,7 +431,7 @@ public class RSession implements IRSession {
 	           RTable table)throws RulesException{
 	       
 	       Set<IRObject> keys = table.getTable().keySet();
-	         rpt.opentag("map", "id", table.getId());
+	         rpt.opentag("map", "id", printIds ? table.getId(): "");
     	         for(IRObject key : keys){
     	            IRObject value = table.getValue(key);
     	            rpt.opentag("pair");
@@ -446,15 +449,17 @@ public class RSession implements IRSession {
 
 	 
      public void printEntityReport(IXMLPrinter rpt, DTState state, String objname ) {
-         printEntityReport(rpt,false,state,objname);
+         printEntityReport(rpt,false, false,state,objname);
      }
  
-     public void printEntityReport(IXMLPrinter rpt, boolean verbose, DTState state, String name ) {
-         IRObject obj = state.find(name);
-         printEntityReport(rpt,verbose,state,name,obj);
+     public void printEntityReport(IXMLPrinter rpt, boolean printIds, boolean verbose, DTState state, String name ) {
+         this.printIds = printIds;
+    	 IRObject obj = state.find(name);
+         printEntityReport(rpt,printIds, verbose,state,name,obj);
      }
      
-     public void printEntityReport(IXMLPrinter rpt, boolean verbose, DTState state, String name, IRObject obj ) {
+     public void printEntityReport(IXMLPrinter rpt, boolean printIds, boolean verbose, DTState state, String name, IRObject obj ) {
+         this.printIds = printIds;
          ArrayList<IRObject> entitypath = new ArrayList<IRObject>();
          ArrayList<IRObject> printed = null;
          if (!verbose) printed = new ArrayList<IRObject>();
@@ -499,13 +504,13 @@ public class RSession implements IRSession {
          if(entitypath.contains(e) && entitypath.get(entitypath.size()-1)==e){
                  rpt.printdata(entityName, "self reference");
          }else if (printed!= null && printed.contains(e)){
-                 rpt.printdata(entityName,"DTRulesId",e.getID(),"id",e.get("mapping*key").stringValue(),"multiple reference");  
+                 rpt.printdata(entityName,"DTRulesId",printIds ? e.getID():"","id",e.get("mapping*key").stringValue(),"multiple reference");  
          }else{
              entitypath.add(e);
              if(printed!=null) printed.add(e);
              IRObject id = e.get(RName.getRName("mapping*key"));
              String   idString = id!=null?id.stringValue():"--none--";
-             rpt.opentag(entityName,"DTRulesId",e.getID()+"","id",idString);
+             rpt.opentag(entityName,"DTRulesId",printIds ? e.getID():"","id",idString);
              Set<RName> keys = e.getAttributeSet();
              RName akeys [] = sort(keys);
              for(RName name : akeys){
@@ -528,7 +533,7 @@ public class RSession implements IRSession {
     				 RName hld = ret[j];
     				 ret[j]    = ret[j+1];
     				 ret[j+1]  = hld;
-    			 }else System.out.println();
+    			 }
     		 }
     	 }
     	 return ret;
@@ -544,8 +549,16 @@ public class RSession implements IRSession {
         while(dts.hasNext()){
             RName dtname = dts.next();
             RDecisionTable dt = this.getEntityFactory().findDecisionTable(dtname);
-            String t = dt.getBalancedTable().getPrintableTable();
-            
+            String t;
+            try{
+            	t = dt.getBalancedTable().getPrintableTable();
+            }catch(RulesException e){
+            	System.out.flush();
+            	System.err.println("The Decision Table '"+dt.getName().stringValue()
+            			+"' is too complex, and must be split into two tables.");
+            	t = "Table too Big to Print";
+            	System.err.flush();
+            }
             out.println();
             out.println(dtname.stringValue());
             out.println();
