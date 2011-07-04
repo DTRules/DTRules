@@ -103,7 +103,7 @@ public class Mapping {
 		} catch (FileNotFoundException e) {
  			throw new RuntimeException(e);
 		} catch (Exception e) {
- 			throw new RuntimeException(e);
+ 			throw new RuntimeException("Error accessing '"+filename+"'\r\n"+e);
 		}
 		return mapping;
     }

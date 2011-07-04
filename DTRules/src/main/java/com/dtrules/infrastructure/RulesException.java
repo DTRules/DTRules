@@ -16,18 +16,16 @@
   
 package com.dtrules.infrastructure;
 
-import javax.rules.RuleException;
-
-public class RulesException extends RuleException {
+public class RulesException extends Exception {
     boolean firstAction  = true;
     String errortype;
 	String location;
     String message;
-    String decisionTable="";
-    String formal       = null;
-    String postfix      = null;    
-    String filename     = null;
-    String section      = null;
+    String decisionTable = "";
+    String formal        = null;
+    String postfix       = null;    
+    String filename      = null;
+    String section       = null;
     int    number;
     
     /**

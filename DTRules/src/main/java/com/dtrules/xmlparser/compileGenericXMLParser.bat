@@ -13,10 +13,8 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.  
 rem _ 
 
-
-dir
-set pdir=C:\eb\eb_dev2\RulesEngine\DTRules\src\main\java\com\dtrules
-set pdir2=C:\jflex-1.4.1
+set pdir=C:\maximus\eb_dev2\RulesEngine\DTRules\src\main\java\com\dtrules
+set pdir2=C:\maximus\eb_dev2\RulesEngine\DSLCompiler2\lib\
 set xmldir=%pdir%\xmlparser
-java -classpath %pdir2%\lib\JFlex.jar JFlex.Main -d %xmldir% %xmldir%\GenericXMLParser.flex
+java -classpath %pdir2%\jflex.jar JFlex.Main -d %xmldir% %xmldir%\GenericXMLParser.flex
 pause

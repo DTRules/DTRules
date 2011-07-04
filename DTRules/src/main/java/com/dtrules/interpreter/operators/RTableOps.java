@@ -27,8 +27,12 @@ import com.dtrules.session.RSession;
 
 public class RTableOps {
 	 static {
-	     	new Lookup();    new Set();              new GetKeys ();
-	     	new NewTable();  new SetDescription();   new Translate ();
+	     	new GetWithKey();    new GetWithKeys(); 
+	     	new SetWithKeys();   new SetWithKey();
+	     	new GetKeysArray ();
+	     	new NewTable();      new SetDescription();   
+	     	new Translate ();
+	     	new ClearTable();
 	    }
      /**
       * ( table, index1, index2, ... lookup -- result )
@@ -40,8 +44,8 @@ public class RTableOps {
       * Aug 14, 2007
       *
       */
-     static class Lookup extends ROperator {
-         Lookup(){ super("lookup");}
+     static class GetWithKeys extends ROperator {
+         GetWithKeys(){ super("getwithkeys");}
          
          public void execute(DTState state) throws RulesException {
              int cnt = 0;
@@ -55,51 +59,115 @@ public class RTableOps {
              state.datapush(rtable.getValue(keys));
          }
      }
-     
+
      /**
-      * ( table, index1, index2, ... , indexN value set -- )
-      * Takes a table, and a set of indexes. The Nth index is used to
-      * set the value.
+      * ( table, key -- result )
+      * Does a lookup of a single key and returns the result.  An
+      * Error will be thrown if any index but the last fails to return
+      * an RTable object
       * 
       * @author paul snow
       * Aug 14, 2007
       *
       */
-     static class Set extends ROperator {
-         Set(){ super("set");}
+     static class GetWithKey extends ROperator {
+         GetWithKey(){ super("getwithkey");}
+         
+         public void execute(DTState state) throws RulesException {
+             IRObject key = state.datapop();
+             RTable rtable = state.datapop().rTableValue();
+             state.datapush(rtable.getValue(key));
+         }
+     }
+     
+     
+     /**
+      * (table key value --> ) Asserts into the table the given value using
+      * the given key.
+      * @author Paul Snow
+      *
+      */
+     static class SetWithKey extends ROperator {
+         SetWithKey(){ super("setwithkey"); }
+      
+         public void execute(DTState state) throws RulesException {
+             
+             IRObject   v      = state.datapop();                // Get the value to store
+             IRObject   key    = state.datapop().rNameValue();
+             RTable     rtable = state.datapop().rTableValue();
+             rtable.setValue(key,v);
+             
+         }
+     }
+     
+     /**
+      * ( table, index1, index2, ... , indexN value set -- )
+      * Takes a table, and a set of indexes. The Nth index is used to
+      * set the value.  None of the indexes can be a table, i.e. we assume
+      * the deepest parameter to this call is the table.
+      * 
+      * @author paul snow
+      * Aug 14, 2007
+      *
+      */
+     static class SetWithKeys extends ROperator {
+         SetWithKeys(){ super("setwithkeys");}
          
          public void execute(DTState state) throws RulesException {
              int       cnt = 0;                             // We keep a count of the keys.
              IRObject  v   = state.datapop();               // Get the value to store
-             int       d   = state.ddepth();                // Get current depth of data stack.
+             int       d   = state.ddepth()-1;              // Get current depth of data stack less one for the value.
              
-             while(state.getds(--d).type()==iName)cnt++;    // Count the keys (index1, index2, etc.)
+             while(state.getds(--d).type()==iTable)cnt++;   // Count the keys (index1, index2, etc.)
              
-             RName []keys = new RName[cnt];                 // Get an array big enough to hold the keys
-             
-             for(int i=0;i<cnt;i++){                        // Get all the keys off the data stack
-                keys[i]= state.datapop().rNameValue();
+             if(cnt != 1){
+                 IRObject []keys = new IRObject[cnt];           // Get an array big enough to hold the keys
+                 
+                 for(int i=0;i<cnt;i++){                        // Get all the keys off the data stack
+                    keys[i]= state.datapop();
+                 }
+                 
+                 RTable rtable = state.datapop().rTableValue();
+                 
+                 rtable.setValue(state,keys, v);                // Set the value.
+             }else{
+                 IRObject   key    = state.datapop();
+                 RTable     rtable = state.datapop().rTableValue();
+                 rtable.setValue(key,v);
              }
              
-             RTable rtable = state.datapop().rTableValue();
              
-             rtable.setValue(state,keys, v);                // Set the value.
          }
      }
      /**
-      * ( table getKeys -- Array ) Returns an array holding all the
+      * ( table -- Array ) Returns an array holding all the
       * keys in a table.
       * 
       * @author paul snow
       * Aug 14, 2007
       *
       */
-     static class GetKeys extends ROperator {
-         GetKeys(){ super("getkeys");}
+     static class GetKeysArray extends ROperator {
+         GetKeysArray(){ super("getkeysarray");}
          
          public void execute(DTState state) throws RulesException {
              RTable rtable = state.datapop().rTableValue();
              state.datapush(rtable.getKeys(state));
+         }
+     }
+     /**
+      * ( table -- ) Clear all the entries from the given table
+      * 
+      * @author paul snow
+      * Aug 14, 2007
+      *
+      */
+     static class ClearTable extends ROperator {
+         ClearTable(){ super("cleartable");}
+         
+         public void execute(DTState state) throws RulesException {
+             RTable rtable = state.datapop().rTableValue();
+             rtable.getTable().clear();
          }
      }
           
@@ -151,8 +219,7 @@ public class RTableOps {
              RArray  keys       = state.datapop().rArrayValue();
              RTable  table      = state.datapop().rTableValue();
              RArray valueArray = new RArray(state.getSession().getUniqueID(),duplicates,false);
-             for(IRObject irkey : keys){
-                 RName key = irkey.rNameValue();
+             for(IRObject key : keys){
                  if(table.containsKey(key)){
                     valueArray.add(table.getValue(key));
                  }

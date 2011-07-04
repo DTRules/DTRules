@@ -470,15 +470,15 @@ public class RControl {
                 // simply carry on your merry way.  The user can define these fields if they need them,
                 // and they don't need to define them if they don't need them.
                 
-                try { errorEntity.put(n("errortype"),     p(e.getErrortype()));                         }catch(RulesException ex){}
-                try { errorEntity.put(n("location"),      p(e.getLocation()));                          }catch(RulesException ex){}
-                try { errorEntity.put(n("message"),       p(e.getMessage()));                           }catch(RulesException ex){}
-                try { errorEntity.put(n("decisionTable"), p(e.getDecisionTable()));                     }catch(RulesException ex){}
-                try { errorEntity.put(n("formal"),        p(e.getErrortype()));                         }catch(RulesException ex){}
-                try { errorEntity.put(n("postfix"),       p(e.getPostfix()));                           }catch(RulesException ex){}
-                try { errorEntity.put(n("filename"),      p(e.getFilename()));                          }catch(RulesException ex){}
-                try { errorEntity.put(n("section"),       p(e.getSection()));                           }catch(RulesException ex){}
-                try { errorEntity.put(n("number"),        RInteger.getRIntegerValue(e.getNumber()));    }catch(RulesException ex){}
+                try { errorEntity.put(null, n("errortype"),     p(e.getErrortype()));                         }catch(RulesException ex){}
+                try { errorEntity.put(null, n("location"),      p(e.getLocation()));                          }catch(RulesException ex){}
+                try { errorEntity.put(null, n("message"),       p(e.getMessage()));                           }catch(RulesException ex){}
+                try { errorEntity.put(null, n("decisionTable"), p(e.getDecisionTable()));                     }catch(RulesException ex){}
+                try { errorEntity.put(null, n("formal"),        p(e.getErrortype()));                         }catch(RulesException ex){}
+                try { errorEntity.put(null, n("postfix"),       p(e.getPostfix()));                           }catch(RulesException ex){}
+                try { errorEntity.put(null, n("filename"),      p(e.getFilename()));                          }catch(RulesException ex){}
+                try { errorEntity.put(null, n("section"),       p(e.getSection()));                           }catch(RulesException ex){}
+                try { errorEntity.put(null, n("number"),        RInteger.getRIntegerValue(e.getNumber()));    }catch(RulesException ex){}
                 
             }
         }

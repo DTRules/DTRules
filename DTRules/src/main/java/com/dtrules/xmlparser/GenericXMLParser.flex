@@ -58,9 +58,6 @@ import java.io.IOException;
     
     String popTag(String endtag) {
        attribs = (HashMap) attribstk.remove(attribstk.size()-1);	
-       if(endtag.indexOf("</")>=0){
-         endtag=endtag.substring(2,endtag.length()-1).trim();
-       }
        if(tagstkptr<=0){
           System.err.print("Stack Underflow\n");
        }
@@ -244,6 +241,25 @@ import java.io.IOException;
 			if(GenericXMLParser.YYEOF == parser.yylex()) break;
 		}
 	 } 
+
+    /**
+     * Loads an XML file with the given Generic Parser, extended from AGenericXMLParser.  This
+     * parser allows the "calling" of other AGenericXMLParser's to process tags.  The process
+     * all of the given tag (and sub tags).  Then processing returns to the original parser.
+     * <br><br>
+     * @param file  An inputStream providing the XML
+     * @param gp    A parser implementing the IGenericXMLParser interface.
+     */
+    static public void load(java.io.InputStream xmlStream, AGenericXMLParser gp) throws Exception{
+        GenericXMLParser      parser = new GenericXMLParser(xmlStream);
+        GenericXMLParserStack stack  = new GenericXMLParserStack(parser);
+        gp.genericXMLParserStack = stack;
+        stack.parseTagWith(gp);
+        parser.setParser(stack);
+        while(true){
+            if(GenericXMLParser.YYEOF == parser.yylex()) break;
+        }
+     } 
   
     
 %}
@@ -265,6 +281,8 @@ header     = "<?"([^?]|[?][^>])*"?>"
 
 %xstate Attributes
 %xstate Tag
+%xstate GetEndTag
+%xstate GetNestedEndTag
 %xstate EndTag
 %xstate NestedTag
 %%
@@ -328,6 +346,37 @@ header     = "<?"([^?]|[?][^>])*"?>"
   
 }
 
+<GetEndTag> {
+  {Identifier} {
+     String endTag = yytext();
+     parser.endTag(tagstk,tagstkptr,currenttag,unencode(body),attribs);
+     popTag(endTag);
+  }
+  
+  {ws}* { }
+
+  ">"  {
+    popstate();
+  }
+}  
+
+<GetNestedEndTag> {
+  {Identifier} {
+     String endTag = yytext();
+     parser.endTag(tagstk,tagstkptr,currenttag,"",attribs);
+     popTag(endTag);
+  }
+  
+  {ws}* { }
+
+  ">"  {
+     popstate();
+     return 1;
+  }
+}  
+
+
+
 <EndTag> {
   
   {body} {
@@ -335,11 +384,9 @@ header     = "<?"([^?]|[?][^>])*"?>"
      body += text;
   }
 
-  "</"{Identifier}{ws}*">" {
-     String endTag = yytext();
-     parser.endTag(tagstk,tagstkptr,currenttag,unencode(body),attribs);
-     popTag(endTag);
+  "</" {
      popstate();
+     pushstate(GetEndTag);
   }
 
   "<"       {
@@ -356,17 +403,14 @@ header     = "<?"([^?]|[?][^>])*"?>"
 <NestedTag> {
   "<"       {pushstate(Tag); }
 
-  "</"{Identifier}{ws}*">" {
-     String endTag = yytext();
-     parser.endTag(tagstk,tagstkptr,currenttag,"",attribs);
-     popTag(endTag);
+  "</" {
      popstate();
-     return 1;
+     pushstate(GetNestedEndTag);
   }
 
-  {ws}      {}
+  {ws}             {}
   {comment}        {parser.comment(getcomment());}
-  {any}          { error(yytext()); }
+  {any}            {error(yytext()); }
 
 }
 

@@ -19,7 +19,6 @@ package com.dtrules.session;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -31,7 +30,6 @@ import com.dtrules.entity.REntityEntry;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
-import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class DTState {
@@ -101,7 +99,8 @@ public class DTState {
    public static final int ECHO  =   0x00000004;
    public static final int VERBOSE = 0x00000008;
    
-   private int       state   = 0;
+   private int       state   = 0;              // This is the Rules Engine State underwhich the engine
+                                               // is running. Values are defined by DEBUG, TRACE, etc.
 
    
    /**
@@ -432,7 +431,7 @@ public class DTState {
                     "Data Stack overflow.");
 		}
 		datastk[datastkptr++]=o;
-		if((state | VERBOSE) != 0){
+		if(testState(VERBOSE)){
 		    traceInfo("datapush", "attribs",o.postFix(),null);
 		}
 	}
@@ -447,7 +446,7 @@ public class DTState {
 		}
         IRObject rval = datastk[--datastkptr];
         datastk[datastkptr]=null;
-        if((state | VERBOSE) != 0){
+        if(testState(VERBOSE)){
             traceInfo("datapop",rval.stringValue());
         }
 		return(rval);
@@ -665,6 +664,37 @@ public class DTState {
 	}
 	
     /**
+     * Looks up the entity stack for an instance of an entity with the given
+     * entity name.  If such an entity is on the entity stack (i.e. in the current
+     * context) then this routine returns true, otherwise false.  Note that this
+     * routine doesn't care how many entities of that type are in the context,
+     * but merely returns true if one of them is in the context.
+     *
+     * @param entity
+     * @return
+     */
+    public boolean inContext(String entity){
+        return inContext(RName.getRName(entity));
+    }
+	
+	/**
+	 * Looks up the entity stack for an instance of an entity with the given
+	 * entity name.  If such an entity is on the entity stack (i.e. in the current
+	 * context) then this routine returns true, otherwise false.  Note that this
+	 * routine doesn't care how many entities of that type are in the context,
+	 * but merely returns true if one of them is in the context.
+	 * @param entity
+	 * @return
+	 */
+	public boolean inContext(RName entity){
+	   for(int i=0; i < entitystkptr; i++){                      //   entity on the Entity Stack.
+          IREntity e = entitystk[i];
+          if(e.getName().equals(entity))return true;
+	   } 
+	   return false;
+	}
+	
+    /**
      * Looks up the entity stack for an Entity that defines an 
      * attribute that matches the name provided.  When such an Entity
      * with an attribute that matches the name is found, that Entity
@@ -769,7 +799,7 @@ public class DTState {
                                value.postFix());
                    }
 
-                   e.put(name, value);
+                   e.put(null, name, value);
                    return true;
                }
            }

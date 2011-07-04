@@ -25,5 +25,14 @@ public interface IDateParser {
 	 * @return
 	 */
 	public abstract Date getDate( String s);
+	
+	public abstract String getDateString(Date date);
+	
+	public abstract String getTimeString(Date date);
 
+    public boolean testFormat(
+    		Date date, 
+    		String dateString, 
+    		String regexDate, 
+    		String regexSeparator);
 }

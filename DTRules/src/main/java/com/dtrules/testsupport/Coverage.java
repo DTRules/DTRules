@@ -73,7 +73,7 @@ public class Coverage {
     ArrayList<String>       traceFilesProcessed = new ArrayList<String>();
     HashMap<String,Stats>   tables = new HashMap<String,Stats>();
     
-    Coverage(RuleSet rs, String traceFiles)throws RulesException {
+    public Coverage(RuleSet rs, String traceFiles)throws RulesException {
         this.rs         = rs;
         this.traceFiles = traceFiles;
         initTables();

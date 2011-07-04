@@ -20,9 +20,6 @@ import java.io.PrintStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-import javax.rules.InvalidRuleSessionException;
-import javax.rules.RuleExecutionSetMetadata;
-
 import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;
@@ -30,6 +27,7 @@ import com.dtrules.mapping.DataMap;
 import com.dtrules.mapping.Mapping;
 import com.dtrules.xmlparser.IXMLPrinter;
 import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RName;
 
 public interface IRSession {
 	
@@ -84,35 +82,34 @@ public interface IRSession {
      * @return A unique integer.
      */
     public abstract int getUniqueID();
-    /**
-     * JSR94 implementation.
-     * @return
-     */
-    public abstract RuleExecutionSetMetadata getRuleExecutionSetMetadata();
 
     /**
-     * JSR94 implementation.
-     * @throws RemoteException
-     * @throws InvalidRuleSessionException
-     */
-    public abstract void release() throws RemoteException,
-            InvalidRuleSessionException;
-    /**
-     * JSR94  Implementation
-     * @return
-     * @throws RemoteException
-     * @throws InvalidRuleSessionException
-     */
-    public abstract int getType() throws RemoteException,
-            InvalidRuleSessionException;
-
-    /**
-     * JSR94 Implementation
+     * Execute the given postfix string
      * @param s
      * @throws RulesException
+     * @Deprecated
      */
     public abstract void execute(String s) throws RulesException;
 
+    /**
+     * Only does the initialization for an entrypoint. This is needed prior to
+     * mapping data into a session.  The AutoDataMap needs this call, but applications
+     * will rarely if ever need it.   
+     * 
+     * @param entrypoint
+     * @throws RulesException
+     */
+    public void initialize(String entrypoint) throws RulesException;
+    /**
+     * Execute the decision table within a session constructed with the specified 
+     * entities in the context. (If these entities are already in the context of 
+     * the given session, no changes to the context are made).
+     *
+     * @param entrypoint
+     * @throws RulesException
+     */
+    public abstract void executeAt(String entrypoint) throws RulesException;
+    
     /**
      * Returns the Rules Engine State for this Session. 
      * @return
@@ -183,4 +180,22 @@ public interface IRSession {
      * @return
      */
     public Mapping getMapping (String filename);
+    
+    /**
+     * Create an Instance of an Entity of the given name.
+     * @param id   A key associated with this entity
+     * @param name The name of the Entity to create
+     * @return     The entity created.
+     * @throws RulesException Thrown if any problem occurs (such as an undefined Entity name)
+     */
+    public IREntity createEntity(Object id, String name) throws RulesException;
+
+    /**
+     * Create an Instance of an Entity of the given name.
+     * @param name The name of the Entity to create
+     * @return     The entity created.
+     * @throws RulesException Thrown if any problem occurs (such as an undefined Entity name)
+     */
+    public IREntity createEntity(Object id, RName name) throws RulesException;
+
 }

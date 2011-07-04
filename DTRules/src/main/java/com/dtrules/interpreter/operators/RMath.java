@@ -16,6 +16,7 @@
   
 package com.dtrules.interpreter.operators;
 
+import com.dtrules.decisiontables.RDecisionTable;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RDouble;
@@ -181,7 +182,7 @@ public class RMath {
 	 *
 	 */
 	static class Sub extends ROperator {
-		Sub(){super("-"); alias("lsub");}
+		Sub(){super(RDecisionTable.DASH); alias("lsub");}
 
 		public void execute(DTState state) throws RulesException {
 			long b = state.datapop().longValue();

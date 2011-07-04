@@ -74,14 +74,40 @@ public class ROperator extends ARObject {
         try {
             RName rn = RName.getRName(n);
             if(primitives.containsAttribute(rn)){
-            	throw new RuntimeException("Duplicate definitions for "+rn.stringValue());
+                System.err.println("Duplicate Operators defined for " + rn.stringValue());
+            	throw new RuntimeException("Duplicate definitions for " + rn.stringValue());
             }
-            primitives.addAttribute(rn, "", o, false, true, o.type(),null,"operator","");
-            primitives.put(rn,o);
+            primitives.addAttribute(rn, "", o, false, true, o.type(),null,"operator","","");
+            primitives.put(null, rn,o);
         } catch (RulesException e) {
+            System.err.println("An Error occured in alias building the primitives Entity: "+n);
             throw new RuntimeException("An Error occured in alias building the primitives Entity: "+n);
         }
     }
+
+    /**
+     * Defines an Operator with this name. No checking for existing operators is done, so you 
+     * can use this operator to override the definition of an existing operator.  You should 
+     * not call this operator from within the definition of an operator as you might using
+     * alias().  If you do, you might have compiler ordering issues which may or may not work
+     * out as you might like.  No, you should instead use the override call after you have 
+     * allocated at least one session within a JVM, and before you have executed any of the 
+     * Rule Sets that depend on your override.
+     * 
+     * @param o
+     * @param n
+     */
+    public static void override (IRObject o ,String n) {
+        try {
+            RName rn = RName.getRName(n);
+            primitives.addAttribute(rn, "", o, false, true, o.type(),null,"operator","","");
+            primitives.put(null, rn,o);
+        } catch (RulesException e) {
+            System.err.println("An Error occured in alias building the primitives Entity: "+n);
+            throw new RuntimeException("An Error occured in alias building the primitives Entity: "+n);
+        }
+    }
+    
     
     /**
      * A method that makes it a bit easier to call the other alias function when I am
@@ -101,13 +127,8 @@ public class ROperator extends ARObject {
      * @param _name
      */
     public ROperator(String _name){
-      name = RName.getRName(_name,true);
-      try {
-         primitives.addAttribute(name, "", this,false, true,iOperator,null,"operator","");
-	     primitives.put(name,this);
-	  } catch (RulesException e) {
-		 throw new RuntimeException("An Error occured building the primitives Entity: "+name);
-	  }
+        name = RName.getRName(_name, true);
+        alias((IRObject) this,_name);
     }
 	
     public boolean isExecutable() { return true; }

@@ -16,10 +16,10 @@
 
 package com.dtrules.decisiontables; 
 
-import com.dtrules.session.ICompilerError;
+import com.dtrules.session.IDecisionTableError;
 
 
-public class CompilerError implements ICompilerError {
+public class CompilerError implements IDecisionTableError {
     final private Type   errorType;        //NOPMD Supid PMD wants a set method for a final field... 
     final private String message;          //NOPMD
     final private String source;           //NOPMD Only valid for type ACTION or CONDITION

@@ -24,8 +24,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
+import com.dtrules.automapping.AutoDataMap;
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.session.IRSession;
 import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.IGenericXMLParser2;
 import com.dtrules.xmlparser.IXMLPrinter;
@@ -47,21 +50,44 @@ import com.dtrules.xmlparser.XMLPrinter;
  *
  */
 public class DataMap implements IXMLPrinter{
-    Mapping map;
-    OutputStream out = null;
-    ArrayList<XMLNode> tagStack = new ArrayList<XMLNode>();
-    XMLNode rootTag;
-   
- 
+    Mapping             map;
+    OutputStream        out         = null;
+    ArrayList<XMLNode>  tagStack    = new ArrayList<XMLNode>();
+    XMLNode             rootTag;
+    IRSession           session;
+    AutoDataMap         autoDataMap = null;
+    
+    /**
+     * Applications using the DataMap facility have a choice to use the older DataMap 
+     * interfaces for moving data into the Rules Engine, or the newer AutoDataMap
+     * interfaces.  A call to createAutoDataMap creates an AutoDataMap instance if 
+     * necessary, and returns the reference to the AutoDataMap instance.
+     * @param session
+     * @param mapName
+     * @return
+     * @throws RulesException
+     */
+    public AutoDataMap createAutoDataMap(String mapName) throws RulesException {
+        if(autoDataMap == null){
+            autoDataMap = session.getRuleSet().getAutoDataMap(session, mapName); 
+        }
+        return autoDataMap;
+    }
+    
+    
+    public AutoDataMap getAutoDataMap(){
+        return autoDataMap;
+    }
     
     /**
      * Constructor for the DataMap structure, which will be 
      * enclosed with the given tag.  
      * @param tag
      */
-    public DataMap(String tag){
+    public DataMap(IRSession session, String tag){
         opentag(tag);
         rootTag = top();
+        this.session = session;
     }
     /**
      * Constructor that will write out the datamap as an XML to the 
@@ -75,10 +101,11 @@ public class DataMap implements IXMLPrinter{
      * @param xmlOutputStream - Writes an XML file out if specified (not null).
      * @deprecated
      */
-    public DataMap(Mapping map, String tag, OutputStream xmlOutputStream){
-        this(tag);
-        this.map = map;
-        this.out = xmlOutputStream;
+    public DataMap(IRSession session, Mapping map, String tag, OutputStream xmlOutputStream){
+        this(session, tag);
+        this.map        = map;
+        this.out        = xmlOutputStream;
+        this.session    = session;
     }
     
     /**
@@ -92,8 +119,8 @@ public class DataMap implements IXMLPrinter{
      * @param tag
      * @param xmlOutputStream
      */
-    public DataMap(String tag, OutputStream xmlOutputStream){
-        this(tag);
+    public DataMap(IRSession session, String tag, OutputStream xmlOutputStream){
+        this(session, tag);
         this.out = xmlOutputStream;        
     }
     
@@ -117,8 +144,12 @@ public class DataMap implements IXMLPrinter{
      * @param out
      */
     public void print(OutputStream out){
-        XMLPrinter xout= new XMLPrinter(out);
-        DataMap.print(xout,rootTag);
+        if(getAutoDataMap()==null){
+            XMLPrinter xout= new XMLPrinter(out);
+            DataMap.print(xout,rootTag);
+        }else{
+            getAutoDataMap().printDataLoadXML(out);
+        }
     }
     /**
      * Write out a subtree of the DataMap into an XML output stream.  
@@ -430,8 +461,10 @@ public class DataMap implements IXMLPrinter{
     @SuppressWarnings("unchecked")
     public void opentag(String tag, HashMap attribs){
         newtag(tag);
-        for(Object key : attribs.keySet()){
-            addValue((String)key,attribs.get(key));
+        Set<String> keyset = attribs.keySet();
+        HashMap topAttribs = top().getAttribs();
+        for(String key : keyset){
+            topAttribs.put(key,attribs.get(key));
         }
     }
     

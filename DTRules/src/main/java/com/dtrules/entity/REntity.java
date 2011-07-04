@@ -56,6 +56,7 @@ public class REntity extends ARObject implements IREntity {
 
     /** This attribute's name */
 	final RName                     name; 
+    final int                       id;
           boolean                   readonly;
     
     HashMap<RName,REntityEntry>     attributes; 
@@ -87,11 +88,6 @@ public class REntity extends ARObject implements IREntity {
      */
     public boolean isReadOnly(){ return readonly; }
     
-    /**
-     * All reference Entities (i.e. those from which we clone instances) have 
-     * an id of zero.  Clones have an id that is non zero, and unique.
-     */
-    final int                             id;
     
     /**
      * Returns the ID number for this instance of the entity.  Entities with
@@ -126,8 +122,8 @@ public class REntity extends ARObject implements IREntity {
         attributes = entity.attributes;
         values     = new ArrayList<IRObject>(entity.values);
         
-        put(name,this);                         //Patch up the self reference to point to self.
-        put(mappingKey,RNull.getRNull());       //Clear the mapping Key
+        put(null, name,this);                         //Patch up the self reference to point to self.
+        put(null, mappingKey,RNull.getRNull());       //Clear the mapping Key
 
         for(int i=0;i<values.size();i++){
             IRObject value     = values.get(i);
@@ -151,8 +147,8 @@ public class REntity extends ARObject implements IREntity {
         readonly   = _readonly;
 		name       = _name;
         attributes = new HashMap<RName,REntityEntry>();
-        this.addAttribute(_name, "", this, false, true, type(),null,"Self Reference","");  // Add a reference to self!
-        this.addAttribute(mappingKey,"",RNull.getRNull(),false, true, iString,null,"Mapping Key","");
+        this.addAttribute(_name, "", this, false, true, type(),null,"Self Reference","","");  // Add a reference to self!
+        this.addAttribute(mappingKey,"",RNull.getRNull(),false, true, iString,null,"Mapping Key","","");
 	}
 
 	/* (non-Javadoc)
@@ -206,7 +202,8 @@ public class REntity extends ARObject implements IREntity {
 	        int      type,
 	        String   subtype,
 	        String   comment,
-	        String   input){
+	        String   input,
+	        String   output){
         REntityEntry entry = getEntry(attributeName);
         if(entry==null){
     		int index = values.size();
@@ -226,7 +223,8 @@ public class REntity extends ARObject implements IREntity {
     		        subtype,
     		        index,
     		        comment,
-    		        input);
+    		        input,
+    		        output);
     		attributes.put(attributeName,newEntry);
             return null;
         }
@@ -249,7 +247,7 @@ public class REntity extends ARObject implements IREntity {
 	/* (non-Javadoc)
      * @see com.dtrules.entity.IREntity#put(com.dtrules.interpreter.RName, com.dtrules.interpreter.IRObject)
      */
-	public void put( RName attrib, IRObject value) throws RulesException {
+	public void put( IRSession session, RName attrib, IRObject value) throws RulesException {
 		REntityEntry entry = (REntityEntry)attributes.get(attrib);
 		if(entry==null)throw new RulesException("Undefined", "REntity.put()", "Undefined Attribute "+attrib+" in Entity: "+name);
 		if(value.type()!= iNull && entry.type != value.type()){
@@ -263,12 +261,12 @@ public class REntity extends ARObject implements IREntity {
                 case iName :            value = value.rNameValue();             break;
                 //case iOperator :      value = value.rOperatorValue();         break;
                 case iString :          value = value.rStringValue();           break;
-                case iTime :            value = value.rTimeValue();             break;                    
+                case iTime :            value = value.rTimeValue(session);      break;                    
             }
 		}
 		values.set(entry.index,value);
 	}
-	
+		
 	/**
      * Looks up the name of an attribute,
      * and returns the associated value.  

@@ -30,7 +30,7 @@ import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.session.DTState;
 import com.dtrules.session.EntityFactory;
-import com.dtrules.session.ICompilerError;
+import com.dtrules.session.IDecisionTableError;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RSession;
 import com.dtrules.xmlparser.IGenericXMLParser;
@@ -370,7 +370,7 @@ public class DTLoader implements IGenericXMLParser {
                             "\nError states: "+e.getCause());
 		} catch (Exception e) {
             state.traceInfo("error", e.getCause().getMessage());
-			throw new RuntimeException("Error Parsing Decision Tables: "+e.getMessage());
+			throw new RuntimeException("Error Parsing Decision Tables at begin tag: "+tag+"\r\n "+e.getMessage());
 		}			
 	}
    
@@ -401,7 +401,7 @@ public class DTLoader implements IGenericXMLParser {
                             "\nError states "+e.getCause());
 		} catch (Exception e) {
             state.traceInfo("error", e.getCause().getMessage());
-			throw new RuntimeException("Error Parsing Decision Tables: "+e.getMessage());
+			throw new RuntimeException("Error Parsing Decision Tables at end tag: "+tag+" body: "+body+"\r\n"+e.getMessage());
 		}	
 		
 	}

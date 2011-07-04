@@ -20,6 +20,7 @@ package com.dtrules.interpreter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
@@ -40,6 +41,14 @@ import com.dtrules.session.IRSession;
 @SuppressWarnings({"unchecked"})
 public interface IRObject {
 
+	/**
+	 * Clone implements a shallow copy of a structure.  This the elements of an
+	 * array or table will not themselves be cloned.
+	 * 
+	 * @param s
+	 * @return
+	 * @throws RulesException
+	 */
     public IRObject clone(IRSession s) throws RulesException;
     
 	//  *************** NOTE !!!!!!
@@ -284,6 +293,14 @@ public interface IRObject {
      * @throws RulesException
      */
     public RTime                rTimeValue ()   throws RulesException;
+    
+    /**
+     * Date conversions need the session
+     * @param session
+     * @return
+     * @throws RulesException
+     */
+    public RTime                rTimeValue (IRSession session) throws RulesException;
     /**
      * Return a Date representation of this object.  
      * A Rules Exception will be thrown if no such representation exists.
@@ -304,7 +321,7 @@ public interface IRObject {
      * @return
      * @throws RulesException
      */
-    public HashMap              tableValue()    throws RulesException;
+    public Map<IRObject,IRObject>  tableValue() throws RulesException;
     /**
      * Compares this Rules Engine Object with the given Rules Engine object.
      *  

@@ -18,8 +18,10 @@ package com.dtrules.xmlparser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -51,6 +53,25 @@ public class XMLTree {
         private ArrayList<Node>               tags        = new ArrayList<Node>();
         private String                        body;
         private Node                          parent;
+        
+        public void print (String filename) throws Exception {
+            OutputStream f    = new FileOutputStream(filename);
+            XMLPrinter   xout = new XMLPrinter(f);
+            print(xout);
+        }
+        
+        public void print (XMLPrinter xout){
+            String name = this.name.replaceAll(" ", "_");
+            xout.opentagStringMap(name, attributes);
+                if(body == null || body.length()==0){
+                    for(Node tag : tags){
+                        tag.print(xout);
+                    }
+                }else{
+                    xout.printdata(body);
+                }
+            xout.closetag();
+        }
         
         /**
          * Find a Node under this node with the given tagName.  Return 
@@ -248,7 +269,11 @@ public class XMLTree {
          */
         @Override
         public String toString() {
-            return name;
+            String list=" ";
+            for(String v : attributes.keySet()){
+                list += v +"='"+attributes.get(v)+"' ";
+            }
+            return name+list;
         }
         
     }
@@ -273,7 +298,6 @@ public class XMLTree {
             
             currentTag.addTag(n);
             currentTag = n;
-        
         }
 
         public void endTag(String[] tagstk, int tagstkptr, String tag,
@@ -355,6 +379,42 @@ public class XMLTree {
             }
         }
     }
-    
+
+    private static boolean match(Node n1, Node n2, String[] attribs){
+        if(n1.getName()!=n2.getName())return false;
+        for(int i=0; i<attribs.length; i++){
+            String v1 = n1.attributes.get(attribs[i]);
+            String v2 = n2.attributes.get(attribs[i]);
+            if(v1==v2) continue;
+            if(v1==null || v2 == null) return false;
+            if(!v1.equals(v2))return false;
+        }
+        return true;
+    }
+    /**
+     * Removes duplicates from the given arraylist (where duplicates match the same values 
+     * for the given list of attributes).
+     * 
+     * @param nodes   Going to remove duplicates from this list of nodes
+     * @param attribs Attribute names that have to match to qualify as a duplicate; this means some
+     *                duplicates are not exact matches, they simply match on these attributes
+     * @return list of removed nodes.
+     */
+    public static ArrayList<Node> removeDuplicates(ArrayList<Node> nodes, String[] attribs){
+
+        ArrayList<Node> dups = new ArrayList<Node>();
+        
+        for(int i=0; i < nodes.size() ; i++){
+            for(int j = nodes.size()-1;j>i; j--){  // go backwards on j, so we can remove jth if a dup
+                Node ith = nodes.get(i);
+                Node jth = nodes.get(j);
+                    if(match(ith,jth,attribs)){
+                        nodes.remove(j);
+                        dups.add(jth);
+                    }
+            }
+        }
+        return dups;
+    }
     
 }

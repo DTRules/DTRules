@@ -18,14 +18,11 @@ package com.dtrules.session;
 
 
 import java.io.PrintStream;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import javax.rules.InvalidRuleSessionException;
-import javax.rules.RuleExecutionSetMetadata;
-import javax.rules.RuleSession;
+import java.util.List;
+import java.util.Set;
 
 import com.dtrules.decisiontables.RDecisionTable;
 import com.dtrules.entity.IREntity;
@@ -35,13 +32,14 @@ import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RString;
+import com.dtrules.interpreter.RTable;
 import com.dtrules.interpreter.operators.ROperator;
 import com.dtrules.xmlparser.IXMLPrinter;
 import com.dtrules.mapping.DataMap;
 import com.dtrules.mapping.Mapping;
 
 @SuppressWarnings("unchecked")
-public class RSession implements RuleSession, IRSession {
+public class RSession implements IRSession {
 
     final RuleSet               rs;
 	final DTState               dtstate;
@@ -81,8 +79,9 @@ public class RSession implements RuleSession, IRSession {
      * mapping which provides information about these Data Objects.
      * @return
      */
+    @SuppressWarnings("deprecation")
     public DataMap getDataMap(Mapping map, String tag){
-        DataMap datamap = new DataMap(map,tag,null);
+        DataMap datamap = new DataMap(this, map,tag,null);
         registerMap(datamap);
         return datamap;
     }
@@ -259,25 +258,6 @@ public class RSession implements RuleSession, IRSession {
         return uniqueID++;
     }	
 	
-	/* (non-Javadoc)
-     * @see com.dtrules.session.IRSession#getRuleExecutionSetMetadata()
-     */
-	public RuleExecutionSetMetadata getRuleExecutionSetMetadata(){
-		return null;
-	}
-
-	/* (non-Javadoc)
-     * @see com.dtrules.session.IRSession#release()
-     */
-	public void release() throws RemoteException, InvalidRuleSessionException {
-	}
-
-	/* (non-Javadoc)
-     * @see com.dtrules.session.IRSession#getType()
-     */
-	public int getType() throws RemoteException, InvalidRuleSessionException {
-		return 1;
-	}
 
 	/**
      * Compiles the given string into an executable array, per the Rules Engine's interpreter.
@@ -315,7 +295,30 @@ public class RSession implements RuleSession, IRSession {
 		}
 		throw new RulesException("Undefined","typeStr2Int on entity: '"+entity+"' attribute: '"+attribute+"'","Bad Type Encountered:"+type);
 	}
-	/**
+
+	public void initialize(String entrypoint) throws RulesException {
+        // First make sure our context is up to snuff (by checking that all of our
+        // required entities are in the current context.
+        List<String> entities = rs.contexts.get(entrypoint);
+        if (entities == null){
+            throw new RulesException("undefined","executeAt","The entry point '"
+                    +entrypoint+"' is undefined");
+        }
+        for(String entity : entities){
+            if(!dtstate.inContext(entity)){
+                dtstate.entitypush(createEntity(null, entity));
+            }
+        }	    
+	}
+	
+	@Override
+    public void executeAt(String entrypoint) throws RulesException {
+	    initialize(entrypoint);                            // Set up our context
+	    String dtname = rs.entrypoints.get(entrypoint);    // Now get our entry point, and execute!
+	    ef.findDecisionTable(RName.getRName(dtname)).execute(dtstate);
+	}
+
+    /**
 	 * Converts the index representation of a type into a String.
 	 * @param type
 	 * @return
@@ -369,7 +372,7 @@ public class RSession implements RuleSession, IRSession {
         }
         if(!ref.isReadOnly()){
             REntity e = (REntity) ref.clone(this);
-            entityInstances.put(e.getID(),e);
+            entityInstances.put(id,e);
             return e;
         }
 		return ref;
@@ -383,15 +386,19 @@ public class RSession implements RuleSession, IRSession {
 		return rs;
 	}
 	
+	/**
+	 * Entity Printing Routines
+	 */
+	
 	
 	 public void printEntity(IXMLPrinter rpt, String tag, IREntity e) throws Exception {
 	     if(tag==null)tag = e.getName().stringValue();
 	     IRObject id = e.get(RName.getRName("mapping*key"));
 	     String   idString = id!=null?id.stringValue():"--none--";
          rpt.opentag(tag,"DTRulesId",e.getID()+"","id",idString);
-         Iterator<RName> names = e.getAttributeIterator();
-         while(names.hasNext()){
-             RName    name = names.next();
+         Set<RName> names = e.getAttributeSet();
+         RName keys[] = sort(names);
+         for(RName name : keys){
              IRObject v    = e.get(name);
              if(v.type()==IRObject.iArray && v.rArrayValue().size()==0) continue;
              String   vstr = v==null?"":v.stringValue();
@@ -402,16 +409,42 @@ public class RSession implements RuleSession, IRSession {
  
 	 public void printArray(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, String name, RArray rarray)throws RulesException{
          if(name!=null && name.length()>0){
-             rpt.opentag("array","name",name, "id", rarray.getID());
+             rpt.opentag(name, "id", rarray.getID());
          }else{
-             rpt.opentag("array");
+             rpt.opentag("array", "id", rarray.getID());
          }
          for(IRObject element : rarray){
              printIRObject(rpt, entitypath, printed, state,"",element);
          }
          rpt.closetag();
      }
-     
+
+	   public void printTable(
+	           IXMLPrinter rpt, 
+	           ArrayList<IRObject> entitypath, 
+	           ArrayList<IRObject> printed, 
+	           DTState state, 
+	           String name, 
+	           RTable table)throws RulesException{
+	       
+	       Set<IRObject> keys = table.getTable().keySet();
+	         rpt.opentag("map", "id", table.getId());
+    	         for(IRObject key : keys){
+    	            IRObject value = table.getValue(key);
+    	            rpt.opentag("pair");
+    	                rpt.opentag("key");
+    	                    printIRObject(rpt,entitypath,printed,state,"",key);
+    	                rpt.closetag();
+    	                rpt.opentag("value");
+    	                    printIRObject(rpt, entitypath, printed, state, "", value);
+    	                rpt.closetag();
+    	            rpt.closetag();
+    	         }
+           rpt.closetag();
+	 
+	   }
+
+	 
      public void printEntityReport(IXMLPrinter rpt, DTState state, String objname ) {
          printEntityReport(rpt,false,state,objname);
      }
@@ -438,6 +471,11 @@ public class RSession implements RuleSession, IRSession {
           
      public void printIRObject(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, String name, IRObject v) throws RulesException {
          switch(v.type()){
+             case IRObject.iTable :
+                 if(name.length()!=0)rpt.opentag(name);
+                 printTable(rpt,entitypath,printed,state,name,v.rTableValue());
+                 if(name.length()!=0)rpt.closetag();
+                 break;
              case IRObject.iEntity :
                  if(name.length()!=0)rpt.opentag(name);
                  printAllEntities(rpt, entitypath, printed, state, v.rEntityValue());
@@ -450,25 +488,27 @@ public class RSession implements RuleSession, IRSession {
                  break;
              default:
                  String   vstr = v==null?"":v.stringValue();
-                 rpt.printdata("attribute","name",name, vstr);
+                 String tname = name.replaceAll("[*]", "_");
+                 if(tname.length()==0)tname = "value";
+                 rpt.printdata(tname, "name", name, vstr);
          }
      } 
      
     public void printAllEntities(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, IREntity e) throws RulesException   {
          String entityName = e.getName().stringValue();
          if(entitypath.contains(e) && entitypath.get(entitypath.size()-1)==e){
-                 rpt.printdata("entity","name",entityName, "self reference");
+                 rpt.printdata(entityName, "self reference");
          }else if (printed!= null && printed.contains(e)){
-                 rpt.printdata("entity","name",entityName,"DTRulesId",e.getID(),"id",e.get("mapping*key").stringValue(),"multiple reference");  
+                 rpt.printdata(entityName,"DTRulesId",e.getID(),"id",e.get("mapping*key").stringValue(),"multiple reference");  
          }else{
              entitypath.add(e);
              if(printed!=null) printed.add(e);
              IRObject id = e.get(RName.getRName("mapping*key"));
              String   idString = id!=null?id.stringValue():"--none--";
-             rpt.opentag("entity","name",entityName,"DTRulesId",e.getID()+"","id",idString);
-             Iterator<RName> names = e.getAttributeIterator();
-             while(names.hasNext()){
-                 RName    name = names.next();
+             rpt.opentag(entityName,"DTRulesId",e.getID()+"","id",idString);
+             Set<RName> keys = e.getAttributeSet();
+             RName akeys [] = sort(keys);
+             for(RName name : akeys){
                  IRObject v    = e.get(name);
                  printIRObject(rpt, entitypath, printed, state, name.stringValue(), v);
              }
@@ -476,6 +516,24 @@ public class RSession implements RuleSession, IRSession {
              entitypath.remove(entitypath.size()-1);
          }
      }
+    
+     public RName [] sort(Set<RName> keys) {
+    	 RName  ret[] = keys.toArray(new RName[0]);
+    	 int cnt = ret.length;
+    	 for(int i = 0; i< cnt-1; i++){
+    		 for(int j = 0; j < cnt-1-i; j++){
+    			 RName one = ret[j];
+    			 RName two = ret[j+1];
+    			 if(one.stringValue().compareTo(two.stringValue())>0){
+    				 RName hld = ret[j];
+    				 ret[j]    = ret[j+1];
+    				 ret[j+1]  = hld;
+    			 }else System.out.println();
+    		 }
+    	 }
+    	 return ret;
+     }
+    
 	/**
 	 * Prints all the balanced form of all the decision tables in this session to
 	 * the given output stream 

@@ -33,7 +33,7 @@ import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
 import com.dtrules.session.DTState;
 import com.dtrules.session.EntityFactory;
-import com.dtrules.session.ICompilerError;
+import com.dtrules.session.IDecisionTableError;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
 import com.dtrules.xmlparser.GenericXMLParser;
@@ -52,6 +52,8 @@ import com.dtrules.xmlparser.GenericXMLParser;
  *
  */
 public class RDecisionTable extends ARObject {
+    
+    public static final String DASH = "-";      // Using a constant reduces our footprint, and increases our speed.
     
     private final  RName    dtname;             // The decision table's name.
     
@@ -246,7 +248,7 @@ public class RDecisionTable extends ARObject {
     /**
      * @return the errorlist
      */
-    public List<ICompilerError> getErrorlist() {
+    public List<IDecisionTableError> getErrorlist() {
         return errorlist;
     }
 
@@ -320,7 +322,7 @@ public class RDecisionTable extends ARObject {
 	
 	
 	
-	List<ICompilerError> errorlist = new ArrayList<ICompilerError>();
+	List<IDecisionTableError> errorlist = new ArrayList<IDecisionTableError>();
 	DTNode decisiontree=null;
 
     private int numberOfRealColumns = 0;        // Number of real columns (as unbalanced tables can have
@@ -419,7 +421,7 @@ public class RDecisionTable extends ARObject {
            } catch (RulesException e) {
               errorlist.add(
                     new CompilerError (
-                            ICompilerError.Type.CONTEXT,
+                            IDecisionTableError.Type.CONTEXT,
                             "Formal Compiler Error: "+e,
                             contextsrc,0));
            }
@@ -484,7 +486,7 @@ public class RDecisionTable extends ARObject {
 	 * uncompiled if any error is detected.  However, we still attempt to 
 	 * compile all conditions and all actions.
 	 */
-	public List<ICompilerError> compile(){
+	public List<IDecisionTableError> compile(){
 	    try{
     		compiled          = true;                  // Assume the compile will work.		
     		rconditions       = new IRObject[conditionsPostfix.length];
@@ -497,7 +499,7 @@ public class RDecisionTable extends ARObject {
                  } catch (Exception e) {
                      errorlist.add(
                              new CompilerError(
-                                ICompilerError.Type.INITIALACTION,
+                                IDecisionTableError.Type.INITIALACTION,
                                 "Postfix Interpretation Error: "+e,
                                 initialActionsPostfix[i],
                                 i
@@ -514,7 +516,7 @@ public class RDecisionTable extends ARObject {
     			} catch (RulesException e) {
                     errorlist.add(
                        new CompilerError(
-                          ICompilerError.Type.CONDITION,
+                          IDecisionTableError.Type.CONDITION,
                           "Postfix Interpretation Error: "+e,
                           conditionsPostfix[i],
                           i
@@ -530,7 +532,7 @@ public class RDecisionTable extends ARObject {
     			} catch (RulesException e) {
                     errorlist.add(
                             new CompilerError(
-                               ICompilerError.Type.ACTION,
+                               IDecisionTableError.Type.ACTION,
                                "Postfix Interpretation Error: "+e,
                                actionsPostfix[i],
                                i
@@ -543,7 +545,7 @@ public class RDecisionTable extends ARObject {
 	    }catch(Exception e){
             errorlist.add(
                     new CompilerError(
-                       ICompilerError.Type.TABLE,
+                       IDecisionTableError.Type.TABLE,
                        "Unexpected Exception Thrown: "+e,
                        0,
                        0
@@ -735,7 +737,7 @@ public class RDecisionTable extends ARObject {
 	 * then validates that structure.
 	 * @return true if the structure builds and is valid; false otherwise.
 	 */
-	public List<ICompilerError> getErrorList(DTState state)  {
+	public List<IDecisionTableError> getErrorList(DTState state)  {
        if(decisiontree==null){
            errorlist.clear();
            build(state);
@@ -797,7 +799,7 @@ public class RDecisionTable extends ARObject {
 					if(invalid || here.conditionNumber != i ){
                         errorlist.add(
                                 new CompilerError(
-                                   ICompilerError.Type.TABLE,
+                                   IDecisionTableError.Type.TABLE,
                                    "Condition Table Compile Error ",
                                    i,col
                                 )
@@ -818,7 +820,7 @@ public class RDecisionTable extends ARObject {
         DTNode.Coordinate rowCol = decisiontree.validate();
         if(rowCol!=null){
             errorlist.add(
-               new CompilerError(ICompilerError.Type.TABLE,"Condition Table isn't balanced.",rowCol.row,rowCol.col)
+               new CompilerError(IDecisionTableError.Type.TABLE,"Condition Table isn't balanced.",rowCol.row,rowCol.col)
             );        
             compiled = false;
         }
@@ -1160,7 +1162,7 @@ public class RDecisionTable extends ARObject {
        if(conditions.length<1){  
            errorlist.add(
                    new CompilerError(
-                           ICompilerError.Type.CONDITION,
+                           IDecisionTableError.Type.CONDITION,
                            "You have to have at least one condition in a decision table",
                            0,0)
            );        
@@ -1174,9 +1176,14 @@ public class RDecisionTable extends ARObject {
        int allCol     = -1;         // The Index of the "All" Column (executed on all conditions)
        for(int col=0;col<maxcol;col++){                             // Look at each column.
            boolean nonemptycolumn = false;
-           for(int row=0; !nonemptycolumn && row<conditions.length; row++){
+           for(int row=0; row<conditions.length; row++){
                String v      = conditiontable[row][col];                     // Get the value from the condition table
-               nonemptycolumn = !v.equals("-") && !v.equals(" ");
+               if(v.equals(DASH) || v.equals(" ")){
+                   v = DASH;
+                   conditiontable[row][col]=DASH;
+               }else{
+                   nonemptycolumn = true;
+               }
            }
            if(nonemptycolumn){    
              try {
@@ -1265,12 +1272,12 @@ public class RDecisionTable extends ARObject {
         }
 
         String v      = conditiontable[row][col];                     // Get the value from the condition table
-        boolean dcare = v.equals("-") || v.equals(" ");               // Standardize Don't cares.
+        boolean dcare = v == DASH;                                    // Standardize Don't cares.
         
         if(!v.equalsIgnoreCase("y") && !v.equalsIgnoreCase("n") && !dcare){
             errorlist.add(
                     new CompilerError (
-                            ICompilerError.Type.CONTEXT,
+                            IDecisionTableError.Type.CONTEXT,
                             "Bad value in Condition Table '"+v+"' at row "+(row+1)+" column "+(col+1),
                             v,0));
         }

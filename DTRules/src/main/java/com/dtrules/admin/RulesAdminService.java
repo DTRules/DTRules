@@ -350,10 +350,8 @@ public class RulesAdminService implements IRulesAdminService{
             System.out.println(e1.toString());
         }
     }
-	/* (non-Javadoc)
-	 * @see com.dtrules.admin.IRulesAdminService#updateEntity(java.lang.String, com.dtrules.entity.REntity)
-	 */
-	public void saveEDD(RSession session, String rulesetname) throws RulesException {
+
+    public void saveEDD(RSession session, String rulesetname) throws RulesException {
         RuleSet       rs       = rd.getRuleSet(RName.getRName(rulesetname));
         EntityFactory ef       = rs.getEntityFactory(session);
         String        filepath = rs.getFilepath();

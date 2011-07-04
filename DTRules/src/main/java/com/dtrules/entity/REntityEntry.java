@@ -48,6 +48,7 @@ public class REntityEntry {
     public String     typeValue; 
     public String     comment;              // A comment associated with this attribute
     public String     input;                // These are the mapping sources which populate this attribute
+    public String     output;               // Entries to be auto updated in the source objects
     /**
      * Allows the insertion of the REntityEntry into an Entity after the
      * fact.
@@ -68,7 +69,8 @@ public class REntityEntry {
     		String   _subtype,
     		int      _index,
     		String   comment,
-    		String   input){
+    		String   input,
+    		String   output){
         
         attribute    = _attribute;
         defaulttxt   = _defaulttxt;
@@ -80,6 +82,7 @@ public class REntityEntry {
     	index        = _index;
     	setComment(comment);
     	setInput(input);
+    	this.output  = output;
     }
    
     @Override

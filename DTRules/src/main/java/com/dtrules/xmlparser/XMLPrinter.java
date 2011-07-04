@@ -247,6 +247,25 @@ public class XMLPrinter implements IXMLPrinter {
         }
         print(">");
     }
+
+    /**
+     * Open a tag with a given set of attributes; this is a Hash of strings to strings,
+     * where as opentag(String tag, HashMap<String,Object> attribs) takes a Hash of 
+     * strings to objects.  
+     */
+    public void opentagStringMap(String tag, HashMap<String,String> attribs){
+        halfopentag(tag);
+        if(attribs != null) for(String key : attribs.keySet()){
+            Object o = attribs.get(key);
+            if(o!=null){
+               printAttribute(key, o);
+            }else{
+               printAttribute(key,"");
+            }
+        }
+        print(">");
+    }
+
     
     /**
      * Open a tag with one named attribute
@@ -589,6 +608,41 @@ public class XMLPrinter implements IXMLPrinter {
                 name3,value3,
                 name4,value4,
                 name5,value5
+                );
+        printdata(bodyvalue);
+        closetag();
+    }
+
+    /**
+     * Print the tag, attributes, and the body.
+     * @param tag
+     * @param name1
+     * @param value1
+     * @param name2
+     * @param value2
+     * @param name3
+     * @param value3
+     * @param name4
+     * @param value4
+     * @param name5
+     * @param value5
+     * @param body
+     */
+    public void printdata(String tag, 
+            String name1, Object value1,
+            String name2, Object value2, 
+            String name3, Object value3, 
+            String name4, Object value4, 
+            String name5, Object value5, 
+            String name6, Object value6, 
+            Object bodyvalue){
+        opentag(tag,
+                name1,value1,
+                name2,value2,
+                name3,value3,
+                name4,value4,
+                name5,value5,
+                name6,value6
                 );
         printdata(bodyvalue);
         closetag();

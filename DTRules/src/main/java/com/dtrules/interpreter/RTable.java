@@ -17,6 +17,8 @@ package com.dtrules.interpreter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.DTState;
@@ -29,7 +31,7 @@ public class RTable extends ARObject {
     private       RName   tablename;
     private       RString description;
     
-    private final HashMap<RName, IRObject> table = new HashMap<RName,IRObject>();
+    private final Map<IRObject, IRObject> table = new HashMap<IRObject,IRObject>();
     
     /**
      * Get the description of this table
@@ -66,7 +68,7 @@ public class RTable extends ARObject {
      * Return the HashMap for primary dimension of this table
      * @return the table
      */
-    public HashMap<RName, IRObject> getTable() {
+    public Map<IRObject, IRObject> getTable() {
         return table;
     }
 
@@ -77,10 +79,20 @@ public class RTable extends ARObject {
         return tablename;
     }
 
-    public boolean containsKey (RName key){
+    /**
+     * Returns true if the key is contained in the RTable
+     * @param key
+     * @return
+     */
+    public boolean containsKey (IRObject key){
         return table.containsKey(key);
     }
     
+    /**
+     * Returns true if the value is contained in the RTable
+     * @param value
+     * @return
+     */
     public boolean containsValue (IRObject value){
         return table.containsValue(value);
     }
@@ -147,7 +159,7 @@ public class RTable extends ARObject {
                         "RTable.setValues",
                         "setValues expected an array of arrays giving pairs of values to assert into the Table");
             }
-            RName key      = pair.get(0).rNameValue();
+            IRObject key   = pair.get(0);
             IRObject value = pair.get(1);
             setValue(key, value);
         }
@@ -159,8 +171,7 @@ public class RTable extends ARObject {
      * @param value
      * @throws RulesException
      */
-    @SuppressWarnings("unchecked")
-    public void setValue(DTState state, RName[]keys, IRObject value) throws RulesException{
+    public void setValue(DTState state, IRObject[]keys, IRObject value) throws RulesException{
         IRObject v = this;
         for(int i=0;i<keys.length-1; i++){
             if(v.type()!=iTable){
@@ -177,17 +188,17 @@ public class RTable extends ARObject {
         v.rTableValue().setValue(keys[keys.length-1], value);
     }
     
-    public void setValue(RName key, IRObject value) throws RulesException{
+    public void setValue(IRObject key, IRObject value) throws RulesException{
         table.put(key, value);
     }
     
-    public IRObject getValue(RName key) throws RulesException {
+    public IRObject getValue(IRObject key) throws RulesException {
         IRObject v = this.table.get(key);
         if(v==null)return RNull.getRNull();
         return v;
     }
     
-    public IRObject getValue(RName[]keys) throws RulesException {
+    public IRObject getValue(IRObject[]keys) throws RulesException {
         IRObject v = this;
         for(int i=0;i<keys.length; i++){
             if(v.type()!=iTable){
@@ -204,7 +215,7 @@ public class RTable extends ARObject {
     }
     
     public RArray getKeys (DTState state){
-        ArrayList <RName> keys = new ArrayList<RName>(table.keySet());
+        ArrayList <IRObject> keys = new ArrayList<IRObject>(table.keySet());
         int id = state.getSession().getUniqueID();
         return new RArray(id, true, keys,false);
     }
@@ -229,10 +240,18 @@ public class RTable extends ARObject {
     /* (non-Javadoc)
      * @see com.dtrules.interpreter.ARObject#tableValue()
      */
-    @SuppressWarnings({"unchecked"})
-    public HashMap tableValue() throws RulesException {
+    public Map<IRObject, IRObject> tableValue() throws RulesException {
         return table;
     }
+
+	
+	public IRObject clone(IRSession s) throws RulesException {
+		RTable newTable = newRTable(
+				s.getEntityFactory(),tablename, 
+				description.stringValue(), resultType);
+		newTable.getTable().putAll(table);
+		return newTable;
+	}
     
     
 }

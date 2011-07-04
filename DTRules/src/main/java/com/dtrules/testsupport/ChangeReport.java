@@ -411,6 +411,7 @@ public class ChangeReport {
            Node t1 = dts1.get(i);
            Node match = null;
            for(Node t2: dts2){
+               
                boolean allmatch = true;
                for(String attrib : attribs){
                    if(!t1.getAttributes().get(attrib).equals(t2.getAttributes().get(attrib))){
@@ -696,9 +697,15 @@ public class ChangeReport {
                ArrayList<Node> fields1 = findnodes("field",entities1.get(i),null);
                ArrayList<Node> fields2 = findnodes("field",entities2.get(i),null);
                missing = ChangeReport.findMissingNodes("name",(String)null,fields1,fields2);
-               {for(Node m : missing){ report.printdata("NewAttribute",m.getAttributes().get("name"));}}
+               {for(Node m : missing){ 
+                   report.printdata("NewAttribute",
+                           "entity1", entities1.get(i).getAttributes().get("name"), 
+                           m.getAttributes().get("name"));}}
                missing = ChangeReport.findMissingNodes("name",(String)null,entities2,entities1);
-               {for(Node m : missing){ report.printdata("DeletedAttribute",m.getAttributes().get("name"));}}
+               {for(Node m : missing){ 
+                   report.printdata("DeletedAttribute",
+                           "entity2",entities2.get(i).getAttributes().get("name"),
+                           m.getAttributes().get("name"));}}
                for(int j=0; j<fields1.size();j++){
                    if(!fields1.get(j).absoluteMatch(fields2.get(j),false)){
                        report.printdata("AttributeChanged",
@@ -786,6 +793,16 @@ public class ChangeReport {
            XMLTree.sortByAttribute(true,attributes2,"tag");
            
            String attribs2match[] = {"tag","RAttribute","enclosure"};
+           ArrayList<Node> dups;
+           dups = XMLTree.removeDuplicates(attributes1, attribs2match);
+           if(dups.size()>0)differences = true;
+           {for(Node m : dups){ report.printdata("DuplicateNode",m.getAttributes().get("tag in source")+" for "+
+                   m.getAttributes().get("enclosure")+"."+m.getAttributes().get("RAttribute"));}}
+           dups = XMLTree.removeDuplicates(attributes2, attribs2match);
+           if(dups.size()>0)differences = true;
+           {for(Node m : dups){ report.printdata("DuplicateNode",m.getAttributes().get("tag in reference ")+" for "+
+                   m.getAttributes().get("enclosure")+"."+m.getAttributes().get("RAttribute"));}}
+                        
            {
                ArrayList<Node> missing;
                missing = ChangeReport.findMissingNodes(attribs2match,attributes1,attributes2);
@@ -802,7 +819,7 @@ public class ChangeReport {
            
            if(attributes1.size() > 0 ){
                report.opentag("ModifiedMappings");
-               for(int i = 0; i < attributes1.size();  i++){
+               for(int i = 0; i < attributes1.size() && i < attributes2.size();  i++){
                    HashMap <String,String> attribs = attributes1.get(i).getAttributes();
                    if(  !attributes1.get(i).absoluteMatch(attributes2.get(i),false) ){
                        String name1 = attribs.get("tag")+" maps "+attribs.get("enclosure")+"."+attribs.get("RAttribute")+" (now type "+attribs.get("type")+")";

@@ -24,6 +24,12 @@ import com.dtrules.infrastructure.RulesException;
 
 @SuppressWarnings({"unchecked"})
 public interface ICompiler {
+	
+	/**
+	 * Set the session to be used by this instance of the compiler.
+	 * @param session
+	 */
+	public void setSession(IRSession session) throws Exception;
 
     /**
      * Return the list of unreferenced attributes so far in the use
@@ -85,5 +91,10 @@ public interface ICompiler {
      * @throws RulesException
      */
     public void printTypes(PrintStream out) throws RulesException;
+    
+    /**
+     * Notifies the Compiler that the compliation of a new Decision Table is starting.
+     */
+	public void newDecisionTable();
 
 }

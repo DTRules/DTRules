@@ -165,11 +165,7 @@ public class LoadDatamapData extends LoadXMLData {
         String     sbody = o.toString();
         Date       date;
         try {
-            if(false && sbody.indexOf("7777")>=0){
-                date = new Date(0x7FFFFFFFFFFFL);
-            }else{
-                date = df_in.parse(sbody);
-            }    
+            date = df_in.parse(sbody);                
         } catch (ParseException e) {
             try{
                date = df_out.parse(sbody);
@@ -234,8 +230,8 @@ public class LoadDatamapData extends LoadXMLData {
         	if((state.getes(i)).get(e.getName())!=null){
                 IREntity refto = state.getes(i);
                 
-                if(! refto.getName().equals(e.getName()))           // Update a reference to an Entity of the same name,
-        		   (state.getes(i)).put(e.getName(), e);  //  but only if it isn't a self reference.
+                if(! refto.getName().equals(e.getName()))       // Update a reference to an Entity of the same name,
+        		   (state.getes(i)).put(null, e.getName(), e);  //  but only if it isn't a self reference.
         		
         	}
         }

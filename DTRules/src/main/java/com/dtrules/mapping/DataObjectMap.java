@@ -163,8 +163,7 @@ class DataObjectMap {
                     if(info!= null) for(Attrib attrib : info.getTag_instances() ){
                         if( entityName.equalsIgnoreCase(attrib.enclosure)){
                             tagMap.put(method.getName(), tag);
-                        }
-                           
+                        }  
                     }
                 }
             }

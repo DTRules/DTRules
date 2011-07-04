@@ -20,6 +20,7 @@ package com.dtrules.interpreter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
@@ -58,6 +59,10 @@ public abstract class ARObject implements IRObject {
      */
     public RTime rTimeValue() throws RulesException {
         return RTime.getRTime(timeValue());
+    }
+
+    public RTime rTimeValue (IRSession session) throws RulesException {
+    	return RTime.getRTime(timeValue());
     }
 
     /**
@@ -216,7 +221,7 @@ public abstract class ARObject implements IRObject {
      * @see com.dtrules.interpreter.IRObject#tableValue()
      */
     @SuppressWarnings({"unchecked"})
-    public HashMap tableValue() throws RulesException {
+    public Map<IRObject,IRObject> tableValue() throws RulesException {
         throw new RulesException("Undefined","Not Supported","No Table value exists for "+RSession.typeInt2Str(this.type()));
     }
 

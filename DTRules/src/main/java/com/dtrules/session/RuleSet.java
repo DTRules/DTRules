@@ -16,11 +16,19 @@
 
 package com.dtrules.session;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.dtrules.mapping.Mapping;
+import com.dtrules.automapping.AutoDataMap;
+import com.dtrules.automapping.AutoDataMapDef;
+import com.dtrules.decisiontables.RDecisionTable;
+import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RName;
 /**
@@ -43,24 +51,79 @@ import com.dtrules.interpreter.RName;
  *
  */
 public class RuleSet {
-	protected RName        	           name;
-	protected boolean   	           resource  	  = false;
-	protected ArrayList<String>        edd_names 	  = new ArrayList<String>();
-	protected ArrayList<String>        dt_names  	  = new ArrayList<String>();
-    protected ArrayList<String>        map_paths      = new ArrayList<String>();
-    protected String                   excel_edd      = null;
-    protected String                   excel_dtfolder = null;
+	protected Class<ICompiler>            defaultCompiler  = null;
+	protected RName        	              name;
+	protected boolean   	              resource         = false;
+	protected ArrayList<String>           edd_names        = new ArrayList<String>();
+	protected ArrayList<String>           dt_names         = new ArrayList<String>();
+    protected ArrayList<String>           map_paths        = new ArrayList<String>();
+    protected ArrayList<String>           includedRuleSets = new ArrayList<String>();
+    protected String                      excel_edd        = null;
+    protected String                      excel_dtfolder   = null;
     
-    protected HashMap<String,Mapping>  mappings       = new HashMap<String,Mapping>();
-    protected EntityFactory            ef 			  = null;
-	protected RulesDirectory           rd;
-	protected String                   firstDecisionTableName;
+    @Deprecated
+    protected HashMap<String,Mapping>  mappings            = new HashMap<String,Mapping>();
+
+    protected EntityFactory               ef 			   = null;
+	protected RulesDirectory              rd;
+	protected String                      firstDecisionTableName;
 	
-    protected String                   resourcepath   =null;
-    protected String                   filepath       =null;
-    protected String                   workingdirectory =null;
+    protected String                      resourcepath     = null;
+    protected String                      filepath         = null;
+    protected String                      workingdirectory = null;
     
+    // Support for the new AutoMap data interface
+    protected Map<String,String>          mapFiles         = new HashMap<String,String>();
+    protected Map<String,AutoDataMapDef>  mapDefinitions   = new HashMap<String,AutoDataMapDef>();
+    protected Map<String, String>         entrypoints      = new HashMap<String,String>();
+    protected Map<String, List<String>>   contexts         = new HashMap<String,List<String>>();
+    
+    public AutoDataMap getAutoDataMap(IRSession session, String name) throws RulesException{
+        if(!mapDefinitions.containsKey(name)){
+            String mapfilename = mapFiles.get(name);
+            InputStream mapStream = null;
+            
+            if(mapfilename != null){
+                mapStream = openfile(mapfilename);
+            }
+            if(mapStream==null){
+                throw new RulesException("undefined", "getAutoDataMapDef()", 
+                        "The mapping '"+name+"' is undefined");
+            }
+            
+            AutoDataMapDef admd = new AutoDataMapDef();
+            admd.configure(mapStream);
+            mapDefinitions.put(name, admd);
+        }
+        AutoDataMap autoDataMap = mapDefinitions.get(name).newAutoDataMap(session);
+        autoDataMap.setSession(session);
+        return autoDataMap;
+    }
+    
+    @SuppressWarnings("unchecked")
+	public Class<ICompiler> getDefaultCompiler() throws RulesException {
+    	if(defaultCompiler == null){
+    		defaultCompiler = rd.getDefaultCompiler();
+    	}
+		return defaultCompiler;
+	}
+
     /**
+     * When we deploy the Rules Engine, we don't have to have the compiler.  So If we can't
+     * find the compiler, we just ignore the issue.  We wait until some code actually tries
+     * to *get* the compiler before we throw an error.
+     * 
+     * @param qualifiedCompilerClassName
+     */
+	@SuppressWarnings("unchecked")
+	public void setDefaultCompiler(String qualifiedCompilerClassName) {
+		try{
+		   this.defaultCompiler = (Class<ICompiler>) Class.forName(qualifiedCompilerClassName);
+		}catch(ClassNotFoundException e){}
+	}
+
+
+	/**
      * Get the default mapping (the first mapping file)
      * @param session
      * @return
@@ -385,6 +448,20 @@ public class RuleSet {
     
     public String getSystemPath () {
         return rd.getSystemPath();
+    }
+
+    /**
+     * @return the includedRuleSets
+     */
+    public ArrayList<String> getIncludedRuleSets() {
+        return includedRuleSets;
+    }
+
+    /**
+     * @param includedRuleSets the includedRuleSets to set
+     */
+    public void setIncludedRuleSets(ArrayList<String> includedRuleSets) {
+        this.includedRuleSets = includedRuleSets;
     }
     
 }

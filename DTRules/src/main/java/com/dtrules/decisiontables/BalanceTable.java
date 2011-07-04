@@ -64,7 +64,10 @@ public class BalanceTable {
             row = "    ".substring(row.length())+row+spacer;
             buff.append(row);
             for(int j=0;j<maxCol; j++){
-                if(ctable[i][j]==null)ctable[i][j]="-";
+                String v = ctable[i][j];
+                if(  (v == null) || (v.equals(" ") || v.equals(RDecisionTable.DASH))){
+                    ctable[i][j]=RDecisionTable.DASH;
+                }
                 buff.append(ctable[i][j]);
                 buff.append(spacer);
             }
@@ -95,7 +98,9 @@ public class BalanceTable {
           
           if(cnode.conditionNumber!=row){
               ncol = filltable(row+1,col, node);
-              for(int i=col;i<ncol;i++)ctable[row][i]="-";
+              for(int i=col;i<ncol;i++){
+                  ctable[row][i]=RDecisionTable.DASH;
+              }
               return ncol;     
           }
           
@@ -106,7 +111,7 @@ public class BalanceTable {
           for(int i=col;i<ncol;i++)ctable[row][i]="n";
           col  = ncol;
        }else{
-          ctable[row][col]="-"; 
+          ctable[row][col]=RDecisionTable.DASH; 
           ANode anode = (ANode)node;
           for(int i=0;i<anode.anumbers.size();i++){
               int index = anode.anumbers.get(i).intValue();

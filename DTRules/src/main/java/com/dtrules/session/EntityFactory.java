@@ -110,8 +110,8 @@ public class EntityFactory {
         }
         RDecisionTable dtTable = new RDecisionTable(session,name.stringValue());
         decisiontablelist.add(name);
-        decisiontables.addAttribute(name, "", dtTable, false, true, IRObject.iDecisiontable,null,"","");
-        decisiontables.put(name, dtTable);
+        decisiontables.addAttribute(name, "", dtTable, false, true, IRObject.iDecisiontable,null,"","","");
+        decisiontables.put(session, name, dtTable);
         return dtTable;
     }
     /**
@@ -157,12 +157,33 @@ public class EntityFactory {
         ruleset = rs;
         ((REntity)decisiontables).removeAttribute(RName.getRName("decisiontables"));
     }
+    /**
+     * Return the RDecisionTable for the given name
+     * @param tablename
+     * @return
+     */
+    public RDecisionTable findTable(String tablename){
+        return findTable(RName.getRName(tablename));
+    }
     
-    
+    /**
+     * Return the RDecisionTable for the given name
+     * @param tablename
+     * @return
+     */
 	public RDecisionTable findTable(RName tablename){
 		return (RDecisionTable) decisiontables.get(tablename);
 	}
 	
+    /**
+     * Looks up the reference Entity given by name.  Returns
+     * a null if it isn't defined.
+     * @param name
+     * @return
+     */
+    public REntity findRefEntity(String name){
+        return findRefEntity(RName.getRName(name));
+    }
 	/**
 	 * Looks up the reference Entity given by name.  Returns
 	 * a null if it isn't defined.
@@ -353,8 +374,8 @@ public class EntityFactory {
                 }
             }
             case IRObject.iTable : {
-                if(defaultstr.length()==0) return RNull.getRNull();
                 RTable table = RTable.newRTable(ef, null, defaultstr, -1);
+                if(defaultstr.length()==0) return table;
                 table.setValues(session, defaultstr);
                 return table;
             }

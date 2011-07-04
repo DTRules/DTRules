@@ -130,16 +130,17 @@ class AttributeInfo {
 				if (thisisanerror){
                     state.traceInfo("error", "Duplicate:" + _entity + "." + tag);
                 }
-                state.traceInfo("error", 
-				         (thisisanerror?"ERROR: ":"WARNING: ") + "\n"+
-				          "The tag <"+tag+"> and enclosure <"+_entity+"> "+
-						  "have been encountered more than once in this mapping file\n"+
-				          "For "+ (_entity==""?"":"<"+_entity+"> ") +tag+"> \n"+
-						           "  Existing: RAttribute '"+attrib.rAttribute+"'\n"+
-						           "            type      '"+int2str[attrib.type]+"'\n"+
-						           "  New:      RAttribute '"+_attribute+"'\n"+
-						           "            type      '"+_type+"'\n");                        
-				if(thisisanerror) throw new RuntimeException("Duplicate Enclosures encountered"); 
+                String errorString =
+                    (thisisanerror?"ERROR: ":"WARNING: ") + "\n"+
+                    "The tag <"+tag+"> and enclosure <"+_entity+"> "+
+                    "have been encountered more than once in this mapping file\n"+
+                    "For "+ (_entity==""?"":"<"+_entity+"> ") +tag+"> \n"+
+                             "  Existing: RAttribute '"+attrib.rAttribute+"'\n"+
+                             "            type      '"+int2str[attrib.type]+"'\n"+
+                             "  New:      RAttribute '"+_attribute+"'\n"+
+                             "            type      '"+_type+"'\n";                        
+				state.traceInfo("error", errorString);
+				if(thisisanerror) throw new RuntimeException("Duplicate Enclosures encountered:\r\n"+errorString); 
 			}
 		}	
 		final Attrib attrib = new Attrib();
@@ -157,10 +158,11 @@ class AttributeInfo {
 	 */
 	public Attrib lookup(String _enclosure){
 		if(_enclosure==null) _enclosure="";
-		Iterator iattribs = tag_instances.iterator();
-		while(iattribs.hasNext()){
-			Attrib attrib = (Attrib) iattribs.next();
-			if(attrib.enclosure.equalsIgnoreCase(_enclosure)){
+		int end =  tag_instances.size();
+		Attrib attrib;
+		for(int i=0; i < end; i++){
+			attrib = tag_instances.get(i);
+		    if(attrib.enclosure.equalsIgnoreCase(_enclosure)){
 			   return attrib;
 			}
 		}

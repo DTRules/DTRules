@@ -18,11 +18,13 @@ package com.dtrules.testsupport;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 import java.io.FileInputStream;
 
+import com.dtrules.automapping.AutoDataMap;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RName;
@@ -38,8 +40,25 @@ import com.dtrules.mapping.DataMap;
 
 public abstract class ATestHarness implements ITestHarness {
  
-    DataMap datamap     =   null;
-    String  currentfile =   "";
+	
+    DataMap 	datamap     = null;
+    AutoDataMap autoDataMap = null;
+    String      currentfile = "";
+    
+    @Override
+    /**
+     * Default to using the older DataMap interface.
+     */
+	public int harnessVersion(){
+    	return 1;
+    }
+    /**
+     * Return the map Name for this Rule Set.  Override this method if your 
+     * map needed for your test isn't named "default".
+     */
+    public String mapName(){
+    	return "default";
+    }
     
     public String getCurrentFile () {
         return currentfile;
@@ -54,7 +73,6 @@ public abstract class ATestHarness implements ITestHarness {
     	for(String table : decisionTables){
     		session.execute(table);
     	}
-    	
     };
     
     /**
@@ -64,8 +82,20 @@ public abstract class ATestHarness implements ITestHarness {
     public String getDecisionTableName() {
 		return null;
 	}
-
-
+    
+    /**
+     * Returns "default" as the assumed entry point.  Override if you need to
+     * test your decision tables from some other defined entry point.  The
+     * entry point for your Rule Set is defined in your Rules Engine configuration
+     * file (DTRules.xml).
+     *  
+     * @return
+     */
+    @Override
+    public String entrypoint(){
+    	return "default";
+    }
+    
 	/**
      * By default we do not have a list of Decision Table names.  The
      * implementation can either implement this method, or the method
@@ -75,20 +105,24 @@ public abstract class ATestHarness implements ITestHarness {
 		return null;
 	}
 
-
-
 	public DataMap getDataMap() { 
 	    return datamap; 
 	}
+
+	/**
+	 * Returns the autoDataMap (or null if there is no autoDataMap)
+	 * @return
+	 */
+	public AutoDataMap getAutoDataMap () {
+		return autoDataMap;
+	}
 	
-    public  void   setDataMap(DataMap datamap){ 
-        this.datamap = datamap; 
-    }
-    /**
+	/**
      * Path to the XML Directory holding all the XML files for this
      * Rule Set
      */
     public String getXMLDirectory() { return getPath()+"xml/"; }
+    
     /**
      * Default Rules directory file name is DTRules.xml.
      */
@@ -175,28 +209,44 @@ public abstract class ATestHarness implements ITestHarness {
              File           files[]  = dir.listFiles();
              int            dfcnt    = 1;
              
-             Date start = new Date();
-             System.out.println(start);  
+             if(rs == null){
+            	 System.out.println("Could not find the Rule Set '"+ruleset+"'");
+            	 throw new RuntimeException("Undefined: '"+ruleset+"'");
+             }
              
-             for(File file : files){
-                 if(file.isFile() && file.getName().endsWith(".xml")){
-                     if(!Console())System.out.print(dfcnt+" ");
-                     Date now = new Date();
-                     if(dfcnt%20==0){
-                         long dt  = (now.getTime()-start.getTime())/dfcnt;
+             Date start = new Date();
+             
+             {
+                 System.out.println(start);  
+                 for(File file : files){
+                     if(file.isFile() && file.getName().endsWith(".xml")){
+                         if(!Console())System.out.print(dfcnt+" ");
+                         Date now = new Date();
+                         if(dfcnt%20==0){
+                             long dt  = (now.getTime()-start.getTime())/dfcnt;
+                             long sec = dt/1000;
+                             long ms  = dt-(sec*1000);
+                             System.out.println("\nAvg execution time: "+sec+"."+ms);
+                         }
+                         String err = runfile(rd,rs,dfcnt,dir.getAbsolutePath(),file.getName());
+                         Date after = new Date();
+                         long dt  = (after.getTime()-now.getTime());
                          long sec = dt/1000;
-                         long ms  = dt-(sec*1000);
-                         System.out.println("\nAvg execution time: "+sec+"."+ms);
+                         rpt.println(dfcnt+"\t"+sec+"."+(dt-(sec*1000))+"\t"+file.getName());
+                         if(err!=null)rpt.println(err);
+                         dfcnt++;
                      }
-                     String err = runfile(rd,rs,dfcnt,dir.getAbsolutePath(),file.getName());
-                     Date after = new Date();
-                     long dt  = (after.getTime()-now.getTime());
-                     long sec = dt/1000;
-                     rpt.println(dfcnt+"\t"+sec+"."+(dt-(sec*1000))+"\t"+file.getName());
-                     if(err!=null)rpt.println(err);
-                     dfcnt++;
                  }
-                 
+                 Date end = new Date();
+                 long dt = end.getTime() - start.getTime();
+                 long ms = dt%1000;
+                 dt /= 1000;
+                 long sec = dt%60;
+                 dt /= 60;
+                 long min = dt%60;
+                 dt /= 60;
+                 long hour = dt;
+                 System.out.println("\r\n\r\nTotal Execution Time (h:m:s.ms): "+hour+":"+min+":"+sec+"."+ms);
              }
              
              if(Trace() && coverageReport()){
@@ -207,7 +257,9 @@ public abstract class ATestHarness implements ITestHarness {
              
              {
                  Date now = new Date();
-                 long dt  = (now.getTime()-start.getTime())/(dfcnt-1);
+                 int filecnt = dfcnt-1;
+                 if(filecnt == 0) filecnt = 1;
+                 long dt  = (now.getTime()-start.getTime())/(filecnt);
                  long sec = dt/1000;
                  long ms  = dt-(sec*1000);
                  System.out.println("\nDone.  Avg execution time: "+sec+"."+ms);
@@ -230,13 +282,23 @@ public abstract class ATestHarness implements ITestHarness {
      }
      
      public void loadData(IRSession session, String path, String dataset)throws Exception {
-         Mapping   mapping  = session.getMapping();
-         
-         datamap = session.getDataMap(mapping,null);
-         
-         datamap.loadXML(new FileInputStream(path+"/"+dataset));
-         
-         mapping.loadData(session, datamap);
+    	 InputStream input = new FileInputStream(path+"/"+dataset);
+    	 if( harnessVersion() < 2){
+	         Mapping   mapping  = session.getMapping();
+	         
+	         datamap = session.getDataMap(mapping,null);
+	         
+	         datamap.loadXML(input);
+	         
+	         mapping.loadData(session, datamap);
+    	 }else{
+    		 autoDataMap = session.getRuleSet().getAutoDataMap(session, mapName());
+    		 
+    	     autoDataMap.setCurrentGroup("applicationDataload");
+    		 autoDataMap.LoadXML(input);
+    		 
+    		 autoDataMap.mapDataToTarget("dtrules");
+    	 }
      }
     
      
@@ -269,7 +331,10 @@ public abstract class ATestHarness implements ITestHarness {
               DTState        state      = session.getState();
               state.setOutput(tracefile, out);
               if(Trace()){
-                  state.setState(DTState.DEBUG | DTState.TRACE | DTState.VERBOSE);
+                  state.setState(DTState.DEBUG | DTState.TRACE);
+                  if(Verbose()){
+                      state.setState(DTState.VERBOSE);
+                  }
                   state.traceStart();
               }
               // Get the XML mapping for the rule set, and load a set of data into the EDD
@@ -277,8 +342,11 @@ public abstract class ATestHarness implements ITestHarness {
               loadData(session, path, dataset);
               
               if(Verbose()){
-                  datamap.print(new FileOutputStream(getOutputDirectory()+root+"_datamap.xml"));
-                  
+            	  if(harnessVersion() < 2){
+                     datamap.print(new FileOutputStream(getOutputDirectory()+root+"_datamap.xml"));
+            	  }else{
+            		 autoDataMap.printDataLoadXML(new FileOutputStream(getOutputDirectory()+root+"_datamap.xml"));
+            	  }
                   entityfile = new FileOutputStream(getOutputDirectory()+root+"_entities_before.xml");
                   RArray entitystack = new RArray(0,false,false);
                   for(int i=0; i< session.getState().edepth()-2; i++){
@@ -344,6 +412,8 @@ public abstract class ATestHarness implements ITestHarness {
     
     /**
      * By default, we will simply dump the entities as the report file.
+     * In general, we usually print a valid XML file as a report, but nothing
+     * says you have to.
      */
     public void printReport(int runNumber, IRSession session, PrintStream out)
             throws Exception {
@@ -355,18 +425,18 @@ public abstract class ATestHarness implements ITestHarness {
     }
 
     public String referenceRulesDirectoryFile ()       { return null; }; 
-     public String referencePath ()                     { return null; };
-     public void   changeReportXML(OutputStream report){
-         ChangeReport cr = new ChangeReport(
-                 getRuleSetName(), 
-                 getPath(),getRulesDirectoryFile(),"development",
-                 referencePath(),referenceRulesDirectoryFile(),"deployed");
-         try{
-             cr.compare(report);
-         }catch(Exception e){
-             System.out.println("Could not compare rule sets");
-         }
-     }
+    public String referencePath ()                     { return null; };
+    public void   changeReportXML(OutputStream report){
+        ChangeReport cr = new ChangeReport(
+                getRuleSetName(), 
+                getPath(),getRulesDirectoryFile(),"development",
+                referencePath(),referenceRulesDirectoryFile(),"deployed");
+        try{
+            cr.compare(report);
+        }catch(Exception e){
+            System.out.println("Could not compare rule sets");
+        }
+    }
 
     public boolean compareNodes(Node thisResult, Node oldResult){
          return thisResult.absoluteMatch(oldResult, false);

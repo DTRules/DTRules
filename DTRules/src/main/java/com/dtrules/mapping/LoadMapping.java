@@ -154,9 +154,9 @@ public class LoadMapping implements IGenericXMLParser {
 		    if(e!=null){									// I hope to goodness I can find it!
 		      attribs.put("create entity","true");	
 		      if(code.length()!=0) {
-		    	  e.put(IREntity.mappingKey,RString.newRString(code));
+		    	  e.put(null, IREntity.mappingKey,RString.newRString(code));
 		      }else{
-		    	  e.put(IREntity.mappingKey,RString.newRString("v"+ (++codeCnt)));
+		    	  e.put(null, IREntity.mappingKey,RString.newRString("v"+ (++codeCnt)));
 		      }
 		    
 		      state.entitypush(e);
@@ -355,7 +355,7 @@ public class LoadMapping implements IGenericXMLParser {
     	if(((IREntity)state.getes(i)).get(e.getName())!=null){
             IREntity refto = state.getes(i);
             if(! refto.getName().equals(e.getName()))           // Update a reference to an Entity of the same name,
-    		   ((IREntity)state.getes(i)).put(e.getName(), e);  //  but only if it isn't a self reference.
+    		   ((IREntity)state.getes(i)).put(null, e.getName(), e);  //  but only if it isn't a self reference.
     		
     	}
      

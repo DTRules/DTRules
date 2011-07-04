@@ -31,7 +31,8 @@ public class RName extends ARObject implements Comparable<RName>{
 	final boolean executable;
     final int     hashcode;
     final RName   partner;		// RNames are created in pairs, executable and non-executable.
-
+    final String  postfix;
+    
     /** 
      * I started with a Hashmap here.  However, we can deadlock with multiple threads.  So
      * I tried two possible fixes, ConcurrentHashMap and Hashtable.  The latter gave me the
@@ -79,6 +80,7 @@ public class RName extends ARObject implements Comparable<RName>{
 		executable     = _executable;
 		hashcode       = _hashcode;
 		partner        = _partner;
+		postfix        = _executable ? _name : "/"+_name;
 	}
 	/**
 	 * This constructor should only be called by the getRName method.  This
@@ -93,6 +95,7 @@ public class RName extends ARObject implements Comparable<RName>{
 		name           = _name;
 		executable     = _executable;
 		hashcode       = _hashcode;
+        postfix        = _executable ? _name : "/"+_name;
 		partner        = new RName(_entity, _name,!_executable,_hashcode,this);
 	}
 	
@@ -108,8 +111,12 @@ public class RName extends ARObject implements Comparable<RName>{
 	 * @return The Name object
 	 */
 	static public RName getRName(String _name){
+        String cache = _name;
+	    RName rname = names.get(_name);
+        if(rname != null)return rname;
+	    
         // Fix the name; trim and then replace internal spaces with '_'.
-        _name = spaces.matcher(_name.trim()).replaceAll("_");
+	    _name = spaces.matcher(_name.trim()).replaceAll("_");
         boolean executable = !(_name.indexOf('/')==0);
         if(!executable){
             _name = _name.substring(1); // Remove the slash.
@@ -122,9 +129,13 @@ public class RName extends ARObject implements Comparable<RName>{
                 throw new RuntimeException("Invalid Name Syntax: ("+_name+")");
             }
             String name   = _name.substring(dot+1);
-            return getRName(RName.getRName(entity),name,executable);
+            rname = getRName(RName.getRName(entity),name,executable);
+            names.put(cache, rname);
+            return rname;
         }
-		return getRName(null, _name, executable);
+		rname = getRName(null, _name, executable);
+		names.put(cache,rname);
+		return rname;
 	}
 	
 	/* (non-Javadoc)
@@ -168,7 +179,12 @@ public class RName extends ARObject implements Comparable<RName>{
 	 * @return
 	 */
 	static public RName getRName(RName _entity, String _name, boolean _executable) {
-		// Fix the name; trim and then replace internal spaces with '_'.
+	    RName rn = (RName) names.get(_name);
+	    if(rn != null && _entity == null){
+	        return _executable ? (RName) rn.getExecutable() : (RName) rn.getNonExecutable();
+	    }
+	    if(rn!=null)
+	    // Fix the name; trim and then replace internal spaces with '_'.
 		_name = space.matcher(_name).replaceAll("_");
 		// If we already have the RName, we are done.
 		String lname = _name.toLowerCase();
@@ -176,7 +192,7 @@ public class RName extends ARObject implements Comparable<RName>{
         if(_entity!=null){
 		   cname = _entity.stringValue().toLowerCase()+"."+lname;
         }
-		RName rn = (RName) names.get(cname);
+		rn = (RName) names.get(cname);
 		if(rn == null ) {
 			rn = new RName(_entity ,_name,_executable, lname.hashCode());
 			names.put(cname,rn);
@@ -250,7 +266,7 @@ public class RName extends ARObject implements Comparable<RName>{
 	 * Returns the postfix version of the name.
 	 */
 	public String postFix() {
-		return executable ? stringValue() : "/"+stringValue();
+		return postfix;
 	}
 	
 	/**

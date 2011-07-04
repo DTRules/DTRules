@@ -16,6 +16,8 @@
   
 package com.dtrules.interpreter;
 
+import java.util.Map;
+
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.operators.ROperator;
 import com.dtrules.session.DTState;
@@ -305,17 +307,26 @@ public class RString extends ARObject {
         return f;
     }
 	
-	public boolean equals(IRObject o) throws RulesException {
+    @Override
+    public int hashCode() {
+        return this.value.hashCode();
+    }
+
+    public boolean equals(IRObject o) {
 		return value.equals(o.stringValue());
 	}
 
-    /* (non-Javadoc)
-     * @see com.dtrules.interpreter.ARObject#rTimeValue()
-     */
+	@Override
+	public boolean equals(Object object){
+        if(object instanceof IRObject){
+            return value.equals(((IRObject)object).stringValue());
+        }
+	    return super.equals(object);
+	}
+	
     @Override
-    public RTime rTimeValue() throws RulesException {
-        // TODO Auto-generated method stub
-        return super.rTimeValue();
+    public RTime rTimeValue(IRSession session) throws RulesException {
+        return RTime.getRDate(session, value);    
     }
 	
 	

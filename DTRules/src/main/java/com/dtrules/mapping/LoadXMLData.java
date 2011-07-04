@@ -53,9 +53,9 @@ public class LoadXMLData implements IGenericXMLParser {
     IRObject      def;
     DTState       state;
     String        ruleSetName;
-    static DateFormat df_in   = new SimpleDateFormat ("yyyy-MM-dd");
+    DateFormat df_in   = new SimpleDateFormat ("yyyy-MM-dd");
 	
-	static DateFormat df_out  = new SimpleDateFormat ("MM/dd/yyyy");
+	DateFormat df_out  = new SimpleDateFormat ("MM/dd/yyyy");
 	
     
     public LoadXMLData(Mapping _map){
@@ -152,9 +152,9 @@ public class LoadXMLData implements IGenericXMLParser {
 		    if(e!=null){									// I hope to goodness I can find it!
 		      attribs.put("create entity","true");	
 		      if(code.length()!=0) {
-		    	  e.put(IREntity.mappingKey,RString.newRString(code));
+		    	  e.put(null, IREntity.mappingKey,RString.newRString(code));
 		      }else{
-		    	  e.put(IREntity.mappingKey,RString.newRString("v"+ (++codeCnt)));
+		    	  e.put(null, IREntity.mappingKey,RString.newRString("v"+ (++codeCnt)));
 		      }
 		    
 		      state.entitypush(e);
@@ -180,7 +180,7 @@ public class LoadXMLData implements IGenericXMLParser {
 			{                                                   // Not only do you have to match the attribute name,
 			    int i=tagstkptr-2;				                //   But you must match the immediately enclosing tag
 				if(i>=0){  
-			      attrib = aInfo.lookup(topOfEntityStack.getName().stringValue().toLowerCase());    
+			      attrib = aInfo.lookup(topOfEntityStack.getName().stringValue());    
 				  if(attrib!=null){
 			        queueSetAttribute(attrib, attribs);
 				  }
@@ -354,7 +354,7 @@ public class LoadXMLData implements IGenericXMLParser {
     	if(((IREntity)state.getes(i)).get(e.getName())!=null){
             IREntity refto = state.getes(i);
             if(! refto.getName().equals(e.getName()))           // Update a reference to an Entity of the same name,
-    		   ((IREntity)state.getes(i)).put(e.getName(), e);  //  but only if it isn't a self reference.
+    		   ((IREntity)state.getes(i)).put(null, e.getName(), e);  //  but only if it isn't a self reference.
     		
     	}
      

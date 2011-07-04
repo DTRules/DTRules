@@ -25,6 +25,7 @@ import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RBoolean;
 import com.dtrules.interpreter.RInteger;
+import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
 import com.dtrules.interpreter.RTime;
 import com.dtrules.session.DTState;
@@ -58,19 +59,27 @@ public class RDateTimeOps {
             new YearsBetween();
             new DaysBetween();
             new MonthsBetween();
+            new TestDateFormat();
 		}
 		
 	    /**
 	     * Newdate( String -- Date )
-	     * Newdate Operator, returns the Date object for the String value
+	     * Newdate Operator, returns the Date object for the String value.  Returns
+	     * a RNull if the string failed to convert to a date.
 	     *
 	     */
 		static class Newdate extends ROperator {
 			Newdate(){super("newdate");}
 
 			public void execute(DTState state) throws RulesException {
-			    IRObject obj = state.datapop();
-				state.datapush(RTime.getRDate(state.getSession(), obj.stringValue()));
+			    IRObject obj   = state.datapop();
+			    String   date  = obj.stringValue();
+				try{
+					RTime rdate = RTime.getRDate(state.getSession(), date);
+					state.datapush(rdate);
+				}catch(RulesException e){
+					state.datapush(RNull.getRNull());
+				}
 			}
 		} 
 
@@ -459,10 +468,33 @@ public class RDateTimeOps {
           }  
         
           /**
+           * (date dateString dateRegex SeparatorRegex --> boolean )
+           * Returns true if the date provided strictly matches the dateString, 
+           * and the dateRegex.  It does this by breaking out the day and month
+           * from the dateString match the day and month returned by the calendar
+           * for that date.
+           *  
+           * @author Paul Snow
+           *
+           */
+          static class TestDateFormat extends ROperator {
+        	  TestDateFormat() {super("testdateformat"); }
+              public void execute(DTState state) throws RulesException {
+                  String sepRegex  = state.datapop().stringValue();
+                  String dateRegex = state.datapop().stringValue();
+                  String dateStr   = state.datapop().stringValue();
+                  Date   date      = state.datapop().timeValue();
+                  boolean result = state.getSession().getDateParser().testFormat(
+                		  date, dateStr, dateRegex, sepRegex);
+                  state.datapush(RBoolean.getRBoolean(result));
+              }
+          }
+ 
+          /**
            * (date1 date2 --> int )
            * Returns the days between two dates.  This is the difference between
            * the dates, and is negative if date1 is before date2.
-           * @author ps24876
+           * @author Paul Snow
            *
            */
           static class DaysBetween extends ROperator {
@@ -486,5 +518,5 @@ public class RDateTimeOps {
                   state.datapush(RInteger.getRIntegerValue(days));
               }
           }
-        
+ 
 }

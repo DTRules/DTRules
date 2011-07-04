@@ -24,6 +24,7 @@ import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RXmlValue;
+import com.dtrules.session.IRSession;
 
 public interface IREntity extends IRObject{
 
@@ -78,7 +79,17 @@ public interface IREntity extends IRObject{
      * @param type
      * @return Error string if the add failed, or a null on success.
      */
-    public String addAttribute( RName attributeName, String defaulttxt, IRObject defaultvalue,boolean writable, boolean readable, int type, String subtype, String comment, String input);
+    public String addAttribute( 
+            RName attributeName, 
+            String defaulttxt, 
+            IRObject defaultvalue,
+            boolean writable, 
+            boolean readable, 
+            int type, 
+            String subtype, 
+            String comment, 
+            String input,
+            String output);
   
     /**
      * Returns the name of this entity. 
@@ -90,11 +101,13 @@ public interface IREntity extends IRObject{
      * attribute name, look up that attribute and insure that the value type matches
      * the type expected by the attribute entry.  All types accept a RNull value.
      * 
+     * Some data conversions require the session.
+     * 
      * @param attrib
      * @param value
      * @throws RulesException
      */
-    public abstract void put(RName attrib, IRObject value)
+    public abstract void put(IRSession session, RName attrib, IRObject value)
             throws RulesException;
 
     /**

@@ -93,9 +93,11 @@ public class EDDLoader implements IGenericXMLParser {
 		  String defaultv   = (String) attribs.get("default");
 		  String comment    = (String) attribs.get("comment");
 		  String input      = (String) attribs.get("input");
+		  String output     = (String) attribs.get("output");
 		  
-		  if(comment==null)comment = "";
-		  if(input == null)input   = "";
+		  if(comment == null)comment = "";
+		  if(input   == null)input   = "";
+		  if(output  == null)output  = "";
 		  
 		  boolean  writeable = true; 	// We need to convert access to a boolean
 		  boolean  readable  = true;    // Make an assumption of r/w
@@ -142,7 +144,8 @@ public class EDDLoader implements IGenericXMLParser {
 		                                       intType,
 		                                       subtype,
 		                                       comment,
-		                                       input);
+		                                       input,
+		                                       output);
 		  if(errstr!=null){
 		      succeeded = false;
 		      errorMsgs += errstr;
@@ -183,9 +186,11 @@ public class EDDLoader implements IGenericXMLParser {
 	    String type           = (String) attribs.get("type");
 	    String comment        = (String) attribs.get("comment");
         String input          = (String) attribs.get("input");
-          
-        if(comment==null)comment = "";
-        if(input == null)input   = "";
+        String output         = (String) attribs.get("output");
+        
+        if(comment == null)comment = "";
+        if(input   == null)input   = "";
+        if(output  == null)output  = "";
     	    
 	    boolean writeable = access.toLowerCase().indexOf("w")>=0;
         boolean readable  = access.toLowerCase().indexOf("r")>=0;
@@ -225,7 +230,8 @@ public class EDDLoader implements IGenericXMLParser {
                                              intType,
                                              subtype,
                                              comment,
-                                             input);
+                                             input,
+                                             output);
         if(errstr!=null){
             succeeded = false;
             errorMsgs += errstr;

@@ -29,6 +29,32 @@ import com.dtrules.xmlparser.XMLTree.Node;
  *
  */
 public interface ITestHarness {
+	
+	/**
+	 * Returns the TestHarness Version.  At this point we have the following 
+	 * versions:
+	 * <br><br>
+	 * 1 -- Use the dataMap interface
+	 * 2 -- Use the autoDataMap interface
+	 *    
+	 * @return
+	 */
+	int harnessVersion();
+	
+	/** AutoDataMap Support
+	 * 
+	 * Returns the entry point into the Rule Set.
+	 * @return
+	 */
+	String entrypoint();
+	
+	/** AutoDataMap Support
+	 * 
+	 * Returns the map file name for this test.
+	 * @return
+	 */
+	String mapName();
+	
     /**
      * Returns the path to the Project Directory under which we organize the
      * test files, defined the Rule Sets, etc. for this project.
@@ -172,9 +198,7 @@ public interface ITestHarness {
      * open one for you.
      */
     void printReport(int runNumber, IRSession session, PrintStream out) throws Exception;
-    
-    public void    setDataMap(DataMap datamap);
-    
+        
     public DataMap getDataMap();
     
     /**
