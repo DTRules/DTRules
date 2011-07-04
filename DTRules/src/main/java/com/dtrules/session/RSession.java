@@ -1,0 +1,498 @@
+/** 
+ * Copyright 2004-2009 DTRules.com, Inc.
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");  
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at  
+ *   
+ *      http://www.apache.org/licenses/LICENSE-2.0  
+ *   
+ * Unless required by applicable law or agreed to in writing, software  
+ * distributed under the License is distributed on an "AS IS" BASIS,  
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+ * See the License for the specific language governing permissions and  
+ * limitations under the License.  
+ **/ 
+
+package com.dtrules.session;
+
+
+import java.io.PrintStream;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import javax.rules.InvalidRuleSessionException;
+import javax.rules.RuleExecutionSetMetadata;
+import javax.rules.RuleSession;
+
+import com.dtrules.decisiontables.RDecisionTable;
+import com.dtrules.entity.IREntity;
+import com.dtrules.entity.REntity;
+import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RArray;
+import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RString;
+import com.dtrules.interpreter.operators.ROperator;
+import com.dtrules.xmlparser.IXMLPrinter;
+import com.dtrules.mapping.DataMap;
+import com.dtrules.mapping.Mapping;
+
+@SuppressWarnings("unchecked")
+public class RSession implements RuleSession, IRSession {
+
+    final RuleSet               rs;
+	final DTState               dtstate;
+	final EntityFactory         ef;
+    int                         uniqueID = 1;
+    HashMap<Object,IREntity>    entityInstances = new HashMap<Object,IREntity>();
+    ICompiler                   compiler = null;       
+    ArrayList<DataMap>          registeredMaps = new ArrayList<DataMap>();  
+    IDateParser					dateParser = new DateParser();
+    
+    
+    public IDateParser getDateParser() {
+		return dateParser;
+	}
+
+	public void setDateParser(IDateParser dateParser) {
+		this.dateParser = dateParser;
+	}
+
+	/**
+     * Get the list of Data Maps Registered to this session.
+     * @return
+     */
+    public ArrayList<DataMap> getRegisteredMaps(){
+        return registeredMaps;
+    }
+
+    private void registerMap(DataMap datamap){
+        if(!registeredMaps.contains(datamap)){
+            registeredMaps.add(datamap);
+        }
+    }
+    
+    /**
+     * Allocate a registered data map.  If you want to map Data Objects
+     * into the Rules Engine, you need to use this call, providing the
+     * mapping which provides information about these Data Objects.
+     * @return
+     */
+    public DataMap getDataMap(Mapping map, String tag){
+        DataMap datamap = new DataMap(map,tag,null);
+        registerMap(datamap);
+        return datamap;
+    }
+    
+    
+    /**
+     * Get the default mapping
+     * @return
+     */
+    public Mapping getMapping () {
+        return rs.getMapping(this);
+    }
+    
+    /**
+     * Get a named mapping file
+     * @param filename
+     * @return
+     */
+    public Mapping getMapping (String filename){
+        return rs.getMapping(filename, this);
+    }
+    
+    /**
+     * Gets the Rules Directory used to create this session
+     * @return The Rules Directory used to create this session
+     */
+    public RulesDirectory getRulesDirectory() {
+        return rs.getRulesDirectory();
+    }
+    /**
+     * If the session is provided a compiler object, then it can compile
+     * the Formal syntax into posfix using this compiler.  A Compiler is 
+     * really specific to the RuleSet.  However, in the future we may 
+     * wish that a compiler be specific to the decision table.
+     * 
+     * @param _compiler
+     */
+    public void setCompiler(ICompiler _compiler){
+        compiler = _compiler;
+    }
+    
+    /**
+     * Each RSession is associated with a particular RuleSet
+     * @param _ef
+     * @throws RulesException
+     */
+    public RSession(RuleSet _rs) throws RulesException {
+        rs      = _rs;
+        dtstate = new DTState(this);
+        ef      = _rs.getEntityFactory(this);
+        if(ef.getUniqueID()<100000){
+            uniqueID = 100000;
+        }else{
+            uniqueID = ef.getUniqueID()+100000;
+        }    
+        /**
+         * Add all the reference entities to the session list 
+         * of entities.
+         */
+        Iterator<RName> ie = ef.referenceEntities.keySet().iterator();
+        while(ie.hasNext()){
+            IREntity e  = ef.findRefEntity(ie.next());
+            String   id = e.getID()+"";
+            if(entityInstances.containsKey(id)){
+                throw new RulesException("duplicate","new RSession()","Duplicate id "+id+" found between:\n"
+                        +e.getName()+" and "+entityInstances.get(id).getName());
+            }
+            entityInstances.put(id,e);
+        }
+        try { 
+            dtstate.entitypush(ROperator.getPrimitives()); 
+            dtstate.entitypush(ef.decisiontables);
+        } catch (RulesException e) {
+            throw new RulesException("Initialization Error", 
+                    "RSession", 
+                    "Failed to initialize dtstate in init(): "+e.toString());
+        }
+    }
+    
+    /**
+     * Does a recursive dump of the given entity to standard out.
+     * This is a debugging thing.  If DEBUG isn't set in the State of the Session,
+     * calling this routine does nothing at all.
+     * @param e
+     */
+    public void dump(REntity e) throws RulesException {
+
+        if(!dtstate.testState(DTState.DEBUG))return;    // Leave if nothing to do.
+        dtstate.traceTagBegin("entity", "name",e.getName().stringValue(),"id=",e.getID()+"");
+        dump(e,1); 
+        dtstate.traceTagEnd();
+    }
+    
+    private HashMap<REntity,ArrayList> boundries = new HashMap<REntity,ArrayList>(); // Track printing Entity from Entity boundries to stop recursive printing.
+    
+    private String getType(REntity e, RName n) throws RulesException{
+        int type = e.getEntry(n).type;
+        return RSession.typeInt2Str(type);
+    }
+        
+    /**
+     * Dumps the Entity and its attributes to the debug output source.  However,
+     * if debug isn't enabled, the routine does absolutely nothing.
+     * @param e The Entity to be dumped.
+     * @param depth Dumping is a private, recursive thing.  depth helps us track its recursive nature.
+     */
+    private void dump(REntity e,int depth){
+        Iterator<RName> anames = e.getAttributeIterator();
+        while(anames.hasNext()){
+            try {
+                RName        aname = anames.next();
+                IRObject     value = e.get(aname);
+                
+                dtstate.traceTagBegin("attribute", "name",aname.stringValue(),"type",getType(e,aname));
+                switch(e.getEntry(aname).type){
+                   case IRObject.iEntity: {
+                      if(value.type()==IRObject.iNull){
+                          dtstate.traceInfo("value","type","null","value","null",null);
+                          break;
+                      }
+                      dtstate.traceTagBegin("entity", 
+                              "name",   ((REntity)value).getName().stringValue(),
+                              "id",     ((REntity)value).getID()+"");
+                      
+                      if(!(boundries.get(e)!= null && boundries.get(e).contains(value))){
+                          dtstate.debug(" recurse\n");
+                      }else{
+                          if(boundries.get(e)==null)boundries.put(e, new ArrayList());
+                          boundries.get(e).add(value);
+                          dump((REntity)value, depth+1);
+                      }
+                      dtstate.traceTagEnd();
+                      break;
+                   }   
+                   case IRObject.iArray: {
+                      ArrayList values = value.arrayValue();
+                      Iterator iv = values.iterator();
+                      while(iv.hasNext()){
+                          IRObject v = (IRObject) iv.next();
+                          if(v.type()==IRObject.iEntity){
+                              dump((REntity)v,depth+2);
+                          }else{
+                              dtstate.traceInfo("value","v",v.stringValue(),null);
+                          }
+                      }
+                      break;
+                   }
+                   default : {
+                       dtstate.traceInfo("value","v",value.stringValue(),null);
+                   }
+                }
+                dtstate.traceTagEnd();
+            } catch (RulesException e1) {
+                dtstate.debug("Rules Engine Exception\n");
+                e1.printStackTrace(dtstate.getErrorOut());
+            }
+        }
+    }
+    
+    
+    /**
+     * Return an ID that is unique for this session.  The ID is generated using a simple
+     * counter.  This ID will not be unique across all sessions, nor is it very likely to
+     * be unique when compared to IDs generated with by methods.
+     * <br><br>
+     * Unique IDs are used to distinguish various instances of entities apart during
+     * exectuion and/or during the generation or loading of a Trace file. They can be 
+     * used for other purposes as well, under the assumption that the number of unique IDs
+     * are less than or equal to 0x7FFFFFFF hex or 2147483647 decimal.
+     * 
+     * @return a Unique ID generated by a simple counter. 
+     */
+    public int getUniqueID(){
+        return uniqueID++;
+    }	
+	
+	/* (non-Javadoc)
+     * @see com.dtrules.session.IRSession#getRuleExecutionSetMetadata()
+     */
+	public RuleExecutionSetMetadata getRuleExecutionSetMetadata(){
+		return null;
+	}
+
+	/* (non-Javadoc)
+     * @see com.dtrules.session.IRSession#release()
+     */
+	public void release() throws RemoteException, InvalidRuleSessionException {
+	}
+
+	/* (non-Javadoc)
+     * @see com.dtrules.session.IRSession#getType()
+     */
+	public int getType() throws RemoteException, InvalidRuleSessionException {
+		return 1;
+	}
+
+	/**
+     * Compiles the given string into an executable array, per the Rules Engine's interpreter.
+     * Assuming this compile completes, the given array is executed.  A RulesException can be
+     * thrown either by the compile of the string, or the execution of the resulting array.
+     * @param s String to be compiled.
+     * @exception RulesException thrown if any problem occurs compiling or executing the string.
+     * @see com.dtrules.session.IRSession#execute(java.lang.String)
+     */
+	public void execute(String s) throws RulesException {
+		try {
+            RString.newRString(s,true).execute(dtstate);
+        } catch (RulesException e) {
+            if(getState().testState(DTState.TRACE)){
+                getState().traceInfo("Error", e.toString());
+                getState().traceEnd();
+            }
+            throw e;
+        }
+		return;
+	}
+	/**
+	 * Converts the string representation of a type into an index.
+	 * @param type
+	 * @return
+	 * @throws RulesException
+	 */
+	static public int typeStr2Int(String type, String entity, String attribute)throws RulesException{
+		type = type.trim();
+		if(type.equalsIgnoreCase("list"))type = IRObject.rArray;
+        if(type.equalsIgnoreCase("date"))type = IRObject.rTime;
+        if(type.equalsIgnoreCase("double"))type = IRObject.rFloat;
+		for(int i=0;i<IRObject.types.length;i++){
+			if(IRObject.types[i].equalsIgnoreCase(type))return i;
+		}
+		throw new RulesException("Undefined","typeStr2Int on entity: '"+entity+"' attribute: '"+attribute+"'","Bad Type Encountered:"+type);
+	}
+	/**
+	 * Converts the index representation of a type into a String.
+	 * @param type
+	 * @return
+	 * @throws RulesException
+	 */
+	static public String typeInt2Str(int type)throws RulesException {
+		if(type<0 || type > IRObject.types.length){
+			throw new RulesException("Undefined","typeInt2Str","Bad Type Index Encountered: "+type); 
+		}
+		return IRObject.types[type];
+	}
+    
+	/**
+     * Returns the state object for this Session.  The state is used by the Rules Engine in
+     * the interpretation of the decision tables.
+     * @return DTState The object holds the Data Stack, Entity Stack, and other state of the Rules Engine. 
+	 */
+    public DTState getState(){return dtstate; }
+
+	/**
+	 * @return the ef
+	 */
+	public EntityFactory getEntityFactory() {
+		return ef;
+	}
+	/**
+     * Create an Instance of an Entity of the given name.
+     * @param name The name of the Entity to create
+     * @return     The entity created.
+     * @throws RulesException Thrown if any problem occurs (such as an undefined Entity name)
+	 */
+	public IREntity createEntity(Object id, String name) throws RulesException{
+        RName entity = RName.getRName(name);
+		return createEntity(id, entity);
+	}
+
+    /**
+     * Create an Instance of an Entity of the given name.
+     * @param name The name of the Entity to create
+     * @return     The entity created.
+     * @throws RulesException Thrown if any problem occurs (such as an undefined Entity name)
+     */
+	public IREntity createEntity(Object id, RName name) throws RulesException{
+	    if(id==null){
+	        id = getUniqueID()+"";
+	    }
+		REntity ref = ef.findRefEntity(name);
+        if(ref==null){
+            throw new RulesException("undefined","session.createEntity","An attempt ws made to create the entity "+name.stringValue()+"\n" +
+                    "This entity isn't defined in the EDD");
+        }
+        if(!ref.isReadOnly()){
+            REntity e = (REntity) ref.clone(this);
+            entityInstances.put(e.getID(),e);
+            return e;
+        }
+		return ref;
+	}
+	
+	
+	/**
+	 * @return the rs
+	 */
+	public RuleSet getRuleSet() {
+		return rs;
+	}
+	
+	
+	 public void printEntity(IXMLPrinter rpt, String tag, IREntity e) throws Exception {
+	     if(tag==null)tag = e.getName().stringValue();
+	     IRObject id = e.get(RName.getRName("mapping*key"));
+	     String   idString = id!=null?id.stringValue():"--none--";
+         rpt.opentag(tag,"DTRulesId",e.getID()+"","id",idString);
+         Iterator<RName> names = e.getAttributeIterator();
+         while(names.hasNext()){
+             RName    name = names.next();
+             IRObject v    = e.get(name);
+             if(v.type()==IRObject.iArray && v.rArrayValue().size()==0) continue;
+             String   vstr = v==null?"":v.stringValue();
+             rpt.printdata("attribute","name",name.stringValue(), vstr);
+         }
+	 }
+
+ 
+	 public void printArray(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, String name, RArray rarray)throws RulesException{
+         if(name!=null && name.length()>0){
+             rpt.opentag("array","name",name, "id", rarray.getID());
+         }else{
+             rpt.opentag("array");
+         }
+         for(IRObject element : rarray){
+             printIRObject(rpt, entitypath, printed, state,"",element);
+         }
+         rpt.closetag();
+     }
+     
+     public void printEntityReport(IXMLPrinter rpt, DTState state, String objname ) {
+         printEntityReport(rpt,false,state,objname);
+     }
+ 
+     public void printEntityReport(IXMLPrinter rpt, boolean verbose, DTState state, String name ) {
+         IRObject obj = state.find(name);
+         printEntityReport(rpt,verbose,state,name,obj);
+     }
+     
+     public void printEntityReport(IXMLPrinter rpt, boolean verbose, DTState state, String name, IRObject obj ) {
+         ArrayList<IRObject> entitypath = new ArrayList<IRObject>();
+         ArrayList<IRObject> printed = null;
+         if (!verbose) printed = new ArrayList<IRObject>();
+         try {
+             if(obj==null){
+                 rpt.printdata("unknown", "object", name,null);
+             }else{
+                 printIRObject(rpt,entitypath, printed,state,name,obj);
+             }    
+         } catch (RulesException e) {
+             rpt.print_error(e.toString());
+         }
+     }
+          
+     public void printIRObject(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, String name, IRObject v) throws RulesException {
+         switch(v.type()){
+             case IRObject.iEntity :
+                 if(name.length()!=0)rpt.opentag(name);
+                 printAllEntities(rpt, entitypath, printed, state, v.rEntityValue());
+                 if(name.length()!=0)rpt.closetag();
+                 break;
+             case IRObject.iArray :
+                 if(name.length()!=0)rpt.opentag(name);
+                 printArray(rpt, entitypath, printed, state, name, v.rArrayValue());
+                 if(name.length()!=0)rpt.closetag();
+                 break;
+             default:
+                 String   vstr = v==null?"":v.stringValue();
+                 rpt.printdata("attribute","name",name, vstr);
+         }
+     } 
+     
+    public void printAllEntities(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, IREntity e) throws RulesException   {
+         String entityName = e.getName().stringValue();
+         if(entitypath.contains(e) && entitypath.get(entitypath.size()-1)==e){
+                 rpt.printdata("entity","name",entityName, "self reference");
+         }else if (printed!= null && printed.contains(e)){
+                 rpt.printdata("entity","name",entityName,"DTRulesId",e.getID(),"id",e.get("mapping*key").stringValue(),"multiple reference");  
+         }else{
+             entitypath.add(e);
+             if(printed!=null) printed.add(e);
+             IRObject id = e.get(RName.getRName("mapping*key"));
+             String   idString = id!=null?id.stringValue():"--none--";
+             rpt.opentag("entity","name",entityName,"DTRulesId",e.getID()+"","id",idString);
+             Iterator<RName> names = e.getAttributeIterator();
+             while(names.hasNext()){
+                 RName    name = names.next();
+                 IRObject v    = e.get(name);
+                 printIRObject(rpt, entitypath, printed, state, name.stringValue(), v);
+             }
+             rpt.closetag();
+             entitypath.remove(entitypath.size()-1);
+         }
+     }
+	/**
+	 * Prints all the balanced form of all the decision tables in this session to
+	 * the given output stream 
+	 * @throws RulesException
+	 */
+    public void printBalancedTables(PrintStream out)throws RulesException {
+        Iterator<RName> dts = this.getEntityFactory().getDecisionTableRNameIterator();
+        while(dts.hasNext()){
+            RName dtname = dts.next();
+            RDecisionTable dt = this.getEntityFactory().findDecisionTable(dtname);
+            String t = dt.getBalancedTable().getPrintableTable();
+            
+            out.println();
+            out.println(dtname.stringValue());
+            out.println();
+            out.println(t);
+        }
+    }
+    
+}

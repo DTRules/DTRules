@@ -1,0 +1,18 @@
+<projectDescription>
+  <name>ExcelUtil</name>
+  <comment>SDC Parent POM</comment>
+  <projects>
+    <project>DSLCompiler</project>
+    <project>DTScanner</project>
+    <project>DTRules</project>
+    <project>DTParser</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
