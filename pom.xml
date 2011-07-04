@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<groupId>com.dtrules</groupId>
+	<artifactId>dtrules-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>4.2-SNAPSHOT</version>
+
+	<name>DTRules</name>
+	<url>http://www.dtrules.com/</url>
+
+	<organization>
+		<name>DTrules Inc</name>
+		<url>http://www.dtrules.com/</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>paulsnow</id>
+			<name>Paul</name>
+			<organization>DTRules Inc</organization>
+			<organizationUrl>http://www.dtrules.com/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+	</developers>
+
+
+	<modules>
+		<module>dtrules</module>
+		<module>compilerutil</module>
+		<module>dsl</module>
+		<module>sampleprojects</module>
+	</modules>
+
+	<scm>
+		<connection>scm:git:git@github.com:DTRules/DTRules.git</connection>
+		<url>scm:git:git@github.com:DTRules/DTRules.git</url>
+		<developerConnection>scm:git:git@github.com:DTRules/DTRules.git</developerConnection>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+
+		<plugins>
+			<!-- compile with java version 1.6 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<!-- look for newest release on github -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.0-beta-9</version>
+			</plugin>
+			<!-- create OSGi bundle if packaging is bundle -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.1.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-Name>${project.artifactId}</Bundle-Name>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Export-Package>
+							com.dtrules.*
+						</Export-Package>
+						<Import-Package>*</Import-Package>
+						<!-- <Resource>src/main/resources</Include-Resource> <Spring-Context>*;publish-context:=false;create-asynchronously:=true</Spring-Context> -->
+						<DynamicImport-Package>*</DynamicImport-Package>
+						<Implementation-Title>${project.artifactId}</Implementation-Title>
+						<Implementation-Version>${project.version}</Implementation-Version>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

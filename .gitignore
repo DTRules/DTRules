@@ -19,3 +19,13 @@ KidAid/testfiles/output/*.*
 Uncompiled_DecisionTables.xml
 temp/
 bin/
+apidocs
+classes
+generated-sources
+surefire-reports
+test-classes
+.classpath
+.project
+.settings
+.metadata
+pom.xml.releaseBackup
