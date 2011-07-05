@@ -38,11 +38,12 @@ public class DTCompiler implements IGenericXMLParser{
     
 
     ICompiler compiler = null;
-    int       conditionsCompiled      = 0;
-    int       actionsCompiled         = 0;
-    int       contextsCompiled        = 0;
-    int       initialActionsCompiled  = 0;
-    String    message                 = null;
+    int       contextsCompiled         = 0;
+    int       initialActionsCompiled   = 0;
+    int       conditionsCompiled       = 0;
+    int       actionsCompiled          = 0;
+    int       policystatementsCompiled = 0;
+    String    message                  = null;
     
     boolean   newstatement = true;        //Set to true at start of condition or action
     
@@ -94,7 +95,9 @@ public class DTCompiler implements IGenericXMLParser{
         errors.add(new CompileError(decisionTableName,filename,source,message,line,info,new ArrayList<String>()));
     }
     /**
-     * Used to compile a Context, Initial_Action, Condition, or Action
+     * Used to compile a Context, Initial_Action, Condition, Action, or Policy Statement.
+     * Note that the TokenFilter class is going to tack on a semicolon to EVERY statement.  You
+     * have to parse for this, or you will get a hard to find error!
      * @param prefix
      * @param body
      */
@@ -109,7 +112,9 @@ public class DTCompiler implements IGenericXMLParser{
                newpostfix = compiler.compileContext(source);
             }else if(prefix.equals("initial_action")){
                newpostfix = compiler.compileAction(source);
-            }   
+            }else if(prefix.equals("policy_statement")){
+               newpostfix = compiler.compilePolicyStatement(source); 
+            }
         }catch(Exception e){
             message    = e.toString();
             if(message==null)message = "unknown";
@@ -144,8 +149,9 @@ public class DTCompiler implements IGenericXMLParser{
                 contextsCompiled++;
              }else if(prefix.equals("initial_action")){
                 initialActionsCompiled++;
-             }   
-            conditionsCompiled++;
+             }else if(prefix.equals("policy_statement")){
+                policystatementsCompiled++;
+             }
             changes.add(new Changed(tablename,source,GenericXMLParser.unencode(newpostfix),oldpostfix));
         }
         oldpostfix="None in XML";
@@ -165,6 +171,12 @@ public class DTCompiler implements IGenericXMLParser{
             compileone("context",body);
         }else if(tag.equals("initial_action_description")){
         	compileone("initial_action",body);
+        }else if(tag.equals("policy_description")){
+            compileone("policy_statement",body);
+       
+        // NOTE!!! You have to LOG your errors if you want them to show up
+        // against the right section!
+            
         }else if(tag.equals("condition_details" )){ 
             logResult("condition");
         }else if (tag.equals("action_details")){
@@ -173,6 +185,8 @@ public class DTCompiler implements IGenericXMLParser{
            logResult("initial_action");
         }else if (tag.equals("context_details")){
            logResult("context");
+        }else if (tag.equals("policy_statement")){
+           logResult("policy_statement");
         } else if(tag.equals("table_name")){
             tablename = body;
         } else if(tag.equals("xls_file")){

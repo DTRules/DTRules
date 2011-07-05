@@ -35,7 +35,7 @@ import com.dtrules.interpreter.RDouble;
 import com.dtrules.interpreter.RInteger;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RString;
-import com.dtrules.interpreter.RTime;
+import com.dtrules.interpreter.RDate;
 import com.dtrules.interpreter.RXmlValue;
 import com.dtrules.mapping.XMLNode;
 import com.dtrules.session.DTState;
@@ -72,11 +72,13 @@ public class LoadDatamapData extends LoadXMLData {
     	String  attr;
 		REntity entity = null;
     
-		if(attribs.containsKey("create entity")){		  					// For create Entity Tags, we pop the Entity from the Entity Stack on the End Tag.
+		if(attribs.containsKey("create entity")){		  					// For create Entity Tags, we pop the Entity 
+																			//   from the Entity Stack on the End Tag.
 	        attribs.remove("create entity");
 		    entity = (REntity) state.entitypop();
 			Iterator pairs  = map.attribute2listPairs.iterator();
-			body = "";                                                      // Don't care about the Body if creating an Entity, but it can't be null either.
+			body = "";                                                      // Don't care about the Body if creating an 
+																			//    Entity, but it can't be null either.
 			while(pairs.hasNext()){
 				Object [] pair =  (Object []) pairs.next();
 			    if(entity.containsAttribute(RName.getRName((String)pair[0]))){
@@ -91,9 +93,10 @@ public class LoadDatamapData extends LoadXMLData {
             }  
 		}    		
 
-	//  If this is a Date format, we are going to reformat it, and let it feed into
+	    //  If this is a Date format, we are going to reformat it, and let it feed into
         //  the regular set attribute code.
-        if ((attr = (String) attribs.get("set attribute date"))!=null){         // Look and see if we have an attribute name defined.
+        if ((attr = (String) attribs.get("set attribute date"))!=null){     // Look and see if we have an attribute 
+        																	//   name defined.
             attribs.remove("set attribute date");
             if(body instanceof String && body != null ){
                 String sbody = body.toString();
@@ -121,7 +124,7 @@ public class LoadDatamapData extends LoadXMLData {
                     if(enclosingEntity==null){
                         throw new Exception ("No Entity is in the context that defines "+ a.stringValue());
                     }
-					int type = enclosingEntity.getEntry(a).type;
+					int type = enclosingEntity.getEntry(a).type.getId();
 					
 					if(type == IRObject.iInteger){
 						value = RInteger.getRIntegerValue(getLong(body));
@@ -129,10 +132,10 @@ public class LoadDatamapData extends LoadXMLData {
 						value = RDouble.getRDoubleValue(getDouble(body)); 
 					} else if (type == IRObject.iBoolean){
                         value = RBoolean.getRBoolean(body.toString());
-                    } else if (type == IRObject.iTime){
+                    } else if (type == IRObject.iDate){
                         Date date = cvd(body);
                         if(date != null ){
-                            value = RTime.getRTime( cvd(body) );
+                            value = RDate.getRTime( cvd(body) );
                         }else{
                             throw new RuntimeException("Bad Date encountered: ("+tag+")="+body);
                         }
@@ -140,7 +143,8 @@ public class LoadDatamapData extends LoadXMLData {
                         if(entity!=null){
                             value = entity;
                         }else{
-                            throw new RulesException("MappingError","LoadDatamapData","Entity Tags have to create some Entity Reference");
+                            throw new RulesException("MappingError",
+                            		"LoadDatamapData","Entity Tags have to create some Entity Reference");
                         }
                     } else if (type == IRObject.iString) {    
 						value = RString.newRString(body.toString());
@@ -148,10 +152,12 @@ public class LoadDatamapData extends LoadXMLData {
                         if(xmltag != null){
                             value = new RXmlValue(state,xmltag);
                         }else{
-                            throw new RulesException("MappingError","LoadDatamapData","Somehow we are missing the XML Tag for the attribute: "+a);
+                            throw new RulesException("MappingError",
+                            		"LoadDatamapData","Somehow we are missing the XML Tag for the attribute: "+a);
                         }
                     } else {
-					    throw new RulesException("MappingError","LoadDatamapData","Unsupported type encountered: "+RSession.typeInt2Str(type));
+					    throw new RulesException("MappingError","LoadDatamapData","Unsupported type encountered: "+
+					    		enclosingEntity.getEntry(a).type);
 					}
 					//   conversion in the Rules Engine to do the proper thing.
 					state.def(a,value,false);
@@ -219,7 +225,7 @@ public class LoadDatamapData extends LoadXMLData {
         for(int i=0; i< state.edepth(); i++){
             // Look for all Array Lists on the Entity Stack that look like lists of this Entity
             IRObject elist = state.getes(i).get(listname);
-            if(elist!=null && elist.type()==IRObject.iArray){
+            if(elist!=null && elist.type().getId()==IRObject.iArray){
                 // If not a member of this list, then add it.
                 if(!((RArray)elist).contains(e)){
                    ((RArray)elist).add(e);

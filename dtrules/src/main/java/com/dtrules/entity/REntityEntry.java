@@ -22,6 +22,7 @@ package com.dtrules.entity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RType;
 import com.dtrules.session.RSession;
 
 /**
@@ -43,12 +44,11 @@ public class REntityEntry {
     public  IRObject  defaultvalue;	        // Every Entry has default value, which may be null.
     public  boolean   writable;             // We allow Entries to be locked.
     public  boolean   readable;             // We allow some Entries to be write only.
-    public  int       type;                 // The type value, i.e. integer, float, etc. as defined
+    public  RType     type;                 // The type value, i.e. integer, float, etc. as defined
     										// by IRObject
     public  String    subtype;              // The Subtype (for some kinds of attributes)...
     public  int       index;			    // Index into the values array to get the current
                                             //   value for this attribute.
-    public String     typeValue; 
     public String     comment;              // A comment associated with this attribute
     public String     input;                // These are the mapping sources which populate this attribute
     public String     output;               // Entries to be auto updated in the source objects
@@ -68,7 +68,7 @@ public class REntityEntry {
             IRObject _defaultvalue, 
     		boolean  _writable,
     		boolean  _readable,
-    		int      _type,
+    		RType    _type,
     		String   _subtype,
     		int      _index,
     		String   comment,
@@ -92,7 +92,7 @@ public class REntityEntry {
     public String toString() {
     	String thetype="";
         try{
-        	thetype = "("+RSession.typeInt2Str(type)+")";
+        	thetype = "("+type+")";
         }catch(Exception e){}
         return thetype +" default: "+defaulttxt;
     }
@@ -142,16 +142,15 @@ public class REntityEntry {
 	/**
 	 * @return the type
 	 */
-	public int getType() {
+	public RType getType() {
 		return type;
 	}
 
 	/**
 	 * @param type the type to set
 	 */
-	public void setType(int type) throws RulesException {
+	public void setType(RType type) throws RulesException {
 		this.type = type;
-		setTypeValue(RSession.typeInt2Str(type));
 	}
 
 	/**
@@ -168,16 +167,6 @@ public class REntityEntry {
 		this.writable = writable;
 	}
 	
-	public String getTypeValue() throws RulesException {
-		if(typeValue==null)typeValue=RSession.typeInt2Str(type);
-		return typeValue;
-	}
-
-	public void setTypeValue(String typeValue) throws RulesException{
-		this.typeValue = typeValue;
-		setType(RSession.typeStr2Int(typeValue,entity.getName().stringValue(),attribute.stringValue()));
-	}
-
 	public String getAttributeStrValue() {
 		return attribute.stringValue();
 	}

@@ -57,7 +57,6 @@ public class RBooleanOps {
 			new SLessthanequal();
 			new SEqual();	
 			new SEqualIgnoreCase();
-			new SConcat();
 			new Strremove();
 			new Startswith();
 			new Req();
@@ -70,7 +69,7 @@ public class RBooleanOps {
 		 * @author Paul Snow
 		 *
 		 */
-		static class InContext extends ROperator {
+		public static class InContext extends ROperator {
             InContext(){super("InContext");}
 
             public void execute(DTState state) throws RulesException {
@@ -85,8 +84,8 @@ public class RBooleanOps {
 	     * Not Operator, returns the negation of the input value
 	     *
 	     */
-		static class Not extends ROperator {
-			Not(){super("not");}
+		public static class Not extends ROperator {
+			Not(){super("not"); alias("!"); }
 
 			public void execute(DTState state) throws RulesException {
 				state.datapush(RBoolean.getRBoolean(!(state.datapop().booleanValue())));
@@ -98,7 +97,7 @@ public class RBooleanOps {
 	     * And Operator, returns the && value of two booleans
 	     *
 	     */
-		static class And extends ROperator {
+		public static class And extends ROperator {
 			And(){super("&&"); alias("and");}
 
 			public void execute(DTState state) throws RulesException {
@@ -113,8 +112,8 @@ public class RBooleanOps {
 	     * Or( Boolean1 Boolean2 -- Boolean3 )
 	     * And Operator, returns the || value of two booleans
 	     */
-		static class Or extends ROperator {
-			Or(){super("||");}
+		public static class Or extends ROperator {
+			Or(){super("||"); alias("or");}
 
 			public void execute(DTState state) throws RulesException {
 				state.datapush(RBoolean.getRBoolean(state.datapop().booleanValue() || state.datapop().booleanValue()));
@@ -125,7 +124,7 @@ public class RBooleanOps {
 	     * Greaterthan( Number Number -- Boolean )
 	     * Greaterthan Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class Greaterthan extends ROperator {
+		public static class Greaterthan extends ROperator {
 			Greaterthan(){super(">");}
 
 			public void execute(DTState state) throws RulesException {
@@ -141,7 +140,7 @@ public class RBooleanOps {
 	     * Lessthan( Number Number -- Boolean )
 	     * Lessthan Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class Lessthan extends ROperator {
+		public static class Lessthan extends ROperator {
 			Lessthan(){super("<");}
 
 			public void execute(DTState state) throws RulesException {
@@ -153,9 +152,10 @@ public class RBooleanOps {
 		
 	    /**
 	     * Greaterthanequal( Number Number -- Boolean )
-	     * Greaterthanequal Operator, returns the boolean value for condition with the given parameters
+	     * Greaterthanequal Operator, returns the boolean value for condition with the given parameters.
+	     * This is an integer comparision, so 3.5 3.8 >=  is going to return true because 3 == 3
 	     */
-		static class Greaterthanequal extends ROperator {
+		public static class Greaterthanequal extends ROperator {
 			Greaterthanequal(){super(">=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -169,7 +169,7 @@ public class RBooleanOps {
 	     * Lessthanequal( Number Number -- Boolean )
 	     * Lessthanequal Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class Lessthanequal extends ROperator {
+		public static class Lessthanequal extends ROperator {
 			Lessthanequal(){super("<=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -183,7 +183,7 @@ public class RBooleanOps {
 	     * Equal( Number Number -- Boolean )
 	     * Lessthanequal Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class Equal extends ROperator {
+		public static class Equal extends ROperator {
 			Equal(){super("==");}
 
 			public void execute(DTState state) throws RulesException {
@@ -195,7 +195,7 @@ public class RBooleanOps {
 	     * FGreaterthan( Number Number -- Boolean )
 	     * FGreaterthan Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class FGreaterthan extends ROperator {
+		public static class FGreaterthan extends ROperator {
 			FGreaterthan(){super("f>");}
 
 			public void execute(DTState state) throws RulesException {
@@ -209,7 +209,7 @@ public class RBooleanOps {
 	     * FLessthan( Number Number -- Boolean )
 	     * FLessthan Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class FLessthan extends ROperator {
+		public static class FLessthan extends ROperator {
 			FLessthan(){super("f<");}
 
 			public void execute(DTState state) throws RulesException {
@@ -223,7 +223,7 @@ public class RBooleanOps {
 	     * FGreaterthanequal( Number Number -- Boolean )
 	     * FGreaterthanequal Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class FGreaterthanequal extends ROperator {
+		public static class FGreaterthanequal extends ROperator {
 			FGreaterthanequal(){super("f>=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -237,7 +237,7 @@ public class RBooleanOps {
 	     * FLessthanequal( Number Number -- Boolean )
 	     * FLessthanequal Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class FLessthanequal extends ROperator {
+		public static class FLessthanequal extends ROperator {
 			FLessthanequal(){super("f<=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -251,7 +251,7 @@ public class RBooleanOps {
 	     * FEqual( Number Number -- Boolean )
 	     * FEqual Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class FEqual extends ROperator {
+		public static class FEqual extends ROperator {
 			FEqual(){super("f==");}
 
 			public void execute(DTState state) throws RulesException {
@@ -263,12 +263,12 @@ public class RBooleanOps {
 	     * Isnull(object -- Boolean )
 	     * Isnull Operator, returns true if the object is null
 	     */
-		static class Isnull extends ROperator {
+		public static class Isnull extends ROperator {
 			Isnull(){super("isnull");}
 
 			public void execute(DTState state) throws RulesException 
 			{
-				state.datapush(RBoolean.getRBoolean(state.datapop().type()==IRObject.iNull));
+				state.datapush(RBoolean.getRBoolean(state.datapop().type().getId()==IRObject.iNull));
 			}
 		}
 
@@ -276,7 +276,7 @@ public class RBooleanOps {
 	     * Booleanequal(boolean1 boolean2 -- Boolean )
 	     * Booleanequal Operator, returns true if both are equal
 	     */
-		static class Booleanequal extends ROperator {
+		public static class Booleanequal extends ROperator {
 			Booleanequal(){super("b="); alias("beq");}
 
 			public void execute(DTState state) throws RulesException {
@@ -295,7 +295,7 @@ public class RBooleanOps {
 	     * Booleannotequal(boolean1 boolean2 -- Boolean )
 	     * Booleannotequal Operator, returns true if both are not equal
 	     */
-		static class Booleannotequal extends ROperator {
+		public static class Booleannotequal extends ROperator {
 			Booleannotequal(){super("b!=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -307,7 +307,7 @@ public class RBooleanOps {
 	     * SGreaterthan( String String -- Boolean )
 	     * SGreaterthan Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class SGreaterthan extends ROperator {
+		public static class SGreaterthan extends ROperator {
 			SGreaterthan(){super("s>");}
 
 			public void execute(DTState state) throws RulesException {
@@ -321,7 +321,7 @@ public class RBooleanOps {
 	     * SLessthan( String String -- Boolean )
 	     * SLessthan Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class SLessthan extends ROperator {
+		public static class SLessthan extends ROperator {
 			SLessthan(){super("s<");}
 
 			public void execute(DTState state) throws RulesException {
@@ -335,7 +335,7 @@ public class RBooleanOps {
 	     * SGreaterthanequal( String String -- Boolean )
 	     * SGreaterthanequal Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class SGreaterthanequal extends ROperator {
+		public static class SGreaterthanequal extends ROperator {
 			SGreaterthanequal(){super("s>=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -349,7 +349,7 @@ public class RBooleanOps {
 	     * SLessthanequal( String String -- Boolean )
 	     * SLessthanequal Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class SLessthanequal extends ROperator {
+		public static class SLessthanequal extends ROperator {
 			SLessthanequal(){super("s<=");}
 
 			public void execute(DTState state) throws RulesException {
@@ -363,7 +363,7 @@ public class RBooleanOps {
 	     * SEqual( String String -- Boolean )
 	     * SEqual Operator, returns the boolean value for condition with the given parameters
 	     */
-		static class SEqual extends ROperator {
+		public static class SEqual extends ROperator {
 			SEqual(){super("s=="); alias("streq");}
 
 			public void execute(DTState state) throws RulesException {
@@ -378,7 +378,7 @@ public class RBooleanOps {
          * Same as SEqual Operator, only ignores the case. 
          * Returns the boolean value for condition with the given parameters
          */
-        static class SEqualIgnoreCase extends ROperator {
+        public static class SEqualIgnoreCase extends ROperator {
             SEqualIgnoreCase(){super("sic=="); alias("streqignorecase");}
 
             public void execute(DTState state) throws RulesException {
@@ -390,25 +390,13 @@ public class RBooleanOps {
 		
 		
 		
-	    /**
-	     * StrConcat( String String -- String )
-	     * StrConcat Operator, add the given two strings and returns a string value
-	     */
-		static class SConcat extends ROperator {
-			SConcat(){super("s+"); alias("strconcat");}
 
-			public void execute(DTState state) throws RulesException {
-				String value2 = state.datapop().stringValue();
-				String value1 = state.datapop().stringValue();
-				state.datapush(RString.newRString(value1+value2));
-			}
-		}		
 
 		 /**
          * startswith ( string1 string2 index -- boolean )
          * returns true if string1 begins with string2
          */
-        static class Startswith extends ROperator {
+        public static class Startswith extends ROperator {
             Startswith(){super("startswith");}
 
             public void execute(DTState state) throws RulesException {
@@ -424,7 +412,7 @@ public class RBooleanOps {
 	     * Strremove( String1 String2 -- String3 )
 	     * Strremove Operator, removes string2 from string1 and returns string3
 	     */
-		static class Strremove extends ROperator {
+		public static class Strremove extends ROperator {
 			Strremove(){super("strremove");}
 
 			public void execute(DTState state) throws RulesException {
@@ -438,7 +426,7 @@ public class RBooleanOps {
 	     * Req( object1 object2 -- Boolean )
 	     * Req Operator, compares the two objects using equals and returns the boolean value
 	     */
-		static class Req extends ROperator {
+		public static class Req extends ROperator {
 			Req(){super("req");}
 
 			public void execute(DTState state) throws RulesException {

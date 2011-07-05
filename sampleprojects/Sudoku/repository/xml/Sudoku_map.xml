@@ -1,0 +1,47 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!--                 -->
+			<!-- Map Attributes  -->
+			<!--                 -->
+			<!--Cell-->
+			<setattribute tag='c' RAttribute='column' enclosure='Cell' type='integer' subtype=''></setattribute>
+			<setattribute tag='r' RAttribute='row' enclosure='Cell' type='integer' subtype=''></setattribute>
+			<!--possiblevalue-->
+			<setattribute tag='v' RAttribute='v' enclosure='possiblevalue' type='integer' subtype=''></setattribute>
+			<!--Puzzle-->
+			<setattribute tag='done' RAttribute='done' enclosure='Puzzle' type='boolean' subtype=''></setattribute>
+			<!--val-->
+			<setattribute tag='c' RAttribute='column' enclosure='val' type='integer' subtype=''></setattribute>
+			<setattribute tag='i' RAttribute='currentvalue' enclosure='val' type='integer' subtype=''></setattribute>
+			<setattribute tag='last' RAttribute='last' enclosure='val' type='boolean' subtype=''></setattribute>
+			<setattribute tag='r' RAttribute='row' enclosure='val' type='integer' subtype=''></setattribute>
+			<setattribute tag='valid' RAttribute='valid' enclosure='val' type='boolean' subtype=''></setattribute>
+			<!--                 -->
+			<!-- Create Entities -->
+			<!--                 -->
+			<createentity entity='Cell' tag='Cell' id='id'></createentity>
+			<createentity entity='possiblevalue' tag='possiblevalue' id='id'></createentity>
+			<createentity entity='Puzzle' tag='Puzzle' id='id'></createentity>
+			<createentity entity='constants' tag='Puzzle' id='id'></createentity>
+			<createentity entity='val' tag='val' id='id'></createentity>
+		</map>
+		<!--                 -->
+		<!-- Entity List     -->
+		<!--                 -->
+		<entities>
+			<entity name='Puzzle' number='1'></entity>
+			<entity name='constants' number='1'></entity>
+			<entity name='Cell' number='*'></entity>
+			<entity name='possiblevalue' number='*'></entity>
+			<entity name='val' number='*'></entity>
+		</entities>
+		<!--                 -->
+		<!-- Initialization  -->
+		<!--                 -->
+		<initialization>
+			<initialentity entity='Puzzle'       epush='true'></initialentity>
+			<initialentity entity='constants'    epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>

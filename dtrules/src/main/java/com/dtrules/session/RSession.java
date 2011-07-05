@@ -35,12 +35,12 @@ import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RString;
 import com.dtrules.interpreter.RTable;
+import com.dtrules.interpreter.RType;
 import com.dtrules.interpreter.operators.ROperator;
 import com.dtrules.xmlparser.IXMLPrinter;
 import com.dtrules.mapping.DataMap;
 import com.dtrules.mapping.Mapping;
 
-@SuppressWarnings("unchecked")
 public class RSession implements IRSession {
 
     final RuleSet               rs;
@@ -48,7 +48,8 @@ public class RSession implements IRSession {
 	final EntityFactory         ef;
     int                         uniqueID = 1;
     HashMap<Object,IREntity>    entityInstances = new HashMap<Object,IREntity>();
-    ICompiler                   compiler = null;       
+    ICompiler                   compiler = null;    
+    IComputeDefaultValue        ComputeDefault = new ComputeDefaultValue();
     ArrayList<DataMap>          registeredMaps = new ArrayList<DataMap>();  
     IDateParser					dateParser = new DateParser();
     
@@ -126,6 +127,10 @@ public class RSession implements IRSession {
         compiler = _compiler;
     }
     
+    public ICompiler getCompiler() {
+        return compiler;
+    }
+
     /**
      * Each RSession is associated with a particular RuleSet
      * @param _ef
@@ -178,11 +183,11 @@ public class RSession implements IRSession {
         dtstate.traceTagEnd();
     }
     
-    private HashMap<REntity,ArrayList> boundries = new HashMap<REntity,ArrayList>(); // Track printing Entity from Entity boundries to stop recursive printing.
+    private HashMap<IREntity,ArrayList<IREntity>> boundries = new HashMap<IREntity,ArrayList<IREntity>>(); // Track printing Entity from Entity boundries to stop recursive printing.
     
-    private String getType(REntity e, RName n) throws RulesException{
-        int type = e.getEntry(n).type;
-        return RSession.typeInt2Str(type);
+    private String getType(IREntity e, RName n) throws RulesException{
+        RType type = e.getEntry(n).type;
+        return type.toString();
     }
         
     /**
@@ -191,7 +196,7 @@ public class RSession implements IRSession {
      * @param e The Entity to be dumped.
      * @param depth Dumping is a private, recursive thing.  depth helps us track its recursive nature.
      */
-    private void dump(REntity e,int depth){
+    private void dump(IREntity e,int depth){
         Iterator<RName> anames = e.getAttributeIterator();
         while(anames.hasNext()){
             try {
@@ -199,43 +204,38 @@ public class RSession implements IRSession {
                 IRObject     value = e.get(aname);
                 
                 dtstate.traceTagBegin("attribute", "name",aname.stringValue(),"type",getType(e,aname));
-                switch(e.getEntry(aname).type){
-                   case IRObject.iEntity: {
-                      if(value.type()==IRObject.iNull){
+                int type = e.getEntry(aname).type.getId();
+                
+               if(type == IRObject.iEntity) {
+                      if(value.type().getId() == IRObject.iNull){
                           dtstate.traceInfo("value","type","null","value","null",null);
-                          break;
-                      }
-                      dtstate.traceTagBegin("entity", 
-                              "name",   ((REntity)value).getName().stringValue(),
-                              "id",     printIds ? ((REntity)value).getID()+"" : "");
-                      
-                      if(!(boundries.get(e)!= null && boundries.get(e).contains(value))){
-                          dtstate.debug(" recurse\n");
                       }else{
-                          if(boundries.get(e)==null)boundries.put(e, new ArrayList());
-                          boundries.get(e).add(value);
-                          dump((REntity)value, depth+1);
+	                      dtstate.traceTagBegin("entity", 
+	                              "name",   ((REntity)value).getName().stringValue(),
+	                              "id",     printIds ? ((REntity)value).getID()+"" : "");
+	                      
+	                      if(!(boundries.get(e)!= null && boundries.get(e).contains(value))){
+	                          dtstate.debug(" recurse\n");
+	                      }else{
+	                          if(boundries.get(e)==null)boundries.put(e, new ArrayList<IREntity>());
+	                          boundries.get(e).add(value.rEntityValue());
+	                          dump((IREntity)value, depth+1);
+	                      }
+	                      dtstate.traceTagEnd();
                       }
-                      dtstate.traceTagEnd();
-                      break;
-                   }   
-                   case IRObject.iArray: {
-                      ArrayList values = value.arrayValue();
-                      Iterator iv = values.iterator();
-                      while(iv.hasNext()){
-                          IRObject v = (IRObject) iv.next();
-                          if(v.type()==IRObject.iEntity){
+               }else if (type == IRObject.iArray) {
+                      ArrayList<IRObject> values = value.arrayValue();
+                      for(IRObject v : values){
+                          if(v.type().getId() ==IRObject.iEntity){
                               dump((REntity)v,depth+2);
                           }else{
                               dtstate.traceInfo("value","v",v.stringValue(),null);
                           }
                       }
-                      break;
-                   }
-                   default : {
+               } else { 
                        dtstate.traceInfo("value","v",value.stringValue(),null);
-                   }
-                }
+               }
+                
                 dtstate.traceTagEnd();
             } catch (RulesException e1) {
                 dtstate.debug("Rules Engine Exception\n");
@@ -282,22 +282,6 @@ public class RSession implements IRSession {
         }
 		return;
 	}
-	/**
-	 * Converts the string representation of a type into an index.
-	 * @param type
-	 * @return
-	 * @throws RulesException
-	 */
-	static public int typeStr2Int(String type, String entity, String attribute)throws RulesException{
-		type = type.trim();
-		if(type.equalsIgnoreCase("list"))type = IRObject.rArray;
-        if(type.equalsIgnoreCase("date"))type = IRObject.rTime;
-        if(type.equalsIgnoreCase("double"))type = IRObject.rFloat;
-		for(int i=0;i<IRObject.types.length;i++){
-			if(IRObject.types[i].equalsIgnoreCase(type))return i;
-		}
-		throw new RulesException("Undefined","typeStr2Int on entity: '"+entity+"' attribute: '"+attribute+"'","Bad Type Encountered:"+type);
-	}
 
 	public void initialize(String entrypoint) throws RulesException {
         // First make sure our context is up to snuff (by checking that all of our
@@ -319,19 +303,6 @@ public class RSession implements IRSession {
 	    initialize(entrypoint);                            // Set up our context
 	    String dtname = rs.entrypoints.get(entrypoint);    // Now get our entry point, and execute!
 	    ef.findDecisionTable(RName.getRName(dtname)).execute(dtstate);
-	}
-
-    /**
-	 * Converts the index representation of a type into a String.
-	 * @param type
-	 * @return
-	 * @throws RulesException
-	 */
-	static public String typeInt2Str(int type)throws RulesException {
-		if(type<0 || type > IRObject.types.length){
-			throw new RulesException("Undefined","typeInt2Str","Bad Type Index Encountered: "+type); 
-		}
-		return IRObject.types[type];
 	}
     
 	/**
@@ -368,7 +339,7 @@ public class RSession implements IRSession {
 	    if(id==null){
 	        id = getUniqueID()+"";
 	    }
-		REntity ref = ef.findRefEntity(name);
+		IREntity ref = ef.findRefEntity(name);
         if(ref==null){
             throw new RulesException("undefined","session.createEntity","An attempt ws made to create the entity "+name.stringValue()+"\n" +
                     "This entity isn't defined in the EDD");
@@ -403,7 +374,7 @@ public class RSession implements IRSession {
          RName keys[] = sort(names);
          for(RName name : keys){
              IRObject v    = e.get(name);
-             if(v.type()==IRObject.iArray && v.rArrayValue().size()==0) continue;
+             if(v.type().getId()==IRObject.iArray && v.rArrayValue().size()==0) continue;
              String   vstr = v==null?"":v.stringValue();
              rpt.printdata("attribute","name",name.stringValue(), vstr);
          }
@@ -475,23 +446,20 @@ public class RSession implements IRSession {
      }
           
      public void printIRObject(IXMLPrinter rpt, ArrayList<IRObject> entitypath, ArrayList<IRObject> printed, DTState state, String name, IRObject v) throws RulesException {
-         switch(v.type()){
-             case IRObject.iTable :
+    	 int otype = v.type().getId();
+         if(otype == IRObject.iTable) {
                  if(name.length()!=0)rpt.opentag(name);
                  printTable(rpt,entitypath,printed,state,name,v.rTableValue());
                  if(name.length()!=0)rpt.closetag();
-                 break;
-             case IRObject.iEntity :
+         } else if( otype == IRObject.iEntity){
                  if(name.length()!=0)rpt.opentag(name);
                  printAllEntities(rpt, entitypath, printed, state, v.rEntityValue());
                  if(name.length()!=0)rpt.closetag();
-                 break;
-             case IRObject.iArray :
+         } else if( otype == IRObject.iArray) {
                  if(name.length()!=0)rpt.opentag(name);
                  printArray(rpt, entitypath, printed, state, name, v.rArrayValue());
                  if(name.length()!=0)rpt.closetag();
-                 break;
-             default:
+         } else {
                  String   vstr = v==null?"":v.stringValue();
                  String tname = name.replaceAll("[*]", "_");
                  if(tname.length()==0)tname = "value";
@@ -564,6 +532,20 @@ public class RSession implements IRSession {
             out.println();
             out.println(t);
         }
+    }
+    /**
+     * This is the method that defines how the default value in the EDD is converted into a Rules Engine object
+     * @return
+     */
+    public IComputeDefaultValue getComputeDefault() {
+        return ComputeDefault;
+    }
+    /**
+     * This is the method that defines how the default value in the EDD is converted into a Rules Engine object
+     * @return
+     */
+    public void setComputeDefault(IComputeDefaultValue computeDefault) {
+        ComputeDefault = computeDefault;
     }
     
 }

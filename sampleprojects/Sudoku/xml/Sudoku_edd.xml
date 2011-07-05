@@ -1,0 +1,40 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<entity name='Cell' access='rw' comment=''>
+		<field name='Cell' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='column' type='integer' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='positions' type='array' subtype='value' access='rw' input='' default_value='' comment=''></field>
+		<field name='row' type='integer' subtype='' access='rw' input='main' default_value='' comment=''></field>
+	</entity>
+	<entity name='constants' access='rw' comment=''>
+		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='possiblevalues' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
+	</entity>
+	<entity name='position' access='rw' comment=''>
+		<field name='column' type='integer' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='position' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='possiblevalues' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='row' type='integer' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='valid' type='boolean' subtype='' access='rw' input='main' default_value='true' comment=''></field>
+		<field name='value' type='integer' subtype='' access='rw' input='main' default_value='0' comment=''></field>
+	</entity>
+	<entity name='possiblevalue' access='rw' comment=''>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='possiblevalue' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='value' type='integer' subtype='' access='r' input='main' default_value='' comment=''></field>
+	</entity>
+	<entity name='Puzzle' access='rw' comment=''>
+		<field name='Cells' type='array' subtype='Cell' access='rw' input='' default_value='' comment=''></field>
+		<field name='currentCell' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='currentposition' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='currentPossibleValue' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='done' type='boolean' subtype='' access='rw' input='main' default_value='false' comment=''></field>
+		<field name='found' type='boolean' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='Puzzle' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='test' type='string' subtype='' access='rw' input='' default_value='test' comment=''></field>
+	</entity>
+</entity_data_dictionary>

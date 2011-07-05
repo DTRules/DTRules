@@ -21,13 +21,14 @@ package com.dtrules.session;
 import java.io.IOException;
 import java.util.HashMap;
 
-import com.dtrules.entity.REntity;
+import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RNull;
+import com.dtrules.interpreter.RType;
 import com.dtrules.xmlparser.IGenericXMLParser;
 
-@SuppressWarnings({"unchecked"})
 public class EDDLoader implements IGenericXMLParser {
 
 	final IRSession        session;
@@ -60,7 +61,7 @@ public class EDDLoader implements IGenericXMLParser {
 
 
     public void beginTag(String[] tagstk, int tagstkptr, String tag,
-		HashMap attribs) throws IOException, Exception {
+		HashMap<String,String> attribs) throws IOException, Exception {
         
         if(tag.equals("entity_data_dictionary") ){
             
@@ -78,7 +79,7 @@ public class EDDLoader implements IGenericXMLParser {
 			           int      tagstkptr, 
 			           String   tag, 
 			           String   body, 
-			           HashMap  attribs) throws Exception, IOException {
+			           HashMap<String,String>  attribs) throws Exception, IOException {
 	                 // 
 	    
 	    if(version==2){
@@ -103,7 +104,7 @@ public class EDDLoader implements IGenericXMLParser {
 		  
 		  boolean  writeable = true; 	// We need to convert access to a boolean
 		  boolean  readable  = true;    // Make an assumption of r/w
-		  int      itype     = -1;      // We need to convert the type to an int.
+		  RType    rtype     = null;    // We need to convert the type to an int.
 		  IRObject defaultO  = null;    // We need to convert the default into a Rules Engine Object.
 		  
 		  writeable = access.toLowerCase().indexOf("w")>=0;
@@ -111,39 +112,41 @@ public class EDDLoader implements IGenericXMLParser {
 		  if(!writeable && !readable){
 		      errorMsgs +="\nThe attribute "+attribute+" has to be either readable or writable\r\n";
 		      succeeded=false;
+		      rtype = RNull.type;
 		  }
 		  
 		  // Now the type.  An easy thing.
-          try {
-			itype = RSession.typeStr2Int(type,entityname,attribute);
-		  } catch (RulesException e1) {
-			errorMsgs+= e1.getMessage()+"\n";
-			succeeded = false;
-		  }
+          if(!RType.isType(type)){
+        	  errorMsgs+= "The type specified: '"+type+"' is not a valid type.";
+  			  succeeded = false;
+          }else{
+        	  rtype = RType.getType(type);
+		  } 
 		  
           try{		  
-              defaultO = EntityFactory.computeDefaultValue(session, ef, defaultv, itype) ;
+              defaultO = session.getComputeDefault().computeDefaultValue(session, ef, defaultv, rtype) ;
           } catch (RulesException e) { 
               errorMsgs += "Bad Default Value '"+defaultv+"' encountered on entity: '"+entityname+"' attribute: '"+attribute+"' \n";
               succeeded = false;
           }
 		  RName  entityRName = RName.getRName(entityname.trim(),false);
 		  RName  attributeRName = RName.getRName(attribute.trim(),false);
-		  REntity entity = ef.findcreateRefEntity(false,entityRName);
-          int    intType = -1;
-          try {
-			intType = RSession.typeStr2Int(type,entityname,attribute);
-		  } catch (RulesException e) { 
-			errorMsgs += "Bad Type: '"+type+"' encountered on entity: '"+entityname+"' attribute: '"+attribute+"' \n";
-			succeeded = false;
-		  }
-		  
+		  IREntity entity = ef.findcreateRefEntity(false,entityRName);
+          RType   rtype2 = null;
+          if(!RType.isType(type)){
+        	  errorMsgs += "Bad Type: '"+type+"' encountered on entity: '"+entityname+"' attribute: '"+attribute+"' \n";
+        	  succeeded = false;
+        	  rtype2 = RNull.type;
+          }else{
+        	  rtype2 = RType.getType(type);
+		  }  
+			
 		  String errstr  = entity.addAttribute(attributeRName,
 		                                       defaultv, 
 		                                       defaultO,
 		                                       writeable,
 		                                       readable,
-		                                       intType,
+		                                       rtype2,
 		                                       subtype,
 		                                       comment,
 		                                       input,
@@ -166,7 +169,7 @@ public class EDDLoader implements IGenericXMLParser {
 	String entitycomment;
 	String entityaccess;
     public void beginTag2(String[] tagstk, int tagstkptr, String tag,
-            HashMap attribs) throws IOException, Exception {
+            HashMap<String,String> attribs) throws IOException, Exception {
         if(tag.equals("entity")){
             entityname      = (String) attribs.get("name");
             entitycomment   = (String) attribs.get("comment");
@@ -178,7 +181,7 @@ public class EDDLoader implements IGenericXMLParser {
                            int      tagstkptr, 
                            String   tag, 
                            String   body, 
-                           HashMap  attribs) throws Exception, IOException {
+                           HashMap<String,String>  attribs) throws Exception, IOException {
         if(!tag.equals("field")) return;
              
         String default_value  = (String) attribs.get("default_value");
@@ -201,35 +204,37 @@ public class EDDLoader implements IGenericXMLParser {
             succeeded=false;
         }
         
-        int itype=-1;
+        RType rtype = null;
 
         // Now the type.  An easy thing.
-        try {
-          itype = RSession.typeStr2Int(type,entityname,attrib_name);
-        } catch (RulesException e1) {
-          errorMsgs+= e1.getMessage()+"\n";
-          succeeded = false;
+        if(!RType.isType(type)){
+        	errorMsgs+= "The type: '"+type+"' is not a valid type";
+            succeeded = false;
+        }else{
+        	rtype = RType.getType(type);
         }
                 
-        IRObject defaultO = EntityFactory.computeDefaultValue(session, ef, default_value, itype) ;
+        IRObject defaultO = session.getComputeDefault().computeDefaultValue(session, ef, default_value, rtype) ;
         
         RName  entityRName = RName.getRName(entityname.trim(),false);
         RName  attributeRName = RName.getRName(attrib_name.trim(),false);
-        REntity entity = ef.findcreateRefEntity(false,entityRName);
-        int    intType = -1;
+        IREntity entity = ef.findcreateRefEntity(false,entityRName);
+        
+        RType rtype2 = null;
 
-        try {
-          intType = RSession.typeStr2Int(type,entityname,attrib_name);
-        } catch (RulesException e) { 
-          errorMsgs += "Bad Type: '"+type+"' encountered on entity: '"+entityname+"' attribute: '"+attrib_name+"' \n";
-          succeeded = false;
+        if(!RType.isType(type)){
+        	errorMsgs += "Bad Type: '"+type+"' encountered on entity: '"+entityname+"' attribute: '"+attrib_name+"' \n";
+            succeeded = false;
+        }else{
+        	rtype2 = RType.getType(type);
         }
+
         String errstr  = entity.addAttribute(attributeRName,
                                              default_value, 
                                              defaultO,
                                              writeable,
                                              readable,
-                                             intType,
+                                             rtype2,
                                              subtype,
                                              comment,
                                              input,

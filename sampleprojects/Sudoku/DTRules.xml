@@ -1,0 +1,19 @@
+<DTRules>
+
+  <compileralias name="SudokuLanguage">com.dtrules.compiler.sudoku.SudokuLanguage</compileralias> 
+  <compiler>SudokuLanguage</compiler>
+  
+  <RuleSet name="Sudoku" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables/</DTExcelFolder>
+     <EDDExcelFolder>/edd/</EDDExcelFolder>
+
+     <Entities        name="Sudoku_edd.xml" />
+     <Decisiontables  name="Sudoku_dt.xml"  />
+     <Map             name="Sudoku_map.xml" />
+  </RuleSet>    
+
+</DTRules>
+

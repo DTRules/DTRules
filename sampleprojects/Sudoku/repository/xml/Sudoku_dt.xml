@@ -1,0 +1,741 @@
+<decision_tables>
+<decision_table>
+<table_name>Solve</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>We are first going to prep the puzzle to cut down our search space.  Then we are going to search for a solution.  This is just the control table, so not much logic here.</COMMENTS></attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment>Initially assume that any value might go into any position in the puzzle.</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set possiblevalues = a copy of constants.possiblevalues, for all vals, for all cells</initial_action_description>
+<initial_action_postfix>
+{ { constants.possiblevalues copyelements /possiblevalues xdef } dup vals forall pop } dup cells forall pop 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment>Prep the puzzle.  It is going to set done to true</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>Prep_Puzzle</initial_action_description>
+<initial_action_postfix>
+Prep_Puzzle 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>3</intial_action_number>
+<initial_action_comment>but we are not really done, so set to false</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set done = false</initial_action_description>
+<initial_action_postfix>
+false cvb /done xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>4</intial_action_number>
+<initial_action_comment>Simplify the puzzle with some “give me” rules.</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>Simplify</initial_action_description>
+<initial_action_postfix>
+Simplify 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>5</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>// Search_for_solution</initial_action_description>
+<initial_action_postfix>
+
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Prep_Puzzle</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>for all cells</context_description>
+<context_postfix>
+dup cells forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>for all vals  where val.currentvalue == 0</context_description>
+<context_postfix>
+{ dup val.currentvalue 0 == if } vals forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>3</context_number>
+<context_comment></context_comment>
+<context_description>for all val.possiblevalues allowing possiblevalues to be removed</context_description>
+<context_postfix>
+dup val.possiblevalues forallr pop 
+</context_postfix></context_details></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set currentvalue = possiblevalue.v</initial_action_description>
+<initial_action_postfix>
+possiblevalue.v  cvi /currentvalue xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>perform is_Valid</initial_action_description>
+<initial_action_postfix>
+is_Valid 
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is this value valid at all?</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Val.valid == true</condition_description>
+<condition_postfix>
+Val.valid true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column>
+<condition_column column_value="N" column_number="2"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Clear this spot</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set val.currentvalue = 0</action_description>
+<action_postfix>
+0  cvi /val.currentvalue xdef  
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Reset the position to valid</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set valid = true</action_description>
+<action_postfix>
+true cvb /valid xdef  
+</action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>remove the possiblevalue from the possiblevalues array</action_description>
+<action_postfix>
+possiblevalues possiblevalue remove pop 
+</action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Simplify</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set found = false</initial_action_description>
+<initial_action_postfix>
+false cvb /found xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>Look_for_simplification</initial_action_description>
+<initial_action_postfix>
+Look_for_simplification 
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Found == true</condition_description>
+<condition_postfix>
+Found true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column>
+<condition_column column_value="N" column_number="2"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>Set valid = true, for all vals, for all cells</action_description>
+<action_postfix>
+{ { true cvb /valid xdef  } dup vals forall pop } dup cells forall pop 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>clear possibleValues, for all vals where currentvalue == 0, for all cells</action_description>
+<action_postfix>
+{ { possibleValues clear } { dup currentvalue 0 == if } vals forall pop } dup cells forall pop 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>Prep_Puzzle</action_description>
+<action_postfix>
+Prep_Puzzle 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set done = false</action_description>
+<action_postfix>
+false cvb /done xdef  
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>Simplify</action_description>
+<action_postfix>
+Simplify 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Look_For_Simplification</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>for all cells</context_description>
+<context_postfix>
+dup cells forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>for all vals  where val.currentvalue == 0</context_description>
+<context_postfix>
+{ dup val.currentvalue 0 == if } vals forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>3</context_number>
+<context_comment></context_comment>
+<context_description>for all possiblevalues while the length of possiblevalues &gt; 0</context_description>
+<context_postfix>
+{ dup possiblevalues length 0 &gt; if } possiblevalues forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set the currentCell = Cell</initial_action_description>
+<initial_action_postfix>
+Cell cve /currentCell xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set the currentVal =  Val</initial_action_description>
+<initial_action_postfix>
+Val cve /currentVal xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>3</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set the currentPossibleValue = the possibleValue</initial_action_description>
+<initial_action_postfix>
+possibleValue cve /currentPossibleValue xdef  
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>the length of possiblevalues == 1</condition_description>
+<condition_postfix>
+possiblevalues length 1 == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>there is a val where 
+     val != currentVal and
+     Val.currentvalue !=0 and
+    The possiblevalues includes currentPossiblevalue</condition_description>
+<condition_postfix>
+{ true } { false } { val currentVal req not { pop Val.currentvalue 0 == not } over if
+{ pop possiblevalues currentPossiblevalue memberof } over if
+} vals forfirstelse 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Looking at each value in this row, and making sure that the value is in other rows as well.  If not,then we know this row must have that value, and we can remove the value from the possiblevalues of cells in the same row.</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>there is a val where the row != currentVal&apos;s row and 
+    The val.currentvalue != 0 and   
+    The val.possiblevalues includes currentPossiblevalue</condition_description>
+<condition_postfix>
+{ true } { false } { row currentVal entitypush row entitypop == not { pop val.currentvalue 0 == not } over if
+{ pop val.possiblevalues currentPossiblevalue memberof } over if
+} vals forfirstelse 
+</condition_postfix></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set val.currentvalue = possiblevalue.v</action_description>
+<action_postfix>
+possiblevalue.v  cvi /val.currentvalue xdef  
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>process_row</action_description>
+<action_postfix>
+process_row 
+</action_postfix>
+<action_column column_value="X" column_number="3"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Tell them we found a solution</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set found = true</action_description>
+<action_postfix>
+true cvb /found xdef  
+</action_postfix></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Process_Row</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>for all cells where the cell is not equal to the currentcell and the cell.row == the currentcell&apos;s row</context_description>
+<context_postfix>
+{ dup cell currentcell req not { pop cell.row currentcell entitypush row entitypop == } over if
+if } cells forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>for all vals  where the val.row == the currentVal&apos;s row and the possiblevalues includes the currentPossibleValue</context_description>
+<context_postfix>
+{ dup val.row currentVal entitypush row entitypop == { pop possiblevalues currentPossibleValue memberof } over if
+if } vals forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set found = true</initial_action_description>
+<initial_action_postfix>
+true cvb /found xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>remove the currentPossibleValue from the possibleValues array</initial_action_description>
+<initial_action_postfix>
+possibleValues currentPossibleValue remove pop 
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Search_for_Solution</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>for all cells while not done</context_description>
+<context_postfix>
+{ dup done not if } cells forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>for all vals  while not done and currentvalue  == 0</context_description>
+<context_postfix>
+{ dup done not { pop currentvalue 0 == } over if
+if } vals forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>3</context_number>
+<context_comment></context_comment>
+<context_description>for all possiblevalues while not done</context_description>
+<context_postfix>
+{ dup done not if } possiblevalues forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set currentvalue = possiblevalue.v</initial_action_description>
+<initial_action_postfix>
+possiblevalue.v  cvi /currentvalue xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>perform is_Valid</initial_action_description>
+<initial_action_postfix>
+is_Valid 
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>If  we are done, we just leave.</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Done == true</condition_description>
+<condition_postfix>
+Done true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>If this cell isn&apos;t valid, clean up; Otherwise consider...</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Val.valid == true</condition_description>
+<condition_postfix>
+Val.valid true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="2"></condition_column>
+<condition_column column_value="N" column_number="3"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Continue looking for a solution</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>perform Solve</action_description>
+<action_postfix>
+Solve 
+</action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Clear our solution</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>perform Evaluate_Solution</action_description>
+<action_postfix>
+Evaluate_Solution 
+</action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Reset the position to valid</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set valid = true</action_description>
+<action_postfix>
+true cvb /valid xdef  
+</action_postfix>
+<action_column column_value="X" column_number="3"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Evaluate_Solution</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>After I have recursed to solve the puzzle, I have to look and see if a solution was found.  If not, then I add back in the possiblevalue, and clear this val&apos;s currentvalue</COMMENTS></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Done == true</condition_description>
+<condition_postfix>
+Done true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column>
+<condition_column column_value="N" column_number="2"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Clear our solution only if we are not done</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set currentvalue = 0</action_description>
+<action_postfix>
+0  cvi /currentvalue xdef  
+</action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Is_Valid</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment>Check the cell</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>is_Cell_Valid</initial_action_description>
+<initial_action_postfix>
+is_Cell_Valid 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment>Check the row</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>Is_Row_Valid</initial_action_description>
+<initial_action_postfix>
+Is_Row_Valid 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>3</intial_action_number>
+<initial_action_comment>Check the column</initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>Is_Column_Valid</initial_action_description>
+<initial_action_postfix>
+Is_Column_Valid 
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>If this value is valid</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>val.valid == true</condition_description>
+<condition_postfix>
+val.valid true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>and this is the last value we are looking for, we are done!</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>val.last == true</condition_description>
+<condition_postfix>
+val.last true beq 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number></action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set done = true</action_description>
+<action_postfix>
+true cvb /done xdef  
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Is_Cell_Valid</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>local entity ThisValue = val</context_description>
+<context_postfix>
+val cve allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment>Once ThisValue&apos;s valid flag is false, then quit.  And skip myself</context_comment>
+<context_description>for all vals where  ThisValue&apos;s valid == true and val != ThisValue</context_description>
+<context_postfix>
+{ dup 0 local@  entitypush valid entitypop true beq { pop val 0 local@  req not } over if
+if } vals forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Found this value in this row?</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Currentvalue is equal to ThisValue&apos;s currentvalue</condition_description>
+<condition_postfix>
+Currentvalue 0 local@  entitypush currentvalue entitypop == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Ah, this is a conflict!  Not valid!</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set ThisValue&apos;s valid = false</action_description>
+<action_postfix>
+false cvb 0 local@  entitypush /valid xdef  entitypop 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Is_Row_Valid</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>local entity ThisCell = Cell</context_description>
+<context_postfix>
+Cell cve allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>local entity ThisValue = val</context_description>
+<context_postfix>
+val cve allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>3</context_number>
+<context_comment></context_comment>
+<context_description>for all Cells where    ThisValue&apos;s valid == true and  Cell != ThisCell       and    Cell&apos;s row == ThisCell&apos;s row</context_description>
+<context_postfix>
+{ dup 1 local@  entitypush valid entitypop true beq { pop Cell 0 local@  req not } over if
+{ pop Cell entitypush row entitypop 0 local@  entitypush row entitypop == } over if
+if } Cells forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>4</context_number>
+<context_comment></context_comment>
+<context_description>for all vals  where     ThisValue&apos;s valid == true and                                        Val&apos;s row == ThisValue&apos;s row</context_description>
+<context_postfix>
+{ dup 1 local@  entitypush valid entitypop true beq { pop Val entitypush row entitypop 1 local@  entitypush row entitypop == } over if
+if } vals forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Found this value in this row?</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Currentvalue is equal to ThisValue&apos;s currentvalue</condition_description>
+<condition_postfix>
+Currentvalue 1 local@  entitypush currentvalue entitypop == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Ah, this is a conflict!  Not valid!</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set ThisValue&apos;s valid = false</action_description>
+<action_postfix>
+false cvb 1 local@  entitypush /valid xdef  entitypop 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details>
+<action_details>
+<action_number></action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>Debug ThisValue</action_description>
+<action_postfix>
+1 local@  debug 
+</action_postfix></action_details></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Is_Column_Valid</table_name>
+<xls_file>Sudoku_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>local entity ThisCell = Cell</context_description>
+<context_postfix>
+Cell cve allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>local entity ThisValue = val</context_description>
+<context_postfix>
+val cve allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>3</context_number>
+<context_comment></context_comment>
+<context_description>for all Cells where  ThisValue&apos;s valid == true and  Cell != ThisCell  and  Cell&apos;s column == ThisCell&apos;s column</context_description>
+<context_postfix>
+{ dup 1 local@  entitypush valid entitypop true beq { pop Cell 0 local@  req not } over if
+{ pop Cell entitypush column entitypop 0 local@  entitypush column entitypop == } over if
+if } Cells forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>4</context_number>
+<context_comment></context_comment>
+<context_description>for all vals  where   ThisValue&apos;s valid == true and                                 Val&apos;s column == ThisValue&apos;s column</context_description>
+<context_postfix>
+{ dup 1 local@  entitypush valid entitypop true beq { pop Val entitypush column entitypop 1 local@  entitypush column entitypop == } over if
+if } vals forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Found this value in this row?</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Currentvalue is equal to ThisValue&apos;s currentvalue</condition_description>
+<condition_postfix>
+Currentvalue 1 local@  entitypush currentvalue entitypop == 
+</condition_postfix>
+<condition_column column_value="Y" column_number="1"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Ah, this is a conflict!  Not valid!</action_comment>
+<initial_action_requirement></initial_action_requirement>
+<action_description>set ThisValue&apos;s valid = false</action_description>
+<action_postfix>
+false cvb 1 local@  entitypush /valid xdef  entitypop 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details></actions>
+<policy_statements></policy_statements></decision_table></decision_tables>

@@ -39,7 +39,8 @@ class DataObjectMap {
     String                tag;                   // Entity Tag to look for
     boolean               loaded = false;        // Have I initialized this object yet?
     String                dataObjName;           // Name for this DO
-    Class                 dataObj;               // This is the Data Object Mapped by this Map
+    @SuppressWarnings("rawtypes")
+	Class                 dataObj;               // This is the Data Object Mapped by this Map
                                                  // Getter to Attribute Map for this DO
     String                entityName    = null;  // Names of Entities which receive attributes 
                                                  //   from this Data Object 
@@ -77,7 +78,8 @@ class DataObjectMap {
      */
     public boolean OpenEntityTag(DataMap datamap, Object idataObj){
         try{
-            Class params[]     = {};
+            @SuppressWarnings("rawtypes")
+			Class params[]     = {};
             Object paramsObj[] = {};          
             Object keyValue = null;
             if(keyAccessor!=null){ 
@@ -102,7 +104,8 @@ class DataObjectMap {
             String err = init(datamap);
             if(err!=null)throw new RulesException("Undefined","DataObjectMap",err);
         }
-        Class params[]     = {};
+        @SuppressWarnings("rawtypes")
+		Class params[]     = {};
         Object paramsObj[] = {};
         
         try {
@@ -155,7 +158,8 @@ class DataObjectMap {
     public synchronized String init(DataMap datamap)  {
         if(loaded == true) return null;
         try {
-            Class c = Class.forName(dataObjName);
+        	@SuppressWarnings("rawtypes")
+    		Class c = Class.forName(dataObjName);
             Method [] methods = c.getMethods();
             for(Method method : methods){
                 String tag = removePrefix("is", method);

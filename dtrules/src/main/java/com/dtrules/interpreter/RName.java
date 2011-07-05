@@ -26,6 +26,8 @@ import com.dtrules.session.DTState;
 
 public class RName extends ARObject implements Comparable<RName>{
 	
+	static RType type = RType.newType("name");
+
 	final RName   entity;
 	final String  name;
 	final boolean executable;
@@ -223,7 +225,7 @@ public class RName extends ARObject implements Comparable<RName>{
 	 * are only equal to other RNames. 
 	 */
 	public boolean equals(IRObject o) {
-		if(o.type()!=IRObject.iName)return false;
+		if(o.type()!= type)return false;
 		return equals((Object)o);
 	}
     static int cnt= 0;
@@ -286,9 +288,13 @@ public class RName extends ARObject implements Comparable<RName>{
 		return postFix();
 	}
 	
-	public int type() {
-		return iName;
+	/**
+	 * Returns the type for this object.
+	 */
+	public RType type() {
+		return type;
 	}
+
     
     @Override
     public int compare(IRObject obj) throws RulesException {

@@ -19,6 +19,7 @@ package com.dtrules.compiler.el.cup.parser;
 import java.util.*;
 import java.io.*;
 import java_cup.runtime.*;
+import com.dtrules.interpreter.IRObject;
 
 action code {:
     
@@ -49,20 +50,20 @@ parser code {:
   public void report_error(String message, Object info){}
 
    public final int      
-                 iBoolean       = 0,
-                 iString        = 1,
-                 iInteger       = 2,
-                 iDouble        = 3,
-                 iEntity        = 4,
-                 iName          = 5,
-                 iArray         = 6,
-                 iDecisiontable = 7,
-                 iNull          = 8,
-                 iMark          = 9,
-                 iOperator      = 10,
-                 iTime          = 11,
-                 iTable         = 12,
-                 iXmlValue      = 13; 
+                 iBoolean       = IRObject.iBoolean,
+                 iString        = IRObject.iString,
+                 iInteger       = IRObject.iInteger,
+                 iDouble        = IRObject.iDouble,
+                 iEntity        = IRObject.iEntity,
+                 iName          = IRObject.iName,
+                 iArray         = IRObject.iArray,
+                 iDecisiontable = IRObject.iDecisiontable,
+                 iNull          = IRObject.iNull,
+                 iMark          = IRObject.iMark,
+                 iOperator      = IRObject.iOperator,
+                 iDate          = IRObject.iDate,
+                 iTable         = IRObject.iTable,
+                 iXmlValue      = IRObject.iXmlValue; 
     /**
      * Adds a symbol to the local variable hash, and
      * returns allocation code for the local variable.
@@ -85,23 +86,24 @@ parser code {:
 
 
 /* Terminals (tokens returned by the scanner). */
-terminal String		ABSOLUTEVALUE, ACTION, ADD, AFTER, ALL, ALLOWING, AND, ARRAY, 
-					ARRAY_OF_VALUES, ASCENDINGORDER, ASSIGN, ATTRIBUTE, AT, BEFORE, 
-					BETWEEN, BOOL_FUNCTION, BOOLEAN, BY, CHANGE, CLEAR, 
+terminal String		ABSOLUTEVALUE, ACTION, ADD, AFTER, ALL, ALLOWING, AND, 
+                    ARRAY, ARRAY_OF_VALUES, ASCENDINGORDER, ASSIGN, ATTRIBUTE, 
+                    AT, BEFORE, BETWEEN, BOOL_FUNCTION, BOOLEAN, BY, CHANGE, CLEAR, 
 					CLONE, COLON, CONTEXT, COMMA, CONDITION, COPY, CURRENT_DATE, 
 					CURRENT_TIMESTAMP, CVS, DATE, DAYS, DEBUG, DECIMAL_PLACES, 
 					DECREMENT, DEEPCOPY, DESCENDINGORDER, DIVIDE, DOES, DOUBLE, 
 					EACH, EARLIEST, ELEMENT, ELSE, ELSEIF, ELSEIFNONEAREFOUND, 
-					END, ENDIF, ENTITY, EQ, FIRST, FLOAT, FOR, 
+					END, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIRST, FLOAT, FOR, 
 					FORALL, FROM, GET, GT, GTE, HASA, HAVE, IF, IN, 
 					INCLUDE, INCLUDES, INCREMENT, INDEX_OF, INTEGER, IS, 
 					ISNOTNULL, ISNULL,	ITS, LBRACE, LCURLY, LENGTH, 
 					LOCAL, LONG, LOWER_CASE, LPAREN,  LT, LTE, MAP, MAPPINGKEY, MATCH, 
 					MATCHES, MEMBER, MINUS, MONTHS, MULTIPLY, NAME, 
-					NAMEOF, NEQ, NEW, NO, NOT, NUMBEROF, OF, ON, ONE, ONERROR, 
-					OR, PERCENTOF, PERFORM, PLUS, PLUSORMINUS, POSSESSIVE, 
-					QUESTIONMARK, RANDOMIZE, RARRAY, RBOOLEAN, RBRACE, RCURLY, 
-					RDATE, RDECISIONTABLE, RDOUBLE, RELATIONSHIP_BETWEEN, 
+					NAMEOF, NEQ, NEQ_IGNORE_CASE, NEW, NO, NOT, NUMBEROF, OF, ON, 
+					ONE, ONERROR, OR, PERCENTOF, PERFORM, PLUS, PLUSORMINUS, 
+					POLICYSTATEMENT, POLICYSTATEMENTS, POSSESSIVE, PRINT, 
+				   QUESTIONMARK, RANDOMIZE, RARRAY, RBOOLEAN, RBRACE, 
+					RCURLY, RDATE, RDECISIONTABLE, RDOUBLE, RELATIONSHIP_BETWEEN, 
 					REMOVE, RENTITY, 
 					RINVALID, RLONG, RNAME, RNULL, ROPERATOR, ROUNDED, RPAREN, 
 					RSTRING, RTABLE, RXMLVALUE, SEMI, SET, SORT, STARTS_WITH,  
@@ -128,6 +130,7 @@ non terminal String 	includeSearch;
 non terminal String     forblock;
 non terminal String     forallblock;
 
+non terminal String     forctl;
 non terminal String     forallctl, forfirstctl;
 non terminal String     ifblock;
 non terminal String     usingblock;
@@ -157,7 +160,7 @@ non terminal String     xmlvaluestatements;
 non terminal String     separator;
 
 
-non terminal String     blist;
+non terminal String     blist, blist_ic;
 
 non terminal String     ifcontinue,
                         left_iexpr,
@@ -208,6 +211,20 @@ done ::= ACTION statement_list:e                   {: RESULT = "\n"+e+"\n"; :}
       |
       CONTEXT context_for_table:e             SEMI {: RESULT = "\n"+e+"\n"; :} 
       |
+      CONTEXT debugstatement:d SEMI context_for_table:e SEMI {: RESULT = "\n"+d+e+"\n"; :} 
+      |
+      POLICYSTATEMENT strexpr:e               SEMI {: RESULT = e; :}
+      |
+      POLICYSTATEMENT nexpr:e                 SEMI {: RESULT = e; :}
+      |
+      POLICYSTATEMENT iexpr:e                 SEMI {: RESULT = e; :}
+      |
+      POLICYSTATEMENT fexpr:e                 SEMI {: RESULT = e; :}
+      |
+      POLICYSTATEMENT bexpr:e                 SEMI {: RESULT = e; :}
+      |
+      POLICYSTATEMENT dexpr:e                 SEMI {: RESULT = e; :}
+      |
       IDENT     // This is bogus, cause the TokenFilter is going to filter out any IDENT matches.     
       ;         // But this gets rid of the warning.
                
@@ -247,7 +264,9 @@ colonRef      ::= possessiveRef:e                             {: RESULT = e; :} 
 forallblock ::= block:blk forallctl:ctl 
 				  {: RESULT = "{ "+blk+"} "+ctl+"pop "; :};
 
-context_for_table ::= forallctl:ctl 		{: RESULT = ctl+"pop "; 			 :} |
+context_for_table ::= debugstatement:e      {: RESULT = e+"execute ";            :} |
+					  forctl:ctl            {: RESULT = ctl+"pop ";              :} |
+                      forallctl:ctl 		{: RESULT = ctl+"pop "; 			 :} |
 					  forfirstctl:ctl 		{: RESULT = ctl+"pop "; 			 :} |
 					  contextstatement:c 	{: RESULT = c +"execute entitypop "; :} |
 					  localvariables:v      {: RESULT = v;                       :} ;
@@ -273,8 +292,8 @@ localvariables ::=
             LOCAL BOOLEAN RBOOLEAN:v                  {: if(true)throw new RuntimeException(
                                                     "The variable '"+rv(CUP$DTRulesParser$stack)+"' is already defined"); :} |
 
-            LOCAL DATE UNDEFINED:v                    {: RESULT = parser.newLocal(v, parser.iTime, null);                       :} | 
-            LOCAL DATE UNDEFINED:v ASSIGN dexpr:e     {: RESULT = parser.newLocal(v, parser.iTime, e + "cvd ");                 :} |
+            LOCAL DATE UNDEFINED:v                    {: RESULT = parser.newLocal(v, parser.iDate, null);                       :} | 
+            LOCAL DATE UNDEFINED:v ASSIGN dexpr:e     {: RESULT = parser.newLocal(v, parser.iDate, e + "cvd ");                 :} |
             LOCAL DATE RDATE:v                        {: if(true)throw new RuntimeException(
                                                     "The variable '"+rv(CUP$DTRulesParser$stack)+"' is already defined"); :} |
                                                     
@@ -293,7 +312,8 @@ localvariables ::=
 ifstatement ::=
              IF bexpr:b THEN block:blk1 ENDIF                     {: RESULT = "{ "+blk1+"} "              +b+ "if "    ; :} |					  
 			 IF bexpr:b THEN block:blk1 ELSE block:blk2 ENDIF     {: RESULT = "{ "+blk1+"} { "+blk2+"} }" +b+ "ifelse "; :} ;
-			  
+		
+
 // The Control statements assume the object that should be executed as
 // described by the following statements is provided on the stack, 
 // and that object should be left on the stack
@@ -430,12 +450,15 @@ setstatement ::= SET left_iexpr:v    ASSIGN number:e   {:        RESULT = e+"cvi
                  DECREMENT RDOUBLE:v     {: RESULT = v+" 1 dsub " + left(CUP$DTRulesParser$stack); :} 
 	      ;
 
-
+// Java like for statement
+forctl          ::= FOR left_iexpr:v ASSIGN number:e SEMI bexpr:b SEMI statement:s     
+                    {: RESULT = e+"cvi "+v+"{ dup execute "+s+"execute } "+b+"while "; :}
+                ; 
  
 
 performstatement ::=  
                 PERFORM RDECISIONTABLE:dt1 AND ONERROR ADD eexpr:e TO CONTEXT AND PERFORM RDECISIONTABLE:dterror
-                    {: RESULT = "/"+dt1+" lookup /"+dterror+" lookup "+e+" PerformCatchError "; :}
+                    {: RESULT = "/"+dt1+" lookup /"+dterror+" lookup "+e+" PerformCatchError "; :} |
                 RDECISIONTABLE:dt         {: RESULT = dt+" ";   :} |
                 PERFORM RDECISIONTABLE:dt {: RESULT = dt+" ";   :} |
                 PERFORM NAME:dt           {: RESULT = dt+" ";   :} ;
@@ -449,7 +472,15 @@ debugstatement ::=
               DEBUG fexpr:s               {: RESULT = s+"debug "; :} |
               DEBUG eexpr:s               {: RESULT = s+"debug "; :} |
               DEBUG dexpr:s               {: RESULT = s+"debug "; :} |
-              DEBUG array_expr:s          {: RESULT = s+"debug "; :} ;
+              DEBUG array_expr:s          {: RESULT = s+"debug "; :} |
+              
+              PRINT strexpr:s             {: RESULT = s+"debug "; :} |
+              PRINT bexpr:s               {: RESULT = s+"debug "; :} |
+              PRINT iexpr:s               {: RESULT = s+"debug "; :} |
+              PRINT fexpr:s               {: RESULT = s+"debug "; :} |
+              PRINT eexpr:s               {: RESULT = s+"debug "; :} |
+              PRINT dexpr:s               {: RESULT = s+"debug "; :} |
+              PRINT array_expr:s          {: RESULT = s+"debug "; :} ;
 
 
 ifblock     ::= bexpr:b THEN statement_list:e1 ifcontinue:e2 
@@ -488,8 +519,8 @@ subtodest     ::= RLONG:a                                    {: RESULT = a+" swa
                   colonRef:e addtodest2:v                    {: notlocal(CUP$DTRulesParser$stack); RESULT = e+"entitypush "+v+"entitypop ";        :} ;
  
 addtostatement ::=               
-			  ADD array_expr:a1           TO array_expr:a2    {: RESULT =a1+a2+"false addarray "; :} |
-			  
+			  ADD array_expr:a1           TO array_expr:a2  IF NOT MEMBER    {: RESULT =a1+a2+"false addarray "; :} |
+              ADD array_expr:a1           TO array_expr:a2                   {: RESULT =a1+a2+"true  addarray "; :} |
               ADD eexpr:e                 TO addtodest:a                     {: RESULT =e+a;                    :} |
               ADD eexpr:e                 TO addtodest:a AND TO addtodest:a2 {: RESULT =e+"dup "+a+a2;          :} |
               ADD strexpr:e               TO addtodest:a                     {: RESULT =e+a;                    :} |
@@ -557,6 +588,7 @@ xmlvaluestatements ::=
 // Array expressions
 
 array_expr ::= 
+              POLICYSTATEMENTS                              {: RESULT = "policystatements ";              :} |
               colonRef:e RARRAY:v                           {: RESULT = e+"entitypush "+v+" entitypop ";  :} |
               array_expr2:a                                 {: RESULT = a;                                :} ; 
               
@@ -681,8 +713,7 @@ texpr    ::=  RTABLE:t                    {: RESULT = t+" ";                :} |
 			  NEW strexpr TABLE OF strexpr:s
 			  							  {: /**c**/ :};
 
-strexpr  ::=  
-              ATTRIBUTE strexpr:s OF eexpr:e
+strexpr  ::=  ATTRIBUTE strexpr:s OF eexpr:e
                                           {: RESULT = e+s+"getXmlAttribute "; :}
               |
               MAPPINGKEY                  {: RESULT = "\"mapping*key\" cvn execute "; :}
@@ -743,11 +774,14 @@ strexpr  ::=
 		      | 
 			  CHANGE strexpr:se TO LOWER_CASE {: RESULT = se +"tolowercase "; :}	      
 		      | 
-			  CHANGE strexpr:se TO UPPER_CASE {: RESULT = se +"touppercase "; :}	      
-			  GET CURRENT_DATE                        {: RESULT = "getdate ";                         :} |
-			  GET CURRENT_TIMESTAMP                   {: RESULT = "gettimestamp ";                    :} |
-              USING eexpr:ee  LPAREN strexpr:e RPAREN {: RESULT = ee + "entitypush "+e+"entitypop ";  :} |
-
+			  CHANGE strexpr:se TO UPPER_CASE {: RESULT = se +"touppercase "; :}
+			  |	      
+			  GET CURRENT_DATE                        {: RESULT = "getdate ";                         :} 
+			  |
+			  GET CURRENT_TIMESTAMP                   {: RESULT = "gettimestamp ";                    :} 
+			  |
+              USING eexpr:ee  LPAREN strexpr:e RPAREN {: RESULT = ee + "entitypush "+e+"entitypop ";  :} 
+              |
 			  // relationship Syntax              
               RELATIONSHIP_BETWEEN eexpr:e1 AND eexpr:e2 {: RESULT = e1+e2+
               														 "{ type } { '' } "+ 
@@ -886,6 +920,11 @@ thereis  ::=  THERE IS |
 
 blist     ::= strexpr:s COMMA  blist:bl    {: RESULT = "dup "+s+"streq { pop "+bl+"} over not if "; :} |
               OR strexpr:s                 {: RESULT = "dup "+s+"streq ";                           :} ;	            
+
+// Compare a list, ignoring the case
+blist_ic     ::= strexpr:s COMMA  blist:bl {: RESULT = "dup "+s+"sic== { pop "+bl+"} over not if "; :} |
+              OR strexpr:s                 {: RESULT = "dup "+s+"sic== ";                           :} ;                
+
      
 bexpr     ::= 		
 			// Complicated Tests
@@ -1022,11 +1061,18 @@ bexpr     ::=
               |
 
 // Strings
+              strexpr:s EQ_IGNORE_CASE blist_ic:bl  
+                                         {: RESULT = s+bl+"swap drop ";        :}
+              |
               strexpr:s EQ blist:bl      {: RESULT = s+bl+"swap drop ";        :}
               |              
               strexpr:s1 EQ  strexpr:s2  {: RESULT = s1+s2+"streq ";           :}
               |
               strexpr:s1 NEQ strexpr:s2  {: RESULT = s1+s2+"streq not ";       :}
+              |
+              strexpr:s1 EQ_IGNORE_CASE  strexpr:s2  {: RESULT = s1+s2+"sic== ";           :}
+              |
+              strexpr:s1 NEQ_IGNORE_CASE strexpr:s2  {: RESULT = s1+s2+"sic== not ";       :}
               |
               strexpr:s1 AT iexpr:e1 STARTS_WITH strexpr:s2
                                          {: RESULT = s1+s2+e1+"startswith ";   :}

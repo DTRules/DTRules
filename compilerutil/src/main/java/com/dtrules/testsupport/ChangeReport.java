@@ -51,6 +51,7 @@ public class ChangeReport {
            "contexts",
            "conditions",
            "actions", 
+           "policy_statements"
     };
    
     private String checkValue[] = { 
@@ -60,6 +61,7 @@ public class ChangeReport {
            "condition_postfix",
            "condition_column",
            "action_column",
+           "policy_statement"
     };    
     
     public class RulesConfig {
@@ -615,11 +617,23 @@ public class ChangeReport {
                return true;
            }
        }
-       for(int i = 0, j=0; i < n1.getTags().size() || j < n2.getTags().size(); i++, j++){
-           if(i == n1.getTags().size() && j < n2.getTags().size() ) i--;
-           if(j == n2.getTags().size() && i < n1.getTags().size() ) j--;
-           if(executionChanged(n1.getTags().get(i),n2.getTags().get(j))){
-               return true;
+       for(int i =0; i < n1.getTags().size() || i < n2.getTags().size(); i++){
+           if(i >= n1.getTags().size()){
+               if(contains(checkStructure,n2.getTags().get(i).getName()) 
+                  || contains(checkValue,n2.getTags().get(i).getName())){
+                   return true;
+               }
+           }
+           if(i >= n2.getTags().size()){
+               if(contains(checkStructure,n1.getTags().get(i).getName()) 
+                  || contains(checkValue,n1.getTags().get(i).getName())){
+                   return true;
+               }
+           }
+           if(i >= n1.getTags().size() && i >= n2.getTags().size()){
+	           if(executionChanged(n1.getTags().get(i),n2.getTags().get(i))){
+	               return true;
+	           }
            }
        }
        return false;

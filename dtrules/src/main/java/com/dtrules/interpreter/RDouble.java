@@ -25,7 +25,10 @@ import com.dtrules.infrastructure.RulesException;
  *
  */
 public class RDouble extends ARObject {
-    final double value;
+    
+	static RType type = RType.newType("double");
+
+	final double value;
     
     static RDouble mone = new RDouble(-1.0);
     static RDouble zero = new RDouble(0.0);
@@ -98,8 +101,8 @@ public class RDouble extends ARObject {
 	/**
 	 * Returns the type for this object.
 	 */
-	public int type() {
-		return iDouble;
+	public RType type() {
+		return type;
 	}
 
     public String stringValue() {

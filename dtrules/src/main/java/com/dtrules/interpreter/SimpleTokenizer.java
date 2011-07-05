@@ -125,7 +125,7 @@ public class SimpleTokenizer {
         } catch (NumberFormatException e) {}
         Date t = session.getDateParser().getDate(v);
         if(t!=null){
-           return new Token(RTime.getRTime(t));
+           return new Token(RDate.getRTime(t));
         } 
         
         return new Token(RName.getRName(v));

@@ -28,6 +28,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RName;
 import com.dtrules.xmlparser.AGenericXMLParser;
@@ -46,15 +47,12 @@ public class RulesDirectory {
     
     
     
-    public Class getDefaultCompiler() throws RulesException {
+    public Class<ICompiler> getDefaultCompiler() throws RulesException {
     	if(defaultCompiler == null){
     		try{
     			defaultCompiler = (Class<ICompiler>)Class.forName("com.dtrules.compiler.el.EL");
     		}catch(ClassNotFoundException e){
-    			throw new RulesException(
-    					"undefined", 
-    					"Rules Engine Initiation", 
-    					"Could not find the default DTRules compiler: com.dtrules.compiler.el.EL");
+    			return null;			// No default compiler found.
     		}
     	}
 		return defaultCompiler;
@@ -70,7 +68,9 @@ public class RulesDirectory {
 	public void setDefaultCompiler(String qualifiedCompilerClassName) {
 		try{
 		   this.defaultCompiler = (Class<ICompiler>) Class.forName(qualifiedCompilerClassName);
-		}catch(ClassNotFoundException e){}
+		}catch(ClassNotFoundException e){
+		    System.err.println("WARNING:  Cannot find the specfied compiler: "+qualifiedCompilerClassName);
+		}
 	}
 
 	public void addRuleSet(RuleSet ruleset) throws RulesException {
@@ -145,7 +145,7 @@ public class RulesDirectory {
     /**
      * The RulesDirectory manages the various RuleSets and the versions of 
      * RuleSets.  We need to do a good bit of work to make all of this 
-     * managable. For right now, I am loading the property list from the 
+     * manageable. For right now, I am loading the property list from the 
      * path provided this class.  It first attempts to use this path as a
      * jar resource, then an URL, then a file.
      * 
@@ -207,7 +207,12 @@ public class RulesDirectory {
     	
     	HashMap<String,String> compileralias = new HashMap <String,String>();
     	
-    	public void beginTag(String[] tagstk, int tagstkptr, String tag, HashMap attribs) throws IOException, Exception {
+    	public void beginTag(
+    	        String[] tagstk, 
+    	        int tagstkptr, 
+    	        String tag, 
+    	        HashMap<String,String> attribs) throws IOException, Exception {
+    	    
 		    if (tag.equals("RuleSet")){
 			    currentset = new RuleSet(rd);
 				currentset.setName((String) attribs.get("name"));
@@ -304,7 +309,7 @@ public class RulesDirectory {
 	/**
 	 * @return the rulesets
 	 */
-	public HashMap getRulesets() {
+	public HashMap<RName,RuleSet>  getRulesets() {
 		return rulesets;
 	}
     /**

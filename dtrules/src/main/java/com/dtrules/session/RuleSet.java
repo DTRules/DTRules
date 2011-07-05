@@ -299,9 +299,13 @@ public class RuleSet {
      * @return
      * @throws RulesException
      */
-    public IRSession newSession () throws RulesException{
-        return new RSession(this);
+    synchronized public IRSession newSession () throws RulesException{
+        IRSession s = new RSession(this);
+        getEntityFactory(s);
+        return s;
     }
+    
+    
     
     /**
      * Get the EntityFactory associated with this ruleset. 

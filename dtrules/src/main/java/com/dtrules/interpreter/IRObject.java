@@ -24,8 +24,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dtrules.decisiontables.RDecisionTable;
 import com.dtrules.entity.IREntity;
+import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.operators.ROperator;
 import com.dtrules.mapping.XMLNode;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
@@ -44,6 +47,24 @@ import com.dtrules.session.IRSession;
 public interface IRObject {
 
 	/**
+	 * Useful constants;  We may eliminate these going forward.
+	 */
+	static final int    iOperator       = ROperator.type.getId();
+	static final int	iString	        = RString.type.getId();
+	static final int	iInteger	    = RInteger.type.getId();
+	static final int	iDouble	        = RDouble.type.getId();
+	static final int	iName	        = RName.type.getId();
+	static final int	iDate	        = RDate.type.getId();
+	static final int	iBoolean	    = RBoolean.type.getId();
+	static final int	iNull	        = RNull.type.getId();
+	static final int	iArray	        = RArray.type.getId();
+	static final int	iTable	        = RTable.type.getId();
+	static final int	iEntity	        = REntity.type.getId();
+	static final int	iDecisiontable	= RDecisionTable.dttype.getId();
+	static final int    iMark           = RMark.type.getId();
+	static final int    iXmlValue       = RXmlValue.type.getId();
+      
+	/**
 	 * Clone implements a shallow copy of a structure.  This the elements of an
 	 * array or table will not themselves be cloned.
 	 * 
@@ -53,60 +74,6 @@ public interface IRObject {
 	 */
     public IRObject clone(IRSession s) throws RulesException;
     
-	//  *************** NOTE !!!!!!
-	//  You can't put static methods on an interface. So the String to integer conversion
-	//  for types is a static method on the RSession class.
- 	/**
- 	 * Every Object in the Rules Engine has a Type, as listed here.  Each type
- 	 * has an integer value, which we actually use in the code (specified in the
- 	 * types[] array.  This code predates Enumerations in Java, and perhaps we
- 	 * should fix that sometime in the future.
- 	 * @author Paul Snow
- 	 */
-	final String rBoolean       = "boolean",
-	             rString        = "string",
-	             rInteger       = "integer",
-	             rFloat         = "float",
-	             rEntity        = "entity",
-	             rName          = "name",
-	             rArray         = "array",
-	             rDecisiontable = "decisiontable",
-	             rNull          = "null",
-	             rMark          = "mark",
-	             rOperator      = "operator",
-                 rTime          = "time",
-                 rTable         = "table",
-                 rXmlValue      = "xmlvalue";
-	
-	/**
-	 * The String types in this array are associated with the integer values
-	 * of the types.
-	 */
-	final String types[] = { rBoolean, rString, rInteger, rFloat,
-			                 rEntity,  rName,   rArray,   rDecisiontable,  
-			                 rNull,    rMark,   rOperator, rTime,
-                             rTable, rXmlValue};
-	
-    /**
-     * These integer values are used to check object types by the Rules Interpreter.
-     * They can be converted to a name using static methods typeInt2Str() and 
-     * typeStr2Int() found on the RSession class.
-     */
-	final int    iBoolean       = 0,
-	             iString        = 1,
-	             iInteger       = 2,
-	             iDouble        = 3,
-	             iEntity        = 4,
-	             iName          = 5,
-	             iArray         = 6,
-	             iDecisiontable = 7,
-	             iNull          = 8,
-	             iMark          = 9,
-	             iOperator      = 10,
-                 iTime          = 11,
-                 iTable         = 12,
-                 iXmlValue      = 13;
- 	
 	/**
 	 * This method defines the executable behavior of a object within the 
 	 * Rules Interpreter.
@@ -179,7 +146,7 @@ public interface IRObject {
      * Return the integer type of this object
      * @return
      */
-    public int type();
+    public RType type();
 	
     /**
      * Clone the Rules Engine object.  For many types (boolean, integer, Strings), 
@@ -294,7 +261,7 @@ public interface IRObject {
      * @return
      * @throws RulesException
      */
-    public RTime                rTimeValue ()   throws RulesException;
+    public RDate                rTimeValue ()   throws RulesException;
     
     /**
      * Date conversions need the session
@@ -302,7 +269,7 @@ public interface IRObject {
      * @return
      * @throws RulesException
      */
-    public RTime                rTimeValue (IRSession session) throws RulesException;
+    public RDate                rTimeValue (IRSession session) throws RulesException;
     /**
      * Return a Date representation of this object.  
      * A Rules Exception will be thrown if no such representation exists.

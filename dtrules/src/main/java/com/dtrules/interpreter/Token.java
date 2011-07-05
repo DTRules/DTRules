@@ -38,7 +38,7 @@ class Token {
     String strValue;
     Long   longValue;
     Double doubleValue;
-    RTime  datevalue;
+    RDate  datevalue;
     RName  nameValue;
     
     public Type getType(){
@@ -74,7 +74,7 @@ class Token {
         return "?";
     }
     
-    Token(RTime t){
+    Token(RDate t){
         datevalue = t;
         type = Type.DATE;
     }

@@ -1,0 +1,594 @@
+/** 
+ * Copyright 2004-2009 DTRules.com, Inc.
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");  
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at  
+ *   
+ *      http://www.apache.org/licenses/LICENSE-2.0  
+ *   
+ * Unless required by applicable law or agreed to in writing, software  
+ * distributed under the License is distributed on an "AS IS" BASIS,  
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+ * See the License for the specific language governing permissions and  
+ * limitations under the License.  
+ **/
+ ===== Terminals =====
+[0]EOF [1]error [2]ABSOLUTEVALUE [3]ACTION [4]ADD 
+[5]AFTER [6]ALL [7]ALLOWING [8]AND [9]ARRAY 
+[10]ARRAY_OF_VALUES [11]ASCENDINGORDER [12]ASSIGN [13]ATTRIBUTE [14]AT 
+[15]BEFORE [16]BETWEEN [17]BOOL_FUNCTION [18]BOOLEAN [19]BY 
+[20]CHANGE [21]CLEAR [22]CLONE [23]COLON [24]CONTEXT 
+[25]COMMA [26]CONDITION [27]COPY [28]CURRENT_DATE [29]CURRENT_TIMESTAMP 
+[30]CVS [31]DATE [32]DAYS [33]DEBUG [34]DECIMAL_PLACES 
+[35]DECREMENT [36]DEEPCOPY [37]DESCENDINGORDER [38]DIVIDE [39]DOES 
+[40]DOUBLE [41]EACH [42]EARLIEST [43]ELEMENT [44]ELSE 
+[45]ELSEIF [46]ELSEIFNONEAREFOUND [47]END [48]ENDIF [49]ENTITY 
+[50]EQ [51]EQ_IGNORE_CASE [52]FIRST [53]FLOAT [54]FOR 
+[55]FORALL [56]FROM [57]GET [58]GT [59]GTE 
+[60]HASA [61]HAVE [62]IF [63]IN [64]INCLUDE 
+[65]INCLUDES [66]INCREMENT [67]INDEX_OF [68]INTEGER [69]IS 
+[70]ISNOTNULL [71]ISNULL [72]ITS [73]LBRACE [74]LCURLY 
+[75]LENGTH [76]LOCAL [77]LONG [78]LOWER_CASE [79]LPAREN 
+[80]LT [81]LTE [82]MAP [83]MAPPINGKEY [84]MATCH 
+[85]MATCHES [86]MEMBER [87]MINUS [88]MONTHS [89]MULTIPLY 
+[90]NAME [91]NAMEOF [92]NEQ [93]NEQ_IGNORE_CASE [94]NEW 
+[95]NO [96]NOT [97]NUMBEROF [98]OF [99]ON 
+[100]ONE [101]ONERROR [102]OR [103]PERCENTOF [104]PERFORM 
+[105]PLUS [106]PLUSORMINUS [107]POLICYSTATEMENT [108]POLICYSTATEMENTS [109]POSSESSIVE 
+[110]PRINT [111]QUESTIONMARK [112]RANDOMIZE [113]RARRAY [114]RBOOLEAN 
+[115]RBRACE [116]RCURLY [117]RDATE [118]RDECISIONTABLE [119]RDOUBLE 
+[120]RELATIONSHIP_BETWEEN [121]REMOVE [122]RENTITY [123]RINVALID [124]RLONG 
+[125]RNAME [126]RNULL [127]ROPERATOR [128]ROUNDED [129]RPAREN 
+[130]RSTRING [131]RTABLE [132]RXMLVALUE [133]SEMI [134]SET 
+[135]SORT [136]STARTS_WITH [137]STRING [138]SUBSTRING [139]SUBTRACT 
+[140]SUM_OF [141]TABLE [142]TABLEINFORMATION [143]THEN [144]THENAME 
+[145]THERE [146]THIS [147]TIMES [148]THROUGH [149]TO 
+[150]TOBEREMOVED [151]TOKENIZE [152]TRIM [153]UMINUS [154]UNDEFINED 
+[155]UPPER_CASE [156]USING [157]VALUE_OF [158]WAS [159]WHERE 
+[160]WITHIN [161]WITH_BOUNDRY [162]YEARS [163]YEAROF [164]IDENT 
+
+
+===== Non terminals =====
+[0]done [1]statement_list [2]statement [3]number [4]inthe 
+[5]iexpr [6]fexpr [7]bexpr [8]eexpr [9]nexpr 
+[10]texpr [11]strexpr [12]indx_expr [13]dexpr [14]array_expr 
+[15]array_expr2 [16]includeSearch [17]forblock [18]forallblock [19]forctl 
+[20]forallctl [21]forfirstctl [22]ifblock [23]usingblock [24]firstblock 
+[25]block [26]thereis [27]setstatement [28]usingstatement [29]performstatement 
+[30]debugstatement [31]ifstatement [32]addtostatement [33]addtodest [34]addtodest2 
+[35]subtodest [36]clearstatement [37]randomstatements [38]commonerror [39]tablelist 
+[40]operatorlist [41]operatorstatements [42]contextstatement [43]localvariables [44]context_for_table 
+[45]datestatement [46]xmlvalues [47]xmlvaluestatements [48]separator [49]blist 
+[50]blist_ic [51]ifcontinue [52]left_iexpr [53]left_fexpr [54]left_bexpr 
+[55]left_eexpr [56]left_strexpr [57]left_dexpr [58]left_ArrayRef [59]left_texpr 
+[60]colonRef [61]possessiveRef [62]array_lit [63]array_list 
+
+===== Productions =====
+[0] done ::= ACTION statement_list 
+[1] $START ::= done EOF 
+[2] done ::= CONDITION bexpr SEMI 
+[3] done ::= CONDITION debugstatement SEMI bexpr SEMI 
+[4] done ::= CONDITION bexpr SEMI debugstatement SEMI 
+[5] done ::= CONTEXT context_for_table SEMI 
+[6] done ::= POLICYSTATEMENT strexpr SEMI 
+[7] done ::= POLICYSTATEMENT nexpr SEMI 
+[8] done ::= POLICYSTATEMENT iexpr SEMI 
+[9] done ::= POLICYSTATEMENT fexpr SEMI 
+[10] done ::= POLICYSTATEMENT bexpr SEMI 
+[11] done ::= POLICYSTATEMENT dexpr SEMI 
+[12] done ::= IDENT 
+[13] statement_list ::= statement_list block 
+[14] statement_list ::= block 
+[15] separator ::= SEMI 
+[16] separator ::= COMMA 
+[17] statement ::= setstatement separator 
+[18] statement ::= performstatement separator 
+[19] statement ::= debugstatement separator 
+[20] statement ::= ifstatement separator 
+[21] statement ::= addtostatement separator 
+[22] statement ::= clearstatement separator 
+[23] statement ::= usingstatement separator 
+[24] statement ::= randomstatements separator 
+[25] statement ::= commonerror separator 
+[26] statement ::= operatorstatements separator 
+[27] statement ::= contextstatement separator 
+[28] statement ::= datestatement separator 
+[29] statement ::= xmlvaluestatements separator 
+[30] statement ::= separator 
+[31] usingblock ::= RENTITY usingblock 
+[32] usingblock ::= RENTITY COMMA usingblock 
+[33] usingblock ::= block 
+[34] possessiveRef ::= POSSESSIVE COMMA possessiveRef 
+[35] possessiveRef ::= POSSESSIVE COMMA 
+[36] possessiveRef ::= COLON RENTITY COLON possessiveRef 
+[37] possessiveRef ::= COLON RENTITY COLON 
+[38] colonRef ::= possessiveRef 
+[39] forallblock ::= block forallctl 
+[40] context_for_table ::= debugstatement 
+[41] context_for_table ::= forctl 
+[42] context_for_table ::= forallctl 
+[43] context_for_table ::= forfirstctl 
+[44] context_for_table ::= contextstatement 
+[45] context_for_table ::= localvariables 
+[46] localvariables ::= LOCAL ENTITY UNDEFINED 
+[47] localvariables ::= LOCAL ENTITY UNDEFINED ASSIGN eexpr 
+[48] localvariables ::= LOCAL ENTITY RENTITY 
+[49] localvariables ::= LOCAL LONG UNDEFINED 
+[50] localvariables ::= LOCAL LONG UNDEFINED ASSIGN number 
+[51] localvariables ::= LOCAL LONG RLONG 
+[52] localvariables ::= LOCAL DOUBLE UNDEFINED 
+[53] localvariables ::= LOCAL DOUBLE UNDEFINED ASSIGN number 
+[54] localvariables ::= LOCAL DOUBLE RDOUBLE 
+[55] localvariables ::= LOCAL BOOLEAN UNDEFINED 
+[56] localvariables ::= LOCAL BOOLEAN UNDEFINED ASSIGN bexpr 
+[57] localvariables ::= LOCAL BOOLEAN RBOOLEAN 
+[58] localvariables ::= LOCAL DATE UNDEFINED 
+[59] localvariables ::= LOCAL DATE UNDEFINED ASSIGN dexpr 
+[60] localvariables ::= LOCAL DATE RDATE 
+[61] localvariables ::= LOCAL ARRAY UNDEFINED 
+[62] localvariables ::= LOCAL ARRAY UNDEFINED ASSIGN array_expr 
+[63] localvariables ::= LOCAL ARRAY RARRAY 
+[64] localvariables ::= LOCAL STRING UNDEFINED 
+[65] localvariables ::= LOCAL STRING UNDEFINED ASSIGN strexpr 
+[66] localvariables ::= LOCAL STRING RSTRING 
+[67] ifstatement ::= IF bexpr THEN block ENDIF 
+[68] ifstatement ::= IF bexpr THEN block ELSE block ENDIF 
+[69] forallctl ::= FORALL array_expr 
+[70] forallctl ::= FORALL array_expr ALLOWING array_expr TOBEREMOVED 
+[71] forallctl ::= FORALL array_expr IN eexpr 
+[72] forallctl ::= FORALL array_expr IN eexpr ALLOWING array_expr TOBEREMOVED 
+[73] forallctl ::= FORALL array_expr IN eexpr WHERE bexpr 
+[74] forallctl ::= FORALL array_expr WHERE bexpr 
+[75] forallctl ::= FORALL array_expr WHERE bexpr ALLOWING array_expr TOBEREMOVED 
+[76] forallctl ::= FORALL array_expr IN THIS iexpr 
+[77] forallctl ::= FORALL array_expr IN ALL array_expr IN THIS iexpr 
+[78] forblock ::= array_expr block 
+[79] forblock ::= eexpr IN array_expr block 
+[80] forblock ::= eexpr IN array_expr WHERE bexpr block 
+[81] forblock ::= array_expr WHERE bexpr block 
+[82] forblock ::= eexpr AND ITS eexpr IN array_expr block 
+[83] forblock ::= eexpr AND ITS eexpr IN array_expr WHERE bexpr block 
+[84] forfirstctl ::= FOR FIRST OF array_expr WHERE bexpr 
+[85] forfirstctl ::= FOR FIRST OF array_expr AND ITS eexpr WHERE bexpr 
+[86] forfirstctl ::= FOR FIRST IN array_expr WHERE bexpr 
+[87] firstblock ::= FOR FIRST OF array_expr WHERE bexpr THEN block ELSEIFNONEAREFOUND block 
+[88] firstblock ::= FOR FIRST OF array_expr AND ITS eexpr WHERE bexpr THEN block ELSEIFNONEAREFOUND block 
+[89] firstblock ::= forfirstctl THEN block 
+[90] block ::= LCURLY statement_list RCURLY 
+[91] block ::= USING usingblock 
+[92] block ::= forallblock 
+[93] block ::= FORALL forblock 
+[94] block ::= firstblock 
+[95] block ::= IF ifblock 
+[96] block ::= block separator 
+[97] block ::= statement 
+[98] usingstatement ::= USING usingblock separator 
+[99] left_iexpr ::= RLONG 
+[100] left_iexpr ::= colonRef left_iexpr 
+[101] left_fexpr ::= RDOUBLE 
+[102] left_fexpr ::= colonRef left_fexpr 
+[103] left_bexpr ::= RBOOLEAN 
+[104] left_bexpr ::= colonRef left_bexpr 
+[105] left_eexpr ::= RENTITY 
+[106] left_eexpr ::= colonRef left_eexpr 
+[107] left_strexpr ::= RSTRING 
+[108] left_strexpr ::= colonRef left_strexpr 
+[109] left_dexpr ::= RDATE 
+[110] left_dexpr ::= colonRef left_dexpr 
+[111] left_texpr ::= RTABLE 
+[112] left_texpr ::= colonRef left_texpr 
+[113] left_ArrayRef ::= RARRAY 
+[114] left_ArrayRef ::= colonRef left_ArrayRef 
+[115] setstatement ::= SET left_iexpr ASSIGN number 
+[116] setstatement ::= SET left_fexpr ASSIGN number 
+[117] setstatement ::= SET left_bexpr ASSIGN bexpr 
+[118] setstatement ::= SET left_eexpr ASSIGN eexpr 
+[119] setstatement ::= SET left_strexpr ASSIGN strexpr 
+[120] setstatement ::= SET left_strexpr ASSIGN number 
+[121] setstatement ::= SET left_strexpr ASSIGN dexpr 
+[122] setstatement ::= SET left_strexpr ASSIGN nexpr 
+[123] setstatement ::= SET left_strexpr ASSIGN texpr 
+[124] setstatement ::= SET left_bexpr ASSIGN nexpr 
+[125] setstatement ::= SET left_dexpr ASSIGN dexpr 
+[126] setstatement ::= SET left_texpr ASSIGN texpr 
+[127] setstatement ::= SET left_ArrayRef ASSIGN eexpr 
+[128] setstatement ::= SET left_ArrayRef ASSIGN strexpr 
+[129] setstatement ::= SET left_ArrayRef ASSIGN fexpr 
+[130] setstatement ::= SET left_ArrayRef ASSIGN iexpr 
+[131] setstatement ::= SET left_ArrayRef ASSIGN dexpr 
+[132] setstatement ::= SET left_ArrayRef ASSIGN array_expr 
+[133] setstatement ::= INCREMENT RLONG 
+[134] setstatement ::= INCREMENT RDOUBLE 
+[135] setstatement ::= DECREMENT RLONG 
+[136] setstatement ::= DECREMENT RDOUBLE 
+[137] forctl ::= FOR left_iexpr ASSIGN number SEMI bexpr SEMI statement 
+[138] performstatement ::= PERFORM RDECISIONTABLE AND ONERROR ADD eexpr TO CONTEXT AND PERFORM RDECISIONTABLE 
+[139] performstatement ::= RDECISIONTABLE 
+[140] performstatement ::= PERFORM RDECISIONTABLE 
+[141] performstatement ::= PERFORM NAME 
+[142] debugstatement ::= DEBUG strexpr 
+[143] debugstatement ::= DEBUG bexpr 
+[144] debugstatement ::= DEBUG iexpr 
+[145] debugstatement ::= DEBUG fexpr 
+[146] debugstatement ::= DEBUG eexpr 
+[147] debugstatement ::= DEBUG dexpr 
+[148] debugstatement ::= DEBUG array_expr 
+[149] debugstatement ::= PRINT strexpr 
+[150] debugstatement ::= PRINT bexpr 
+[151] debugstatement ::= PRINT iexpr 
+[152] debugstatement ::= PRINT fexpr 
+[153] debugstatement ::= PRINT eexpr 
+[154] debugstatement ::= PRINT dexpr 
+[155] debugstatement ::= PRINT array_expr 
+[156] ifblock ::= bexpr THEN statement_list ifcontinue 
+[157] ifcontinue ::= ENDIF 
+[158] ifcontinue ::= ELSE statement_list ENDIF 
+[159] ifcontinue ::= ELSEIF ifblock 
+[160] number ::= iexpr 
+[161] number ::= fexpr 
+[162] addtodest2 ::= array_expr2 
+[163] addtodest2 ::= RLONG 
+[164] addtodest2 ::= RDOUBLE 
+[165] addtodest ::= array_expr2 
+[166] addtodest ::= RLONG 
+[167] addtodest ::= RDOUBLE 
+[168] addtodest ::= colonRef addtodest2 
+[169] subtodest ::= RLONG 
+[170] subtodest ::= RDOUBLE 
+[171] subtodest ::= colonRef addtodest2 
+[172] addtostatement ::= ADD array_expr TO array_expr IF NOT MEMBER 
+[173] addtostatement ::= ADD array_expr TO array_expr 
+[174] addtostatement ::= ADD eexpr TO addtodest 
+[175] addtostatement ::= ADD eexpr TO addtodest AND TO addtodest 
+[176] addtostatement ::= ADD strexpr TO addtodest 
+[177] addtostatement ::= ADD strexpr TO addtodest AND TO addtodest 
+[178] addtostatement ::= ADD dexpr TO addtodest 
+[179] addtostatement ::= ADD dexpr TO addtodest AND TO addtodest 
+[180] addtostatement ::= ADD number TO addtodest 
+[181] addtostatement ::= ADD number TO addtodest AND TO addtodest 
+[182] addtostatement ::= SUBTRACT number FROM subtodest 
+[183] addtostatement ::= ADD eexpr IF NOT MEMBER TO array_expr 
+[184] addtostatement ::= ADD eexpr IF NOT MEMBER TO array_expr AND TO array_expr 
+[185] addtostatement ::= ADD strexpr IF NOT MEMBER TO array_expr 
+[186] addtostatement ::= ADD strexpr IF NOT MEMBER TO array_expr AND TO array_expr 
+[187] contextstatement ::= ADD eexpr TO CONTEXT OF THIS TABLE 
+[188] contextstatement ::= ADD eexpr TO CONTEXT FOR THIS TABLE 
+[189] randomstatements ::= REMOVE iexpr ELEMENT FROM array_expr ARRAY 
+[190] randomstatements ::= REMOVE EACH eexpr FROM array_expr WHERE bexpr 
+[191] randomstatements ::= REMOVE nexpr FROM array_expr ARRAY 
+[192] randomstatements ::= REMOVE strexpr FROM array_expr ARRAY 
+[193] randomstatements ::= REMOVE eexpr FROM array_expr ARRAY 
+[194] randomstatements ::= RANDOMIZE array_expr 
+[195] randomstatements ::= CLEAR array_expr 
+[196] randomstatements ::= SORT array_expr IN ASCENDINGORDER BY nexpr 
+[197] randomstatements ::= SORT array_expr IN DESCENDINGORDER BY nexpr 
+[198] operatorlist ::= strexpr COMMA operatorlist 
+[199] operatorlist ::= iexpr COMMA operatorlist 
+[200] operatorlist ::= fexpr COMMA operatorlist 
+[201] operatorlist ::= eexpr COMMA operatorlist 
+[202] operatorlist ::= strexpr 
+[203] operatorlist ::= iexpr 
+[204] operatorlist ::= fexpr 
+[205] operatorlist ::= eexpr 
+[206] operatorstatements ::= ROPERATOR LPAREN operatorlist RPAREN 
+[207] xmlvalues ::= strexpr 
+[208] xmlvalues ::= iexpr 
+[209] xmlvalues ::= fexpr 
+[210] xmlvalues ::= dexpr 
+[211] xmlvalues ::= nexpr 
+[212] xmlvaluestatements ::= RXMLVALUE COLON SET ATTRIBUTE strexpr ASSIGN xmlvalues 
+[213] xmlvaluestatements ::= eexpr COLON SET ATTRIBUTE strexpr ASSIGN xmlvalues 
+[214] xmlvaluestatements ::= RXMLVALUE COLON ADD ATTRIBUTE strexpr ASSIGN xmlvalues 
+[215] xmlvaluestatements ::= eexpr COLON ADD ATTRIBUTE strexpr ASSIGN xmlvalues 
+[216] array_expr ::= POLICYSTATEMENTS 
+[217] array_expr ::= colonRef RARRAY 
+[218] array_expr ::= array_expr2 
+[219] array_expr2 ::= MAP array_expr THROUGH texpr 
+[220] array_expr2 ::= LPAREN array_expr RPAREN 
+[221] array_expr2 ::= RARRAY 
+[222] array_expr2 ::= LPAREN ARRAY RPAREN NAME 
+[223] array_expr2 ::= GET COPY OF array_expr 
+[224] array_expr2 ::= COPY OF array_expr 
+[225] array_expr2 ::= GET DEEPCOPY OF array_expr 
+[226] array_expr2 ::= DEEPCOPY OF array_expr 
+[227] array_expr2 ::= array_lit 
+[228] array_expr2 ::= ARRAY_OF_VALUES LBRACE array_list RBRACE 
+[229] array_expr2 ::= TOKENIZE strexpr BY strexpr 
+[230] array_lit ::= LBRACE array_list RBRACE 
+[231] array_list ::= array_list COMMA strexpr 
+[232] array_list ::= array_list COMMA iexpr 
+[233] array_list ::= array_list COMMA eexpr 
+[234] array_list ::= array_list COMMA fexpr 
+[235] array_list ::= array_list COMMA nexpr 
+[236] array_list ::= nexpr 
+[237] array_list ::= fexpr 
+[238] array_list ::= eexpr 
+[239] array_list ::= iexpr 
+[240] array_list ::= strexpr 
+[241] indx_expr ::= array_expr LBRACE iexpr RBRACE 
+[242] eexpr ::= RENTITY 
+[243] eexpr ::= LPAREN eexpr RPAREN 
+[244] eexpr ::= indx_expr 
+[245] eexpr ::= NEW nexpr ENTITY 
+[246] eexpr ::= NEW RENTITY ENTITY 
+[247] eexpr ::= CLONE OF eexpr 
+[248] eexpr ::= colonRef RENTITY 
+[249] eexpr ::= LPAREN ENTITY RPAREN RTABLE LPAREN tablelist RPAREN 
+[250] eexpr ::= FIRST eexpr IN array_expr WHERE bexpr 
+[251] eexpr ::= FIRST eexpr WHERE bexpr 
+[252] eexpr ::= strexpr OF eexpr 
+[253] datestatement ::= SUBTRACT number YEARS FROM RDATE 
+[254] datestatement ::= SUBTRACT number MONTHS FROM RDATE 
+[255] datestatement ::= SUBTRACT number DAYS FROM RDATE 
+[256] datestatement ::= ADD number YEARS TO RDATE 
+[257] datestatement ::= ADD number MONTHS TO RDATE 
+[258] datestatement ::= ADD number DAYS TO RDATE 
+[259] dexpr ::= LPAREN dexpr RPAREN 
+[260] dexpr ::= RDATE 
+[261] dexpr ::= LPAREN DATE RPAREN strexpr 
+[262] dexpr ::= DATE LPAREN strexpr RPAREN 
+[263] dexpr ::= LPAREN DATE RPAREN indx_expr 
+[264] dexpr ::= LPAREN DATE RPAREN RARRAY LBRACE iexpr RBRACE 
+[265] dexpr ::= USING eexpr LPAREN dexpr RPAREN 
+[266] dexpr ::= colonRef RDATE 
+[267] dexpr ::= LPAREN number DAYS RPAREN 
+[268] dexpr ::= dexpr PLUS dexpr 
+[269] dexpr ::= dexpr MINUS dexpr 
+[270] dexpr ::= LPAREN DATE RPAREN RTABLE LPAREN tablelist RPAREN 
+[271] dexpr ::= SUBTRACT number YEARS FROM dexpr 
+[272] dexpr ::= SUBTRACT number MONTHS FROM dexpr 
+[273] dexpr ::= SUBTRACT number DAYS FROM dexpr 
+[274] dexpr ::= ADD number YEARS TO dexpr 
+[275] dexpr ::= ADD number MONTHS TO dexpr 
+[276] dexpr ::= ADD number DAYS TO dexpr 
+[277] dexpr ::= dexpr MINUS number YEARS 
+[278] dexpr ::= dexpr MINUS number MONTHS 
+[279] dexpr ::= dexpr MINUS number DAYS 
+[280] dexpr ::= dexpr PLUS number YEARS 
+[281] dexpr ::= dexpr PLUS number MONTHS 
+[282] dexpr ::= dexpr PLUS number DAYS 
+[283] dexpr ::= FIRST OF YEARS OF dexpr 
+[284] dexpr ::= FIRST OF MONTHS OF dexpr 
+[285] dexpr ::= END OF MONTHS OF dexpr 
+[286] dexpr ::= EARLIEST OF array_expr AFTER dexpr 
+[287] nexpr ::= RNAME 
+[288] nexpr ::= NAMEOF eexpr 
+[289] nexpr ::= THENAME strexpr 
+[290] nexpr ::= NAME RARRAY LBRACE iexpr RBRACE 
+[291] nexpr ::= NAME 
+[292] nexpr ::= USING eexpr LPAREN nexpr RPAREN 
+[293] nexpr ::= colonRef RNAME 
+[294] nexpr ::= LPAREN NAME RPAREN strexpr 
+[295] tablelist ::= strexpr COMMA tablelist 
+[296] tablelist ::= strexpr 
+[297] texpr ::= RTABLE 
+[298] texpr ::= NEW strexpr TABLE OF strexpr 
+[299] strexpr ::= ATTRIBUTE strexpr OF eexpr 
+[300] strexpr ::= MAPPINGKEY 
+[301] strexpr ::= RXMLVALUE 
+[302] strexpr ::= RXMLVALUE COLON GET ATTRIBUTE strexpr 
+[303] strexpr ::= SUBSTRING OF strexpr FROM iexpr TO iexpr 
+[304] strexpr ::= TABLEINFORMATION 
+[305] strexpr ::= STRING VALUE_OF operatorstatements 
+[306] strexpr ::= LPAREN STRING RPAREN texpr LPAREN tablelist RPAREN 
+[307] strexpr ::= RSTRING 
+[308] strexpr ::= colonRef strexpr 
+[309] strexpr ::= STRING 
+[310] strexpr ::= strexpr PLUS strexpr 
+[311] strexpr ::= LPAREN STRING RPAREN fexpr 
+[312] strexpr ::= LPAREN STRING RPAREN iexpr 
+[313] strexpr ::= LPAREN STRING RPAREN dexpr 
+[314] strexpr ::= CVS LPAREN bexpr RPAREN 
+[315] strexpr ::= LPAREN strexpr RPAREN 
+[316] strexpr ::= strexpr PLUS iexpr 
+[317] strexpr ::= strexpr PLUS fexpr 
+[318] strexpr ::= strexpr PLUS nexpr 
+[319] strexpr ::= strexpr PLUS eexpr 
+[320] strexpr ::= strexpr PLUS dexpr 
+[321] strexpr ::= strexpr PLUS array_expr 
+[322] strexpr ::= strexpr PLUS RNULL 
+[323] strexpr ::= strexpr PLUS RINVALID 
+[324] strexpr ::= TRIM LPAREN strexpr RPAREN 
+[325] strexpr ::= LPAREN STRING RPAREN indx_expr 
+[326] strexpr ::= CHANGE strexpr TO LOWER_CASE 
+[327] strexpr ::= CHANGE strexpr TO UPPER_CASE 
+[328] strexpr ::= GET CURRENT_DATE 
+[329] strexpr ::= GET CURRENT_TIMESTAMP 
+[330] strexpr ::= USING eexpr LPAREN strexpr RPAREN 
+[331] strexpr ::= RELATIONSHIP_BETWEEN eexpr AND eexpr 
+[332] fexpr ::= FLOAT 
+[333] fexpr ::= colonRef RDOUBLE 
+[334] fexpr ::= RDOUBLE 
+[335] fexpr ::= LPAREN DOUBLE RPAREN strexpr 
+[336] fexpr ::= LPAREN DOUBLE RPAREN iexpr 
+[337] fexpr ::= LPAREN DOUBLE RPAREN RTABLE LPAREN tablelist RPAREN 
+[338] fexpr ::= fexpr PLUS iexpr 
+[339] fexpr ::= fexpr PLUS fexpr 
+[340] fexpr ::= iexpr PLUS fexpr 
+[341] fexpr ::= fexpr MINUS iexpr 
+[342] fexpr ::= iexpr MINUS fexpr 
+[343] fexpr ::= fexpr MINUS fexpr 
+[344] fexpr ::= fexpr TIMES iexpr 
+[345] fexpr ::= iexpr TIMES fexpr 
+[346] fexpr ::= fexpr TIMES fexpr 
+[347] fexpr ::= fexpr DIVIDE iexpr 
+[348] fexpr ::= iexpr DIVIDE fexpr 
+[349] fexpr ::= fexpr DIVIDE fexpr 
+[350] fexpr ::= MINUS fexpr 
+[351] fexpr ::= LPAREN fexpr RPAREN 
+[352] fexpr ::= LPAREN DOUBLE RPAREN indx_expr 
+[353] fexpr ::= ADD TO RDOUBLE number 
+[354] fexpr ::= SUBTRACT FROM RDOUBLE number 
+[355] fexpr ::= MULTIPLY RDOUBLE BY number 
+[356] fexpr ::= DIVIDE RDOUBLE BY number 
+[357] fexpr ::= ABSOLUTEVALUE OF fexpr 
+[358] fexpr ::= USING eexpr LPAREN fexpr RPAREN 
+[359] fexpr ::= DOUBLE VALUE_OF operatorstatements 
+[360] fexpr ::= fexpr ROUNDED 
+[361] fexpr ::= fexpr ROUNDED TO iexpr DECIMAL_PLACES 
+[362] fexpr ::= fexpr ROUNDED TO iexpr DECIMAL_PLACES WITH_BOUNDRY fexpr 
+[363] fexpr ::= SUM_OF fexpr IN array_expr 
+[364] iexpr ::= iexpr PLUS iexpr 
+[365] iexpr ::= iexpr MINUS iexpr 
+[366] iexpr ::= iexpr TIMES iexpr 
+[367] iexpr ::= iexpr DIVIDE iexpr 
+[368] iexpr ::= INTEGER 
+[369] iexpr ::= MINUS iexpr 
+[370] iexpr ::= LPAREN iexpr RPAREN 
+[371] iexpr ::= RLONG 
+[372] iexpr ::= GET DAYS IN YEAROF dexpr 
+[373] iexpr ::= GET DAYS IN MONTHS FOR dexpr 
+[374] iexpr ::= GET DAYS OF MONTHS FOR dexpr 
+[375] iexpr ::= colonRef RLONG 
+[376] iexpr ::= LPAREN LONG RPAREN indx_expr 
+[377] iexpr ::= LPAREN LONG RPAREN strexpr 
+[378] iexpr ::= LPAREN LONG RPAREN number 
+[379] iexpr ::= LPAREN LONG RPAREN RTABLE LPAREN tablelist RPAREN 
+[380] iexpr ::= NUMBEROF array_expr 
+[381] iexpr ::= NUMBEROF array_expr WHERE bexpr 
+[382] iexpr ::= LENGTH OF array_expr 
+[383] iexpr ::= LENGTH OF strexpr 
+[384] iexpr ::= INDEX_OF strexpr IN strexpr 
+[385] iexpr ::= USING array_expr number 
+[386] iexpr ::= ADD TO RLONG number 
+[387] iexpr ::= SUBTRACT FROM RLONG number 
+[388] iexpr ::= MULTIPLY RLONG BY number 
+[389] iexpr ::= DIVIDE RLONG BY number 
+[390] iexpr ::= ABSOLUTEVALUE OF iexpr 
+[391] iexpr ::= USING eexpr LPAREN iexpr RPAREN 
+[392] iexpr ::= DAYS FROM dexpr TO dexpr 
+[393] iexpr ::= MONTHS FROM dexpr TO dexpr 
+[394] iexpr ::= YEARS FROM dexpr TO dexpr 
+[395] iexpr ::= GET YEAROF dexpr 
+[396] iexpr ::= LONG VALUE_OF operatorstatements 
+[397] iexpr ::= SUM_OF iexpr IN array_expr 
+[398] includeSearch ::= number 
+[399] includeSearch ::= dexpr 
+[400] includeSearch ::= eexpr 
+[401] includeSearch ::= strexpr 
+[402] inthe ::= IN 
+[403] inthe ::= FOR 
+[404] inthe ::= ON 
+[405] thereis ::= THERE IS 
+[406] thereis ::= IS THERE 
+[407] blist ::= strexpr COMMA blist 
+[408] blist ::= OR strexpr 
+[409] blist_ic ::= strexpr COMMA blist 
+[410] blist_ic ::= OR strexpr 
+[411] bexpr ::= array_expr DOES NOT INCLUDE includeSearch 
+[412] bexpr ::= array_expr DOES INCLUDE includeSearch 
+[413] bexpr ::= array_expr INCLUDES includeSearch 
+[414] bexpr ::= thereis MATCH FORALL array_expr TO nexpr IN array_expr 
+[415] bexpr ::= thereis eexpr WHERE bexpr 
+[416] bexpr ::= thereis eexpr inthe eexpr WHERE bexpr 
+[417] bexpr ::= thereis eexpr inthe array_expr WHERE bexpr 
+[418] bexpr ::= THERE IS NO eexpr WHERE bexpr 
+[419] bexpr ::= THERE IS NO eexpr inthe eexpr WHERE bexpr 
+[420] bexpr ::= THERE IS NO eexpr inthe array_expr WHERE bexpr 
+[421] bexpr ::= ALL array_expr HAVE bexpr 
+[422] bexpr ::= ONE OF array_expr HASA bexpr 
+[423] bexpr ::= eexpr DOES NOT HAVE strexpr 
+[424] bexpr ::= eexpr HASA strexpr 
+[425] bexpr ::= eexpr HASA strexpr WHERE bexpr 
+[426] bexpr ::= eexpr IS strexpr OF eexpr 
+[427] bexpr ::= fexpr IS WITHIN number PERCENTOF fexpr 
+[428] bexpr ::= fexpr IS PLUSORMINUS number OF fexpr 
+[429] bexpr ::= iexpr EQ iexpr 
+[430] bexpr ::= fexpr EQ iexpr 
+[431] bexpr ::= iexpr EQ fexpr 
+[432] bexpr ::= fexpr EQ fexpr 
+[433] bexpr ::= iexpr NEQ iexpr 
+[434] bexpr ::= fexpr NEQ iexpr 
+[435] bexpr ::= iexpr NEQ fexpr 
+[436] bexpr ::= fexpr NEQ fexpr 
+[437] bexpr ::= iexpr GT iexpr 
+[438] bexpr ::= fexpr GT iexpr 
+[439] bexpr ::= iexpr GT fexpr 
+[440] bexpr ::= fexpr GT fexpr 
+[441] bexpr ::= iexpr GTE iexpr 
+[442] bexpr ::= fexpr GTE iexpr 
+[443] bexpr ::= iexpr GTE fexpr 
+[444] bexpr ::= fexpr GTE fexpr 
+[445] bexpr ::= iexpr LT iexpr 
+[446] bexpr ::= fexpr LT iexpr 
+[447] bexpr ::= iexpr LT fexpr 
+[448] bexpr ::= fexpr LT fexpr 
+[449] bexpr ::= iexpr LTE iexpr 
+[450] bexpr ::= fexpr LTE iexpr 
+[451] bexpr ::= iexpr LTE fexpr 
+[452] bexpr ::= fexpr LTE fexpr 
+[453] bexpr ::= RBOOLEAN 
+[454] bexpr ::= colonRef RBOOLEAN 
+[455] bexpr ::= nexpr EQ nexpr 
+[456] bexpr ::= nexpr EQ strexpr 
+[457] bexpr ::= nexpr NEQ nexpr 
+[458] bexpr ::= nexpr NEQ strexpr 
+[459] bexpr ::= strexpr EQ_IGNORE_CASE blist_ic 
+[460] bexpr ::= strexpr EQ blist 
+[461] bexpr ::= strexpr EQ strexpr 
+[462] bexpr ::= strexpr NEQ strexpr 
+[463] bexpr ::= strexpr EQ_IGNORE_CASE strexpr 
+[464] bexpr ::= strexpr NEQ_IGNORE_CASE strexpr 
+[465] bexpr ::= strexpr AT iexpr STARTS_WITH strexpr 
+[466] bexpr ::= strexpr STARTS_WITH strexpr 
+[467] bexpr ::= strexpr IS ONE OF array_expr 
+[468] bexpr ::= strexpr IS NOT ONE OF array_expr 
+[469] bexpr ::= DOES bexpr QUESTIONMARK 
+[470] bexpr ::= IS bexpr QUESTIONMARK 
+[471] bexpr ::= WAS bexpr QUESTIONMARK 
+[472] bexpr ::= strexpr GT strexpr 
+[473] bexpr ::= strexpr LT strexpr 
+[474] bexpr ::= strexpr GTE strexpr 
+[475] bexpr ::= strexpr LTE strexpr 
+[476] bexpr ::= strexpr MATCHES strexpr 
+[477] bexpr ::= bexpr EQ bexpr 
+[478] bexpr ::= bexpr NEQ bexpr 
+[479] bexpr ::= bexpr AND bexpr 
+[480] bexpr ::= bexpr OR bexpr 
+[481] bexpr ::= NOT bexpr 
+[482] bexpr ::= bexpr ISNULL 
+[483] bexpr ::= bexpr ISNOTNULL 
+[484] bexpr ::= number ISNULL 
+[485] bexpr ::= number ISNOTNULL 
+[486] bexpr ::= dexpr ISNULL 
+[487] bexpr ::= array_expr ISNULL 
+[488] bexpr ::= strexpr ISNULL 
+[489] bexpr ::= eexpr ISNULL 
+[490] bexpr ::= dexpr ISNOTNULL 
+[491] bexpr ::= array_expr ISNOTNULL 
+[492] bexpr ::= strexpr ISNOTNULL 
+[493] bexpr ::= eexpr ISNOTNULL 
+[494] bexpr ::= USING eexpr LPAREN bexpr RPAREN 
+[495] bexpr ::= LPAREN bexpr RPAREN 
+[496] bexpr ::= LPAREN BOOLEAN RPAREN indx_expr 
+[497] bexpr ::= LPAREN BOOLEAN RPAREN strexpr 
+[498] bexpr ::= BOOLEAN RARRAY LBRACE iexpr RBRACE 
+[499] bexpr ::= dexpr EQ dexpr 
+[500] bexpr ::= dexpr LT dexpr 
+[501] bexpr ::= dexpr IS BEFORE dexpr 
+[502] bexpr ::= dexpr GT dexpr 
+[503] bexpr ::= dexpr IS AFTER dexpr 
+[504] bexpr ::= dexpr GTE dexpr 
+[505] bexpr ::= dexpr LTE dexpr 
+[506] bexpr ::= dexpr IS BETWEEN dexpr AND dexpr 
+[507] bexpr ::= eexpr EQ eexpr 
+[508] bexpr ::= eexpr NEQ eexpr 
+[509] bexpr ::= RENTITY ENTITY IS NOT IN CONTEXT 
+[510] bexpr ::= RENTITY ENTITY IS IN CONTEXT 
+[511] bexpr ::= strexpr ENTITY IS IN CONTEXT 
+[512] bexpr ::= strexpr ENTITY IS NOT IN CONTEXT 
+[513] bexpr ::= BOOLEAN VALUE_OF operatorstatements 
+[514] bexpr ::= BOOL_FUNCTION 
+
+------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+  0 errors and 0 warnings
+  165 terminals, 64 non-terminals, and 515 productions declared, 
+  producing 1312 unique parse states.
+  0 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (0 expected).
+  Code written to "DTRulesParser.java", and "Symbols.java".
+---------------------------------------------------- (v0.11a beta 20060608)
+

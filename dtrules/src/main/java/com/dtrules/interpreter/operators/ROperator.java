@@ -24,6 +24,7 @@ import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.ARObject;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RType;
 
 /**
  * This Class creates the primities entity in a rather cute way.  The actual operators
@@ -40,8 +41,12 @@ import com.dtrules.interpreter.RName;
  */
 public class ROperator extends ARObject {
     
+	public static RType type = RType.newType("operator");
+	
 	static final REntity primitives = new REntity(1,true,RName.getRName("primities",false));
     
+	private static ROperator instance;
+		
 	static {
 		new RMath();
 		new RArrayOps();
@@ -59,8 +64,11 @@ public class ROperator extends ARObject {
 	}
     
 	final RName name;
-    public int type() { return iOperator; }
     
+	public RType type(){
+		return type;
+	}
+	
     /**
      * Puts another entry into the primitives entity under a different name.  This is
      * useful for operators that we would like to define under two names (such as "pop" and
@@ -96,6 +104,10 @@ public class ROperator extends ARObject {
      * allocated at least one session within a JVM, and before you have executed any of the 
      * Rule Sets that depend on your override.
      * 
+     * Priorities *are* respected, and all built in operators are given a priority of 0.  Any
+     * operator with a higher priority will overwrite a built in operator, and a built in 
+     * operator will not overwrite a higher priority operator.
+     * 
      * @param o
      * @param n
      */
@@ -103,13 +115,43 @@ public class ROperator extends ARObject {
         try {
             RName rn = RName.getRName(n);
             primitives.addAttribute(rn, "", o, false, true, o.type(),null,"operator","","");
-            primitives.put(null, rn,o);
+            IRObject op = primitives.get(rn);
+            if(op instanceof ROperator && o instanceof ROperator ){ // Operator overwriting operator.
+                ROperator rop = (ROperator) op;                     // Don't overwrite if the existing operator is
+                ROperator ro  = (ROperator) o;                      // a higher priority
+                if(ro.priority() > rop.priority() || rop.priority()==0){  // Overwrite anyway if priority is zero
+                    primitives.put(null, rn,o);
+                }
+            }else{                                  // We can't worry about priorities if this isn't
+                primitives.put(null, rn,o);         // an operator overwriting an operator.
+            }
         } catch (RulesException e) {
             System.err.println("An Error occured in alias building the primitives Entity: "+n);
             throw new RuntimeException("An Error occured in alias building the primitives Entity: "+n);
         }
     }
+    /**
+     * When overriding operators, the priority allows some help configuring how these overrides are 
+     * applied.  At the easiest level, the default operators all have priorities of 0.  So any user
+     * defined operators can be 1, and you know that no matter what order the operators are added, the
+     * right result will occur, i.e. operators with priority 1 will win.
+     * <br><br>
+     * It gets more complicated if you want to override not only the default operators but some user
+     * defined operators as well.  This simply requires a bit of documentation on the part of those
+     * defining user operators to be used with DTRules.
+     * <br><br>
+     * To define a priority other than 0, override this method.
+     * @return
+     */
+    public int priority() {
+        return 0;
+    }
     
+    /**
+     * Get an instance of this operator.
+     * @return
+     */
+    public static ROperator getInstance(){ return instance; }
     
     /**
      * A method that makes it a bit easier to call the other alias function when I am
@@ -131,8 +173,9 @@ public class ROperator extends ARObject {
     public ROperator(String _name){
         name = RName.getRName(_name, true);
         alias((IRObject) this,_name);
+        instance = this;
     }
-	
+    
     public boolean isExecutable() { return true; }
 	
     public String stringValue() {

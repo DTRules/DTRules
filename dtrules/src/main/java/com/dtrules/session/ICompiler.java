@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.RName;
 
-@SuppressWarnings({"unchecked"})
 public interface ICompiler {
 	
 	/**
@@ -83,10 +83,18 @@ public interface ICompiler {
     public abstract String compileCondition(String condition) throws Exception;
 
     /**
+     * Copmiles a single Policy Statement.  Returns the postfix string needed by the Rules Engine.
+     * @param policyStatement
+     * @return
+     * @throws Exception
+     */
+    public String compilePolicyStatement(String policyStatement) throws Exception;
+    
+    /**
      * Returns the types HashMap.
      * @return
      */
-    public abstract HashMap getTypes();
+    public abstract HashMap<RName,IRType> getTypes();
     
     /**
      * Prints all of the types known by the compiler.
@@ -98,5 +106,5 @@ public interface ICompiler {
      * Notifies the Compiler that the compliation of a new Decision Table is starting.
      */
 	public void newDecisionTable();
-
+	
 }

@@ -27,9 +27,9 @@ rem echo cupDir
 rem dir %cupDir%
 rem echo create BNF
 
-java -cp %libDir%\java-cup-10k.jar java_cup.Main -parser DTRulesParser -symbols Symbols -dump_grammar < parser.cup 2> bnf.txt
+java -cp %libDir%\java-cup-11a.jar java_cup.Main -parser DTRulesParser -symbols Symbols -dump_grammar < parser.cup 2> bnf.txt
 rem echo create Java file
-java -cp %libDir%\java-cup-10k.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < parser.cup
+java -cp %libDir%\java-cup-11a.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < parser.cup
 
 
 copy /y copyright.txt+DTRulesParser.java xxx.tmp 	> nul

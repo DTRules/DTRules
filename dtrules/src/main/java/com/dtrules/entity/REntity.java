@@ -29,6 +29,8 @@ import com.dtrules.interpreter.ARObject;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RNull;
+import com.dtrules.interpreter.RString;
+import com.dtrules.interpreter.RType;
 import com.dtrules.interpreter.RXmlValue;
 import com.dtrules.mapping.XMLNode;
 import com.dtrules.session.IRSession;
@@ -51,6 +53,8 @@ import com.dtrules.session.RSession;
  */
 public class REntity extends ARObject implements IREntity {
 
+	public static RType type = RType.newType("entity");
+	
     public void removeAttribute(RName attrib) {
         attributes.remove(attrib);
     }
@@ -135,7 +139,7 @@ public class REntity extends ARObject implements IREntity {
             }
         }
    }
-    
+       
     /**
      * Regular Constructor.  This should only be called when building the EntityFactory.
      * However, we make it public so the EntityFactory can be defined in the Session
@@ -149,7 +153,7 @@ public class REntity extends ARObject implements IREntity {
 		name       = _name;
         attributes = new HashMap<RName,REntityEntry>();
         this.addAttribute(_name, "", this, false, true, type(),null,"Self Reference","","");  // Add a reference to self!
-        this.addAttribute(mappingKey,"",RNull.getRNull(),false, true, iString,null,"Mapping Key","","");
+        this.addAttribute(mappingKey,"",RNull.getRNull(),false, true, RString.type, null,"Mapping Key","","");
 	}
 
 	/* (non-Javadoc)
@@ -200,7 +204,7 @@ public class REntity extends ARObject implements IREntity {
 	        IRObject defaultvalue,
 	        boolean  writable,
 	        boolean  readable,
-	        int      type,
+	        RType    type,
 	        String   subtype,
 	        String   comment,
 	        String   input,
@@ -230,15 +234,12 @@ public class REntity extends ARObject implements IREntity {
             return null;
         }
         if(entry.type!=type){
+        	
             String type1 ="";
             String type2 ="";
-            try{
-                type1="("+  RSession.typeInt2Str(entry.type)+") ";
-            }catch(RulesException e){}
-            try{
-                type2="("+  RSession.typeInt2Str(type)+")";
-            }catch(RulesException e){}
-            
+            type1="("+ entry.type +") ";
+            type2="("+ type +")";
+          
             return "The entity '"+name.stringValue()+
                    "' has an attribute '"+attributeName.stringValue()+
                    "' with two types: "+type1+" and "+ type2+ "\n";                    
@@ -251,19 +252,17 @@ public class REntity extends ARObject implements IREntity {
 	public void put( IRSession session, RName attrib, IRObject value) throws RulesException {
 		REntityEntry entry = (REntityEntry)attributes.get(attrib);
 		if(entry==null)throw new RulesException("Undefined", "REntity.put()", "Undefined Attribute "+attrib+" in Entity: "+name);
-		if(value.type()!= iNull && entry.type != value.type()){
-            switch(entry.type) {
-                case iInteger :         value = value.rIntegerValue();          break;
-                case iDouble :          value = value.rDoubleValue();           break;
-                case iBoolean :         value = value.rBooleanValue();          break;
-                //case iDecisiontable : value = value.rDecisiontableValue();    break;
-                case iEntity :          value = value.rEntityValue();           break;      
-                //case iMark :          value = value.rMarkValue();             break;
-                case iName :            value = value.rNameValue();             break;
-                //case iOperator :      value = value.rOperatorValue();         break;
-                case iString :          value = value.rStringValue();           break;
-                case iTime :            value = value.rTimeValue(session);      break;                    
-            }
+		if(value.type().getId() != iNull && entry.type.getId() != value.type().getId()){
+            
+			int entrytype = entry.type.getId();
+            if(entrytype == iInteger)			 value = value.rIntegerValue(); 
+            else if (entrytype == iDouble)       value = value.rDoubleValue();   
+            else if (entrytype == iBoolean)      value = value.rBooleanValue();          
+            else if (entrytype == iEntity)       value = value.rEntityValue();                 
+            else if (entrytype == iName)         value = value.rNameValue();             
+            else if (entrytype == iString)       value = value.rStringValue();           
+            else if (entrytype == iDate)         value = value.rTimeValue(session);                          
+            
 		}
 		values.set(entry.index,value);
 	}		
@@ -338,8 +337,8 @@ public class REntity extends ARObject implements IREntity {
 	/* (non-Javadoc)
      * @see com.dtrules.entity.IREntity#type()
      */
-	public int type() {
-		return iEntity;
+	public RType type() {
+		return type;
 	}
 
 	public String toString(){
@@ -380,7 +379,7 @@ public class REntity extends ARObject implements IREntity {
            p.print("<entity attribute=\"");
            p.print(attrib.stringValue());
            p.print("\" type =\"");
-           p.print(RSession.typeInt2Str(entry.type));
+           p.print(entry.type.toString());
            p.print("\" cdd_default_value=\"");
            p.print(entry.defaulttxt);
            p.print("\" cdd_i_c=\"");

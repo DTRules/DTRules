@@ -50,7 +50,7 @@ class EntityInfo {
         IRObject rarray = state.find(RName.getRName(name+"s"));
         
         IREntity newentity = (IREntity) entity.clone(s);
-        if(rarray!=null && rarray.type() ==IRObject.iArray){
+        if(rarray!=null && rarray.type().getId() ==IRObject.iArray){
            ((RArray)rarray).add(newentity); 
         }
         return newentity;

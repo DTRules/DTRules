@@ -1,0 +1,56 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='currentdate' RAttribute='currentdate' enclosure='job' type='date'></setattribute>
+			<setattribute tag='effectivedate' RAttribute='effectivedate' enclosure='job' type='date'></setattribute>
+			<setattribute tag='program' RAttribute='program' enclosure='job' type='string'></setattribute>
+
+			<setattribute tag='case_ID' RAttribute='case_ID' enclosure='case' type='string'></setattribute>
+			<setattribute tag='county_cd' RAttribute='county_cd' enclosure='case' type='string'></setattribute>
+
+			<setattribute tag='client_ID' RAttribute='client_ID' enclosure='client' type='string'></setattribute>
+			<setattribute tag='age' RAttribute='age' enclosure='client' type='integer'></setattribute>
+			<setattribute tag='gender' RAttribute='gender' enclosure='client' type='string'></setattribute>
+			<setattribute tag='validatedCitizenship' RAttribute='validatedCitizenship' enclosure='client' type='boolean'></setattribute>
+			<setattribute tag='livesAtResidence' RAttribute='livesAtResidence' enclosure='client' type='boolean'></setattribute>
+			<setattribute tag='pregnant' RAttribute='pregnant' enclosure='client' type='boolean'></setattribute>
+			<setattribute tag='expectedChildren' RAttribute='expectedChildren' enclosure='client' type='integer'></setattribute>
+			<setattribute tag='disabled' RAttribute='disabled' enclosure='client' type='boolean'></setattribute>
+			<setattribute tag='applying' RAttribute='applying' enclosure='client' type='boolean'></setattribute>
+
+			<setattribute tag='source' RAttribute='source' enclosure='relationship' type='entity'></setattribute>
+			<setattribute tag='target' RAttribute='target' enclosure='relationship' type='entity'></setattribute>
+			<setattribute tag='type' RAttribute='type' enclosure='relationship' type='string'></setattribute>
+
+			<setattribute tag='type' RAttribute='type' enclosure='income' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='income' type='integer'></setattribute>
+			<setattribute tag='earned' RAttribute='earned' enclosure='income' type='boolean'></setattribute>
+
+			<createentity entity='job' 			tag='job' 			id='id'></createentity>
+			<createentity entity='case' 		tag='case'	 		id='id'></createentity>
+			<createentity entity='client' 		tag='client' 		id='id'></createentity>
+			<createentity entity='client' 		tag='source' 		id='id'></createentity>
+			<createentity entity='client' 		tag='target' 		id='id'></createentity>
+			<createentity entity='relationship' tag='relationship' 	id='id'></createentity>
+			<createentity entity='income' 		tag='income' 		id='id'></createentity>
+			<createentity entity='constants' 	tag='constants' 	id='id'></createentity>
+			<createentity entity='result' 		tag='result' 		id='id'></createentity>
+        </map>
+		<entities>
+			<entity name='constants' 	number='1'></entity>
+			<entity name='job'		 	number='1'></entity>
+			<entity name='case' 		number='1'></entity>
+
+			<entity name='client' 		number='*'></entity>
+			<entity name='relationship' number='*'></entity>
+			<entity name='income' 		number='*'></entity>
+			<entity name='result' 		number='*'></entity>
+        </entities>
+
+		<initialization>
+			<initialentity entity='constants' 	epush='true'></initialentity>
+			<initialentity entity='job' 		epush='true'></initialentity>
+			<initialentity entity='case' 		epush='true'></initialentity>
+        </initialization>
+    </XMLtoEDD>
+</mapping>

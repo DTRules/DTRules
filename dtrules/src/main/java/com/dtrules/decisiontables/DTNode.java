@@ -24,15 +24,18 @@ import com.dtrules.session.DTState;
 
 public interface DTNode {
    static class Coordinate {
-       int row;
-       int col;
-       Coordinate(int row, int col){
-           this.row = row;
-           this.col = col;
-       }
+       int             row;
+       int             col;
+       
+    Coordinate(int row, int col){
+        this.row = row;
+        this.col = col;
+    }
+       
     public int getCol() {
         return col;
     }
+    
     public void setCol(int col) {
         this.col = col;
     }
@@ -80,4 +83,16 @@ public interface DTNode {
     * @param _node
     */
    public void addNode(DTNode _node);
+   
+   /**
+    * Does this column have a star?
+    * @return
+    */
+   boolean    getStar();
+   
+   /**
+    * Set the fact that this column has a star.
+    * @param f
+    */
+   void       setStar(boolean f);
 }

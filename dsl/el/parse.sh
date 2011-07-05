@@ -1,4 +1,3 @@
-@echo off
 # * Copyright 2004-2008 MTBJ, Inc.  
 # *   
 # * Licensed under the Apache License, Version 2.0 (the "License");  
@@ -13,30 +12,30 @@
 # * See the License for the specific language governing permissions and  
 # * limitations under the License.  
 # *
-project=~/java/DTRules/EL
+project=.
 cupDir="$project/src/main/java/com/dtrules/compiler/el/cup/parser"
 libDir="$project/lib"
 
-
-cd $cupDir
 echo $cupDir
 
-java -cp $libDir/java-cup-11a.jar java_cup.Main -parser DTRulesParser -symbols sym -dump_grammar < parser.cup 2> bnf.txt
-# echo create Java file
-java -cp $libDir/java-cup-11a.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < parser.cup
+java -cp $libDir/java-cup-10k.jar java_cup.Main -parser DTRulesParser -symbols sym -dump_grammar < $cupDir/parser.cup 2> $cupDir/bnf.txt
 
+echo create Java file
+java -cp $libDir/java-cup-10k.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < $cupDir/parser.cup
+mv DTRulesParser.java $cupDir
+mv bnf.txt $cupDir
 
-cat copyright.txt DTRulesParser.java > xxx.tmp 	
-cp  xxx.tmp DTRulesParser.java 					
+cat $cupDir/copyright.txt $cupDir/DTRulesParser.java > $cupDir/xxx.tmp 	
+cp  $cupDir/xxx.tmp $cupDir/DTRulesParser.java 					
 
-cat copyright.txt sym.java > xxx.tmp1
-cp  xxx.tmp1 sym.java
+cat $cupDir/copyright.txt $cupDir/sym.java > $cupDir/xxx.tmp1
+cp  $cupDir/xxx.tmp1 $cupDir/sym.java
 
-cat copyright.txt bnf.txt  > xxx.tmp2 				
-cp xxx.tmp2 bnf.txt	
+cat $cupDir/copyright.txt $cupDir/bnf.txt  > $cupDir/xxx.tmp2 				
+cp $cupDir/xxx.tmp2 $cupDir/bnf.txt	
 
-rm xxx.tmp  						
-rm xxx.tmp1
-rm xxx.tmp2
+rm $cupDir/xxx.tmp  						
+rm $cupDir/xxx.tmp1
+rm $cupDir/xxx.tmp2
 
 cd $project 

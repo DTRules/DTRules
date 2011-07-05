@@ -27,7 +27,7 @@ import com.dtrules.session.DTState;
 public class RStringOps {
     static {
         new Stringlength(); new Touppercase();  new Tolowercase();  new Trim();
-        new substring();    new RegexMatch();   new Indexof();
+        new substring();    new RegexMatch();   new Indexof();      new StrConcat();
     }
 
 
@@ -36,7 +36,7 @@ public class RStringOps {
      * @author paul snow
      *
      */
-    static class Stringlength extends ROperator {
+    public static class Stringlength extends ROperator {
         Stringlength(){super("strlength");}
 
         @Override
@@ -52,7 +52,7 @@ public class RStringOps {
      * @author paul snow
      *
      */
-    static class Touppercase extends ROperator {
+    public static class Touppercase extends ROperator {
         Touppercase(){super("touppercase");}
 
         @Override
@@ -68,7 +68,7 @@ public class RStringOps {
      * @author paul snow
      *
      */
-    static class Tolowercase extends ROperator {
+    public static class Tolowercase extends ROperator {
         Tolowercase(){super("tolowercase");}
 
         @Override
@@ -84,7 +84,7 @@ public class RStringOps {
      * @author paul snow
      *
      */
-    static class Trim extends ROperator {
+    public static class Trim extends ROperator {
         Trim(){super("trim");}
 
         @Override
@@ -100,7 +100,7 @@ public class RStringOps {
      * @author paul snow
      *
      */
-    static class substring extends ROperator {
+    public static class substring extends ROperator {
         substring(){super("substring");}
 
         @Override
@@ -120,7 +120,7 @@ public class RStringOps {
      * @author Paul Snow
      *
      */
-    static class  RegexMatch   extends ROperator {
+    public static class  RegexMatch   extends ROperator {
         RegexMatch(){super("regexmatch");}
         
         @Override
@@ -133,12 +133,13 @@ public class RStringOps {
     }
     
     /**
-     * ( String1 String2 -- int ) Returns the index of string1 in string2
+     * ( String1 String2 -- int ) Returns the index of String1 in String2.  Returns -1
+     * if String1 is not a part of String2
      * 
      * @author Paul Snow
      *
      */
-    static class  Indexof   extends ROperator {
+    public static class  Indexof   extends ROperator {
         Indexof(){super("indexof");}
         
         @Override
@@ -149,5 +150,19 @@ public class RStringOps {
             state.datapush( RInteger.getRIntegerValue(index));
         }
     }
+    
+    /**
+     * StrConcat( String String -- String )
+     * StrConcat Operator, add the given two strings and returns a string value
+     */
+    public static class StrConcat extends ROperator {
+        StrConcat(){super("s+"); alias("strconcat");}
+
+        public void execute(DTState state) throws RulesException {
+            String value2 = state.datapop().stringValue();
+            String value1 = state.datapop().stringValue();
+            state.datapush(RString.newRString(value1+value2));
+        }
+    }       
     
 }

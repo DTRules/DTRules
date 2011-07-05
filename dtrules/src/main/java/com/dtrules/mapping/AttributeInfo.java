@@ -99,7 +99,6 @@ class AttributeInfo {
 		final Iterator iattribs = tag_instances.iterator();
 		int attribType = -1;
         if(_type.equalsIgnoreCase("date"))_type = "datestring";
-        if(_type.equalsIgnoreCase("time"))_type = "datestring";
         for(int i=0;i<int2str.length;i++){
             if(_type.equalsIgnoreCase(int2str[i])){
                 attribType = i;

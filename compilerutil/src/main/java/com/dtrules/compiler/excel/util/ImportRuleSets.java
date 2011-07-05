@@ -40,8 +40,10 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
 
 import com.dtrules.decisiontables.RDecisionTable;
+import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.EntityFactory;
 import com.dtrules.session.RuleSet;
 import com.dtrules.xmlparser.XMLPrinter;
@@ -49,6 +51,9 @@ import com.dtrules.xmlparser.XMLPrinter;
 public class ImportRuleSets {
 	
     boolean CountsAreDirty;
+    
+    ArrayList<String> errors   = new ArrayList<String>();
+    ArrayList<String> warnings = new ArrayList<String>();
     
     String tmpEDD = "tmpEDD.xml";
     
@@ -104,6 +109,23 @@ public class ImportRuleSets {
                 }  
             }    
         }
+
+        {
+            int i = 1;
+            for(String warning : warnings){
+                System.err.println("WARNING["+i++ +"] "+warning);
+            }
+        }
+        
+        if(errors.size()>0){
+            int i = 1;
+            for(String error : errors){
+                System.err.println("ERROR["+i++ +"] "+error);
+            }
+            System.err.println("Number of errors found: "+errors.size());
+            throw new RuntimeException();
+        }
+        
         if(xlsFound)return data;
         return null;
     }
@@ -159,7 +181,8 @@ public class ImportRuleSets {
                     String v = cell.getRichStringCellValue().getString().trim();
                     return v;
                 
-                default :                           return "";
+                default :                           
+                    return "";
             }        
     }
     /**
@@ -224,7 +247,7 @@ public class ImportRuleSets {
         // If the EDD is an XML file, We assume no conversion is necessary.
         if(excelFileName.endsWith(".xml")){
             ef.loadedd(rs.newSession(), excelFileName, input);
-            // Transfer bytes from in to out
+        	// Transfer bytes from in to out
             return;
             
         }else if(! (excelFileName.endsWith(".xls"))) throw new Exception("EDD Excel File name is invalid"); 
@@ -314,11 +337,7 @@ public class ImportRuleSets {
         int    colonIndex = value.indexOf(":");
         if(colonIndex>1){
            String attrib  = value.substring(0,colonIndex);
-           attrib  = attrib.replaceAll(" ", "_").toLowerCase();
-           try {
-			  Integer.parseInt(attrib);
-			  attrib = "";
-		   } catch (NumberFormatException e) { }
+           attrib  = attrib.replaceAll(" ", "_");
            return attrib;
         }
         return "";
@@ -340,11 +359,12 @@ public class ImportRuleSets {
         int    colonIndex = value.indexOf(":");
         if(colonIndex>1){
            value = value.substring(colonIndex+1).trim();
+        }else {
+            try{
+            	Integer.parseInt(value);
+            	value = getCellValue(sheet,row,2).trim();
+            }catch(NumberFormatException e){};
         }
-        try{
-        	Integer.parseInt(value);
-        	value = getCellValue(sheet,row,2).trim();
-        }catch(NumberFormatException e){};
         return value;
     }
     /**
@@ -371,6 +391,19 @@ public class ImportRuleSets {
     private String getDSL(HSSFSheet sheet, int row){        
         int field = getColumn("dsl");
         if(field==-1)throw new RuntimeException("No DSL Column"); 
+        String value = getCellValue(sheet,row, field).trim();
+        return value;
+    }
+    /**
+     * Get Policy Statement 
+     * 
+     * @param sheet
+     * @param row
+     * @return
+     */
+    private String getPolicyStatement(HSSFSheet sheet, int row){        
+        int field = getColumn("comments");
+        if(field==-1)throw new RuntimeException("No Comment or Policy Column"); 
         String value = getCellValue(sheet,row, field);
         return value.trim();
     }
@@ -396,12 +429,11 @@ public class ImportRuleSets {
      */
     void clearNumber(HSSFSheet sheet, int row){
         String numberFound = getNumber(sheet,row);
-        if(numberFound.length()>0){
-            int field = getColumn("number");
-            if(field!=-1){
-               sheet.getRow(row).getCell(field).setCellValue(new HSSFRichTextString(""));
+        int field = getColumn("number");
+        if(field!= -1){
+            if(sheet != null && sheet.getRow(row)!=null){
+              sheet.getRow(row).createCell(field).setCellValue("");
             }
-            CountsAreDirty = true;
         }
     }
     
@@ -482,11 +514,16 @@ public class ImportRuleSets {
      * @return
      */
     int nextBlock(HSSFSheet sheet, int row){
-        String attrib = getNextAttribValue(sheet, row);
-        while(attrib == ""){
+        String attrib = getNextAttrib(sheet, row);
+        if(sheet.getRow(row)==null){
+            return row;
+        }
+        Cell   c      = sheet.getRow(row).getCell(0);
+        while(attrib.equals("") && c.getCellType()!= HSSFCell.CELL_TYPE_FORMULA){
             row++;
-            attrib = getNextAttribValue(sheet, row);
+            attrib = getNextAttrib(sheet, row);
             if(row > sheet.getLastRowNum()) return row-1;
+            c      = sheet.getRow(row).getCell(0);
         }
         return row;
     }
@@ -532,7 +569,12 @@ public class ImportRuleSets {
      * @param sb
      * @return
      */
-    private boolean convertOneSheet(StringBuffer data, String filename, HSSFSheet sheet,XMLPrinter out, int depth){    
+    private boolean convertOneSheet(
+            StringBuffer    data, 
+            String          filename, 
+            HSSFSheet       sheet,
+            XMLPrinter      out, 
+            int             depth    ) throws Exception{    
         columns = defaultColumns;
         
         // The first row of a decision table has to provide the decision table name.  This is required!
@@ -587,10 +629,10 @@ public class ImportRuleSets {
               out.printdata(attributes.get(i),attributes.get(i+1));
           }
         out.closetag();
-        
+  
         rowIndex = nextBlock(sheet, rowIndex);
         attrib = getNextAttrib(sheet, rowIndex);
-        
+      
         if(attrib.equalsIgnoreCase("contexts")){
             rowIndex++;
             out.opentag("contexts");
@@ -599,13 +641,15 @@ public class ImportRuleSets {
                 attrib           = getNextAttrib(sheet, rowIndex);
                 if(attrib.length()>0)break;   
                 String context   = getDSL(sheet, rowIndex);
-                if(context != "") 
+                if(!context.equals("") ) 
                 {
                     out.opentag("context_details");
                     String err = printNumber(out,sheet,rowIndex,"context_number",contextCount++);
                     if(err!=null){
-                        System.out.println(dtName+" : "+err);
+                        warnings.add(dtName+" : "+err);
                     }
+                    String contextComment = getComments(sheet, rowIndex);
+                    out.printdata("context_comment",contextComment);
                     out.printdata("context_description",context);
                     out.closetag();
                 }else{  
@@ -615,7 +659,7 @@ public class ImportRuleSets {
             }
             out.closetag();
         }
-        
+     
         rowIndex = nextBlock(sheet, rowIndex);
         attrib = getNextAttrib(sheet, rowIndex);
         
@@ -626,12 +670,13 @@ public class ImportRuleSets {
             while(isAction(sheet,rowIndex)){  
                 String initialActionDescription = getDSL(sheet, rowIndex); 
     
-                if(initialActionDescription != "") 
+                if(!initialActionDescription.equals("")) 
                 {
                     out.opentag("initial_action_details");
                     String err = printNumber(out,sheet,rowIndex,"intial_action_number",iactionCount++);
                     if(err!=null){
-                        System.out.println(dtName+" : "+err);
+                        warnings.add(dtName+" : "+err);
+
                     }
 
                     String initialActionComment = getComments(sheet, rowIndex);
@@ -653,18 +698,18 @@ public class ImportRuleSets {
         rowIndex = nextBlock(sheet, rowIndex);
         attrib = getNextAttrib(sheet, rowIndex);
         rowIndex++;
-        
         out.opentag("conditions");
         int conditionCount = 1;
         while(isCondition(sheet, rowIndex)){
             
         	String conditionDescription = getDSL(sheet, rowIndex); 
 
-        	if(conditionDescription != "") {
+        	if(!conditionDescription.equals("")) {
         		out.opentag("condition_details");
                 String err = printNumber(out,sheet,rowIndex,"condition_number",conditionCount++);
                 if(err!=null){
-                    System.out.println(dtName+" : "+err);
+                    warnings.add(dtName+" : "+err);
+
                 }
 	
 	        	String conditionComment = getComments(sheet, rowIndex);
@@ -676,18 +721,20 @@ public class ImportRuleSets {
                 out.printdata("condition_description",conditionDescription);
 	        	
 	        	for(int j=0; j<16;j++){
-	        		String columnValue =getTableValue(sheet, rowIndex, j);  
+	        		String columnValue =getTableValue(sheet, rowIndex, j).trim();  
 	        		if(columnValue.equals("") || columnValue.equals(RDecisionTable.DASH)){
 	        		    columnValue = RDecisionTable.DASH;
 	        		}
-	        		if ((columnValue == RDecisionTable.DASH)    || 
-	                    (columnValue.equalsIgnoreCase("*"))     ||
+	        		if ((columnValue.equalsIgnoreCase("*"))     ||
 	        		    (columnValue.equalsIgnoreCase("y"))     || 
 	        		    (columnValue.equalsIgnoreCase("n"))) {	               
 	        		    out.printdata("condition_column","column_number",""+(j+1),"column_value",columnValue,null);
+	        		}else if (columnValue.equalsIgnoreCase(RDecisionTable.DASH)){
 	        		}else{
-	//        			if(columnValue != "")
-	//	                throw new Exception("Undesired value in the condition matrix");
+	        			if(!columnValue.equals("")){
+		                  errors.add(dtName+": Undesired value in the condition matrix: '"+
+                                  columnValue+"' Row: "+rowIndex);
+	        			}
 	        		}
 	        	}
                 out.closetag();
@@ -697,11 +744,11 @@ public class ImportRuleSets {
         	rowIndex++;
         }
         out.closetag();
-        
+      
         rowIndex = nextBlock(sheet, rowIndex);
         attrib = getNextAttrib(sheet, rowIndex);
         rowIndex++;
-        
+                
         out.opentag("actions");
         int actionCount = 1;
         	while(isAction(sheet,rowIndex)){
@@ -710,7 +757,7 @@ public class ImportRuleSets {
                     out.opentag("action_details");
                     String err = printNumber(out,sheet,rowIndex,"action_number",actionCount++);
                     if(err!=null){
-                        System.out.println(dtName+" : "+err);
+                        warnings.add(dtName+" : "+err);
                     }
 
                 	String actionComment = getComments(sheet, rowIndex); 
@@ -728,7 +775,7 @@ public class ImportRuleSets {
                             out.printdata("action_column","column_number",""+(j+1),"column_value",columnValue,null);
                 		}else{
                 			if(columnValue.length() != 0){
-        	                   System.out.println(dtName+": Undesired value '"+columnValue+"' in the action matrix ("+j+","+rowIndex+")");
+        	                   errors.add(dtName+": Undesired value '"+columnValue+"' in the action matrix ("+j+","+rowIndex+")");
                 			}  
                 		}
                 	}
@@ -740,8 +787,28 @@ public class ImportRuleSets {
             	
         	}
             out.closetag();
+            
+            rowIndex = nextBlock(sheet, rowIndex);
+            attrib = getNextAttrib(sheet, rowIndex);
+            rowIndex++;
+            
+            out.opentag("policy_statements");
+            int pscnt = 0;
+                while(isPolicy(sheet,rowIndex)){
+                    String policyStatement = getPolicyStatement(sheet, rowIndex);  
+                    if(policyStatement.length()>0){
+                        String ps_num = getNumber(sheet, rowIndex);
+                        out.opentag("policy_statement","column",ps_num);
+                        out.printdata("policy_description",policyStatement);
+                        out.closetag();
+                    }    
+                    rowIndex++;  
+                }
             out.closetag();
-        	return true;
+                        
+            
+        out.closetag();
+        return true;
 	}
 	
 	/**
@@ -757,6 +824,20 @@ public class ImportRuleSets {
 		 if(rowIndex > sheet.getLastRowNum()) return false;
 	     return true;
 	}
+	
+	/**
+     * We used to do something really smart.  Now we just return false at the end of the spread
+     * sheet or if we encounter another block.
+     * @param sheet
+     * @param rowIndex
+     * @return
+     */
+    private boolean isPolicy(HSSFSheet sheet, int rowIndex){
+         String attrib = getNextAttrib(sheet, rowIndex);
+         if (attrib.length()>0) return false;
+         if(rowIndex > sheet.getLastRowNum()) return false;
+         return true;
+    }
 	
     /**
      * We used to do something really smart.  Now we just return false at the end of the spread

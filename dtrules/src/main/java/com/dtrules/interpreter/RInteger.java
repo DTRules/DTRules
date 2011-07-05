@@ -26,7 +26,10 @@ import com.dtrules.infrastructure.RulesException;
  *
  */
 public class RInteger extends ARObject {
-    final long value;
+
+	static RType type = RType.newType("integer");
+	
+	final long value;
 
     static RInteger mone = new RInteger(-1);
     static RInteger zero = new RInteger( 0);
@@ -74,10 +77,13 @@ public class RInteger extends ARObject {
         return getRIntegerValue((long) i);
     }    
         
-    public int type() {
-		return iInteger;
+	/**
+	 * Returns the type for this object.
+	 */
+	public RType type() {
+		return type;
 	}
-    
+  
 	public double doubleValue()  {
 		return (double)value;
 	}

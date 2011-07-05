@@ -40,7 +40,8 @@ public class XMLTag implements XMLNode {
     private XMLNode                 parent;
     
     public XMLTag(String tag, XMLNode parent){
-        this.tag    = tag;
+        if(tag==null)tag = "root";
+    	this.tag    = tag;
         this.parent = parent;
     }
     

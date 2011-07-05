@@ -1,0 +1,61 @@
+<Sudoku>
+	<Puzzle>
+	  
+	  <Cell> <r>0</r><c>0</c>
+		<val><c>0</c><r>0</r><i>0</i></val> <val><c>1</c><r>0</r><i>8</i></val> <val><c>2</c> <r>0</r><i>0</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>3</i></val> <val><c>2</c> <r>1</r><i>4</i></val>  
+	  	<val><c>0</c><r>2</r><i>9</i></val> <val><c>1</c><r>2</r><i>6</i></val> <val><c>2</c> <r>2</r><i>0</i></val>  
+	  </Cell>
+	  <Cell> <r>0</r><c>1</c>
+		<val><c>0</c><r>0</r><i>4</i></val> <val><c>1</c><r>0</r><i>0</i></val> <val><c>2</c> <r>0</r><i>2</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>0</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>0</i></val> <val><c>1</c><r>2</r><i>0</i></val> <val><c>2</c> <r>2</r><i>0</i></val>  
+	  </Cell>
+	  <Cell> <r>0</r><c>2</c>
+		<val><c>0</c><r>0</r><i>0</i></val> <val><c>1</c><r>0</r><i>6</i></val> <val><c>2</c> <r>0</r><i>0</i></val>  
+	  	<val><c>0</c><r>1</r><i>9</i></val> <val><c>1</c><r>1</r><i>1</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>0</i></val> <val><c>1</c><r>2</r><i>8</i></val> <val><c>2</c> <r>2</r><i>4</i></val>  
+	  </Cell>
+	
+	  <Cell> <r>1</r><c>0</c>
+		<val><c>0</c><r>0</r><i>0</i></val> <val><c>1</c><r>0</r><i>0</i></val> <val><c>2</c> <r>0</r><i>0</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>0</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>0</i></val> <val><c>1</c><r>2</r><i>0</i></val> <val><c>2</c> <r>2</r><i>0</i></val>  
+	  </Cell>
+	  <Cell> <r>1</r><c>1</c>
+		<val><c>0</c><r>0</r><i>2</i></val> <val><c>1</c><r>0</r><i>1</i></val> <val><c>2</c> <r>0</r><i>6</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>0</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>3</i></val> <val><c>1</c><r>2</r><i>5</i></val> <val><c>2</c> <r>2</r><i>7</i></val>  
+	  </Cell>
+	  <Cell> <r>1</r><c>2</c>
+		<val><c>0</c><r>0</r><i>0</i></val> <val><c>1</c><r>0</r><i>0</i></val> <val><c>2</c> <r>0</r><i>0</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>0</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>0</i></val> <val><c>1</c><r>2</r><i>0</i></val> <val><c>2</c> <r>2</r><i>0</i></val>  
+	  </Cell>
+	
+      <Cell> <r>2</r><c>0</c>
+		<val><c>0</c><r>0</r><i>8</i></val> <val><c>1</c><r>0</r><i>4</i></val> <val><c>2</c> <r>0</r><i>0</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>2</i></val> <val><c>2</c> <r>1</r><i>6</i></val>  
+	  	<val><c>0</c><r>2</r><i>0</i></val> <val><c>1</c><r>2</r><i>9</i></val> <val><c>2</c> <r>2</r><i>0</i></val>  
+	  </Cell>
+	  <Cell> <r>2</r><c>1</c>
+		<val><c>0</c><r>0</r><i>0</i></val> <val><c>1</c><r>0</r><i>0</i></val> <val><c>2</c> <r>0</r><i>0</i></val>  
+	  	<val><c>0</c><r>1</r><i>0</i></val> <val><c>1</c><r>1</r><i>0</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>7</i></val> <val><c>1</c><r>2</r><i>0</i></val> <val><c>2</c> <r>2</r><i>1</i></val>  
+	  </Cell>
+	  <Cell> <r>2</r><c>2</c>
+		<val><c>0</c><r>0</r><i>0</i></val> <val><c>1</c><r>0</r><i>7</i></val> <val><c>2</c> <r>0</r><i>5</i></val>  
+	  	<val><c>0</c><r>1</r><i>1</i></val> <val><c>1</c><r>1</r><i>3</i></val> <val><c>2</c> <r>1</r><i>0</i></val>  
+	  	<val><c>0</c><r>2</r><i>0</i></val> <val><c>1</c><r>2</r><i>4</i></val> <val><c>2</c> <r>2</r><i>0</i></val>  
+	  </Cell>
+
+	  <possiblevalues>	
+	    <possiblevalue><value>1</value></possiblevalue>	  <possiblevalue><value>2</value></possiblevalue>	  <possiblevalue><value>3</value></possiblevalue>
+	    <possiblevalue><value>4</value></possiblevalue>	  <possiblevalue><value>5</value></possiblevalue>	  <possiblevalue><value>6</value></possiblevalue>
+	    <possiblevalue><value>7</value></possiblevalue>	  <possiblevalue><value>8</value></possiblevalue>	  <possiblevalue><value>9</value></possiblevalue>
+	  </possiblevalues>
+	
+	
+	
+	</Puzzle>
+</Sudoku>

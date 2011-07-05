@@ -1,0 +1,24 @@
+<!-- This is a simple XML file used to configure the ChipApp class.  Move this file to -->
+<!-- the testfiles/ folder.  Each time the ChipApp class is executed, these settings   -->
+<!-- will be picked up and used.                                                       -->
+<chipAppSettings>
+
+	<threads>4</threads>        		<!-- Number of threads used by ChipApp to      		-->
+										<!--   process the jobs generated.             		-->
+
+	<numCases>5000</numCases>			<!-- The number of jobs to be generated. Most  		-->
+										<!--   jobs will have multiple applicants.       	-->
+
+	<save>1000</save>					<!-- One job out of every number specified here 	-->
+										<!--   will be saved to disk, to be processed       -->
+										<!--   "offline".  (See the writeup)                -->
+
+	<trace>true</trace>					<!-- If true, a trace file will be produced for     -->
+										<!--   every file saved to disk.  If no files are   -->
+										<!--   specified (via saved above) to be saved,     -->
+										<!--   and trace is true, all files are saved and   -->
+										<!--   traced.                                      -->
+
+	<console>false</console>			<!-- If true, results are printed to the console    -->
+
+</chipAppSettings>

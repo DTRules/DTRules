@@ -39,7 +39,7 @@ public class RXmlValueOps {
 	     * ( Name --> xmlValue)
 	     * Creates a new XmlValue of the given name.
 	     */
-	    static class NewXmlAttribute extends ROperator {
+	    public static class NewXmlAttribute extends ROperator {
 	        NewXmlAttribute(){super("newxmlattribute"); }
 	        @Override
             public void execute(DTState state) throws RulesException {
@@ -57,7 +57,7 @@ public class RXmlValueOps {
 	     * @author Paul Snow
 	     *
 	     */
-		static class SetXmlAttribute extends ROperator {
+		public static class SetXmlAttribute extends ROperator {
 			SetXmlAttribute(){super("setxmlattribute");}
 
 			@Override
@@ -79,7 +79,7 @@ public class RXmlValueOps {
          * @author Paul Snow
          *
          */
-        static class GetXmlAttribute extends ROperator {
+        public static class GetXmlAttribute extends ROperator {
             GetXmlAttribute(){super("getxmlattribute");}
 
             @Override

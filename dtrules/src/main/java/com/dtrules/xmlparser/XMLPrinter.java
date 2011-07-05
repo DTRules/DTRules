@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.dtrules.interpreter.RTime;
+import com.dtrules.interpreter.RDate;
 
 /**
  * A simple class for the support of printing XML files.  Start and end tags
@@ -488,7 +488,7 @@ public class XMLPrinter implements IXMLPrinter {
         }
         if(bodyvalue != null){
             if(bodyvalue instanceof Date) {
-                bodyvalue = RTime.getRTime((Date)bodyvalue);
+                bodyvalue = RDate.getRTime((Date)bodyvalue);
             }
             String v = GenericXMLParser.encode(bodyvalue.toString());
             printData(v);

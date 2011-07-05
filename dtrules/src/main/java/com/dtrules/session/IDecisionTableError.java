@@ -34,7 +34,7 @@ package com.dtrules.session;
  */
 public interface IDecisionTableError {
     
-    public enum Type { CONDITION, ACTION, TABLE, INITIALACTION, CONTEXT, EDD};
+    public enum Type { CONDITION, ACTION, TABLE, INITIALACTION, CONTEXT, EDD, POLICYSTATEMENT};
     
     /**
     * Returns the Error type, which will be a 1 if the error was in the

@@ -22,6 +22,8 @@ import com.dtrules.infrastructure.RulesException;
 
 public class RNull extends ARObject {
 	
+	public static RType type = RType.newType("null");
+
     /**
      * returns 0 if both are equal. -1 Otherwise.  A Null is considered
      * less than anything else.  We do this just so sorting arrays were
@@ -52,7 +54,7 @@ public class RNull extends ARObject {
      * A Null is only equal to the null object
      */
 	public boolean equals(IRObject o) {
-		return o.type()==iNull;
+		return o.type()==type;
 	}
 
 	public String stringValue() {
@@ -79,7 +81,11 @@ public class RNull extends ARObject {
 		return 0;
 	}
 
-	public int type() {
-		return iNull;
+	/**
+	 * Returns the type for this object.
+	 */
+	public RType type() {
+		return type;
 	}
+
 }

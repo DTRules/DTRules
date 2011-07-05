@@ -48,6 +48,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
     boolean   dups;  
     int       id;
     
+    static    RType   type = RType.newType("array");
     
     public void uncache(){
     	if(array == null){
@@ -58,7 +59,6 @@ public class RArray extends ARObject implements Collection<IRObject> {
     		pair.code = null;
     	}
     }
-    
     
     /**
      * @see java.util.Collection#addAll(java.util.Collection)
@@ -171,6 +171,12 @@ public class RArray extends ARObject implements Collection<IRObject> {
     	this.pair       = otherpair;
     	this.dups       = duplicates;
     }
+
+    static public RArray NewArray(IRSession session, boolean duplicates, boolean executable) throws RulesException {
+        return new RArray(session.getEntityFactory().getUniqueID(), duplicates, executable);
+    }
+
+    
     /**
      * Creates a RArray
      * @param id        A unique ID for all arrays.  Get this from the RSession object
@@ -214,8 +220,8 @@ public class RArray extends ARObject implements Collection<IRObject> {
     /**
      * Returns the iArray type for Array Objects
      */
-	public int type() {
-		return iArray;
+	public RType type() {
+		return type;
 	}
 	/**
 	 * Add an element to this Array
@@ -276,7 +282,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
 	 */
 	public boolean equals(IRObject o) throws RulesException {
 		uncache();
-		if(o.type() != iArray) return false;
+		if(o.type() != type) return false;
 		return ((RArray)o).array == array;
 	}
 	
@@ -309,7 +315,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
         }
         for(int cnt=0; cnt < code.length; cnt++){
             IRObject obj = code[cnt];
-            if(!obj.isExecutable() || obj.type()==iArray ){
+            if(!obj.isExecutable() || obj.type()==type ){
 				state.datapush(obj);
 			}else{
 			    try{

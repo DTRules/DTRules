@@ -62,7 +62,7 @@ public class RMath {
      * @author paul snow
      *
      */
-    static class Roundto extends ROperator {
+    public static class Roundto extends ROperator {
         Roundto(){super("roundto"); }
         
         double round(double number,double boundary){
@@ -96,7 +96,7 @@ public class RMath {
      * @author paul snow
      *
      */
-    static class FNegate extends ROperator {
+    public static class FNegate extends ROperator {
         FNegate(){super("fnegate"); }
         
         public void execute(DTState state)throws RulesException {
@@ -114,7 +114,7 @@ public class RMath {
      * @author paul snow
      *
      */
-    static class FAbs extends ROperator {
+    public static class FAbs extends ROperator {
         FAbs(){super("fabs"); }
         
         public void execute(DTState state)throws RulesException {
@@ -130,7 +130,7 @@ public class RMath {
      * @author paul snow
      *
      */
-    static class Abs extends ROperator {
+    public static class Abs extends ROperator {
         Abs(){super("abs"); }
         
         public void execute(DTState state)throws RulesException {
@@ -147,7 +147,7 @@ public class RMath {
      * @author paul snow
      *
      */
-    static class Negate extends ROperator {
+    public static class Negate extends ROperator {
         Negate(){super("negate"); }
         
         public void execute(DTState state)throws RulesException {
@@ -164,7 +164,7 @@ public class RMath {
      * @author Paul Snow
      *
      */
-	static class Add extends ROperator {
+	public static class Add extends ROperator {
 		Add(){
 			super("+"); alias("ladd");
 		}
@@ -182,7 +182,7 @@ public class RMath {
 	 * @author Paul Snow
 	 *
 	 */
-	static class Sub extends ROperator {
+	public static class Sub extends ROperator {
 		Sub(){super("-"); alias("lsub");}
 
 		public void execute(DTState state) throws RulesException {
@@ -198,7 +198,7 @@ public class RMath {
 	 * @author Paul Snow
 	 *
 	 */
-	static class Mul extends ROperator {
+	public static class Mul extends ROperator {
 		Mul(){super("*"); alias("lmul");}
 
 		public void execute(DTState state) throws RulesException {
@@ -211,7 +211,7 @@ public class RMath {
 	 * @author Paul Snow
 	 *
 	 */
-	static class Div extends ROperator {
+	public static class Div extends ROperator {
 		Div(){super("/"); alias("div"); alias("ldiv");}
 
 		public void execute(DTState state) throws RulesException {
@@ -233,7 +233,7 @@ public class RMath {
      * @author Paul Snow
      *
      */
-    static class FAdd extends ROperator {
+    public static class FAdd extends ROperator {
         FAdd(){
             super("f+");alias("fadd");
         }
@@ -253,7 +253,7 @@ public class RMath {
      * @author Paul Snow
      *
      */
-    static class FSub extends ROperator {
+    public static class FSub extends ROperator {
         FSub(){super("f-");alias("fsub");}
 
         public void execute(DTState state) throws RulesException {
@@ -269,7 +269,7 @@ public class RMath {
      * @author Paul Snow
      *
      */
-    static class FMul extends ROperator {
+    public static class FMul extends ROperator {
         FMul(){super("f*");alias("fmul");}
 
         public void execute(DTState state) throws RulesException {
@@ -284,7 +284,7 @@ public class RMath {
      * @author Paul Snow
      *
      */
-    static class FDiv extends ROperator {
+    public static class FDiv extends ROperator {
         FDiv(){super("fdiv"); alias("f/");}
 
         public void execute(DTState state) throws RulesException {

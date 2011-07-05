@@ -21,19 +21,21 @@ import java.util.HashMap;
 import com.dtrules.compiler.el.cup.parser.RLocalType;
 import com.dtrules.compiler.el.cup.parser.RSymbol;
 import com.dtrules.compiler.el.cup.parser.sym;
+import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
+import com.dtrules.session.IRType;
 
 import java_cup.runtime.*;
 
 public class TokenFilter implements Scanner{
     
     Scanner                     scanner;
-    HashMap<RName, RType>       types;
+    HashMap<RName, IRType>       types;
     IRSession                   session;
     DTState                     state;
     boolean                     EOF         = false;
@@ -47,13 +49,14 @@ public class TokenFilter implements Scanner{
         return tokens;
     }
     
-    TokenFilter(IRSession session, Scanner scanner, HashMap<RName, RType> types, HashMap<String,RLocalType> localtypes){
+    TokenFilter(IRSession session, Scanner scanner, HashMap<RName, IRType> types, HashMap<String,RLocalType> localtypes){
         this.types      = types;
         this.scanner    = scanner;
         this.session    = session;
         this.state      = session.getState();
         this.localtypes = localtypes;
     }
+    
     /**
      * Look up an Identifier in the symbol table and return its type.
      * @param ident
@@ -61,11 +64,11 @@ public class TokenFilter implements Scanner{
      */
     int identType(String ident,String entity){
         
-           RType type = (RType) types.get(RName.getRName(ident,true));
+           ELType type = (ELType) types.get(RName.getRName(ident,true));
            boolean defined = true;
            if(entity != null && entity.length()!=0 && type!=null){
               defined = false;
-              for(REntity rEntity : type.getEntities()){
+              for(IREntity rEntity : type.getEntities()){
                   if(entity.equalsIgnoreCase(rEntity.getName().stringValue())){
                       if(rEntity.containsAttribute(RName.getRName(ident))){
                           defined = true;
@@ -80,7 +83,7 @@ public class TokenFilter implements Scanner{
                try {
                   IRObject o = session.getState().find(rname);
                   if(o==null)return -1;
-                  return o.type();
+                  return o.type().getId();
                 } catch (RulesException e) {
                   return -1;
                 }
@@ -97,9 +100,9 @@ public class TokenFilter implements Scanner{
      * 
      * @param type integer code associated with a symbol.
      */
-    @SuppressWarnings("unchecked")
     private String type2str(int type){
         try{
+            @SuppressWarnings("rawtypes")
             Class   tokentypes  = sym.class;
             Field[] types       = tokentypes.getDeclaredFields();
             for(int i=0;i<types.length;i++){
@@ -198,6 +201,7 @@ public class TokenFilter implements Scanner{
                 entity=ident.substring(0,ident.indexOf('.'));
                 ident =ident.substring(ident.indexOf('.')+1);
             }
+            
             int    theType = identType(ident,entity);
             
             if(theType == -1 ){
@@ -210,21 +214,21 @@ public class TokenFilter implements Scanner{
                 }
             }
             
-            switch(theType){
-                case IRObject.iEntity           : next.sym=(sym.RENTITY);        break;
-                case IRObject.iName             : next.sym=(sym.RNAME);          break;
-                case IRObject.iInteger          : next.sym=(sym.RLONG);          break;
-                case IRObject.iDouble           : next.sym=(sym.RDOUBLE);        break;
-                case IRObject.iString           : next.sym=(sym.RSTRING);        break;
-                case IRObject.iBoolean          : next.sym=(sym.RBOOLEAN);       break;
-                case IRObject.iDecisiontable    : next.sym=(sym.RDECISIONTABLE); break;
-                case IRObject.iArray            : next.sym=(sym.RARRAY);         break;
-                case IRObject.iTime             : next.sym=(sym.RDATE);          break;
-                case IRObject.iTable            : next.sym=(sym.RTABLE);         break;
-                case IRObject.iOperator         : next.sym=(sym.ROPERATOR);      break;
-                case IRObject.iXmlValue         : next.sym=(sym.RXMLVALUE);      break;
-                case -1                         : next.sym=(sym.UNDEFINED);      break;                        
-                default: 
+            
+            if   (theType == IRObject.iEntity           ){ next.sym=(sym.RENTITY); 
+        	} else if (theType == IRObject.iName             ){ next.sym=(sym.RNAME);          
+            } else if (theType == IRObject.iInteger          ){ next.sym=(sym.RLONG);          
+            } else if (theType == IRObject.iDouble           ){ next.sym=(sym.RDOUBLE);        
+            } else if (theType == IRObject.iString           ){ next.sym=(sym.RSTRING);        
+            } else if (theType == IRObject.iBoolean          ){ next.sym=(sym.RBOOLEAN);       
+            } else if (theType == IRObject.iDecisiontable    ){ next.sym=(sym.RDECISIONTABLE); 
+            } else if (theType == IRObject.iArray            ){ next.sym=(sym.RARRAY);         
+            } else if (theType == IRObject.iDate             ){ next.sym=(sym.RDATE);          
+            } else if (theType == IRObject.iTable            ){ next.sym=(sym.RTABLE);         
+            } else if (theType == IRObject.iOperator         ){ next.sym=(sym.ROPERATOR);      
+            } else if (theType == IRObject.iXmlValue         ){ next.sym=(sym.RXMLVALUE);      
+            } else if (theType == -1                         ){ next.sym=(sym.UNDEFINED);                              
+            } else {
                     System.out.println("Unhandled Type");
                     tokens.add(next.sym+" "+type2str(next.sym)+" "+next.value.toString());
                     throw new RuntimeException("Unhandled Type: "+next.value);
@@ -236,5 +240,17 @@ public class TokenFilter implements Scanner{
         return next;
     
     }
+
+    @Override
+    public String toString() {
+        StringBuffer sbuff = new StringBuffer();
+        for(String token: tokens){
+            sbuff.append(token);
+            sbuff.append(", ");
+        }
+        return sbuff.toString();
+    }
+    
+    
 
 }

@@ -30,6 +30,8 @@ import com.dtrules.session.RuleSet;
  */
 public class RString extends ARObject {
 
+	public static RType type = RType.newType("string");
+
 	RString  pair;
     String   value;
     boolean  executable = false;
@@ -146,13 +148,14 @@ public class RString extends ARObject {
         return RBoolean.getRBoolean(booleanValue());
     }
 
-    /**
-	 * Returns String type.
-	 * @see com.dtrules.interpreter.IRObject#type()
+	/**
+	 * Returns the type for this object.
 	 */
-	public int type() {
-		return iString;
+	public RType type() {
+		return type;
 	}
+
+	static RType iArray = RType.newType("array");
 	
 	/**
 	 * Here we look to see if we can do a compile time lookup of
@@ -325,8 +328,8 @@ public class RString extends ARObject {
 	}
 	
     @Override
-    public RTime rTimeValue(IRSession session) throws RulesException {
-        return RTime.getRDate(session, value);    
+    public RDate rTimeValue(IRSession session) throws RulesException {
+        return RDate.getRDate(session, value);    
     }
 	
 	

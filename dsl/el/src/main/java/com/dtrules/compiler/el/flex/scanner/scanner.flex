@@ -61,19 +61,26 @@ string     = {stringdbl}|{stringsgl}
 <YYINITIAL> {
 
 
-  "action"         {return build(sym.ACTION); }
-  "condition"      {return build(sym.CONDITION); }
+  "action"            {return build(sym.ACTION); }
+  "condition"         {return build(sym.CONDITION); }
+  "policystatement"   {return build(sym.POLICYSTATEMENT); }
 
-  "true"           {return build(sym.RBOOLEAN); }
-  "false"          {return build(sym.RBOOLEAN); }
+  "true"              {return build(sym.RBOOLEAN); }
+  "false"             {return build(sym.RBOOLEAN); }
+  "default"           {return build(sym.RBOOLEAN); }
+  "otherwise"         {return build(sym.RBOOLEAN); }
+  "always"            {return build(sym.RBOOLEAN); } 
 
   "perform"{ws}+"when"{ws}+"called"
-				   {return build(sym.RBOOLEAN); }
+				      {return build(sym.RBOOLEAN); }
    
   {integer}           {return build(sym.INTEGER); }
   {float}             {return build(sym.FLOAT); }
   {string}            {return build(sym.STRING); }
-  {Whitespace} {}
+  {Whitespace}        {}
+
+  "policy"{ws}+"statements"
+                      {return build(sym.POLICYSTATEMENTS);}
 
   "date"           {return build(sym.DATE);   }
   "time"           {return build(sym.DATE);   }
@@ -110,7 +117,7 @@ string     = {stringdbl}|{stringsgl}
   "local"          {return build(sym.LOCAL);  }
   "substring"      {return build(sym.SUBSTRING); }
   "index"{ws}+"of" {return build(sym.INDEX_OF); }
-  "member"         {return build(sym.MEMBER); }
+  "member"("s")?   {return build(sym.MEMBER); }
   "this"           {return build(sym.THIS);   }
   "context"        {return build(sym.CONTEXT); }
   "for"{ws}*"all"  {return build(sym.FORALL); }
@@ -133,10 +140,12 @@ string     = {stringdbl}|{stringsgl}
   ">="|"&gt="      {return build(sym.GTE); }
   "<="|"&lt="      {return build(sym.LTE); }
   
-  "is"{ws}+"equal"{ws}+"to"                                      {return build(sym.EQ);}
-  "equal"{ws}+"to"                                               {return build(sym.EQ);}
-  "is"{ws}+"not"{ws}+"equal"{ws}+"to"                            {return build(sym.NEQ);}
-  "not"{ws}+"equal"{ws}+"to"                                     {return build(sym.NEQ);}
+  "is"{ws}+"equal"{ws}+("to"{ws})?+"ignore"{ws}+"case"                      {return build(sym.EQ_IGNORE_CASE);}  
+  "is"{ws}+"not"{ws}+"equal"{ws}+("to"{ws})?+{ws}+"ignore"{ws}+"case"       {return build(sym.NEQ_IGNORE_CASE);}  
+  "is"{ws}+"equal"{ws}+("to"{ws})?                                          {return build(sym.EQ);}
+  "equal"{ws}+("to"{ws})?                                                   {return build(sym.EQ);}
+  "is"{ws}+"not"{ws}+"equal"{ws}+("to"{ws})?                                {return build(sym.NEQ);}
+  "not"{ws}+"equal"{ws}+("to"{ws})?                                         {return build(sym.NEQ);}
   "is"{ws}+"greater"{ws}+"than"                                  {return build(sym.GT);}
   "greater"{ws}+"than"                                           {return build(sym.GT);}
   "is"{ws}+"greater"{ws}+"than"{ws}+"or"{ws}+"equal"+{ws}+"to"   {return build(sym.GTE);}
@@ -180,6 +189,11 @@ string     = {stringdbl}|{stringsgl}
   "is"{ws}+"null"  {return build(sym.ISNULL); }
   "is"{ws}+"not"{ws}+"null"
                    {return build(sym.ISNOTNULL); }
+  "change"         {return build(sym.CHANGE); }
+  "upper"{ws}+"case"
+                   {return build(sym.UPPER_CASE); }
+  "lower"{ws}+"case"
+                   {return build(sym.LOWER_CASE); }
   "between"        {return build(sym.BETWEEN); }
   "before"         {return build(sym.BEFORE); }
   "after"          {return build(sym.AFTER); }

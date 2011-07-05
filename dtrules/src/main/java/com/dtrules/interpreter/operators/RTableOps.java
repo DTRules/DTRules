@@ -46,13 +46,13 @@ public class RTableOps {
       * Aug 14, 2007
       *
       */
-     static class GetWithKeys extends ROperator {
+     public static class GetWithKeys extends ROperator {
          GetWithKeys(){ super("getwithkeys");}
          
          public void execute(DTState state) throws RulesException {
              int cnt = 0;
              int d = state.ddepth();
-             while(state.getds(--d).type()!=iTable)cnt++;
+             while(state.getds(--d).type().getId()!=iTable)cnt++;
              RName []keys = new RName[cnt];
              for(int i=0;i<cnt;i++){
                 keys[i]= state.datapop().rNameValue();
@@ -72,7 +72,7 @@ public class RTableOps {
       * Aug 14, 2007
       *
       */
-     static class GetWithKey extends ROperator {
+     public static class GetWithKey extends ROperator {
          GetWithKey(){ super("getwithkey");}
          
          public void execute(DTState state) throws RulesException {
@@ -89,7 +89,7 @@ public class RTableOps {
       * @author Paul Snow
       *
       */
-     static class SetWithKey extends ROperator {
+     public static class SetWithKey extends ROperator {
          SetWithKey(){ super("setwithkey"); }
       
          public void execute(DTState state) throws RulesException {
@@ -112,7 +112,7 @@ public class RTableOps {
       * Aug 14, 2007
       *
       */
-     static class SetWithKeys extends ROperator {
+     public static class SetWithKeys extends ROperator {
          SetWithKeys(){ super("setwithkeys");}
          
          public void execute(DTState state) throws RulesException {
@@ -120,7 +120,7 @@ public class RTableOps {
              IRObject  v   = state.datapop();               // Get the value to store
              int       d   = state.ddepth()-1;              // Get current depth of data stack less one for the value.
              
-             while(state.getds(--d).type()==iTable)cnt++;   // Count the keys (index1, index2, etc.)
+             while(state.getds(--d).type().getId()==iTable)cnt++;   // Count the keys (index1, index2, etc.)
              
              if(cnt != 1){
                  IRObject []keys = new IRObject[cnt];           // Get an array big enough to hold the keys
@@ -149,7 +149,7 @@ public class RTableOps {
       * Aug 14, 2007
       *
       */
-     static class GetKeysArray extends ROperator {
+     public static class GetKeysArray extends ROperator {
          GetKeysArray(){ super("getkeysarray");}
          
          public void execute(DTState state) throws RulesException {
@@ -164,7 +164,7 @@ public class RTableOps {
       * Aug 14, 2007
       *
       */
-     static class ClearTable extends ROperator {
+     public static class ClearTable extends ROperator {
          ClearTable(){ super("cleartable");}
          
          public void execute(DTState state) throws RulesException {
@@ -177,14 +177,13 @@ public class RTableOps {
       *  ( Name Type -- Table ) newTable
       *  Name is a name for the table
       */
-     static class NewTable extends ROperator {
+     public static class NewTable extends ROperator {
          NewTable(){ super("newtable");}
          
          public void execute(DTState state) throws RulesException {
              String type  = state.datapop().stringValue();
              RName  name  = state.datapop().rNameValue();
-             int    itype = RSession.typeStr2Int(type,"","");
-             RTable table = RTable.newRTable(state.getSession().getEntityFactory(),name,"",itype);
+             RTable table = RTable.newRTable(state.getSession().getEntityFactory(),name,"");
              state.datapush(table);
          }
      }
@@ -192,7 +191,7 @@ public class RTableOps {
      /**
       * ( Table description -- ) setDescription
       */
-     static class SetDescription extends ROperator {
+     public static class SetDescription extends ROperator {
          SetDescription() { super("setdescription"); }
          public void execute(DTState state) throws RulesException {
              RString description  = state.datapop().rStringValue();
@@ -214,7 +213,7 @@ public class RTableOps {
       * @author paul snow
       * 
       */
-     static class Translate extends ROperator {
+     public static class Translate extends ROperator {
          Translate(){super("translate"); }
          public void execute(DTState state) throws RulesException {
              boolean duplicates = state.datapop().booleanValue();

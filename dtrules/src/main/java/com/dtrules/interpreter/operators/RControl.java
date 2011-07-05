@@ -27,6 +27,7 @@ import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RInteger;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
 import com.dtrules.session.DTState;
 import com.dtrules.session.EntityFactory;
@@ -39,13 +40,13 @@ import com.dtrules.session.IRSession;
 @SuppressWarnings("unchecked")
 public class RControl {
     static {
-        new If();           new Ifelse();       new While();        
-        new Forallr();      new Forall();       new For();          
-        new Forr();         new Entityforall(); new Forfirst();  
-        new Doloop();       new ForFirstElse(); new ExecuteTable(); 
-        new Execute();      new Deallocate();   new Allocate();     
-        new Localfetch();   new Localstore();   new PerformCatchError();
-        new Lookup();
+        new If();           new Ifelse();           new While();        
+        new Forallr();      new Forall();           new For();          
+        new Forr();         new Entityforall();     new Forfirst();  
+        new Doloop();       new ForFirstElse();     new ExecuteTable(); 
+        new Execute();      new Deallocate();       new Allocate();     
+        new Localfetch();   new Localstore();       new PerformCatchError();
+        new Lookup();       new PolicyStatements(); new ThrowException();
     }
     
     /**
@@ -53,7 +54,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class If extends ROperator {
+    public static class If extends ROperator {
         If(){super("if");}
 
         public void execute(DTState state) throws RulesException {
@@ -68,7 +69,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Ifelse extends ROperator {
+    public static class Ifelse extends ROperator {
         Ifelse(){super("ifelse");}
 
         public void execute(DTState state) throws RulesException {
@@ -96,7 +97,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class ExecuteTable extends ROperator {
+    public static class ExecuteTable extends ROperator {
         ExecuteTable(){super("executetable");}
 
         public void execute(DTState state) throws RulesException {
@@ -111,7 +112,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Execute extends ROperator {
+    public static class Execute extends ROperator {
         Execute(){super("execute"); }
         
         public void execute(DTState state) throws RulesException {
@@ -126,7 +127,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class While extends ROperator {
+    public static class While extends ROperator {
         While(){super("while");}
 
         public void execute(DTState state) throws RulesException {
@@ -150,7 +151,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Forallr extends ROperator {
+    public static class Forallr extends ROperator {
         Forallr(){super("forallr");}
 
         public void execute(DTState state) throws RulesException {
@@ -160,7 +161,7 @@ public class RControl {
             IRObject body = state.datapop();                 // Get the body
             for(int i=length - 1;i>=0;i--){                  // For each element in array,
                  IRObject o = (IRObject) array.get(i);
-                 int      t = o.type();
+                 int      t = o.type().getId();
                  if(t== iNull)continue;
                  if(t!=iEntity){
                     throw new RulesException("Type Check", "Forallr", "Encountered a non-Entity entry in array: "+o);
@@ -180,7 +181,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Forall extends ROperator {
+    public static class Forall extends ROperator {
         Forall(){super("forall");}
 
         public void execute(DTState state) throws RulesException {
@@ -189,7 +190,7 @@ public class RControl {
             IRObject body = state.datapop();        // Get the body
             
             for(IRObject o : array){
-                 int      t = o.type();
+                 int      t = o.type().getId();
                  if(t== iNull)continue;
                  if(t!=iEntity){
                      throw new RulesException("Type Check", "Forallr", "Encountered a non-Entity entry in array: "+o);
@@ -206,7 +207,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class For extends ROperator {
+    public static class For extends ROperator {
         For(){super("for");}
 
         public void execute(DTState state) throws RulesException {
@@ -226,7 +227,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Forr extends ROperator {
+    public static class Forr extends ROperator {
         Forr(){super("forr");}
 
         public void execute(DTState state) throws RulesException {
@@ -246,7 +247,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Entityforall extends ROperator {
+    public static class Entityforall extends ROperator {
         Entityforall(){super("entityforall");}
 
         public void execute(DTState state) throws RulesException {
@@ -272,7 +273,7 @@ public class RControl {
      * Jan 10, 2007
      *
      */
-    static class Forfirst extends ROperator {
+    public static class Forfirst extends ROperator {
         Forfirst(){super("forfirst");}
 
         public void execute(DTState state) throws RulesException {
@@ -303,7 +304,7 @@ public class RControl {
      * Jan 10, 2007
      *
      */
-    static class ForFirstElse extends ROperator {
+    public static class ForFirstElse extends ROperator {
         ForFirstElse(){super("forfirstelse");}
 
         public void execute(DTState state) throws RulesException {
@@ -339,7 +340,7 @@ public class RControl {
      * Jan 10, 2007
      *
      */
-    static class Doloop extends ROperator {
+    public static class Doloop extends ROperator {
         Doloop(){super("doloop");}
 
         public void execute(DTState state) throws RulesException {
@@ -370,7 +371,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Allocate extends ROperator {
+    public static class Allocate extends ROperator {
         Allocate(){super("allocate"); alias("cpush");}
 
         public void execute(DTState state) throws RulesException {
@@ -390,7 +391,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Deallocate extends ROperator {
+    public static class Deallocate extends ROperator {
         Deallocate(){super("deallocate"); alias("cpop");}
         public void execute(DTState state) throws RulesException {
             state.datapush(state.cpop());
@@ -402,7 +403,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Localfetch extends ROperator {
+    public static class Localfetch extends ROperator {
         Localfetch(){super("local@");}
 
         public void execute(DTState state) throws RulesException {
@@ -420,7 +421,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Localstore extends ROperator {
+    public static class Localstore extends ROperator {
         Localstore(){super("local!");}
 
         public void execute(DTState state) throws RulesException {
@@ -444,7 +445,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class PerformCatchError extends ROperator {
+    public static class PerformCatchError extends ROperator {
         PerformCatchError(){super("performcatcherror");}
 
         private IRObject p(String v) { return RString.newRString(v==null?"":v); }
@@ -491,7 +492,7 @@ public class RControl {
      * @author paul snow
      *
      */
-    static class Lookup extends ROperator {
+    public static class Lookup extends ROperator {
         Lookup(){super("lookup");}
 
         public void execute(DTState state) throws RulesException {
@@ -508,5 +509,68 @@ public class RControl {
         }
     }
 
+    /**
+     * ( -- array ) Returns the list of policy statements in this decision table that
+     * resulted in the execution of this particular action.
+     * 
+     * @author paul snow
+     *
+     */
+    public static class PolicyStatements extends ROperator {
+        PolicyStatements(){super("policystatements");}
+
+        public void execute(DTState state) throws RulesException {
+            RArray ra = new RArray(state.getSession().getUniqueID(),true,false);
+            state.datapush(ra);
+            if(!state.getCurrentTable().equals(state.getAnode().getrDecisionTable())){
+                return;
+            }
+
+            ArrayList<Integer> columns = state.getAnode().getColumns();
+            IRObject rps [] = state.getCurrentTable().getRpolicystatements();
+            if(rps!= null) { 
+                for(int column : columns){
+                    if(column < rps.length){
+                       IRObject ps = rps[column];
+                       if(ps != null){
+                          ps.execute(state);
+                          ps = state.datapop();
+                          if(ps != RNull.getRNull()){
+                              ra.add(ps);
+                          }
+                       }
+                    }
+                }
+                if(columns.size()==0){
+                    IRObject ps = rps[0];
+                    if(ps != null){
+                       ps.execute(state);
+                       ps = state.datapop();
+                       if(ps != RNull.getRNull()){
+                           ra.add(ps);
+                       }
+                    }
+                 
+                }
+            }
+        }
+    }
     
+    /**
+     * ( String -- ) throws a Rules Exception with the given message.
+     * 
+     * @author paul snow
+     *
+     */
+    public static class ThrowException extends ROperator {
+        ThrowException(){super("throwexception");}
+
+        public void execute(DTState state) throws RulesException {
+            IRObject value = state.datapop();
+            throw new RulesException(
+                        "throwException",
+                        "ThrowExceiption.execute()",
+                        value.stringValue());
+        }
+    }
 }

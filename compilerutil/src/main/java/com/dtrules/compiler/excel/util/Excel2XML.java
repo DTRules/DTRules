@@ -237,7 +237,7 @@ public class Excel2XML {
      * Generates a default Mapping File.  This file is not complete, but 
      * requires adjustments to match XML tags if they differ from the 
      * Attribute names used in the EDD.  Also, the initial Entity Stack and
-     * frequence of Entity types must be examined and updated.
+     * frequency of Entity types must be examined and updated.
      * 
      * @param mapping	Tag for the mapping file.  Attributes with this tag in the
      * 					EDD will be mapped in the generated mapping
@@ -283,6 +283,8 @@ public class Excel2XML {
                 rs.getFilepath()+rs.getEDD_XMLName(),
                 rs.getWorkingdirectory()+filename);
     }
+    
+    
     public static void compile (
             String path, 
             String rulesConfig, 
@@ -291,6 +293,15 @@ public class Excel2XML {
         compile(path,rulesConfig,ruleset,applicationRepositoryPath,null);
     }
     
+    
+    public static void compile (
+            String path, 
+            String rulesConfig, 
+            String ruleset,
+            String applicationRepositoryPath,
+            String [] mappings) throws Exception {
+    	compile(path, rulesConfig, ruleset,applicationRepositoryPath,mappings, 2);
+    }
     
     /**
      * Helper function for compiling Rule Sets.
@@ -304,6 +315,7 @@ public class Excel2XML {
      *                              that is currently deployed.  The compile will produce 
      *                              a compare of changes between the Rule Set under development,
      *                              and this Rule Set.  If null, this comparison will be skipped.
+     * @param errorcnt              Number of errors to be printed.
      * @throws Exception
      */
     public static void compile (
@@ -311,14 +323,15 @@ public class Excel2XML {
             String rulesConfig, 
             String ruleset,
             String applicationRepositoryPath,
-            String [] mappings) throws Exception {
+            String [] mappings,
+            int    errorcnt) {
         try{
             System.out.println("Starting: "+ new Date());
             Excel2XML converter     = new Excel2XML(path, rulesConfig, ruleset);
             System.out.println("Converting: "+ new Date());
             converter.convertRuleset();
             System.out.println("Compiling: "+ new Date());
-            converter.compile(2,System.out);
+            converter.compile(errorcnt,System.out);
             System.out.println("Done: "+ new Date());
             
             if(mappings != null) for(String map : mappings){
@@ -340,8 +353,8 @@ public class Excel2XML {
     
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");
+            System.out.println(ex.toString());
             ex.printStackTrace();
-            throw ex;
         }
     }
 }

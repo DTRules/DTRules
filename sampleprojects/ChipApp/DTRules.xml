@@ -1,0 +1,19 @@
+<DTRules>
+
+  <compileralias name="EL">com.dtrules.compiler.el.EL</compileralias> 
+  <compiler>EL</compiler>
+  
+  <RuleSet name="CHIP" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables/</DTExcelFolder>
+     <EDDExcelFolder>/edd/</EDDExcelFolder>
+
+     <Entities        name="CHIP_edd.xml" />
+     <Decisiontables  name="CHIP_dt.xml"  />
+     <Map             name="CHIP_map.xml" />
+  </RuleSet>    
+
+</DTRules>
+

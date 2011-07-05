@@ -34,9 +34,12 @@ public class CNode implements DTNode {
     final int            conditionNumber;         //NOPMD 
     final IRObject       condition;
     final RDecisionTable dtable;                  // Pointer back to the Decision Table for debug purposes
-
+    boolean              star;
+    
     DTNode iftrue  = null;
     DTNode iffalse = null;
+
+    
     
     /**
      * Clone this CNode and all the CNodes referenced by this CNode
@@ -177,5 +180,13 @@ public class CNode implements DTNode {
 	    iftrue.addNode(node.iftrue);
 	    iffalse.addNode(node.iffalse);
 	}
+
+    public boolean getStar() {
+        return star;
+    }
+
+    public void setStar(boolean star) {
+        this.star = star;
+    }
 	
 }

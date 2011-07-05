@@ -21,7 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 import java.io.IOException;
-@SuppressWarnings({"unchecked","unused"})
+@SuppressWarnings({"unused"})
 %%
 %public
 %class GenericXMLParser
@@ -32,13 +32,15 @@ import java.io.IOException;
 %int
 
 %{
-    private String sourcename = "unknown name";
+	// Start of User Funcitons
+	
+    private String 			sourcename 		= "unknown name";
     String            		tagstk []       = new String[1000];
     int               		tagstkptr       = 0;
     int               		statestk []     = new int[1000];
     int               		statestkptr     = 0;
-    ArrayList         		attribstk       = new ArrayList();
-    HashMap<String,String>    attribs         = new HashMap<String,String>(2,1.0f);
+    ArrayList<HashMap<String,String>> attribstk = new ArrayList<HashMap<String,String>>();
+    HashMap<String,String>  attribs         = new HashMap<String,String>(2,1.0f);
     boolean           		printflg        = true;
     IGenericXMLParser2 		parser          = null;
     
@@ -55,11 +57,11 @@ import java.io.IOException;
        tagstk[tagstkptr++] = tag;
        currenttag = tag;
        attribstk.add(attribs);    // We save and restore the attribs hashmap
-       attribs = new HashMap(2,1.0f);
+       attribs = new HashMap<String,String>(2,1.0f);
     }
     
     String popTag(String endtag) {
-       attribs = (HashMap) attribstk.remove(attribstk.size()-1);	
+       attribs = (HashMap<String,String>) attribstk.remove(attribstk.size()-1);	
        if(tagstkptr<=0){
           System.err.print("Stack Underflow\n");
        }
@@ -263,6 +265,7 @@ import java.io.IOException;
         }
      } 
   
+//End of User Functions  
     
 %}
    

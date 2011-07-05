@@ -159,10 +159,22 @@ public interface ITestHarness {
     public void loadData(IRSession session, String path, String dataset)throws Exception ;
     
     /**
+     * Writes the currently loaded decision tables out to an Excel File,
+     * if possible.  If not, a RuntimeException is thrown.
+     * 
+     * @param tables
+     */
+    public void writeDecisionTables(
+            String  tables, 
+            String  fields[], 
+            boolean ascending, 
+            int     limit) throws RuntimeException;
+    /**
      * The name of the report file.
      * @return
      */
     String getReportFileName();
+    
     /**
      * Runs all the test files in the TestDirectory;
      */
@@ -248,4 +260,6 @@ public interface ITestHarness {
      */
     public File [] getFiles();
     
+    
+
 }

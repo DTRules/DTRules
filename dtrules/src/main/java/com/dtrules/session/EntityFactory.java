@@ -19,11 +19,8 @@
 package com.dtrules.session;
 
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -34,24 +31,15 @@ import com.dtrules.entity.REntity;
 import com.dtrules.entity.REntityEntry;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
-import com.dtrules.interpreter.RArray;
-import com.dtrules.interpreter.RBoolean;
-import com.dtrules.interpreter.RDouble;
-import com.dtrules.interpreter.RInteger;
 import com.dtrules.interpreter.RName;
-import com.dtrules.interpreter.RNull;
-import com.dtrules.interpreter.RString;
-import com.dtrules.interpreter.RTable;
-import com.dtrules.interpreter.RTime;
 import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.XMLPrinter;
 
-@SuppressWarnings({"unchecked"})
 public class EntityFactory {
 	
 	String   create_stamp;
-    int      uniqueID = 10;  // Leave room for some fixed IDs.  Primitives have an ID = 1, decisiontables have an ID=2;
-    boolean  frozen = false;
+    int      uniqueID       = 10;  // Leave room for some fixed IDs. Primitives have an ID = 1, decisiontables have an ID=2;
+    boolean  frozen         = false;
     RuleSet  ruleset;
     HashMap<Object,IREntity> javaObjectEntityMap = new HashMap<Object,IREntity>();
     HashMap<IREntity,Object> entityJavaObjectMap = new HashMap<IREntity,Object>();
@@ -61,6 +49,7 @@ public class EntityFactory {
     
     IREntity decisiontables = new REntity(2,true,RName.getRName("decisiontables"));
     
+    IComputeDefaultValue     computeDefaultValue;
     /**
      * Provides a HashMap that provides a mapping of Java Objects (as a key)
      * to Rules Entity objects.
@@ -104,7 +93,7 @@ public class EntityFactory {
      */
     public RDecisionTable newDecisionTable(RName name, IRSession session)throws RulesException{
         IRObject table = decisiontables.get(name);
-        if(table !=null && table.type() != IRObject.iDecisiontable){
+        if(table !=null && table.type().getId() != IRObject.iDecisiontable){
             throw new RulesException("ParsingError","New Decision Table","For some reason, "+name.stringValue()+" isn't a decision table");
         }
         if(table != null){
@@ -112,7 +101,7 @@ public class EntityFactory {
         }
         RDecisionTable dtTable = new RDecisionTable(session,name.stringValue());
         decisiontablelist.add(name);
-        decisiontables.addAttribute(name, "", dtTable, false, true, IRObject.iDecisiontable,null,"","","");
+        decisiontables.addAttribute(name, "", dtTable, false, true, RDecisionTable.dttype ,null,"","","");
         decisiontables.put(null, name, dtTable);
         return dtTable;
     }
@@ -149,7 +138,7 @@ public class EntityFactory {
      */
     public RDecisionTable getDecisionTable(RName name)throws RulesException{
         IRObject dt = decisiontables.get(name);
-        if(dt==null || dt.type()!=IRObject.iDecisiontable){
+        if(dt==null || dt.type().getId()!=IRObject.iDecisiontable){
             return null;
         }
         return (RDecisionTable) dt;
@@ -183,7 +172,7 @@ public class EntityFactory {
      * @param name
      * @return
      */
-    public REntity findRefEntity(String name){
+    public IREntity findRefEntity(String name){
         return findRefEntity(RName.getRName(name));
     }
 	/**
@@ -192,7 +181,7 @@ public class EntityFactory {
 	 * @param name
 	 * @return
 	 */
-	public REntity findRefEntity(RName name){
+	public IREntity findRefEntity(RName name){
 		return (REntity) referenceEntities.get(name);
 	}
 	/**
@@ -202,7 +191,7 @@ public class EntityFactory {
 	 * 
 	 * @param name
 	 */
-	public REntity findcreateRefEntity(boolean readonly, RName name)throws RulesException {
+	public IREntity findcreateRefEntity(boolean readonly, RName name)throws RulesException {
 		if(!referenceEntities.containsKey(name)){
 			IREntity entity = new REntity(getUniqueID(), readonly, name); 
 			referenceEntities.put(name,entity);
@@ -230,7 +219,7 @@ public class EntityFactory {
      */
     public RDecisionTable findDecisionTable(RName dt){
         IRObject dttable = decisiontables.get(dt);
-        if(dttable==null || dttable.type()!=IRObject.iDecisiontable){
+        if(dttable==null || dttable.type().getId()!=IRObject.iDecisiontable){
             return null;
         }
         return (RDecisionTable) dttable;
@@ -251,13 +240,13 @@ public class EntityFactory {
     
     @Override
     public String toString() {
-		Iterator ikeys = referenceEntities.keySet().iterator();
+		Iterator<RName> ikeys = referenceEntities.keySet().iterator();
 		StringBuffer buff = new StringBuffer();
 		while(ikeys.hasNext()){
 			IREntity e = referenceEntities.get(ikeys.next());
 			buff.append(e.getName().toString());
 			buff.append("\r\n");
-			Iterator iattribs = e.getAttributeIterator();
+			Iterator<RName> iattribs = e.getAttributeIterator();
 			while(iattribs.hasNext()){
 				RName        entryname  = (RName)iattribs.next();
 				REntityEntry entry      = e.getEntry(entryname);
@@ -294,7 +283,7 @@ public class EntityFactory {
                REntityEntry entry = entity.getEntry(attribute);
                
                String name          = attribute.stringValue();
-               String type          = entry.getTypeValue();
+               String type          = entry.getType().toString();
                String subtype       = entry.getSubtype();
                String access        = (entry.readable ? "r":"") + (entry.writable ? "w":"");
                String input         = entry.getInput();
@@ -315,75 +304,6 @@ public class EntityFactory {
        }
     }
     
-    
-	public static IRObject computeDefaultValue(IRSession session, EntityFactory ef, String defaultstr, int type) throws RulesException {
-        		
-        if(defaultstr==null ) defaultstr="";
-        defaultstr = defaultstr.trim();
-    	if(defaultstr.equalsIgnoreCase("null")) defaultstr="";
-    	
-        switch(type){
-            case IRObject.iEntity : {
-                if(defaultstr.length()==0)return RNull.getRNull();
-                IREntity e = ef.findcreateRefEntity(false,RName.getRName(defaultstr));
-                if(e==null)throw new RulesException(
-                        "ParsingError",
-                        "EntityFactory.computeDefaultValue()",
-                        "Entity Factory does not define an entity '"+defaultstr+"'");
-                return e;
-            }
-            case IRObject.iArray : {
-                if(defaultstr.length()==0) return new RArray(ef.getUniqueID(), true,false);
-                RArray rval;
-                try{
-                     RArray v = (RArray) RString.compile(session, defaultstr, false);     // We assume any values are surrounded by brackets, and regardless make
-                     
-                     rval = v.get(0).getNonExecutable().rArrayValue();             // sure they are non-executable.
-                }catch(RulesException e){
-                    throw new RulesException("ParsingError","EntityFactory.computeDefaultValue()","Bad format for an array. \r\n"+
-                            "\r\nWe tried to interpret the string \r\n'"+defaultstr+"'\r\nas an array, but could not.\r\n"+e.toString());
-                }
-                return rval;
-            }
-        	case IRObject.iString :
-                if(defaultstr.length()==0)return RNull.getRNull();
-        		return RString.newRString(defaultstr);
-        	case IRObject.iName :
-                if(defaultstr.length()==0)return RNull.getRNull();
-        		return RName.getRName(defaultstr.trim(),false);
-        	case IRObject.iBoolean : {
-                if(defaultstr.length()==0)return RNull.getRNull();
-                return RBoolean.getRBoolean(defaultstr);
-        	}	
-        	case IRObject.iDouble : {
-                if(defaultstr.length()==0)return RNull.getRNull();
-        		double value = Double.parseDouble(defaultstr);
-        		return RDouble.getRDoubleValue(value);
-        	}	
-        	case IRObject.iInteger : {
-                if(defaultstr.length()==0)return RNull.getRNull();
-        		long value = Long.parseLong(defaultstr);
-        		return RInteger.getRIntegerValue(value);
-        	}	
-            case IRObject.iTime : {
-                if(defaultstr.length()==0) return RNull.getRNull();
-                SimpleDateFormat fmt = new SimpleDateFormat("MM/dd/yyyy");
-                try {
-                    Date date = fmt.parse(defaultstr);
-                    return RTime.getRTime(date);
-                } catch (ParseException e) {
-                    throw new RulesException("Invalid Date Format","EntityFactory.computeDefaultValue","Only support dates in 'MM/dd/yyyy' form.");
-                }
-            }
-            case IRObject.iTable : {
-                RTable table = RTable.newRTable(ef, null, defaultstr, -1);
-                if(defaultstr.length()==0) return table;
-                table.setValues(session, defaultstr);
-                return table;
-            }
-            default: return RNull.getRNull();
-    	}
-    }
     /**
      * EntityFactories create things that need IDs.  The EntityFactory
      * has to be created prior to any sessions that are going to
@@ -402,4 +322,32 @@ public class EntityFactory {
     public IREntity getDecisiontables() {
         return decisiontables;
     }
+
+    /**
+     * If you need a sorted list of entities or a sorted list of attributes,
+     * you can use this quick and dirty bubble sort to convert one of the 
+     * Interators we provide into a list of sorted RNames.
+     * 
+     * @param list
+     * @return
+     */
+    public static ArrayList<RName> sorted(Iterator<RName> list, boolean ascending){
+        ArrayList<RName> slist = new ArrayList<RName>();
+        while(list.hasNext()){
+            slist.add(list.next());
+        }
+                
+        for(int i = 0; i < slist.size()-1; i++){
+            for(int j=0; j <slist.size()-1-i; j++){
+                if (slist.get(j).compareTo(slist.get(j+1))<0 ^ ascending){
+                    RName hld = slist.get(j);
+                    slist.set(j, slist.get(j+1));
+                    slist.set(j+1, hld);
+                }
+            }
+        }
+        return slist;
+    }
+
+    
 }

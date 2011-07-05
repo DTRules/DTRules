@@ -27,7 +27,9 @@ package com.dtrules.interpreter;
  */
 public class RMark extends ARObject {
 
-    static RMark themark = new RMark();
+	static RType type = RType.newType("mark");
+
+	static RMark themark = new RMark();
     
     private RMark(){}
     
@@ -37,8 +39,12 @@ public class RMark extends ARObject {
         return "Mark";
     }
 
-    public int type() {
-        return iMark;
-    }
+	/**
+	 * Returns the type for this object.
+	 */
+	public RType type() {
+		return type;
+	}
+
 
 }

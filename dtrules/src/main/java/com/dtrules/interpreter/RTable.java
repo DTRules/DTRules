@@ -28,8 +28,10 @@ import com.dtrules.session.EntityFactory;
 import com.dtrules.session.IRSession;
 
 public class RTable extends ARObject {
-    private final int     resultType;
-    private final int     id;
+    
+	static RType type = RType.newType("table");
+
+	private final int     id;
     private       RName   tablename;
     private       RString description;
     
@@ -56,14 +58,6 @@ public class RTable extends ARObject {
      */
     public int getId() {
         return id;
-    }
-
-    /**
-     * Return the type of result found in this table.
-     * @return the resultType
-     */
-    public int getResultType() {
-        return resultType;
     }
 
     /**
@@ -101,10 +95,8 @@ public class RTable extends ARObject {
     
     private RTable(EntityFactory ef, 
             RName  tablename, 
-            String description, 
-            int    resultType) throws RulesException {
+            String description) throws RulesException {
         this.tablename   = tablename;
-        this.resultType  = resultType;
         this.id          = ef.getUniqueID();
         this.description = RString.newRString(description);
     }
@@ -116,8 +108,8 @@ public class RTable extends ARObject {
      * @param resultType
      * @return
      */
-    static public RTable newRTable(EntityFactory ef, RName tablename, String description, int resultType) throws RulesException{
-        return new RTable(ef,tablename,description,resultType);
+    static public RTable newRTable(EntityFactory ef, RName tablename, String description) throws RulesException{
+        return new RTable(ef,tablename,description);
     }
     /**
      * This routine assumes that the string defines an Array of the 
@@ -176,13 +168,13 @@ public class RTable extends ARObject {
     public void setValue(DTState state, IRObject[]keys, IRObject value) throws RulesException{
         IRObject v = this;
         for(int i=0;i<keys.length-1; i++){
-            if(v.type()!=iTable){
+            if(v.type()!=type){
                 throw new RulesException("OutOfBounds","RTable","Invalid Number of Keys used with Table "+this.stringValue());
             }
             RTable   table = v.rTableValue();
             IRObject next  =  table.getValue(keys[i]);
             if(next == null){
-                next = newRTable(state.getSession().getEntityFactory(),this.tablename,this.description.stringValue(),this.resultType);
+                next = newRTable(state.getSession().getEntityFactory(),this.tablename,this.description.stringValue());
                 table.setValue(keys[i], next);
             }
             v = (IRObject) next;
@@ -203,7 +195,7 @@ public class RTable extends ARObject {
     public IRObject getValue(IRObject[]keys) throws RulesException {
         IRObject v = this;
         for(int i=0;i<keys.length; i++){
-            if(v.type()!=iTable){
+            if(v.type()!=type){
                 throw new RulesException("OutOfBounds","RTable","Invalid Number of Keys used with Table "+this.stringValue());
             }
             RTable   table = v.rTableValue();
@@ -227,9 +219,13 @@ public class RTable extends ARObject {
         return "";
     }
 
-    public int type() {
-        return iTable;
-    }
+	/**
+	 * Returns the type for this object.
+	 */
+	public RType type() {
+		return type;
+	}
+
 
     /* (non-Javadoc)
      * @see com.dtrules.interpreter.ARObject#rTableValue()
@@ -250,7 +246,7 @@ public class RTable extends ARObject {
 	public IRObject clone(IRSession s) throws RulesException {
 		RTable newTable = newRTable(
 				s.getEntityFactory(),tablename, 
-				description.stringValue(), resultType);
+				description.stringValue());
 		newTable.getTable().putAll(table);
 		return newTable;
 	}

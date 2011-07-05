@@ -50,27 +50,39 @@ import com.dtrules.session.RulesDirectory;
 @SuppressWarnings("unchecked")
 public class RulesAdminService implements IRulesAdminService{
 	final private IRSession         session;
-          private RulesDirectory   rd;          // The Rules Directory provides a place where Rule
-                                                // sets are defined.
-        
+          private RulesDirectory    rulesDirectory;          // The Rules Directory provides a place where Rule
+                                                             // sets are defined.
+
+    /**
+     * The RulesAdminService needs a session for specifying the output of debugging
+     * and trace information.  It needs a Rules Directory to administer.  
+     */
+    public RulesAdminService(final IRSession session) {
+        super();
+        this.session            = session;
+        this.rulesDirectory     = session.getRulesDirectory();
+    }
+
 	/**
      * The RulesAdminService needs a session for specifying the output of debugging
      * and trace information.  It needs a Rules Directory to administer.  
 	 */
+    @Deprecated
     public RulesAdminService(final RSession session, final RulesDirectory rd) {
         super();
         this.session = session;
-        this.rd      = rd;
+        this.rulesDirectory      = rd;
     }
 
     /**
      * The RulesAdminService needs a session for specifying the output of debugging
      * and trace information.  It needs a Rules Directory to administer.  
      */
+    @Deprecated
     public RulesAdminService(final IRSession session, final RulesDirectory rd) {
         super();
         this.session = session;
-        this.rd      = rd;
+        this.rulesDirectory      = rd;
     }
     
     
@@ -152,16 +164,16 @@ public class RulesAdminService implements IRulesAdminService{
 	 * @see com.dtrules.admin.IRulesAdminService#createRuleset(com.dtrules.session.RuleSet)
 	 */
 	public void createRuleset(RuleSet ruleset) throws RulesException{
-		rd.addRuleSet(ruleset);
+		rulesDirectory.addRuleSet(ruleset);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.dtrules.admin.IRulesAdminService#getAttributes(java.lang.String, java.lang.String)
 	 */
 	public List getAttributes(String rulesetname, String entityName) {
-        if(rd==null)return null;
+        if(rulesDirectory==null)return null;
         try {
-            RuleSet rs = rd.getRuleSet(RName.getRName(rulesetname));
+            RuleSet rs = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
             Iterator it = rs.getEntityFactory(session)
                           .findRefEntity(RName.getRName(entityName)).getAttributeIterator();
             return getList(it);
@@ -175,7 +187,7 @@ public class RulesAdminService implements IRulesAdminService{
 	 */
 	public RDecisionTable getDecisionTable(String rulesetname, String DecisionTableName) {
         try {
-            RuleSet rs = rd.getRuleSet(RName.getRName(rulesetname));
+            RuleSet rs = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
             return rs.getEntityFactory(session)
                    .findTable(RName.getRName(DecisionTableName));
         } catch (RulesException e) {
@@ -187,9 +199,9 @@ public class RulesAdminService implements IRulesAdminService{
 	 * @see com.dtrules.admin.IRulesAdminService#getDecisionTables(java.lang.String)
 	 */
 	public List getDecisionTables(String rulesetname) {
-		if(rd==null)return null;
+		if(rulesDirectory==null)return null;
         try {
-            RuleSet rs = rd.getRuleSet(RName.getRName(rulesetname));
+            RuleSet rs = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
             Iterator it = rs.getEntityFactory(session).getDecisionTableRNameIterator();
             return getList(it);
         } catch (RulesException e) {
@@ -212,9 +224,9 @@ public class RulesAdminService implements IRulesAdminService{
 	 * @see com.dtrules.admin.IRulesAdminService#getEntities(java.lang.String)
 	 */
 	public List getEntities(String rulesetname) {
-        if(rd==null)return null;
+        if(rulesDirectory==null)return null;
         try {
-            Iterator e = rd.getRuleSet(RName.getRName(rulesetname)).getEntityFactory(session)
+            Iterator e = rulesDirectory.getRuleSet(RName.getRName(rulesetname)).getEntityFactory(session)
                             .getEntityRNameIterator(); 
             return getList(e);
         } catch (RulesException e) {}
@@ -227,8 +239,8 @@ public class RulesAdminService implements IRulesAdminService{
 	 * @see com.dtrules.admin.IRulesAdminService#getRuleset(java.lang.String)
 	 */
 	public RuleSet getRuleset(String RulesetName) {
-		if(rd==null)return null;
-        return rd.getRuleSet(RName.getRName(RulesetName));
+		if(rulesDirectory==null)return null;
+        return rulesDirectory.getRuleSet(RName.getRName(RulesetName));
 	}
 
 	/**
@@ -238,7 +250,7 @@ public class RulesAdminService implements IRulesAdminService{
 	 */
 	public List<String> getRulesets() {
 		List<String> rulesets = new ArrayList<String>();
-		for(Iterator it = rd.getRulesets().keySet().iterator(); it.hasNext();){
+		for(Iterator it = rulesDirectory.getRulesets().keySet().iterator(); it.hasNext();){
 			RName name = (RName)it.next();
 			rulesets.add(name.stringValue());
 		}
@@ -260,7 +272,7 @@ public class RulesAdminService implements IRulesAdminService{
 		}
 		
 		try {
-			rd = new RulesDirectory("",file);
+			rulesDirectory = new RulesDirectory("",file);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -288,7 +300,7 @@ public class RulesAdminService implements IRulesAdminService{
      * currently held in memory.  
      */
     public void saveDecisionTables(RSession session, String rulesetname) throws RulesException {
-        RuleSet       rs       = rd.getRuleSet(RName.getRName(rulesetname));
+        RuleSet       rs       = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
         String        filepath = rs.getFilepath();
         String        filename = rs.getDT_XMLName();
         
@@ -315,7 +327,7 @@ public class RulesAdminService implements IRulesAdminService{
      * @throws RulesException
      */
 	public void saveDecisionTables(OutputStream out, RSession session, String rulesetname) throws RulesException {
-	    RuleSet       rs       = rd.getRuleSet(RName.getRName(rulesetname));
+	    RuleSet       rs       = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
         EntityFactory ef       = rs.getEntityFactory(session);
         
         PrintStream  ps  = new PrintStream(out);
@@ -352,7 +364,7 @@ public class RulesAdminService implements IRulesAdminService{
     }
 
     public void saveEDD(RSession session, String rulesetname) throws RulesException {
-        RuleSet       rs       = rd.getRuleSet(RName.getRName(rulesetname));
+        RuleSet       rs       = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
         EntityFactory ef       = rs.getEntityFactory(session);
         String        filepath = rs.getFilepath();
         String        filename = rs.getEDD_XMLName();
@@ -411,11 +423,15 @@ public class RulesAdminService implements IRulesAdminService{
     }
 
     public final RulesDirectory getRd() {
-        return rd;
+        return rulesDirectory;
     }
 
     public final IRSession getSession() {
         return session;
+    }
+
+    public RulesDirectory getRulesDirectory() {
+        return rulesDirectory;
     }
     
 }

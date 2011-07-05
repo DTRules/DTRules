@@ -23,10 +23,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.dtrules.compiler.el.RType;
+import javax.management.RuntimeErrorException;
+
+import com.dtrules.compiler.el.ELType;
 import com.dtrules.compiler.el.cup.parser.DTRulesParser;
 import com.dtrules.compiler.el.cup.parser.RLocalType;
 import com.dtrules.compiler.el.flex.scanner.DTRulesscanner;
+import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.entity.REntityEntry;
 import com.dtrules.infrastructure.RulesException;
@@ -35,10 +38,11 @@ import com.dtrules.interpreter.RName;
 import com.dtrules.session.EntityFactory;
 import com.dtrules.session.ICompiler;
 import com.dtrules.session.IRSession;
+import com.dtrules.session.IRType;
 
 public class EL implements ICompiler {
     
-    private       HashMap<RName,RType>     types = null;
+    private       HashMap<RName,IRType>    types = null;
     private       EntityFactory            ef;
     private       IRSession                session;
        
@@ -57,10 +61,10 @@ public class EL implements ICompiler {
      * @param itype
      * @throws Exception
      */
-    private void addType( REntity entity, RName name, int itype) throws Exception {
-        RType type =  types.get(name);
+    private void addType( IREntity entity, RName name, int itype) throws Exception {
+        ELType type =  (ELType) types.get(name);
         if(type==null){
-            type      = new RType(name,itype,entity);
+            type      = new ELType(name,itype,entity);
             types.put(name,type);
         }else{
             if(type.getType()!=itype){
@@ -81,28 +85,28 @@ public class EL implements ICompiler {
      * @return
      * @throws Exception
      */
-    public HashMap<RName,RType> getTypes(EntityFactory ef) throws Exception {
+    public HashMap<RName,IRType> getTypes(EntityFactory ef) throws Exception {
         
         if(types!=null)return types;
         
-        types = new HashMap<RName, RType>();
+        types = new HashMap<RName, IRType>();
         Iterator<RName> entities = ef.getEntityRNameIterator();
         while(entities.hasNext()){
-            RName    name    = entities.next();
-            REntity  entity  = ef.findRefEntity(name);
+            RName     name    = entities.next();
+            IREntity  entity  = ef.findRefEntity(name);
             Iterator<RName> attribs = entity.getAttributeIterator();
             addType(entity,entity.getName(),IRObject.iEntity);
             while(attribs.hasNext()){
                 RName        attribname = attribs.next();
                 REntityEntry entry      = entity.getEntry(attribname);
-                addType(entity,attribname,entry.type);
+                addType(entity,attribname,entry.type.getId());
             }
         }
         
         Iterator<RName> tables = ef.getDecisionTableRNameIterator();
         while(tables.hasNext()){
             RName tablename = tables.next();
-            RType type = new RType(tablename,IRObject.iDecisiontable,(REntity) ef.getDecisiontables());
+            ELType type = new ELType(tablename,IRObject.iDecisiontable,(REntity) ef.getDecisiontables());
             if(types.containsKey(tablename)){
                 System.out.println("Multiple Decision Tables found with the name '"+types.get(tablename)+"'");
             }
@@ -130,7 +134,7 @@ public class EL implements ICompiler {
         for(int i=0;i<typenames.length-1;i++){
             for(int j=0;j<typenames.length-1;j++){
                 RName one = (RName)typenames[j], two = (RName)typenames[j+1];
-                if(types.get(one).getType()> types.get(two).getType()){
+                if(((ELType)types.get(one)).getType()> ((ELType)types.get(two)).getType()){
                     Object hold = typenames[j];
                     typenames[j]=typenames[j+1];
                     typenames[j+1]=hold;
@@ -164,7 +168,7 @@ public class EL implements ICompiler {
      * @return          Postfix
      * @throws Exception    Throws an Exception on any error.
      */
-    private String compile (boolean action, String s)throws Exception {
+    private String compile (String s)throws Exception {
 
         
         InputStream      stream  = new ByteArrayInputStream(s.getBytes());
@@ -211,29 +215,86 @@ public class EL implements ICompiler {
     }
 
     
-    /* (non-Javadoc)
+    /**
      * @see com.dtrules.compiler.ICompiler#compileContext(java.lang.String)
-     */
+     **/
+    @Override
     public String compileContext(String context) throws Exception {
-        return compile(true,"context "+context);
+        return compile("context "+context);
     }
     
-    /* (non-Javadoc)
+    /**
      * @see com.dtrules.compiler.ICompiler#compileAction(java.lang.String)
-     */
+     **/
+    @Override
     public String compileAction(String action) throws Exception {
-        return compile(true,"action "+action);
+        return compile("action "+action);
     }
-    /* (non-Javadoc)
+    /**
      * @see com.dtrules.compiler.ICompiler#compileCondition(java.lang.String)
-     */
+     **/
+    @Override
     public String compileCondition(String condition) throws Exception {
-        return compile(false,"condition "+ condition);
+        return compile("condition "+ condition);
     }
-    /* (non-Javadoc)
-     * @see com.dtrules.compiler.ICompiler#getTypes()
+    
+    /**
+     * Returns the compiled version of the policy statement.  Double quotes are
+     * replaced forcefully by single quotes.
      */
-    public HashMap<RName,RType> getTypes() {
+    @Override
+    public String compilePolicyStatement(String policyStatement) throws Exception {
+        if(policyStatement==null)return "";
+        policyStatement = policyStatement.replaceAll("\"", "'");
+        StringBuffer  sbuff = new StringBuffer();
+        int s = 0;
+        int e = policyStatement.indexOf("{",s);
+        boolean first = true;
+        while(e>0){
+            sbuff.append("\"");
+            sbuff.append(policyStatement.substring(s, e));
+            if(first){
+            	first = false;
+            	sbuff.append("\" ");
+            }else{
+            	sbuff.append("\" s+ ");
+            }
+            s = e;
+            e = policyStatement.indexOf("}",s);
+            if(e<0){
+                throw new RuntimeException("Unbalanced braces: "+policyStatement);
+            }
+            
+            String source = "policystatement " + policyStatement.substring(s+1,e);
+
+            try{
+                String value = compile(source);
+                sbuff.append(value);
+                sbuff.append("cvs strconcat ");
+            }catch(Exception ex){
+                throw new Exception(ex.toString()+ "\n Source: >>"+ source +"<<");
+            }
+            
+            s = e+1;
+            e = policyStatement.indexOf("{",s);
+        }
+        
+        sbuff.append("\"");
+        sbuff.append(policyStatement.substring(s));
+        if(s==0){
+            sbuff.append("\" ");
+        }else{
+            sbuff.append("\" strconcat");
+        }
+        
+        return sbuff.toString();
+    }
+
+
+    /**
+     * @see com.dtrules.compiler.ICompiler#getTypes()
+     **/
+    public HashMap<RName,IRType> getTypes() {
         return types;
     }
     /**
@@ -242,8 +303,8 @@ public class EL implements ICompiler {
      */
     public ArrayList<String> getPossibleReferenced() {
         ArrayList<String> v = new ArrayList<String>();
-        for(RType type :types.values()){
-            v.addAll(type.getPossibleReferenced());
+        for(IRType type :types.values()){
+            v.addAll(((ELType)type).getPossibleReferenced());
         }
         return v;
     }
@@ -252,8 +313,8 @@ public class EL implements ICompiler {
      */
     public ArrayList<String> getUnReferenced() {
         ArrayList<String> v = new ArrayList<String>();
-        for(RType type :types.values()){
-            v.addAll(type.getUnReferenced());
+        for(IRType type :types.values()){
+            v.addAll(((ELType)type).getUnReferenced());
         }
         return v;
     }   

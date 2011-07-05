@@ -26,6 +26,7 @@ import java.util.Set;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RType;
 import com.dtrules.interpreter.RXmlValue;
 import com.dtrules.session.IRSession;
 
@@ -88,7 +89,7 @@ public interface IREntity extends IRObject{
             IRObject defaultvalue,
             boolean writable, 
             boolean readable, 
-            int type, 
+            RType type, 
             String subtype, 
             String comment, 
             String input,

@@ -46,7 +46,8 @@ import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
 import com.dtrules.interpreter.RTable;
-import com.dtrules.interpreter.RTime;
+import com.dtrules.interpreter.RDate;
+import com.dtrules.interpreter.RType;
 
 /**
  * @author Paul Snow
@@ -68,6 +69,7 @@ public class DTRulesTarget implements IDataTarget {
         this.autoDataMapDef = autoDataMapDef;
     }
 
+    static final RType strType = RType.getType("string");
 
     /**
      * Looks to make sure that we have not yet created an Entity 
@@ -115,7 +117,7 @@ public class DTRulesTarget implements IDataTarget {
                    iKey, 
                    false, 
                    true, 
-                   IRObject.iString, 
+                   strType, 
                    "", "", "","");
            e.put(null, IREntity.mappingKey, iKey);
        }
@@ -138,7 +140,7 @@ public class DTRulesTarget implements IDataTarget {
         }else if (object instanceof Integer){
             return RInteger.getRIntegerValue((Integer)object);
         }else if (object instanceof Date){
-            return RTime.getRTime((Date)object);
+            return RDate.getRTime((Date)object);
         }else if (object instanceof Double){
             return RDouble.getRDoubleValue((Double) object);
         }else if (object instanceof Long){
@@ -149,7 +151,7 @@ public class DTRulesTarget implements IDataTarget {
         
         return RNull.getRNull();
     }
-
+    
     /**
      * Convert a Rules Engine object into a Java object 
      * @param object
@@ -157,15 +159,16 @@ public class DTRulesTarget implements IDataTarget {
      */
     public Object convert(IRObject object){
         try {
-            switch(object.type()){
-                case IRObject.iString   : return object.stringValue();
-                case IRObject.iInteger  : return object.longValue();
-                case IRObject.iDouble   : return object.doubleValue();
-                case IRObject.iName     : return object.stringValue();
-                case IRObject.iTime     : return object.timeValue();
-                case IRObject.iBoolean  : return object.booleanValue();
-                case IRObject.iNull     : return null;
-            }
+            int otype = object.type().getId();
+            
+            if(otype == IRObject.iString)  return object.stringValue();
+            if(otype == IRObject.iInteger) return object.longValue();
+            if(otype == IRObject.iDouble)  return object.doubleValue();
+            if(otype == IRObject.iName)    return object.stringValue();
+            if(otype == IRObject.iDate)    return object.timeValue();
+            if(otype == IRObject.iBoolean) return object.booleanValue();
+            if(otype == IRObject.iNull)    return null;
+            
         } catch (RulesException e) { }
         return null;
     }        
@@ -188,7 +191,7 @@ public class DTRulesTarget implements IDataTarget {
                 IREntity entity = (IREntity) object;
                 rname = mapName(autoDataMap, labelMap, node.getLabel());
                 IRObject olist = entity.get(rname);
-                if(olist != null && olist.type() == IRObject.iArray){
+                if(olist != null && olist.type().getId() == IRObject.iArray){
                     list = olist.rArrayValue();
                 }
             }
@@ -450,13 +453,13 @@ public class DTRulesTarget implements IDataTarget {
                 IREntity entity = (IREntity) object;
                 rname = mapName(autoDataMap, labelMap, node.getAttribute().getName() );
                 IRObject olist = entity.get(rname);
-                if(olist != null && olist.type() == IRObject.iTable){
+                if(olist != null && olist.type().getId() == IRObject.iTable){
                     rTable = olist.rTableValue();
                 }
             }
             if(rTable == null){
                 rTable = RTable.newRTable(autoDataMap.getSession().getEntityFactory(),
-                        null , null, IRObject.iString);
+                        null , null);
             }
             
             node.setTargetMap(rTable);

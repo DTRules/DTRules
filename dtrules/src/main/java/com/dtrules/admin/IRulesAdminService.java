@@ -27,6 +27,7 @@ import com.dtrules.entity.REntityEntry;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.RSession;
 import com.dtrules.session.RuleSet;
+import com.dtrules.session.RulesDirectory;
 
 /**
  * @author Prasath Ramachandran
@@ -74,4 +75,5 @@ public interface IRulesAdminService {
      */
     public List<REntityEntry> getEntityEntries(String rulesetname, String entityname);
 
+    public RulesDirectory getRulesDirectory();
 }

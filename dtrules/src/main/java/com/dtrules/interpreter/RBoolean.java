@@ -22,6 +22,8 @@ import com.dtrules.infrastructure.RulesException;
 
 public class RBoolean extends ARObject {
 
+	static RType type = RType.newType("boolean");
+	
     /**
      * Provides all the supported conversions of a String to a boolean value.
      * @param value
@@ -61,11 +63,9 @@ public class RBoolean extends ARObject {
 	private RBoolean(boolean _value){
 		value = _value;
 	}
-	/**
-     * Report that this is indeed a boolean object. 
-	 */
-	public int type() {
-		return iBoolean;
+	
+	public RType type() {
+		return type;
 	}
     /**
      * Return the proper boolean object for the given boolean value.
