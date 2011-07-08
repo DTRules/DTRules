@@ -3,13 +3,13 @@
 <!-- will be picked up and used.                                                       -->
 <chipAppSettings>
 
-	<threads>4</threads>        		<!-- Number of threads used by ChipApp to      		-->
+	<threads>8</threads>        		<!-- Number of threads used by ChipApp to      		-->
 										<!--   process the jobs generated.             		-->
 
-	<numCases>5000</numCases>			<!-- The number of jobs to be generated. Most  		-->
+	<numCases>50000</numCases>			<!-- The number of jobs to be generated. Most  		-->
 										<!--   jobs will have multiple applicants.       	-->
 
-	<save>1000</save>					<!-- One job out of every number specified here 	-->
+	<save>0</save>					<!-- One job out of every number specified here 	-->
 										<!--   will be saved to disk, to be processed       -->
 										<!--   "offline".  (See the writeup)                -->
 

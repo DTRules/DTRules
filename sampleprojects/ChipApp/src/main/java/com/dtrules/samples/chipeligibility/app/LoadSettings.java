@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import com.dtrules.xmlparser.AGenericXMLParser;
 import com.dtrules.xmlparser.GenericXMLParser;
-import com.sun.org.apache.xerces.internal.parsers.XMLParser;
 
 public class LoadSettings extends AGenericXMLParser {
 	ChipApp app;

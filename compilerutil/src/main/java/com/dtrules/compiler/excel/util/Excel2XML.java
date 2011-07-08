@@ -300,7 +300,7 @@ public class Excel2XML {
             String ruleset,
             String applicationRepositoryPath,
             String [] mappings) throws Exception {
-    	compile(path, rulesConfig, ruleset,applicationRepositoryPath,mappings, 2);
+    	compile(path, rulesConfig, ruleset,applicationRepositoryPath,mappings,80);
     }
     
     /**

@@ -23,7 +23,7 @@ java -cp $libDir/java-cup-10k.jar java_cup.Main -parser DTRulesParser -symbols s
 echo create Java file
 java -cp $libDir/java-cup-10k.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < $cupDir/parser.cup
 mv DTRulesParser.java $cupDir
-mv bnf.txt $cupDir
+mv sym.java $cupDir
 
 cat $cupDir/copyright.txt $cupDir/DTRulesParser.java > $cupDir/xxx.tmp 	
 cp  $cupDir/xxx.tmp $cupDir/DTRulesParser.java 					

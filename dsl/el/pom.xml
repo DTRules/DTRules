@@ -26,9 +26,29 @@
 	<name>DTRules :: DSL :: EL</name>
  	<build> 
 		<plugins>
-			 <plugin>
+
+	      <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+               <execution>
+                  <id>generate-bnf</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <executable>./parser.sh</executable>
+            </configuration>
+         </plugin>
+
+	     <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2</version>
             <executions>
                <execution>
                   <id>generate-scanner</id>
@@ -48,7 +68,6 @@
                </arguments>
             </configuration>
          </plugin>
-
    	</plugins> 
 	</build>
 	<dependencies>
@@ -68,7 +87,4 @@
 			<version>LATEST</version>
 		</dependency>
 	</dependencies>
-
-
-	
 </project>

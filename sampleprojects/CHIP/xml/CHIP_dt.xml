@@ -14,16 +14,16 @@
 <condition_number>1</condition_number>
 <condition_comment>CHIP</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>job.program  is equal ignore case  CHIP</condition_description>
+<condition_description>job.program is equal to CHIP</condition_description>
 <condition_postfix>
-job.program CHIP sic== 
+job.program CHIP streq 
 </condition_postfix>
 <condition_column column_value="Y" column_number="1"></condition_column></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>MEDICAID</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>job.program == MEDICAID</condition_description>
+<condition_description>job.program is equal to MEDICAID</condition_description>
 <condition_postfix>
 job.program MEDICAID streq 
 </condition_postfix>
@@ -32,7 +32,7 @@ job.program MEDICAID streq
 <condition_number>3</condition_number>
 <condition_comment>FOODSTAMPS</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>job.program == FOODSTAMPS</condition_description>
+<condition_description>job.program is equal to FOODSTAMPS</condition_description>
 <condition_postfix>
 job.program FOODSTAMPS streq 
 </condition_postfix>
@@ -51,7 +51,7 @@ otherwise
 <action_number>1</action_number>
 <action_comment>Calculate the Individual Incomes</action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>Perform Calculate_Individual_Income</action_description>
+<action_description>Calculate_Individual_Income</action_description>
 <action_postfix>
 Calculate_Individual_Income 
 </action_postfix>
@@ -62,7 +62,7 @@ Calculate_Individual_Income
 <action_number>2</action_number>
 <action_comment>Get the Group Size for each individual</action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>Perform Calculate_Group_Size</action_description>
+<action_description>Calculate_Group_Size</action_description>
 <action_postfix>
 Calculate_Group_Size 
 </action_postfix>
@@ -73,7 +73,7 @@ Calculate_Group_Size
 <action_number>3</action_number>
 <action_comment>Evaluate for CHIP</action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>Perform Evaluate_CHIP_Eligibility</action_description>
+<action_description>Evaluate_CHIP_Eligibility</action_description>
 <action_postfix>
 Evaluate_CHIP_Eligibility 
 </action_postfix>
@@ -82,7 +82,7 @@ Evaluate_CHIP_Eligibility
 <action_number>4</action_number>
 <action_comment>Evaluate for MEDICAID</action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>Perform Evaluate_MEDICAID_Eligibility</action_description>
+<action_description>Evaluate_MEDICAID_Eligibility</action_description>
 <action_postfix>
 Evaluate_MEDICAID_Eligibility 
 </action_postfix>
@@ -91,7 +91,7 @@ Evaluate_MEDICAID_Eligibility
 <action_number>5</action_number>
 <action_comment>Evaluate for FOODSTAMPS</action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>Perform Evaluate_FOODSTAMPS_Eligibilty</action_description>
+<action_description>Evaluate_FOODSTAMPS_Eligibilty</action_description>
 <action_postfix>
 Evaluate_FOODSTAMPS_Eligibilty 
 </action_postfix>
@@ -100,7 +100,7 @@ Evaluate_FOODSTAMPS_Eligibilty
 <action_number>6</action_number>
 <action_comment>Build a set of Result Objects to report to the caller</action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>Perform Evaluate_Results</action_description>
+<action_description>Evaluate_Results</action_description>
 <action_postfix>
 Evaluate_Results 
 </action_postfix>

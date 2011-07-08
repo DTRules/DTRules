@@ -39,14 +39,13 @@ import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestChip extends ATestHarness {
     	
-		static int threads = 320;
-		
+	
 	    public static String path    = System.getProperty("user.dir")+"/";
 		
 		static  Date start = new Date();
 	    @Override
     	public boolean  Verbose()                 { return false;	                        }
-		public boolean  Trace()                   { return true;                           }
+		public boolean  Trace()                   { return true;                            }
 	    public boolean  Console()                 { return false;                           }
 	    public boolean  coverageReport()          { return true;                       		}
 		public String   getPath()                 { return path;                            }
