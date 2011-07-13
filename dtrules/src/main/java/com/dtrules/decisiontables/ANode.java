@@ -147,21 +147,34 @@ public class ANode implements DTNode {
         try {
             state.setAnode(this);
             if(state.testState(DTState.TRACE)){
-                for(IRObject v : action){
-                    num = inum.next().intValue();
-                    state.traceTagBegin("action","n",(num+1)+"");
-                        state.traceInfo("formal",rDecisionTable.getActions()[num]);
-                        int d = state.ddepth();                
+            	if(state.testState(DTState.VERBOSE)){
+	                for(IRObject v : action){
+	                    num = inum.next().intValue();
+	                    state.traceTagBegin("action","n",(num+1)+"");
+	                        state.traceInfo("formal",rDecisionTable.getActions()[num]);
+	                        int d = state.ddepth();                
+	                        String section = state.getCurrentTableSection();
+	                        int    numhld  = state.getNumberInSection();
+	                        state.setCurrentTableSection("Action",num);
+	                        state.evaluate(v);
+	                        state.setCurrentTableSection(section, numhld);
+	                        if(d!=state.ddepth()){
+	                            state.setAnode(oldANode);
+	                            throw new RulesException("data stack unbalanced","ANode Execute","Action "+(num+1)+" in table "+rDecisionTable.getDtname());
+	                        }
+	                    state.traceTagEnd();
+	                }
+                }else{
+                	for(IRObject v : action){
+                        num = inum.next().intValue();
                         String section = state.getCurrentTableSection();
                         int    numhld  = state.getNumberInSection();
                         state.setCurrentTableSection("Action",num);
-                        state.evaluate(v);
+                        state.traceTagBegin("action","n",(num+1)+"");
+                        	state.evaluate(v);
+                        state.traceTagEnd();
                         state.setCurrentTableSection(section, numhld);
-                        if(d!=state.ddepth()){
-                            state.setAnode(oldANode);
-                            throw new RulesException("data stack unbalanced","ANode Execute","Action "+(num+1)+" in table "+rDecisionTable.getDtname());
-                        }
-                    state.traceTagEnd();
+                    }	
                 }
             }else{
                 for(IRObject v : action){

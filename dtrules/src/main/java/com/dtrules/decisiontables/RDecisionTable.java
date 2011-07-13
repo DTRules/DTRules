@@ -701,11 +701,12 @@ public class RDecisionTable extends ARObject {
 			}else{
 			    if(state.testState(DTState.TRACE)){
 			        state.traceTagBegin("context", "execute",contextsrc);
-			        
-			        for(String context : this.contexts){
-			            if(context != null && context.trim().length()>0){
-			                state.traceInfo("formal",context);
-			            }
+			        if(state.testState(DTState.VERBOSE)){
+				        for(String context : this.contexts){
+				            if(context != null && context.trim().length()>0){
+				                state.traceInfo("formal",context);
+				            }
+				        }
 			        }
 			        state.traceTagBegin("setup");
 			        try {
@@ -1303,15 +1304,6 @@ public class RDecisionTable extends ARObject {
         cnode.iftrue  = addDefaults(cnode.iftrue, defaults);
         return node;
     }
-         
-    private void addAll(DTNode node, ANode all){
-       if(node.getClass()==ANode.class){
-           ((ANode)node).addNode(all);
-       }else{
-           addAll(  ((CNode)node).iffalse ,all);
-           addAll(  ((CNode)node).iftrue  ,all);
-       }    
-    }
     
     /**
      * Replaces the given DTNode with the optimized DTNode.
@@ -1517,8 +1509,7 @@ public class RDecisionTable extends ARObject {
             if(stack.contains(array))return;    // We have already been here.
             stack.add(array);
             try {     // As this is an array, arrayValue() will not ever throw an exception
-                @SuppressWarnings({"unchecked"})
-                Iterator objects = array.arrayValue().iterator();
+                Iterator<?> objects = array.arrayValue().iterator();
                 while(objects.hasNext()){
                     addTables((IRObject) objects.next(),stack,tables);
                 }
