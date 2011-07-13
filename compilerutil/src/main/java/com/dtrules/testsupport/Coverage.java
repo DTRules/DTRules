@@ -76,6 +76,8 @@ public class Coverage {
     
     HashMap<String,Stats>   tables = new HashMap<String,Stats>();
     
+    int 					totalColumns = 0;
+    
     public Coverage(RuleSet rs, String traceFiles)throws RulesException {
         this.rs         = rs;
         this.traceFiles = traceFiles;
@@ -132,6 +134,7 @@ public class Coverage {
                    }                   
                }
                stats.columnHits[index]++;
+               totalColumns++;
            }
         }
         
@@ -182,8 +185,9 @@ public class Coverage {
     
     public void printReport(PrintStream o){
         XMLPrinter xout = new XMLPrinter(o);
-        xout.opentag("coverage");
-        
+       
+        xout.opentag("coverage","total_columns_executed", totalColumns);
+       
         xout.opentag("minimum_files_for_coverage");
         for(String file : minFilesNeeded){
             xout.printdata("trace_file",file);
