@@ -45,6 +45,9 @@ public class ChipApp {
 
 	int 		pulled 		= 0;
 	int 		done 		= 0;
+	int         cacheloads  = 0;
+	int         spaces      = 0;
+	
 	
 	RulesDirectory rd;
 	
@@ -88,8 +91,21 @@ public class ChipApp {
 	synchronized Job next() {
 		pulled++;
 		if(pulled%(numCases/50) ==0){
-			System.out.printf("%" + (numCases+"").length() +"d ",pulled);
+			System.out.print(".");
 			if(pulled%(numCases/5) ==0){
+				int c = cacheloads;
+				cacheloads = 0;
+				if(c > 0 ){
+					if(spaces == 0 ){
+						spaces = c + 5;
+					}
+				}else if (spaces == 0){
+					spaces = 5;
+				}
+				
+				for(int i=0;i<spaces-c;i++) System.out.print(".");
+				System.out.printf("%" + (numCases+"").length() +"d ",pulled);
+				
 				Date now = new Date();
 				long t   = now.getTime() - start.getTime();
 				System.out.printf(" -- Run Time: %8d seconds\n", t/1000);
@@ -172,9 +188,10 @@ public class ChipApp {
 				while (threads > 0) {
 					Thread.sleep(sleep_ms);
 					time += sleep_ms;
-					if(time/1000 > update){
-						System.out.println("Clear Cache");
+					if(update > 0 && time/1000 > update){
+						System.out.print("u");
 						rs.clearCache();
+						cacheloads++;
 						time = 0;
 					}
 				}
