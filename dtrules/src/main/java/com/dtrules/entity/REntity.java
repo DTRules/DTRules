@@ -324,7 +324,7 @@ public class REntity extends ARObject implements IREntity {
      * @see com.dtrules.entity.IREntity#postFix()
      */
 	public String postFix() {
-		return "/"+name.stringValue()+" "+id+" createEntity ";
+		return "/"+name.stringValue()+" "+id+" fce ";
 	}
 
 	/* (non-Javadoc)

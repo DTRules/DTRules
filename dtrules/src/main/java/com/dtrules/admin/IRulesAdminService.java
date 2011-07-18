@@ -41,8 +41,7 @@ public interface IRulesAdminService {
 	public List<String> getRulesets(); // List of Ruleset Names
 	public RuleSet      getRuleset(String RulesetName);
 	public void         updateRuleset(RuleSet ruleset);
-	public void         createRuleset(RuleSet ruleset) throws RulesException;
-
+	
 	public List           getDecisionTables(String rulesetname);
 	public RDecisionTable getDecisionTable(String rulesetname, String DecisionTableName);
 	public void           saveDecisionTables(RSession session, String rulesetname) throws RulesException;

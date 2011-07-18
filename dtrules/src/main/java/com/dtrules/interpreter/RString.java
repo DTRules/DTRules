@@ -163,11 +163,11 @@ public class RString extends ARObject {
 	 * But if we can, then we return the value we looked up.  That
 	 * saves many, many runtime lookups.
 	 */
-	static IRObject lookup(RuleSet ruleset, RName name){
+	static IRObject lookup(IRSession session, RName name){
 		IRObject v = ROperator.getPrimitives().get(name); // First check if it is an operator
 		if(v==null){                                      // No? Then
            try {                                          //   look for a decision table.  
-              v = ruleset.getEntityFactory(null).getDecisionTable(name);
+              v = session.getEntityFactory().getDecisionTable(name);
            } catch (RulesException e) {  }                // Any error just means the name isn't                       
         }                                                 //   a decision table.  Not a problem.
 		if(v==null || v.type()== iArray) return name;
@@ -204,6 +204,7 @@ public class RString extends ARObject {
      */
     static private IRObject compile(RuleSet ruleset, SimpleTokenizer tokenizer, String v, boolean executable, int depth) throws RulesException {        
        try{
+    	   IRSession session  = ruleset.newSession();
            RArray   result    = new RArray(0,true,executable);
            Token    token;    
 		   while((token=tokenizer.nextToken())!=null){
@@ -234,7 +235,7 @@ public class RString extends ARObject {
                           return result;
                }else if(token.getType()== Token.Type.NAME) {
                       if(token.nameValue.isExecutable()){       // All executable names are checked for compile time lookup.
-                          IRObject prim = lookup(ruleset,token.nameValue);
+                          IRObject prim = lookup(session,token.nameValue);
                           if(prim == null){                     // If this name is not a primitive, then
                               result.add(token.nameValue);      // then add the name as it is to the array.
                           }else{    

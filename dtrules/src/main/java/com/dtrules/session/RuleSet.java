@@ -119,7 +119,13 @@ public class RuleSet {
 		   this.defaultCompiler = (Class<ICompiler>) Class.forName(qualifiedCompilerClassName);
 		}catch(ClassNotFoundException e){}
 	}
-
+	/**
+	 * Set the default compiler to the given compiler.
+	 * @param compiler
+	 */
+	public void setDefaultCompiler(Class<ICompiler> compiler){
+		this.defaultCompiler = compiler;
+	}
 
 	/**
      * Get the default mapping (the first mapping file)
@@ -291,6 +297,10 @@ public class RuleSet {
         return edd_names.iterator();
     }
     
+    public void clearCache() throws RulesException {
+    	getEntityFactory(true, newSession());
+    }
+    
     /**
      * Creates a new Session set up to execute rules within this
      * Rule Set.  Note that a RuleSet is stateless, so a Session
@@ -303,9 +313,7 @@ public class RuleSet {
         IRSession s = new RSession(this);
         getEntityFactory(s);
         return s;
-    }
-    
-    
+    }    
     
     /**
      * Get the EntityFactory associated with this ruleset. 
@@ -314,38 +322,45 @@ public class RuleSet {
      * @return
      * @throws RulesException
      */
-	public EntityFactory getEntityFactory(IRSession session) throws RulesException{
-		if(ef==null){
-		   ef                     = new EntityFactory(this);
-		   Iterator<String> iedds = edd_names.iterator();
-		   while(iedds.hasNext()){
-			   String filename = iedds.next();
-               InputStream s= openfile(filename);
-			   if(s==null){
-                      if(s==null){
-                        System.out.println("No EDD XML found.  " +
-                        		"\r\n   Looking for:      "+filename+
-                        		"\r\n   WorkingDirectory: "+session.getRuleSet().getWorkingdirectory()+
-                                "\r\n   ResourcePath:     "+session.getRuleSet().getResourcepath()+
-                        		"\r\n   SystemDirecotry:  "+session.getRuleSet().getSystemPath());
-                      }                 
-                }     
-                if(s!=null) ef.loadedd(session, filename,s);
-		   }
-		   Iterator<String> idts = dt_names.iterator();
-		   while(idts.hasNext()){	   
-               String filename = idts.next();
-          	   InputStream s = openfile(filename);
-				if(s==null){
-                      System.out.println("No Decision Table XML found" +
-                              "\r\n   Looking for:      "+filename+
-                              "\r\n   WorkingDirectory: "+session.getRuleSet().getWorkingdirectory()+
-                              "\r\n   ResourcePath:     "+session.getRuleSet().getResourcepath()+
-                              "\r\n   SystemDirecotry:  "+session.getRuleSet().getSystemPath());
-				}
-				if(s!=null) ef.loaddt(session, s);
-		   }
-	      
+    protected EntityFactory getEntityFactory(IRSession session) throws RulesException{
+    	return getEntityFactory(ef==null, session);
+    }
+    
+	protected EntityFactory getEntityFactory(boolean load, IRSession session) throws RulesException{
+			
+		if(load){
+			synchronized (this) {
+				ef                     = new EntityFactory(this);
+				Iterator<String> iedds = edd_names.iterator();
+				session.setEntityFactory(ef);
+				while(iedds.hasNext()){
+					String filename = iedds.next();
+					InputStream s= openfile(filename);
+					if(s==null){
+						if(s==null){
+							System.out.println("No EDD XML found.  " +
+	                    		"\r\n   Looking for:      "+filename+
+	                    		"\r\n   WorkingDirectory: "+session.getRuleSet().getWorkingdirectory()+
+	                            "\r\n   ResourcePath:     "+session.getRuleSet().getResourcepath()+
+	                    		"\r\n   SystemDirecotry:  "+session.getRuleSet().getSystemPath());
+						}                 
+	                }     
+	                if(s!=null) ef.loadedd(session, filename,s);
+			   }
+			   Iterator<String> idts = dt_names.iterator();
+			   while(idts.hasNext()){	   
+	               String filename = idts.next();
+	          	   InputStream s = openfile(filename);
+				   if(s==null){
+	                      System.out.println("No Decision Table XML found" +
+	                              "\r\n   Looking for:      "+filename+
+	                              "\r\n   WorkingDirectory: "+session.getRuleSet().getWorkingdirectory()+
+	                              "\r\n   ResourcePath:     "+session.getRuleSet().getResourcepath()+
+	                              "\r\n   SystemDirecotry:  "+session.getRuleSet().getSystemPath());
+					}
+					if(s!=null) ef.loaddt(session, s);
+			   }
+			}
 		 }
 		 return ef;
 	 }

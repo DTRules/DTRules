@@ -45,7 +45,7 @@ public class RSession implements IRSession {
 
     final RuleSet               rs;
 	final DTState               dtstate;
-	final EntityFactory         ef;
+    EntityFactory               ef;
     int                         uniqueID = 1;
     HashMap<Object,IREntity>    entityInstances = new HashMap<Object,IREntity>();
     ICompiler                   compiler = null;    
@@ -319,6 +319,13 @@ public class RSession implements IRSession {
 		return ef;
 	}
 	/**
+	 * 
+	 */
+    public void setEntityFactory(EntityFactory ef){
+    	this.ef = ef;
+    }
+
+	/**
      * Create an Instance of an Entity of the given name.
      * @param name The name of the Entity to create
      * @return     The entity created.
@@ -344,12 +351,21 @@ public class RSession implements IRSession {
             throw new RulesException("undefined","session.createEntity","An attempt ws made to create the entity "+name.stringValue()+"\n" +
                     "This entity isn't defined in the EDD");
         }
-        if(!ref.isReadOnly()){
-            REntity e = (REntity) ref.clone(this);
-            entityInstances.put(id,e);
+   
+        if(ref.isReadOnly()) return ref;
+        
+        if(getState().testState(DTState.TRACE)){
+        	IREntity e = entityInstances.get(id);
+            if(e==null){
+            	e = (REntity) ref.clone(this);
+            	entityInstances.put(id,e);
+            }
             return e;
-        }
-		return ref;
+    	}else{
+    		REntity e = (REntity) ref.clone(this);
+    		return e;
+    	}
+   
 	}
 	
 	

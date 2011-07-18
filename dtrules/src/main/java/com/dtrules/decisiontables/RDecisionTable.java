@@ -505,8 +505,8 @@ public class RDecisionTable extends ARObject {
      * @throws RulesException
      */
     public void rename(IRSession session, RName newname)throws RulesException{
-        ruleset.getEntityFactory(session).deleteDecisionTable(dtname);
-        ruleset.getEntityFactory(session).newDecisionTable(newname, session);
+        session.getEntityFactory().deleteDecisionTable(dtname);
+        session.getEntityFactory().newDecisionTable(newname, session);
     }
     
     /**
@@ -521,7 +521,7 @@ public class RDecisionTable extends ARObject {
         ruleset      = session.getRuleSet();
 		dtname       = RName.getRName(name,true);
 		
-        EntityFactory ef = ruleset.getEntityFactory(session);
+        EntityFactory ef = session.getEntityFactory();
         RDecisionTable dttable =ef.findDecisionTable(RName.getRName(name));
         if(dttable != null){
             new CompilerError(CompilerError.Type.TABLE,"Duplicate Decision Tables Found",0,0);
@@ -687,7 +687,7 @@ public class RDecisionTable extends ARObject {
 			if(rcontext==null){
 			    if(state.testState(DTState.TRACE)){
 			        try{
-    			        state.traceTagBegin("setup");
+    			        state.traceTagBegin("execute_table");
     			           executeTable(state);
     			        state.traceTagEnd();
 			        }catch(RulesException e){
@@ -708,7 +708,7 @@ public class RDecisionTable extends ARObject {
 				            }
 				        }
 			        }
-			        state.traceTagBegin("setup");
+			        state.traceTagBegin("execute_table");
 			        try {
                         rcontext.execute(state);
                     } catch (RulesException e) {
@@ -749,7 +749,9 @@ public class RDecisionTable extends ARObject {
 	 * binary tree underneath the table.
 	 */
 	public void executeTable(DTState state) throws RulesException {
-        if(compiled==false){
+        boolean trace = state.testState(DTState.TRACE);
+		
+		if(compiled==false){
             throw new RulesException(
                 "UncompiledDecisionTable",
                 "RDecisionTable.execute",
@@ -757,11 +759,9 @@ public class RDecisionTable extends ARObject {
             );
         }
         
-        boolean trace = state.testState(DTState.TRACE);
         int edepth    = state.edepth();  // Get the initial depth of the entity stack 
                                          //  so we can toss any extra entities added...
         if(trace){
-            state.traceTagEnd();
             if(state.testState(DTState.VERBOSE)){
                 state.traceTagBegin("entity_stack");
                 for(int i=0;i<state.edepth();i++){
@@ -783,7 +783,8 @@ public class RDecisionTable extends ARObject {
             }
             state.traceTagEnd();
             if(decisiontree!=null)decisiontree.execute(state);
-            state.traceTagBegin("setup");
+	        state.traceTagEnd();
+	        state.traceTagBegin("execute_table");
         }else{
             for( int i=0; rinitialActions!=null && i<rinitialActions.length; i++){
                 state.setCurrentTableSection("InitialActions", i);

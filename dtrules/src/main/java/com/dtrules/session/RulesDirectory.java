@@ -72,10 +72,6 @@ public class RulesDirectory {
 		    System.err.println("WARNING:  Cannot find the specfied compiler: "+qualifiedCompilerClassName);
 		}
 	}
-
-	public void addRuleSet(RuleSet ruleset) throws RulesException {
-        
-    }
     
     /**
      * Returns the ruleset associated with the given name.  The conversion

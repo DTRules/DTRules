@@ -23,6 +23,8 @@ public class ChipApp {
 									//   When used with save, only saved files are traced.
 	boolean console     = false;    // Write results to console.
 	
+	int     update      = 60;       // Look for updates every 60 seconds
+	
 	// End of settings.
 	
 	String 		path = System.getProperty("user.dir") + "/";
@@ -165,8 +167,16 @@ public class ChipApp {
 				for (Thread t : ts)
 					t.start();
 
+				int sleep_ms = 1000;		
+				int time     = 0;		
 				while (threads > 0) {
-					Thread.sleep(100);
+					Thread.sleep(sleep_ms);
+					time += sleep_ms;
+					if(time/1000 > update){
+						System.out.println("Clear Cache");
+						rs.clearCache();
+						time = 0;
+					}
 				}
 			}
 			Date now = new Date();

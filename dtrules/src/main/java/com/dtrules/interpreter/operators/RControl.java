@@ -377,7 +377,7 @@ public class RControl {
         public void execute(DTState state) throws RulesException {
             IRObject v = state.datapop();
             if(state.testState(DTState.TRACE)){
-                state.traceInfo("allocate", "value",v.stringValue(),null);
+                state.traceInfo("allocate", "value",v.postFix(),null);
             }
             state.cpush(v);
         }

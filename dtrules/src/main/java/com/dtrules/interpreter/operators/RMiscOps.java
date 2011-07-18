@@ -19,11 +19,14 @@
 package com.dtrules.interpreter.operators;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.dtrules.decisiontables.RDecisionTable;
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RInteger;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
@@ -490,7 +493,7 @@ public class RMiscOps {
     }
     
     /**
-     * ( RName -- ) Creates an instance of the entity with the given name.
+     * ( RName -- Entity ) Creates an instance of the entity with the given name.
      * 
      * @author paul snow
      *
@@ -504,6 +507,30 @@ public class RMiscOps {
             state.datapush(entity);
         }
     }
+    
+    /**
+     * ( RName ID -- Entity) Creates an instance of the entity with the given name and
+     * id number.  If this entity already exists, then that entity isn't created,
+     * but simply pushed to the data stack.
+     * 
+     * @author paul snow
+     *
+     */
+    public static class  findCreateEntity   extends ROperator {
+    	findCreateEntity(){super("findCreateEntity"); alias("fce");}
+        RName entityTraceIDList = RName.getRName("entityTraceIdList");
+        public void execute(DTState state) throws RulesException {
+        	
+            RInteger id     = state.datapop().rIntegerValue();
+        	RName    ename  = state.datapop().rNameValue();
+            String   key    = ename.stringValue().toLowerCase()+id.stringValue();
+                     
+            IREntity entity = state.getSession().createEntity(id, ename);
+            
+            state.datapush(entity);
+        }
+    }
+    
     
     /**
      * ( Object -- Integer ) Converts to an Integer.  Returns a null if no valid integer
