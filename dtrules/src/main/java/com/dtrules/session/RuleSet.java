@@ -20,15 +20,19 @@ package com.dtrules.session;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import com.dtrules.mapping.Mapping;
+
 import com.dtrules.automapping.AutoDataMap;
 import com.dtrules.automapping.AutoDataMapDef;
+import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
+import com.dtrules.mapping.Mapping;
 /**
  * Defines the set of artifacts which make up a logical set of
  * rules.  These include the schema for the rules (The Entity
@@ -481,4 +485,22 @@ public class RuleSet {
         this.includedRuleSets = includedRuleSets;
     }
     
+    /**
+     * An accessor for the decision tables. Using newSession() because... seemed like a good idea
+     * @return the decision tables
+     * @throws RulesException 
+     */
+    public List<IRObject> getDecisionTables() throws RulesException {
+    	List<IRObject> tables = getEntityFactory(newSession()).getDecisiontables().getValues();
+    	return tables;
+    }
+    
+    /**
+     * An accessor for the reference entities. Like the above function
+     * @return the reference entities
+     * @throws RulesException 
+     */
+    public Collection<IREntity> getRefEntities() throws RulesException {
+    	return getEntityFactory(newSession()).getRefEntities();
+    }
 }

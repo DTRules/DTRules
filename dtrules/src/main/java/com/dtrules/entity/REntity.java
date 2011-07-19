@@ -20,8 +20,10 @@ package com.dtrules.entity;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.dtrules.infrastructure.RulesException;
@@ -311,12 +313,25 @@ public class REntity extends ARObject implements IREntity {
 	public REntityEntry getEntry(RName attrib) {
 		   REntityEntry entry = (REntityEntry)attributes.get(attrib);
 		   return entry;
-	}	
+	}
+	/*
+	 * (non-Javadoc)
+	 * @see com.dtrules.entity.IREntity#getEntries()
+	 */
+	public Collection<REntityEntry> getEntries() {
+		return attributes.values();
+	}
 	/* (non-Javadoc)
      * @see com.dtrules.entity.IREntity#getValue(int)
      */
 	public IRObject getValue(int index) {
 		return (IRObject) values.get(index);
+	}
+	/* (non-Javadoc)
+	 * @see com.dtrules.entity.IREntity#getValues()
+	 */
+	public List<IRObject> getValues() {
+		return values;
 	}
 	
 	

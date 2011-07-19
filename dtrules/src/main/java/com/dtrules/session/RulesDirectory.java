@@ -180,12 +180,12 @@ public class RulesDirectory {
     	LoadDirectory parser = new LoadDirectory(this);
     	
     	if(s==null){  
-    		throw new RuntimeException("Could not find the file/inputstream :"+propertyfile);
+    		throw new RuntimeException("Could not find the file/inputstream: "+systemPath+"/"+propertyfile);
     	}
     	try {
 			GenericXMLParser.load(s,parser);
 		} catch (Exception e) {
-			throw new RuntimeException("Error parsing property file/inputstream: "+propertyfile+"\n"+e);
+			throw new RuntimeException("Error parsing property file/inputstream: "+systemPath+"/"+propertyfile+"\n"+e);
 		}
     	loaded = true;
     }
