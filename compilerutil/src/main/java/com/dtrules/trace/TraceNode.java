@@ -18,77 +18,62 @@
 
 package com.dtrules.trace;
 
-import com.dtrules.interpreter.RInteger;
-import com.dtrules.interpreter.RName;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import com.dtrules.xmlparser.XMLPrinter;
 /**
- * A trace node allows two kinds of navigation acorss changes recorded in
- * a DTRules Trace file.   One mode is a tree, and one mode is linear.  In 
- * fact, all changes occur serially within a decision table thread.  Yet all
- * changes occur with in a hierarchy of Decision Table execution.
+ * Holds the information in a trace file.
  * 
- * The parent of all nodes is a root node. The initialization node holds the
- * initial values (includeing data inserted into a ruleset)
- * 
- * The changes are kept as nodes 
+ * @author paul
+ *
  */
-public interface TraceNode {
-    
-    /**
-     * These are the hierarchy operators.
-     */
-    
-    /** getParent() -- return the parent node, usually a decisiontable.  But it
-     * could be the root node, or the initialization node.
-     * @return
-     */
-    TraceNode getParent();
-    /**
-     * Get the firstChild()
-     * @return
-     */
-    TraceNode getFirstChild();
-    /**
-     * Get the next();  
-     * Returns a null if no more children;
-     * @return
-     */
-    TraceNode getNext();
-    /**
-     * Get the perivious node, 
-     * @return
-     */
-    TraceNode getPrevious();
-   
-    /**
-     * These are the linear access methods.  All the changes are organized
-     * in a linear list.
-     */
-    /**
-     * Get the next Change Node
-     * @return
-     */
-    TraceNode getNextChange();
-    /**
-     * Get the previous Change Node
-     * @return
-     */
-    TraceNode getPreviousChange();
-    
-    
-    /**
-     * Change Operators
-     */
-    void setOldValues();
-    void setNewValues();
-    /**
-     * Returns the Name for the Attribute that changed (or a null if 
-     * this isn't a change to an Entity).
-     */
-    RName getAttribute();
-    /**
-     * Returns the index for the Attribute that changed (or a null if
-     * this isn't a change to an Element of an Array).
-     */
-    RInteger getIndex();
+public class TraceNode {
+	protected String 				name;
+	protected Map<String, String> 	attributes;
+	protected List<TraceNode> 		children = new ArrayList<TraceNode>();
+	protected String 				body;
+	
+	
+	TraceNode(String name, Map<String,String> attributes){
+		this.name 		= name;
+		this.attributes = attributes;
+	}
+	
+	public void addChild(TraceNode child){
+		children.add(child);
+	}
+	
+	public List<TraceNode> getChildren(){
+		return children;
+	}
+
+	public void setAttributes(Map<String,String> attributes){
+		this.attributes = attributes;
+	}
+	
+	public Map<String,String> getAttributes(){
+		return attributes;
+	}
+
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
+	}
+	
+	public void print(XMLPrinter out) { 
+		if(children.size()>0){
+			out.opentag(name, attributes);
+			for(TraceNode node : children){
+				node.print(out);
+			}
+			out.closetag();
+		}else{
+			out.printdata(name, attributes, body);
+		}
+	}
 }

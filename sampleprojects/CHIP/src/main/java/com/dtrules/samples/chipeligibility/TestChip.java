@@ -45,7 +45,7 @@ public class TestChip extends ATestHarness {
 		static  Date start = new Date();
 	    @Override
     	public boolean  Verbose()                 { return false;	                        }
-		public boolean  Trace()                   { return false;                            }
+		public boolean  Trace()                   { return true;                            }
 	    public boolean  Console()                 { return false;                           }
 	    public boolean  coverageReport()          { return true;                       		}
 		public String   getPath()                 { return path;                            }
