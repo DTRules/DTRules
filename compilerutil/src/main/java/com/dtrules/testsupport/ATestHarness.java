@@ -19,14 +19,13 @@
 package com.dtrules.testsupport;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.io.FileInputStream;
 
 import com.dtrules.admin.RulesAdminService;
 import com.dtrules.automapping.AutoDataMap;
@@ -34,6 +33,7 @@ import com.dtrules.compiler.excel.util.Rules2Excel;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RName;
+import com.dtrules.mapping.DataMap;
 import com.dtrules.mapping.Mapping;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
@@ -43,7 +43,6 @@ import com.dtrules.xmlparser.XMLPrinter;
 import com.dtrules.xmlparser.XMLTree;
 import com.dtrules.xmlparser.XMLTree.Node;
 import com.dtrules.xmlparser.XMLTree.Node.MATCH;
-import com.dtrules.mapping.DataMap;
 
 public abstract class ATestHarness implements ITestHarness {
  
@@ -407,10 +406,11 @@ public abstract class ATestHarness implements ITestHarness {
          }
          
          try {
-              
-              out        = new PrintStream     (getOutputDirectory()+number+root+"_results.xml");
+
+        	 // New 'subextensions' to differentiate files
+              out        = new PrintStream     (getOutputDirectory()+number+root+".results.dtr");
               if(Trace()){
-                  tracefile  = new FileOutputStream(getOutputDirectory()+number+root+"_trace.xml");
+                  tracefile  = new FileOutputStream(getOutputDirectory()+number+root+".trace.dtr");
               }
               IRSession      session    = rs.newSession();
               DTState        state      = session.getState();

@@ -10,15 +10,16 @@ import com.dtrules.xmlparser.XMLPrinter;
 public class Trace {
 	TraceNode root = new TraceNode("root", new HashMap<String,String>());
 	
-	public void load (String tracefile) throws Exception {
+	public TraceNode load (String tracefile) throws Exception {
 		InputStream tracefilestream = new FileInputStream(tracefile);
-		load(tracefilestream);
+		return load(tracefilestream);
 	}
 
-	public void load (InputStream tracefilestream) throws Exception {
+	public TraceNode load (InputStream tracefilestream) throws Exception {
 		TraceLoader loader = new TraceLoader();
 		GenericXMLParser.load(tracefilestream, loader);
 		root = loader.tagStack.pop().children.get(0);
+		return root;
 	}
 
 	public void print(){

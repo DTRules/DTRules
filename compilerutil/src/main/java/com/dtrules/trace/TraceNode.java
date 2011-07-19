@@ -60,6 +60,10 @@ public class TraceNode {
 	public String getBody() {
 		return body;
 	}
+	
+	public String getName() {
+		return name;
+	}
 
 	public void setBody(String body) {
 		this.body = body;

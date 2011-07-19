@@ -3,8 +3,6 @@ package com.dtrules.samples.chipeligibility;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,7 +14,7 @@ import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestCaseGen {
 								// This is the default number of how many test cases to generate.
-	static int cnt = 1;		// You can pass a different number on the commandline.
+	static int cnt = 100;		// You can pass a different number on the commandline.
 	
 	Random 		       rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;

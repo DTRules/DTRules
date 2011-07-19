@@ -40,7 +40,7 @@ public class CompileChip {
         try {
         	System.out.println("path: "+path);
                     
-            Excel2XML.compile(path,"DTRules.xml","CHIP","repository");
+            Excel2XML.compile(path,"DTRules.dir.dtr","CHIP","repository");
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");
