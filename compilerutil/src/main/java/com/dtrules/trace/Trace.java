@@ -29,8 +29,11 @@ public class Trace {
 	}
 	
 	static public void main(String [] args) throws Exception {
-		Trace trace = new Trace();
-		trace.load("/home/paul/java/merge/new/DTRules/sampleprojects/CHIP/testfiles/output/test_1_trace.xml");
+		
+		String tracefile    = System.getProperty("user.dir")+"/testdata/job_trace.xml";
+		Trace trace 		= new Trace();
+		
+		trace.load(tracefile);
 		trace.print();
 	}
 	

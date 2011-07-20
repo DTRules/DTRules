@@ -17,6 +17,7 @@ public class TraceLoader extends AGenericXMLParser {
 			TraceNode thisNode = new TraceNode(tag,attribs);
 			if(tagStack.size()>0){
 			   tagStack.lastElement().addChild(thisNode);
+			   thisNode.setParent(tagStack.lastElement());
 			}
 			tagStack.push(thisNode);
 	}

@@ -34,7 +34,7 @@ public class TraceNode {
 	protected Map<String, String> 	attributes;
 	protected List<TraceNode> 		children = new ArrayList<TraceNode>();
 	protected String 				body;
-	
+	protected TraceNode             parent = null;
 	
 	TraceNode(String name, Map<String,String> attributes){
 		this.name 		= name;
@@ -80,4 +80,14 @@ public class TraceNode {
 			out.printdata(name, attributes, body);
 		}
 	}
+
+	public TraceNode getParent() {
+		return parent;
+	}
+
+	public void setParent(TraceNode parent) {
+		this.parent = parent;
+	}
+	
+	
 }
