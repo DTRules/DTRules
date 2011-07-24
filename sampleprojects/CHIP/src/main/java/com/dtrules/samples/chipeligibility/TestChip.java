@@ -16,26 +16,10 @@
 package com.dtrules.samples.chipeligibility;
 
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.Date;
 
-import com.dtrules.entity.IREntity;
-import com.dtrules.infrastructure.RulesException;
-import com.dtrules.interpreter.IRObject;
-import com.dtrules.interpreter.RArray;
-import com.dtrules.interpreter.RName;
-import com.dtrules.mapping.DataMap;
-import com.dtrules.session.DTState;
-import com.dtrules.session.IRSession;
-import com.dtrules.session.RuleSet;
-import com.dtrules.session.RulesDirectory;
 import com.dtrules.testsupport.ATestHarness;
-import com.dtrules.testsupport.Coverage;
 import com.dtrules.testsupport.ITestHarness;
-import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestChip extends ATestHarness {
     	
@@ -52,7 +36,7 @@ public class TestChip extends ATestHarness {
 	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
 	    public String   getRuleSetName()          { return "CHIP";                          }
 	    public String   getDecisionTableName()    { return "Compute_Eligibility";           }
-	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             
+	    public String   getRulesDirectoryFile()   { return "DTRules.dir.dtr";               }             
 	    
 	    public static void main(String[] args) {
 	    	

@@ -95,16 +95,10 @@ public class RulesAdminService implements IRulesAdminService{
      * @return true if the attribute was successfully added. 
 	 */
 	public boolean createAttribute(final String rulesetname, final REntityEntry attribute) {
-        try {
-            RuleSet  rs     = getRuleset(rulesetname);
-            IREntity entity = rs.getEntityFactory(session).findRefEntity(attribute.attribute);
-            entity.addAttribute(attribute);
-            return true;
-        } catch (RulesException e) {
-            return false;
-        }
-		
-	}
+        IREntity entity = session.getEntityFactory().findRefEntity(attribute.attribute);
+        entity.addAttribute(attribute);
+        return true;
+    }
 
     /**
      * Given a Rule Set and an Entity, returns the list of EntityEntry objects
@@ -117,16 +111,13 @@ public class RulesAdminService implements IRulesAdminService{
      */
     public List<REntityEntry> getEntityEntries(String rulesetname, String entityname){
         ArrayList<REntityEntry> entries = new ArrayList<REntityEntry>();
-        RuleSet                 rs      = getRuleset(rulesetname);
         IREntity entity;
-        try {
-            entity = rs.getEntityFactory(session).findRefEntity(RName.getRName(entityname));
-            Iterator<RName>         attribs = entity.getAttributeIterator();
-            
-            while(attribs.hasNext()){
-                entries.add(entity.getEntry(attribs.next()));
-            }
-        } catch (RulesException e) { }
+        entity = session.getEntityFactory().findRefEntity(RName.getRName(entityname));
+        Iterator<RName>         attribs = entity.getAttributeIterator();
+        
+        while(attribs.hasNext()){
+            entries.add(entity.getEntry(attribs.next()));
+        }
         
         return entries;
     }
@@ -136,8 +127,7 @@ public class RulesAdminService implements IRulesAdminService{
      */
 	public RDecisionTable createDecisionTable(String rulesetname, String decisiontablename) 
             throws RulesException{
-		RuleSet rs     = getRuleset(rulesetname);
-        return rs.getEntityFactory(session).newDecisionTable(decisiontablename,session);
+        return session.getEntityFactory().newDecisionTable(decisiontablename,session);
 	}
 
 	/**
@@ -159,57 +149,36 @@ public class RulesAdminService implements IRulesAdminService{
         }
 	}
 
-	/**
-     * Create a new Rule Set
-	 * @see com.dtrules.admin.IRulesAdminService#createRuleset(com.dtrules.session.RuleSet)
-	 */
-	public void createRuleset(RuleSet ruleset) throws RulesException{
-		rulesDirectory.addRuleSet(ruleset);
-	}
-
 	/* (non-Javadoc)
 	 * @see com.dtrules.admin.IRulesAdminService#getAttributes(java.lang.String, java.lang.String)
 	 */
-	public List getAttributes(String rulesetname, String entityName) {
+	public List<?> getAttributes(String rulesetname, String entityName) {
         if(rulesDirectory==null)return null;
-        try {
-            RuleSet rs = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
-            Iterator it = rs.getEntityFactory(session)
-                          .findRefEntity(RName.getRName(entityName)).getAttributeIterator();
-            return getList(it);
-        } catch (RulesException e) {
-            return null;
-        }
+        Iterator<?> it = session.getEntityFactory()
+                      .findRefEntity(RName.getRName(entityName)).getAttributeIterator();
+        return getList(it);
+        
 	}
 
 	/* (non-Javadoc)
 	 * @see com.dtrules.admin.IRulesAdminService#getDecisionTable(java.lang.String, java.lang.String)
 	 */
 	public RDecisionTable getDecisionTable(String rulesetname, String DecisionTableName) {
-        try {
-            RuleSet rs = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
-            return rs.getEntityFactory(session)
-                   .findTable(RName.getRName(DecisionTableName));
-        } catch (RulesException e) {
-            return null;
-        } 
+        return session.getEntityFactory()
+               .findTable(RName.getRName(DecisionTableName));
 	}
 
 	/* (non-Javadoc)
 	 * @see com.dtrules.admin.IRulesAdminService#getDecisionTables(java.lang.String)
 	 */
-	public List getDecisionTables(String rulesetname) {
+	public List<?> getDecisionTables(String rulesetname) {
 		if(rulesDirectory==null)return null;
-        try {
-            RuleSet rs = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
-            Iterator it = rs.getEntityFactory(session).getDecisionTableRNameIterator();
-            return getList(it);
-        } catch (RulesException e) {
-            return null;
-        }
+        Iterator<?> it = session.getEntityFactory().getDecisionTableRNameIterator();
+        return getList(it);
 	}
 	
-    private List getList(Iterator iterator){
+    @SuppressWarnings("rawtypes")
+	private List getList(Iterator iterator){
         List list = new ArrayList();
         while(iterator.hasNext()){
             list.add(((IRObject)iterator.next()).stringValue());
@@ -223,14 +192,11 @@ public class RulesAdminService implements IRulesAdminService{
      * @return List of Entity RName objects
 	 * @see com.dtrules.admin.IRulesAdminService#getEntities(java.lang.String)
 	 */
+    @SuppressWarnings("rawtypes")
 	public List getEntities(String rulesetname) {
         if(rulesDirectory==null)return null;
-        try {
-            Iterator e = rulesDirectory.getRuleSet(RName.getRName(rulesetname)).getEntityFactory(session)
-                            .getEntityRNameIterator(); 
-            return getList(e);
-        } catch (RulesException e) {}
-		return null;
+        Iterator<?> e = session.getEntityFactory().getEntityRNameIterator(); 
+        return getList(e);
 	}
 
 	/**
@@ -327,8 +293,7 @@ public class RulesAdminService implements IRulesAdminService{
      * @throws RulesException
      */
 	public void saveDecisionTables(OutputStream out, RSession session, String rulesetname) throws RulesException {
-	    RuleSet       rs       = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
-        EntityFactory ef       = rs.getEntityFactory(session);
+	    EntityFactory ef       = session.getEntityFactory();
         
         PrintStream  ps  = new PrintStream(out);
         Iterator<RName> tables = ef.getDecisionTableRNameIterator();
@@ -365,7 +330,7 @@ public class RulesAdminService implements IRulesAdminService{
 
     public void saveEDD(RSession session, String rulesetname) throws RulesException {
         RuleSet       rs       = rulesDirectory.getRuleSet(RName.getRName(rulesetname));
-        EntityFactory ef       = rs.getEntityFactory(session);
+        EntityFactory ef       = session.getEntityFactory();
         String        filepath = rs.getFilepath();
         String        filename = rs.getEDD_XMLName();
         

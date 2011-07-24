@@ -123,6 +123,10 @@ public interface IRSession {
     public abstract EntityFactory getEntityFactory() ;
 
     /**
+     * Set the EntityFactory for the session.
+     */
+    public void setEntityFactory(EntityFactory ef);
+    /**
      * Debugging aid that allows you to dump an Entity and its attributes.
      * @param e
      */

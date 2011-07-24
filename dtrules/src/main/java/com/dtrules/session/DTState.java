@@ -520,6 +520,9 @@ public class DTState {
         if (entitystkptr >= 1000) {
             throw new RulesException("Entity Stack Overflow", o.stringValue(), "Entity Stack overflow.");
         }
+        if((state & TRACE) > 0){
+        	traceInfo("entitypush","value",o.getName().stringValue(), "id",o.getID()+"",null);
+        }
         entitystk[entitystkptr++] = o;
     }
 
@@ -532,6 +535,9 @@ public class DTState {
     public IREntity entitypop() throws RulesException {
         if (entitystkptr <= 0) {
             throw new RulesException("Entity Stack Underflow", "entitypop", "Entity Stack underflow.");
+        }
+        if((state & TRACE) > 0){
+        	traceInfo("entitypop",null);
         }
         IREntity rval = entitystk[--entitystkptr];
         entitystk[entitystkptr] = null;

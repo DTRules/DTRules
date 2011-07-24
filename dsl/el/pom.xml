@@ -75,16 +75,22 @@
 			<groupId>com.dtrules</groupId>
 			<artifactId>compilerutil</artifactId>
 			<version>${project.version}</version>
+			<type>jar</type>
+			<optional>false</optional>
 		</dependency>
-      <dependency>
+		<dependency>
 			<groupId>de.jflex</groupId>
 			<artifactId>jflex</artifactId>
 			<version>1.4.1</version>
+			<type>jar</type>
+			<optional>false</optional>
 		</dependency>
 		<dependency>
 			<groupId>edu.princeton.cup</groupId>
 			<artifactId>java-cup</artifactId>
 			<version>LATEST</version>
+			<type>jar</type>
+			<optional>false</optional>
 		</dependency>
 	</dependencies>
 </project>

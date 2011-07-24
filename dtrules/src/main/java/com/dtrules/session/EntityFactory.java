@@ -21,6 +21,7 @@ package com.dtrules.session;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -122,6 +123,14 @@ public class EntityFactory {
 	public Iterator<RName> getEntityRNameIterator (){
 		return referenceEntities.keySet().iterator();
 	}
+	
+	/**
+	 * Returns the referenceEntities
+	 */
+	public Collection<IREntity> getRefEntities() {
+		return referenceEntities.values();
+	}
+	
 	/**
      * Provides an Iterator that provides each decision table name. 
      * @return

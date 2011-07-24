@@ -8,7 +8,7 @@
 			<setattribute tag='c' RAttribute='column' enclosure='Cell' type='integer' subtype=''></setattribute>
 			<setattribute tag='r' RAttribute='row' enclosure='Cell' type='integer' subtype=''></setattribute>
 			<!--possiblevalue-->
-			<setattribute tag='value' RAttribute='value' enclosure='possiblevalue' type='integer' subtype=''></setattribute>
+			<setattribute tag='v' RAttribute='value' enclosure='possiblevalue' type='integer' subtype=''></setattribute>
 			<!--Puzzle-->
 			<setattribute tag='done' RAttribute='done' enclosure='Puzzle' type='boolean' subtype=''></setattribute>
 			<!--position-->

@@ -377,7 +377,7 @@ public class RControl {
         public void execute(DTState state) throws RulesException {
             IRObject v = state.datapop();
             if(state.testState(DTState.TRACE)){
-                state.traceInfo("allocate", "value",v.stringValue(),null);
+                state.traceInfo("allocate", "value",v.postFix(),null);
             }
             state.cpush(v);
         }
@@ -409,7 +409,7 @@ public class RControl {
         public void execute(DTState state) throws RulesException {
             int      index = state.datapop().intValue();
             IRObject value = state.getFrameValue(index);
-            if(state.testState(DTState.TRACE)){
+            if(state.testState(DTState.TRACE) && state.testState(DTState.VERBOSE)){
                 state.traceInfo("local_fetch", "index",index+"","value",value.stringValue(),null);
             }
             state.datapush(value);

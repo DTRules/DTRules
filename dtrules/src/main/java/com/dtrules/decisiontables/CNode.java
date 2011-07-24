@@ -113,14 +113,19 @@ public class CNode implements DTNode {
         boolean result;
         try {
             if(state.testState(DTState.TRACE)){
-                state.traceTagBegin("Condition", "n",(conditionNumber+1)+"");
-                    state.traceInfo("Formal", dtable.getConditions()[conditionNumber]);
-                    state.traceInfo("Postfix", dtable.getConditionsPostfix()[conditionNumber]);
-                    state.traceTagBegin("execute");
-                    result = state.evaluateCondition(condition);
-                    state.traceTagEnd();
-                    state.traceInfo("result", "v",(result?"Y":"N"),null);
-                state.traceTagEnd();
+            	if(state.testState(DTState.VERBOSE)){
+	            	state.traceTagBegin("Condition", "n",(conditionNumber+1)+"");
+	                    state.traceInfo("Formal", dtable.getConditions()[conditionNumber]);
+	                    state.traceInfo("Postfix", dtable.getConditionsPostfix()[conditionNumber]);
+	                    state.traceTagBegin("execute");
+	                    result = state.evaluateCondition(condition);
+	                    state.traceTagEnd();
+	                    state.traceInfo("result", "v",(result?"Y":"N"),null);
+	                state.traceTagEnd();
+            	}else{
+            		 result = state.evaluateCondition(condition);
+            		 state.traceInfo("Condition", "n",(conditionNumber+1)+"","v",(result?"Y":"N"),null);
+            	}
             }else{
                 result = state.evaluateCondition(condition);
             }    		

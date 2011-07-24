@@ -33,7 +33,7 @@ Prep_Puzzle
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>4</intial_action_number>
-<initial_action_comment>Simplify the puzzle with some “give me” rules.</initial_action_comment>
+<initial_action_comment>Simplify the puzzle with some ?give me? rules.</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>Simplify</initial_action_description>
 <initial_action_postfix>
@@ -118,7 +118,7 @@ Position.valid true beq
 <action_column column_value="X" column_number="1"></action_column>
 <action_column column_value="X" column_number="2"></action_column></action_details>
 <action_details>
-<action_number>3</action_number>
+<action_number>2</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>remove the possiblevalue from the possiblevalues array</action_description>
@@ -181,7 +181,7 @@ Simplify
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
-<action_number>2</action_number>
+<action_number>3</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>Simplify</action_description>
@@ -223,28 +223,28 @@ if } Positions forall pop
 if } possiblevalues forallr pop 
 </context_postfix></context_details>
 <context_details>
-<context_number>3</context_number>
+<context_number>4</context_number>
 <context_comment></context_comment>
 <context_description>local int ncRow = 0</context_description>
 <context_postfix>
 0  cvi allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
-<context_number>3</context_number>
+<context_number>5</context_number>
 <context_comment></context_comment>
 <context_description>local int ncColumn = 0</context_description>
 <context_postfix>
 0  cvi allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
-<context_number></context_number>
+<context_number>6</context_number>
 <context_comment>The number of possible values in this row</context_comment>
 <context_description>local array uniqueRows = copy of the possibleValues</context_description>
 <context_postfix>
 possibleValues copyelements allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
-<context_number></context_number>
+<context_number>7</context_number>
 <context_comment>The number of possible values in this column</context_comment>
 <context_description>local array uniqueColumns = copy of the possibleValues</context_description>
 <context_postfix>
@@ -294,7 +294,7 @@ if }Positions forall  0 local@  + 0 local!
 if }Positions forall  1 local@  + 1 local! 
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
-<intial_action_number></intial_action_number>
+<intial_action_number>6</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>add the possibleValues to the uniqueRows if not a member, for all Positions whose value == 0 and row == the currentposition&apos;s row</initial_action_description>
@@ -303,7 +303,7 @@ if }Positions forall  1 local@  + 1 local!
 if } Positions forall pop 
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
-<intial_action_number>6</intial_action_number>
+<intial_action_number>7</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>add the possibleValues to the uniqueColumns if not a member, for all Positions whose value == 0 and 
@@ -323,7 +323,7 @@ possiblevalues length 1 ==
 </condition_postfix>
 <condition_column column_value="Y" column_number="1"></condition_column></condition_details>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>2</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>there is a cell whose row == the currentCell&apos;s row and 
@@ -336,9 +336,10 @@ possiblevalues length 1 ==
 { pop position currentposition req not } over if
 } positions forfirstelse } over if
 } cells forfirstelse 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="Y" column_number="2"></condition_column></condition_details>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>3</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>there is a cell whose column == the currentCell&apos;s column and 
@@ -355,7 +356,7 @@ possiblevalues length 1 ==
 <condition_column column_value="N" column_number="3"></condition_column>
 <condition_column column_value="Y" column_number="9"></condition_column></condition_details>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>4</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>there is a position where 
@@ -366,9 +367,10 @@ possiblevalues length 1 ==
 { true } { false } { position currentposition req not { pop Position.value 0 == } over if
 { pop possiblevalues currentPossiblevalue memberof } over if
 } positions forfirstelse 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="N" column_number="4"></condition_column></condition_details>
 <condition_details>
-<condition_number>3</condition_number>
+<condition_number>5</condition_number>
 <condition_comment>Looking at each value in this row, and making sure that the value is in other rows as well.  If not,then we know this row must have that value, and we can remove the value from the possiblevalues of cells in the same row.</condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>there is a position where the row != currentposition&apos;s row and 
@@ -378,9 +380,10 @@ possiblevalues length 1 ==
 { true } { false } { row currentposition entitypush row entitypop == not { pop Position.value 0 == } over if
 { pop Position.possiblevalues currentPossiblevalue memberof } over if
 } positions forfirstelse 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="N" column_number="5"></condition_column></condition_details>
 <condition_details>
-<condition_number>4</condition_number>
+<condition_number>6</condition_number>
 <condition_comment>Same as previous, only done by columns</condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>there is a position where the column != currentposition&apos;s column and 
@@ -390,9 +393,10 @@ possiblevalues length 1 ==
 { true } { false } { column currentposition entitypush column entitypop == not { pop Position.value 0 == } over if
 { pop Position.possiblevalues currentPossiblevalue memberof } over if
 } positions forfirstelse 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="N" column_number="6"></condition_column></condition_details>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>7</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>the number of uniqueRows == ncRow; 
@@ -401,9 +405,10 @@ possiblevalues length 1 ==
        &quot;,&quot;  + currentposition&apos;s row +&quot;)&quot;</condition_description>
 <condition_postfix>
 2 local@  length 0 local@  == &quot;ur&quot; 2 local@  length strconcat &quot; &quot; strconcat 0 local@  strconcat &quot; r(&quot; strconcat currentCell entitypush row entitypop strconcat &quot;,&quot; strconcat currentposition entitypush row entitypop strconcat &quot;)&quot; strconcat debug 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="Y" column_number="7"></condition_column></condition_details>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>8</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>There is no cell where the cell.row == the currentCell&apos;s row and cell != the currentCell and there is no position where the value == 0 and Position.row == the Currentposition&apos;s row</condition_description>
@@ -412,9 +417,10 @@ possiblevalues length 1 ==
 { pop { false } { true } { value 0 == { pop Position.row Currentposition entitypush row entitypop == } over if
 } positions forfirstelse } over if
 } cells forfirstelse 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="Y" column_number="7"></condition_column></condition_details>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>9</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>the number of uniqueColumns == ncColumn; 
@@ -423,9 +429,10 @@ possiblevalues length 1 ==
         &quot;,&quot;  + currentCell&apos;s row +&quot;)&quot;</condition_description>
 <condition_postfix>
 3 local@  length 1 local@  == &quot;uc&quot; 3 local@  length strconcat &quot; &quot; strconcat 1 local@  strconcat &quot; c(&quot; strconcat currentCell entitypush column entitypop strconcat &quot;,&quot; strconcat currentCell entitypush row entitypop strconcat &quot;)&quot; strconcat debug 
-</condition_postfix></condition_details>
+</condition_postfix>
+<condition_column column_value="Y" column_number="8"></condition_column></condition_details>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>10</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>There is no cell where the cell.Column == the currentCell&apos;s Column and cell != the currentCell and there is no position where the value == 0 and Position.Column == the Currentposition&apos;s Column</condition_description>
@@ -434,7 +441,8 @@ possiblevalues length 1 ==
 { pop { false } { true } { value 0 == { pop Position.Column Currentposition entitypush Column entitypop == } over if
 } positions forfirstelse } over if
 } cells forfirstelse 
-</condition_postfix></condition_details></conditions>
+</condition_postfix>
+<condition_column column_value="Y" column_number="8"></condition_column></condition_details></conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -452,6 +460,18 @@ possiblevalue.value  cvi /Position.value xdef
 <action_number>2</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
+<action_description>set computed = true</action_description>
+<action_postfix>
+true cvb /computed xdef  
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column>
+<action_column column_value="X" column_number="3"></action_column>
+<action_column column_value="X" column_number="4"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<initial_action_requirement></initial_action_requirement>
 <action_description>set found = true</action_description>
 <action_postfix>
 true cvb /found xdef  
@@ -461,7 +481,7 @@ true cvb /found xdef
 <action_column column_value="X" column_number="3"></action_column>
 <action_column column_value="X" column_number="4"></action_column></action_details>
 <action_details>
-<action_number></action_number>
+<action_number>4</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>print &quot;set value = &quot;+position.value+&quot;\n&quot;</action_description>
@@ -473,7 +493,7 @@ true cvb /found xdef
 <action_column column_value="X" column_number="3"></action_column>
 <action_column column_value="X" column_number="4"></action_column></action_details>
 <action_details>
-<action_number>3</action_number>
+<action_number>5</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>Process_Row</action_description>
@@ -482,7 +502,7 @@ Process_Row
 </action_postfix>
 <action_column column_value="X" column_number="5"></action_column></action_details>
 <action_details>
-<action_number>4</action_number>
+<action_number>6</action_number>
 <action_comment>Tell them we found a solution</action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>Process_Column</action_description>
@@ -491,7 +511,7 @@ Process_Column
 </action_postfix>
 <action_column column_value="X" column_number="6"></action_column></action_details>
 <action_details>
-<action_number>5</action_number>
+<action_number>7</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>Process_Crowd_Out_Row</action_description>
@@ -500,7 +520,7 @@ Process_Crowd_Out_Row
 </action_postfix>
 <action_column column_value="X" column_number="7"></action_column></action_details>
 <action_details>
-<action_number>5</action_number>
+<action_number>8</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>Process_Crowd_Out_Column</action_description>
@@ -509,7 +529,7 @@ Process_Crowd_Out_Column
 </action_postfix>
 <action_column column_value="X" column_number="8"></action_column></action_details>
 <action_details>
-<action_number></action_number>
+<action_number>9</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
 <action_description>print currentPosition&apos;s &quot;&quot;+row +&quot;,&quot;+ currentPosition&apos;s column +&quot;=&quot;+
@@ -657,7 +677,7 @@ true cvb /found xdef
 &quot;Trying to remove&quot; debug execute 
 </context_postfix></context_details>
 <context_details>
-<context_number>1</context_number>
+<context_number>2</context_number>
 <context_comment></context_comment>
 <context_description>for all Positions where the Position.row == the Currentposition&apos;s row and Position.value == 0</context_description>
 <context_postfix>
@@ -665,14 +685,14 @@ true cvb /found xdef
 if } Positions forall pop 
 </context_postfix></context_details>
 <context_details>
-<context_number>2</context_number>
+<context_number>3</context_number>
 <context_comment></context_comment>
 <context_description>for all possiblevalues</context_description>
 <context_postfix>
 dup possiblevalues forall pop 
 </context_postfix></context_details>
 <context_details>
-<context_number>3</context_number>
+<context_number>4</context_number>
 <context_comment></context_comment>
 <context_description>for all Positions where the Position.row != the Currentposition&apos;s row and Position.value == 0</context_description>
 <context_postfix>
@@ -697,7 +717,7 @@ possiblevalues possiblevalue remove pop
 true cvb /found xdef  
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
-<intial_action_number></intial_action_number>
+<intial_action_number>3</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>debug &quot;removed!&quot;</initial_action_description>
@@ -764,7 +784,7 @@ possiblevalues possiblevalue remove pop
 { dup done not if } cells forall pop 
 </context_postfix></context_details>
 <context_details>
-<context_number>3</context_number>
+<context_number>2</context_number>
 <context_comment></context_comment>
 <context_description>for all Positions  while not done and value  == 0</context_description>
 <context_postfix>
@@ -772,7 +792,7 @@ possiblevalues possiblevalue remove pop
 if } Positions forall pop 
 </context_postfix></context_details>
 <context_details>
-<context_number>4</context_number>
+<context_number>3</context_number>
 <context_comment></context_comment>
 <context_description>for all possiblevalues while not done</context_description>
 <context_postfix>
@@ -938,7 +958,7 @@ if } Positions forall pop
 </context_postfix></context_details></contexts>
 <initial_actions>
 <initial_action_details>
-<intial_action_number></intial_action_number>
+<intial_action_number>1</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>//print ThisPosition&apos;s &quot; &quot;+row +&quot;,&quot;+thisPosition&apos;s column +&quot;---&quot;+ThisPosition&apos;s value + &quot;\n&quot;</initial_action_description>

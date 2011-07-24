@@ -24,6 +24,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.dtrules.interpreter.RDate;
 
@@ -236,14 +237,14 @@ public class XMLPrinter implements IXMLPrinter {
     /**
      * Open a tag with a given set of attributes
      */
-    public void opentag(String tag, HashMap<String,Object> attribs){
+    public void opentag(String tag, @SuppressWarnings("rawtypes") Map attribs){
         halfopentag(tag);
-        if(attribs != null) for(String key : attribs.keySet()){
+        if(attribs != null) for(Object key : attribs.keySet()){
             Object o = attribs.get(key);
             if(o!=null){
-               printAttribute(key, o);
+               printAttribute(key.toString(), o);
             }else{
-               printAttribute(key,"");
+               printAttribute(key.toString(),"");
             }
         }
         print(">");
@@ -507,11 +508,11 @@ public class XMLPrinter implements IXMLPrinter {
     /**
      * Open a tag with a given set of attributes
      */
-    public void printdata(String tag, HashMap<String,Object> attribs, Object bodyvalue){
+    public void printdata(String tag, @SuppressWarnings("rawtypes") Map attribs, Object bodyvalue){
         halfopentag(tag);
-        for(String key : attribs.keySet()){
+        for(Object key : attribs.keySet()){
             String v = GenericXMLParser.encode(attribs.get(key).toString());
-            printAttribute(key, v);
+            printAttribute(key.toString(), v);
         }
         print(">");
         printdata(bodyvalue);

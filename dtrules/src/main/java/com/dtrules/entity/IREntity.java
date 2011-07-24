@@ -20,7 +20,9 @@
 package com.dtrules.entity;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.dtrules.infrastructure.RulesException;
@@ -149,11 +151,22 @@ public interface IREntity extends IRObject{
     public abstract REntityEntry getEntry(RName attrib);
 
     /**
+     * This gets all the entity entries for an entity
+     * @return
+     */
+	public Collection<REntityEntry> getEntries();
+    /**
      * Then sometimes they change their mind and want the value from an REntityEntry
      * @param index
      * @return
      */
     public abstract IRObject getValue(int index);
+    
+    /**
+     * And sometimes they just want a bunch of objects
+     * @return
+     */
+    public abstract List<IRObject> getValues();
  
     /**
      * Returns the ID number for this instance of the entity.  Entities with
