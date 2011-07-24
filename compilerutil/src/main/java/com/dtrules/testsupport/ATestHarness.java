@@ -407,10 +407,9 @@ public abstract class ATestHarness implements ITestHarness {
          
          try {
 
-        	 // New 'subextensions' to differentiate files
-              out        = new PrintStream     (getOutputDirectory()+number+root+".results.dtr");
+        	  out        = new PrintStream     (getOutputDirectory()+number+root+"_results.xml");
               if(Trace()){
-                  tracefile  = new FileOutputStream(getOutputDirectory()+number+root+".trace.dtr");
+                  tracefile  = new FileOutputStream(getOutputDirectory()+number+root+"_trace.xml");
               }
               IRSession      session    = rs.newSession();
               DTState        state      = session.getState();
