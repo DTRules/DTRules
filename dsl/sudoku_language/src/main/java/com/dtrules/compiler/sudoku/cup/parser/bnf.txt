@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
  **/
- ===== Terminals =====
+ Opening files...
+Parsing specification from standard input...
+Checking specification...
+Building parse tables...
+  Computing non-terminal nullability...
+  Computing first sets...
+  Building state machine...
+  Filling in tables...
+  Checking for non-reduced productions...
+Writing parser...
+===== Terminals =====
 [0]EOF [1]error [2]ABSOLUTEVALUE [3]ACTION [4]ADD 
 [5]AFTER [6]ALL [7]ALLOWING [8]AND [9]ARRAY 
 [10]ARRAY_OF_VALUES [11]ASCENDINGORDER [12]ASSIGN [13]ATTRIBUTE [14]AT 
@@ -50,19 +60,20 @@
 
 
 ===== Non terminals =====
-[0]done [1]statement_list [2]statement [3]number [4]inthe 
-[5]iexpr [6]fexpr [7]bexpr [8]eexpr [9]nexpr 
-[10]texpr [11]strexpr [12]indx_expr [13]dexpr [14]array_expr 
-[15]array_expr2 [16]includeSearch [17]forblock [18]forallblock [19]forctl 
-[20]forallctl [21]forfirstctl [22]ifblock [23]usingblock [24]firstblock 
-[25]block [26]thereis [27]setstatement [28]usingstatement [29]performstatement 
-[30]debugstatement [31]ifstatement [32]addtostatement [33]addtodest [34]addtodest2 
-[35]subtodest [36]clearstatement [37]randomstatements [38]commonerror [39]tablelist 
-[40]operatorlist [41]operatorstatements [42]contextstatement [43]localvariables [44]context_for_table 
-[45]datestatement [46]xmlvalues [47]xmlvaluestatements [48]separator [49]blist 
-[50]blist_ic [51]ifcontinue [52]left_iexpr [53]left_fexpr [54]left_bexpr 
-[55]left_eexpr [56]left_strexpr [57]left_dexpr [58]left_ArrayRef [59]left_texpr 
-[60]colonRef [61]possessiveRef [62]array_lit [63]array_list 
+[0]$START [1]done [2]statement_list [3]statement [4]number 
+[5]inthe [6]iexpr [7]fexpr [8]bexpr [9]eexpr 
+[10]nexpr [11]texpr [12]strexpr [13]indx_expr [14]dexpr 
+[15]array_expr [16]array_expr2 [17]includeSearch [18]forblock [19]forallblock 
+[20]forctl [21]forallctl [22]forfirstctl [23]ifblock [24]usingblock 
+[25]firstblock [26]block [27]thereis [28]setstatement [29]usingstatement 
+[30]performstatement [31]debugstatement [32]ifstatement [33]addtostatement [34]addtodest 
+[35]addtodest2 [36]subtodest [37]clearstatement [38]randomstatements [39]commonerror 
+[40]tablelist [41]operatorlist [42]operatorstatements [43]contextstatement [44]localvariables 
+[45]context_for_table [46]datestatement [47]xmlvalues [48]xmlvaluestatements [49]separator 
+[50]blist [51]blist_ic [52]ifcontinue [53]left_iexpr [54]left_fexpr 
+[55]left_bexpr [56]left_eexpr [57]left_strexpr [58]left_dexpr [59]left_ArrayRef 
+[60]left_texpr [61]colonRef [62]possessiveRef [63]array_lit [64]array_list 
+
 
 ===== Productions =====
 [0] done ::= ACTION statement_list 
@@ -581,14 +592,14 @@
 [513] bexpr ::= BOOLEAN VALUE_OF operatorstatements 
 [514] bexpr ::= BOOL_FUNCTION 
 
-------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+Closing files...
+------- CUP v0.10k Parser Generation Summary -------
   0 errors and 0 warnings
-  165 terminals, 64 non-terminals, and 515 productions declared, 
+  165 terminals, 65 non-terminals, and 515 productions declared, 
   producing 1312 unique parse states.
   0 terminals declared but not used.
   0 non-terminals declared but not used.
   0 productions never reduced.
   0 conflicts detected (0 expected).
-  Code written to "DTRulesParser.java", and "Symbols.java".
----------------------------------------------------- (v0.11a beta 20060608)
-
+  Code written to "DTRulesParser.java", and "sym.java".
+---------------------------------------------------- (v0.10k)
