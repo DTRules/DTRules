@@ -35,6 +35,10 @@ public class LoadSettings extends AGenericXMLParser {
 			app.console = isTrue(body);
 		}else if (tag.equals("update")){
 			app.update = Integer.parseInt(body);
+		}else if (tag.equals("dtrules")){
+			app.dtrules = isTrue(body);
+		}else if (tag.equals("printresults")){
+			app.printresults = isTrue(body);
 		}
 		
 		// If we don't specify a save, but we are tracing, then we save 

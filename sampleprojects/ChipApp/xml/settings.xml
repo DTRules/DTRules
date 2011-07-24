@@ -6,14 +6,14 @@
 	<threads>16</threads>        		<!-- Number of threads used by ChipApp to      		-->
 										<!--   process the jobs generated.             		-->
 
-	<numCases>50000</numCases>			<!-- The number of jobs to be generated. Most  		-->
+	<numCases>500000</numCases>	        <!-- The number of jobs to be generated. Most  		-->
 										<!--   jobs will have multiple applicants.       	-->
 
 	<save>0</save>   					<!-- One job out of every number specified here 	-->
 										<!--   will be saved to disk, to be processed       -->
 										<!--   "offline".  (See the writeup)                -->
 
-	<trace>false</trace>				<!-- If true, a trace file will be produced for     -->
+	<trace>false</trace>				    <!-- If true, a trace file will be produced for     -->
 										<!--   every file saved to disk.  If no files are   -->
 										<!--   specified (via saved above) to be saved,     -->
 										<!--   and trace is true, all files are saved and   -->
@@ -21,6 +21,12 @@
 
 	<console>false</console>			<!-- If true, results are printed to the console    -->
 	
-    <update>1</update>                  <!-- Look for Rules Engine updates every this many  -->
+    <update>0</update>                  <!-- Look for Rules Engine updates every this many  -->
     									<!--   seconds.                                     -->
+    						
+    <dtrules>false</dtrules>             <!-- Evaluate CHIP using the Rules Engine.  If      -->
+                                        <!--   false, a pure Java solution is used.         -->
+     
+    <printresults>false</printresults>  <!-- Print Approved, Denied client IDs              -->
+                                      
 </chipAppSettings>

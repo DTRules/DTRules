@@ -13,6 +13,7 @@
 			<setattribute tag='age' RAttribute='age' enclosure='client' type='integer'></setattribute>
 			<setattribute tag='gender' RAttribute='gender' enclosure='client' type='string'></setattribute>
 			<setattribute tag='validatedCitizenship' RAttribute='validatedCitizenship' enclosure='client' type='boolean'></setattribute>
+			<setattribute tag='validatedImmigrationStatus' RAttribute='validatedImmigrationStatus' enclosure='client' type='boolean'></setattribute>
 			<setattribute tag='livesAtResidence' RAttribute='livesAtResidence' enclosure='client' type='boolean'></setattribute>
 			<setattribute tag='pregnant' RAttribute='pregnant' enclosure='client' type='boolean'></setattribute>
 			<setattribute tag='expectedChildren' RAttribute='expectedChildren' enclosure='client' type='integer'></setattribute>

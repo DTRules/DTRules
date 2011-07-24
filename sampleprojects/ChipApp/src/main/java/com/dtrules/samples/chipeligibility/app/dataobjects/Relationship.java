@@ -7,6 +7,10 @@ public class Relationship {
 	Client		target;
 	String		type;
 	
+	public String toString(){
+		return source.getId()+" "+type+" "+target;
+	}
+	
 	public Relationship(){
 		id = ids++;
 	}

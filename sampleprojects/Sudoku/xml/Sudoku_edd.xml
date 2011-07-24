@@ -13,6 +13,7 @@
 	</entity>
 	<entity name='position' access='rw' comment=''>
 		<field name='column' type='integer' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='computed' type='boolean' subtype='' access='rw' input='main' default_value='false' comment=''></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='position' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='possiblevalues' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>

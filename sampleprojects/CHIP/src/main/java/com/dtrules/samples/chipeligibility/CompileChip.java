@@ -37,18 +37,17 @@ public class CompileChip {
      * @throws Exception
      */
     public static void main(String args[]) throws Exception { 
-        try {
-        	System.out.println("path: "+path);
-                    
-            Excel2XML.compile(path,"DTRules.dir.dtr","CHIP","repository");
+        
+    	try {
+        	
+    		String [] maps = { "main" };
+            Excel2XML.compile(path,"DTRules.dir.dtr","CHIP","repository",maps);
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");
             ex.printStackTrace();
             throw ex;
-        }
-        
-        
+        } 
         
      }
 }

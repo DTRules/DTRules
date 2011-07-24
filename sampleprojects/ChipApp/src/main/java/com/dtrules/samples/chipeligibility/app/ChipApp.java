@@ -15,15 +15,23 @@ public class ChipApp {
 	//
 	// These settings are loaded in from testfiles/settings.xml
 	//
-	int 	threads 	= 0;		// number of threads to use
-	int 	numCases 	= 0;		// number of cases to generate
-	int 	save 		= 0;        // Save cases whose id is divisible by this number 
-									//   1 would save every file, 3 would save every 3rd file.
-	boolean trace 		= false;	// Create trace files (a coverage file will be generated if tracing)
+	int 	threads 	 = 0;		// number of threads to use
+	int 	numCases 	 = 0;		// number of cases to generate
+	int 	save 		 = 0;       // Save cases whose id is divisible by this number 
+					                //   1 would save every file, 3 would save every 3rd file.
+	boolean trace 		 = false;	// Create trace files (a coverage file will be generated if tracing)
 									//   When used with save, only saved files are traced.
-	boolean console     = false;    // Write results to console.
+	boolean console      = false;   // Write results to console.
 	
-	int     update      = 60;       // Look for updates every 60 seconds
+	boolean dtrules      = true;    // Use DTRules to evaluate the rules.
+	
+	int     update       = 60;      // Look for updates every 60 seconds
+
+	boolean printresults = false;	// Print ids of clients approved and denied if true.
+
+	List<Integer> approvedClients = new ArrayList<Integer>() ;  // Approved clients
+	List<Integer> deniedClients   = new ArrayList<Integer>() ;  // Denied clients
+	
 	
 	// End of settings.
 	
@@ -90,25 +98,27 @@ public class ChipApp {
 		
 	synchronized Job next() {
 		pulled++;
-		if(pulled%(numCases/50) ==0){
-			System.out.print(".");
-			if(pulled%(numCases/5) ==0){
-				int c = cacheloads;
-				cacheloads = 0;
-				if(c > 0 ){
-					if(spaces == 0 ){
-						spaces = c + 5;
+		if(numCases>=50){
+			if(pulled%(numCases/50) ==0){
+				System.out.print(".");
+				if(pulled%(numCases/5) ==0){
+					int c = cacheloads;
+					cacheloads = 0;
+					if(c > 0 ){
+						if(spaces == 0 ){
+							spaces = c + 5;
+						}
+					}else if (spaces == 0){
+						spaces = 5;
 					}
-				}else if (spaces == 0){
-					spaces = 5;
+					
+					for(int i=0;i<spaces-c;i++) System.out.print(".");
+					System.out.printf("%" + (numCases+"").length() +"d ",pulled);
+					
+					Date now = new Date();
+					long t   = now.getTime() - start.getTime();
+					System.out.printf(" -- Run Time: %8d seconds\n", t/1000);
 				}
-				
-				for(int i=0;i<spaces-c;i++) System.out.print(".");
-				System.out.printf("%" + (numCases+"").length() +"d ",pulled);
-				
-				Date now = new Date();
-				long t   = now.getTime() - start.getTime();
-				System.out.printf(" -- Run Time: %8d seconds\n", t/1000);
 			}
 		}
 		if(pulled > numCases)return null;
@@ -215,6 +225,25 @@ public class ChipApp {
 				for(int i=1;i<processed.length;i++){
 					System.out.printf("  Processed in thread %8d : %8d\n", i, processed[i]);
 				}
+				if(printresults){
+					sort(approvedClients);
+					sort(deniedClients);
+					
+					System.out.println("\n\nApproved:\n");
+					int c = 1;
+					for(Integer id : approvedClients){
+						System.out.printf("%8d ",id);
+						if(c%10 == 0)System.out.println();
+						c++;
+					}
+					System.out.println("\n\nDenied:\n");
+				    c = 1;
+					for(Integer id : deniedClients){
+						System.out.printf("%8d ",id);
+						if(c%10 == 0)System.out.println();
+						c++;
+					}
+				}
 			}
 			{
 				long dt = (now.getTime() - start.getTime());
@@ -230,4 +259,28 @@ public class ChipApp {
 		}
 
 	}
+	
+	public void sort(List<Integer> array){
+		for(int i=0; i < array.size()-1; i++){
+			for(int j=0; j < array.size()-i-1; j++){
+				Integer a = array.get(j);
+				Integer b = array.get(j+1);
+				if((a!=null && b!= null && a>b)|| a==null){
+					array.set(j,   b);
+					array.set(j+1, a);
+				}
+			}
+		}
+	}
+
+	public List<Integer> getApprovedClients() {
+		return approvedClients;
+	}
+
+	public List<Integer> getDeniedClients() {
+		return deniedClients;
+	}
+
+	
+	
 }
