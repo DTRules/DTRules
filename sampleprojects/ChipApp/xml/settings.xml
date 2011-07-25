@@ -24,8 +24,10 @@
     <update>0</update>                  <!-- Look for Rules Engine updates every this many   -->
                                         <!--   seconds.                                      -->
                             
-    <dtrules>true</dtrules>             <!-- Evaluate CHIP using the Rules Engine.  If       -->
-                                        <!--   false, a pure Java solution is used.          -->
+    <dtrules>dtrules</dtrules>          <!-- How to evaluate the rules: "dtrules", "java",   -->
+                                        <!--   or "none".  "none" just creates jobs, sets    -->
+                                        <!--   up threads, and pulls from list.  Its a way   -->
+                                        <!--   to measure overhead.                          -->
      
     <printresults>false</printresults>  <!-- Print Approved, Denied client IDs               -->
                                       

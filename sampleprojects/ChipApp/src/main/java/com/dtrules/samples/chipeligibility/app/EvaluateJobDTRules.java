@@ -18,14 +18,11 @@ import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 
 
-public class EvaluateJobDTRules {
+public class EvaluateJobDTRules implements EvaluateJob {
 	
-	ChipApp app;
-	int      t;
-
-	public EvaluateJobDTRules(int threadnum, ChipApp app) {
-		this.t = threadnum;
-		this.app = app;
+	@Override
+	public String getName() {
+		return "dtrules";
 	}
 	
 	String getJobName(Job job){
@@ -35,7 +32,7 @@ public class EvaluateJobDTRules {
         return "Job_"+cnt;
 	}
 	
-	public String evaluate(Job job) {
+	public String evaluate(int threadnum, ChipApp app, Job job) {
             
         try {
              IRSession      session    = app.rs.newSession();
@@ -103,7 +100,7 @@ public class EvaluateJobDTRules {
              }
              
              
-             printReport(session);
+             printReport(threadnum, app, session);
            
             
          } catch ( Exception ex ) {
@@ -114,7 +111,7 @@ public class EvaluateJobDTRules {
          return null;
      }
     
-    public void printReport(IRSession session) throws RulesException {
+    public void printReport(int threadnum, ChipApp app, IRSession session) throws RulesException {
         IREntity 	job     = session.getState().find("job.job").rEntityValue();
         RArray 		results = job.get("job.results").rArrayValue();
         String      jobId   = job.get("id").stringValue();
@@ -154,7 +151,7 @@ public class EvaluateJobDTRules {
             }
         }
         
-        app.update(t, clients.size(), approved, denied);
+        app.update(threadnum, clients.size(), approved, denied);
         
     }
 }

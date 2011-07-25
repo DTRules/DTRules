@@ -23,7 +23,7 @@ public class ChipApp {
 									//   When used with save, only saved files are traced.
 	boolean console      = false;   // Write results to console.
 	
-	boolean dtrules      = true;    // Use DTRules to evaluate the rules.
+	EvaluateJob ejob     = new EvaluateJobDTRules(); // Use DTRules to evaluate the rules.
 	
 	int     update       = 60;      // Look for updates every 60 seconds
 
@@ -137,7 +137,7 @@ public class ChipApp {
 		
 		try {
 			LoadSettings.loadSettings(this);
-			
+			System.out.println("Rules: "+ejob.getName());
 			System.out.println("Executing  "+threads+" threads");
 			System.out.println("Processing "+numCases+" cases");
 			System.out.println("Capturing jobs with numbers divisable by "+save);

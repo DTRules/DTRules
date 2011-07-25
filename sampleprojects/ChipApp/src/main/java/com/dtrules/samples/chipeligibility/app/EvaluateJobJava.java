@@ -24,18 +24,14 @@ import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 
 
-public class EvaluateJobJava  {	
-	
-	ChipApp app;
-	int     t;
-	
+public class EvaluateJobJava implements EvaluateJob  {	
+		
 	int FPL_Base                = 867;
 	int FPL_PerAdditionalPerson	= 300;
 
-	
-	EvaluateJobJava(int threadnum, ChipApp app){
-		this.app = app;
-		this.t   = threadnum;
+	@Override
+	public String getName() {
+		return "java";
 	}
 	
 	String [] excludedIncomes = {
@@ -46,33 +42,33 @@ public class EvaluateJobJava  {
 			"AA", "AK", "BC", "BK", "BT", "CR", "CO",  "TX",  "LO",  "AR"
 	};
 	
-	Map<Integer,Boolean>  clientEligibility  = new HashMap<Integer,Boolean>();
-	Map<Integer,String[]> clientNotes        = new HashMap<Integer,String[]>();
-	Map<Integer,Integer>  clientIncome       = new HashMap<Integer,Integer>();
-	Map<Integer,Integer>  clientGroupCnt 	 = new HashMap<Integer,Integer>();
-	Map<Integer,Integer>  clientTotalIncome  = new HashMap<Integer,Integer>();
-	
-	public String evaluate(Job job) {
-				
-		clientEligibility.clear();
-		clientNotes.clear();
-		clientIncome.clear();
-		clientGroupCnt.clear();
-		clientTotalIncome.clear();
+	class JState {
+		Map<Integer,Boolean>  clientEligibility  = new HashMap<Integer,Boolean>();
+		Map<Integer,String[]> clientNotes        = new HashMap<Integer,String[]>();
+		Map<Integer,Integer>  clientIncome       = new HashMap<Integer,Integer>();
+		Map<Integer,Integer>  clientGroupCnt 	 = new HashMap<Integer,Integer>();
+		Map<Integer,Integer>  clientTotalIncome  = new HashMap<Integer,Integer>();
+	}
+	/* (non-Javadoc)
+	 * @see com.dtrules.samples.chipeligibility.app.EvaluateJob#evaluate(com.dtrules.samples.chipeligibility.app.dataobjects.Job)
+	 */
+	@Override
+	public String evaluate(int threadnum, ChipApp app, Job job) {
+		
+		JState jstate = new JState();
 		
         if(job.getProgram()=="CHIP"){
-        	Calculate_Individual_Income(job);
-        	Calculate_Group_Size(job);
-        	Evaluate_Chip_Eligibility(job);
-        	Evaluate_Results(job);
+        	Calculate_Individual_Income(job, jstate);
+        	Calculate_Group_Size(job, jstate);
+        	Evaluate_Chip_Eligibility(job, jstate);
+        	Evaluate_Results(threadnum, app, job, jstate);
         }
     	
         return null;
      }
     
-	public void Calculate_Individual_Income(Job job){
+	public void Calculate_Individual_Income(Job job, JState jstate){
 		for(Client client : job.getCase().getClients()){
-			int clientid = client.getId();
 			Integer amount = 0;
 			for(Income income : client.getIncomes()){
 				if(income.getEarned()){
@@ -90,13 +86,13 @@ public class EvaluateJobJava  {
 					}
 				}
 			}
-			clientIncome.put(client.getId(), amount);
+			jstate.clientIncome.put(client.getId(), amount);
 		}
 	}
 	
 	
 	
-	public void Calculate_Group_Size(Job job){
+	public void Calculate_Group_Size(Job job, JState jstate){
 		for(Client thisClient : job.getCase().getClients()) if(thisClient.getApplying()){
 			int totalgroupincome = 0;
 			int groupcnt         = 0;
@@ -109,7 +105,7 @@ public class EvaluateJobJava  {
 					}
 
 					if(client.getAge()>18){
-					   totalgroupincome += clientIncome.get(client.getId());
+					   totalgroupincome += jstate.clientIncome.get(client.getId());
 					}
 				}
 			
@@ -120,7 +116,7 @@ public class EvaluateJobJava  {
 					}
 					
 					if(client.getAge()>18){
-						totalgroupincome += clientIncome.get(client.getId());
+						totalgroupincome += jstate.clientIncome.get(client.getId());
 					}
 				}
 				
@@ -131,7 +127,7 @@ public class EvaluateJobJava  {
 					}
 					
 					if(client.getAge()>18){
-						totalgroupincome += clientIncome.get(client.getId());
+						totalgroupincome += jstate.clientIncome.get(client.getId());
 					}
 				}
 				
@@ -139,19 +135,19 @@ public class EvaluateJobJava  {
 					groupcnt++;
 					
 					if(client.getAge()>18){
-						totalgroupincome += clientIncome.get(client.getId());
+						totalgroupincome +=jstate.clientIncome.get(client.getId());
 					}
 				}
 			}
-			clientGroupCnt.put(thisClient.getId(), groupcnt);
-			clientTotalIncome   .put(thisClient.getId(), totalgroupincome);
+			jstate.clientGroupCnt.put(thisClient.getId(), groupcnt);
+			jstate.clientTotalIncome   .put(thisClient.getId(), totalgroupincome);
 		}
 	}
 	
-	public void Evaluate_Chip_Eligibility(Job job){
+	public void Evaluate_Chip_Eligibility(Job job, JState jstate){
 		// For all the clients whose applying == true.
 		for (Client client : job.getCase().getClients()) if(client.getApplying()){
-			int incomeGroupCnt = clientGroupCnt.get(client.getId());
+			int incomeGroupCnt =jstate.clientGroupCnt.get(client.getId());
 			int FPL = FPL_Base + FPL_PerAdditionalPerson * (incomeGroupCnt - 1 );
 			int FPL200 = FPL*2;
 			List <String> notes = new ArrayList<String>();
@@ -163,9 +159,9 @@ public class EvaluateJobJava  {
 				eligible = false;
 			}
 			
-			if(clientTotalIncome.get(client.getId())>FPL200){
+			if(jstate.clientTotalIncome.get(client.getId())>FPL200){
 				notes.add("The Client's total group income, "+
-			    clientTotalIncome.get(client.getId()) + 
+			    jstate.clientTotalIncome.get(client.getId()) + 
 			    "is greater than 200 percent of the FPL "+
 			    FPL200);
 				eligible = false;
@@ -211,8 +207,8 @@ public class EvaluateJobJava  {
 				eligible = false;
 			}
 			
-			clientEligibility.put(client.getId(), eligible);
-			notes.add("Client Income = " + clientTotalIncome.get(client.getId()));
+			jstate.clientEligibility.put(client.getId(), eligible);
+			notes.add("Client Income = " + jstate.clientTotalIncome.get(client.getId()));
 		}
 	}
     
@@ -231,14 +227,14 @@ public class EvaluateJobJava  {
 		
 	}
 	
-	public void Evaluate_Results(Job job){
-		if(clientEligibility.size()==0 && app.console){
+	public void Evaluate_Results(int threadnum, ChipApp app, Job job, JState jstate){
+		if(jstate.clientEligibility.size()==0 && app.console){
         	System.out.println("No results for job " + job.getId());
 		}
 		int approved = 0;
 		int denied   = 0;
 		for (Client client : job.getCase().getClients()) if(client.getApplying()){
-			Boolean e = clientEligibility.get(client.getId());
+			Boolean e =jstate.clientEligibility.get(client.getId());
 			synchronized (app) {
 				if(e==null){
 					System.out.println("Client "+client.getId()+" is null");
@@ -252,7 +248,7 @@ public class EvaluateJobJava  {
 			}
 		}
 		
-		app.update(t, job.getCase().getClients().size(), approved, denied);
+		app.update(threadnum, job.getCase().getClients().size(), approved, denied);
 	}
 	
 }

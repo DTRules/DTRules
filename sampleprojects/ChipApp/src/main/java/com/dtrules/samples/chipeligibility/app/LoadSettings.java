@@ -8,7 +8,8 @@ import com.dtrules.xmlparser.AGenericXMLParser;
 import com.dtrules.xmlparser.GenericXMLParser;
 
 public class LoadSettings extends AGenericXMLParser {
-	ChipApp app;
+	ChipApp app;	
+	
 	LoadSettings(ChipApp app){
 		this.app = app;
 	}
@@ -36,7 +37,13 @@ public class LoadSettings extends AGenericXMLParser {
 		}else if (tag.equals("update")){
 			app.update = Integer.parseInt(body);
 		}else if (tag.equals("dtrules")){
-			app.dtrules = isTrue(body);
+			if(body.equals("dtrules")){
+				app.ejob = new EvaluateJobDTRules();
+			}else if( body.equals("java")){
+				app.ejob = new EvaluateJobJava();
+			}else{
+				app.ejob = new EvaluateJobNone();
+			}
 		}else if (tag.equals("printresults")){
 			app.printresults = isTrue(body);
 		}

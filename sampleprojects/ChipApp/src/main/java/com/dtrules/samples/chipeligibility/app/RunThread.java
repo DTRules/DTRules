@@ -67,11 +67,7 @@ public class RunThread extends Thread {
      */
     public String runfile(Job job) {
    
-    	if(app.dtrules){
-    		return new EvaluateJobDTRules(t, app).evaluate(job);
-    	}else{
-    		return new EvaluateJobJava(t, app).evaluate(job);
-    	}
+    	return app.ejob.evaluate(t, app, job);
        
     }
     
