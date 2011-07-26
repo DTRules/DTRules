@@ -214,7 +214,7 @@ public class RDecisionTable extends ARObject {
      * 
      * @return comments on each context statement.
      */
-    public String[] getContextComments() {
+    public String[] getContextsComment() {
         return contextComments;
     }
 
