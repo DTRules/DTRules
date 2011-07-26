@@ -335,7 +335,7 @@ public class Rules2Excel {
             cRow++;
     
             String contexts  [] = dt.getContexts();
-            String ccontexts [] = dt.getContextsComment();
+            String ccontexts [] = dt.getContextComments();
             for(int cnt = 1; cnt <= contexts.length; cnt++){
                 r = nextRow(s, cRow, 18);                            // Create a new row
                 c = r.createCell(0);
