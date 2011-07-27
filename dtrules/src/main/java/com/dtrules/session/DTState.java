@@ -521,7 +521,7 @@ public class DTState {
             throw new RulesException("Entity Stack Overflow", o.stringValue(), "Entity Stack overflow.");
         }
         if((state & TRACE) > 0){
-        	traceInfo("entitypush","value",o.getName().stringValue(), "id",o.getID()+"",null);
+        	traceInfo("entitypush","entity",o.getName().stringValue(), "id",o.getID()+"",null);
         }
         entitystk[entitystkptr++] = o;
     }
@@ -881,7 +881,11 @@ public class DTState {
                 REntityEntry entry = e.getEntry(name);
                 if (entry != null && (!protect || entry.writable)) {
                     if (testState(TRACE)) {
-                        out.printdata("def", "entity", e.postFix(), "name", name.stringValue(), value.postFix());
+                        out.printdata("def", 
+                        		"id",     e.getID(), 
+                        		"entity", e.getName().stringValue(), 
+                        		"name",   name.stringValue(), 
+                        		value.postFix());
                     }
 
                     e.put(null, name, value);

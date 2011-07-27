@@ -33,6 +33,10 @@ public class Client {
 		id = ids++;
 	}
 	
+	public String toString(){
+		return "id="+id;
+	}
+	
 	public Integer getId(){
 		return id;
 	}
