@@ -230,7 +230,7 @@ dup clients forall pop
 <condition_requirement></condition_requirement>
 <condition_description>the client is the parent of ThisClient</condition_description>
 <condition_postfix>
-parent { pop true } { pop false } { dup type streq source client  req and target 0 local@   req and }  relationships forfirstelse 
+/source client /target 0 local@  /type parent relationships findmatch swap pop
 </condition_postfix>
 <condition_column column_value="Y" column_number="3"></condition_column>
 <condition_column column_value="Y" column_number="4"></condition_column>
@@ -241,7 +241,7 @@ parent { pop true } { pop false } { dup type streq source client  req and target
 <condition_requirement></condition_requirement>
 <condition_description>the client is the sibling of ThisClient</condition_description>
 <condition_postfix>
-sibling { pop true } { pop false } { dup type streq source client  req and target 0 local@   req and }  relationships forfirstelse 
+/source client /target 0 local@  /type sibling relationships findmatch swap pop
 </condition_postfix>
 <condition_column column_value="Y" column_number="5"></condition_column>
 <condition_column column_value="Y" column_number="6"></condition_column>
@@ -252,7 +252,7 @@ sibling { pop true } { pop false } { dup type streq source client  req and targe
 <condition_requirement></condition_requirement>
 <condition_description>the client is the child of ThisClient</condition_description>
 <condition_postfix>
-child { pop true } { pop false } { dup type streq source client  req and target 0 local@   req and }  relationships forfirstelse 
+/source client /target 0 local@  /type child relationships findmatch swap pop
 </condition_postfix>
 <condition_column column_value="Y" column_number="7"></condition_column>
 <condition_column column_value="Y" column_number="12"></condition_column></condition_details>

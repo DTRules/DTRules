@@ -23,7 +23,12 @@ import com.dtrules.samples.chipeligibility.app.dataobjects.Relationship;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 
-
+/**
+ * Implements the interface to EvaluateJob.  This class must be stateless in
+ * order to support multiple threads using it to evaluate jobs for CHIP.
+ * @author paul
+ *
+ */
 public class EvaluateJobJava implements EvaluateJob  {	
 		
 	int FPL_Base                = 867;
@@ -42,6 +47,13 @@ public class EvaluateJobJava implements EvaluateJob  {
 			"AA", "AK", "BC", "BK", "BT", "CR", "CO",  "TX",  "LO",  "AR"
 	};
 	
+	/**
+	 * This is our state class for collecting various intermediate results needed
+	 * as we process a job for CHIP.  
+	 * 
+	 * @author paul
+	 *
+	 */
 	class JState {
 		Map<Integer,Boolean>  clientEligibility  = new HashMap<Integer,Boolean>();
 		Map<Integer,String[]> clientNotes        = new HashMap<Integer,String[]>();
@@ -49,10 +61,18 @@ public class EvaluateJobJava implements EvaluateJob  {
 		Map<Integer,Integer>  clientGroupCnt 	 = new HashMap<Integer,Integer>();
 		Map<Integer,Integer>  clientTotalIncome  = new HashMap<Integer,Integer>();
 	}
-	/* (non-Javadoc)
-	 * @see com.dtrules.samples.chipeligibility.app.EvaluateJob#evaluate(com.dtrules.samples.chipeligibility.app.dataobjects.Job)
-	 */
+
 	@Override
+	/**
+	 * Process the given job for CHIP eligibility for the clients in the
+	 * Job that are applying for CHIP.  Also takes a thread number for 
+	 * reporting purposes.
+	 * 
+	 * @param threadnum
+	 * @param app
+	 * @param job
+	 * @return
+	 */
 	public String evaluate(int threadnum, ChipApp app, Job job) {
 		
 		JState jstate = new JState();
@@ -66,7 +86,12 @@ public class EvaluateJobJava implements EvaluateJob  {
     	
         return null;
      }
-    
+    /**
+     * Go through the income records for each individual in the case,
+     * and add up their countable income.
+     * @param job
+     * @param jstate
+     */
 	public void Calculate_Individual_Income(Job job, JState jstate){
 		for(Client client : job.getCase().getClients()){
 			Integer amount = 0;
@@ -91,7 +116,14 @@ public class EvaluateJobJava implements EvaluateJob  {
 	}
 	
 	
-	
+	/**
+	 * Calculate the size of the eligibility group centered on each individual
+	 * applying for CHIP.  The incomes of these individuals are also summed as
+	 * appropriate to arrive at the income of the group.  That is what we look
+	 * at in determining the means of the group around an applicant.
+	 * @param job
+	 * @param jstate
+	 */
 	public void Calculate_Group_Size(Job job, JState jstate){
 		for(Client thisClient : job.getCase().getClients()) if(thisClient.getApplying()){
 			int totalgroupincome = 0;
@@ -144,6 +176,14 @@ public class EvaluateJobJava implements EvaluateJob  {
 		}
 	}
 	
+	/**
+	 * Once we have the incomes of the individuals, and the size of the group
+	 * around each applicant, and the income of that group, we can evaluate the
+	 * eligibility of each applicant.
+	 *  
+	 * @param job
+	 * @param jstate
+	 */
 	public void Evaluate_Chip_Eligibility(Job job, JState jstate){
 		// For all the clients whose applying == true.
 		for (Client client : job.getCase().getClients()) if(client.getApplying()){
@@ -212,7 +252,15 @@ public class EvaluateJobJava implements EvaluateJob  {
 		}
 	}
     
-	
+	/**
+	 * Look through the list of relationships, and answer the question, is this
+	 * source individual the [relationship] of the target.
+	 * @param relationship
+	 * @param thecase
+	 * @param source
+	 * @param target
+	 * @return
+	 */
 	public boolean is(String relationship,Case thecase, Client source,Client target){
 		
 		for(Relationship r : thecase.getRelationships()){
@@ -226,7 +274,13 @@ public class EvaluateJobJava implements EvaluateJob  {
 		return false;
 		
 	}
-	
+	/**
+	 * Sum up the results and report to the app.
+	 * @param threadnum
+	 * @param app
+	 * @param job
+	 * @param jstate
+	 */
 	public void Evaluate_Results(int threadnum, ChipApp app, Job job, JState jstate){
 		if(jstate.clientEligibility.size()==0 && app.console){
         	System.out.println("No results for job " + job.getId());
