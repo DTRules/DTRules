@@ -15,16 +15,27 @@ import com.dtrules.xmlparser.XMLPrinter;
 
 public class Trace {
 	
-	TraceNode root = new TraceNode("root", new HashMap<String,String>());
+	TraceNode root   = null;
 	
 	Map<String,IREntity> entitytable = new HashMap<String,IREntity>();
 	
-	
+	/**
+	 * Create a TraceNode tree from the given tracefile filepath. 
+	 * @param tracefile
+	 * @return
+	 * @throws Exception
+	 */
 	public TraceNode load (String tracefile) throws Exception {
 		InputStream tracefilestream = new FileInputStream(tracefile);
 		return load(tracefilestream);
 	}
 
+	/**
+	 * Create a TraceNode tree from the given tracefilestream.
+	 * @param tracefilestream
+	 * @return
+	 * @throws Exception
+	 */
 	public TraceNode load (InputStream tracefilestream) throws Exception {
 		TraceLoader loader = new TraceLoader();
 		GenericXMLParser.load(tracefilestream, loader);
@@ -32,10 +43,17 @@ public class Trace {
 		return root;
 	}
 
+	/**
+	 * Print the TraceNode tree for this object.
+	 */
 	public void print(){
 		XMLPrinter out = new XMLPrinter(System.out);
 		out.setSpaceCnt(2);
-		root.print( out);
+		if(root != null ){
+			root.print( out);
+		}else{
+			System.out.println("No tree has been loaded");
+		}
 	}
 	/**
 	 * Returns a session that represents a Rules Engine in the state at 
@@ -54,14 +72,43 @@ public class Trace {
 			return null;
 		}
 	}
+	/**
+	 * Find the i'th node in the tree.
+	 * @param i
+	 * @return
+	 */
+	public TraceNode find(int i){
+		return root.find(i);
+	}
 	
+	/**
+	 * A simple test file.
+	 * @param args
+	 * @throws Exception
+	 */
 	static public void main(String [] args) throws Exception {
 		
 		String tracefile    = System.getProperty("user.dir")+"/testdata/job_trace.xml";
 		Trace trace 		= new Trace();
 		
 		trace.load(tracefile);
-		trace.print();
+		//trace.print();
+		
+		TraceNode t = trace.find(11074);
+		
+		RulesDirectory rd = new RulesDirectory(
+				System.getProperty("user.dir")+"/../sampleprojects/CHIP/", "DTRules.xml");
+		
+		RuleSet rs = rd.getRuleSet("CHIP");
+		
+		IRSession s = trace.setState(rs, t);
+		
+		int edepth = s.getState().edepth();
+		for(int i = 0; i < edepth; i++){
+			IREntity e = s.getState().getes(i);
+			System.out.println(e.getName()+" "+e.getID());
+		}
+		
 	}
 	
 	

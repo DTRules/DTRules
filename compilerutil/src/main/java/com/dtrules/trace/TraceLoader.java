@@ -9,12 +9,15 @@ import com.dtrules.xmlparser.AGenericXMLParser;
 
 public class TraceLoader extends AGenericXMLParser {
 		
+	int number = 1;
+	
 	Stack<TraceNode> tagStack = new Stack<TraceNode>();
 
 	@Override
 	public void beginTag(String[] tagstk, int tagstkptr, String tag,
 			HashMap<String, String> attribs) throws IOException, Exception {
-			TraceNode thisNode = new TraceNode(tag,attribs);
+			TraceNode thisNode = new TraceNode(number, tag,attribs);
+			number++;
 			if(tagStack.size()>0){
 			   tagStack.lastElement().addChild(thisNode);
 			   thisNode.setParent(tagStack.lastElement());
