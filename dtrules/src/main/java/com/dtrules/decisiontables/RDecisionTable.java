@@ -143,6 +143,15 @@ public class RDecisionTable extends ARObject {
     public static  RName    file_name = RName.getRName("File_Name");
     public static  RName    type_name = RName.getRName("type");	
 	
+	
+	List<IDecisionTableError> errorlist = new ArrayList<IDecisionTableError>();
+	DTNode decisiontree=null;
+
+    private int numberOfRealColumns = 0;        // Number of real columns (as unbalanced tables can have
+    											// far more columns than they appear to have).
+
+    
+    
 	public boolean getHasNullColumn(){
 	    return hasNullColumn;
 	}
@@ -356,14 +365,6 @@ public class RDecisionTable extends ARObject {
 	    
 	}
 	
-	
-	
-	List<IDecisionTableError> errorlist = new ArrayList<IDecisionTableError>();
-	DTNode decisiontree=null;
-
-    private int numberOfRealColumns = 0;        // Number of real columns (as unbalanced tables can have
-    // far more columns than they appear to have).
-
     public int getNumberOfRealColumns() {
         if(decisiontree==null)return 0;
         return decisiontree.countColumns();
@@ -1312,7 +1313,10 @@ public class RDecisionTable extends ARObject {
      * @return
      */
     private DTNode optimize(DTState state, DTNode node){
-        ANode opt = node.getCommonANode(state);
+    	
+    	if(state.testState(DTState.TRACE))return node;  // We don't want to optimize if
+    													//   we are tracing as that messes
+        ANode opt = node.getCommonANode(state);			//   with the column numbers.
         if(opt!=null){
             return opt;
         }
