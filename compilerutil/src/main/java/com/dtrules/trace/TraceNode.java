@@ -178,5 +178,8 @@ public class TraceNode {
 		this.parent = parent;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return name + " (" + body + ") " + attributes;
+	}
 }
