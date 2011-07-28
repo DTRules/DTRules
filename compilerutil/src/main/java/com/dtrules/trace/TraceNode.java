@@ -36,13 +36,15 @@ import com.dtrules.xmlparser.XMLPrinter;
  *
  */
 public class TraceNode {
+	protected int 					number;
 	protected String 				name;
 	protected Map<String, String> 	attributes;
 	protected List<TraceNode> 		children = new ArrayList<TraceNode>();
 	protected String 				body;
 	protected TraceNode             parent = null;
 	
-	TraceNode(String name, Map<String,String> attributes){
+	TraceNode(int number, String name, Map<String,String> attributes){
+		this.number     = number;
 		this.name 		= name;
 		this.attributes = attributes;
 	}
@@ -75,7 +77,17 @@ public class TraceNode {
 		this.body = body;
 	}
 	
+	public TraceNode find(int n){
+		if(number == n)return this;
+		for(TraceNode child :children){
+			TraceNode tn = child.find(n);
+			if(tn!= null)return tn;
+		}
+		return null;
+	}
+	
 	public void print(XMLPrinter out) { 
+		attributes.put("t_num", ""+number);
 		if(children.size()>0){
 			out.opentag(name, attributes);
 			for(TraceNode node : children){
