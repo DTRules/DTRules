@@ -81,7 +81,9 @@ public class TraceNode {
 		if(number == n)return this;
 		for(TraceNode child :children){
 			TraceNode tn = child.find(n);
-			if(tn!= null)return tn;
+			if(tn!= null){
+				return tn;
+			}
 		}
 		return null;
 	}

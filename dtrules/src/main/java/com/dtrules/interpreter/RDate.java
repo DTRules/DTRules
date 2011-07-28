@@ -65,8 +65,6 @@ public class RDate extends ARObject {
         return RString.newRString(stringValue());
     }
 
-
-
     private RDate(Date t){
         time = t;
     }
@@ -92,14 +90,19 @@ public class RDate extends ARObject {
 
     @Override
     public String toString(){
-        SimpleDateFormat f = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
+        SimpleDateFormat f = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSSS");
         return f.format(time);
     }
     
     public String stringValue() {
-        return time.toString();
+        return toString();
     }
 
+    @Override
+    public String postFix() {
+    	return "\""+toString()+"\" cvd";
+    }
+    
     public int getYear(DTState state) throws RulesException{
         if(time==null){
             throw new RulesException("Undefined", "getYear()", "No valid date available");

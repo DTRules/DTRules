@@ -9,6 +9,7 @@ import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
+import com.dtrules.session.RulesDirectory;
 import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.XMLPrinter;
 
@@ -91,7 +92,8 @@ public class Trace {
 	 */
 	static public void main(String [] args) throws Exception {
 		
-		String tracefile    = System.getProperty("user.dir")+"/testdata/job_trace.xml";
+		String tracefile    = System.getProperty("user.dir")+
+				"/../sampleprojects/CHIP/testfiles/output/job_trace.xml";
 		Trace trace 		= new Trace();
 		
 		trace.load(tracefile);

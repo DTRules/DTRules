@@ -48,7 +48,8 @@ public class RMiscOps {
         new Createentity(); new Cvi();          new Cvr();
         new Cvb();          new Cve();          new Cvs();
         new Cvn();          new Cvd();          new ActionString();
-        new PrintTOS();     new GetDescription();                   
+        new PrintTOS();     new GetDescription();  
+        new FindCreateEntity();
     }
 
     /**
@@ -516,8 +517,8 @@ public class RMiscOps {
      * @author paul snow
      *
      */
-    public static class  findCreateEntity   extends ROperator {
-    	findCreateEntity(){super("findCreateEntity"); alias("fce");}
+    public static class  FindCreateEntity   extends ROperator {
+    	FindCreateEntity(){super("findCreateEntity"); alias("fce");}
         RName entityTraceIDList = RName.getRName("entityTraceIdList");
         public void execute(DTState state) throws RulesException {
         	
@@ -658,7 +659,7 @@ public class RMiscOps {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
-                v = o.rTimeValue();
+                v = o.rTimeValue(state.getSession());
             }catch(Exception e){
                 Date d =    state.getSession().getDateParser().getDate(o.stringValue());
                 if(d!=null){

@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 public class DateParser implements IDateParser {
 
     public  Pattern [] patterns ={
+        Pattern.compile("\\d{1,2}/\\d{1,2}/\\d{4} \\d\\d:\\d\\d:\\d\\d:\\d\\d\\d\\d"),
         Pattern.compile("\\d{1,2}/\\d{1,2}/\\d{4}"),
         Pattern.compile("[01]?\\d-[0123]?\\d-\\d\\d\\d\\d"),
         Pattern.compile("\\d\\d\\d\\d/[01]?\\d/[0123]?\\d"),
@@ -34,6 +35,7 @@ public class DateParser implements IDateParser {
     };
     
     public  SimpleDateFormat [] formats ={
+            new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSSS"),
             new SimpleDateFormat("MM/dd/yyyy"),
             new SimpleDateFormat("MM-dd-yyyy"),
             new SimpleDateFormat("yyyy/MM/dd"),
