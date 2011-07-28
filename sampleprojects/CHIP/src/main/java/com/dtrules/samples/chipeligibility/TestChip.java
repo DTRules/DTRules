@@ -36,7 +36,7 @@ public class TestChip extends ATestHarness {
 	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
 	    public String   getRuleSetName()          { return "CHIP";                          }
 	    public String   getDecisionTableName()    { return "Compute_Eligibility";           }
-	    public String   getRulesDirectoryFile()   { return "DTRules.dir.dtr";               }             
+	    public String   getRulesDirectoryFile()   { return "DTRules.xml";               }             
 	    
 	    public static void main(String[] args) {
 	    	

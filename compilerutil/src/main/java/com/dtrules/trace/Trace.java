@@ -9,7 +9,6 @@ import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
-import com.dtrules.session.RulesDirectory;
 import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.XMLPrinter;
 
@@ -29,6 +28,10 @@ public class Trace {
 		TraceLoader loader = new TraceLoader();
 		GenericXMLParser.load(tracefilestream, loader);
 		root = loader.tagStack.pop().children.get(0);
+		return root;
+	}
+	
+	public TraceNode root () {
 		return root;
 	}
 

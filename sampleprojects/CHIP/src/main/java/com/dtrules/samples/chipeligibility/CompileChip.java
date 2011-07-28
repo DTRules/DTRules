@@ -41,7 +41,7 @@ public class CompileChip {
     	try {
         	
     		String [] maps = { "main" };
-            Excel2XML.compile(path,"DTRules.dir.dtr","CHIP","repository",maps);
+            Excel2XML.compile(path,"DTRules.xml","CHIP","repository",maps);
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");
