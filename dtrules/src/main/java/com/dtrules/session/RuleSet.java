@@ -102,8 +102,12 @@ public class RuleSet {
         return autoDataMap;
     }
     
-    @SuppressWarnings("unchecked")
-	public Class<ICompiler> getDefaultCompiler() throws RulesException {
+    /**
+     * Return the default compiler for this Rule Set.
+     * @return Class<ICompiler>
+     * @throws RulesException
+     */
+    public Class<ICompiler> getDefaultCompiler() throws RulesException {
     	if(defaultCompiler == null){
     		defaultCompiler = rd.getDefaultCompiler();
     	}
@@ -123,6 +127,7 @@ public class RuleSet {
 		   this.defaultCompiler = (Class<ICompiler>) Class.forName(qualifiedCompilerClassName);
 		}catch(ClassNotFoundException e){}
 	}
+	
 	/**
 	 * Set the default compiler to the given compiler.
 	 * @param compiler

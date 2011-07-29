@@ -45,7 +45,10 @@ public class RulesDirectory {
                                         // rule sets.
     Class<ICompiler>       defaultCompiler;
     
-    
+    boolean				   optimize;  	// If true, then decision tables are optimized to
+                                        // condense common paths through the code.  However,
+                                        // when analyzing code paths, optimizations will
+                                        // cause problems in reporting trace information.
     
     public Class<ICompiler> getDefaultCompiler() throws RulesException {
     	if(defaultCompiler == null){
@@ -73,22 +76,26 @@ public class RulesDirectory {
 		}
 	}
     
+	/**
+     * Returns true if the RulesDirectory has been successfully loaded.
+     * @return boolean
+     */
+    public boolean isLoaded(){return loaded;}
+    
     /**
      * Returns the ruleset associated with the given name.  The conversion
      * of the String to an RName is done by this routine.  
      * All hash tables in DTRules should use RNames as keys.
-     *
-     * Returns true if the RulesDirectory has been successfully loaded.
-     * @return
+     * 
+     * @param setname the name of the Rule Set
+     * @return RuleSet
      */
-    public boolean isLoaded(){return loaded;}
-    
     public RuleSet getRuleSet(String setname){
         return getRuleSet(RName.getRName(setname));
     }
     
     /**
-     * Returns the ruleset associated with the given name.  Note that the
+     * Returns the rule set associated with the given name.  Note that the
      * key is an RName.  All hash tables in DTRules should use RNames as keys.
      * 
      * @param setname
@@ -138,6 +145,7 @@ public class RulesDirectory {
  
     String propertyfile;
     
+    
     /**
      * The RulesDirectory manages the various RuleSets and the versions of 
      * RuleSets.  We need to do a good bit of work to make all of this 
@@ -148,10 +156,38 @@ public class RulesDirectory {
      * The systemPath is assumed to be the name of a directory, either with
      * or without a ending '/' or '\'.
      * 
-     * @param propertyfile
+     * @param systemPath A Path to the property file, and a point in the file
+     *                   system from which all paths in the property file are
+     *                   relative to.
+     * @param propertyfile The name of the property file.
+     * 
+     * @param opt True if the decision tables should be optimized, and false
+     *            otherwise (needed for trace for accurate path analysis)
      */
-    public RulesDirectory(String systemPath, String propertyfile) {
-        if(systemPath.endsWith("/")||systemPath.endsWith("\\")){
+    public RulesDirectory(String systemPath, String propertyfile, boolean opt) {
+    	load(systemPath,propertyfile, opt);
+    }
+    
+    /**
+     * The RulesDirectory manages the various RuleSets and the versions of 
+     * RuleSets.  We need to do a good bit of work to make all of this 
+     * manageable. For right now, I am loading the property list from the 
+     * path provided this class.  It first attempts to use this path as a
+     * jar resource, then an URL, then a file.
+     * 
+     * The systemPath is assumed to be the name of a directory, either with
+     * or without a ending '/' or '\'.
+     * 
+     * @param systemPath A Path to the property file, and a point in the file
+     *                   system from which all paths in the property file are
+     *                   relative to.
+     * @param propertyfile The name of the property file.
+     * 
+     * @param opt True if the decision tables should be optimized, and false
+     *            otherwise (needed for trace for accurate path analysis)
+     */
+    public void load(String systemPath, String propertyfile, boolean opt){	
+    	if(systemPath.endsWith("/")||systemPath.endsWith("\\")){
             // If it has an ending slash, chop it off.
             systemPath = systemPath.substring(0,systemPath.length()-1);
         }
@@ -161,10 +197,32 @@ public class RulesDirectory {
         }
         this.propertyfile = propertyfile;  
         this.systemPath   = systemPath.trim();
+        this.optimize     = opt;
         String f = systemPath + "/" + propertyfile;
         InputStream s = openstream(this,f);
     	loadRulesDirectory(s);
     }
+
+    /**
+     * The RulesDirectory manages the various RuleSets and the versions of 
+     * RuleSets.  We need to do a good bit of work to make all of this 
+     * manageable. For right now, I am loading the property list from the 
+     * path provided this class.  It first attempts to use this path as a
+     * jar resource, then an URL, then a file.
+     * 
+     * The systemPath is assumed to be the name of a directory, either with
+     * or without a ending '/' or '\'.
+     * 
+     * @param systemPath A Path to the property file, and a point in the file
+     *                   system from which all paths in the property file are
+     *                   relative to.
+     * @param propertyfile The name of the property file.
+     * 
+     */
+    public RulesDirectory(String systemPath, String propertyfile){
+    	load(systemPath, propertyfile, true);
+    }
+
     
     public RulesDirectory(String systemPath, InputStream s) {
         if(systemPath.endsWith("/")||systemPath.endsWith("\\")){
@@ -332,5 +390,9 @@ public class RulesDirectory {
     public void setSystemPath(String systemPath) {
         this.systemPath = systemPath;
     }
+
+	public boolean isOptimize() {
+		return optimize;
+	}
     
 }

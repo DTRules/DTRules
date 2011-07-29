@@ -221,7 +221,8 @@ public abstract class ATestHarness implements ITestHarness {
     
     public void writeDecisionTables(String tables, String fields[], boolean ascending, int limit){
         try {
-            RulesDirectory    rd    = new RulesDirectory(getPath(),getRulesDirectoryFile());
+        	boolean           opt   = !Trace();
+            RulesDirectory    rd    = new RulesDirectory(getPath(),getRulesDirectoryFile(),opt);
             RuleSet           rs    = rd.getRuleSet(getRuleSetName());
             IRSession         s     = rs.newSession();
             RulesAdminService admin = new RulesAdminService(s);

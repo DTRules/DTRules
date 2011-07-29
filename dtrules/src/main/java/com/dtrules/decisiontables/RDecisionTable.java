@@ -1314,9 +1314,10 @@ public class RDecisionTable extends ARObject {
      */
     private DTNode optimize(DTState state, DTNode node){
     	
-    	if(state.testState(DTState.TRACE))return node;  // We don't want to optimize if
-    													//   we are tracing as that messes
-        ANode opt = node.getCommonANode(state);			//   with the column numbers.
+    	if(!state.getSession().getRulesDirectory().isOptimize()){  // We don't want to optimize if
+    		return node;                						   //   we are tracing as that messes
+    	}                                          		           //   with the column numbers.
+    	ANode opt = node.getCommonANode(state);	
         if(opt!=null){
             return opt;
         }

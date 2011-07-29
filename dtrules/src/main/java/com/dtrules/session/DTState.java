@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 import com.dtrules.decisiontables.ANode;
@@ -182,7 +183,7 @@ public class DTState {
         err.print(s);
         return true;
     }
-
+    
     /**
      * Start the Trace
      */
