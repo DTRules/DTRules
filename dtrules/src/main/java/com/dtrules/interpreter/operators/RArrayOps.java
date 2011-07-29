@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
  **/
-  
+
 package com.dtrules.interpreter.operators;
 
 import java.util.ArrayList;
 
+import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
@@ -28,332 +29,424 @@ import com.dtrules.interpreter.RBoolean;
 import com.dtrules.interpreter.RInteger;
 import com.dtrules.interpreter.RMark;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
 import com.dtrules.session.DTState;
 
 public class RArrayOps {
-	 static {
-	    	new Addto();
-	    	new Addat();
-	    	new Remove();
-	    	new Removeat();
-	    	new Getat();
-	    	new Newarray();
-	    	new Length();
-	    	new Memberof();
-            new Mark();
-            new Arraytomark();
-            new Copyelements();
-            new DeepCopy();
-	    	new Sortarray();
-            new Sortentities();
-	    	new Add_no_dups();
-	    	new Clear();
-	    	new Merge();
-            new Randomize();
-            new AddArray();
-            new Tokenize();
-            new Intersection();
-            new Intersects();
-	    }
-	    /**
-	     * tokenize ( String1 String2 --> array )
-	     * String1 is a string to tokenize
-	     * String2 is a regular expression defining these tokens
-	     * array is an array of strings that results when String1 is tokenized.
-	     * @author ps24876
-	     *
-	     */
-	    public static class Tokenize extends ROperator {
-            Tokenize(){super("tokenize");}
+	static {
+		new Addto();
+		new Addat();
+		new Remove();
+		new Removeat();
+		new Getat();
+		new Newarray();
+		new Length();
+		new Memberof();
+		new Mark();
+		new Arraytomark();
+		new Copyelements();
+		new DeepCopy();
+		new Sortarray();
+		new Sortentities();
+		new Add_no_dups();
+		new Clear();
+		new Merge();
+		new Randomize();
+		new AddArray();
+		new Tokenize();
+		new Intersection();
+		new Intersects();
+		new FindMatch();
+	}
 
-            public void execute(DTState state) throws RulesException {
-                
-                String   pattern = state.datapop().stringValue();
-                IRObject obj1    = state.datapop();
-                String   v       = "";
-                if(obj1.type().getId() != IRObject.iNull){
-                   v = obj1.stringValue().trim();
-                }   
-                String [] results = v.split(pattern);
-                
-                RArray r = new RArray(state.getSession().getUniqueID(),false,false);
-                for(String t : results){
-                    r.add(RString.newRString(t));
-                    if(state.testState(DTState.TRACE)){
-                        state.traceInfo("addto", "arrayID",r.getID()+"",t);
-                    }
-                }
-                state.datapush(r);
-            }
-        }
-	 
-	 
-	    /**
-	     * addto( Array Value --> )
-	     * Addto Operator, adds an element to an array
-	     * @author Paul Snow
-	     *
-	     */
-		public static class Addto extends ROperator {
-			Addto(){super("addto");}
+	/**
+	 * tokenize ( String1 String2 --> array ) String1 is a string to tokenize
+	 * String2 is a regular expression defining these tokens array is an array
+	 * of strings that results when String1 is tokenized.
+	 * 
+	 * @author ps24876
+	 * 
+	 */
+	public static class Tokenize extends ROperator {
+		Tokenize() {
+			super("tokenize");
+		}
 
-			public void execute(DTState state) throws RulesException {
-				IRObject  value = state.datapop();
-				RArray rarray  = state.datapop().rArrayValue();
-				if(state.testState(DTState.TRACE)){
-                    state.traceInfo("addto", "arrayID",rarray.getID()+"",value.postFix());
-                }
-				rarray.add(value);
+		public void execute(DTState state) throws RulesException {
+
+			String pattern = state.datapop().stringValue();
+			IRObject obj1 = state.datapop();
+			String v = "";
+			if (obj1.type().getId() != IRObject.iNull) {
+				v = obj1.stringValue().trim();
 			}
-		}
-		
-	    /**
-	     * addat( Array int Value --> )
-	     * Addat Operator, adds an element to an array at the given location
-	     */
-		public static class Addat extends ROperator {
-			Addat() {super("addat");}
-			
-			public void execute(DTState state) throws RulesException {
-				IRObject value = state.datapop();
-				int position = state.datapop().intValue();
-                RArray rarray = state.datapop().rArrayValue();
-				if(state.testState(DTState.TRACE)){
-                    state.traceInfo("addat", "arrayID",rarray.getID()+"", "index",position+"",value.postFix());
-                }
-				rarray.add(position, value);
-				
-			}
-		}
-		
-	    /**
-	     * remove( Array Value --> boolean )
-	     * Remove Operator, removes all elements from an array that match the value.  Returns a
-         * true if at least one element was removed, and a false otherwise.
-	     */		
-		public static class Remove extends ROperator {
-			Remove() {super("remove");}
-			
-			public void execute(DTState state) throws RulesException {
-				IRObject            value   = state.datapop();
-				RArray              rarray  = (RArray)state.datapop();
-                ArrayList<IRObject> array   = rarray.arrayValue();
-                boolean removed = false;
-                if(value!=null){
-					for(int i=0; i<array.size();){
-						if(value.equals((IRObject)array.get(i))){
-                            if(state.testState(DTState.TRACE)){
-                                state.traceInfo("removed", "arrayID",rarray.getID()+"",value.postFix());
-                            }
-							array.remove(i);
-                            removed = true;
-						} else {
-							i++;
-						}
-					}					
+			String[] results = v.split(pattern);
+
+			RArray r = new RArray(state.getSession().getUniqueID(), false,
+					false);
+			for (String t : results) {
+				r.add(RString.newRString(t));
+				if (state.testState(DTState.TRACE)) {
+					state.traceInfo("addto", "arrayID", r.getID() + "", t);
 				}
-                state.datapush(RBoolean.getRBoolean(removed)); // Return indicater that something was removed.
 			}
+			state.datapush(r);
 		}
-		
-	    /**
-	     * removeat( Array int --> boolean )
-	     * Removeat Operator, removes an element from an 
-	     * array at the given location.  Returns true upon
-	     * success
-	     */		
-		public static class Removeat extends ROperator {
-			Removeat() {super("removeat");}
-			
-			public void execute(DTState state) throws RulesException {
-				int position = state.datapop().intValue();
-                RArray    rarray  = (RArray)state.datapop();
-                if(position >= rarray.size()){
-                    state.datapush(RBoolean.getRBoolean(false));
-                }
-                
-                ArrayList<IRObject> array   = rarray.arrayValue();
-                   if(state.testState(DTState.TRACE)){
-                       state.traceInfo("removed", "arrayID",rarray.getID()+"","position",position+"",null);
-                   }
-        				
-                array.remove(position);				
-                state.datapush(RBoolean.getRBoolean(true));
-			}
-		}
-		
-	    /**
-	     * getat( Array int --> value)
-	     * Getat Operator, gets an element from an array at the given location
-	     */		
-		public static class Getat extends ROperator {
-			Getat() {super("getat");}
-			
-			public void execute(DTState state) throws RulesException {
-				int                 position    = state.datapop().intValue();
-				ArrayList<IRObject> array       = state.datapop().arrayValue();
-				state.datapush((IRObject)array.get(position));				
-			}
-		}
-		
-	    /**
-	     * newarray( --> Array)
-	     * Newarray Operator, returns a new empty array
-	     */		
-		public static class Newarray extends ROperator {
-			Newarray() {super("newarray");}
-			
-			public void execute(DTState state) throws RulesException {
-				IRObject irobject = new RArray(state.getSession().getUniqueID(),true, false);
-				state.datapush(irobject);
-			}
-		}		
-		
-	    /**
-	     * length( Array --> int)
-	     * Length Operator, returns the size of the array
-	     */		
-		public static class Length extends ROperator {
-			Length() {super("length");}
-			
-			public void execute(DTState state) throws RulesException {
-				ArrayList<IRObject> array  = state.datapop().arrayValue();
-				state.datapush(RInteger.getRIntegerValue(array.size()));
-			}
-		}		
-		
-	    /**
-	     * memberof( Array Value --> boolean)
-	     * Memberof Operator, returns true if the element found in the array
-	     */		
-		public static class Memberof extends ROperator {
-			Memberof() {super("memberof");}
-			
-			public void execute(DTState state) throws RulesException {
-				IRObject  value = state.datapop();
-				ArrayList<IRObject> array  = state.datapop().arrayValue();
-				boolean found = false;
-				if(value!=null){
-					for(int i=0; i<array.size(); i++){
-						if(value.equals((IRObject)array.get(i))){
-							found=true;
-							break;
-						}
-					}					
-				}
-				state.datapush(RBoolean.getRBoolean(found));
-			}
-		}		
-		
-	    /**
-	     * copyelements( Array --> newarray)
-	     * Copyelements Operator, returns the copy of the array
-	     */		
-		public static class Copyelements extends ROperator {
-			Copyelements() {super("copyelements");}
-			
-			public void execute(DTState state) throws RulesException {
-				RArray rarray     = state.datapop().rArrayValue();
-				RArray newRArray  = rarray.clone(state.getSession()).rArrayValue();
-				if(state.testState(DTState.TRACE)){
-	                state.traceInfo("copyelements","id",rarray.getID()+"","newarrayid",newRArray.getID()+"",null);
-				    for(IRObject v : newRArray){
-	                    state.traceInfo("addto", "arrayID",rarray.getID()+"",v.postFix());
-				    }
-                }
-    
-				state.datapush(newRArray);	
-				
-			}
-		}
-		
-		 /**
-         * DeepCopy ( Array --> newarray)
-         * Copies the array, and makes copies of all of the elements
-         * as well.
-         */     
-        public static class DeepCopy extends ROperator {
-            DeepCopy () {super("deepcopy");}
-            
-            public void execute(DTState state) throws RulesException {
-                RArray rarray     = state.datapop().rArrayValue();
-                RArray newRArray  = rarray.deepCopy(state.getSession()).rArrayValue();
-                
-                if(state.testState(DTState.TRACE)){
-                    state.traceInfo("copyelements","id",rarray.getID()+"","newarrayid",newRArray.getID()+"",null);
-                    for(IRObject v : newRArray){
-                        state.traceInfo("addto", "arrayID",rarray.getID()+"",v.postFix());
-                    }
-                }
-    
-                state.datapush(newRArray);  
-                
-            }
-        }
-		
-		
-		
-	    /**
-	     * sortarray( Array boolean --> )
-	     * Sortarray Operator, sorts the array elements (asc is boolean is true) 
-	     */		
-		public static class Sortarray extends ROperator {
-			Sortarray() {super("sortarray");}
-			
-			public void execute(DTState state) throws RulesException {
-				boolean asc  = state.datapop().booleanValue();
-				int direction = asc ? 1 : -1;
-				
-				RArray rarray             = state.datapop().rArrayValue();
-				ArrayList<IRObject> array = rarray.arrayValue();
-				
-                if(state.testState(DTState.TRACE)){
-                   state.traceInfo("sort", "length",array.size()+"","arrayID",rarray.getID()+"",asc ? "true" : "false");
-                }
+	}
 
-				IRObject temp = null;
-				int size = array.size();
-				for(int i=0; i<size-1; i++){
-					for(int j=0; j<size-1-i; j++){
-						if(((IRObject)array.get(j+1)).compare((IRObject)array.get(j)) == direction){
-							temp = (IRObject)array.get(j);
-							array.set(j, (IRObject)array.get(j+1));
-							array.set(j+1, temp);
+	/**
+	 * addto( Array Value --> ) Addto Operator, adds an element to an array
+	 * 
+	 * @author Paul Snow
+	 * 
+	 */
+	public static class Addto extends ROperator {
+		Addto() {
+			super("addto");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			IRObject value = state.datapop();
+			RArray rarray = state.datapop().rArrayValue();
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("addto", "arrayID", rarray.getID() + "",
+						value.postFix());
+			}
+			rarray.add(value);
+		}
+	}
+
+	/**
+	 * findmatch
+	 * if found:     ( name1 value1 name2 value2 name3 value3 array --> entity true) 
+	 * if not found: ( name1 value1 name2 value2 name3 value3 array --> null   false) 
+	 * 
+	 * Looks through a list of entities, and returns the entity that matches
+	 * the three given values.  If any of the names are null, then that one
+	 * always matches.
+	 * 
+	 * @author Paul Snow
+	 * 
+	 */
+	public static class FindMatch extends ROperator {
+		FindMatch() {
+			super("findmatch");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			RArray array = state.datapop().rArrayValue();
+			IRObject v3 = state.datapop();
+			IRObject n3 = state.datapop();
+			IRObject v2 = state.datapop();
+			IRObject n2 = state.datapop();
+			IRObject v1 = state.datapop();
+			IRObject n1 = state.datapop();
+			
+			for(IRObject ie : array){
+				IREntity e = ie.rEntityValue();
+				
+				if(n3.type().getId() != RNull.type.getId()){
+					IRObject v = e.get(n3.rNameValue());
+					if(!v.equals(v3)){
+						continue;
+					}
+				}
+				if(n2.type().getId() != RNull.type.getId()){
+					IRObject v = e.get(n2.rNameValue());
+					if(!v.equals(v2)){
+						continue;
+					}
+				}
+				if(n1.type().getId() != RNull.type.getId()){
+					IRObject v = e.get(n1.rNameValue());
+					if(!v.equals(v1)){
+						continue;
+					}
+				}
+				state.datapush(e);
+				state.datapush(RBoolean.getRBoolean(true));
+				return;
+			}
+			state.datapush(RNull.getRNull());
+			state.datapush(RBoolean.getRBoolean(false));
+			return;
+			
+		}
+	}
+
+	
+	
+	/**
+	 * addat( Array int Value --> ) Addat Operator, adds an element to an array
+	 * at the given location
+	 */
+	public static class Addat extends ROperator {
+		Addat() {
+			super("addat");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			IRObject value = state.datapop();
+			int position = state.datapop().intValue();
+			RArray rarray = state.datapop().rArrayValue();
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("addat", "arrayID", rarray.getID() + "",
+						"index", position + "", value.postFix());
+			}
+			rarray.add(position, value);
+
+		}
+	}
+
+	/**
+	 * remove( Array Value --> boolean ) Remove Operator, removes all elements
+	 * from an array that match the value. Returns a true if at least one
+	 * element was removed, and a false otherwise.
+	 */
+	public static class Remove extends ROperator {
+		Remove() {
+			super("remove");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			IRObject value = state.datapop();
+			RArray rarray = (RArray) state.datapop();
+			ArrayList<IRObject> array = rarray.arrayValue();
+			boolean removed = false;
+			if (value != null) {
+				for (int i = 0; i < array.size();) {
+					if (value.equals((IRObject) array.get(i))) {
+						if (state.testState(DTState.TRACE)) {
+							state.traceInfo("removed", "arrayID",
+									rarray.getID() + "", value.postFix());
 						}
+						array.remove(i);
+						removed = true;
+					} else {
+						i++;
+					}
+				}
+			}
+			state.datapush(RBoolean.getRBoolean(removed)); // Return indicater
+															// that something
+															// was removed.
+		}
+	}
+
+	/**
+	 * removeat( Array int --> boolean ) Removeat Operator, removes an element
+	 * from an array at the given location. Returns true upon success
+	 */
+	public static class Removeat extends ROperator {
+		Removeat() {
+			super("removeat");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			int position = state.datapop().intValue();
+			RArray rarray = (RArray) state.datapop();
+			if (position >= rarray.size()) {
+				state.datapush(RBoolean.getRBoolean(false));
+			}
+
+			ArrayList<IRObject> array = rarray.arrayValue();
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("removed", "arrayID", rarray.getID() + "",
+						"position", position + "", null);
+			}
+
+			array.remove(position);
+			state.datapush(RBoolean.getRBoolean(true));
+		}
+	}
+
+	/**
+	 * getat( Array int --> value) Getat Operator, gets an element from an array
+	 * at the given location
+	 */
+	public static class Getat extends ROperator {
+		Getat() {
+			super("getat");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			int position = state.datapop().intValue();
+			ArrayList<IRObject> array = state.datapop().arrayValue();
+			state.datapush((IRObject) array.get(position));
+		}
+	}
+
+	/**
+	 * newarray( --> Array) Newarray Operator, returns a new empty array
+	 */
+	public static class Newarray extends ROperator {
+		Newarray() {
+			super("newarray");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			IRObject irobject = new RArray(state.getSession().getUniqueID(),
+					true, false);
+			state.datapush(irobject);
+		}
+	}
+
+	/**
+	 * length( Array --> int) Length Operator, returns the size of the array
+	 */
+	public static class Length extends ROperator {
+		Length() {
+			super("length");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			ArrayList<IRObject> array = state.datapop().arrayValue();
+			state.datapush(RInteger.getRIntegerValue(array.size()));
+		}
+	}
+
+	/**
+	 * memberof( Array Value --> boolean) Memberof Operator, returns true if the
+	 * element found in the array
+	 */
+	public static class Memberof extends ROperator {
+		Memberof() {
+			super("memberof");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			IRObject value = state.datapop();
+			ArrayList<IRObject> array = state.datapop().arrayValue();
+			boolean found = false;
+			if (value != null) {
+				for (int i = 0; i < array.size(); i++) {
+					if (value.equals((IRObject) array.get(i))) {
+						found = true;
+						break;
+					}
+				}
+			}
+			state.datapush(RBoolean.getRBoolean(found));
+		}
+	}
+
+	/**
+	 * copyelements( Array --> newarray) Copyelements Operator, returns the copy
+	 * of the array
+	 */
+	public static class Copyelements extends ROperator {
+		Copyelements() {
+			super("copyelements");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			RArray rarray = state.datapop().rArrayValue();
+			RArray newRArray = rarray.clone(state.getSession()).rArrayValue();
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("copyelements", "id", rarray.getID() + "",
+						"newarrayid", newRArray.getID() + "", null);
+				for (IRObject v : newRArray) {
+					state.traceInfo("addto", "arrayID", rarray.getID() + "",
+							v.postFix());
+				}
+			}
+
+			state.datapush(newRArray);
+
+		}
+	}
+
+	/**
+	 * DeepCopy ( Array --> newarray) Copies the array, and makes copies of all
+	 * of the elements as well.
+	 */
+	public static class DeepCopy extends ROperator {
+		DeepCopy() {
+			super("deepcopy");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			RArray rarray = state.datapop().rArrayValue();
+			RArray newRArray = rarray.deepCopy(state.getSession())
+					.rArrayValue();
+
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("copyelements", "id", rarray.getID() + "",
+						"newarrayid", newRArray.getID() + "", null);
+				for (IRObject v : newRArray) {
+					state.traceInfo("addto", "arrayID", rarray.getID() + "",
+							v.postFix());
+				}
+			}
+
+			state.datapush(newRArray);
+
+		}
+	}
+
+	/**
+	 * sortarray( Array boolean --> ) Sortarray Operator, sorts the array
+	 * elements (asc is boolean is true)
+	 */
+	public static class Sortarray extends ROperator {
+		Sortarray() {
+			super("sortarray");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			boolean asc = state.datapop().booleanValue();
+			int direction = asc ? 1 : -1;
+
+			RArray rarray = state.datapop().rArrayValue();
+			ArrayList<IRObject> array = rarray.arrayValue();
+
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("sort", "length", array.size() + "", "arrayID",
+						rarray.getID() + "", asc ? "true" : "false");
+			}
+
+			IRObject temp = null;
+			int size = array.size();
+			for (int i = 0; i < size - 1; i++) {
+				for (int j = 0; j < size - 1 - i; j++) {
+					if (((IRObject) array.get(j + 1)).compare((IRObject) array
+							.get(j)) == direction) {
+						temp = (IRObject) array.get(j);
+						array.set(j, (IRObject) array.get(j + 1));
+						array.set(j + 1, temp);
 					}
 				}
 			}
 		}
+	}
 
-        /**
-         * randomize ( Array --> )
-         * Randomizes the order in the given array. 
-         */     
-        public static class Randomize extends ROperator {
-        Randomize() {
-            super("randomize");
-        }
+	/**
+	 * randomize ( Array --> ) Randomizes the order in the given array.
+	 */
+	public static class Randomize extends ROperator {
+		Randomize() {
+			super("randomize");
+		}
 
-        public void execute(DTState state) throws RulesException {
-                ArrayList<IRObject> array  = state.datapop().arrayValue();
-                IRObject temp = null;
-                int size = array.size();
-                for(int i=0; i<10; i++){
-                  for(int j=0; j<size; j++){
-                      int x = state.rand.nextInt(size);
-                      temp = (IRObject)array.get(j);
-                      array.set(j, (IRObject)array.get(x));
-                      array.set(x, temp);
-                    }
-                }
-            }
-        }
+		public void execute(DTState state) throws RulesException {
+			ArrayList<IRObject> array = state.datapop().arrayValue();
+			IRObject temp = null;
+			int size = array.size();
+			for (int i = 0; i < 10; i++) {
+				for (int j = 0; j < size; j++) {
+					int x = state.rand.nextInt(size);
+					temp = (IRObject) array.get(j);
+					array.set(j, (IRObject) array.get(x));
+					array.set(x, temp);
+				}
+			}
+		}
+	}
 
-	    /**
-	     * sortentities( Array field boolean --> )
-	     * Sortentities Operator, 
-	     */		
+	/**
+	 * sortentities( Array field boolean --> ) Sortentities Operator,
+	 */
 	public static class Sortentities extends ROperator {
 		Sortentities() {
 			super("sortentities");
@@ -365,8 +458,9 @@ public class RArrayOps {
 			RArray rarray = state.datapop().rArrayValue();
 			ArrayList<IRObject> array = rarray.arrayValue();
 			if (state.testState(DTState.TRACE)) {
-				state.traceInfo("sortentities", "length", array.size() + "", "by", rname.stringValue(), "arrayID",
-				        rarray.getID() + "", asc ? "true" : "false");
+				state.traceInfo("sortentities", "length", array.size() + "",
+						"by", rname.stringValue(), "arrayID", rarray.getID()
+								+ "", asc ? "true" : "false");
 			}
 			REntity temp = null;
 			int size = array.size();
@@ -384,174 +478,195 @@ public class RArrayOps {
 							done = false;
 						}
 					} catch (RuntimeException e) {
-						throw new RulesException("undefined", "sort", "Field is undefined: " + rname);
+						throw new RulesException("undefined", "sort",
+								"Field is undefined: " + rname);
 					}
 				}
 				if (done)
 					return;
 			}
 		}
-	}		
-		
-	    /**
-	     * add_no_dups( Array item --> )
-	     * Add_no_dups Operator, adds an element to an array if it is not present
-	     */
-		public static class Add_no_dups extends ROperator {
-			Add_no_dups(){super("add_no_dups");}
+	}
 
-			public void execute(DTState state) throws RulesException {
-                
-				IRObject  value  = state.datapop();
-                RArray    rArray = (RArray) state.datapop();
-				for(IRObject v : rArray){
-					if(value.equals((IRObject)v)){
-						return;
-					}
+	/**
+	 * add_no_dups( Array item --> ) Add_no_dups Operator, adds an element to an
+	 * array if it is not present
+	 */
+	public static class Add_no_dups extends ROperator {
+		Add_no_dups() {
+			super("add_no_dups");
+		}
+
+		public void execute(DTState state) throws RulesException {
+
+			IRObject value = state.datapop();
+			RArray rArray = (RArray) state.datapop();
+			for (IRObject v : rArray) {
+				if (value.equals((IRObject) v)) {
+					return;
 				}
-				rArray.add(value);
-                if(state.testState(DTState.TRACE)){
-                    state.traceInfo("addto", "arrayId",rArray.getID()+"",value.postFix());
-                }
-
 			}
-		}		
-
-	    /**
-	     * clear( Array --> )
-	     * Clear Operator, removes all elements from the array
-	     */
-		public static class Clear extends ROperator {
-			Clear(){super("clear");}
-
-			public void execute(DTState state) throws RulesException {
-				IRObject            rarray = state.datapop();
-				ArrayList<IRObject> array  = rarray.arrayValue();
-				array.clear();
-                if (state.testState(DTState.TRACE)){
-                    state.traceInfo("clear","array",rarray.stringValue(),null);
-                }
+			rArray.add(value);
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("addto", "arrayId", rArray.getID() + "",
+						value.postFix());
 			}
-		}		
 
-	    /**
-	     * merge( Array Array--> Array)
-	     * Merge Operator, merges two array to one (Array1 elements followed by Array2 elements) 
-	     */
-		public static class Merge extends ROperator {
-			Merge(){super("merge");}
+		}
+	}
 
-			public void execute(DTState state) throws RulesException {
-			    ArrayList<IRObject> array2  = state.datapop().arrayValue();
-			    ArrayList<IRObject> array1  = state.datapop().arrayValue();
-			    ArrayList<IRObject> newarray = new ArrayList<IRObject>();
-				newarray.addAll(array1);
-				newarray.addAll(array2);
-				state.datapush(new RArray(state.getSession().getUniqueID(),false,newarray, false));
+	/**
+	 * clear( Array --> ) Clear Operator, removes all elements from the array
+	 */
+	public static class Clear extends ROperator {
+		Clear() {
+			super("clear");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			IRObject rarray = state.datapop();
+			ArrayList<IRObject> array = rarray.arrayValue();
+			array.clear();
+			if (state.testState(DTState.TRACE)) {
+				state.traceInfo("clear", "array", rarray.stringValue(), null);
 			}
 		}
-		
-        /**
-         * Mark ( -- mark ) pushes a mark object onto the data stack.
-         * 
-         */
-        public static class Mark extends ROperator {
-            Mark(){super("mark");}
+	}
 
-            public void execute(DTState state) throws RulesException {
-                state.datapush(RMark.getMark());
-            }
-        }
+	/**
+	 * merge( Array Array--> Array) Merge Operator, merges two array to one
+	 * (Array1 elements followed by Array2 elements)
+	 */
+	public static class Merge extends ROperator {
+		Merge() {
+			super("merge");
+		}
 
-        /**
-         * arraytomark ( mark obj obj ... -- array ) creates an array out
-         * of the elements on the data stack down to the first mark.
-         * 
-         */
-        public static class Arraytomark extends ROperator {
-            Arraytomark(){super("arraytomark");}
+		public void execute(DTState state) throws RulesException {
+			ArrayList<IRObject> array2 = state.datapop().arrayValue();
+			ArrayList<IRObject> array1 = state.datapop().arrayValue();
+			ArrayList<IRObject> newarray = new ArrayList<IRObject>();
+			newarray.addAll(array1);
+			newarray.addAll(array2);
+			state.datapush(new RArray(state.getSession().getUniqueID(), false,
+					newarray, false));
+		}
+	}
 
-            public void execute(DTState state) throws RulesException {
-               int im = state.ddepth()-1;                   // Index of top of stack
-               while(im>=0 && state.getds(im).type().getId()!=iMark)im--; // Index of mark
-               RArray newarray = new RArray(state.getSession().getUniqueID(),true,false);    // Create a new array      
-               int newdepth = im++;                         // skip the mark (remember its index)
-               while(im<state.ddepth()){                    // copy elements to the array
-                   newarray.add(state.getds(im++));
-               }
-               while(newdepth < state.ddepth())state.datapop(); // toss elements AND mark
-               state.datapush(newarray);                    // push the new array.
-            }
-        }
+	/**
+	 * Mark ( -- mark ) pushes a mark object onto the data stack.
+	 * 
+	 */
+	public static class Mark extends ROperator {
+		Mark() {
+			super("mark");
+		}
 
-        
-        /**
-         * ( array1 array2 boolean --  ) Adds all the elements of array1 to array2. If
-         * the boolean is true, then no duplicates are added to array2.  If false, all elements
-         * (duplicate or not) are added to array2
-         * 
-         */
-        public static class AddArray extends ROperator {
-            AddArray(){super("addarray");}
+		public void execute(DTState state) throws RulesException {
+			state.datapush(RMark.getMark());
+		}
+	}
 
-            public void execute(DTState state) throws RulesException {
-                boolean dups = state.datapop().booleanValue();
-                RArray  a2   = state.datapop().rArrayValue();
-                RArray  a1   = state.datapop().rArrayValue();
-               
-                for(IRObject o : a1){
-                    if(dups || !a2.contains(o)){
-                        a2.add(o);
-                    }
-                }
-               
-            }
-        }
-        
-        /**
-         * ( array1 array2 -- array3 ) Returns the intersection of Array1 and Array2. 
-         * Returns an empty array if no members of array1 are found in array2. Duplicates
-         * are removed.
-         */
-        public static class Intersection extends ROperator {
-            Intersection(){super("intersection");}
+	/**
+	 * arraytomark ( mark obj obj ... -- array ) creates an array out of the
+	 * elements on the data stack down to the first mark.
+	 * 
+	 */
+	public static class Arraytomark extends ROperator {
+		Arraytomark() {
+			super("arraytomark");
+		}
 
-            public void execute(DTState state) throws RulesException {
-                
-                RArray array1 = state.datapop().rArrayValue();
-                RArray array2 = state.datapop().rArrayValue();
-                
-                RArray ret = RArray.NewArray(state.getSession(), false, false);
-    
-                for(IRObject v : array1){
-                    if(array2.contains(v)){
-                        ret.add(v);
-                    }
-                }
-                
-                state.datapush(ret);
-            }
-        }
-        
-        /**
-         * ( array1 array2 -- boolean ) Returns true if any member of array1 is in array2
-         */
-        public static class Intersects extends ROperator {
-            Intersects(){super("intersects");}
+		public void execute(DTState state) throws RulesException {
+			int im = state.ddepth() - 1; // Index of top of stack
+			while (im >= 0 && state.getds(im).type().getId() != iMark)
+				im--; // Index of mark
+			RArray newarray = new RArray(state.getSession().getUniqueID(),
+					true, false); // Create a new array
+			int newdepth = im++; // skip the mark (remember its index)
+			while (im < state.ddepth()) { // copy elements to the array
+				newarray.add(state.getds(im++));
+			}
+			while (newdepth < state.ddepth())
+				state.datapop(); // toss elements AND mark
+			state.datapush(newarray); // push the new array.
+		}
+	}
 
-            public void execute(DTState state) throws RulesException {
-                
-                RArray array1 = state.datapop().rArrayValue();
-                RArray array2 = state.datapop().rArrayValue();
-                  
-                for(IRObject v : array1){
-                    if(array2.contains(v)){
-                        state.datapush(RBoolean.getRBoolean(true));
-                        return;
-                    }
-                }
-                
-                state.datapush(RBoolean.getRBoolean(false));
-            }
-        }
+	/**
+	 * ( array1 array2 boolean -- ) Adds all the elements of array1 to array2.
+	 * If the boolean is true, then no duplicates are added to array2. If false,
+	 * all elements (duplicate or not) are added to array2
+	 * 
+	 */
+	public static class AddArray extends ROperator {
+		AddArray() {
+			super("addarray");
+		}
+
+		public void execute(DTState state) throws RulesException {
+			boolean dups = state.datapop().booleanValue();
+			RArray a2 = state.datapop().rArrayValue();
+			RArray a1 = state.datapop().rArrayValue();
+
+			for (IRObject o : a1) {
+				if (dups || !a2.contains(o)) {
+					a2.add(o);
+				}
+			}
+
+		}
+	}
+
+	/**
+	 * ( array1 array2 -- array3 ) Returns the intersection of Array1 and
+	 * Array2. Returns an empty array if no members of array1 are found in
+	 * array2. Duplicates are removed.
+	 */
+	public static class Intersection extends ROperator {
+		Intersection() {
+			super("intersection");
+		}
+
+		public void execute(DTState state) throws RulesException {
+
+			RArray array1 = state.datapop().rArrayValue();
+			RArray array2 = state.datapop().rArrayValue();
+
+			RArray ret = RArray.NewArray(state.getSession(), false, false);
+
+			for (IRObject v : array1) {
+				if (array2.contains(v)) {
+					ret.add(v);
+				}
+			}
+
+			state.datapush(ret);
+		}
+	}
+
+	/**
+	 * ( array1 array2 -- boolean ) Returns true if any member of array1 is in
+	 * array2
+	 */
+	public static class Intersects extends ROperator {
+		Intersects() {
+			super("intersects");
+		}
+
+		public void execute(DTState state) throws RulesException {
+
+			RArray array1 = state.datapop().rArrayValue();
+			RArray array2 = state.datapop().rArrayValue();
+
+			for (IRObject v : array1) {
+				if (array2.contains(v)) {
+					state.datapush(RBoolean.getRBoolean(true));
+					return;
+				}
+			}
+
+			state.datapush(RBoolean.getRBoolean(false));
+		}
+	}
 }

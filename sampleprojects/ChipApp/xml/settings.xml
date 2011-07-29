@@ -3,10 +3,10 @@
 <!-- will be picked up and used.                                                       -->
 <chipAppSettings>
 
-    <threads>16</threads>               <!-- Number of threads used by ChipApp to            -->
+    <threads>8</threads>               <!-- Number of threads used by ChipApp to            -->
                                         <!--   process the jobs generated.                   -->
 
-    <numCases>5000</numCases>           <!-- The number of jobs to be generated. Most        -->
+    <numCases>500000</numCases>           <!-- The number of jobs to be generated. Most        -->
                                         <!--   jobs will have multiple applicants.           -->
 
     <save>0</save>                      <!-- One job out of every number specified here      -->
@@ -24,7 +24,7 @@
     <update>0</update>                  <!-- Look for Rules Engine updates every this many   -->
                                         <!--   seconds.                                      -->
                             
-    <dtrules>dtrules</dtrules>          <!-- How to evaluate the rules: "dtrules", "java",   -->
+    <dtrules>java</dtrules>          <!-- How to evaluate the rules: "dtrules", "java",   -->
                                         <!--   or "none".  "none" just creates jobs, sets    -->
                                         <!--   up threads, and pulls from list.  Its a way   -->
                                         <!--   to measure overhead.                          -->

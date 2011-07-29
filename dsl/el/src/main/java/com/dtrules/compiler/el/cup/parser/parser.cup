@@ -977,10 +977,11 @@ bexpr     ::=
 			                                               "{ over type streq over target req and "+
 			                                               "source entitypush "+b+"entitypop and } relationships forfirstelse "; :} | 
 
-			eexpr:e1 IS strexpr:s OF eexpr:e2			{: RESULT = s + "{ pop true } { pop false } "+
-														   "{ dup type streq source "+e1+" req and target "+e2+" req and } "+
-														   " relationships forfirstelse "; :}                                             |
-				    			
+			eexpr:e1 IS strexpr:s OF eexpr:e2		//	{: RESULT = s + "{ pop true } { pop false } "+
+													//	   "{ dup type streq source "+e1+" req and target "+e2+" req and } "+
+													//	   " relationships forfirstelse "; :}                                       |
+													
+				    			                        {: RESULT = "/source "+e1+"/target "+e2+"/type "+s+"relationships findmatch swap pop"; :} | 
 				    			
 				    			
 // Numbers

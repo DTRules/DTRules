@@ -677,71 +677,23 @@ public class RDecisionTable extends ARObject {
 	public void execute(DTState state) throws RulesException {
 	    RDecisionTable last = state.getCurrentTable();
 	    state.setCurrentTable(this);
-	    state.traceTagBegin("decisiontable","name",dtname.stringValue());
 	    try {
-			int estk     = state.edepth();
-			int dstk     = state.ddepth();
-			int cstk     = state.cdepth();
 
 			state.pushframe();
 			
 			if(rcontext==null){
-			    if(state.testState(DTState.TRACE)){
-			        try{
-    			        state.traceTagBegin("execute_table");
-    			           executeTable(state);
-    			        state.traceTagEnd();
-			        }catch(RulesException e){
-			            state.traceTagEnd();
-			            throw e;
-			        }
-			    }else{
-			        executeTable(state);
-			    }
-			    
+				executeTable(state);			    
 			}else{
-			    if(state.testState(DTState.TRACE)){
-			        state.traceTagBegin("context", "execute",contextsrc);
-			        if(state.testState(DTState.VERBOSE)){
-				        for(String context : this.contexts){
-				            if(context != null && context.trim().length()>0){
-				                state.traceInfo("formal",context);
-				            }
-				        }
-			        }
-			        state.traceTagBegin("execute_table");
-			        try {
-                        rcontext.execute(state);
-                    } catch (RulesException e) {
-                        state.traceTagEnd();
-                        state.traceTagEnd();
-                        e.setSection("Context", 0);
-                        throw e;
-                    }
-                    state.traceTagEnd();
-			        state.traceTagEnd();
-			    }else{
-			        rcontext.execute(state);
-			    }    
+			    rcontext.execute(state);
 			}
 			state.popframe();
 			
-			if(estk!= state.edepth() ||
-			   dstk!= state.ddepth() ||
-			   cstk!= state.cdepth() ){
-			    throw new RulesException("Stacks Not balanced","DecisionTables", 
-			    "Error while executing table: "+getName().stringValue() +"\n" +
-			     (estk!= state.edepth() ? "Entity Stack before  "+estk+" after "+state.edepth()+"\n":"")+
-			     (dstk!= state.ddepth() ? "Data Stack before    "+dstk+" after "+state.ddepth()+"\n":"")+
-			     (cstk!= state.cdepth() ? "Control Stack before "+cstk+" after "+state.cdepth()+"\n":""));
-			}
 		} catch (RulesException e) {
 	        state.traceTagEnd();
 			e.addDecisionTable(this.getName().stringValue(), this.getFilename());
 			state.setCurrentTable(last);
 			throw e;
 		}
-		state.traceTagEnd();
 	    state.setCurrentTable(last);
 	}
 	
@@ -750,54 +702,20 @@ public class RDecisionTable extends ARObject {
 	 * binary tree underneath the table.
 	 */
 	public void executeTable(DTState state) throws RulesException {
-        boolean trace = state.testState(DTState.TRACE);
-		
-		if(compiled==false){
-            throw new RulesException(
-                "UncompiledDecisionTable",
-                "RDecisionTable.execute",
-                "Attempt to execute an uncompiled decision table: "+dtname.stringValue()
-            );
-        }
-        
+		        
         int edepth    = state.edepth();  // Get the initial depth of the entity stack 
                                          //  so we can toss any extra entities added...
-        if(trace){
-            if(state.testState(DTState.VERBOSE)){
-                state.traceTagBegin("entity_stack");
-                for(int i=0;i<state.edepth();i++){
-                    state.traceInfo("entity", "id",state.getes(i).getID()+"", state.getes(i).stringValue());
-                }
-                state.traceTagEnd();
-            }
-            state.traceTagBegin("initialActions");
-            for( int i=0; rinitialActions!=null && i<rinitialActions.length; i++){
-                try{
-                   state.traceTagBegin("initialAction");
-                   state.traceInfo("formal",initialActions[i]);
-                   rinitialActions[i].execute(state);
-                   state.traceTagEnd();
-                }catch(RulesException e){
-                    e.setSection("Initial Actions", i+1);
-                    throw e;
-                }
-            }
-            state.traceTagEnd();
-            if(decisiontree!=null)decisiontree.execute(state);
-	        state.traceTagEnd();
-	        state.traceTagBegin("execute_table");
-        }else{
-            for( int i=0; rinitialActions!=null && i<rinitialActions.length; i++){
-                state.setCurrentTableSection("InitialActions", i);
-                try{
-                    rinitialActions[i].execute(state);
-                 }catch(RulesException e){
-                     e.setSection("Initial Actions", i+1);
-                     throw e;
-                 }
-            }
-            if(decisiontree!=null)decisiontree.execute(state);
-        }    
+        for( int i=0; rinitialActions!=null && i<rinitialActions.length; i++){
+           state.setCurrentTableSection("InitialActions", i);
+           try{
+        	   rinitialActions[i].execute(state);
+           }catch(RulesException e){
+        	   e.setSection("Initial Actions", i+1);
+        	   throw e;
+           }
+        }
+        if(decisiontree!=null)decisiontree.execute(state);
+            
         while(state.edepth() > edepth)state.entitypop();     // Pop off extra entities. 
 	}
 
