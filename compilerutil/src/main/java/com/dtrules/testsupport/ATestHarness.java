@@ -221,8 +221,7 @@ public abstract class ATestHarness implements ITestHarness {
     
     public void writeDecisionTables(String tables, String fields[], boolean ascending, int limit){
         try {
-        	boolean           opt   = !Trace();
-            RulesDirectory    rd    = new RulesDirectory(getPath(),getRulesDirectoryFile(),opt);
+            RulesDirectory    rd    = new RulesDirectory(getPath(),getRulesDirectoryFile());
             RuleSet           rs    = rd.getRuleSet(getRuleSetName());
             IRSession         s     = rs.newSession();
             RulesAdminService admin = new RulesAdminService(s);
@@ -260,8 +259,8 @@ public abstract class ATestHarness implements ITestHarness {
              // A Rule set is a set of decision tables defined in XML, 
              // the Entity Description Dictionary (the EDD, or schema) assumed by those tables, and
              // A Mapping file that maps data into this EDD.
-             
-             RulesDirectory rd       = new RulesDirectory(getPath(),getRulesDirectoryFile());
+             boolean           opt   = !Trace();
+             RulesDirectory rd       = new RulesDirectory(getPath(),getRulesDirectoryFile(),opt);
              
              // Select a particular rule set and create a session to load the data and evaluate
              // that data against the rules within this ruleset.  
