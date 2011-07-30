@@ -35,3 +35,11 @@ sampleprojects/CHIP/testfiles/TestScenarios sampleprojects/CHIP/testfiles/job_00
 sampleprojects/CHIP/testfiles/
 sampleprojects/ChipApp/testfiles/
 .~*
+
+dsl/el/src/main/java/com/dtrules/compiler/el/flex/scanner/DTRulesscanner.java~
+
+dsl/el/src/main/java/com/dtrules/compiler/el/flex/scanner/DTRulesscanner.java
+
+dsl/el/src/main/java/com/dtrules/compiler/el/cup/parser/sym.java
+
+dsl/el/src/main/java/com/dtrules/compiler/el/cup/parser/DTRulesParser.java
