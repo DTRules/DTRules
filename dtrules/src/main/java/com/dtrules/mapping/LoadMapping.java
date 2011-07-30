@@ -163,7 +163,7 @@ public class LoadMapping implements IGenericXMLParser {
 		    
 		      state.entitypush(e);
 			  if(state.testState(DTState.TRACE)){
-		          state.traceTagBegin("createEntity", "name",info.name,"data_id",code);
+		          state.traceTagBegin("mapCreateEntity", "name",info.name,"data_id",code);
 		          traceopen = true;
 			  }    
 		    }else{

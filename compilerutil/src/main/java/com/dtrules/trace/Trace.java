@@ -92,6 +92,7 @@ public class Trace {
 		session = null;
 		try{
 			session = rs.newSession();
+			session.getState().traceStart();	// Need the session to be trace mode.
 			root.setState(this, position);
 		}catch(RulesException e){ }
 		return session;
@@ -129,7 +130,7 @@ public class Trace {
 	static public void main(String [] args) throws Exception {
 		
 		String tracefile    = System.getProperty("user.dir")+
-				"/../sampleprojects/CHIP/testfiles/output/test_1_trace.xml";
+				"/../sampleprojects/CHIP/testfiles/output/test_2_trace.xml";
 		Trace trace 		= new Trace();
 		
 		trace.load(tracefile);
@@ -150,6 +151,25 @@ public class Trace {
 			System.out.println(e.getName().stringValue()+" "+e.getID());
 		}
 		
+		TraceNode column;
+		List<Integer> actions;
+		
+		column = trace.find(380);
+		actions = column.getActions();
+		System.out.print("\n"+column.attributes.get("t_num")+" ");
+		for(int c : actions) System.out.print(c+" ");
+
+		column = trace.find(419);
+		actions = column.getActions();
+		System.out.print("\n"+column.attributes.get("t_num")+" ");
+		for(int c : actions) System.out.print(c+" ");
+
+		column = trace.find(442);
+		actions = column.getActions();
+		System.out.print("\n"+column.attributes.get("t_num")+" ");
+		for(int c : actions) System.out.print(c+" ");
+
+						
 		if(s==null) {
 			System.out.println("Could not build a session.");
 			return;

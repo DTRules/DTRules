@@ -27,10 +27,10 @@ import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.session.DTState;
-import com.dtrules.session.IRSession;
 import com.dtrules.xmlparser.XMLPrinter;
 /**
- * Holds the information in a trace file.
+ * Holds the information in a trace file.  Provides accessors that 
+ * return interesting information about the trace data.
  * 
  * @author paul
  *
@@ -49,34 +49,14 @@ public class TraceNode {
 		this.attributes = attributes;
 	}
 	
-	public void addChild(TraceNode child){
-		children.add(child);
-	}
-	
-	public List<TraceNode> getChildren(){
-		return children;
-	}
-
-	public void setAttributes(Map<String,String> attributes){
-		this.attributes = attributes;
-	}
-	
-	public Map<String,String> getAttributes(){
-		return attributes;
-	}
-
-	public String getBody() {
-		return body;
-	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setBody(String body) {
-		this.body = body;
-	}
-	
+	/**
+	 * As I load the trace in, I give each node a number.  If you know
+	 * very little about the trace, you can find a particular node by
+	 * examinging the XML, and picking a number.
+	 * 
+	 * @param n
+	 * @return TraceNode
+	 */
 	public TraceNode find(int n){
 		if(number == n)return this;
 		for(TraceNode child :children){
@@ -88,6 +68,11 @@ public class TraceNode {
 		return null;
 	}
 	
+	/**
+	 * Prints the data loaded from a Trace.  Really just a debugging feature.
+	 * The given XMLPrinter is used for the output.
+	 * @param out
+	 */
 	public void print(XMLPrinter out) { 
 		attributes.put("t_num", ""+number);
 		if(children.size()>0){
@@ -152,9 +137,6 @@ public class TraceNode {
 			e.put(trace.session, RName.getRName(name), v);
 		}
 	
-		
-		
-		
 		for(TraceNode child : children){
 			if(child.setState(trace, position)){
 				return true;
@@ -194,17 +176,132 @@ public class TraceNode {
 		}
 		return false;
 	}
+
+	/**
+	 * Make a node print something useful.
+	 * @return String
+	 */
+	@Override
+	public String toString() {
+		return name + " (" + body + ") " + attributes;
+	}
+
+	/**
+	 * Finds the actions executed from the given position in the trace.
+	 * First I look at the current node, and its parents, until I find
+	 * a column tag.  then I return the actions fired under that column.
+	 * 
+	 * The alternatives are to return an empty list if the position 
+	 * handed to me is not a column tag, or look down the list of tags 
+	 * until I find a column.  
+	 * 
+	 * @param trace
+	 * @return
+	 */
+	public List<Integer> getActions(){
+		List<Integer> actions = null;
+		
+		// Ah! we have our column!  Return its action children!
+		if(name.equals("column")){
+			actions = new ArrayList<Integer>();
+			for(TraceNode child : children){
+				if(child.name.equals("action")){
+					String n = child.getAttributes().get("n");
+					try { // Ignore bad columns
+						actions.add(Integer.parseInt(n));
+					} catch (NumberFormatException e) {}
+				}
+			}
+			
+		// Okay, this isn't the column.  Look to our parents?	
+		}else if ( parent!= null ){
+			actions = getParent().getActions();
+		}
+		
+		// We only return a null of there is no column position to be found.
+		return actions;
+	}
 	
+	/** 
+	 * ================================================================
+	 * The following methods are just accessor methods.  If Java was a
+	 * better language, these would be available for all properties of 
+	 * a class, by default.  But it isn't.
+	 * ================================================================
+	 * 
+	 */
+	
+	
+	/**
+	 * 
+	 * @return TraceNode
+	 */
 	public TraceNode getParent() {
 		return parent;
 	}
 
+	
+	/**
+	 * 
+	 * @param parent
+	 */
 	public void setParent(TraceNode parent) {
 		this.parent = parent;
 	}
 	
-	@Override
-	public String toString() {
-		return name + " (" + body + ") " + attributes;
+	/**
+	 * 
+	 * @param child
+	 */
+	public void addChild(TraceNode child){
+		children.add(child);
+	}
+	
+	/**
+	 * 
+	 * @return List<TraceNode> 
+	 */
+	public List<TraceNode> getChildren(){
+		return children;
+	}
+
+	/**
+	 * 
+	 * @param attributes
+	 */
+	public void setAttributes(Map<String,String> attributes){
+		this.attributes = attributes;
+	}
+	
+	/**
+	 * 
+	 * @return  Map<String,String>
+	 */
+	public Map<String,String> getAttributes(){
+		return attributes;
+	}
+
+	/**
+	 * 
+	 * @return String
+	 */
+	public String getBody() {
+		return body;
+	}
+	
+	/**
+	 * 
+	 * @return String
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * 
+	 * @param body
+	 */
+	public void setBody(String body) {
+		this.body = body;
 	}
 }

@@ -161,7 +161,7 @@ public class LoadXMLData implements IGenericXMLParser {
 		    
 		      state.entitypush(e);
 			  if(state.testState(DTState.TRACE)){
-		          state.traceTagBegin("createEntity", "name",info.name,"id",code+"");		          
+		          state.traceTagBegin("mapCreateEntity", "name",info.name,"data_id",code+"");		          
 			  }    
 		    }else{
                 

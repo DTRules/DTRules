@@ -46,7 +46,7 @@ public class RSession implements IRSession {
     final RuleSet               rs;
 	final DTState               dtstate;
     EntityFactory               ef;
-    int                         uniqueID = 1;
+    private int                 uniqueID;
     HashMap<Object,IREntity>    entityInstances = new HashMap<Object,IREntity>();
     ICompiler                   compiler = null;    
     IComputeDefaultValue        ComputeDefault = new ComputeDefaultValue();
@@ -138,13 +138,10 @@ public class RSession implements IRSession {
      */
     public RSession(RuleSet _rs) throws RulesException {
         rs      = _rs;
-        dtstate = new DTState(this);
-        ef      = _rs.getEntityFactory(this);
-        if(ef.getUniqueID()<100000){
-            uniqueID = 100000;
-        }else{
-            uniqueID = ef.getUniqueID()+100000;
-        }    
+        dtstate  = new DTState(this);
+        ef       = _rs.getEntityFactory(this);
+        uniqueID = ef.getUniqueID()+10000;      // Put some distance between the reference entity ids 
+        										// and the instances we create.
         /**
          * Add all the reference entities to the session list 
          * of entities.
@@ -357,7 +354,22 @@ public class RSession implements IRSession {
         if(getState().testState(DTState.TRACE)){
         	IREntity e = entityInstances.get(id);
             if(e==null){
+            	
+            	try { // Try and make the uniqueId match.  But ignore errors.
+					int eid = Integer.parseInt(id.toString());
+					if(uniqueID!=eid) uniqueID = eid;
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+				}
+
             	e = (REntity) ref.clone(this);
+            	
+            	dtstate.traceInfo(
+            			"createentity",
+            			"name", e.getName().stringValue(),
+            			"id",   ""+e.getID(),
+            			null);
+
             	entityInstances.put(id,e);
             }
             return e;
