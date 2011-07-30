@@ -2,7 +2,9 @@ package com.dtrules.trace;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.dtrules.entity.IREntity;
@@ -19,6 +21,22 @@ public class Trace {
 	
 	Map<String,IREntity> entitytable = new HashMap<String,IREntity>();
 	
+	IRSession session;
+	
+	TraceNode position;
+	
+	/**
+	 * Create entity.  If we already know the entity, we return it, otherwise
+	 * we get the entity from the session.
+	 */
+	public IREntity createEntity(String id, String name) throws RulesException {
+		IREntity e = entitytable.get(id);
+		if(e == null){
+			e = session.createEntity(id, name);
+			entitytable.put(id, e);
+		}
+		return e;
+	}
 	/**
 	 * Create a TraceNode tree from the given tracefile filepath. 
 	 * @param tracefile
@@ -61,21 +79,25 @@ public class Trace {
 	}
 	/**
 	 * Returns a session that represents a Rules Engine in the state at 
-	 * the given node.
+	 * the given node.  On any error encountered by the Rules Engine, we
+	 * return the state of the Rules Engine at that point.  If we could
+	 * not build a session at all, we return a null.
 	 * 
 	 * @param rs
 	 * @param position
 	 * @return IRSession
 	 */
 	public IRSession setState(RuleSet rs, TraceNode position) {
+		this.position = position;
+		session = null;
 		try{
-			IRSession session = rs.newSession();
-			root.setState(this, session,position);
-			return session;
-		}catch(RulesException e){
-			return null;
-		}
+			session = rs.newSession();
+			root.setState(this, position);
+		}catch(RulesException e){ }
+		return session;
 	}
+	
+	
 	/**
 	 * Find the i'th node in the tree.
 	 * @param i
@@ -84,22 +106,36 @@ public class Trace {
 	public TraceNode find(int i){
 		return root.find(i);
 	}
+	/**
+	 * Get the instances of a given entity, given the current position
+	 * in the trace.	
+	 * @param entityName
+	 * @param position
+	 * @return
+	 * @throws RulesException
+	 */
+	public List<IREntity> instancesOf( String entityName ) throws RulesException { 
+		
+		List<IREntity> entityList = new ArrayList<IREntity>();
+		root.searchTree(this, entityName, entityList);
+		return entityList;
+	}
 	
 	/**
-	 * A simple test file.
+	 * An executable for testing functions in Trace
 	 * @param args
 	 * @throws Exception
 	 */
 	static public void main(String [] args) throws Exception {
 		
 		String tracefile    = System.getProperty("user.dir")+
-				"/../sampleprojects/CHIP/testfiles/output/job_trace.xml";
+				"/../sampleprojects/CHIP/testfiles/output/test_1_trace.xml";
 		Trace trace 		= new Trace();
 		
 		trace.load(tracefile);
-		//trace.print();
+		trace.print();
 		
-		TraceNode t = trace.find(11074);
+		TraceNode t = trace.find(250);
 		
 		RulesDirectory rd = new RulesDirectory(
 				System.getProperty("user.dir")+"/../sampleprojects/CHIP/", "DTRules.xml");
@@ -107,6 +143,17 @@ public class Trace {
 		RuleSet rs = rd.getRuleSet("CHIP");
 		
 		IRSession s = trace.setState(rs, t);
+	
+		List<IREntity> entities = trace.instancesOf("client");
+		
+		for(IREntity e : entities){
+			System.out.println(e.getName().stringValue()+" "+e.getID());
+		}
+		
+		if(s==null) {
+			System.out.println("Could not build a session.");
+			return;
+		}
 		
 		int edepth = s.getState().edepth();
 		for(int i = 0; i < edepth; i++){

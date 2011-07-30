@@ -108,14 +108,10 @@ public class TraceNode {
 	 * @return
 	 * @throws RulesException
 	 */
-	IREntity getEntity(Trace trace, IRSession session) throws RulesException {
+	IREntity getEntity(Trace trace) throws RulesException {
 		String   id = attributes.get("id");
 		String   n  = attributes.get("entity");
-		IREntity e  = trace.entitytable.get(id);
-		if(e==null){
-			e = session.createEntity(id, n);
-			trace.entitytable.put(id, e);
-		}
+		IREntity e  = trace.createEntity(id, n);
 		return e;
 	}
 	
@@ -130,17 +126,16 @@ public class TraceNode {
 	 */
 	public boolean setState(
 			Trace 		trace, 
-			IRSession 	session, 
 			TraceNode 	position) throws RulesException {
 
-		DTState ds = session.getState();
+		DTState ds = trace.session.getState();
 		
 		// Found our position.  We are Done!
 		if(position == this) return true;
 		
 		// We are an entitypush.  Find that entity and push it.
 		if(name.equals("entitypush")){
-			ds.entitypush(getEntity(trace,session));
+			ds.entitypush(getEntity(trace));
 		}
 		
 		// We are an entitypop.  Pop an entity!
@@ -150,18 +145,18 @@ public class TraceNode {
 		
 		// If we are setting an attribute
 		if(name.equals("def")){
-			session.execute(body);
+			trace.session.execute(body);
 			String 		name = attributes.get("name");
 			IRObject 	v	 = ds.datapop();
-			IREntity    e    = getEntity(trace, session);
-			e.put(session, RName.getRName(name), v);
+			IREntity    e    = getEntity(trace);
+			e.put(trace.session, RName.getRName(name), v);
 		}
 	
 		
 		
 		
 		for(TraceNode child : children){
-			if(child.setState(trace, session, position)){
+			if(child.setState(trace, position)){
 				return true;
 			}
 		}
@@ -169,6 +164,36 @@ public class TraceNode {
 		return false;
 	}
 
+	/**
+	 * Recursive search for all entities up to and including the given position.  All
+	 * entities found are added to the entityList.
+	 * @param position
+	 * @param entityName
+	 * @param entityList
+	 * @return boolean true if done with search.
+	 */
+	public boolean searchTree( Trace trace, String entityName, List<IREntity> entityList) throws RulesException {
+		
+		if(name.equals("createentity")){
+			if(attributes.get("name").equals(entityName)){
+				String id = attributes.get("id");
+				IREntity e = trace.createEntity(id, entityName);
+				
+				if(!entityList.contains(e)){
+				   entityList.add(e);
+				}
+			}
+		}
+		
+		if(this.equals(trace.position)) return true;
+		
+		for(TraceNode child : children){
+			if(child.searchTree(trace, entityName, entityList)){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public TraceNode getParent() {
 		return parent;
