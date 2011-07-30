@@ -27,7 +27,7 @@
  	<build> 
 		<plugins>
 
-	      <plugin>
+	      <!--plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.2</version>
@@ -41,11 +41,11 @@
                </execution>
             </executions>
             <configuration>
-               <executable>./parser.sh</executable>
+               <executable>parser.sh</executable>
             </configuration>
-         </plugin>
+         </plugin-->
 
-	     <plugin>
+	     <!--plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.2</version>
@@ -67,7 +67,7 @@
                   <argument>${project.build.sourceDirectory}/com/dtrules/compiler/el/flex/scanner/scanner.flex</argument>
                </arguments>
             </configuration>
-         </plugin>
+         </plugin-->
    	</plugins> 
 	</build>
 	<dependencies>
