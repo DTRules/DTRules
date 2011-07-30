@@ -123,6 +123,26 @@ public class Trace {
 	}
 	
 	/**
+	 * Return the actions of the current position. If not a column, then it
+	 * looks for the enclosing column.  If there is no enclosing column, a 
+	 * null is returned.
+	 * @return List<Integer>
+	 */
+	public List<Integer> getActions(){
+		return position.getActions();
+	}
+	
+	/**
+	 * Return the actions of the given position. If not a column, then it
+	 * looks for the enclosing column.  If there is no enclosing column, a 
+	 * null is returned.
+	 * @return List<Integer>
+	 */
+	public List<Integer> getActions(TraceNode position){
+		return position.getActions();
+	}
+	
+	/**
 	 * An executable for testing functions in Trace
 	 * @param args
 	 * @throws Exception
