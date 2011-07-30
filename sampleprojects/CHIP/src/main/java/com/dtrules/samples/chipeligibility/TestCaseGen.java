@@ -14,7 +14,7 @@ import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestCaseGen {
 								// This is the default number of how many test cases to generate.
-	static int cnt = 20;		// You can pass a different number on the commandline.
+	static int cnt = 5;	    	// You can pass a different number on the commandline.
 	
 	Random 		       rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;
