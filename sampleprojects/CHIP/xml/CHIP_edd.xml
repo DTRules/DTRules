@@ -38,7 +38,7 @@
 		<field name='ChildSupport' type='string' subtype='' access='r' input='' default_value='CS' comment='Income Type'></field>
 		<field name='CHIP' type='string' subtype='' access='r' input='' default_value='CHIP' comment='Program Type'></field>
 		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='coveredCounties' type='array' subtype='' access='r' input='' default_value='{ &quot;AA&quot; &quot;AK&quot; &quot;BC&quot; &quot;BK&quot; &quot;BT&quot; &quot;CR&quot; &quot;CO&quot;  &quot;TX&quot;  &quot;LO&quot;  &quot;AR&quot; }' comment='Counties covered by CHIP'></field>
+		<field name='coveredCounties' type='array' subtype='' access='r' input='' default_value='{ &quot;AA&quot; &quot;AK&quot; &quot;BC&quot; &quot;BK&quot; &quot;BT&quot; &quot;CR&quot; &quot;CO&quot;  &quot;TX&quot;  &quot;LO&quot;  &quot;AR&quot; &quot;XR&quot; &quot;XO&quot;  &quot;XX&quot;  &quot;XO&quot;  &quot;XR&quot;  }' comment='Counties covered by CHIP'></field>
 		<field name='diagCodes' type='array' subtype='' access='r' input='' default_value='[ &quot;V2501&quot; &quot;V2502&quot; ]' comment='diag codes'></field>
 		<field name='Dividends' type='string' subtype='' access='r' input='' default_value='DIV' comment='Income Type'></field>
 		<field name='ExcludedIncomeTypes' type='array' subtype='' access='r' input='' default_value='{ &quot;CS&quot; &quot;SSI&quot; }' comment='Excluded Income Types'></field>

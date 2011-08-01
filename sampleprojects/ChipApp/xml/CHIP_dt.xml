@@ -391,7 +391,8 @@ client.totalGroupIncome 1 local@  &lt;=
 <condition_postfix>
 uninsured 
 </condition_postfix>
-<condition_column column_value="Y" column_number="3"></condition_column></condition_details>
+<condition_column column_value="N" column_number="3"></condition_column>
+<condition_column column_value="Y" column_number="4"></condition_column></condition_details>
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>If we have no lost Insurance date, and we are uninsured, then the client was never insured.</condition_comment>
@@ -400,7 +401,7 @@ uninsured
 <condition_postfix>
 lostInsuranceDate  isnull 
 </condition_postfix>
-<condition_column column_value="N" column_number="3"></condition_column></condition_details>
+<condition_column column_value="N" column_number="4"></condition_column></condition_details>
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
@@ -409,7 +410,7 @@ lostInsuranceDate  isnull
 <condition_postfix>
 lostInsuranceDate  90  adddays currentdate d&gt; 
 </condition_postfix>
-<condition_column column_value="Y" column_number="3"></condition_column></condition_details>
+<condition_column column_value="Y" column_number="4"></condition_column></condition_details>
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>Make sure this case is in the appropriate county</condition_comment>
@@ -418,7 +419,7 @@ lostInsuranceDate  90  adddays currentdate d&gt;
 <condition_postfix>
 CoveredCounties case.county_Cd memberof 
 </condition_postfix>
-<condition_column column_value="N" column_number="4"></condition_column></condition_details>
+<condition_column column_value="N" column_number="5"></condition_column></condition_details>
 <condition_details>
 <condition_number>8</condition_number>
 <condition_comment>Age limit should be &lt;=18 years</condition_comment>
@@ -427,7 +428,7 @@ CoveredCounties case.county_Cd memberof
 <condition_postfix>
 client.age 18 &lt;= 
 </condition_postfix>
-<condition_column column_value="N" column_number="5"></condition_column></condition_details>
+<condition_column column_value="N" column_number="6"></condition_column></condition_details>
 <condition_details>
 <condition_number>9</condition_number>
 <condition_comment>If you are eligible for Medicaid, then you are not eligible for CHIP</condition_comment>
@@ -436,7 +437,7 @@ client.age 18 &lt;=
 <condition_postfix>
 eligibleForMedicaid true beq 
 </condition_postfix>
-<condition_column column_value="Y" column_number="6"></condition_column></condition_details>
+<condition_column column_value="Y" column_number="7"></condition_column></condition_details>
 <condition_details>
 <condition_number>10</condition_number>
 <condition_comment>Otherwise the client is eligible</condition_comment>
@@ -445,7 +446,7 @@ eligibleForMedicaid true beq
 <condition_postfix>
 otherwise 
 </condition_postfix>
-<condition_column column_value="*" column_number="7"></condition_column></condition_details></conditions>
+<condition_column column_value="*" column_number="8"></condition_column></condition_details></conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -461,7 +462,8 @@ otherwise
 <action_column column_value="X" column_number="4"></action_column>
 <action_column column_value="X" column_number="5"></action_column>
 <action_column column_value="X" column_number="6"></action_column>
-<action_column column_value="X" column_number="7"></action_column></action_details>
+<action_column column_value="X" column_number="7"></action_column>
+<action_column column_value="X" column_number="8"></action_column></action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Provide reasons for rejection</action_comment>
@@ -475,7 +477,8 @@ false cvb /client.eligible xdef
 <action_column column_value="X" column_number="3"></action_column>
 <action_column column_value="X" column_number="4"></action_column>
 <action_column column_value="X" column_number="5"></action_column>
-<action_column column_value="X" column_number="6"></action_column></action_details>
+<action_column column_value="X" column_number="6"></action_column>
+<action_column column_value="X" column_number="7"></action_column></action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>If none of the eligiblity exclusions fired, then the client is eligible</action_comment>
@@ -484,7 +487,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 true cvb /client.eligible xdef  
 </action_postfix>
-<action_column column_value="X" column_number="7"></action_column></action_details>
+<action_column column_value="X" column_number="8"></action_column></action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Record the client&apos;s income</action_comment>
@@ -499,7 +502,8 @@ true cvb /client.eligible xdef
 <action_column column_value="X" column_number="4"></action_column>
 <action_column column_value="X" column_number="5"></action_column>
 <action_column column_value="X" column_number="6"></action_column>
-<action_column column_value="X" column_number="7"></action_column></action_details>
+<action_column column_value="X" column_number="7"></action_column>
+<action_column column_value="X" column_number="8"></action_column></action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Record the reasoning.</action_comment>
@@ -514,7 +518,8 @@ policystatements client.notes true  addarray
 <action_column column_value="X" column_number="4"></action_column>
 <action_column column_value="X" column_number="5"></action_column>
 <action_column column_value="X" column_number="6"></action_column>
-<action_column column_value="X" column_number="7"></action_column></action_details></actions>
+<action_column column_value="X" column_number="7"></action_column>
+<action_column column_value="X" column_number="8"></action_column></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>The Client is not a validated Citizen, nor a validated immigrant</policy_description>
@@ -523,18 +528,21 @@ policystatements client.notes true  addarray
 <policy_description>The Client&apos;s total group income, {client.totalGroupIncome}, is greater than 200 percent of the FPL {FPL200}</policy_description>
 <policy_statement_postfix>&quot;The Client&apos;s total group income, &quot; client.totalGroupIncome cvs strconcat &quot;, is greater than 200 percent of the FPL &quot; s+ 1 local@  cvs strconcat &quot;&quot; strconcat</policy_statement_postfix></policy_statement>
 <policy_statement column="3">
+<policy_description>The Client must be uninsured to qualify for CHIP</policy_description>
+<policy_statement_postfix>&quot;The Client must be uninsured to qualify for CHIP&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="4">
 <policy_description>The Client must be uninsured for 90 days or more to qualify for CHIP</policy_description>
 <policy_statement_postfix>&quot;The Client must be uninsured for 90 days or more to qualify for CHIP&quot; </policy_statement_postfix></policy_statement>
-<policy_statement column="4">
+<policy_statement column="5">
 <policy_description>The Client is not in a covered county</policy_description>
 <policy_statement_postfix>&quot;The Client is not in a covered county&quot; </policy_statement_postfix></policy_statement>
-<policy_statement column="5">
+<policy_statement column="6">
 <policy_description>The Client must be 18 or younger to qualify for CHIP</policy_description>
 <policy_statement_postfix>&quot;The Client must be 18 or younger to qualify for CHIP&quot; </policy_statement_postfix></policy_statement>
-<policy_statement column="6">
+<policy_statement column="7">
 <policy_description>The Client is eligible for Medicaid, so they are not eligible for CHIP</policy_description>
 <policy_statement_postfix>&quot;The Client is eligible for Medicaid, so they are not eligible for CHIP&quot; </policy_statement_postfix></policy_statement>
-<policy_statement column="7">
+<policy_statement column="8">
 <policy_description>The Client is eligible for CHIP</policy_description>
 <policy_statement_postfix>&quot;The Client is eligible for CHIP&quot; </policy_statement_postfix></policy_statement></policy_statements></decision_table>
 <decision_table>

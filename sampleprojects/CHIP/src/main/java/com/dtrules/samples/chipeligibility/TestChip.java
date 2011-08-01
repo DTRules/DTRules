@@ -41,6 +41,7 @@ public class TestChip extends ATestHarness {
 	    	t.setVerbose(false);				// this class. 
 	    	t.setTrace(true);
 	    	t.setConsole(false);
+	    	t.setNumbered(false);
 	    	
 	    	t.runTests();						// All that is required to run the tests.
 	    }

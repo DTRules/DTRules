@@ -216,7 +216,6 @@ public class ChipApp {
 				
 				System.out.printf("\n\nA Job is processed every: %.8f seconds.\n\n",dt/1000);
 				System.out.printf ("Number of Cases:          %8d\n",numCases);
-                System.out.printf ("Cases without applicants: %8d\n",empty);
                 System.out.printf ("Total clients in cases:   %8d\n",total);
 				System.out.printf ("Total clients applying:   %8d\n",(approved+denied));
 				System.out.printf ("Clients approved:         %8d\n",approved);
@@ -261,13 +260,16 @@ public class ChipApp {
 	}
 	
 	public void sort(List<Integer> array){
-		for(int i=0; i < array.size()-1; i++){
+		boolean done = false;
+		for(int i=0; !done && i < array.size()-1; i++){
+			done = true;
 			for(int j=0; j < array.size()-i-1; j++){
 				Integer a = array.get(j);
 				Integer b = array.get(j+1);
 				if((a!=null && b!= null && a>b)|| a==null){
 					array.set(j,   b);
 					array.set(j+1, a);
+					done = false;
 				}
 			}
 		}
