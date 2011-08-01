@@ -45,7 +45,9 @@ import com.dtrules.xmlparser.XMLTree.Node;
 import com.dtrules.xmlparser.XMLTree.Node.MATCH;
 
 public abstract class ATestHarness implements ITestHarness {
- 
+	public static PrintStream ostream = System.out;
+	public static PrintStream estream = System.err;
+	
 	
     protected DataMap     datamap     = null;
     protected AutoDataMap autoDataMap = null;
@@ -316,23 +318,23 @@ public abstract class ATestHarness implements ITestHarness {
              int            dfcnt    = 1;
              
              if(rs == null){
-            	 System.out.println("Could not find the Rule Set '"+ruleset+"'");
+            	 ostream.println("Could not find the Rule Set '"+ruleset+"'");
             	 throw new RuntimeException("Undefined: '"+ruleset+"'");
              }
              
              Date start = new Date();
              
              {
-                 System.out.println(start);  
+                 ostream.println(start);  
                  for(File file : files){
-                     if(!Console())System.out.print(dfcnt+" ");
+                     if(!Console())ostream.print(dfcnt+" ");
                      Date now = new Date();
                      if(dfcnt%20==0){
                          long dt  = (now.getTime()-start.getTime())/dfcnt;
                          long sec = dt/1000;
                          long lms  = dt-(sec*1000);
                          String ms = lms<100 ? lms<10 ? "00"+lms : "0"+lms : ""+lms;
-                         System.out.println("\nAvg execution time: "+sec+"."+ms);
+                         ostream.println("\nAvg execution time: "+sec+"."+ms);
                      }
                      
                      String err = runfile(rd,rs,dfcnt,dir.getAbsolutePath(),file.getName());
@@ -356,7 +358,7 @@ public abstract class ATestHarness implements ITestHarness {
                  long hour = dt;
                  long lms  = dt-(sec*1000);
                  String ms = lms<100 ? lms<10 ? "00"+lms : "0"+lms : ""+lms;
-                 System.out.println("\r\n\r\nTotal Execution Time (h:m:s.ms): "+hour+":"+min+":"+sec+"."+ms);
+                 ostream.println("\r\n\r\nTotal Execution Time (h:m:s.ms): "+hour+":"+min+":"+sec+"."+ms);
              }
              
              if(Trace() && coverageReport()){
@@ -373,14 +375,14 @@ public abstract class ATestHarness implements ITestHarness {
                  long sec = dt/1000;
                  long lms  = dt-(sec*1000);
                  String ms = lms<100 ? lms<10 ? "00"+lms : "0"+lms : ""+lms;
-                 System.out.println("\nDone.  Avg execution time: "+sec+"."+ms);
+                 ostream.println("\nDone.  Avg execution time: "+sec+"."+ms);
              }
              
          } catch ( Exception ex ) {
              rpt.println("An Error occurred while running the example:\n"+ex);
              rpt.print("<-ERR  ");
              if(Console()){
-                 System.out.print(ex);
+                 ostream.print(ex);
              }
          }
          
@@ -388,7 +390,7 @@ public abstract class ATestHarness implements ITestHarness {
          try{
              compareTestResults();
          }catch(Exception e){
-             System.out.println("Error comparing Test Results: "+e);
+             ostream.println("Error comparing Test Results: "+e);
          }
      }
      
@@ -508,16 +510,16 @@ public abstract class ATestHarness implements ITestHarness {
               }catch(Throwable e){
                  if(!Console()){                    // If we are going to the console, assume the same
                                                     // error will get thrown, so don't print twice.    
-                     System.out.println(e.toString());
+                     ostream.println(e.toString());
                  }
               }
               
               // If asked, print the report again to the console.
               if(Console()){
                   try{
-                      printReport(dfcnt, session,System.out);
+                      printReport(dfcnt, session,ostream);
                   }catch(Throwable e){
-                      System.out.println(e.toString());
+                      ostream.println(e.toString());
                    }
               }
 
@@ -528,9 +530,9 @@ public abstract class ATestHarness implements ITestHarness {
               }
              
           } catch ( Exception ex ) {
-              System.out.print("<-ERR  ");
+              ostream.print("<-ERR  ");
               if(Console()){
-                  System.out.print(ex);
+                  ostream.print(ex);
               }
               return "\nAn Error occurred while running the example:\n"+ex+"\n";
           }
@@ -561,7 +563,7 @@ public abstract class ATestHarness implements ITestHarness {
         try{
             cr.compare(report);
         }catch(Exception e){
-            System.out.println("Could not compare rule sets");
+            ostream.println("Could not compare rule sets");
         }
     }
 
@@ -612,12 +614,12 @@ public abstract class ATestHarness implements ITestHarness {
     public void compareTestResults() throws Exception {
         XMLPrinter report = new XMLPrinter(compareTestResultsReport());
         
-        System.out.println();
+        ostream.println();
         
         report.opentag("results");
         File outputs = new File(getOutputDirectory());
         if(outputs == null || !outputs.isDirectory()){
-            System.out.println("'"+getOutputDirectory()+"' does not exist or is not a directory");
+            ostream.println("'"+getOutputDirectory()+"' does not exist or is not a directory");
         }
         boolean changes = false;
         boolean missingResults = false;
@@ -636,15 +638,15 @@ public abstract class ATestHarness implements ITestHarness {
                             report.printdata("match","file",file.getName(),"");
                         }else{
                         	changes = true;
-                        	System.out.flush(); 
-                        	System.err.println(file.getName()+"--> "+msg);
-                        	System.err.flush();
+                        	ostream.flush(); 
+                        	estream.println(file.getName()+"--> "+msg);
+                        	estream.flush();
                         	report.printdata("resultChanged","file",file.getName(),msg);
                         }
                     }else{
-                    	System.out.flush();
-                    	System.err.println(file.getName()+" has no result file; No compare done.");
-                    	System.err.flush();
+                    	ostream.flush();
+                    	estream.println(file.getName()+" has no result file; No compare done.");
+                    	estream.flush();
                         report.printdata("error","file",file.getName(),"");
                     }
                 }catch (Exception e){
@@ -656,12 +658,12 @@ public abstract class ATestHarness implements ITestHarness {
         report.closetag();
         
         if(changes){
-        	System.err.println("\nSome results have changed.  Check the TestResults.xml for all results.");
+        	estream.println("\nSome results have changed.  Check the TestResults.xml for all results.");
         }else{
-        	System.out.println("\nALL PASS: No changes found when compared to results files.");
+        	ostream.println("\nALL PASS: No changes found when compared to results files.");
         }
         if(missingResults){
-        	System.err.println("\nSome tests have no results with which to compare.  Check the TestResults.xml for details.");
+        	estream.println("\nSome tests have no results with which to compare.  Check the TestResults.xml for details.");
         }
     }
 

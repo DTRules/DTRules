@@ -52,7 +52,8 @@ import com.dtrules.session.RulesDirectory;
 import com.dtrules.testsupport.ChangeReport;
 
 public class Excel2XML {
-
+	public static PrintStream ostream = System.out;
+	
     private RuleSet       ruleSet;
     private final String  UDTFilename = "Uncompiled_DecisionTables.xml";    
     String                path;
@@ -116,7 +117,7 @@ public class Excel2XML {
         }
         
         if(new File(ruleSet.getWorkingdirectory()).mkdirs()){
-            System.out.println("Created Directories "+ruleSet.getWorkingdirectory());
+            ostream.println("Created Directories "+ruleSet.getWorkingdirectory());
         }
         
         ImportRuleSets dt = new ImportRuleSets();
@@ -160,7 +161,7 @@ public class Excel2XML {
      * @param NumErrorsToReport How many errors to print
      * @param err The output stream which to print the errors
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void compile(int NumErrorsToReport, PrintStream err) {
         
         try {
@@ -229,7 +230,7 @@ public class Excel2XML {
                 List tables = admin.getDecisionTables(rs.getName());
                 for(Object table : tables){
                    RDecisionTable dtable = admin.getDecisionTable(rs.getName(),(String)table);
-                   dtable.check(System.out);
+                   dtable.check(ostream);
                 }
             }
         } catch (Exception e) {
@@ -330,13 +331,13 @@ public class Excel2XML {
             String [] mappings,
             int    errorcnt) {
         try{
-            System.out.println("Starting: "+ new Date());
+            ostream.println("Starting: "+ new Date());
             Excel2XML converter     = new Excel2XML(path, rulesConfig, ruleset);
-            System.out.println("Converting: "+ new Date());
+            ostream.println("Converting: "+ new Date());
             converter.convertRuleset();
-            System.out.println("Compiling: "+ new Date());
-            converter.compile(errorcnt,System.out);
-            System.out.println("Done: "+ new Date());
+            ostream.println("Compiling: "+ new Date());
+            converter.compile(errorcnt,ostream);
+            ostream.println("Done: "+ new Date());
             
             if(mappings != null) for(String map : mappings){
                 converter.generateMap(0, map, "mapping_"+map);
@@ -351,13 +352,13 @@ public class Excel2XML {
                         applicationRepositoryPath,
                         rulesConfig,
                         "deployed");
-                cr.compare(System.out);
+                cr.compare(ostream);
                 cr.compare(new FileOutputStream(converter.getRuleSet().getWorkingdirectory()+"changes.xml"));   
             }
     
         } catch ( Exception ex ) {
-            System.out.println("Failed to convert the Excel files");
-            System.out.println(ex.toString());
+            ostream.println("Failed to convert the Excel files");
+            ostream.println(ex.toString());
             ex.printStackTrace();
         }
     }

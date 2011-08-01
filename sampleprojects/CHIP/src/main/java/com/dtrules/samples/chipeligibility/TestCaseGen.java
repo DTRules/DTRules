@@ -3,6 +3,7 @@ package com.dtrules.samples.chipeligibility;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +14,9 @@ import java.util.Random;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestCaseGen {
+	public static PrintStream ostream = System.out;
+	public static PrintStream estream = System.err;
+	
 								// This is the default number of how many test cases to generate.
 	static int cnt = 5;	    	// You can pass a different number on the commandline.
 	
@@ -197,7 +201,7 @@ public class TestCaseGen {
 	
 	void generate(String name, int numCases){
 		try{
-			System.out.println("Clearing away old tests");
+			ostream.println("Clearing away old tests");
             // Delete old output files
             File dir         = new File(path);
             if(!dir.exists()){
@@ -212,21 +216,21 @@ public class TestCaseGen {
         }
         
 		try {
-			System.out.println("Generating "+numCases+" Tests");
+			ostream.println("Generating "+numCases+" Tests");
 			int inc = 100;
 			if(inc < 100) inc = 1;
 			if(inc < 1000) inc = 10;
 			int lines = inc*10;
 			
 			for(int i=1;i<=numCases; i++){
-				if(i>0 && i%inc   ==0 )System.out.print(i+" ");
-				if(i>0 && i%lines ==0 )System.out.print("\n");
+				if(i>0 && i%inc   ==0 )ostream.print(i+" ");
+				if(i>0 && i%lines ==0 )ostream.print("\n");
 				xout = new XMLPrinter("chip_case",new FileOutputStream(filename(name,numCases,i)));
 				generate();
 				xout.close();
 			}
 		} catch (FileNotFoundException e) {
-			System.out.println(e.toString());
+			ostream.println(e.toString());
 			e.printStackTrace();
 		}
 	}
@@ -237,11 +241,13 @@ public class TestCaseGen {
 			try {
 				cnt = Integer.parseInt(args[0]);
 			} catch (NumberFormatException e) {
-				System.err.println("Could not parse '"+args[0]+"' as a number.\n" +
-						"Usage:  TestCaseGen <number>");
+				estream.println("Could not parse '"+args[0]+"' as a number.\n" +
+						"Usage:  TestCaseGen <number> <path>");
 			}
 		}
 		TestCaseGen tcg = new TestCaseGen();
+		if (args.length > 1)
+			tcg.path = args[1];
 		tcg.generate("test",cnt);
 	}
 }
