@@ -167,7 +167,7 @@ public interface ITestHarness {
      */
     @Deprecated
     public boolean coverageReport();
-    public boolean setCoverageReport();
+    public boolean getCoverageReport();
     public void setCoverageReport(boolean coverage);
 
     /**

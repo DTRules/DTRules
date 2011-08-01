@@ -218,12 +218,13 @@ public abstract class ATestHarness implements ITestHarness {
      * from the trace files)
      */
     public boolean coverageReport() { return pCoverage; }
+    public boolean getCoverageReport() { return pCoverage; }
     
     /**
      * Set the flag that turns on and off the generation of the coverage report.
      * @param coverage
      */
-    public void setCoverageReport(boolean coverage){ pCoverage = coverage; }
+    public void setCoverageReport(boolean coverage) { pCoverage = coverage; }
     
     /**
      * The name of the report file.
