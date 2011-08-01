@@ -52,6 +52,12 @@ public abstract class ATestHarness implements ITestHarness {
     protected String      currentfile = "";
     protected int         filecnt     = 0;
     
+    protected boolean	  pTrace     = false;
+    protected boolean     pConsole   = false;
+    protected boolean     pNumbered  = false;
+    protected boolean     pVerbose   = false;
+    protected boolean     pCoverage  = true;   // We don't do this unless we trace anyway.
+    
     @Override
     /**
      * Default to using the older DataMap interface.
@@ -155,13 +161,28 @@ public abstract class ATestHarness implements ITestHarness {
      * report file?  If so, this method should return true.
      * @return
      */
-    public boolean Console(){ return true; }
+    public boolean Console(){ return pConsole; }
+    public boolean getConsole(){ return pConsole; }
+    
+    /**
+     * Turn on output to the console if true, or turn it off if false.
+     * @param console
+     */
+    public void setConsole(boolean console){ pConsole = console; };
+    
     /**
      * If verbose, we are going to print the EDD before we run the rules as 
      * well as after we run the rules.
      * @return
      */
-    public boolean Verbose() { return true; }
+    public boolean Verbose() { return pVerbose; }
+    public boolean getVerbose() { return pVerbose; }
+    
+    /**
+     * Set the verbose state.  True turns it on.
+     * @param verbose
+     */
+    public void setVerbose(boolean verbose) { pVerbose = verbose; }
     
     /**
      * If numbered, we will number the files generated (result files, trace files, 
@@ -169,19 +190,40 @@ public abstract class ATestHarness implements ITestHarness {
      * 
      * @return By default we do not number generated files.
      */
-    public boolean numbered() { return false; }
+    public boolean numbered() { return pNumbered; }
+    public boolean getNumbered() { return pNumbered; }
+    
+    /**
+     * Turn on and off the numbering of the output files.  
+     * @param numbered
+     */
+    public void setNumbered(boolean numbered){ pNumbered = numbered; }
     
     /**
      * By default, we will trace your code.
+     * @return state of the trace flag.
      */
-    public boolean Trace() { return true; }
+    public boolean Trace() { return pTrace; }
+    public boolean getTrace() { return pTrace; }
+    
+    /**
+     * Set the trace flag.
+     * @param trace
+     */
+    public void setTrace(boolean trace){ pTrace = trace; }
     
     /**
      * By default, we will produce a coverage report as long as you have trace
      * turned on.  (No use if you don't, because we generate the coverage report
      * from the trace files)
      */
-    public boolean coverageReport() { return true; }
+    public boolean coverageReport() { return pCoverage; }
+    
+    /**
+     * Set the flag that turns on and off the generation of the coverage report.
+     * @param coverage
+     */
+    public void setCoverageReport(boolean coverage){ pCoverage = coverage; }
     
     /**
      * The name of the report file.
