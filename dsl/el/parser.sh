@@ -13,15 +13,15 @@
 # * limitations under the License.  
 # *
 project=.
-cupDir="$project/src/main/java/com/dtrules/compiler/el/cup/parser"
+cupDir="$project/src/main/java/com/dtrules/compiler/tiers_compiler/cup/parser"
 libDir="$project/lib"
-
+asdfgh
 echo $cupDir
 
-java -cp $libDir/java-cup-10k.jar java_cup.Main -parser DTRulesParser -symbols sym -dump_grammar < $cupDir/parser.cup 2> $cupDir/bnf.txt
+java -cp $libDir/java-cup-10k.jar java_cup.Main -parser DTRulesParser -symbols sym -dump_grammar < $cupDir/yparser.cup 2> $cupDir/bnf.txt
 
 echo create Java file
-java -cp $libDir/java-cup-10k.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < $cupDir/parser.cup
+java -cp $libDir/java-cup-10k.jar java_cup.Main -compact_red -nopositions -parser DTRulesParser < $cupDir/yparser.cup
 mv DTRulesParser.java $cupDir
 mv sym.java $cupDir
 

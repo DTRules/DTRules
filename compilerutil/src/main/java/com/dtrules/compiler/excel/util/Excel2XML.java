@@ -37,6 +37,7 @@ import com.dtrules.compiler.decisiontables.DTCompiler;
 import com.dtrules.decisiontables.RDecisionTable;
 import com.dtrules.decisiontables.DTNode.Coordinate;
 import com.dtrules.entity.IREntity;
+import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RName;
 import com.dtrules.mapping.IMapGenerator;
 import com.dtrules.mapping.MapGenerator;
@@ -165,7 +166,10 @@ public class Excel2XML {
         try {
             IRSession session    = new RSession(ruleSet); 
             Class  compilerClass = ruleSet.getDefaultCompiler();
-            
+            if(compilerClass == null){
+            	throw new RulesException("undefined", "Excel2XML", "No default compiler has been found." +
+            			"  We cannot convert and compile the XML without one");
+            }
             ICompiler defaultCompiler = (ICompiler) compilerClass.newInstance(); 
             defaultCompiler.setSession(session);
 

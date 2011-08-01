@@ -5,6 +5,7 @@
 		<field name='clients' type='array' subtype='client' access='r' input='' default_value='' comment=''></field>
 		<field name='county_cd' type='string' subtype='' access='rw' input='' default_value='' comment='The county for this case'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='notes' type='array' subtype='' access='r' input='' default_value='' comment='List of notes made on the case'></field>
 		<field name='relationships' type='array' subtype='' access='r' input='' default_value='' comment='The relationships between people in the case'></field>
 	</entity>
 	<entity name='client' access='rw' comment=''>
@@ -21,7 +22,7 @@
 		<field name='incomes' type='array' subtype='income' access='r' input='main' default_value='' comment=''></field>
 		<field name='livesAtResidence' type='boolean' subtype='' access='r' input='main' default_value='true' comment='This client lives at the case residence'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes Concerning Elgiblity'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes Concerning Eligibility'></field>
 		<field name='pregnant' type='boolean' subtype='' access='r' input='main' default_value='false' comment=''></field>
 		<field name='programLevel' type='string' subtype='' access='rw' input='' default_value='' comment='The program Level for which the client is eligible'></field>
 		<field name='totalGroupIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total Income for this client&apos;s Income Group'></field>

@@ -62,8 +62,8 @@
 		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Wages, SSI, Tips, Social Security, Child Support, etc.'></field>
 	</entity>
 	<entity name='job' access='rw' comment=''>
-		<field name='currentdate' type='time' subtype='' access='r' input='main' default_value='' comment='The current date.  May be different from the actual date'></field>
-		<field name='effectivedate' type='time' subtype='' access='r' input='main' default_value='' comment='The Elgibility date if the clients prove eligible'></field>
+		<field name='currentdate' type='date' subtype='' access='r' input='main' default_value='' comment='The current date.  May be different from the actual date'></field>
+		<field name='effectivedate' type='date' subtype='' access='r' input='main' default_value='' comment='The Elgibility date if the clients prove eligible'></field>
 		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='junk' type='entity' subtype='' access='rw' input='main' default_value='' comment='Junk to test bug'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
