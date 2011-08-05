@@ -127,27 +127,49 @@ public interface ITestHarness {
      * report file?  If so, this method should return true.
      * @return
      */
+    @Deprecated
     boolean Console();
+    boolean getConsole();
+    void setConsole(boolean console);
+    
     /**
      * If verbose, we are going to print the EDD before we run the rules as 
      * well as after we run the rules.
      * @return
      */
+    @Deprecated
     boolean Verbose();
-    
+    boolean getVerbose();
+    void setVerbose(boolean verbose);
     /**
      * If true, then the files generated will have a number attached to them.
      * This is important if the test run will execute a set of files multiple times,
      * and for whatever reason, you want all the results and traces of each run.   
      */
+    @Deprecated
     boolean numbered();
+    boolean getNumbered();
+    void setNumbered(boolean numbered);
     
     /**
      * If you want to trace a run, this function should return true;
      * @return
      */
+    @Deprecated
     boolean Trace();
-    
+    boolean getTrace();
+    void setTrace(boolean trace);
+
+    /**
+     * If true, and trace files are produced, then a coverage report
+     * will be generated.
+     * @return
+     */
+    @Deprecated
+    public boolean coverageReport();
+    public boolean getCoverageReport();
+    public void setCoverageReport(boolean coverage);
+
     /**
      * Provides a way for a project to manage how data is loaded into a 
      * session.
@@ -238,13 +260,6 @@ public interface ITestHarness {
      */
     public void    changeReportXML(OutputStream report);
 
-    /**
-     * If true, and trace files are produced, then a coverage report
-     * will be generated.
-     * @return
-     */
-    public boolean coverageReport();
-    
     /**
      * Returns the filename of the test set currently under test.
      * @return

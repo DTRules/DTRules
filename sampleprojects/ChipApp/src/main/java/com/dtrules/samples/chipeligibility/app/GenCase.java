@@ -24,10 +24,12 @@ public class GenCase  {
 	
 	String             incomes[]     = {"WA","SSI","SS","CS","TIP","DIV","SET"};
 	int                odds[]        = {45  , 10  ,10  , 15 ,10   , 5   , 5};
-	boolean            earned[]      = {true,true,true,false,true,false,false};
+	boolean            earned[]      = {true,false,true,false,true,true,false};
 	
-	String             counties[]    = { "UK", "OT", "AA", "AK", "BC", "BK", "BT", 
-			                             "CR", "CO",  "TX",  "LO",  "AR" };
+	String             counties[]    = { "UK", "AA", "AK", "BC", "BK", "BT", 
+								         "XR", "XO",  "XX",  "XO",  "XR", 
+								         "CR", "CO",  "TX",  "LO",  "AR",
+			                             };
 	
 	SimpleDateFormat   sdf           = new SimpleDateFormat("MM/dd/yyyy");
 	Date        	   currentdate   = new Date();
@@ -141,8 +143,13 @@ public class GenCase  {
 		client.setAge(age);
 		client.setGender(gender);
 		client.setLivesAtResidence(chance(90)?true:false);
-		boolean citizen = chance(90);
+
+		boolean citizen = chance(66);
 		client.setValidatedCitizenship(citizen);
+		if(!citizen){
+			client.setValidatedImmigrationStatus(chance(90));
+		}
+		
 		boolean pregnant = gender.equals("female")&&age>15&&chance(30);
 		client.setPregnant(pregnant);
 		if(pregnant){
@@ -150,20 +157,19 @@ public class GenCase  {
 		}else{
 			client.setExpectedChildren(0);
 		}
-		if(!citizen){
-			client.setValidatedImmigrationStatus(chance(50)?true:false);
-		}
+		
 		client.setDisabled(chance(10)?true:false);
-		client.setApplying(age<22? (chance(90)?true:false):false);
-		boolean uninsured = chance(50);
+		client.setApplying(age<20? (chance(90)?true:false):false);
+		if(client.getApplying())job.addApplying();
+		boolean uninsured = chance(90);
 		client.setUninsured(uninsured);
 		if(uninsured){
 			cal.setTime(currentdate);
-			int months = randint(4);
+			int months = randint(24);
 			cal.add(Calendar.MONTH, -months);
 			client.setLostInsuranceDate(cal.getTime());
 		}
-		client.setEligibleForMedicaid(chance(50)?true:false);
+		client.setEligibleForMedicaid(chance(10)?true:false);
 
 		int icnt = randint(4);
 		for(int i = 0; age > 18 && i < icnt; i++){
@@ -187,12 +193,9 @@ public class GenCase  {
 		job.setEffectivedate(nextMonth);
 		job.setProgram("CHIP");
 		
-		
-		int nc = randint(4)+3;
-		for(int i=1; i <= nc; i++){
-			if(job.getCase().getClients().size()<10){
-			   genClient(job,75);
-			}
+		int nc = randint(4)+1;
+		while(job.getApplying()<nc) { 
+			genClient(job,75);
 		}
 		
 		c.setCounty_cd(counties[randint(counties.length)]);

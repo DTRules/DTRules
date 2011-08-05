@@ -44,7 +44,9 @@ public class EvaluateJobJava implements EvaluateJob  {
     };
     
     String [] coveredCounties = {
-            "AA", "AK", "BC", "BK", "BT", "CR", "CO",  "TX",  "LO",  "AR"
+    		"AA",  "AK", "BC", "BK",  "BT",  "CR", "CO", "TX",  
+    		"LO",  "AR", "XR", "XO",  "XX",  "XO", "XR", 
+     
     };
     
     /**
@@ -207,8 +209,8 @@ public class EvaluateJobJava implements EvaluateJob  {
                 eligible = false;
             }
             if(!client.getUninsured()){
-                //notes.add("The Applying Client must not have insurance");
-                //eligible = false;
+                notes.add("The Applying Client must not have insurance");
+                eligible = false;
             }
             
             if(client.getUninsured() &&

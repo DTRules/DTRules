@@ -12,11 +12,17 @@ public class Job {
 	Date 			effectivedate;
 	List<Result> 	results = new ArrayList<Result>();;
 	String			program;
-	
+	int             applying = 0;
 	public Job(){
 		id = ids++;
 	}
 	
+	public int getApplying(){
+		return applying;
+	}
+	public void addApplying() {
+		applying++;
+	}
 	public Integer getId() {
 		return id;
 	}

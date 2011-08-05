@@ -28,22 +28,22 @@ public class TestChip extends ATestHarness {
 		
 		static  Date start = new Date();
 	    @Override
-    	public boolean  Verbose()                 { return false;	                        }
-		public boolean  Trace()                   { return true;                            }
-	    public boolean  Console()                 { return false;                           }
-	    public boolean  coverageReport()          { return true;                       		}
+	    
 		public String   getPath()                 { return path;                            }
 	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
 	    public String   getRuleSetName()          { return "CHIP";                          }
 	    public String   getDecisionTableName()    { return "Compute_Eligibility";           }
-	    public String   getRulesDirectoryFile()   { return "DTRules.xml";               }             
+	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             	    
 	    
 	    public static void main(String[] args) {
 	    	
-	    	ITestHarness t = new TestChip();
-	        t.runTests();
-	        String fields[] = { "table number" };
-	        t.writeDecisionTables("tables",fields,true,10);
+	    	ITestHarness t = new TestChip();	// Here we set the state we wish for 
+	    	t.setVerbose(false);				// this class. 
+	    	t.setTrace(true);
+	    	t.setConsole(false);
+	    	t.setNumbered(false);
+	    	
+	    	t.runTests();						// All that is required to run the tests.
 	    }
 	      
 	}    

@@ -157,7 +157,7 @@ public class TraceNode {
 	public boolean searchTree( Trace trace, String entityName, List<IREntity> entityList) throws RulesException {
 		
 		if(name.equals("createentity")){
-			if(attributes.get("name").equals(entityName)){
+			if(attributes.get("name").equalsIgnoreCase(entityName)){
 				String id = attributes.get("id");
 				IREntity e = trace.createEntity(id, entityName);
 				
