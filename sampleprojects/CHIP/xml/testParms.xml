@@ -1,0 +1,15 @@
+<testharness>
+
+    <trace>false</trace>
+    <console>false</console>
+    <numbered>false</numbered>
+    <verbose>false</verbose>
+    <coverage>true</coverage>
+    
+    <path systemproperty = "user.dir">/</path>
+    <rulesdirectorypath systemproperty = "user.dir">/xml/</rulesdirectorypath>
+    <rulesetname>CHIP</rulesetname>
+    <decisiontablename>Compute_Eligibility</decisiontablename>
+    <rulesdirectoryfile>DTRules.xml</rulesdirectoryfile>
+
+</testharness>
