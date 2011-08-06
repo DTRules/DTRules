@@ -82,6 +82,13 @@ public abstract class ARObject implements IRObject {
 	}
 
     /**
+     * @see com.dtrules.interpreter.IRObject#arrayExecute(DTState)
+     */
+	public void arrayExecute(DTState state) throws RulesException {
+		state.datapush(this);
+	}
+
+    /**
      * @see com.dtrules.interpreter.IRObject#getExecutable()
      */
     public IRObject getExecutable(){

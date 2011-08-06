@@ -83,6 +83,15 @@ public interface IRObject {
 	void execute(DTState state) throws RulesException;
 	
 	/**
+	 * This method defines the executable behavior of a object within the 
+	 * Rules Interpreter.
+	 * @param state The Rules Engine State
+	 * @throws RulesException
+	 */
+	void arrayExecute(DTState state) throws RulesException;
+	
+	
+	/**
 	 * Returns an executable version of this object.  The non-executable behavior
 	 * of all objects is to push themselves onto the data stack.  If the executable
 	 * behavior is the same as the non-executable behavior, then this method may

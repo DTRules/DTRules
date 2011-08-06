@@ -675,6 +675,10 @@ public class RDecisionTable extends ARObject {
 	}
 	
 	public void execute(DTState state) throws RulesException {
+		arrayExecute(state);
+	}
+	
+	public void arrayExecute(DTState state) throws RulesException {
 	    RDecisionTable last = state.getCurrentTable();
 	    state.setCurrentTable(this);
 	    state.traceTagBegin("decisiontable","name",dtname.stringValue());

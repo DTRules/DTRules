@@ -73,7 +73,7 @@ public class RMath {
             if(r>=boundary)return v++;              // Otherwise test the boundary.  Inc if fraction
             return v;                               //    is greater or equal to the boundary.
         }
-        public void execute(DTState state)throws RulesException {
+        public void arrayExecute(DTState state)throws RulesException {
             double boundary = state.datapop().doubleValue();
             int    places   = state.datapop().intValue();
             double number   = state.datapop().doubleValue();
@@ -99,7 +99,7 @@ public class RMath {
     public static class FNegate extends ROperator {
         FNegate(){super("fnegate"); }
         
-        public void execute(DTState state)throws RulesException {
+        public void arrayExecute(DTState state)throws RulesException {
             state.datapush(
               RDouble.getRDoubleValue(
                  -state.datapop().doubleValue()
@@ -117,7 +117,7 @@ public class RMath {
     public static class FAbs extends ROperator {
         FAbs(){super("fabs"); }
         
-        public void execute(DTState state)throws RulesException {
+        public void arrayExecute(DTState state)throws RulesException {
             state.datapush(
               RDouble.getRDoubleValue(
                  Math.abs(state.datapop().doubleValue())
@@ -133,7 +133,7 @@ public class RMath {
     public static class Abs extends ROperator {
         Abs(){super("abs"); }
         
-        public void execute(DTState state)throws RulesException {
+        public void arrayExecute(DTState state)throws RulesException {
             state.datapush(
               RInteger.getRIntegerValue(
                  Math.abs(state.datapop().intValue())
@@ -150,7 +150,7 @@ public class RMath {
     public static class Negate extends ROperator {
         Negate(){super("negate"); }
         
-        public void execute(DTState state)throws RulesException {
+        public void arrayExecute(DTState state)throws RulesException {
             state.datapush(
               RInteger.getRIntegerValue(
                  -state.datapop().intValue()
@@ -169,7 +169,7 @@ public class RMath {
 			super("+"); alias("ladd");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			state.datapush(RInteger.getRIntegerValue(state.datapop().longValue()+state.datapop().longValue()));
 		}
 	}
@@ -185,7 +185,7 @@ public class RMath {
 	public static class Sub extends ROperator {
 		Sub(){super("-"); alias("lsub");}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			long b = state.datapop().longValue();
 			long a = state.datapop().longValue();
 			long result = a-b;
@@ -201,7 +201,7 @@ public class RMath {
 	public static class Mul extends ROperator {
 		Mul(){super("*"); alias("lmul");}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			state.datapush(RInteger.getRIntegerValue(state.datapop().longValue()*state.datapop().longValue()));
 		}
 	}
@@ -214,7 +214,7 @@ public class RMath {
 	public static class Div extends ROperator {
 		Div(){super("/"); alias("div"); alias("ldiv");}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			long result;
 			long a=0; long b=0;
 			try {
@@ -238,7 +238,7 @@ public class RMath {
             super("f+");alias("fadd");
         }
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject b = state.datapop();
             IRObject a = state.datapop();
             state.datapush(RDouble.getRDoubleValue(a.doubleValue()+b.doubleValue()));
@@ -256,7 +256,7 @@ public class RMath {
     public static class FSub extends ROperator {
         FSub(){super("f-");alias("fsub");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             double b = state.datapop().doubleValue();
             double a = state.datapop().doubleValue();
             double result = a-b;
@@ -272,7 +272,7 @@ public class RMath {
     public static class FMul extends ROperator {
         FMul(){super("f*");alias("fmul");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject d2 = state.datapop();
             IRObject d1 = state.datapop();
             state.datapush(RDouble.getRDoubleValue(d1.doubleValue()*d2.doubleValue()));
@@ -287,7 +287,7 @@ public class RMath {
     public static class FDiv extends ROperator {
         FDiv(){super("fdiv"); alias("f/");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             double result;
             double a=0; double b=0;
             try {

@@ -303,6 +303,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
 	       }
 	       return ps;
 	}
+	
 	/**
 	 * Implements the execution behavior of an RArray
 	 */
@@ -315,34 +316,31 @@ public class RArray extends ARObject implements Collection<IRObject> {
         }
         for(int cnt=0; cnt < code.length; cnt++){
             IRObject obj = code[cnt];
-            if(!obj.isExecutable() || obj.type()==type ){
-				state.datapush(obj);
-			}else{
-			    try{
-				   obj.execute(state);
-			    }catch(ConcurrentModificationException e){
-			       String ps = generatePostfix(cnt);
-			       RulesException re = new RulesException("access error",array.get(cnt).postFix(),e.toString()+"\r\n"+
-			    		   "This happens generally when you have attempted to modify an array\r\n "+
-			    		   "which is in the context because you are iterating over its contents\r\n"+
-			    		   "with a ForAll operator."+
-			    		   "");
-			       re.setPostfix(ps);
-			       throw re;
-			    }catch(RuntimeException e){
-			       String ps = generatePostfix(cnt);
-			       RulesException re = new RulesException("runtime error","RArray",e.toString());
-			       re.setPostfix(ps);
-			       throw re;
-			    }catch(RulesException e){
-			       String ps = generatePostfix(cnt);
-			       e.setPostfix(ps);
-			       throw e;
-			    }
-			}
+            try{
+			   obj.arrayExecute(state);
+		    }catch(ConcurrentModificationException e){
+		       String ps = generatePostfix(cnt);
+		       RulesException re = new RulesException("access error",array.get(cnt).postFix(),e.toString()+"\r\n"+
+		    		   "This happens generally when you have attempted to modify an array\r\n "+
+		    		   "which is in the context because you are iterating over its contents\r\n"+
+		    		   "with a ForAll operator."+
+		    		   "");
+		       re.setPostfix(ps);
+		       throw re;
+		    }catch(RuntimeException e){
+		       String ps = generatePostfix(cnt);
+		       RulesException re = new RulesException("runtime error","RArray",e.toString());
+		       re.setPostfix(ps);
+		       throw re;
+		    }catch(RulesException e){
+		       String ps = generatePostfix(cnt);
+		       e.setPostfix(ps);
+		       throw e;
+		    }
 		}
-		
 	}
+	
+	
 	/**
 	 * @see IRObject#getExecutable()
 	 */
