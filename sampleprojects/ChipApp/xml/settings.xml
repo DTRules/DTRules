@@ -3,7 +3,7 @@
 <!-- will be picked up and used.                                                       -->
 <chipAppSettings>
 
-    <threads>800</threads>                <!-- Number of threads used by ChipApp to            -->
+    <threads>8</threads>                <!-- Number of threads used by ChipApp to            -->
                                         <!--   process the jobs generated.                   -->
 
     <numCases>50000</numCases>          <!-- The number of jobs to be generated. Most        -->
