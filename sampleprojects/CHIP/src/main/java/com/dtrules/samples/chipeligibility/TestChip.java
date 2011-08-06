@@ -19,32 +19,18 @@ package com.dtrules.samples.chipeligibility;
 import java.util.Date;
 
 import com.dtrules.testsupport.ATestHarness;
-import com.dtrules.testsupport.ITestHarness;
 
 public class TestChip extends ATestHarness {
     	
-	
-	    public static String path    = System.getProperty("user.dir")+"/";
-		
-		static  Date start = new Date();
-	    @Override
-	    
-		public String   getPath()                 { return path;                            }
-	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
-	    public String   getRuleSetName()          { return "CHIP";                          }
-	    public String   getDecisionTableName()    { return "Compute_Eligibility";           }
-	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             	    
-	    
-	    public static void main(String[] args) {
-	    	
-	    	ITestHarness t = new TestChip();	// Here we set the state we wish for 
-	    	t.setVerbose(false);				// this class. 
-	    	t.setTrace(true);
-	    	t.setConsole(false);
-	    	t.setNumbered(false);
-	    	
-	    	t.runTests();						// All that is required to run the tests.
-	    }
-	      
-	}    
+    public static String path    = System.getProperty("user.dir")+"/";
+	static  Date start = new Date();
+    
+    public static void main(String[] args) throws Exception {
+    
+    	TestChip t = new TestChip();		// Create an instance of the test harness.
+    	t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
+    	t.runTests();						// Run the tests.
+    
+    }
+}    
 	    

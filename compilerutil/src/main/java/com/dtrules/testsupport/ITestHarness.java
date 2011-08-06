@@ -274,7 +274,35 @@ public interface ITestHarness {
      * @return
      */
     public File [] getFiles();
-    
-    
+    /**
+     * Set the path to where the Rule Set control file is kept (the
+     * RulesDirectoryFile). 
+     * @param path
+     */
+    public void   setPath(String path);
+    /**
+     * This is the path to the XML that defines the rule sets in this 
+     * Rules Directory.
+     * @param rulesDirectoryPath
+     */
+    public void   setRulesDirectoryPath(String rulesDirectoryPath);
+    /**
+     * Set the name of the Rule Set under test.  Should be one of the Rule
+     * Sets defined in the RulesDirectoryFile
+     * @param ruleSetName
+     */
+    public void   setRuleSetName(String ruleSetName);
+    /**
+     * This is the name of the Decision Table to execute in the Rule Set
+     * in order to perform tests.
+     * @param decisionTableName
+     */
+    public void   setDecisionTableName(String decisionTableName);
+    /**
+     * This File defines the Rule Sets in the Rules Directory.  It defaults
+     * to DTRules.xml, but it can be named whatever you like.
+     * @param rulesDirectoryFile
+     */
+    public void   setRulesDirectoryFile(String rulesDirectoryFile);
 
 }

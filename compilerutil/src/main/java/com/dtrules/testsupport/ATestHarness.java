@@ -39,6 +39,7 @@ import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
+import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.XMLPrinter;
 import com.dtrules.xmlparser.XMLTree;
 import com.dtrules.xmlparser.XMLTree.Node;
@@ -46,17 +47,43 @@ import com.dtrules.xmlparser.XMLTree.Node.MATCH;
 
 public abstract class ATestHarness implements ITestHarness {
  
-	
     protected DataMap     datamap     = null;
     protected AutoDataMap autoDataMap = null;
     protected String      currentfile = "";
     protected int         filecnt     = 0;
     
-    protected boolean	  pTrace     = false;
-    protected boolean     pConsole   = false;
-    protected boolean     pNumbered  = false;
-    protected boolean     pVerbose   = false;
-    protected boolean     pCoverage  = true;   // We don't do this unless we trace anyway.
+    protected boolean	  pTrace     			= false;
+    protected boolean     pConsole  			= false;
+    protected boolean     pNumbered  			= false;
+    protected boolean     pVerbose   			= false;
+    protected boolean     pCoverage  			= true;   // We don't do this unless we trace anyway.
+	
+    protected String      path       			= null;
+    protected String      rulesDirectoryPath    = null;
+    protected String      ruleSetName           = null;
+    protected String      decisionTableName     = null;
+    protected String      rulesDirectoryFile    = "DTRules.xml";
+    
+    /**
+     * Getters and Setters for the basic Rules Engine parameters.
+     */
+    
+    public String getPath()					{ return path; }
+    public String getRulesDirectoryPath()	{ return rulesDirectoryPath; }
+    public String getRuleSetName()          { return ruleSetName; }
+    public String getDecisionTableName()    { return decisionTableName; }
+    public String getRulesDirectoryFile()   { return rulesDirectoryFile; }
+    
+    public void   setPath(String path)      						{ this.path               = path; }
+    public void   setRulesDirectoryPath(String rulesDirectoryPath)  { this.rulesDirectoryPath = rulesDirectoryPath; }
+    public void   setRuleSetName(String ruleSetName)      		    { this.ruleSetName       = ruleSetName; }
+    public void   setDecisionTableName(String decisionTableName)    { this.decisionTableName  = decisionTableName; }
+    public void   setRulesDirectoryFile(String rulesDirectoryFile)  { this.rulesDirectoryFile = rulesDirectoryFile; }
+
+    public void load(String settings) throws Exception{
+    	InputStream s = new FileInputStream(settings);
+    	GenericXMLParser.load(s, new LoadSettings(this));
+    }
     
     @Override
     /**
@@ -88,13 +115,6 @@ public abstract class ATestHarness implements ITestHarness {
     	}
     };
     
-    /**
-     * An implementation must implement either this method, or 
-     * getDecsionTableNames().  The later is preferred. 
-     */
-    public String getDecisionTableName() {
-		return null;
-	}
     
     /**
      * Returns "default" as the assumed entry point.  Override if you need to
@@ -135,13 +155,6 @@ public abstract class ATestHarness implements ITestHarness {
      * Rule Set
      */
     public String getXMLDirectory() { return getPath()+"xml/"; }
-    
-    /**
-     * Default Rules directory file name is DTRules.xml.
-     */
-    public String getRulesDirectoryFile(){
-        return "DTRules.xml";
-    }
     
     /**
      * Default directory with all the test files.
