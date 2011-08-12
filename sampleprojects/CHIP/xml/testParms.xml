@@ -1,6 +1,6 @@
 <testharness>
 
-    <trace>false</trace>
+    <trace>true</trace>
     <console>false</console>
     <numbered>false</numbered>
     <verbose>false</verbose>
