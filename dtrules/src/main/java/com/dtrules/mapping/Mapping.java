@@ -30,6 +30,7 @@ import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RName;
 import com.dtrules.session.DTState;
+import com.dtrules.session.IStreamSource.FileType;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RSession;
 import com.dtrules.session.RuleSet;
@@ -98,7 +99,8 @@ public class Mapping {
     public static Mapping newMapping(RulesDirectory rd, IRSession session, String filename){
         Mapping mapping = new Mapping(session);
     	try {
-			InputStream s = session.getRuleSet().openfile(filename);
+			InputStream s = session.getRulesDirectory().getFileSource().openStreamSearch(
+			        FileType.MAP, session.getRuleSet(), filename);
             session.getState().traceTagBegin("loadMapping", "file",filename);
 			mapping.loadMap(s);
 			session.getState().traceTagEnd(); 
@@ -149,7 +151,8 @@ public class Mapping {
        this.state   = session.getState();
        String filename = rs.getMapPath().get(0);
        try {
-           InputStream s = session.getRuleSet().openfile(filename);
+           InputStream s = session.getRulesDirectory().getFileSource().openStreamSearch(
+                   FileType.MAP, session.getRuleSet(), filename);
            session.getState().traceTagBegin("loadMapping", "file",filename);
            this.loadMap(s);
            session.getState().traceTagEnd(); 
@@ -194,7 +197,8 @@ public class Mapping {
 	}	      
 	
 	public void loadData(IRSession session, String dataSource, String source )throws RulesException {
-        InputStream input = session.getRuleSet().openfile(dataSource);
+        InputStream input = session.getRulesDirectory().getFileSource().openStreamSearch(
+                FileType.MAP, session.getRuleSet(), dataSource);
         if(input == null){
             throw new RulesException("File Not Found","Mapping.loadData()","Could not open "+dataSource);
         }

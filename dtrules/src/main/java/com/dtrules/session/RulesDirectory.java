@@ -49,6 +49,11 @@ public class RulesDirectory {
                                         // condense common paths through the code.  However,
                                         // when analyzing code paths, optimizations will
                                         // cause problems in reporting trace information.
+  
+    									// We use the streamSource object to read files.  
+    									// We have a default implementation, but will take
+    									// an implementation upon creating a RulesDirectory.
+    IStreamSource			   streamSource = new StreamSource();
     
     public Class<ICompiler> getDefaultCompiler() throws RulesException {
     	if(defaultCompiler == null){
@@ -106,45 +111,39 @@ public class RulesDirectory {
     }	
     
     
-    /**
-     * We attempt to open the streamname as a resource in our jar.
-     * Then failing that, we attempt to open it as a URL.  
-     * Then failing that, we attempt to open it as a file.
-     * 
-     * @param streamname
-     * @return
-     */
-    public static InputStream openstream(Object object, String streamname){
-    	// First try and open the stream as a resource 
-        //	InputStream s = System.class.getResourceAsStream(streamname);
-    	
-    	InputStream s = object.getClass().getResourceAsStream(streamname);
-    	
-    	if(s!=null)return s;    
-    	
-    	// If that fails, try and open it as a URL
-    	try {
-			URL url = new URL(streamname);
-			URLConnection urlc = url.openConnection();
-			s = urlc.getInputStream();
-			if(s!=null)return s;
-		} catch (MalformedURLException e) {
-        } catch (Exception e){} 
-		
-		// If that fails, try and open it as a file.
-		try {
-			s = new FileInputStream(streamname);
-			return s;
-		} catch (FileNotFoundException e) {}
-		
-		// If all these fail, return a null.
-    	return null;
-    	
-    }
+ 
     
  
     String propertyfile;
     
+    /**
+     * The RulesDirectory manages the various RuleSets and the versions of 
+     * RuleSets.  We need to do a good bit of work to make all of this 
+     * manageable. For right now, I am loading the property list from the 
+     * path provided this class.  It first attempts to use this path as a
+     * jar resource, then an URL, then a file.
+     * 
+     * The systemPath is assumed to be the name of a directory, either with
+     * or without a ending '/' or '\'.
+     * 
+     * @param systemPath A Path to the property file, and a point in the file
+     *                   system from which all paths in the property file are
+     *                   relative to.
+     * @param propertyfile The name of the property file.
+     * 
+     * @param opt True if the decision tables should be optimized, and false
+     *            otherwise (needed for trace for accurate path analysis)
+     */
+    public RulesDirectory(
+    		IStreamSource 	filesource, 
+    		String 			systemPath, 
+    		String 			propertyfile, 
+    		boolean 		opt) {
+    	
+    	this.streamSource = filesource;
+    	
+    	load(systemPath,propertyfile, opt);
+    }
     
     /**
      * The RulesDirectory manages the various RuleSets and the versions of 
@@ -199,7 +198,7 @@ public class RulesDirectory {
         this.systemPath   = systemPath.trim();
         this.optimize     = opt;
         String f = systemPath + "/" + propertyfile;
-        InputStream s = openstream(this,f);
+        InputStream s = streamSource.openstream(IStreamSource.FileType.DTRULES_CONFIG,f);
     	loadRulesDirectory(s);
     }
 
@@ -394,5 +393,13 @@ public class RulesDirectory {
 	public boolean isOptimize() {
 		return optimize;
 	}
+
+    public IStreamSource getFileSource() {
+        return streamSource;
+    }
+
+    public void setFileSource(IStreamSource streamSource) {
+        this.streamSource = streamSource;
+    }
     
 }
