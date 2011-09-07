@@ -59,7 +59,7 @@ public class Excel2XML {
     String                rulesDirectoryXML;
     String                ruleset;
     DTCompiler            dtcompiler = null;
-    
+    boolean               verbose = false;
     /**
      * Returns the ruleSet being used by this compiler
      * @return
@@ -116,7 +116,7 @@ public class Excel2XML {
         }
         
         if(new File(ruleSet.getWorkingdirectory()).mkdirs()){
-            System.out.println("Created Directories "+ruleSet.getWorkingdirectory());
+            if(verbose) System.out.println("Created Directories "+ruleSet.getWorkingdirectory());
         }
         
         ImportRuleSets dt = new ImportRuleSets();
@@ -160,12 +160,12 @@ public class Excel2XML {
      * @param NumErrorsToReport How many errors to print
      * @param err The output stream which to print the errors
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "deprecation" })
     public void compile(int NumErrorsToReport, PrintStream err) {
         
         try {
-            IRSession session    = new RSession(ruleSet); 
-            Class  compilerClass = ruleSet.getDefaultCompiler();
+            IRSession         session       = new RSession(ruleSet); 
+            Class<ICompiler>  compilerClass = ruleSet.getDefaultCompiler();
             if(compilerClass == null){
             	throw new RulesException("undefined", "Excel2XML", "No default compiler has been found." +
             			"  We cannot convert and compile the XML without one");
@@ -218,18 +218,22 @@ public class Excel2XML {
                 }
             }
             
-            dtcompiler.printErrors(err, NumErrorsToReport);
-            err.println("Total Errors Found: "+dtcompiler.getErrors().size());
+            if(verbose) {
+                dtcompiler.printErrors(err, NumErrorsToReport);
+                err.println("Total Errors Found: "+dtcompiler.getErrors().size());
+            }
             if(dtcompiler.getErrors().size() == 0){
                 rd  = new RulesDirectory(path, rulesDirectoryXML);
                 rs  = rd.getRuleSet(RName.getRName(ruleset));
                 PrintStream btables = new PrintStream(rs.getWorkingdirectory()+"balanced.txt");
                 rs.newSession().printBalancedTables(btables);
-                RulesAdminService admin = new RulesAdminService(rs.newSession(),rd);
-                List tables = admin.getDecisionTables(rs.getName());
-                for(Object table : tables){
-                   RDecisionTable dtable = admin.getDecisionTable(rs.getName(),(String)table);
-                   dtable.check(System.out);
+                if(verbose) {
+                    RulesAdminService admin = new RulesAdminService(rs.newSession(),rd);
+                    List<?> tables = admin.getDecisionTables(rs.getName());
+                    for(Object table : tables){
+                       RDecisionTable dtable = admin.getDecisionTable(rs.getName(),(String)table);
+                       dtable.check(System.out);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -288,7 +292,16 @@ public class Excel2XML {
                 rs.getWorkingdirectory()+filename);
     }
     
-    
+    /**
+     * Helper function that assumes no mappings are needed, and no changes to
+     * the number of errors to report.
+     * 
+     * @param path
+     * @param rulesConfig
+     * @param ruleset
+     * @param applicationRepositoryPath
+     * @throws Exception
+     */
     public static void compile (
             String path, 
             String rulesConfig, 
@@ -297,7 +310,16 @@ public class Excel2XML {
         compile(path,rulesConfig,ruleset,applicationRepositoryPath,null);
     }
     
-    
+    /**
+     * Helper function that assumes you need mappings, but do not want to change
+     * the default for the number of errors reported.
+     * @param path
+     * @param rulesConfig
+     * @param ruleset
+     * @param applicationRepositoryPath
+     * @param mappings
+     * @throws Exception
+     */
     public static void compile (
             String path, 
             String rulesConfig, 
@@ -329,20 +351,46 @@ public class Excel2XML {
             String applicationRepositoryPath,
             String [] mappings,
             int    errorcnt) {
+        System.out.println("Starting: "+ new Date());
+        Excel2XML excel2XML = new Excel2XML(path,rulesConfig,ruleset);
+        //excel2XML.verbose = true;
+        excel2XML.compileRuleSet(path, rulesConfig, ruleset, applicationRepositoryPath, mappings, errorcnt);
+    }
+        /**
+         * Helper function for compiling Rule Sets.
+         * @param path                  The Base Path in the file system.  All other files 
+         *                              are defined as relative points away from this Base Path
+         * @param rulesConfig           The name of the Rule Set configuration file
+         * @param ruleset               The name of the Rule Set to compile. (Most of the parameters
+         *                              to the compiler are pulled from the configuration file 
+         * @param applicationRepositoryPath     This is a relative path to a possibly different
+         *                              version of this Rule Set.  Generally, this is the version 
+         *                              that is currently deployed.  The compile will produce 
+         *                              a compare of changes between the Rule Set under development,
+         *                              and this Rule Set.  If null, this comparison will be skipped.
+         * @param errorcnt              Number of errors to be printed.
+         * @throws Exception
+         */
+        public void compileRuleSet (
+                String path, 
+                String rulesConfig, 
+                String ruleset,
+                String applicationRepositoryPath,
+                String [] mappings,
+                int    errorcnt) {
+        
         try{
-            System.out.println("Starting: "+ new Date());
-            Excel2XML converter     = new Excel2XML(path, rulesConfig, ruleset);
-            System.out.println("Converting: "+ new Date());
-            converter.convertRuleset();
-            System.out.println("Compiling: "+ new Date());
-            converter.compile(errorcnt,System.out);
-            System.out.println("Done: "+ new Date());
+            if(verbose) System.out.println("Converting: "+ new Date());
+            convertRuleset();
+            if(verbose) System.out.println("Compiling: "+ new Date());
+            compile(errorcnt,System.out);
+            if(verbose) System.out.println("Done: "+ new Date());
             
             if(mappings != null) for(String map : mappings){
-                converter.generateMap(0, map, "mapping_"+map);
+                generateMap(0, map, "mapping_"+map);
             }
             
-            if(converter.getDTCompiler().getErrors().size()==0 && applicationRepositoryPath != null){
+            if(getDTCompiler().getErrors().size()==0 && applicationRepositoryPath != null){
                 ChangeReport cr = new ChangeReport(
                         ruleset,
                         path,
@@ -352,7 +400,7 @@ public class Excel2XML {
                         rulesConfig,
                         "deployed");
                 cr.compare(System.out);
-                cr.compare(new FileOutputStream(converter.getRuleSet().getWorkingdirectory()+"changes.xml"));   
+                cr.compare(new FileOutputStream(getRuleSet().getWorkingdirectory()+"changes.xml"));   
             }
     
         } catch ( Exception ex ) {
