@@ -200,7 +200,9 @@ public class RuleSet {
 
     /**
      * Appends the directory specified in the RulesDirectory (if present) to the
-     * filepath for the Rule Set.
+     * filepath for the Rule Set.  This is the directory where all the XML for 
+     * the Rule Set is kept.  It is where the XML produced from the Excel files
+     * is written. 
      * @return the filepath
      */
     public String getFilepath() {
