@@ -20,6 +20,8 @@ package com.dtrules.interpreter.operators;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
 import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;
@@ -156,9 +158,10 @@ public class RControl {
 
         public void arrayExecute(DTState state) throws RulesException {
 
-            ArrayList array  = state.datapop().arrayValue(); // Get the array
-            int       length = array.size();                 // get Array length.
-            IRObject body = state.datapop();                 // Get the body
+            List<IRObject> array  = state.datapop().arrayValue(); // Get the array
+            int            length = array.size();                 // get Array length.
+            IRObject       body   = state.datapop();              // Get the body
+            
             for(int i=length - 1;i>=0;i--){                  // For each element in array,
                  IRObject o = (IRObject) array.get(i);
                  int      t = o.type().getId();
@@ -231,9 +234,11 @@ public class RControl {
         Forr(){super("forr");}
 
         public void arrayExecute(DTState state) throws RulesException {
-            ArrayList<IRObject> array  = state.datapop().arrayValue(); // Get the array
-            int       length = array.size();                 // get Array length.
-            IRObject body = state.datapop();                 // Get the body
+            
+            List<IRObject> array  = state.datapop().arrayValue(); // Get the array
+            int            length = array.size();                 // get Array length.
+            IRObject       body   = state.datapop();              // Get the body
+            
             for(int i=length-1;i>=0;i++){                    // For each element in array,
                  IRObject o = (IRObject) array.get(i);
                  state.datapush((IRObject) o);
@@ -251,9 +256,10 @@ public class RControl {
         Entityforall(){super("entityforall");}
 
         public void arrayExecute(DTState state) throws RulesException {
-            IREntity entity  = state.datapop().rEntityValue();  // Get the entity
-            IRObject body = state.datapop();                    // Get the body
-            Iterator keys = entity.getAttributeIterator();      // Get the Attribute Iterator
+            IREntity        entity  = state.datapop().rEntityValue();  // Get the entity
+            IRObject        body    = state.datapop();                    // Get the body
+            Iterator<RName> keys    = entity.getAttributeIterator();      // Get the Attribute Iterator
+            
             while(keys.hasNext()){                         // For each attribute 
                 RName     n = (RName) keys.next();
                 IRObject  v = entity.get(n);
@@ -277,12 +283,12 @@ public class RControl {
         Forfirst(){super("forfirst");}
 
         public void arrayExecute(DTState state) throws RulesException {
-            RArray   array = state.datapop().rArrayValue();
-            IRObject test  = state.datapop();
-            IRObject body  = state.datapop();
-            Iterator<REntity> ie = (Iterator<REntity>) array.getIterator();
+            RArray              array = state.datapop().rArrayValue();
+            IRObject            test  = state.datapop();
+            IRObject            body  = state.datapop();
+            Iterator<IRObject>  ie    =  array.getIterator();
             while(ie.hasNext()){
-                state.entitypush(ie.next());
+                state.entitypush(ie.next().rEntityValue());
                 test.execute(state);
                 if(state.datapop().booleanValue()){
                     body.execute(state);

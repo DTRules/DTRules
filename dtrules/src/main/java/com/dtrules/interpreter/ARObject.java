@@ -22,6 +22,7 @@ package com.dtrules.interpreter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.dtrules.entity.IREntity;
@@ -149,7 +150,7 @@ public abstract class ARObject implements IRObject {
     /**
      * @see com.dtrules.interpreter.IRObject#arrayValue()
      */
-	public ArrayList<IRObject> arrayValue() throws RulesException {
+	public List<IRObject> arrayValue() throws RulesException {
         throw new RulesException("Undefined","Conversion Error","No Array value exists for "+this.type());
 	}
 

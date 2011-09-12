@@ -221,7 +221,7 @@ public class RSession implements IRSession {
 	                      dtstate.traceTagEnd();
                       }
                }else if (type == IRObject.iArray) {
-                      ArrayList<IRObject> values = value.arrayValue();
+                      List<IRObject> values = value.arrayValue();
                       for(IRObject v : values){
                           if(v.type().getId() ==IRObject.iEntity){
                               dump((REntity)v,depth+2);
