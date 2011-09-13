@@ -90,7 +90,7 @@ public interface IDataSource {
      * @param object
      * @return
      */
-    public List<Object> getChildren(Object object);
+    public List<?> getChildren(Object object);
     
     /**
      * If possible, returns the key value for this node.  If this is not possible for

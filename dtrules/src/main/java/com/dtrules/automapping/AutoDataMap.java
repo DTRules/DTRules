@@ -412,8 +412,7 @@ public class AutoDataMap {
      * @param list
      * @param subtype
      */
-    @SuppressWarnings("unchecked")
-	public void setList(String listname, List list, String subtype){
+	public void setList(String listname, List<Object> list, String subtype){
     	try {
 			MapType       mapType   = MapType.get(subtype);
 			MapNodeObject parent    = (MapNodeObject) getParent();
@@ -441,11 +440,11 @@ public class AutoDataMap {
 			
 			if(mapType.isPrimitive()){
 			    mnl.setSubType(a.getSubTypeText());
-			    mnl.setList((List<Object>)list);
+			    mnl.setList(list);
 			}else {
 			    mnl.setSubType(a.getSubTypeText());
-			    mnl.setList((List<Object>)list);
-			    if( list!=null ) for(Object obj2 : ((List)list)){
+			    mnl.setList(list);
+			    if( list!=null ) for(Object obj2 : list){
 			        loadObjects(mnl, currentGroup,(String) null, obj2);
 			    }
 			}
@@ -537,7 +536,7 @@ public class AutoDataMap {
                         MapNodeList mnl = new MapNodeList(a,node);
                         mnl.setSubType(a.getSubTypeText());
                         mnl.setList((List<Object>)r);
-                        if( r!=null ) for(Object obj2 : ((List)r)){
+                        if( r!=null ) for(Object obj2 : (List<Object>)r){
                             loadObjects(mnl, groupObj,(String) null, obj2);
                         }
                     }else if (a.getType() == MapType.MAP){

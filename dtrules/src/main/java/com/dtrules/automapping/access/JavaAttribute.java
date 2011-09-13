@@ -36,8 +36,7 @@ public class JavaAttribute implements IAttribute {
     private String   setter;                // Setter name
     private Method   getMethod=null;        // getMethod for accessing this attribute
     private Method   setMethod=null;        // getMethod for accessing this attribute
-    @SuppressWarnings("unchecked")
-	private Class    typeClass;             // Class of the property
+    private Class<?> typeClass;             // Class of the property
     private MapType  type;                  // This is the property type.  The return 
     private String   typeText;				//   type for a getter, or parameter type for a setter.
     private MapType  subType;               // If a List or direct reference to a class, we need the subtype.
@@ -121,13 +120,11 @@ public class JavaAttribute implements IAttribute {
         this.setMethod = setMethod;
     }
     
-    @SuppressWarnings("unchecked")
-	public Class getTypeClass() {
+   public Class<?> getTypeClass() {
 		return typeClass;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void setTypeClass(Class typeClass) {
+	public void setTypeClass(Class<?> typeClass) {
 		this.typeClass = typeClass;
 	}
 
@@ -174,14 +171,13 @@ public class JavaAttribute implements IAttribute {
         this.subTypeText = subTypeText;
     }
     
-    @SuppressWarnings("unchecked")
 	public static JavaAttribute newAttribute(
-            Label   label, 
-            String  name, 
-            String  getter, 
-            String  setter,
-            Class   typeClass,
-            MapType type){
+            Label    label, 
+            String   name, 
+            String   getter, 
+            String   setter,
+            Class<?> typeClass,
+            MapType  type){
         return newAttribute(label,name,getter,setter,typeClass,type,type.getName(),null,null);
     }
     /**
@@ -197,17 +193,16 @@ public class JavaAttribute implements IAttribute {
      * @param type
      * @return
      */
-    @SuppressWarnings("unchecked")
 	public static JavaAttribute newAttribute(
-            Label   label, 
-            String  name, 
-            String  getter, 
-            String  setter,
-            Class   typeclass,
-            MapType type,
-            String  typeText,
-            MapType subType,
-            String  subTypeText){
+            Label    label, 
+            String   name, 
+            String   getter, 
+            String   setter,
+            Class<?> typeclass,
+            MapType  type,
+            String   typeText,
+            MapType  subType,
+            String   subTypeText){
     
         if(subTypeText == null) subTypeText = "";
         
