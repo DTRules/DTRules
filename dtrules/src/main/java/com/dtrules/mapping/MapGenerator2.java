@@ -84,7 +84,7 @@ public class MapGenerator2 implements IGenericXMLParser, IMapGenerator  {
         String input     = (String) attribs.get("input");
         String entity    =  entity_name;
         
-        if(inputMatch(input)){
+        if(inputMatch(input) && !type.equalsIgnoreCase("array")){
             out.printdata("setattribute",
                     "tag"        ,attribute ,
                     "RAttribute" ,attribute,
