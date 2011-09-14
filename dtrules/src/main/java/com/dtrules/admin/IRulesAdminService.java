@@ -30,7 +30,7 @@ import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
 
 /**
- * @author Prasath Ramachandran
+ * @author Paul Snow
  * Feb 1, 2007
  *
  */
