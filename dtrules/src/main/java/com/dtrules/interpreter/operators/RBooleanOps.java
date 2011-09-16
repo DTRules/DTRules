@@ -116,7 +116,9 @@ public class RBooleanOps {
 			Or(){super("||"); alias("or");}
 
 			public void arrayExecute(DTState state) throws RulesException {
-				state.datapush(RBoolean.getRBoolean(state.datapop().booleanValue() || state.datapop().booleanValue()));
+			    boolean v1 = state.datapop().booleanValue();
+			    boolean v2 = state.datapop().booleanValue();
+				state.datapush(RBoolean.getRBoolean(v1 || v2));
 			}
 		}
 		
