@@ -384,11 +384,10 @@ public class Excel2XML {
         
         try{
             if(verbose) ostream.println("Starting: "+ new Date());
-            Excel2XML converter     = new Excel2XML(path, rulesConfig, ruleset);
             if(verbose) ostream.println("Converting: "+ new Date());
-            converter.convertRuleset();
+            convertRuleset();
             if(verbose) ostream.println("Compiling: "+ new Date());
-            converter.compile(errorcnt,ostream);
+            compile(errorcnt,ostream);
             if(verbose) ostream.println("Done: "+ new Date());
             
             if(mappings != null) for(String map : mappings){
@@ -405,7 +404,7 @@ public class Excel2XML {
                         rulesConfig,
                         "deployed");
                 cr.compare(ostream);
-                cr.compare(new FileOutputStream(converter.getRuleSet().getWorkingdirectory()+"changes.xml"));   
+                cr.compare(new FileOutputStream(getRuleSet().getWorkingdirectory()+"changes.xml"));   
             }
     
         } catch ( Exception ex ) {
