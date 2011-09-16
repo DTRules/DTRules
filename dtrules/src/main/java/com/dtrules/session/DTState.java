@@ -975,4 +975,22 @@ public class DTState {
         this.anode = anode;
     }
 
+    @Override
+    public String toString() {
+        String s = "dstk["+datastkptr+"]: ";
+        for(int i=0;i<datastkptr;i++){
+            s += datastk[i].stringValue()+" ";
+        }
+        s += "\nentitycstk["+entitystkptr+"]: ";
+        for(int i=0;i<entitystkptr;i++){
+            s += entitystk[i].getName().stringValue()+"["+entitystk[i].getID()+"] ";
+        }
+        s += "\nctrlstk["+ctrlstkptr+"]: ";
+        for(int i=0;i<ctrlstkptr;i++){
+            s += ctrlstk[i].stringValue()+" ";
+        }
+        
+        return s;
+    }
+    
 }
