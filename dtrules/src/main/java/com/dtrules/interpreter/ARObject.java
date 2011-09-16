@@ -22,6 +22,7 @@ package com.dtrules.interpreter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.dtrules.entity.IREntity;
@@ -78,6 +79,13 @@ public abstract class ARObject implements IRObject {
      * @see com.dtrules.interpreter.IRObject#execute(DTState)
      */
 	public void execute(DTState state) throws RulesException {
+		state.datapush(this);
+	}
+
+    /**
+     * @see com.dtrules.interpreter.IRObject#arrayExecute(DTState)
+     */
+	public void arrayExecute(DTState state) throws RulesException {
 		state.datapush(this);
 	}
 
@@ -142,7 +150,7 @@ public abstract class ARObject implements IRObject {
     /**
      * @see com.dtrules.interpreter.IRObject#arrayValue()
      */
-	public ArrayList<IRObject> arrayValue() throws RulesException {
+	public List<IRObject> arrayValue() throws RulesException {
         throw new RulesException("Undefined","Conversion Error","No Array value exists for "+this.type());
 	}
 

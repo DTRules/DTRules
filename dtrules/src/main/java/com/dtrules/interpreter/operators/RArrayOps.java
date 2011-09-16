@@ -19,6 +19,7 @@
 package com.dtrules.interpreter.operators;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
@@ -73,7 +74,7 @@ public class RArrayOps {
 			super("tokenize");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 
 			String pattern = state.datapop().stringValue();
 			IRObject obj1 = state.datapop();
@@ -106,7 +107,7 @@ public class RArrayOps {
 			super("addto");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			IRObject value = state.datapop();
 			RArray rarray = state.datapop().rArrayValue();
 			if (state.testState(DTState.TRACE)) {
@@ -134,7 +135,7 @@ public class RArrayOps {
 			super("findmatch");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			RArray array = state.datapop().rArrayValue();
 			IRObject v3 = state.datapop();
 			IRObject n3 = state.datapop();
@@ -186,7 +187,7 @@ public class RArrayOps {
 			super("addat");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			IRObject value = state.datapop();
 			int position = state.datapop().intValue();
 			RArray rarray = state.datapop().rArrayValue();
@@ -209,10 +210,10 @@ public class RArrayOps {
 			super("remove");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			IRObject value = state.datapop();
 			RArray rarray = (RArray) state.datapop();
-			ArrayList<IRObject> array = rarray.arrayValue();
+			List<IRObject> array = rarray.arrayValue();
 			boolean removed = false;
 			if (value != null) {
 				for (int i = 0; i < array.size();) {
@@ -243,14 +244,14 @@ public class RArrayOps {
 			super("removeat");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			int position = state.datapop().intValue();
 			RArray rarray = (RArray) state.datapop();
 			if (position >= rarray.size()) {
 				state.datapush(RBoolean.getRBoolean(false));
 			}
 
-			ArrayList<IRObject> array = rarray.arrayValue();
+			List<IRObject> array = rarray.arrayValue();
 			if (state.testState(DTState.TRACE)) {
 				state.traceInfo("removed", "arrayID", rarray.getID() + "",
 						"position", position + "", null);
@@ -270,9 +271,9 @@ public class RArrayOps {
 			super("getat");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			int position = state.datapop().intValue();
-			ArrayList<IRObject> array = state.datapop().arrayValue();
+			List<IRObject> array = state.datapop().arrayValue();
 			state.datapush((IRObject) array.get(position));
 		}
 	}
@@ -285,7 +286,7 @@ public class RArrayOps {
 			super("newarray");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			IRObject irobject = new RArray(state.getSession().getUniqueID(),
 					true, false);
 			state.datapush(irobject);
@@ -300,8 +301,8 @@ public class RArrayOps {
 			super("length");
 		}
 
-		public void execute(DTState state) throws RulesException {
-			ArrayList<IRObject> array = state.datapop().arrayValue();
+		public void arrayExecute(DTState state) throws RulesException {
+			List<IRObject> array = state.datapop().arrayValue();
 			state.datapush(RInteger.getRIntegerValue(array.size()));
 		}
 	}
@@ -315,9 +316,9 @@ public class RArrayOps {
 			super("memberof");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			IRObject value = state.datapop();
-			ArrayList<IRObject> array = state.datapop().arrayValue();
+			List<IRObject> array = state.datapop().arrayValue();
 			boolean found = false;
 			if (value != null) {
 				for (int i = 0; i < array.size(); i++) {
@@ -340,7 +341,7 @@ public class RArrayOps {
 			super("copyelements");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			RArray rarray = state.datapop().rArrayValue();
 			RArray newRArray = rarray.clone(state.getSession()).rArrayValue();
 			if (state.testState(DTState.TRACE)) {
@@ -366,7 +367,7 @@ public class RArrayOps {
 			super("deepcopy");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			RArray rarray = state.datapop().rArrayValue();
 			RArray newRArray = rarray.deepCopy(state.getSession())
 					.rArrayValue();
@@ -394,12 +395,12 @@ public class RArrayOps {
 			super("sortarray");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			boolean asc = state.datapop().booleanValue();
 			int direction = asc ? 1 : -1;
 
 			RArray rarray = state.datapop().rArrayValue();
-			ArrayList<IRObject> array = rarray.arrayValue();
+			List<IRObject> array = rarray.arrayValue();
 
 			if (state.testState(DTState.TRACE)) {
 				state.traceInfo("sort", "length", array.size() + "", "arrayID",
@@ -429,8 +430,8 @@ public class RArrayOps {
 			super("randomize");
 		}
 
-		public void execute(DTState state) throws RulesException {
-			ArrayList<IRObject> array = state.datapop().arrayValue();
+		public void arrayExecute(DTState state) throws RulesException {
+			List<IRObject> array = state.datapop().arrayValue();
 			IRObject temp = null;
 			int size = array.size();
 			for (int i = 0; i < 10; i++) {
@@ -452,11 +453,11 @@ public class RArrayOps {
 			super("sortentities");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			boolean asc = state.datapop().booleanValue();
 			RName rname = state.datapop().rNameValue();
 			RArray rarray = state.datapop().rArrayValue();
-			ArrayList<IRObject> array = rarray.arrayValue();
+			List<IRObject> array = rarray.arrayValue();
 			if (state.testState(DTState.TRACE)) {
 				state.traceInfo("sortentities", "length", array.size() + "",
 						"by", rname.stringValue(), "arrayID", rarray.getID()
@@ -497,7 +498,7 @@ public class RArrayOps {
 			super("add_no_dups");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 
 			IRObject value = state.datapop();
 			RArray rArray = (RArray) state.datapop();
@@ -523,9 +524,9 @@ public class RArrayOps {
 			super("clear");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			IRObject rarray = state.datapop();
-			ArrayList<IRObject> array = rarray.arrayValue();
+			List<IRObject> array = rarray.arrayValue();
 			array.clear();
 			if (state.testState(DTState.TRACE)) {
 				state.traceInfo("clear", "array", rarray.stringValue(), null);
@@ -542,10 +543,10 @@ public class RArrayOps {
 			super("merge");
 		}
 
-		public void execute(DTState state) throws RulesException {
-			ArrayList<IRObject> array2 = state.datapop().arrayValue();
-			ArrayList<IRObject> array1 = state.datapop().arrayValue();
-			ArrayList<IRObject> newarray = new ArrayList<IRObject>();
+		public void arrayExecute(DTState state) throws RulesException {
+			List<IRObject> array2 = state.datapop().arrayValue();
+			List<IRObject> array1 = state.datapop().arrayValue();
+			List<IRObject> newarray = new ArrayList<IRObject>();
 			newarray.addAll(array1);
 			newarray.addAll(array2);
 			state.datapush(new RArray(state.getSession().getUniqueID(), false,
@@ -562,7 +563,7 @@ public class RArrayOps {
 			super("mark");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			state.datapush(RMark.getMark());
 		}
 	}
@@ -577,7 +578,7 @@ public class RArrayOps {
 			super("arraytomark");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			int im = state.ddepth() - 1; // Index of top of stack
 			while (im >= 0 && state.getds(im).type().getId() != iMark)
 				im--; // Index of mark
@@ -604,7 +605,7 @@ public class RArrayOps {
 			super("addarray");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 			boolean dups = state.datapop().booleanValue();
 			RArray a2 = state.datapop().rArrayValue();
 			RArray a1 = state.datapop().rArrayValue();
@@ -628,7 +629,7 @@ public class RArrayOps {
 			super("intersection");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 
 			RArray array1 = state.datapop().rArrayValue();
 			RArray array2 = state.datapop().rArrayValue();
@@ -654,7 +655,7 @@ public class RArrayOps {
 			super("intersects");
 		}
 
-		public void execute(DTState state) throws RulesException {
+		public void arrayExecute(DTState state) throws RulesException {
 
 			RArray array1 = state.datapop().rArrayValue();
 			RArray array2 = state.datapop().rArrayValue();

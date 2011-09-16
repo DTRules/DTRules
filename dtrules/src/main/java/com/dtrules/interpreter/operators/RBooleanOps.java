@@ -72,7 +72,7 @@ public class RBooleanOps {
 		public static class InContext extends ROperator {
             InContext(){super("InContext");}
 
-            public void execute(DTState state) throws RulesException {
+            public void arrayExecute(DTState state) throws RulesException {
                 RName       entityName  = state.datapop().rNameValue();
                 IREntity    entity      = state.findEntity(entityName);
                 state.datapush(entity);
@@ -87,7 +87,7 @@ public class RBooleanOps {
 		public static class Not extends ROperator {
 			Not(){super("not"); alias("!"); }
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				state.datapush(RBoolean.getRBoolean(!(state.datapop().booleanValue())));
 			}
 		} 
@@ -100,7 +100,7 @@ public class RBooleanOps {
 		public static class And extends ROperator {
 			And(){super("&&"); alias("and");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
                 boolean v2 = state.datapop().booleanValue();
                 boolean v1 = state.datapop().booleanValue();
                 
@@ -115,8 +115,10 @@ public class RBooleanOps {
 		public static class Or extends ROperator {
 			Or(){super("||"); alias("or");}
 
-			public void execute(DTState state) throws RulesException {
-				state.datapush(RBoolean.getRBoolean(state.datapop().booleanValue() || state.datapop().booleanValue()));
+			public void arrayExecute(DTState state) throws RulesException {
+			    boolean v1 = state.datapop().booleanValue();
+			    boolean v2 = state.datapop().booleanValue();
+				state.datapush(RBoolean.getRBoolean(v1 || v2));
 			}
 		}
 		
@@ -127,7 +129,7 @@ public class RBooleanOps {
 		public static class Greaterthan extends ROperator {
 			Greaterthan(){super(">");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 			    IRObject o2 = state.datapop();
 			    IRObject o1 = state.datapop();
 				long number2 = o2.longValue();
@@ -143,7 +145,7 @@ public class RBooleanOps {
 		public static class Lessthan extends ROperator {
 			Lessthan(){super("<");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				long number2 = state.datapop().longValue();
 				long number1 = state.datapop().longValue();
 				state.datapush(RBoolean.getRBoolean(number1 < number2));
@@ -158,7 +160,7 @@ public class RBooleanOps {
 		public static class Greaterthanequal extends ROperator {
 			Greaterthanequal(){super(">=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				long number2 = state.datapop().longValue();
 				long number1 = state.datapop().longValue();
 				state.datapush(RBoolean.getRBoolean(number1 >= number2));
@@ -172,7 +174,7 @@ public class RBooleanOps {
 		public static class Lessthanequal extends ROperator {
 			Lessthanequal(){super("<=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				long number2 = state.datapop().longValue();
 				long number1 = state.datapop().longValue();
 				state.datapush(RBoolean.getRBoolean(number1 <= number2));
@@ -186,7 +188,7 @@ public class RBooleanOps {
 		public static class Equal extends ROperator {
 			Equal(){super("==");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				state.datapush(RBoolean.getRBoolean(state.datapop().longValue() == state.datapop().longValue()));
 			}
 		}		
@@ -198,7 +200,7 @@ public class RBooleanOps {
 		public static class FGreaterthan extends ROperator {
 			FGreaterthan(){super("f>");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				double number2 = state.datapop().doubleValue();
 				double number1 = state.datapop().doubleValue();
 				state.datapush(RBoolean.getRBoolean(number1 > number2));
@@ -212,7 +214,7 @@ public class RBooleanOps {
 		public static class FLessthan extends ROperator {
 			FLessthan(){super("f<");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				double number2 = state.datapop().doubleValue();
 				double number1 = state.datapop().doubleValue();
 				state.datapush(RBoolean.getRBoolean(number1 < number2));
@@ -226,7 +228,7 @@ public class RBooleanOps {
 		public static class FGreaterthanequal extends ROperator {
 			FGreaterthanequal(){super("f>=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				double number2 = state.datapop().doubleValue();
 				double number1 = state.datapop().doubleValue();
 				state.datapush(RBoolean.getRBoolean(number1 >= number2));
@@ -240,7 +242,7 @@ public class RBooleanOps {
 		public static class FLessthanequal extends ROperator {
 			FLessthanequal(){super("f<=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				double number2 = state.datapop().doubleValue();
 				double number1 = state.datapop().doubleValue();
 				state.datapush(RBoolean.getRBoolean(number1 <= number2));
@@ -254,7 +256,7 @@ public class RBooleanOps {
 		public static class FEqual extends ROperator {
 			FEqual(){super("f==");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				state.datapush(RBoolean.getRBoolean(state.datapop().doubleValue() == state.datapop().doubleValue()));
 			}
 		}		
@@ -266,7 +268,7 @@ public class RBooleanOps {
 		public static class Isnull extends ROperator {
 			Isnull(){super("isnull");}
 
-			public void execute(DTState state) throws RulesException 
+			public void arrayExecute(DTState state) throws RulesException 
 			{
 				state.datapush(RBoolean.getRBoolean(state.datapop().type().getId()==IRObject.iNull));
 			}
@@ -279,7 +281,7 @@ public class RBooleanOps {
 		public static class Booleanequal extends ROperator {
 			Booleanequal(){super("b="); alias("beq");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 			    IRObject o2 = state.datapop();
 			    IRObject o1 = state.datapop();
 			    boolean r = false;
@@ -298,7 +300,7 @@ public class RBooleanOps {
 		public static class Booleannotequal extends ROperator {
 			Booleannotequal(){super("b!=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				state.datapush(RBoolean.getRBoolean(state.datapop().booleanValue()!=state.datapop().booleanValue()));
 			}
 		}
@@ -310,7 +312,7 @@ public class RBooleanOps {
 		public static class SGreaterthan extends ROperator {
 			SGreaterthan(){super("s>");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				String value2 = state.datapop().stringValue();
 				String value1 = state.datapop().stringValue();
 				state.datapush(RBoolean.getRBoolean(value1.compareTo(value2)>0));
@@ -324,7 +326,7 @@ public class RBooleanOps {
 		public static class SLessthan extends ROperator {
 			SLessthan(){super("s<");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				String value2 = state.datapop().stringValue();
 				String value1 = state.datapop().stringValue();
 				state.datapush(RBoolean.getRBoolean(value1.compareTo(value2)< 0));
@@ -338,7 +340,7 @@ public class RBooleanOps {
 		public static class SGreaterthanequal extends ROperator {
 			SGreaterthanequal(){super("s>=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				String value2 = state.datapop().stringValue();
 				String value1 = state.datapop().stringValue();
 				state.datapush(RBoolean.getRBoolean(value1.compareTo(value2)>=0));
@@ -352,7 +354,7 @@ public class RBooleanOps {
 		public static class SLessthanequal extends ROperator {
 			SLessthanequal(){super("s<=");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				String value2 = state.datapop().stringValue();
 				String value1 = state.datapop().stringValue();
 				state.datapush(RBoolean.getRBoolean(value1.compareTo(value2)<=0));
@@ -366,7 +368,7 @@ public class RBooleanOps {
 		public static class SEqual extends ROperator {
 			SEqual(){super("s=="); alias("streq");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				String value2 = state.datapop().stringValue();
 				String value1 = state.datapop().stringValue();
 				state.datapush(RBoolean.getRBoolean(value1.equals(value2)));
@@ -381,7 +383,7 @@ public class RBooleanOps {
         public static class SEqualIgnoreCase extends ROperator {
             SEqualIgnoreCase(){super("sic=="); alias("streqignorecase");}
 
-            public void execute(DTState state) throws RulesException {
+            public void arrayExecute(DTState state) throws RulesException {
                 String value2 = state.datapop().stringValue();
                 String value1 = state.datapop().stringValue();
                 state.datapush(RBoolean.getRBoolean(value1.equalsIgnoreCase(value2)));
@@ -399,7 +401,7 @@ public class RBooleanOps {
         public static class Startswith extends ROperator {
             Startswith(){super("startswith");}
 
-            public void execute(DTState state) throws RulesException {
+            public void arrayExecute(DTState state) throws RulesException {
                 int    index   = state.datapop().intValue();
                 String string2 = state.datapop().stringValue();
                 String string1 = state.datapop().stringValue();
@@ -415,7 +417,7 @@ public class RBooleanOps {
 		public static class Strremove extends ROperator {
 			Strremove(){super("strremove");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				String value2 = state.datapop().stringValue();
 				String value1 = state.datapop().stringValue();
 				state.datapush(RString.newRString(value1.replaceAll(value2, "")));
@@ -424,12 +426,13 @@ public class RBooleanOps {
 
 	    /**
 	     * Req( object1 object2 -- Boolean )
-	     * Req Operator, compares the two objects using equals and returns the boolean value
+	     * Req Operator, compares the two objects using the java equals() function off the first object 
+	     * and returns true if equals() returns true. 
 	     */
 		public static class Req extends ROperator {
 			Req(){super("req");}
 
-			public void execute(DTState state) throws RulesException {
+			public void arrayExecute(DTState state) throws RulesException {
 				IRObject value2 = state.datapop();
 				IRObject value1 = state.datapop();
 				state.datapush(RBoolean.getRBoolean(value1.equals(value2)));

@@ -139,8 +139,8 @@ public class ImportRuleSets {
      * @throws Exception
      */    
 	public void convertDecisionTables(RuleSet ruleset ,String destinationFile) throws Exception{
-	      
-		  XMLPrinter out = new XMLPrinter("decision_tables",new FileOutputStream(destinationFile));
+	      OutputStream os = new FileOutputStream(destinationFile);
+		  XMLPrinter out = new XMLPrinter("decision_tables", os);
 		  String directory = ruleset.getExcel_dtfolder();
 		  Iterator<String> includes = ruleset.getIncludedRuleSets().iterator();
 		  while(directory != null){
@@ -159,6 +159,7 @@ public class ImportRuleSets {
 		      }
 		  }
 		  out.close();
+		  os.close();
     }
     
 	private String getCellValue(HSSFSheet sheet, int row, int column){
@@ -764,7 +765,7 @@ public class ImportRuleSets {
                     out.printdata("action_comment",actionComment);
                     
                     String requirements         = getRequirement(sheet, rowIndex);
-                    out.printdata("initial_action_requirement", requirements);
+                    out.printdata("action_requirement", requirements);
                     
                     out.printdata("action_description",actionDescription);
                 	

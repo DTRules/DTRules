@@ -236,17 +236,25 @@ public class RName extends ARObject implements Comparable<RName>{
 	 * array, and it is not executable, then it is pushed.  Otherwise
 	 * (not an array, and executable) the object is executed.
 	 */
-	public void execute(DTState state) throws RulesException {	
-		cnt++;
-        IRObject o = state.find(this);		      // Does a lookup of the name on the Entity Stack
-		if(o==null){
-            throw new RulesException("Undefined","RName","The Name '"+name+"' was not defined by any Entity on the Entity Stack");
-		}
-		if(o.isExecutable()){
-			o.execute(state);
+	public void arrayExecute(DTState state) throws RulesException {	
+		if(executable){
+			cnt++;
+	        IRObject o = state.find(this);		      // Does a lookup of the name on the Entity Stack
+			if(o==null){
+	            throw new RulesException("Undefined","RName","The Name '"+name+"' was not defined by any Entity on the Entity Stack");
+			}
+			if(o.isExecutable()){
+				o.execute(state);
+			}else{
+				state.datapush(o);
+			}
 		}else{
-			state.datapush(o);
+			state.datapush(this);
 		}
+	}
+	
+	public void execute(DTState state) throws RulesException {
+		getExecutable().arrayExecute(state);
 	}
 	
 	public IRObject getExecutable() {

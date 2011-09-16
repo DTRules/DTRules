@@ -112,13 +112,12 @@ public class XMLSource implements IDataSource {
     }
 
     
-    @SuppressWarnings("unchecked")
     @Override
-    public List getChildren(Object obj){
+    public List<?> getChildren(Object obj){
         if(obj instanceof Node){
             return ((Node)obj).getTags();
         }
-        return new ArrayList();    
+        return new ArrayList<Object>();    
     }
     /**
      * We don't need this mechanism for Java Objects as it is pretty easy for us

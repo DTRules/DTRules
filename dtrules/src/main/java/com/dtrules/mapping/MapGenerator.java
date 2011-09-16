@@ -62,13 +62,7 @@ public class MapGenerator implements IGenericXMLParser, IMapGenerator  {
         return false;
     }    
     
-    String entity_name;
-    String entity_access;
-    String entity_comment;
     public void begin_entity () {
-        entity_name    = (String) attribs.get("name");
-        entity_access  = (String) attribs.get("access");
-        entity_comment = (String) attribs.get("comment");
     }
     
     public void end_entity(){
@@ -101,15 +95,16 @@ public class MapGenerator implements IGenericXMLParser, IMapGenerator  {
         }
     }
 
-    public void beginTag(String[] tagstk, int tagstkptr, String tag, HashMap attribs) throws IOException, Exception {
-        this.tagstk    = tagstk;
+    public void beginTag(String[] tagstk, int tagstkptr, String tag, HashMap<String, String> attribs)
+            throws IOException, Exception {
+        this.tagstk = tagstk;
         this.tagstkptr = tagstkptr;
-        this.tag       = tag.toLowerCase();
-        this.attribs   = attribs;
-        this.body      = null;
+        this.tag = tag.toLowerCase();
+        this.attribs = attribs;
+        this.body = null;
 
         try {
-            this.getClass().getMethod("begin_"+tag, (Class[])null).invoke(this,(Object [])null);
+            this.getClass().getMethod("begin_" + tag, (Class[]) null).invoke(this, (Object[]) null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (SecurityException e) {
@@ -119,23 +114,25 @@ public class MapGenerator implements IGenericXMLParser, IMapGenerator  {
         } catch (InvocationTargetException e) {
             System.out.println(e.getCause().getMessage());
         } catch (NoSuchMethodException e) {
-            //Ignore tags we don't know.
+            // Ignore tags we don't know.
         }
     }
 
-    
-    /* (non-Javadoc)
-     * @see com.dtrules.xmlparser.IGenericXMLParser#endTag(java.lang.String[], int, java.lang.String, java.lang.String, java.util.HashMap)
+    /*
+     * (non-Javadoc)
+     * @see com.dtrules.xmlparser.IGenericXMLParser#endTag(java.lang.String[], int, java.lang.String, java.lang.String,
+     * java.util.HashMap)
      */
-    public void endTag(String[] tagstk, int tagstkptr, String tag, String body, HashMap attribs) throws Exception, IOException {
-        this.tagstk    = tagstk;
+    public void endTag(String[] tagstk, int tagstkptr, String tag, String body, HashMap<String, String> attribs)
+            throws Exception, IOException {
+        this.tagstk = tagstk;
         this.tagstkptr = tagstkptr;
-        this.tag       = tag;
-        this.attribs   = attribs;
-        this.body      = body;
-        
+        this.tag = tag;
+        this.attribs = attribs;
+        this.body = body;
+
         try {
-            this.getClass().getMethod("end_"+tag, (Class[])null).invoke(this,(Object [])null);
+            this.getClass().getMethod("end_" + tag, (Class[]) null).invoke(this, (Object[]) null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (SecurityException e) {
@@ -145,7 +142,7 @@ public class MapGenerator implements IGenericXMLParser, IMapGenerator  {
         } catch (InvocationTargetException e) {
             System.out.println(e.getCause().getMessage());
         } catch (NoSuchMethodException e) {
-            //System.out.println("Unknown: end_"+tag);
+            // System.out.println("Unknown: end_"+tag);
         }
     }
         

@@ -33,6 +33,7 @@ import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.mapping.Mapping;
+import com.dtrules.session.IStreamSource.FileType;
 /**
  * Defines the set of artifacts which make up a logical set of
  * rules.  These include the schema for the rules (The Entity
@@ -86,7 +87,7 @@ public class RuleSet {
             InputStream mapStream = null;
             
             if(mapfilename != null){
-                mapStream = openfile(mapfilename);
+                mapStream = rd.streamSource.openStreamSearch(FileType.AUTO_MAP, this, mapfilename);
             }
             if(mapStream==null){
                 throw new RulesException("undefined", "getAutoDataMapDef()", 
@@ -164,23 +165,6 @@ public class RuleSet {
     }
     
     /**
-     * Tries openning the filename as it is.  Then attempts to open
-     * the file with the resource path.  Then the file path.  If everything
-     * fails, returns a null.
-     * @param filename
-     * @return InputStream
-     */
-    public InputStream openfile(String filename){
-        InputStream s = null;
-        s = RulesDirectory.openstream(this,filename);
-        if(s!=null)return s;
-        s = RulesDirectory.openstream(this,getFilepath()+"/"+filename);
-        if(s!=null)return s;
-        s = RulesDirectory.openstream(this,getResourcepath()+filename);
-        return s;
-    }
-    
-    /**
      * @return the excel_dtfolder
      */
     public String getExcel_dtfolder() {
@@ -216,7 +200,9 @@ public class RuleSet {
 
     /**
      * Appends the directory specified in the RulesDirectory (if present) to the
-     * filepath for the Rule Set.
+     * filepath for the Rule Set.  This is the directory where all the XML for 
+     * the Rule Set is kept.  It is where the XML produced from the Excel files
+     * is written. 
      * @return the filepath
      */
     public String getFilepath() {
@@ -344,7 +330,7 @@ public class RuleSet {
 				session.setEntityFactory(ef);
 				while(iedds.hasNext()){
 					String filename = iedds.next();
-					InputStream s= openfile(filename);
+					InputStream s= rd.streamSource.openStreamSearch(FileType.EDD, this, filename);
 					if(s==null){
 						if(s==null){
 							System.out.println("No EDD XML found.  " +
@@ -359,7 +345,7 @@ public class RuleSet {
 			   Iterator<String> idts = dt_names.iterator();
 			   while(idts.hasNext()){	   
 	               String filename = idts.next();
-	          	   InputStream s = openfile(filename);
+	          	   InputStream s = rd.streamSource.openStreamSearch(FileType.DECISIONTABLES, this, filename);
 				   if(s==null){
 	                      System.out.println("No Decision Table XML found" +
 	                              "\r\n   Looking for:      "+filename+

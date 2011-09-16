@@ -59,7 +59,7 @@ public class RMiscOps {
         Null() {
             super("null");
         }
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush(RNull.getRNull());
         }
     }
@@ -72,7 +72,7 @@ public class RMiscOps {
         EntityName() {
             super("entityname");
         }
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IREntity entity = state.datapop().rEntityValue();
             state.datapush(entity.getName());
         }
@@ -86,7 +86,7 @@ public class RMiscOps {
     public static class RError extends ROperator {
         RError(){super("error");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             String message   = state.datapop().stringValue();
             String exception = state.datapop().stringValue();
             try {
@@ -110,7 +110,7 @@ public class RMiscOps {
     public static class Debug extends ROperator {
         Debug(){super("debug");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             String msg = state.datapop().stringValue();
             if(state.testState(DTState.DEBUG)){
                 state.debug(msg);
@@ -120,7 +120,7 @@ public class RMiscOps {
 
     public static class Print extends ROperator {
     	Print(){super("print"); }
-    	public void execute(DTState state) throws RulesException {
+    	public void arrayExecute(DTState state) throws RulesException {
             String msg = state.datapop().stringValue();
             msg = msg.replaceAll("\\\\n", "\n");
             state.print(msg);
@@ -138,7 +138,7 @@ public class RMiscOps {
     public static class Traceon extends ROperator {
         Traceon(){super("traceon");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.setState(DTState.TRACE);
         }
     }
@@ -151,7 +151,7 @@ public class RMiscOps {
     public static class Traceoff extends ROperator {
         Traceoff(){super("traceoff");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.clearState(DTState.TRACE);
         }
     }
@@ -165,7 +165,7 @@ public class RMiscOps {
     public static class SetDebug extends ROperator {
         SetDebug(){super("setdebug");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             boolean flg = state.datapop().booleanValue();
             if(flg){
                 state.setState(DTState.DEBUG);
@@ -183,7 +183,7 @@ public class RMiscOps {
     public static class Ignore extends ROperator {
         Ignore(){super("ignore"); alias("nop");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
         }
     }
 
@@ -196,7 +196,7 @@ public class RMiscOps {
     public static class Swap extends ROperator {
         Swap(){super("swap"); alias("exch");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject obj1  = state.datapop();
             IRObject obj2  = state.datapop();
             state.datapush(obj1);
@@ -212,7 +212,7 @@ public class RMiscOps {
     public static class Dup extends ROperator {
         Dup(){super("dup");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject obj1  = state.datapop();
             state.datapush(obj1);
             state.datapush(obj1);
@@ -225,7 +225,7 @@ public class RMiscOps {
             alias("drop");
         }
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapop();
         }
     }
@@ -238,7 +238,7 @@ public class RMiscOps {
     public static class Over    extends ROperator {
         Over(){super("over");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject obj1 = state.getds(state.ddepth()-2);
             state.datapush(obj1);
         }
@@ -252,7 +252,7 @@ public class RMiscOps {
     public static class Entitypush    extends ROperator {
         Entitypush(){super("entitypush");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IREntity e;
             try{
@@ -277,7 +277,7 @@ public class RMiscOps {
     public static class Entitypop    extends ROperator {
         Entitypop(){super("entitypop");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             if(state.testState(DTState.TRACE)){
                 state.traceInfo("entitypop","");
              }
@@ -293,7 +293,7 @@ public class RMiscOps {
      */
     public static class Get    extends ROperator {
         Get(){super("get");}
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
         	RName    n = state.datapop().rNameValue();
             IREntity e = state.datapop().rEntityValue();
             IRObject v = e.get(n);
@@ -310,7 +310,7 @@ public class RMiscOps {
      */
     public static class Entityfetch    extends ROperator {
         Entityfetch(){super("entityfetch");}
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             int i = state.datapop().intValue();
             state.datapush(state.entityfetch(i));
         }
@@ -324,7 +324,7 @@ public class RMiscOps {
     public static class  I   extends ROperator {
         I(){super("i"); alias("r@");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush( state.getcs(state.cdepth()-1));
         }
     }
@@ -337,7 +337,7 @@ public class RMiscOps {
     public static class  J   extends ROperator {
         J(){super("j");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush( state.getcs(state.cdepth()-2));
         }
     }
@@ -350,7 +350,7 @@ public class RMiscOps {
     public static class  K   extends ROperator {
         K(){super("k");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush( state.getcs(state.cdepth()-3));
         }
     }
@@ -364,7 +364,7 @@ public class RMiscOps {
     public static class ToR    extends ROperator {
         ToR(){super(">r");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.cpush(state.datapop());
         }
     }
@@ -378,7 +378,7 @@ public class RMiscOps {
     public static class FromR    extends ROperator {
         FromR(){super("r>");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush(state.cpop());
         }
     }
@@ -395,7 +395,7 @@ public class RMiscOps {
     public static class  Def extends ROperator {
         Def(){super("def");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject value = state.datapop();
             RName    name  = state.datapop().rNameValue();
             boolean f = state.def(name, value, true);
@@ -415,7 +415,7 @@ public class RMiscOps {
     public static class  Find   extends ROperator {
         Find(){super("find");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             RName    name = state.datapop().rNameValue();
             IRObject v    = state.find(name);
             if(v==null)throw new RulesException("Undefined",
@@ -432,7 +432,7 @@ public class RMiscOps {
     public static class  PrintTOS   extends ROperator {
         PrintTOS(){super("printtos"); }
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.debug(state.datapop().toString());
         }
     }
@@ -445,7 +445,7 @@ public class RMiscOps {
     public static class Clone   extends ROperator {
         Clone(){super("clone");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush(state.datapop().clone(state.getSession()));
         }
     }
@@ -462,7 +462,7 @@ public class RMiscOps {
     public static class  Xdef extends ROperator {
         Xdef(){super("xdef");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             RName    name  = state.datapop().rNameValue();
             IRObject value = state.datapop();
             boolean f = state.def(name, value, true);
@@ -488,7 +488,7 @@ public class RMiscOps {
     public static class  PStack   extends ROperator {
         PStack(){super("pstack");}
 
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.pstack();
         }
     }
@@ -502,7 +502,7 @@ public class RMiscOps {
     public static class  Createentity   extends ROperator {
         Createentity(){super("createentity");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             RName    ename  = state.datapop().rNameValue();
             IREntity entity = ((RSession) state.getSession()).createEntity(null, ename);
             state.datapush(entity);
@@ -520,7 +520,7 @@ public class RMiscOps {
     public static class  FindCreateEntity   extends ROperator {
     	FindCreateEntity(){super("findCreateEntity"); alias("fce");}
         RName entityTraceIDList = RName.getRName("entityTraceIdList");
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
         	
             RInteger id     = state.datapop().rIntegerValue();
         	RName    ename  = state.datapop().rNameValue();
@@ -543,7 +543,7 @@ public class RMiscOps {
     public static class  Cvi   extends ROperator {
         Cvi(){super("cvi");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
@@ -562,7 +562,7 @@ public class RMiscOps {
     public static class  Cvr   extends ROperator {
         Cvr(){super("cvr"); }
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
@@ -581,7 +581,7 @@ public class RMiscOps {
     public static class  Cvb   extends ROperator {
         Cvb(){super("cvb");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
@@ -599,7 +599,7 @@ public class RMiscOps {
     public static class  Cve   extends ROperator {
         Cve(){super("cve");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
@@ -617,7 +617,7 @@ public class RMiscOps {
     public static class  Cvs   extends ROperator {
         Cvs(){super("cvs");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             if(o.type().getId() == iNull){
                 state.datapush(o);
@@ -636,7 +636,7 @@ public class RMiscOps {
     public static class  Cvn   extends ROperator {
         Cvn(){super("cvn");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
@@ -655,7 +655,7 @@ public class RMiscOps {
     public static class  Cvd   extends ROperator {
         Cvd(){super("cvd");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             IRObject o = state.datapop();
             IRObject v = RNull.getRNull();
             try{
@@ -679,7 +679,7 @@ public class RMiscOps {
     public static class  ActionString   extends ROperator {
         ActionString(){super("actionstring");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             state.datapush( RString.newRString(
                     state.getCurrentTable().getName().stringValue()+" "+
                     state.getCurrentTableSection()+" "+
@@ -695,7 +695,7 @@ public class RMiscOps {
     public static class  GetDescription   extends ROperator {
         GetDescription(){super("getdescription");}
         
-        public void execute(DTState state) throws RulesException {
+        public void arrayExecute(DTState state) throws RulesException {
             String section = state.getCurrentTableSection();
             String description = "";
             if(section.equalsIgnoreCase("action")){

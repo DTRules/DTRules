@@ -30,11 +30,10 @@ import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
 
 /**
- * @author Prasath Ramachandran
+ * @author Paul Snow
  * Feb 1, 2007
  *
  */
-@SuppressWarnings({"unchecked"})
 public interface IRulesAdminService {
     
 	public void         initialize(String pathtoDTrules);
@@ -42,7 +41,7 @@ public interface IRulesAdminService {
 	public RuleSet      getRuleset(String RulesetName);
 	public void         updateRuleset(RuleSet ruleset);
 	
-	public List           getDecisionTables(String rulesetname);
+	public List<?>      getDecisionTables(String rulesetname);
 	public RDecisionTable getDecisionTable(String rulesetname, String DecisionTableName);
 	public void           saveDecisionTables(RSession session, String rulesetname) throws RulesException;
     public RDecisionTable createDecisionTable(String rulesetname, String decisiontablename) throws RulesException;	

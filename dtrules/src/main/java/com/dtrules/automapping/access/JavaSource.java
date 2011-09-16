@@ -110,11 +110,10 @@ public class JavaSource implements IDataSource {
      * @param method
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static String getterName(Method method){
         boolean startsWithGet = method.getName().startsWith("get");
         boolean startsWithIs  = method.getName().startsWith("is");
-        Class   v             = method.getReturnType();
+        Class<?>v             = method.getReturnType();
         boolean v_void        = void.class.equals(v);
         boolean v_boolean     = boolean.class.equals(v) || Boolean.class.equals(v);
         int     paramCnt      = method.getParameterTypes().length;        
@@ -139,10 +138,9 @@ public class JavaSource implements IDataSource {
      * @param method
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static String setterName(Method method){
         boolean startsWithSet = method.getName().startsWith("set");
-        Class   v             = method.getReturnType();
+        Class<?>v             = method.getReturnType();
         boolean v_void        = void.class.equals(v);
         int     paramCnt      = method.getParameterTypes().length;        
         // All setters must past the following tests!
@@ -158,24 +156,22 @@ public class JavaSource implements IDataSource {
     }
      
     public static class Accessor {
-        Boolean caseSensitive = true;    // name is case sensitive
-        String  name;                    // Property name
-        Method  getter;                  // Getter method
-        Method  setter;                  // Setter method
-        @SuppressWarnings("unchecked")
-		Class   typeClass;               // The type of the property
-        MapType type;                    // Return/Parameter type
-        String  typeText;                // Actual text of the type
-        MapType subType=MapType.NULL;    // With lists and references, you have a subtype
-        String  subTypeText="";          // Actual text of the subtype
+        Boolean   caseSensitive = true;    // name is case sensitive
+        String    name;                    // Property name
+        Method    getter;                  // Getter method
+        Method    setter;                  // Setter method
+        Class<?>  typeClass;               // The type of the property
+        MapType   type;                    // Return/Parameter type
+        String    typeText;                // Actual text of the type
+        MapType   subType=MapType.NULL;    // With lists and references, you have a subtype
+        String    subTypeText="";          // Actual text of the subtype
         
         @Override
         public String toString(){
             return name;
         }
         
-        @SuppressWarnings("unchecked")
-        Accessor(String name, Class type, Class subtype){
+        Accessor(String name, Class<?> type, Class<?> subtype){
             this.name = name;
             this.typeClass = type;
             this.typeText = type.getSimpleName();
@@ -192,10 +188,9 @@ public class JavaSource implements IDataSource {
      * every getter, we look for a setter and cache it too.  We should be able
      * to handle setters without getters, but for now that case is ignored.
      */
-    @SuppressWarnings("unchecked")
     public void cacheGetters(Group group, Label label, Object object){
         try{
-            Class obj = object.getClass();                    // Get this object class
+            Class<?> obj = object.getClass();                   // Get this object class
             if(obj==null)return;                                // None found?  Shouldn't happen.
             // Map all the attributes
             ArrayList<Accessor> accessors = getAccessors(group, object);
@@ -228,16 +223,15 @@ public class JavaSource implements IDataSource {
      * @param method 
      * @return subType of list
      */
-    @SuppressWarnings("unchecked")
-    private Class getSubType(Method method){
-        Type returnType = method.getGenericReturnType();
-        Class returnClass = null;
+    private Class<?> getSubType(Method method){
+        Type     returnType  = method.getGenericReturnType();
+        Class<?> returnClass = null;
         if(returnType instanceof ParameterizedType){
             ParameterizedType type = (ParameterizedType) returnType;
             Type[] typeArguments = type.getActualTypeArguments();
             for(Type typeArgument : typeArguments){
                 try{      
-                    returnClass = (Class) typeArgument;
+                    returnClass = (Class<?>) typeArgument;
                 }catch(Exception e){
                     returnClass = Class.class;
                 }
@@ -251,18 +245,17 @@ public class JavaSource implements IDataSource {
      * @param obj
      * @return
      */
-    @SuppressWarnings("unchecked")
     public ArrayList<Accessor> getAccessors(Group group, Object obj) {
         
         ArrayList<Accessor> gs = new ArrayList<Accessor>();
-        Class javaclass  = obj.getClass();
+        Class<?> javaclass  = obj.getClass();
 
         if(javaclass != null){
             Method methods[] = javaclass.getMethods();
             for(Method method : methods){
                 String name = getterName(method);
                 if(name!= null){
-                    Class subType = getSubType(method);
+                    Class<?> subType = getSubType(method);
                     if(subType!=null){
                         Label label;
                         
@@ -302,11 +295,9 @@ public class JavaSource implements IDataSource {
         return gs;
     }
   
-    
-    @SuppressWarnings("unchecked")
     @Override
-    public List getChildren(Object obj){
-        return new ArrayList();    
+    public List<Object> getChildren(Object obj){
+        return new ArrayList<Object>();    
     }
     /**
      * We don't need this mechanism for Java Objects as it is pretty easy for us

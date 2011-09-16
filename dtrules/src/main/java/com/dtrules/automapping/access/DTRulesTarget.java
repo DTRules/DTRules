@@ -212,14 +212,14 @@ public class DTRulesTarget implements IDataTarget {
                 for(IMapNode c : children){
                     autoDataMap.pushMark(); // Make sure no children try and update our list's parent
                     Object o = c.mapNode(autoDataMap, labelMap); 
-                    if(o instanceof List && ((List)o).size()==1){ // Mostly we are going to get an array of length  
-                        o = ((List)o).get(0);                     //   one of the object we want.  If that's the 
-                    }                                             //   case, get the object we want from the List.
-                    autoDataMap.pop();                            // Remove the mark.
-                    if(list!=null                                 // If we have a list, and
-                            && o != null                          //   a rules engine object
-                            && o instanceof IRObject){            //   then add it to our list.
-                        list.add((IRObject)o);      // then add it to the list.
+                    if(o instanceof List && ((List<Object>)o).size()==1){ // Mostly we are going to get an array of length  
+                        o = ((List<Object>)o).get(0);                     //   one of the object we want.  If that's the 
+                    }                                                     //   case, get the object we want from the List.
+                    autoDataMap.pop();                                    // Remove the mark.
+                    if(list!=null                                         // If we have a list, and
+                            && o != null                                  //   a rules engine object
+                            && o instanceof IRObject){                    //   then add it to our list.
+                        list.add((IRObject)o);                            
                     }
                 }
             }

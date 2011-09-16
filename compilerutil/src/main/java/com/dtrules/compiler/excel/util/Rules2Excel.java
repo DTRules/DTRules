@@ -602,10 +602,10 @@ public class Rules2Excel {
     @SuppressWarnings("unchecked")
     public void writeDecisionTables(String excelName, String fields[], boolean ascending, int limit){
         try{            
-            List<String>                decisiontables  = admin.getDecisionTables(rs.getName());
+            List<?>                     decisiontables  = admin.getDecisionTables(rs.getName());
             ArrayList<RDecisionTable>   dts             = new ArrayList<RDecisionTable>();
             
-            for(String dt : decisiontables){
+            for(String dt : (List<String>)decisiontables){
                 RDecisionTable rdt = session.getEntityFactory().findTable(dt);
                 dts.add(rdt);
             }
@@ -627,7 +627,7 @@ public class Rules2Excel {
                 excelfile.close();
             }
             
-            for(String dt : decisiontables){
+            for(String dt : (List<String>)decisiontables){
                 RDecisionTable rdt = session.getEntityFactory().findTable(dt);
                 writeDT(rdt);
             }

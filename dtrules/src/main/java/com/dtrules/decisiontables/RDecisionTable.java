@@ -150,8 +150,8 @@ public class RDecisionTable extends ARObject {
     private int numberOfRealColumns = 0;        // Number of real columns (as unbalanced tables can have
     											// far more columns than they appear to have).
 
-    
-    
+    boolean optimize = true;					// We can't collapse columns if an ALL table
+    											//   that reads the policy statements.
 	public boolean getHasNullColumn(){
 	    return hasNullColumn;
 	}
@@ -675,6 +675,10 @@ public class RDecisionTable extends ARObject {
 	}
 	
 	public void execute(DTState state) throws RulesException {
+		arrayExecute(state);
+	}
+	
+	public void arrayExecute(DTState state) throws RulesException {
 	    RDecisionTable last = state.getCurrentTable();
 	    state.setCurrentTable(this);
 	    state.traceTagBegin("decisiontable","name",dtname.stringValue());
@@ -1308,7 +1312,10 @@ public class RDecisionTable extends ARObject {
     }
     
     /**
-     * Replaces the given DTNode with the optimized DTNode.
+     * At this level, we just check to make sure the table is okay
+     * to optimize.  optimize2 does the real work of optimization, if
+     * it is okay to do so.
+     * 
      * @param node
      * @return
      */
@@ -1316,14 +1323,38 @@ public class RDecisionTable extends ARObject {
     	
     	if(!state.getSession().getRulesDirectory().isOptimize()){  // We don't want to optimize if
     		return node;                						   //   we are tracing as that messes
-    	}                                          		           //   with the column numbers.
+    	}
+    	
+    	if(type == Type.ALL){
+    		boolean opt = true;
+    		for(int i = 0; opt && i < actionsPostfix.length; i++){
+    			String tokens[] = actionsPostfix[i].split("[ \t\r\n]");
+    			for(int j = 0; opt && j<tokens.length; j++){
+    				if(tokens[j].equalsIgnoreCase("policystatements")){
+    					opt = false;
+    				}
+    			}
+    		}
+    		if(!opt)return node;
+    	}
+    	return optimize2(state,node);
+    }
+    
+    /**
+     * Replaces the given DTNode with the optimized DTNode.
+     * @param node
+     * @return
+     */
+    private DTNode optimize2(DTState state, DTNode node){
+    		      	
+    	//   with the column numbers.
     	ANode opt = node.getCommonANode(state);	
         if(opt!=null){
             return opt;
         }
         CNode cnode = (CNode) node;
-        cnode.iftrue  = optimize(state, cnode.iftrue);
-        cnode.iffalse = optimize(state, cnode.iffalse);
+        cnode.iftrue  = optimize2(state, cnode.iftrue);
+        cnode.iffalse = optimize2(state, cnode.iffalse);
         if(cnode.iftrue.equalsNode(state, cnode.iffalse)){
             cnode.iftrue.addNode(cnode.iffalse);
             return cnode.iftrue;

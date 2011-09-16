@@ -22,26 +22,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.List;
 
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 /**
- * Immplements Arrays for Decision Tables.  Because we can't tag references,
+ * Implements Arrays for Decision Tables.  Because we can't tag references,
  * we do the same trick here that we do for RNames, i.e. we create an executable
  * and a non-executable version of each array.  However, we only create one
  * ArrayList.
  * <br><br>
  * If dups is true, we allow duplicate references in the array.  Sometimes it
- * is pleasent to have an array whose values are all unique.  In that case, create
+ * is pleasant to have an array whose values are all unique.  In that case, create
  * an array with dups set to false. <br>
  * <br>
  * @author ps24876
  *
  */
-@SuppressWarnings("unchecked")
 public class RArray extends ARObject implements Collection<IRObject> {
-    ArrayList<IRObject> array;
+    List<IRObject> array;
               IRObject  code[];
     RArray    pair;
     boolean   executable;
@@ -163,7 +163,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
      * @param bogus
      * @param exectuable
      */
-    protected RArray(int id, boolean duplicates, ArrayList thearray, RArray otherpair, boolean executable){
+    protected RArray(int id, boolean duplicates, List<IRObject> thearray, RArray otherpair, boolean executable){
     	this.id         = id;
         this.array      = thearray;
     	this.code       = null;
@@ -185,7 +185,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
      */
     public RArray(int id, boolean duplicates, boolean executable){
        this.id         = id;
-       array           = new ArrayList();
+       array           = new ArrayList<IRObject>();
        code            = null;
        this.executable = executable;
        dups            = duplicates;
@@ -198,7 +198,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
      * @param thearray
      * @param executable
      */
-    public RArray(int id, boolean duplicates, ArrayList thearray, boolean executable){
+    public RArray(int id, boolean duplicates, List<IRObject> thearray, boolean executable){
         this.id         = id;
         this.array      = thearray;
         this.code       = null;
@@ -212,7 +212,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
      * that can be cast to a typed Iterator.
      * @return
      */
-    public Iterator getIterator(){ 
+    public Iterator<IRObject> getIterator(){ 
     	uncache();
     	return array.iterator(); 
     }
@@ -273,7 +273,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
     /**
      * @see IRObject#arrayValue()
      */
-	public ArrayList<IRObject> arrayValue() throws RulesException {
+	public List<IRObject> arrayValue() throws RulesException {
 		uncache();
 		return array;
 	}
@@ -282,8 +282,18 @@ public class RArray extends ARObject implements Collection<IRObject> {
 	 */
 	public boolean equals(IRObject o) throws RulesException {
 		uncache();
-		if(o.type() != type) return false;
-		return ((RArray)o).array == array;
+		return ((RArray)o).array.equals(o.rArrayValue().array);
+	}
+	
+	/**
+	 * Allows the comparison of RArrays to Lists.  This actually works even
+	 * if this code gets called with another RArray.
+	 */
+	public boolean equals(Object o) {
+	    if(o instanceof Collection<?>){
+	        return ((Collection<?>)o).equals(array);
+	    }
+	    return false;
 	}
 	
 	/**
@@ -303,6 +313,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
 	       }
 	       return ps;
 	}
+	
 	/**
 	 * Implements the execution behavior of an RArray
 	 */
@@ -315,34 +326,31 @@ public class RArray extends ARObject implements Collection<IRObject> {
         }
         for(int cnt=0; cnt < code.length; cnt++){
             IRObject obj = code[cnt];
-            if(!obj.isExecutable() || obj.type()==type ){
-				state.datapush(obj);
-			}else{
-			    try{
-				   obj.execute(state);
-			    }catch(ConcurrentModificationException e){
-			       String ps = generatePostfix(cnt);
-			       RulesException re = new RulesException("access error",array.get(cnt).postFix(),e.toString()+"\r\n"+
-			    		   "This happens generally when you have attempted to modify an array\r\n "+
-			    		   "which is in the context because you are iterating over its contents\r\n"+
-			    		   "with a ForAll operator."+
-			    		   "");
-			       re.setPostfix(ps);
-			       throw re;
-			    }catch(RuntimeException e){
-			       String ps = generatePostfix(cnt);
-			       RulesException re = new RulesException("runtime error","RArray",e.toString());
-			       re.setPostfix(ps);
-			       throw re;
-			    }catch(RulesException e){
-			       String ps = generatePostfix(cnt);
-			       e.setPostfix(ps);
-			       throw e;
-			    }
-			}
+            try{
+			   obj.arrayExecute(state);
+		    }catch(ConcurrentModificationException e){
+		       String ps = generatePostfix(cnt);
+		       RulesException re = new RulesException("access error",array.get(cnt).postFix(),e.toString()+"\r\n"+
+		    		   "This happens generally when you have attempted to modify an array\r\n "+
+		    		   "which is in the context because you are iterating over its contents\r\n"+
+		    		   "with a ForAll operator."+
+		    		   "");
+		       re.setPostfix(ps);
+		       throw re;
+		    }catch(RuntimeException e){
+		       String ps = generatePostfix(cnt);
+		       RulesException re = new RulesException("runtime error","RArray",e.toString());
+		       re.setPostfix(ps);
+		       throw re;
+		    }catch(RulesException e){
+		       String ps = generatePostfix(cnt);
+		       e.setPostfix(ps);
+		       throw e;
+		    }
 		}
-		
 	}
+	
+	
 	/**
 	 * @see IRObject#getExecutable()
 	 */

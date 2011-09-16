@@ -19,9 +19,9 @@
 package com.dtrules.interpreter;
 
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.dtrules.decisiontables.RDecisionTable;
@@ -43,7 +43,6 @@ import com.dtrules.session.IRSession;
  * @author Paul Snow
  *
  */
-@SuppressWarnings({"unchecked"})
 public interface IRObject {
 
 	/**
@@ -81,6 +80,15 @@ public interface IRObject {
 	 * @throws RulesException
 	 */
 	void execute(DTState state) throws RulesException;
+	
+	/**
+	 * This method defines the executable behavior of a object within the 
+	 * Rules Interpreter.
+	 * @param state The Rules Engine State
+	 * @throws RulesException
+	 */
+	void arrayExecute(DTState state) throws RulesException;
+	
 	
 	/**
 	 * Returns an executable version of this object.  The non-executable behavior
@@ -204,7 +212,7 @@ public interface IRObject {
      * @return
      * @throws RulesException
      */
-    public ArrayList<IRObject>  arrayValue ()   throws RulesException;
+    public List<IRObject>       arrayValue ()   throws RulesException;
     /**
      * Return a RArray representation of this object.  
      * A Rules Exception will be thrown if no such representation exists.
@@ -232,7 +240,7 @@ public interface IRObject {
      * @return
      * @throws RulesException
      */
-    public HashMap              hashMapValue () throws RulesException;
+    public HashMap<IRObject,IRObject> hashMapValue () throws RulesException;
     /**
      * Return a RXmlValue representation of this object.  This method
      * can return an RNull as well, so it returns an IRObject.

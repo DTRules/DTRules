@@ -1,0 +1,875 @@
+<>
+	<decision_tables>
+		<decision_table>
+			<table_name>Compute_Eligibility</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>FIRST</Type>
+				<COMMENTS>The assumption of this structure is that these tables could provide an Integrated Eligibility solution.  Doing so would require us to evaluate what programs we are evaluating, and then process the eligibility rules for those programs.  Integrated Eligibility has the advantage of allowing multiple programs to leverage the same decision tables in their logic.  It also allows us to negotiate the interactions between programs (such as Medicaid and CHIP) which might provide the same sorts of services to the same populations, only under different rules and qualifications.  In evaluating CHIP correctly, we should first evaluate an applicant for Medicaid, since children that are eligible for Medicaid are excluded from CHIP (Medicaid serves the lowest income children, and provides more services than CHIP).</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1000</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts></contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment>CHIP</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>job.program is equal to CHIP</condition_description>
+					<condition_postfix>
+job.program CHIP streq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>2</condition_number>
+					<condition_comment>MEDICAID</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>job.program is equal to MEDICAID</condition_description>
+					<condition_postfix>
+job.program MEDICAID streq 
+</condition_postfix>
+					<condition_column column_number='2' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>3</condition_number>
+					<condition_comment>FOODSTAMPS</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>job.program is equal to FOODSTAMPS</condition_description>
+					<condition_postfix>
+job.program FOODSTAMPS streq 
+</condition_postfix>
+					<condition_column column_number='3' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>4</condition_number>
+					<condition_comment>If Not Any of these programs, Report Results Anyway</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>otherwise</condition_description>
+					<condition_postfix>
+otherwise 
+</condition_postfix>
+					<condition_column column_number='4' column_value='*'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Calculate the Individual Incomes</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Calculate_Individual_Income</action_description>
+					<action_postfix>
+Calculate_Individual_Income 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>2</action_number>
+					<action_comment>Get the Group Size for each individual</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Calculate_Group_Size</action_description>
+					<action_postfix>
+Calculate_Group_Size 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>3</action_number>
+					<action_comment>Evaluate for CHIP</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Evaluate_CHIP_Eligibility</action_description>
+					<action_postfix>
+Evaluate_CHIP_Eligibility 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>4</action_number>
+					<action_comment>Evaluate for MEDICAID</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Evaluate_MEDICAID_Eligibility</action_description>
+					<action_postfix>
+Evaluate_MEDICAID_Eligibility 
+</action_postfix>
+					<action_column column_number='2' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>5</action_number>
+					<action_comment>Evaluate for FOODSTAMPS</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Evaluate_FOODSTAMPS_Eligibilty</action_description>
+					<action_postfix>
+Evaluate_FOODSTAMPS_Eligibilty 
+</action_postfix>
+					<action_column column_number='3' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>6</action_number>
+					<action_comment>Build a set of Result Objects to report to the caller</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Evaluate_Results</action_description>
+					<action_postfix>
+Evaluate_Results 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements>
+				<policy_statement column='1'>
+					<policy_description>Evaluate CHIP Eligibility</policy_description>
+					<policy_statement_postfix>&quot;Evaluate CHIP Eligibility&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='2'>
+					<policy_description>Evaluate MEDICAID Eligiblity</policy_description>
+					<policy_statement_postfix>&quot;Evaluate MEDICAID Eligiblity&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='3'>
+					<policy_description>Evaluate Food Stamps Eligibility</policy_description>
+					<policy_statement_postfix>&quot;Evaluate Food Stamps Eligibility&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='4'>
+					<policy_description>We don&apos;t recogize the program &apos;{ job.program }&apos; selected.</policy_description>
+					<policy_statement_postfix>&quot;We don&apos;t recogize the program &apos;&quot; job.program cvs strconcat &quot;&apos; selected.&quot; strconcat</policy_statement_postfix>
+				</policy_statement>
+			</policy_statements>
+		</decision_table>
+		<decision_table>
+			<table_name>Calculate_Individual_Income</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>FIRST</Type>
+				<COMMENTS>Here we consider the income sources, and the nature of the income.  Some income is excluded from consideration in means testing.  Usually excluded income is from sources such as Child Support or other assistance programs.</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1010</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts>
+				<context_details>
+					<context_number>1</context_number>
+					<context_comment></context_comment>
+					<context_description>for all clients</context_description>
+					<context_postfix>
+dup clients forall pop 
+</context_postfix>
+				</context_details>
+				<context_details>
+					<context_number>2</context_number>
+					<context_comment></context_comment>
+					<context_description>for all incomes</context_description>
+					<context_postfix>
+dup incomes forall pop 
+</context_postfix>
+				</context_details>
+			</contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment>We include all earned income</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>income.earned == true</condition_description>
+					<condition_postfix>
+income.earned true beq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='Y'></condition_column>
+					<condition_column column_number='2' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>2</condition_number>
+					<condition_comment>We don&apos;t include all unearned income types</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>ExcludedIncomeTypes includes the string income.type</condition_description>
+					<condition_postfix>
+ExcludedIncomeTypes income.type memberof 
+</condition_postfix>
+					<condition_column column_number='2' column_value='N'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Add this income to the total income for this client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add income.amount to the client.totalIncome</action_description>
+					<action_postfix>
+income.amount  client.totalIncome + /client.totalIncome xdef 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements></policy_statements>
+		</decision_table>
+		<decision_table>
+			<table_name>Calculate_Group_Size</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>ALL</Type>
+				<COMMENTS>Calculates the Group Size for Each Person by looking at the relationships between people.  This is a critical, real world step, required in processing CHIP cases.  When a program is &quot;means&quot; tested, i.e. people whose income is less than X are qualified, then you have to define how to measure &quot;income&quot;.  Obviously most children (even children of millionaires) rarely have income.  So you measure the income of their parents.  But what if they are not living with their parents?  What if their brother is the millionaire? What if the parent makes 100K per year, but has 20 kids to support?  When do we begin to count dependents? In other words, do we count unborn children? (In these tables we do because Louisiana does!)
+
+The first step towards answering these questions is identifying the income group for each applicant.  In our logic here, we are only counting the income of parents and siblings over 18.  In a real world version, we would handle more relationships (Note:  In some states income groups are really this simple.  There are added costs to increasing the complexity of Income Groups!).
+
+Note that this table doesn&apos;t actually create the income group.  It just counts the number of members, and totals their income.  In a real system, we would likely create the group and persist it as part of our tracking (to justify past decisions in an audit).</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1020</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts>
+				<context_details>
+					<context_number>1</context_number>
+					<context_comment>For each client in the group, we need to calculate a group size (we only need to do this for applying clients)</context_comment>
+					<context_description>for all clients whose applying == true</context_description>
+					<context_postfix>
+{ dup applying true beq if } clients forall pop 
+</context_postfix>
+				</context_details>
+				<context_details>
+					<context_number>2</context_number>
+					<context_comment>We want to compare a client against every other client in the case, so we set up a local variable to point to ThisClient</context_comment>
+					<context_description>local entity ThisClient = client</context_description>
+					<context_postfix>
+client cve allocate execute deallocate pop 
+</context_postfix>
+				</context_details>
+				<context_details>
+					<context_number>3</context_number>
+					<context_comment>Now consider the client in respect to all the other clients in the case (We need to consider all clients in the case, even if not applying)</context_comment>
+					<context_description>for all clients</context_description>
+					<context_postfix>
+dup clients forall pop 
+</context_postfix>
+				</context_details>
+			</contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment>Are we consider the client themselves?</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>ThisClient == client</condition_description>
+					<condition_postfix>
+0 local@  client req  
+</condition_postfix>
+					<condition_column column_number='1' column_value='Y'></condition_column>
+					<condition_column column_number='2' column_value='Y'></condition_column>
+					<condition_column column_number='9' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>2</condition_number>
+					<condition_comment>Include ThisClient&apos;s parents</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>the client is the parent of ThisClient</condition_description>
+					<condition_postfix>
+/source client /target 0 local@  /type parent relationships findmatch swap pop
+</condition_postfix>
+					<condition_column column_number='3' column_value='Y'></condition_column>
+					<condition_column column_number='4' column_value='Y'></condition_column>
+					<condition_column column_number='10' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>3</condition_number>
+					<condition_comment>Include ThisClient&apos;s siblings</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>the client is the sibling of ThisClient</condition_description>
+					<condition_postfix>
+/source client /target 0 local@  /type sibling relationships findmatch swap pop
+</condition_postfix>
+					<condition_column column_number='5' column_value='Y'></condition_column>
+					<condition_column column_number='6' column_value='Y'></condition_column>
+					<condition_column column_number='11' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>4</condition_number>
+					<condition_comment>Include ThisClient&apos;s children</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>the client is the child of ThisClient</condition_description>
+					<condition_postfix>
+/source client /target 0 local@  /type child relationships findmatch swap pop
+</condition_postfix>
+					<condition_column column_number='7' column_value='Y'></condition_column>
+					<condition_column column_number='12' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>5</condition_number>
+					<condition_comment>Include the unborn children in some cases</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>the client.pregnant == true</condition_description>
+					<condition_postfix>
+client.pregnant true beq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='N'></condition_column>
+					<condition_column column_number='2' column_value='Y'></condition_column>
+					<condition_column column_number='3' column_value='N'></condition_column>
+					<condition_column column_number='4' column_value='Y'></condition_column>
+					<condition_column column_number='5' column_value='N'></condition_column>
+					<condition_column column_number='6' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>6</condition_number>
+					<condition_comment>Is this client older than 18</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>client.age &gt; 18</condition_description>
+					<condition_postfix>
+client.age 18 &gt; 
+</condition_postfix>
+					<condition_column column_number='9' column_value='Y'></condition_column>
+					<condition_column column_number='10' column_value='Y'></condition_column>
+					<condition_column column_number='11' column_value='Y'></condition_column>
+					<condition_column column_number='12' column_value='Y'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Count the Client himself and particular relatives</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add 1 to ThisClient&apos;s IncomeGroupCount</action_description>
+					<action_postfix>
+1  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+					<action_column column_number='5' column_value='X'></action_column>
+					<action_column column_number='6' column_value='X'></action_column>
+					<action_column column_number='7' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>2</action_number>
+					<action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add expectedChildren to ThisClient&apos;s IncomeGroupCount</action_description>
+					<action_postfix>
+expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
+</action_postfix>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+					<action_column column_number='6' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>3</action_number>
+					<action_comment>Add this person&apos;s Income to the ThisPerson&apos;s total group income</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add the client.totalIncome to ThisClient&apos;s totalGroupIncome</action_description>
+					<action_postfix>
+client.totalIncome  0 local@  entitypush totalGroupIncome + /totalGroupIncome xdef entitypop 
+</action_postfix>
+					<action_column column_number='9' column_value='X'></action_column>
+					<action_column column_number='10' column_value='X'></action_column>
+					<action_column column_number='11' column_value='X'></action_column>
+					<action_column column_number='12' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements></policy_statements>
+		</decision_table>
+		<decision_table>
+			<table_name>Evaluate_CHIP_Eligibility</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>ALL</Type>
+				<COMMENTS>Once we have computed the size of the income group for an applicant, then we can compute the Federal Poverty Limit (FPL) for that applicant.  The Federal Poverty Limit is the amount of income for a group that defines poverty.  Means tested programs in the United States are generally defined as some percentage or multiple of the FPL.  
+
+An appropriate income is only one requirement for CHIP.  All the others required by Louisiana are also included in this table.</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1030</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts>
+				<context_details>
+					<context_number>1</context_number>
+					<context_comment></context_comment>
+					<context_description>for all clients whose applying == true</context_description>
+					<context_postfix>
+{ dup applying true beq if } clients forall pop 
+</context_postfix>
+				</context_details>
+				<context_details>
+					<context_number>2</context_number>
+					<context_comment>FPL = the Federal Poverty Limit calculated for the number of people in this client&apos;s Income Group.</context_comment>
+					<context_description>local int FPL = FPL_Base + FPL_PerAdditionalPerson * (client.IncomeGroupCount - 1 )</context_description>
+					<context_postfix>
+FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate execute deallocate pop 
+</context_postfix>
+				</context_details>
+				<context_details>
+					<context_number>3</context_number>
+					<context_comment>FPL200 = 200 percent of the Federal Poverty Limit</context_comment>
+					<context_description>local int FPL200 = FPL * 2</context_description>
+					<context_postfix>
+0 local@  2 *  cvi allocate execute deallocate pop 
+</context_postfix>
+				</context_details>
+			</contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment>Are you a citizen?</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>validatedCitizenship == true</condition_description>
+					<condition_postfix>
+validatedCitizenship true beq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>2</condition_number>
+					<condition_comment>If not a citizen,  are you a legal immigrant(Lawfully present immigrant children who have not been in the country for 5 years)</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>validatedImmigrationStatus == true</condition_description>
+					<condition_postfix>
+validatedImmigrationStatus true beq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>3</condition_number>
+					<condition_comment>Group income must be &lt;=200 percent of the Federal Poverty Limit</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>client.totalGroupIncome &lt;= FPL200</condition_description>
+					<condition_postfix>
+client.totalGroupIncome 1 local@  &lt;= 
+</condition_postfix>
+					<condition_column column_number='2' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>4</condition_number>
+					<condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>uninsured</condition_description>
+					<condition_postfix>
+uninsured 
+</condition_postfix>
+					<condition_column column_number='3' column_value='N'></condition_column>
+					<condition_column column_number='4' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>5</condition_number>
+					<condition_comment>If we have no lost Insurance date, and we are uninsured, then the client was never insured.</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>lostInsuranceDate is null</condition_description>
+					<condition_postfix>
+lostInsuranceDate  isnull 
+</condition_postfix>
+					<condition_column column_number='4' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>6</condition_number>
+					<condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>lostInsuranceDate + 90 days is greater than the currentdate</condition_description>
+					<condition_postfix>
+lostInsuranceDate  90  adddays currentdate d&gt; 
+</condition_postfix>
+					<condition_column column_number='4' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>7</condition_number>
+					<condition_comment>Make sure this case is in the appropriate county</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>The CoveredCounties includes the string case.county_Cd</condition_description>
+					<condition_postfix>
+CoveredCounties case.county_Cd memberof 
+</condition_postfix>
+					<condition_column column_number='5' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>8</condition_number>
+					<condition_comment>Age limit should be &lt;=18 years</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>client.age &lt;= 18</condition_description>
+					<condition_postfix>
+client.age 18 &lt;= 
+</condition_postfix>
+					<condition_column column_number='6' column_value='N'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>9</condition_number>
+					<condition_comment>If you are eligible for Medicaid, then you are not eligible for CHIP</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>eligibleForMedicaid == true</condition_description>
+					<condition_postfix>
+eligibleForMedicaid true beq 
+</condition_postfix>
+					<condition_column column_number='7' column_value='Y'></condition_column>
+				</condition_details>
+				<condition_details>
+					<condition_number>10</condition_number>
+					<condition_comment>Otherwise the client is eligible</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>otherwise</condition_description>
+					<condition_postfix>
+otherwise 
+</condition_postfix>
+					<condition_column column_number='8' column_value='*'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Record the fpl for this client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>set the client_fpl = fpl</action_description>
+					<action_postfix>
+0 local@   cvi /client_fpl xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+					<action_column column_number='5' column_value='X'></action_column>
+					<action_column column_number='6' column_value='X'></action_column>
+					<action_column column_number='7' column_value='X'></action_column>
+					<action_column column_number='8' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>2</action_number>
+					<action_comment>Provide reasons for rejection</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>set client.eligible = false</action_description>
+					<action_postfix>
+false cvb /client.eligible xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+					<action_column column_number='5' column_value='X'></action_column>
+					<action_column column_number='6' column_value='X'></action_column>
+					<action_column column_number='7' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>3</action_number>
+					<action_comment>If none of the eligiblity exclusions fired, then the client is eligible</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>set client.eligible = true</action_description>
+					<action_postfix>
+true cvb /client.eligible xdef  
+</action_postfix>
+					<action_column column_number='8' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>4</action_number>
+					<action_comment>Record the client&apos;s income</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add &quot;Client Income = &quot; + client.totalGroupIncome to the client.notes</action_description>
+					<action_postfix>
+&quot;Client Income = &quot; client.totalGroupIncome strconcat client.notes swap addto 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+					<action_column column_number='5' column_value='X'></action_column>
+					<action_column column_number='6' column_value='X'></action_column>
+					<action_column column_number='7' column_value='X'></action_column>
+					<action_column column_number='8' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>5</action_number>
+					<action_comment>Record the reasoning.</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add the policy statements to the client.notes</action_description>
+					<action_postfix>
+policystatements client.notes true  addarray 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+					<action_column column_number='2' column_value='X'></action_column>
+					<action_column column_number='3' column_value='X'></action_column>
+					<action_column column_number='4' column_value='X'></action_column>
+					<action_column column_number='5' column_value='X'></action_column>
+					<action_column column_number='6' column_value='X'></action_column>
+					<action_column column_number='7' column_value='X'></action_column>
+					<action_column column_number='8' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements>
+				<policy_statement column='1'>
+					<policy_description>The Client is not a validated Citizen, nor a validated immigrant</policy_description>
+					<policy_statement_postfix>&quot;The Client is not a validated Citizen, nor a validated immigrant&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='2'>
+					<policy_description>The Client&apos;s total group income, {client.totalGroupIncome}, is greater than 200 percent of the FPL {FPL200}</policy_description>
+					<policy_statement_postfix>&quot;The Client&apos;s total group income, &quot; client.totalGroupIncome cvs strconcat &quot;, is greater than 200 percent of the FPL &quot; s+ 1 local@  cvs strconcat &quot;&quot; strconcat</policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='3'>
+					<policy_description>The Client must be uninsured to qualify for CHIP</policy_description>
+					<policy_statement_postfix>&quot;The Client must be uninsured to qualify for CHIP&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='4'>
+					<policy_description>The Client must be uninsured for 90 days or more to qualify for CHIP</policy_description>
+					<policy_statement_postfix>&quot;The Client must be uninsured for 90 days or more to qualify for CHIP&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='5'>
+					<policy_description>The Client is not in a covered county</policy_description>
+					<policy_statement_postfix>&quot;The Client is not in a covered county&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='6'>
+					<policy_description>The Client must be 18 or younger to qualify for CHIP</policy_description>
+					<policy_statement_postfix>&quot;The Client must be 18 or younger to qualify for CHIP&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='7'>
+					<policy_description>The Client is eligible for Medicaid, so they are not eligible for CHIP</policy_description>
+					<policy_statement_postfix>&quot;The Client is eligible for Medicaid, so they are not eligible for CHIP&quot; </policy_statement_postfix>
+				</policy_statement>
+				<policy_statement column='8'>
+					<policy_description>The Client is eligible for CHIP</policy_description>
+					<policy_statement_postfix>&quot;The Client is eligible for CHIP&quot; </policy_statement_postfix>
+				</policy_statement>
+			</policy_statements>
+		</decision_table>
+		<decision_table>
+			<table_name>Evaluate_MEDICAID_Eligibility</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>FIRST</Type>
+				<COMMENTS>At this time we are not evaluating Medicaid Clients</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1040</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts>
+				<context_details>
+					<context_number>1</context_number>
+					<context_comment></context_comment>
+					<context_description>for all clients</context_description>
+					<context_postfix>
+dup clients forall pop 
+</context_postfix>
+				</context_details>
+			</contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment>Is this client applying for this program?</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>client.applying == true</condition_description>
+					<condition_postfix>
+client.applying true beq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='Y'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Reject the client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>set client.eligible = false</action_description>
+					<action_postfix>
+false cvb /client.eligible xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>2</action_number>
+					<action_comment>Note rejection reason</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add &quot;The System does not yet support Medicaid Applications&quot; to client.notes</action_description>
+					<action_postfix>
+&quot;The System does not yet support Medicaid Applications&quot; client.notes swap addto 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements></policy_statements>
+		</decision_table>
+		<decision_table>
+			<table_name>Evaluate_FOODSTAMPS_Eligibilty</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>FIRST</Type>
+				<COMMENTS>At this time we are not evaluating Food Stamp Clients</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1050</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts>
+				<context_details>
+					<context_number>1</context_number>
+					<context_comment></context_comment>
+					<context_description>for all clients</context_description>
+					<context_postfix>
+dup clients forall pop 
+</context_postfix>
+				</context_details>
+			</contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment>Is this client applying for this program?</condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>client.applying == true</condition_description>
+					<condition_postfix>
+client.applying true beq 
+</condition_postfix>
+					<condition_column column_number='1' column_value='Y'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Reject the client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>set client.eligible = false</action_description>
+					<action_postfix>
+false cvb /client.eligible xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>2</action_number>
+					<action_comment>Note rejection reason</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add &quot;The System does not yet support Food Stamp Applications&quot; to client.notes</action_description>
+					<action_postfix>
+&quot;The System does not yet support Food Stamp Applications&quot; client.notes swap addto 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements></policy_statements>
+		</decision_table>
+		<decision_table>
+			<table_name>Evaluate_Results</table_name>
+			<xls_file>ChipEligibility_dt.xls</xls_file>
+			<attribute_fields>
+				<Type>FIRST</Type>
+				<COMMENTS>This table builds a Result Object which gets added to a list on the Job Entity.  The code in the driving program can use this result object to update a database, report eligibility in a UI, or send the result back over a web service call, etc.  Technically, the calling program has access to everything in the Rules Engine state, so the calling program could access the clients directly.  However, it is often useful to have a set of Result objects to make the Rules Engine/ Application interface as simple as possible.</COMMENTS>
+				<File_Name>ChipEligibility_dt.xls</File_Name>
+				<TABLE_NUMBER>1060</TABLE_NUMBER>
+			</attribute_fields>
+			<contexts>
+				<context_details>
+					<context_number>1</context_number>
+					<context_comment></context_comment>
+					<context_description>for all clients whose applying == true</context_description>
+					<context_postfix>
+{ dup applying true beq if } clients forall pop 
+</context_postfix>
+				</context_details>
+			</contexts>
+			<initial_actions></initial_actions>
+			<conditions>
+				<condition_details>
+					<condition_number>1</condition_number>
+					<condition_comment></condition_comment>
+					<condition_requirement></condition_requirement>
+					<condition_description>perform when called</condition_description>
+					<condition_postfix>
+perform when called 
+</condition_postfix>
+					<condition_column column_number='1' column_value='*'></condition_column>
+				</condition_details>
+			</conditions>
+			<actions>
+				<action_details>
+					<action_number>1</action_number>
+					<action_comment>Create a Result Record</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add a new Result entity to the context of this table</action_description>
+					<action_postfix>
+/Result createentity entitypush 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>2</action_number>
+					<action_comment>Add the record to the list on the job</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>add the result to the job.results</action_description>
+					<action_postfix>
+result job.results swap addto 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>3</action_number>
+					<action_comment>Point the Result notes to the Client notes</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.notes = client.notes</action_description>
+					<action_postfix>
+client.notes /Result.notes xdef 
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>4</action_number>
+					<action_comment>Copy the client ID</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.client_id = client.id</action_description>
+					<action_postfix>
+client.id  cvs /Result.client_id xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>5</action_number>
+					<action_comment>Point the Result to the client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.client = client.client</action_description>
+					<action_postfix>
+client.client cve /Result.client xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>6</action_number>
+					<action_comment>Set the Result to the program we processed</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.program = job.program</action_description>
+					<action_postfix>
+job.program cvs /Result.program xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>7</action_number>
+					<action_comment>Set the Result programLevel to that recorded on the client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.programLevel = client.programLevel</action_description>
+					<action_postfix>
+client.programLevel cvs /Result.programLevel xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>8</action_number>
+					<action_comment>Set the Result eligible flag to that recorded on the client</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.eligible = client.eligible</action_description>
+					<action_postfix>
+client.eligible cvb /Result.eligible xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>9</action_number>
+					<action_comment>Set the Result Federal Poverty Level to the client&apos;s</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.client_fpl = client.client_fpl</action_description>
+					<action_postfix>
+client.client_fpl  cvi /Result.client_fpl xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+				<action_details>
+					<action_number>10</action_number>
+					<action_comment>Set the Result&apos;s totalGroupIncome to the clients.</action_comment>
+					<action_requirement></action_requirement>
+					<action_description>Set Result.totalGroupIncome = client.totalGroupIncome</action_description>
+					<action_postfix>
+client.totalGroupIncome  cvi /Result.totalGroupIncome xdef  
+</action_postfix>
+					<action_column column_number='1' column_value='X'></action_column>
+				</action_details>
+			</actions>
+			<policy_statements></policy_statements>
+		</decision_table>
+	</decision_tables>

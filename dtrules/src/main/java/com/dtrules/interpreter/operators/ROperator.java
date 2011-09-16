@@ -25,6 +25,7 @@ import com.dtrules.interpreter.ARObject;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RType;
+import com.dtrules.session.DTState;
 
 /**
  * This Class creates the primities entity in a rather cute way.  The actual operators
@@ -39,7 +40,7 @@ import com.dtrules.interpreter.RType;
  * @author paul snow
  *
  */
-public class ROperator extends ARObject {
+public abstract class ROperator extends ARObject {
     
 	public static RType type = RType.newType("operator");
 	
@@ -58,7 +59,7 @@ public class ROperator extends ARObject {
         new RXmlValueOps();
         new RStringOps();
 	}
-	
+		
 	static public IREntity getPrimitives() { 
 		return primitives; 
 	}
@@ -189,4 +190,10 @@ public class ROperator extends ARObject {
     public String postFix(){
 		return name.stringValue();
 	}
+    
+    abstract public void arrayExecute(DTState state) throws RulesException ;
+    
+    public void execute(DTState state) throws RulesException {
+    	arrayExecute(state);
+    }
 }
