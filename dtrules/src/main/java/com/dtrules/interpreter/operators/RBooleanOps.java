@@ -426,7 +426,8 @@ public class RBooleanOps {
 
 	    /**
 	     * Req( object1 object2 -- Boolean )
-	     * Req Operator, compares the two objects using equals and returns the boolean value
+	     * Req Operator, compares the two objects using the java equals() function off the first object 
+	     * and returns true if equals() returns true. 
 	     */
 		public static class Req extends ROperator {
 			Req(){super("req");}
