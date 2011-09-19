@@ -83,8 +83,20 @@ public abstract class ATestHarness implements ITestHarness {
     public void   setRulesDirectoryFile(String rulesDirectoryFile)  { this.rulesDirectoryFile = rulesDirectoryFile; }
 
     public void load(String settings) throws Exception{
-    	InputStream s = new FileInputStream(settings);
-    	GenericXMLParser.load(s, new LoadSettings(this));
+        InputStream s = null;
+        try{
+            s = new FileInputStream(settings);
+        }catch(Exception e){
+            String msg = "Failed to open the settings file: '"+settings+"'\n";
+            throw new RulesException("undefined", "ATestHarness.load", msg+e.toString());
+        }
+        try{
+            GenericXMLParser.load(s, new LoadSettings(this));
+        }catch(Exception e){
+            String msg = "Failed to parse the settings file: '"+settings+"'\n";
+            throw new RulesException("undefined", "ATestHarness.load", msg+e.toString());
+        }
+
     }
     
     @Override
