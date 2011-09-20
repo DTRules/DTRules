@@ -146,7 +146,7 @@ public interface IRSession {
      * @param state
      * @param iRObjname
      */
-    public void printEntityReport(IXMLPrinter rpt, DTState state, String iRObjname );
+    public void printEntityReport(IXMLPrinter rpt, DTState state, String iRObjectName );
     /**
      * Prints the given object to the given XML printer
      * @param rpt
