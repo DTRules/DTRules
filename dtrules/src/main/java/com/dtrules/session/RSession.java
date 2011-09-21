@@ -460,8 +460,7 @@ public class RSession implements IRSession {
      public void printEntityReport(IXMLPrinter rpt, boolean printIds, boolean verbose, DTState state, String name, IRObject obj ) {
          this.printIds = printIds;
          ArrayList<IRObject> entitypath = new ArrayList<IRObject>();
-         ArrayList<IRObject> printed = null;
-         if (!verbose) printed = new ArrayList<IRObject>();
+         ArrayList<IRObject> printed = new ArrayList<IRObject>();
          try {
              if(obj==null){
                  rpt.printdata("unknown", "object", name,null);
