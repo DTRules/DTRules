@@ -357,17 +357,7 @@ public class REntity extends ARObject implements IREntity {
 	}
 
 	public String toString(){
-		String v = name.stringValue()+" = {";
-        Iterator<RName> ia = getAttributeIterator();
-        while(ia.hasNext()){
-            RName    n = ia.next();
-            IRObject o = get(n);
-            if(o==null){                // Protect ourselves from nulls.
-                o = RNull.getRNull();
-            }
-            v +=n.stringValue()+" = "+get(n).stringValue()+"  ";
-        }
-        v +="}";
+		String v = name.stringValue()+"["+getID()+"]";
         return v;
         
 	}
