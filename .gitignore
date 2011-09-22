@@ -25,9 +25,6 @@ classes
 generated-sources
 surefire-reports
 test-classes
-.classpath
-.project
-.settings
 .metadata
 pom.xml.releaseBackup
 testfiles/

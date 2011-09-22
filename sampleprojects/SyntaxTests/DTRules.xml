@@ -1,0 +1,16 @@
+<DTRules>
+
+  <RuleSet name="SyntaxExamples" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables/</DTExcelFolder>
+     <EDDExcelFile>/edd</EDDExcelFile>
+
+     <Entities        name="syntaxexample_edd.xml" />
+     <Decisiontables  name="syntaxexample_dt.xml"  />
+     <Map             name="syntaxexample_map.xml" />
+  </RuleSet>    
+
+</DTRules>
+
