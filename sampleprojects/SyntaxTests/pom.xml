@@ -15,23 +15,27 @@
 
 	<parent>
 		<groupId>com.dtrules</groupId>
-		<artifactId>dtrules</artifactId>
+		<artifactId>sampleprojects</artifactId>
 		<version>5.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
-	<artifactId>sampleprojects</artifactId>
-	<packaging>pom</packaging>
+	<artifactId>SyntaxTests</artifactId>
+	<packaging>bundle</packaging>
 
-	<name>DTRules :: SampleProjects</name>
+	<name>DTRules :: Syntax Test Project</name>
 
-	<modules>
-		<module>CHIP</module>
-		<module>ChipApp</module>
-		<module>KidAid</module>
-		<module>KidAid_Application</module>
-		<module>SyntaxTests</module>
-		<module>TestProject</module>
-	</modules>
+	<dependencies>
+		<dependency>
+			<groupId>com.dtrules</groupId>
+			<artifactId>dtrules</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dtrules</groupId>
+			<artifactId>compilerutil</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
 </project>

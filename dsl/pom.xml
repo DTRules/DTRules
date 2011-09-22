@@ -15,7 +15,7 @@
 
 	<parent>
 		<groupId>com.dtrules</groupId>
-		<artifactId>dtrules-parent</artifactId>
+		<artifactId>dtrules</artifactId>
 		<version>5.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
