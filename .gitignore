@@ -29,11 +29,5 @@ test-classes
 pom.xml.releaseBackup
 testfiles/
 .~*
+._*
 
-dsl/el/src/main/java/com/dtrules/compiler/el/flex/scanner/DTRulesscanner.java~
-
-dsl/el/src/main/java/com/dtrules/compiler/el/flex/scanner/DTRulesscanner.java
-
-dsl/el/src/main/java/com/dtrules/compiler/el/cup/parser/sym.java
-
-dsl/el/src/main/java/com/dtrules/compiler/el/cup/parser/DTRulesParser.java
