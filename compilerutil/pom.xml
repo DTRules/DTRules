@@ -21,7 +21,7 @@
 	</parent>
 
 	<artifactId>compilerutil</artifactId>
-	<packaging>bundle</packaging>
+	<packaging>jar</packaging>
 
 	<name>DTRules :: Compiler Utilities</name>
 

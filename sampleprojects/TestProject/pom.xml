@@ -28,11 +28,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dtrules</groupId>
-			<artifactId>dtrules</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dtrules</groupId>
 			<artifactId>compilerutil</artifactId>
 			<version>${project.version}</version>
 		</dependency>
