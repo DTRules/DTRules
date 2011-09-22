@@ -27,35 +27,26 @@ if } clients forall pop
 <context_comment>Error</context_comment>
 <context_description>// for each case and its address in the job.cases</context_description>
 <context_postfix></context_postfix></context_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:57 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <context_details>
 <context_number>4</context_number>
 <context_comment>Error</context_comment>
-<context_description>for all clients // for each case and its address in the job.cases allowing cases to be removed</context_description>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details>
+<context_description>// for each case and its address in the job.cases allowing cases to be removed</context_description>
+<context_postfix></context_postfix></context_details>
 <context_details>
 <context_number>5</context_number>
 <context_comment>Error</context_comment>
-<context_description>for all clients // for each case and its address in the job.cases where &apos;Austin&apos;==city</context_description>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details>
+<context_description>// for each case and its address in the job.cases where &apos;Austin&apos;==city</context_description>
+<context_postfix></context_postfix></context_details>
 <context_details>
 <context_number>6</context_number>
 <context_comment>Error</context_comment>
-<context_description>for all clients // For each case and its address in the job.cases where street == &apos;Opal&apos; allowing job.Cases to be removed</context_description>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details>
+<context_description>// For each case and its address in the job.cases where street == &apos;Opal&apos; allowing job.Cases to be removed</context_description>
+<context_postfix></context_postfix></context_details>
 <context_details>
 <context_number>7</context_number>
 <context_comment>Error</context_comment>
-<context_description>for all clients // For each case and its address in the job.cases where street == &apos;Opal&apos; allowing job.Cases to be removed</context_description>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details>
+<context_description>// For each case and its address in the job.cases where street == &apos;Opal&apos; allowing job.Cases to be removed</context_description>
+<context_postfix></context_postfix></context_details>
 <context_details>
 <context_number>8</context_number>
 <context_comment></context_comment>
@@ -291,9 +282,7 @@ null allocate execute
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// for first of job.cases where validatedCitizenship == true then { set eligible = true }</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>4</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -356,9 +345,7 @@ effectivedate cvd /currentdate xdef
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// set table = tableValue</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>12</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -428,9 +415,7 @@ dateofBirth cvs /birthday xdef
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// set string = table</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>21</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -452,9 +437,7 @@ currentdate cvd /effectivedate xdef
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// set table = tableValue</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>24</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -468,17 +451,13 @@ cases /interestingCases xdef
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// increment totalincome</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>26</intial_action_number>
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// perform Syntax_Examples and on error add the ErrorDetails to the context and call Error_handling_table</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>27</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -516,9 +495,7 @@ client interestingCases swap addto
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// add client to InterestingCases and program</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>32</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -540,9 +517,7 @@ clients cases true  addarray
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// add case_ID to interestingCases and to client_ID</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>35</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -564,9 +539,7 @@ effectiveDate interestingDates swap addto
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// Add 42 to totalincome and totalgroupincome</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>38</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -596,9 +569,7 @@ locations  mailingaddress add_no_dups
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// add mailingaddress if not member to locations and homeAddress</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>42</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -628,9 +599,7 @@ client entitypush
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// remove totalgroupincome element from incomes array</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>46</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -708,9 +677,7 @@ clients /steve false sortentities
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// case&apos;s clients</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>56</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -764,9 +731,7 @@ clients deepcopy /interestingClients xdef
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// set errorCodes = array_of_values [ jobs, cases, clients ]</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>63</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -948,9 +913,7 @@ client entitypush currentDate entitypop cvd /effectiveDate xdef
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>// set effectiveDate = importantDates&apos;s effectiveDate</initial_action_description>
-<initial_action_postfix>
-
-</initial_action_postfix></initial_action_details>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>86</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -1202,25 +1165,19 @@ street zip strconcat cvs /parent xdef
 <action_comment>set tips = (string) 45</action_comment>
 <action_requirement></action_requirement>
 <action_description>// set tips = (string) 45</action_description>
-<action_postfix>
-
-</action_postfix></action_details>
+<action_postfix></action_postfix></action_details>
 <action_details>
 <action_number>10</action_number>
 <action_comment>set importantDates = (string) effectiveDate</action_comment>
 <action_requirement></action_requirement>
 <action_description>// set importantDates = (string) effectiveDate</action_description>
-<action_postfix>
-
-</action_postfix></action_details>
+<action_postfix></action_postfix></action_details>
 <action_details>
 <action_number>11</action_number>
 <action_comment>set parent = cvs (pregnant = false)</action_comment>
 <action_requirement></action_requirement>
 <action_description>// set parent = cvs (pregnant = false)</action_description>
-<action_postfix>
-
-</action_postfix></action_details>
+<action_postfix></action_postfix></action_details>
 <action_details>
 <action_number>12</action_number>
 <action_comment></action_comment>
