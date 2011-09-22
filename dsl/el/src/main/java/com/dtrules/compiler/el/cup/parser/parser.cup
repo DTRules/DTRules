@@ -201,7 +201,16 @@ precedence left USING, POSSESSIVE, COLON;
 
 
 
-done ::= ACTION statement_list:e                   {: RESULT = "\n"+e+"\n"; :}
+done ::=
+      ACTION SEMI                    {: RESULT = ""; :} // We allow blank values for all sections.
+      |                                                 // This allows us to comment out statements.
+      CONDITION SEMI                 {: RESULT = ""; :}
+      |
+      CONTEXT SEMI                   {: RESULT = ""; :}
+      |
+      POLICYSTATEMENT SEMI           {: RESULT = ""; :}
+      |
+      ACTION statement_list:e                      {: RESULT = "\n"+e+"\n"; :}
 	  |
       CONDITION bexpr:e                       SEMI {: RESULT = "\n"+e+"\n"; :}
       |
@@ -245,8 +254,7 @@ statement ::=  setstatement:e       separator {: RESULT = e;         :} |
                operatorstatements:e separator {: RESULT = e;         :} |
                contextstatement:e   separator {: RESULT = e;         :} |
                datestatement:e      separator {: RESULT = e;         :} |
-               xmlvaluestatements:e separator {: RESULT = e;         :} |
-               separator                      {: RESULT = "";        :} ;  // Allow the null statement
+               xmlvaluestatements:e separator {: RESULT = e;         :} ;
                    
 usingblock   ::= RENTITY:ee        usingblock:e               {: RESULT = ee + " entitypush "+e+"entitypop ";  :} |
                  RENTITY:ee COMMA  usingblock:e               {: RESULT = ee + " entitypush "+e+"entitypop ";  :} |

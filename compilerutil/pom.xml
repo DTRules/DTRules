@@ -15,13 +15,13 @@
 
 	<parent>
 		<groupId>com.dtrules</groupId>
-		<artifactId>dtrules-parent</artifactId>
+		<artifactId>dtrules</artifactId>
 		<version>5.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
 	<artifactId>compilerutil</artifactId>
-	<packaging>bundle</packaging>
+	<packaging>jar</packaging>
 
 	<name>DTRules :: Compiler Utilities</name>
 
