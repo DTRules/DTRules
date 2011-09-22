@@ -4,8 +4,8 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="lib" path="lib/java-cup-11a.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.6-20091214.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/DSLCompiler2"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/DTRules"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/EL"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/compilerutil"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dtrules"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/el"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
