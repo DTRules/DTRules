@@ -167,7 +167,7 @@ else
      set test = true ;
  endif</action_description>
 <action_postfix>
-{ false cvb 6 local!  } { true cvb 6 local!  } }9 local@  currentdate d== ifelse 
+{ false cvb 6 local!  } { true cvb 6 local!  } 9 local@  currentdate d== ifelse 
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
@@ -2389,6 +2389,22 @@ errorCodes  isnull not
 <condition_description>firstClient is not null</condition_description>
 <condition_postfix>
 2 local@   isnull not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>27</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>using firstClient ( pregnant )</condition_description>
+<condition_postfix>
+2 local@  entitypush pregnant entitypop 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>28</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>( pregnant )</condition_description>
+<condition_postfix>
+pregnant 
 </condition_postfix></condition_details></conditions>
 <actions></actions>
 <policy_statements></policy_statements></decision_table>

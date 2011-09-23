@@ -318,8 +318,8 @@ localvariables ::=
 					  
 // Only use the IF statement in extreme circumstances.
 ifstatement ::=
-             IF bexpr:b THEN block:blk1 ENDIF                     {: RESULT = "{ "+blk1+"} "              +b+ "if "    ; :} |					  
-			 IF bexpr:b THEN block:blk1 ELSE block:blk2 ENDIF     {: RESULT = "{ "+blk1+"} { "+blk2+"} }" +b+ "ifelse "; :} ;
+             IF bexpr:b THEN block:blk1 ENDIF                     {: RESULT = "{ "+blk1+"} "             +b+ "if "    ; :} |					  
+			 IF bexpr:b THEN block:blk1 ELSE block:blk2 ENDIF     {: RESULT = "{ "+blk1+"} { "+blk2+"} " +b+ "ifelse "; :} ;
 		
 
 // The Control statements assume the object that should be executed as
