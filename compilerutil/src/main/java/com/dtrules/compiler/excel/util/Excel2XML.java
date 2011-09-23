@@ -60,7 +60,7 @@ public class Excel2XML {
     String                rulesDirectoryXML;
     String                ruleset;
     DTCompiler            dtcompiler = null;
-    boolean               verbose = false;
+    boolean               verbose = true;
     /**
      * Returns the ruleSet being used by this compiler
      * @return

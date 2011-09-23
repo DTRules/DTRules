@@ -17,6 +17,7 @@
 package com.dtrules.samples.sampleproject2;
 
 import com.dtrules.compiler.excel.util.Excel2XML;
+import com.dtrules.deploy.StripXML;
 
 
 /**
@@ -38,8 +39,9 @@ public class CompileSyntaxExamples {
      */
     public static void main(String args[]) throws Exception { 
         try {
-            
-            Excel2XML.compile(path,"DTRules.xml","SyntaxExamples","repository");
+        	String maps[] = {"main"}; 
+            Excel2XML e2x = new Excel2XML(path, "DTRules.xml","SyntaxExamples");
+    		e2x.compileRuleSet(path,"DTRules.xml","SyntaxExamples","repository",maps,80);
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");

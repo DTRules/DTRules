@@ -21,7 +21,7 @@
 		<field name='relationships' type='array' subtype='' access='r' input='' default_value='' comment='The relationships between people in the case'></field>
 	</entity>
 	<entity name='client' access='rw' comment=''>
-		<field name='additionalIncome' type='float' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='additionalIncome' type='double' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='age' type='integer' subtype='' access='r' input='main' default_value='' comment='We simply get the age of the client'></field>
 		<field name='applying' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Is this client applying for the program'></field>
 		<field name='birthday' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
@@ -29,7 +29,7 @@
 		<field name='client_fpl' type='integer' subtype='' access='rw' input='' default_value='0' comment='The FPL percentage for this client.'></field>
 		<field name='client_ID' type='string' subtype='' access='r' input='main' default_value='' comment=''></field>
 		<field name='DateNumber' type='integer' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='dateofBirth' type='time' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='dateofBirth' type='date' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='disabled' type='boolean' subtype='' access='r' input='main' default_value='false' comment=''></field>
 		<field name='eligible' type='boolean' subtype='' access='rw' input='' default_value='true' comment='We assume the client is eligible until determined ineligible'></field>
 		<field name='expectedChildren' type='integer' subtype='' access='r' input='main' default_value='1' comment='Only valid if Pregnant'></field>
@@ -46,7 +46,7 @@
 		<field name='pregnant' type='boolean' subtype='' access='r' input='main' default_value='false' comment=''></field>
 		<field name='programLevel' type='string' subtype='' access='rw' input='' default_value='' comment='The program Level for which the client is eligible'></field>
 		<field name='totalGroupIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total Income for this client&apos;s Income Group'></field>
-		<field name='totalIncome' type='float' subtype='' access='rw' input='' default_value='0' comment='Total Income for this client'></field>
+		<field name='totalIncome' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Income for this client'></field>
 		<field name='validatedCitizenship' type='boolean' subtype='' access='r' input='main' default_value='' comment=''></field>
 	</entity>
 	<entity name='constants' access='rw' comment=''>
@@ -98,8 +98,8 @@
 	</entity>
 	<entity name='job' access='rw' comment=''>
 		<field name='cases' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='currentDate' type='time' subtype='' access='r' input='main' default_value='' comment='The current date.  May be different from the actual date'></field>
-		<field name='effectiveDate' type='time' subtype='' access='r' input='main' default_value='' comment='The Elgibility date if the clients prove eligible'></field>
+		<field name='currentDate' type='date' subtype='' access='r' input='main' default_value='' comment='The current date.  May be different from the actual date'></field>
+		<field name='effectiveDate' type='date' subtype='' access='r' input='main' default_value='' comment='The Elgibility date if the clients prove eligible'></field>
 		<field name='errorCodes' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='interestingCases' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
