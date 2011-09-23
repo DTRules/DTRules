@@ -29,5 +29,6 @@ test-classes
 pom.xml.releaseBackup
 testfiles/
 .~*
+*~
 ._*
 
