@@ -168,7 +168,8 @@ else
  endif</action_description>
 <action_postfix>
 { false cvb 6 local!  } { true cvb 6 local!  } }9 local@  currentdate d== ifelse 
-</action_postfix></action_details>
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
@@ -1154,27 +1155,26 @@ street zip strconcat cvs /parent xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>8</action_number>
-<action_comment>set wages = (string) 300.12</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set wages = (string) 300.12</action_description>
+<action_description>// set wages = (string) 300.12</action_description>
 <action_postfix></action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:28 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>9</action_number>
-<action_comment>set tips = (string) 45</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
 <action_description>// set tips = (string) 45</action_description>
 <action_postfix></action_postfix></action_details>
 <action_details>
 <action_number>10</action_number>
-<action_comment>set importantDates = (string) effectiveDate</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
 <action_description>// set importantDates = (string) effectiveDate</action_description>
 <action_postfix></action_postfix></action_details>
 <action_details>
 <action_number>11</action_number>
-<action_comment>set parent = cvs (pregnant = false)</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
 <action_description>// set parent = cvs (pregnant = false)</action_description>
 <action_postfix></action_postfix></action_details>
@@ -1252,32 +1252,28 @@ street clients strconcat cvs /street xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>20</action_number>
-<action_comment>set street = trim (zip)</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set street = trim (zip)</action_description>
+<action_description>// set street = trim (zip)</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:20 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>21</action_number>
-<action_comment>set programLevel = (string) [0,1,2,3]</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set programLevel = (string) [0,1,2,3]</action_description>
+<action_description>// set programLevel = (string) [0,1,2,3]</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:35 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>22</action_number>
-<action_comment>set street = change street to lower_case</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set street = change street to lower_case</action_description>
+<action_description>// set street = change street to lower_case</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:37 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>23</action_number>
-<action_comment>set importantDates = get current_timestamp</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set importantDates = get current_timestamp</action_description>
+<action_description>// set importantDates = get current_timestamp</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:32 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>24</action_number>
 <action_comment></action_comment>
@@ -1289,11 +1285,10 @@ client entitypush street entitypop cvs /street xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>25</action_number>
-<action_comment>set program = relationship_between client and case</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set program = relationship_between client and case</action_description>
+<action_description>// set program = relationship_between client and case</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:21 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>26</action_number>
 <action_comment></action_comment>
@@ -1440,18 +1435,16 @@ clients 0 getat  cvr /totalIncome xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>42</action_number>
-<action_comment>set totalIncome = multiply totalIncome by 2</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalIncome = multiply totalIncome by 2</action_description>
+<action_description>// set totalIncome = multiply totalIncome by 2</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:25 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>43</action_number>
-<action_comment>set totalIncome = divide totalIncome by 2</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalIncome = divide totalIncome by 2</action_description>
+<action_description>// set totalIncome = divide totalIncome by 2</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:25 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>44</action_number>
 <action_comment></action_comment>
@@ -1472,32 +1465,28 @@ clients entitypush totalIncome  entitypop  cvr /totalIncome xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>46</action_number>
-<action_comment>set totalIncome = totalIncome rounded</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalIncome = totalIncome rounded</action_description>
+<action_description>// set totalIncome = totalIncome rounded</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:37 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>47</action_number>
-<action_comment>set totalIncome = totalIncome rounded to 3 decimal_places</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalIncome = totalIncome rounded to 3 decimal_places</action_description>
+<action_description>// set totalIncome = totalIncome rounded to 3 decimal_places</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:37 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>48</action_number>
-<action_comment>set totalIncome = totalIncome rounded to 2 decimal_places with_ boundry totalGroupIncome</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalIncome = totalIncome rounded to 2 decimal_places with_ boundry totalGroupIncome</action_description>
+<action_description>// set totalIncome = totalIncome rounded to 2 decimal_places with_ boundry totalGroupIncome</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:37 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>49</action_number>
-<action_comment>set totalIncome = sum of additionalIncome in clients</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalIncome = sum of additionalIncome in clients</action_description>
-<action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:25 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error></actions>
+<action_description>// set totalIncome = sum of additionalIncome in clients</action_description>
+<action_postfix></action_postfix></action_details></actions>
 <policy_statements></policy_statements></decision_table>
 <decision_table>
 <table_name>Syntax_Examples_4</table_name>
@@ -1593,11 +1582,10 @@ client_fpl   cvi /FPL_Base xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>9</action_number>
-<action_comment>set DateNumber = get days in yearof effectiveDate</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set DateNumber = get days in yearof effectiveDate</action_description>
+<action_description>// set DateNumber = get days in yearof effectiveDate</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:36 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>10</action_number>
 <action_comment></action_comment>
@@ -1735,18 +1723,16 @@ clients entitypush 3  entitypop  cvi /FPL_Base xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>25</action_number>
-<action_comment>set totalGroupIncome = multiply totalGroupIncome by 3</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalGroupIncome = multiply totalGroupIncome by 3</action_description>
+<action_description>// set totalGroupIncome = multiply totalGroupIncome by 3</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:30 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>26</action_number>
-<action_comment>set totalGroupIncome = divide totalGroupIncome by 2</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalGroupIncome = divide totalGroupIncome by 2</action_description>
+<action_description>// set totalGroupIncome = divide totalGroupIncome by 2</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:30 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>27</action_number>
 <action_comment></action_comment>
@@ -1794,18 +1780,16 @@ currentDate effectiveDate yearsbetween  cvi /DateNumber xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>32</action_number>
-<action_comment>set DateNumber = get years of effectiveDate</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set DateNumber = get years of effectiveDate</action_description>
+<action_description>// set DateNumber = get years of effectiveDate</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:28 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>33</action_number>
-<action_comment>set totalGroupIncome = sum of totalGroupIncome in clients</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set totalGroupIncome = sum of totalGroupIncome in clients</action_description>
+<action_description>// set totalGroupIncome = sum of totalGroupIncome in clients</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:30 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>34</action_number>
 <action_comment></action_comment>
@@ -2132,11 +2116,10 @@ program programLevel streq not cvb /eligible xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>70</action_number>
-<action_comment>set eligible = client_ID at age starts with gender</action_comment>
+<action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>set eligible = client_ID at age starts with gender</action_description>
+<action_description>// set eligible = client_ID at age starts with gender</action_description>
 <action_postfix></action_postfix></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:32 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
 <action_details>
 <action_number>71</action_number>
 <action_comment></action_comment>
@@ -2172,7 +2155,21 @@ clients client_ID memberof not cvb /eligible xdef
 <TYPE>FIRST</TYPE>
 <COMMENTS></COMMENTS>
 <POLICY_REFERENCE></POLICY_REFERENCE></attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>local date Today2 = currentdate</context_description>
+<context_postfix>
+currentdate cvd allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>local string Things</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details></contexts>
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
@@ -2183,152 +2180,154 @@ clients client_ID memberof not cvb /eligible xdef
 <condition_postfix>
 perform when called 
 </condition_postfix>
-<condition_column column_value="*" column_number="1"></condition_column></condition_details></conditions>
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>does Today2 == currentdate ?</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>2</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>is Today2 == currentdate ?</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>3</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>was Today2 == currentdate ?</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>4</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>age &gt; 18 hdfkcgkcgkcgh</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>5</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>age &lt; 18</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>6</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>age &gt;= 12</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>7</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>age &lt;= 60</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>8</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>theClient matches clients [ 0 ]</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>9</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>pregnant == true</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>10</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>pregnant != true</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>11</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>pregnant == true and age &lt; 18</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>12</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>pregnant == true or age &lt; 18</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>13</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>not pregnant</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>14</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>pregnant is null</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>15</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>pregnant is not null</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>16</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>expectedChildren is null</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>17</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>expectedChildren is not null</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
-<action_details>
-<action_number>18</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>effectiveDate isnulloo</action_description>
-<action_postfix></action_postfix>
-<action_column column_value="x" column_number="1"></action_column></action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:7 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error></actions>
+<condition_column column_value="*" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>does Today2 == currentdate ?</condition_description>
+<condition_postfix>
+0 local@  currentdate d== 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>is Today2 == currentdate ?</condition_description>
+<condition_postfix>
+0 local@  currentdate d== 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>was Today2 == currentdate ?</condition_description>
+<condition_postfix>
+0 local@  currentdate d== 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>age &gt; 18</condition_description>
+<condition_postfix>
+age 18 &gt; 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>age &lt; 18</condition_description>
+<condition_postfix>
+age 18 &lt; 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>age &gt;= 12</condition_description>
+<condition_postfix>
+age 12 &gt;= 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>age &lt;= 60</condition_description>
+<condition_postfix>
+age 60 &lt;= 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>9</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Things matches &apos;This is a string&apos;</condition_description>
+<condition_postfix>
+&apos;This is a string&apos; 1 local@  regexmatch 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>10</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>pregnant == true</condition_description>
+<condition_postfix>
+pregnant true beq 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>11</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>pregnant != true</condition_description>
+<condition_postfix>
+pregnant true beq 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>12</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>pregnant == true and age &lt; 18</condition_description>
+<condition_postfix>
+pregnant true beq { pop age 18 &lt; } over if
+
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>13</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>pregnant == true or age &lt; 18</condition_description>
+<condition_postfix>
+pregnant true beq { pop age 18 &lt; } over not if
+
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>14</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>not pregnant</condition_description>
+<condition_postfix>
+pregnant not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>15</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>pregnant is null</condition_description>
+<condition_postfix>
+pregnant  isnull 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>16</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>pregnant is not null</condition_description>
+<condition_postfix>
+pregnant  isnull not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>17</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>expectedChildren is null</condition_description>
+<condition_postfix>
+expectedChildren   isnull 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>18</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>expectedChildren is not null</condition_description>
+<condition_postfix>
+expectedChildren   isnull not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>19</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>effectiveDate is null</condition_description>
+<condition_postfix>
+effectiveDate  isnull 
+</condition_postfix></condition_details></conditions>
+<actions></actions>
 <policy_statements></policy_statements></decision_table>
 <decision_table>
 <table_name>Error_Handling_Table</table_name>
