@@ -90,7 +90,7 @@ terminal String		ABSOLUTEVALUE, ACTION, ADD, AFTER, ALL, ALLOWING, AND,
                     ARRAY, ARRAY_OF_VALUES, ASCENDINGORDER, ASSIGN, ATTRIBUTE, 
                     AT, BEFORE, BETWEEN, BOOL_FUNCTION, BOOLEAN, BY, CHANGE, CLEAR, 
 					CLONE, COLON, CONTEXT, COMMA, CONDITION, COPY, CURRENT_DATE, 
-					CURRENT_TIMESTAMP, CVS, DATE, DAYS, DEBUG, DECIMAL_PLACES, 
+					CURRENT_TIMESTAMP, DATE, DAYS, DEBUG, DECIMAL_PLACES, 
 					DECREMENT, DEEPCOPY, DESCENDINGORDER, DIVIDE, DOES, DOUBLE, 
 					EACH, EARLIEST, ELEMENT, ELSE, ELSEIF, ELSEIFNONEAREFOUND, 
 					END, ENDFF, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIRST, FLOAT, FOR, 
@@ -625,6 +625,8 @@ array_list ::= array_list:l COMMA strexpr:s                 {: RESULT = l+s;    
               array_list:l COMMA eexpr:s                    {: RESULT = l+s;                             :} |
               array_list:l COMMA fexpr:s                    {: RESULT = l+s;                             :} |
               array_list:l COMMA nexpr:s                    {: RESULT = l+s;                             :} |
+              array_list:l COMMA array_expr:s               {: RESULT = l+s;                             :} |
+              array_expr:s                                  {: RESULT = s;                               :} |
               nexpr:s                                       {: RESULT = s;                               :} |
               fexpr:s                                       {: RESULT = s;                               :} |
               eexpr:s                                       {: RESULT = s;                               :} |
@@ -666,10 +668,10 @@ datestatement ::=
                                                                      
 // Date expressions
 
-dexpr    ::=  LPAREN dexpr:e RPAREN                  {: RESULT = e+" ";                              :} |
+dexpr    ::=  LPAREN dexpr:e RPAREN                  {: RESULT = e;                                  :} |
 			  RDATE:e                                {: RESULT = e+" ";                              :} |
-              LPAREN DATE RPAREN strexpr:s           {: RESULT = s+"cvd ";                       :} |
-              DATE LPAREN strexpr:s RPAREN           {: RESULT = s+"cvd ";                       :} | 
+              LPAREN DATE RPAREN strexpr:s           {: RESULT = s+"cvd ";                           :} |
+              DATE LPAREN strexpr:s RPAREN           {: RESULT = s+"cvd ";                           :} | 
 			  LPAREN DATE RPAREN indx_expr:ie        {: RESULT = ie;                                 :} |
 			  LPAREN DATE RPAREN RARRAY:ra LBRACE iexpr:ie1 RBRACE {: RESULT = ra+" "+ie1+"getat ";  :} |
 		      USING eexpr:ee  LPAREN dexpr:e RPAREN  {: RESULT = ee + "entitypush "+e+"entitypop ";  :} |
@@ -679,6 +681,8 @@ dexpr    ::=  LPAREN dexpr:e RPAREN                  {: RESULT = e+" ";         
               dexpr:d1 MINUS dexpr:d2                {: RESULT = d1 +d2+"d- ";                       :} |
 			  LPAREN DATE RPAREN RTABLE:t LPAREN tablelist:keys RPAREN 
 			  							             {: RESULT = t + " " + keys + "lookup ";         :} |
+			  CURRENT_DATE                           {: RESULT = "getdate ";                         :} |
+
 			  SUBTRACT number:i YEARS  FROM dexpr:v  {: RESULT = v +" "+i +"negate addyears ";       :} |
               SUBTRACT number:i MONTHS FROM dexpr:v  {: RESULT = v +" "+ i +"negate addmonths ";     :} | 
               SUBTRACT number:i DAYS   FROM dexpr:v  {: RESULT = v +" "+ i +"negate adddays ";       :} | 
@@ -755,13 +759,13 @@ strexpr  ::=  ATTRIBUTE strexpr:s OF eexpr:e
               |
               strexpr:s1 PLUS strexpr:s2  {: RESULT = s1+s2+"strconcat "; :}
               |
-              LPAREN STRING RPAREN fexpr:fe  {: RESULT = fe+"tostring ";   :}
+              STRING VALUE OF fexpr:fe    {: RESULT = fe+"tostring ";   :}
               |
-              LPAREN STRING RPAREN iexpr:ie  {: RESULT = ie+"tostring ";   :}
+              STRING VALUE OF iexpr:ie    {: RESULT = ie+"tostring ";   :}
               |
-              LPAREN STRING RPAREN dexpr:de  {: RESULT = de+"tostring ";   :}
+              STRING VALUE OF dexpr:de    {: RESULT = de+"tostring ";   :}
               |
-              CVS LPAREN bexpr:b RPAREN      {: RESULT = b+"tostring ";   :}
+              STRING VALUE OF BOOLEAN bexpr:be  {: RESULT = be+"tostring ";   :}
               |
               LPAREN strexpr:s RPAREN     {: RESULT = s;                :}
               |
@@ -789,9 +793,7 @@ strexpr  ::=  ATTRIBUTE strexpr:s OF eexpr:e
 		      | 
 			  CHANGE strexpr:se TO UPPER_CASE {: RESULT = se +"touppercase "; :}
 			  |	      
-			  GET CURRENT_DATE                        {: RESULT = "getdate ";                         :} 
-			  |
-			  GET CURRENT_TIMESTAMP                   {: RESULT = "gettimestamp ";                    :} 
+			  GET CURRENT_TIMESTAMP                   {: RESULT = "getdate gettimestamp ";            :} 
 			  |
               USING eexpr:ee  LPAREN strexpr:e RPAREN {: RESULT = ee + "entitypush "+e+"entitypop ";  :} 
               |
@@ -859,7 +861,7 @@ fexpr    ::=  FLOAT:n                     {: RESULT = n+" "; :}
               fexpr:n ROUNDED TO iexpr:i DECIMAL_PLACES {: RESULT = n+i+"0.5 roundto ";                   :} |
               fexpr:n ROUNDED TO iexpr:i DECIMAL_PLACES WITH_BOUNDRY fexpr:b
                                                         {: RESULT = n+i+b+" roundto ";                    :} |
-              SUM_OF fexpr:f IN array_expr:a            {: RESULT = "0 { "+f+"ladd } "+a+"forall ";       :} ;
+              SUM_OF RDOUBLE:f IN array_expr:a          {: RESULT = "0 { "+f+"fadd } "+a+"forall ";       :} ;
                                                         
 
 

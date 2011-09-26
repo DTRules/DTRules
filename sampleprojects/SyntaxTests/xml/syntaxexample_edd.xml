@@ -3,7 +3,7 @@
 		<field name='address' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='billingAddress' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='city' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='homeAddress' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='homeAddresses' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='locations' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='mailingAddress' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
@@ -19,9 +19,10 @@
 		<field name='county_cd' type='string' subtype='' access='rw' input='' default_value='' comment='The county for this case'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='relationships' type='array' subtype='' access='r' input='' default_value='' comment='The relationships between people in the case'></field>
+		<field name='strBuffer' type='string' subtype='' access='rw' input='main' default_value='' comment='A random string buffer'></field>
 	</entity>
 	<entity name='client' access='rw' comment=''>
-		<field name='additionalIncome' type='double' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='additionalIncome' type='double' subtype='' access='rw' input='' default_value='' comment='Additional Income'></field>
 		<field name='age' type='integer' subtype='' access='r' input='main' default_value='' comment='We simply get the age of the client'></field>
 		<field name='applying' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Is this client applying for the program'></field>
 		<field name='birthday' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
@@ -107,10 +108,12 @@
 		<field name='interestingCases' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='junk' type='entity' subtype='' access='rw' input='main' default_value='' comment='Junk to test bug'></field>
+		<field name='listOfIDs' type='array' subtype='string' access='rw' input='main' default_value='' comment='A list of IDs'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='program' type='string' subtype='' access='r' input='main' default_value='none' comment='The program for which we are evaluating Eligiblity'></field>
 		<field name='resolvedCases' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='The results of Elgibility for those clients applying'></field>
+		<field name='secondListOfIDs' type='array' subtype='string' access='rw' input='main' default_value='' comment='A list of IDs'></field>
 	</entity>
 	<entity name='relationship' access='rw' comment=''>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>

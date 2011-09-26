@@ -86,6 +86,10 @@ string     = {stringdbl}|{stringsgl}
   "time"           {return build(sym.DATE);   }
   "boolean"        {return build(sym.BOOLEAN);}
   "double"         {return build(sym.DOUBLE); }
+  
+  "current"{ws}+"timestamp" {return build(sym.CURRENT_TIMESTAMP); }
+  "current"{ws}+"date"      {return build(sym.CURRENT_DATE);      }
+  
   ";"              {return build(sym.SEMI);   }
   ":"              {return build(sym.COLON);  }
   ","              {return build(sym.COMMA);  }
@@ -104,12 +108,23 @@ string     = {stringdbl}|{stringsgl}
   "set"            {return build(sym.SET);    }
   "end"            {return build(sym.END);    }
   "add"            {return build(sym.ADD);    }
+  "sum"{ws}+"of"   {return build(sym.SUM_OF); }
   "increment"      {return build(sym.INCREMENT); }
   "decrement"      {return build(sym.DECREMENT); }
   "subtract"       {return build(sym.SUBTRACT);  }
+  "multiply"       {return build(sym.MULTIPLY);  }
+  "divide"         {return build(sym.MULTIPLY);  }
+  "rounded"        {return build(sym.ROUNDED);   }
+  "decimal"{ws}+"places"
+                   {return build(sym.DECIMAL_PLACES); }
+  "with"{ws}+"boundry"
+                   {return build(sym.WITH_BOUNDRY);   }
   "remove"         {return build(sym.REMOVE);    }
   "from"           {return build(sym.FROM);      }
   "array"          {return build(sym.ARRAY);     }
+  "array"{ws}+"of"{ws}+"values"          
+                   {return build(sym.ARRAY_OF_VALUES); }
+  "element"        {return build(sym.ELEMENT);   }
   "include"        {return build(sym.INCLUDE);   }
   "includes"       {return build(sym.INCLUDES);  }
   "attribute"      {return build(sym.ATTRIBUTE); }
@@ -118,6 +133,7 @@ string     = {stringdbl}|{stringsgl}
   "name"           {return build(sym.NAME);   }
   "local"          {return build(sym.LOCAL);  }
   "substring"      {return build(sym.SUBSTRING); }
+  "trim"           {return build(sym.TRIM); }
   "index"{ws}+"of" {return build(sym.INDEX_OF); }
   "member"("s")?   {return build(sym.MEMBER); }
   "this"           {return build(sym.THIS);   }
@@ -156,7 +172,8 @@ string     = {stringdbl}|{stringsgl}
   "less"{ws}+"than"                                              {return build(sym.LT);}
   "is"{ws}+"less"{ws}+"than"{ws}+"or"{ws}+"equal"+{ws}+"to"      {return build(sym.LTE);}
   "less"{ws}+"than"{ws}+"or"{ws}+"equal"+{ws}+"to"               {return build(sym.LTE);}
-  
+  "before"                                                       {return build(sym.BEFORE);}  
+  "after"                                                        {return build(sym.AFTER);}
   "and"            {return build(sym.AND); }
   "&&"             {return build(sym.AND); }
   "or"             {return build(sym.OR); }
