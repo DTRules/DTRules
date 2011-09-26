@@ -94,7 +94,7 @@ terminal String		ABSOLUTEVALUE, ACTION, ADD, AFTER, ALL, ALLOWING, AND,
 					DECREMENT, DEEPCOPY, DESCENDINGORDER, DIVIDE, DOES, DOUBLE, 
 					EACH, EARLIEST, ELEMENT, ELSE, ELSEIF, ELSEIFNONEAREFOUND, 
 					END, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIRST, FLOAT, FOR, 
-					FORALL, FROM, GET, GT, GTE, HASA, HAVE, IF, IN, 
+					FORALL, FOREACH, FROM, GET, GT, GTE, HASA, HAVE, IF, IN, 
 					INCLUDE, INCLUDES, INCREMENT, INDEX_OF, INTEGER, IS, 
 					ISNOTNULL, ISNULL,	ITS, LBRACE, LCURLY, LENGTH, 
 					LOCAL, LONG, LOWER_CASE, LPAREN,  LT, LTE, MAP, MAPPINGKEY, MATCH, 
@@ -127,8 +127,9 @@ non terminal String     array_expr, array_expr2;
 non terminal String 	includeSearch;
 
 
-non terminal String     forblock;
-non terminal String     forallblock;
+non terminal String     gforallblock;   //  general forall block (build off of forallctr)
+non terminal String     foreachblock;   //  for each block
+non terminal String     forallblock;    //  for all block
 
 non terminal String     forctl;
 non terminal String     forallctl, forfirstctl;
@@ -269,7 +270,7 @@ possessiveRef ::= POSSESSIVE:e1 COMMA possessiveRef:e2        {: RESULT = e1 +" 
                             
 colonRef      ::= possessiveRef:e                             {: RESULT = e; :} ;
 
-forallblock ::= block:blk forallctl:ctl 
+gforallblock ::= block:blk forallctl:ctl 
 				  {: RESULT = "{ "+blk+"} "+ctl+"pop "; :};
 
 context_for_table ::= debugstatement:e      {: RESULT = e+"execute ";            :} |
@@ -348,19 +349,20 @@ forallctl   ::=
                   {: RESULT = "{ dup "+b+"if } "+a+"forallr "; :}
               ;
 
-forblock ::=  
-			  
-              array_expr:a block:blk                  
+forallblock ::=  
+		      array_expr:a block:blk                  
                   {: RESULT = "{ "+blk+"} "+a+"forallr "; :}
               |
+              array_expr:a WHERE bexpr:b block:blk
+                  {: RESULT = "{ { "+blk+" } "+b+"if } "+a+"forallr "; :}
+              ;
+
+foreachblock ::=  
               eexpr:ev IN array_expr:a block:blk
                   {: RESULT = "{ "+blk+"} "+a+" forallr "; :}
               |
               eexpr:e2 IN array_expr:a WHERE bexpr:b block:blk
                   {: RESULT = "{ { "+blk+" } "+b+"if } "+a+"forallr "; :} 
-              |
-              array_expr:a WHERE bexpr:b block:blk
-                  {: RESULT = "{ { "+blk+" } "+b+"if } "+a+"forallr "; :}
               |
               eexpr AND ITS eexpr:e2 IN array_expr:a block:blk
                   {: RESULT = "{ "+e2+"entitypush "+blk+" entitypop } "+a+" forallr "; :}
@@ -396,8 +398,9 @@ firstblock ::= FOR FIRST OF array_expr:a WHERE bexpr:test THEN block:body1 ELSEI
 
 block        ::= LCURLY statement_list:e RCURLY      {: RESULT = e+"\n";  :} |
                  USING usingblock:e                  {: RESULT = e;       :} |
-                 forallblock:e                       {: RESULT = e;       :} |
-                 FORALL forblock:e                   {: RESULT = e;       :} |
+                 gforallblock:e                      {: RESULT = e;       :} |
+                 FORALL forallblock:e                {: RESULT = e;       :} |
+                 FOREACH foreachblock:e              {: RESULT = e;       :} |
                  firstblock:e                        {: RESULT = e;       :} |
                  IF ifblock:e                        {: RESULT = e;       :} |
                  block:e separator                   {: RESULT = e;       :} |

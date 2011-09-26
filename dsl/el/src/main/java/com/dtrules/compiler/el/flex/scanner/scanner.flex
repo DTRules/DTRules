@@ -121,7 +121,7 @@ string     = {stringdbl}|{stringsgl}
   "this"           {return build(sym.THIS);   }
   "context"        {return build(sym.CONTEXT); }
   "for"{ws}*"all"  {return build(sym.FORALL); }
-  "for"{ws}*"each" {return build(sym.FORALL); }
+  "for"{ws}*"each" {return build(sym.FOREACH); }
   "each"           {return build(sym.EACH);   }
   "int"            {return build(sym.LONG);   }
   "long"           {return build(sym.LONG);   }
