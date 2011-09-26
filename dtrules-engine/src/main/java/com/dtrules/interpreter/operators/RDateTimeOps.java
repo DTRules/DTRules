@@ -45,6 +45,7 @@ public class RDateTimeOps {
             new Yearof();
             new Monthof();
             new Dayof();
+            new GetDate();
 			new Getdaysinyear();
 			new Getdaysinmonth();
 			new Getdayofmonth();
@@ -260,13 +261,12 @@ public class RDateTimeOps {
 	     * SetCalendar( String --  )
 	     * SetCalendar Operator, 
 	     */
-        @SuppressWarnings({"unchecked"})
 		public static class SetCalendar extends ROperator {
 			SetCalendar(){super("setCalendar");}
 
 			public void arrayExecute(DTState state) throws RulesException {
 				try {
-					Class clazz = Class.forName(state.datapop().stringValue());
+					Class<?> clazz = Class.forName(state.datapop().stringValue());
 					Object obj = clazz.newInstance();
 					if(obj instanceof Calendar){
 						state.calendar=(Calendar)obj;
@@ -428,8 +428,8 @@ public class RDateTimeOps {
 		}
 
 	    /**
-	     * Gettimestamp( date -- String )
-	     * Gettimestamp Operator, creates a string timestamp from s date
+	     * Gettimestamp( Date -- String )
+	     * Gettimestamp Operator, creates a string timestamp f
 	     */
 		public static class Gettimestamp extends ROperator {
 			Gettimestamp(){super("gettimestamp");}
@@ -440,6 +440,22 @@ public class RDateTimeOps {
 			}
 		}		
         
+		/**
+         * GetDate( -- Date )
+         * Returns the current system date.  This operator should NOT be used except
+         * where there just are no other options.  The ability to test a rule set depends
+         * on being able to run tests for a specific period of time.  Using the system date
+         * can create situations where the rule set does not behave the same over time. 
+         */
+        public static class GetDate extends ROperator {
+            GetDate(){super("getdate");}
+
+            public void arrayExecute(DTState state) throws RulesException {
+                Date date = new Date();
+                state.datapush(RDate.getRTime(date));
+            }
+        }       
+		
         /**
          * d+ ( date1 date2 -- )
          * Add two dates together.  This doesn't make all that much sense unless

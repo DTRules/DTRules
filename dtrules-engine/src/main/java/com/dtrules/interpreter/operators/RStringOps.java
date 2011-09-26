@@ -85,7 +85,7 @@ public class RStringOps {
      *
      */
     public static class Trim extends ROperator {
-        Trim(){super("trim");}
+        Trim(){super("strtrim");}
 
         @Override
         public void arrayExecute(DTState state) throws RulesException {

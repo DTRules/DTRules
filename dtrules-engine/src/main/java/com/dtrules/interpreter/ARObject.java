@@ -177,8 +177,7 @@ public abstract class ARObject implements IRObject {
     /**
      * @see com.dtrules.interpreter.IRObject#hashMapValue()
      */
-	@SuppressWarnings({"unchecked"})
-	public HashMap hashMapValue() throws RulesException {
+	public HashMap<IRObject,IRObject> hashMapValue() throws RulesException {
         throw new RulesException("Undefined","Conversion Error","No HashMap value exists for "+this.type());
 	}
 

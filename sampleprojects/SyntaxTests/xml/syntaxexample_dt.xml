@@ -481,11 +481,12 @@ totalincome 1 dadd /totalincome xdef
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>26</intial_action_number>
-<initial_action_comment></initial_action_comment>
+<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>perform Syntax_Examples and on error add the ErrorDetails to the context and call Error_handling_table</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:84 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
+<initial_action_description>perform Syntax_Examples and on error add the ErrorDetails to the context and perform Error_handling_table</initial_action_description>
+<initial_action_postfix>
+/Syntax_Examples lookup /Error_handling_table lookup ErrorDetails  PerformCatchError 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>27</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -520,10 +521,12 @@ client interestingCases swap addto
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>31</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// add client to InterestingCases and program</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>add client to InterestingCases and to resolvedCases</initial_action_description>
+<initial_action_postfix>
+client dup InterestingCases swap addto resolvedCases swap addto 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>32</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -542,10 +545,12 @@ clients cases true  addarray
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>34</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// add case_ID to interestingCases and to client_ID</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>add case_ID to listOfIDs and to secondListOfIDs</initial_action_description>
+<initial_action_postfix>
+case_ID dup listOfIDs swap addto secondListOfIDs swap addto 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>35</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -564,10 +569,12 @@ effectiveDate interestingDates swap addto
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>37</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// Add 42 to totalincome and totalgroupincome</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>Add 42 to totalincome and to totalgroupincome</initial_action_description>
+<initial_action_postfix>
+42  dup totalincome f+ /totalincome xdef totalgroupincome + /totalgroupincome xdef 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>38</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -594,10 +601,12 @@ locations  mailingaddress add_no_dups
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>41</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// add mailingaddress if not member to locations and homeAddress</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>add mailingaddress if not member to locations and to homeAddresses</initial_action_description>
+<initial_action_postfix>
+mailingaddress locations over add_no_dups homeAddresses swap add_no_dups 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>42</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -624,10 +633,12 @@ client entitypush
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>45</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Missing scanner for element</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// remove totalgroupincome element from incomes array</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>remove totalgroupincome element from incomes array</initial_action_description>
+<initial_action_postfix>
+incomes totalgroupincome removeat pop 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>46</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -701,12 +712,6 @@ clients /steve true sortentities
 clients /steve false sortentities 
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
-<intial_action_number>55</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
-<initial_action_requirement></initial_action_requirement>
-<initial_action_description>// case&apos;s clients</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
-<initial_action_details>
 <intial_action_number>56</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
@@ -756,10 +761,12 @@ clients deepcopy /interestingClients xdef
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>62</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Missing scanner for &quot;array of values&quot;</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// set errorCodes = array_of_values [ jobs, cases, clients ]</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>set errorCodes = array of values [ job, cases, &quot;clients&quot;, 10, -0.5, $boy ]</initial_action_description>
+<initial_action_postfix>
+mark job cases &quot;clients&quot; 10 0.5 fnegate /boy  arraytomark /errorCodes xdef 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>63</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -938,10 +945,12 @@ client entitypush currentDate entitypop cvd /effectiveDate xdef
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>85</intial_action_number>
-<initial_action_comment>Error</initial_action_comment>
+<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>// set effectiveDate = importantDates&apos;s effectiveDate</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>set effectiveDate = job&apos;s effectiveDate</initial_action_description>
+<initial_action_postfix>
+job entitypush effectiveDate entitypop cvd /effectiveDate xdef  
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>86</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -1182,29 +1191,39 @@ street zip strconcat cvs /parent xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>8</action_number>
-<action_comment>Error</action_comment>
+<action_comment>changed the syntax</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set wages = (string) 300.12</action_description>
-<action_postfix></action_postfix>
+<action_description>set strBuffer = string value of 300.12</action_description>
+<action_postfix>
+300.12 tostring cvs /strBuffer xdef  
+</action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>9</action_number>
-<action_comment>Error</action_comment>
+<action_comment>changed the syntax</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set tips = (string) 45</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set tips = string value of 45</action_description>
+<action_postfix>
+45 tostring cvs /tips xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>10</action_number>
-<action_comment>Error</action_comment>
+<action_comment>changed the syntax</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set importantDates = (string) effectiveDate</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set importantDates = 
+      String value of  effectiveDate</action_description>
+<action_postfix>
+effectiveDate tostring cvs /importantDates xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>11</action_number>
-<action_comment>Error</action_comment>
+<action_comment>changed the syntax</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set parent = cvs (pregnant = false)</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set strBuffer = string value of boolean pregnant</action_description>
+<action_postfix>
+pregnant tostring cvs /strBuffer xdef  
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>12</action_number>
 <action_comment></action_comment>
@@ -1279,28 +1298,36 @@ street clients strconcat cvs /street xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>20</action_number>
-<action_comment>Error</action_comment>
+<action_comment>Missing Trim</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set street = trim (zip)</action_description>
-<action_postfix></action_postfix></action_details>
-<action_details>
-<action_number>21</action_number>
-<action_comment>Error</action_comment>
-<action_requirement></action_requirement>
-<action_description>// set programLevel = (string) [0,1,2,3]</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set street = trim (zip)</action_description>
+<action_postfix>
+zip strtrim cvs /street xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>22</action_number>
-<action_comment>Error</action_comment>
+<action_comment>okay... Statement was wrong</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set street = change street to lower_case</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set street = change street to lower case</action_description>
+<action_postfix>
+street tolowercase cvs /street xdef  
+</action_postfix></action_details>
+<action_details>
+<action_number></action_number>
+<action_comment>USE VERY CAREFULLY.  Can break testing</action_comment>
+<action_requirement></action_requirement>
+<action_description>set effectiveDate = the current date</action_description>
+<action_postfix>
+getdate cvd /effectiveDate xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>23</action_number>
-<action_comment>Error</action_comment>
+<action_comment>USE VERY CAREFULLY.  Can break testing</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set importantDates = get current_timestamp</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set strBuffer = get current timestamp</action_description>
+<action_postfix>
+getdate gettimestamp cvs /strBuffer xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>24</action_number>
 <action_comment></action_comment>
@@ -1310,12 +1337,6 @@ street clients strconcat cvs /street xdef
 client entitypush street entitypop cvs /street xdef  
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
-<action_details>
-<action_number>25</action_number>
-<action_comment>Error</action_comment>
-<action_requirement></action_requirement>
-<action_description>// set program = relationship_between client and case</action_description>
-<action_postfix></action_postfix></action_details>
 <action_details>
 <action_number>26</action_number>
 <action_comment></action_comment>
@@ -1462,16 +1483,20 @@ clients 0 getat  cvr /totalIncome xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>42</action_number>
-<action_comment>Error</action_comment>
+<action_comment>Missing Multiply in the scanner</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set totalIncome = multiply totalIncome by 2</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set totalIncome = multiply totalIncome by 2</action_description>
+<action_postfix>
+/2   totalIncome2   fmul def  cvr /totalIncome xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>43</action_number>
-<action_comment>Error</action_comment>
+<action_comment>Missing Divide in the scanner</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set totalIncome = divide totalIncome by 2</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set totalIncome = divide totalIncome by 2</action_description>
+<action_postfix>
+/2   totalIncome2   fmul def  cvr /totalIncome xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>44</action_number>
 <action_comment></action_comment>
@@ -1492,28 +1517,36 @@ clients entitypush totalIncome  entitypop  cvr /totalIncome xdef
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
 <action_number>46</action_number>
-<action_comment>Error</action_comment>
+<action_comment>missing rounded in the scanner</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set totalIncome = totalIncome rounded</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set totalIncome = totalIncome rounded</action_description>
+<action_postfix>
+totalIncome 0 0.5 roundto  cvr /totalIncome xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>47</action_number>
-<action_comment>Error</action_comment>
+<action_comment>missing decimal places in the scanner</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set totalIncome = totalIncome rounded to 3 decimal_places</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set totalIncome = totalIncome rounded to 3 decimal places</action_description>
+<action_postfix>
+totalIncome 3 0.5 roundto  cvr /totalIncome xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>48</action_number>
-<action_comment>Error</action_comment>
+<action_comment>missing with boundry in the scanner</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set totalIncome = totalIncome rounded to 2 decimal_places with_ boundry totalGroupIncome</action_description>
-<action_postfix></action_postfix></action_details>
+<action_description>set totalIncome = totalIncome rounded to 2 decimal places with  boundry .4</action_description>
+<action_postfix>
+totalIncome 2 .4  roundto  cvr /totalIncome xdef  
+</action_postfix></action_details>
 <action_details>
 <action_number>49</action_number>
 <action_comment>Error</action_comment>
 <action_requirement></action_requirement>
-<action_description>// set totalIncome = sum of additionalIncome in clients</action_description>
-<action_postfix></action_postfix></action_details></actions>
+<action_description>set totalIncome = sum of additionalIncome in clients</action_description>
+<action_postfix>
+0 { additionalIncomefadd } clients forall  cvr /totalIncome xdef  
+</action_postfix></action_details></actions>
 <policy_statements></policy_statements></decision_table>
 <decision_table>
 <table_name>Syntax_Examples_4</table_name>
@@ -2176,8 +2209,20 @@ clients client_ID memberof not cvb /eligible xdef
 <action_column column_value="X" column_number="1"></action_column></action_details></actions>
 <policy_statements></policy_statements></decision_table>
 <decision_table>
-<table_name>Syntax_Examples_5</table_name>
+<table_name>Error_Handling_Table</table_name>
 <xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<attribute_fields>
+<TYPE>FIRST</TYPE>
+<COMMENTS></COMMENTS>
+<POLICY_REFERENCE></POLICY_REFERENCE></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements></decision_table>
+<decision_table>
+<table_name>Syntax_Examples_5</table_name>
+<xls_file>SyntaxExampleDTs.xls</xls_file>
 <attribute_fields>
 <TYPE>FIRST</TYPE>
 <COMMENTS></COMMENTS>
@@ -2206,6 +2251,15 @@ null allocate execute
 </context_postfix></context_details></contexts>
 <initial_actions></initial_actions>
 <conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>perform when called</condition_description>
+<condition_postfix>
+perform when called 
+</condition_postfix>
+<condition_column column_value="*" column_number="1"></condition_column></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment></condition_comment>
@@ -2423,18 +2477,134 @@ errorCodes  isnull not
 <condition_description>( pregnant )</condition_description>
 <condition_postfix>
 pregnant 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>29</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>( boolean ) errorCodes [ 1 ]</condition_description>
+<condition_postfix>
+errorCodes 1 getat 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>30</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>( boolean ) Things</condition_description>
+<condition_postfix>
+1 local@  cvb 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>31</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>boolean results [ 1 ]</condition_description>
+<condition_postfix>
+results 1 getat 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>32</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 == currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d== 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>33</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &lt; currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&lt; 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>34</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 IS BEFORE  currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&lt; 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>35</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &gt; currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&gt; 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>36</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 IS AFTER currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&gt; 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>37</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &gt;= currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&lt; not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>38</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &lt;= currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&gt; not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>39</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 is between currentdate and effectiveDate</condition_description>
+<condition_postfix>
+currentdate 0 local@  d&gt; not 0 local@  effectiveDate  d&gt; not and 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>40</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>firstClient == the client</condition_description>
+<condition_postfix>
+2 local@  client req  
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>41</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>firstClient != the client</condition_description>
+<condition_postfix>
+2 local@  client req not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>42</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>address entity is not in context</condition_description>
+<condition_postfix>
+/address InContext not 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>43</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>address entity is in context</condition_description>
+<condition_postfix>
+/address InContext 
+</condition_postfix></condition_details>
+<condition_details>
+<condition_number>44</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>boolean value of touppercase ( Things )</condition_description>
+<condition_postfix>
+1 local@   touppercase 
 </condition_postfix></condition_details></conditions>
-<actions></actions>
-<policy_statements></policy_statements></decision_table>
-<decision_table>
-<table_name>Error_Handling_Table</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
-<attribute_fields>
-<TYPE>FIRST</TYPE>
-<COMMENTS></COMMENTS>
-<POLICY_REFERENCE></POLICY_REFERENCE></attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
 <actions></actions>
 <policy_statements></policy_statements></decision_table></decision_tables>
