@@ -50,6 +50,8 @@
 		<field name='validatedCitizenship' type='boolean' subtype='' access='r' input='main' default_value='' comment=''></field>
 	</entity>
 	<entity name='constants' access='rw' comment=''>
+		<field name='anotherTable' type='table' subtype='' access='rw' input='' default_value='{ { &quot;bob&quot; &quot;bobby&quot; }
+  { &quot;james&quot; &quot;jim&quot; } }' comment=''></field>
 		<field name='AtCostCoverage' type='string' subtype='' access='r' input='' default_value='At Cost Coverage' comment='Coverage Level for the Program'></field>
 		<field name='child' type='string' subtype='' access='r' input='' default_value='child' comment='Relationship Type'></field>
 		<field name='ChildSupport' type='string' subtype='' access='r' input='' default_value='CS' comment='Income Type'></field>
@@ -72,7 +74,8 @@
 		<field name='SocialSecurity' type='string' subtype='' access='r' input='' default_value='SS' comment='Income Type'></field>
 		<field name='SSI' type='string' subtype='' access='r' input='' default_value='SSI' comment='Income Type'></field>
 		<field name='Tips' type='string' subtype='' access='r' input='' default_value='TIP' comment='Income Type'></field>
-		<field name='translationTable' type='table' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='translationTable' type='table' subtype='' access='rw' input='' default_value='{ { &quot;first&quot; &quot;1st&quot; }
+  { &quot;second&quot; &quot;2nd&quot; } }' comment=''></field>
 		<field name='Wages' type='string' subtype='' access='r' input='' default_value='WA' comment='Income Type'></field>
 	</entity>
 	<entity name='ErrorDetails' access='rw' comment=''>

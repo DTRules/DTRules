@@ -104,12 +104,14 @@ string     = {stringdbl}|{stringsgl}
   "set"            {return build(sym.SET);    }
   "end"            {return build(sym.END);    }
   "add"            {return build(sym.ADD);    }
-  "subtract"       {return build(sym.SUBTRACT); }
-  "remove"         {return build(sym.REMOVE); }
-  "from"           {return build(sym.FROM);   }
-  "array"          {return build(sym.ARRAY);  }
-  "include"        {return build(sym.INCLUDE); }
-  "includes"       {return build(sym.INCLUDES); }
+  "increment"      {return build(sym.INCREMENT); }
+  "decrement"      {return build(sym.DECREMENT); }
+  "subtract"       {return build(sym.SUBTRACT);  }
+  "remove"         {return build(sym.REMOVE);    }
+  "from"           {return build(sym.FROM);      }
+  "array"          {return build(sym.ARRAY);     }
+  "include"        {return build(sym.INCLUDE);   }
+  "includes"       {return build(sym.INCLUDES);  }
   "attribute"      {return build(sym.ATTRIBUTE); }
   "value"          {return build(sym.VALUE);  }
   "string"         {return build(sym.STRING); }
