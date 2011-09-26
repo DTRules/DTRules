@@ -33,7 +33,7 @@ public class TestSyntaxExamples extends ATestHarness {
 	    public String   getPath()                 { return CompileSyntaxExamples.path;      }
 	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
 	    public String   getRuleSetName()          { return "SyntaxExamples";                }
-	    public String   getDecisionTableName()    { return "Syntax_Examples";                }
+	    public String   getDecisionTableName()    { return "Run_Test";                }
 	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             
 	   
 	    public static void main(String[] args) {
