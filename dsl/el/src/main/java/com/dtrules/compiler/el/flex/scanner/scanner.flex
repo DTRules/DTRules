@@ -163,6 +163,7 @@ string     = {stringdbl}|{stringsgl}
   "no"             {return build(sym.NO); }
   "if"             {return build(sym.IF); }
   "then"           {return build(sym.THEN); } 
+  "endff"          {return build(sym.ENDFF); } 
   "endif"          {return build(sym.ENDIF); } 
   "else"           {return build(sym.ELSE); } 
   "first"          {return build(sym.FIRST); } 

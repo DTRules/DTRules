@@ -93,7 +93,7 @@ terminal String		ABSOLUTEVALUE, ACTION, ADD, AFTER, ALL, ALLOWING, AND,
 					CURRENT_TIMESTAMP, CVS, DATE, DAYS, DEBUG, DECIMAL_PLACES, 
 					DECREMENT, DEEPCOPY, DESCENDINGORDER, DIVIDE, DOES, DOUBLE, 
 					EACH, EARLIEST, ELEMENT, ELSE, ELSEIF, ELSEIFNONEAREFOUND, 
-					END, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIRST, FLOAT, FOR, 
+					END, ENDFF, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIRST, FLOAT, FOR, 
 					FORALL, FOREACH, FROM, GET, GT, GTE, HASA, HAVE, IF, IN, 
 					INCLUDE, INCLUDES, INCREMENT, INDEX_OF, INTEGER, IS, 
 					ISNOTNULL, ISNULL,	ITS, LBRACE, LCURLY, LENGTH, 
@@ -384,14 +384,16 @@ forfirstctl ::= FOR FIRST OF array_expr:a WHERE bexpr:test
                {: RESULT = "dup { "+test+" } "+a+" forfirst "; :} ;
 
 
-firstblock ::= FOR FIRST OF array_expr:a WHERE bexpr:test THEN block:body1 ELSEIFNONEAREFOUND block:body2
+firstblock ::=
+               FOR FIRST OF array_expr:a WHERE bexpr:test THEN block:body1 ELSEIFNONEAREFOUND block:body2 ENDFF
                {: RESULT = "{ "+body1+" } { "+body2+" } { "+test+" } "+a+" forfirstelse "; :} 
+               | 
+               FOR FIRST OF array_expr:a WHERE bexpr:test THEN  block:body ENDFF  
+               {: RESULT = "{ "+body+"} { "+test+" } "+a+" forfirst "; :} 
                |
-               FOR FIRST OF array_expr:a AND ITS eexpr:e1 WHERE bexpr:test THEN block:body1 ELSEIFNONEAREFOUND block:body2
+               FOR FIRST OF array_expr:a AND ITS eexpr:e1 WHERE bexpr:test THEN block:body1 ELSEIFNONEAREFOUND block:body2 ENDFF
                {: RESULT = "{ "+e1+" entitypush "+body1+"entitypop } { "+body2+" } { "+e1+" entitypush "+test+"entitypop } "+a+" forfirstelse "; :} 
-               |
-               forfirstctl:ctl THEN block:body
-               {: RESULT = "{ "+body+" } "+ctl+ "pop "; :} 
+               
                ;
 
 			

@@ -300,9 +300,11 @@ null allocate execute
 <intial_action_number>3</intial_action_number>
 <initial_action_comment>Error</initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>for first of job.cases where validatedCitizenship == true then { set eligible = true }</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
-<compile_error>java.lang.Exception: Error found at Line:Char =0:93 java.lang.Exception: Can&apos;t recover from previous error(s)</compile_error>
+<initial_action_description>for first of job.cases where validatedCitizenship == true then { set eligible = true } ; endff</initial_action_description>
+<initial_action_postfix>
+{ true cvb /eligible xdef  
+} { validatedCitizenship true beq  } job.cases  forfirst 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>4</intial_action_number>
 <initial_action_comment></initial_action_comment>
