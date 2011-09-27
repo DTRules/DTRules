@@ -562,14 +562,6 @@ true cvb /client.eligible xdef
 					<action_postfix>
 &quot;Client Income = &quot; client.totalGroupIncome strconcat client.notes swap addto 
 </action_postfix>
-					<action_column column_number='1' column_value='X'></action_column>
-					<action_column column_number='2' column_value='X'></action_column>
-					<action_column column_number='3' column_value='X'></action_column>
-					<action_column column_number='4' column_value='X'></action_column>
-					<action_column column_number='5' column_value='X'></action_column>
-					<action_column column_number='6' column_value='X'></action_column>
-					<action_column column_number='7' column_value='X'></action_column>
-					<action_column column_number='8' column_value='X'></action_column>
 				</action_details>
 				<action_details>
 					<action_number>5</action_number>
@@ -595,8 +587,8 @@ policystatements client.notes true  addarray
 					<policy_statement_postfix>&quot;The Client is not a validated Citizen, nor a validated immigrant&quot; </policy_statement_postfix>
 				</policy_statement>
 				<policy_statement column='2'>
-					<policy_description>The Client&apos;s total group income, {client.totalGroupIncome}, is greater than 200 percent of the FPL {FPL200}</policy_description>
-					<policy_statement_postfix>&quot;The Client&apos;s total group income, &quot; client.totalGroupIncome cvs strconcat &quot;, is greater than 200 percent of the FPL &quot; s+ 1 local@  cvs strconcat &quot;&quot; strconcat</policy_statement_postfix>
+					<policy_description>The Client&apos;s total group income is greater than 200 percent of the FPL</policy_description>
+					<policy_statement_postfix>&quot;The Client&apos;s total group income is greater than 200 percent of the FPL&quot; </policy_statement_postfix>
 				</policy_statement>
 				<policy_statement column='3'>
 					<policy_description>The Client must be uninsured to qualify for CHIP</policy_description>

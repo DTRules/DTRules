@@ -28,7 +28,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dtrules</groupId>
-			<artifactId>dtrules</artifactId>
+			<artifactId>dtrules-engine</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

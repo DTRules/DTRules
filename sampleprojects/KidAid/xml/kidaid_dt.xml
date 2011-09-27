@@ -49,7 +49,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate the Individual Incomes</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Perform Calculate_Individual_Income</action_description>
 <action_postfix>
 Calculate_Individual_Income 
@@ -60,7 +60,7 @@ Calculate_Individual_Income
 <action_details>
 <action_number>2</action_number>
 <action_comment>Get the Group Size for each individual</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Perform Calculate_Group_Size</action_description>
 <action_postfix>
 Calculate_Group_Size 
@@ -71,7 +71,7 @@ Calculate_Group_Size
 <action_details>
 <action_number>3</action_number>
 <action_comment>Evaluate for KidAid</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Perform Evaluate_KidAid_Eligibility</action_description>
 <action_postfix>
 Evaluate_KidAid_Eligibility 
@@ -80,7 +80,7 @@ Evaluate_KidAid_Eligibility
 <action_details>
 <action_number>4</action_number>
 <action_comment>Evaluate for MEDICAID</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Perform Evaluate_MEDICAID_Eligibility</action_description>
 <action_postfix>
 Evaluate_MEDICAID_Eligibility 
@@ -89,7 +89,7 @@ Evaluate_MEDICAID_Eligibility
 <action_details>
 <action_number>5</action_number>
 <action_comment>Evaluate for FOODSTAMPS</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Perform Evaluate_FOODSTAMPS_Eligibility</action_description>
 <action_postfix>
 Evaluate_FOODSTAMPS_Eligibility 
@@ -98,7 +98,7 @@ Evaluate_FOODSTAMPS_Eligibility
 <action_details>
 <action_number>6</action_number>
 <action_comment>Build a set of Result Objects to report to the caller</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Perform Evaluate_Results</action_description>
 <action_postfix>
 Evaluate_Results 
@@ -167,7 +167,7 @@ ExcludedIncomeTypes income.type memberof
 <action_details>
 <action_number>1</action_number>
 <action_comment>Add this income to the total income for this client</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add income.amount to the client.totalIncome</action_description>
 <action_postfix>
 income.amount  client.totalIncome + /client.totalIncome xdef 
@@ -287,7 +287,7 @@ client.age 18 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Count the Client himself and particular relatives</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add 1 to ThisClient&apos;s IncomeGroupCount</action_description>
 <action_postfix>
 1  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
@@ -302,7 +302,7 @@ client.age 18 &gt;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add expectedChildren to ThisClient&apos;s IncomeGroupCount</action_description>
 <action_postfix>
 expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
@@ -313,7 +313,7 @@ expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Add this person&apos;s Income to the ThisPerson&apos;s total group income</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add the client.totalIncome to ThisClient&apos;s totalGroupIncome</action_description>
 <action_postfix>
 client.totalIncome  0 local@  entitypush totalGroupIncome + /totalGroupIncome xdef entitypop 
@@ -596,7 +596,7 @@ totalGroupIncome 6 local@  &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>set the program Level</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client.programLevel = FreeCoverage</action_description>
 <action_postfix>
 FreeCoverage cvs /client.programLevel xdef  
@@ -607,7 +607,7 @@ FreeCoverage cvs /client.programLevel xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client.programLevel = LowCostCoverage</action_description>
 <action_postfix>
 LowCostCoverage cvs /client.programLevel xdef  
@@ -618,7 +618,7 @@ LowCostCoverage cvs /client.programLevel xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client.programLevel = AtCostCoverage</action_description>
 <action_postfix>
 AtCostCoverage cvs /client.programLevel xdef  
@@ -627,7 +627,7 @@ AtCostCoverage cvs /client.programLevel xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>Provide reasons for rejection</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client.eligible = false</action_description>
 <action_postfix>
 false cvb /client.eligible xdef  
@@ -639,7 +639,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Add &quot;Client is eligible for Medicaid, so cannot enroll in KidAid&quot; to client.notes</action_description>
 <action_postfix>
 &quot;Client is eligible for Medicaid, so cannot enroll in KidAid&quot; client.notes swap addto 
@@ -648,7 +648,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>6</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Add &quot;Must Provide Validation of Citizenship&quot; to client.notes</action_description>
 <action_postfix>
 &quot;Must Provide Validation of Citizenship&quot; client.notes swap addto 
@@ -658,7 +658,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>7</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Add &quot;Case must be within a KidAid County&quot; to client.notes</action_description>
 <action_postfix>
 &quot;Case must be within a KidAid County&quot; client.notes swap addto 
@@ -668,7 +668,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>8</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Add &quot;Must be 18 or younger to qualify for KidAid&quot; to client.notes</action_description>
 <action_postfix>
 &quot;Must be 18 or younger to qualify for KidAid&quot; client.notes swap addto 
@@ -677,7 +677,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>9</action_number>
 <action_comment></action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client_fpl = (100.0 * totalGroupIncome) / FPL</action_description>
 <action_postfix>
 100.0 totalGroupIncome fmul 0 local@  fdiv  cvi /client_fpl xdef  
@@ -725,7 +725,7 @@ client.applying true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Reject the client</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client.eligible = false</action_description>
 <action_postfix>
 false cvb /client.eligible xdef  
@@ -734,7 +734,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Note rejection reason</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add &quot;The System does not yet support Medicaid Applications&quot; to client.notes</action_description>
 <action_postfix>
 &quot;The System does not yet support Medicaid Applications&quot; client.notes swap addto 
@@ -771,7 +771,7 @@ client.applying true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Reject the client</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>set client.eligible = false</action_description>
 <action_postfix>
 false cvb /client.eligible xdef  
@@ -780,7 +780,7 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Note rejection reason</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add &quot;The System does not yet support Food Stamp Applications&quot; to client.notes</action_description>
 <action_postfix>
 &quot;The System does not yet support Food Stamp Applications&quot; client.notes swap addto 
@@ -820,7 +820,7 @@ perform when called
 <action_details>
 <action_number>1</action_number>
 <action_comment>Create a Result Record</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add a new Result entity to the context of this table</action_description>
 <action_postfix>
 /Result createentity entitypush 
@@ -829,7 +829,7 @@ perform when called
 <action_details>
 <action_number>2</action_number>
 <action_comment>Add the record to the list on the job</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>add the result to the job.results</action_description>
 <action_postfix>
 result job.results swap addto 
@@ -838,7 +838,7 @@ result job.results swap addto
 <action_details>
 <action_number>3</action_number>
 <action_comment>Add the case notes to the result notes</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Add the case.notes to the Result.notes</action_description>
 <action_postfix>
 case.notes Result.notes true  addarray 
@@ -847,7 +847,7 @@ case.notes Result.notes true  addarray
 <action_details>
 <action_number>4</action_number>
 <action_comment>Add the client notes to the result notes</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Add the client.notes to the Result.notes</action_description>
 <action_postfix>
 client.notes Result.notes true  addarray 
@@ -856,7 +856,7 @@ client.notes Result.notes true  addarray
 <action_details>
 <action_number>5</action_number>
 <action_comment>Copy the client ID</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.client_id = client.client_id</action_description>
 <action_postfix>
 client.client_id cvs /Result.client_id xdef  
@@ -865,7 +865,7 @@ client.client_id cvs /Result.client_id xdef
 <action_details>
 <action_number>6</action_number>
 <action_comment>Point the Result to the client</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.client = client.client</action_description>
 <action_postfix>
 client.client cve /Result.client xdef  
@@ -874,7 +874,7 @@ client.client cve /Result.client xdef
 <action_details>
 <action_number>7</action_number>
 <action_comment>Set the Result to the program we processed</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.program = job.program</action_description>
 <action_postfix>
 job.program cvs /Result.program xdef  
@@ -883,7 +883,7 @@ job.program cvs /Result.program xdef
 <action_details>
 <action_number>8</action_number>
 <action_comment>Set the Result programLevel to that recorded on the client</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.programLevel = client.programLevel</action_description>
 <action_postfix>
 client.programLevel cvs /Result.programLevel xdef  
@@ -892,7 +892,7 @@ client.programLevel cvs /Result.programLevel xdef
 <action_details>
 <action_number>9</action_number>
 <action_comment>Set the Result eligible flag to that recorded on the client</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.eligible = client.eligible</action_description>
 <action_postfix>
 client.eligible cvb /Result.eligible xdef  
@@ -901,7 +901,7 @@ client.eligible cvb /Result.eligible xdef
 <action_details>
 <action_number>10</action_number>
 <action_comment>Set the Result Federal Poverty Level to the client&apos;s</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.client_fpl = client.client_fpl</action_description>
 <action_postfix>
 client.client_fpl  cvi /Result.client_fpl xdef  
@@ -910,7 +910,7 @@ client.client_fpl  cvi /Result.client_fpl xdef
 <action_details>
 <action_number>11</action_number>
 <action_comment>Set the Result&apos;s totalGroupIncome to the clients.</action_comment>
-<initial_action_requirement></initial_action_requirement>
+<action_requirement></action_requirement>
 <action_description>Set Result.totalGroupIncome = client.totalGroupIncome</action_description>
 <action_postfix>
 client.totalGroupIncome  cvi /Result.totalGroupIncome xdef  

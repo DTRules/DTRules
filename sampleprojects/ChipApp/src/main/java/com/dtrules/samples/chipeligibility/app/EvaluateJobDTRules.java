@@ -14,6 +14,7 @@ import com.dtrules.samples.chipeligibility.app.dataobjects.Client;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Income;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Job;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Relationship;
+import com.dtrules.samples.chipeligibility.app.dataobjects.Result;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 
@@ -148,6 +149,16 @@ public class EvaluateJobDTRules implements EvaluateJob {
 	            }
 	            System.out.println();
 	            System.out.println("Job "+jobId+" Client "+clinetId+" was "+answer+"\n"+notes);
+            }
+            
+            RArray notes = result.get("notes").rArrayValue();
+            synchronized (app) {
+                for(IRObject n : notes){
+                    String note = n.stringValue();
+                    Integer v = app.results.get(note);
+                    if(v == null) v = 0;
+                    app.results.put(note,v+1);
+                }
             }
         }
         

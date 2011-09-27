@@ -56,7 +56,7 @@
 
 
 	<modules>
-		<module>dtrules</module>
+		<module>dtrules-engine</module>
 		<module>compilerutil</module>
 		<module>dsl</module>
 		<module>sampleprojects</module>

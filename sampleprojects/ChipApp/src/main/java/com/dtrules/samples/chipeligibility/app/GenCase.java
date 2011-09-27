@@ -23,7 +23,7 @@ public class GenCase  {
 	int				   level;        // Number of jobs we keep in the queue.
 	
 	String             incomes[]     = {"WA","SSI","SS","CS","TIP","DIV","SET"};
-	int                odds[]        = {45  , 10  ,10  , 15 ,10   , 5   , 5};
+	int                odds[]        = {  55,   10,  10,  10,    5,   5,    5};
 	boolean            earned[]      = {true,false,true,false,true,true,false};
 	
 	String             counties[]    = { "UK", "AA", "AK", "BC", "BK", "BT", 
@@ -131,7 +131,7 @@ public class GenCase  {
 		Income income = new Income();
 		client.getIncomes().add(income);
 		income.setType(incomes[i]);
-		income.setAmount(randint(800)+200);
+		income.setAmount(randint(1400)+200);
 		income.setEarned(earned[i]);
 	}
 	
@@ -205,7 +205,7 @@ public class GenCase  {
 	
 	public void setLevel(int i){
 		level = i;
-		if (i<100){ level = 100; }
+		if (i<200){ level = 200; }
 	}
 	
 	/**

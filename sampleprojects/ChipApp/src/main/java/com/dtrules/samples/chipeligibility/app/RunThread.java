@@ -41,14 +41,14 @@ public class RunThread extends Thread {
 		Job job = app.next();
 		while(job != null){
 			String err=null;
+	        if(app.db_delay!=0){
+	            try {
+	                Thread.sleep(app.db_delay);
+	            } catch (InterruptedException e) { }
+	        }
 		    err = runfile(job);
 			if(err != null)System.err.println(err);
 			job = app.next();
-			try {
-				sleep(0);
-			} catch (InterruptedException e) {
-				
-			}
 		}
 		synchronized (this) {
 			System.out.print(t+"F ");

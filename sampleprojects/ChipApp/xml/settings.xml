@@ -3,25 +3,21 @@
 <!-- will be picked up and used.                                                       -->
 <chipAppSettings>
 
-    <threads>8</threads>                <!-- Number of threads used by ChipApp to            -->
+    <db_overhead>1</db_overhead>        <!-- Database overhead per case in ms                -->
+
+    <threads>8</threads>               <!-- Number of threads used by ChipApp to            -->
                                         <!--   process the jobs generated.                   -->
 
-    <numCases>50000</numCases>          <!-- The number of jobs to be generated. Most        -->
+    <numCases>500000</numCases>         <!-- The number of jobs to be generated. Most        -->
                                         <!--   jobs will have multiple applicants.           -->
 
-    <save>1000</save>                      <!-- One job out of every number specified here      -->
+    <save>0</save>                      <!-- One job out of every number specified here      -->
                                         <!--   will be saved to disk, to be processed        -->
                                         <!--   "offline".  (See the writeup)                 -->
 
-    <trace>false</trace>                <!-- If true, a trace file will be produced for      -->
-                                        <!--   every file saved to disk.  If no files are    -->
-                                        <!--   specified (via saved above) to be saved,      -->
-                                        <!--   and trace is true, all files are saved and    -->
-                                        <!--   traced.                                       -->
-
     <console>false</console>            <!-- If true, results are printed to the console     -->
     
-    <update>0</update>                  <!-- Look for Rules Engine updates every this many   -->
+    <update>20</update>                 <!-- Look for Rules Engine updates every this many   -->
                                         <!--   seconds.                                      -->
                             
     <dtrules>dtrules</dtrules>          <!-- How to evaluate the rules: "dtrules", "java",   -->

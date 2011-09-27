@@ -20,6 +20,7 @@ import com.dtrules.samples.chipeligibility.app.dataobjects.Client;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Income;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Job;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Relationship;
+import com.dtrules.samples.chipeligibility.app.dataobjects.Result;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 
@@ -193,23 +194,21 @@ public class EvaluateJobJava implements EvaluateJob  {
             int FPL = FPL_Base + FPL_PerAdditionalPerson * (incomeGroupCnt - 1 );
             int FPL200 = FPL*2;
             List <String> notes = new ArrayList<String>();
+            client.setNotes(notes);
             boolean eligible = true;
             
             if(!client.getValidatedCitizenship()
                     && !client.getValidatedImmigrationStatus()){
-                notes.add("The Client is not a validated Citizen, nor a validated immigrant");
+                notes.add("Ineligible: The Client is not a validated Citizen, nor a validated immigrant");
                 eligible = false;
             }
             
             if(jstate.clientTotalIncome.get(client.getId())>FPL200){
-                notes.add("The Client's total group income, "+
-                jstate.clientTotalIncome.get(client.getId()) + 
-                "is greater than 200 percent of the FPL "+
-                FPL200);
+                notes.add("Ineligible: The Client's total group income is greater than 200 percent of the FPL ");
                 eligible = false;
             }
             if(!client.getUninsured()){
-                notes.add("The Applying Client must not have insurance");
+                notes.add("Ineligible: The Applying Client must not have insurance");
                 eligible = false;
             }
             
@@ -220,8 +219,8 @@ public class EvaluateJobJava implements EvaluateJob  {
                         client.getLostInsuranceDate().getTime();
                 long days = delta/(1000*60*60*24);
                 
-                if(days < 90){
-                    notes.add("The Client must be uninsured for 90 days or more to qualify for CHIP");
+                if(days <= 90){
+                    notes.add("Ineligible: The Client must be uninsured for 90 days or more to qualify for CHIP");
                     eligible = false;
                 }
             }
@@ -235,17 +234,17 @@ public class EvaluateJobJava implements EvaluateJob  {
             }
             
             if(!goodCounty){
-                notes.add("The Client is not in a covered county");
+                notes.add("Ineligible: The Client is not in a covered county");
                 eligible = false;
             }
             
             if(client.getAge()>18){
-                notes.add("The Client must be 18 or younger to qualify for CHIP");
+                notes.add("Ineligible: The Client must be 18 or younger to qualify for CHIP");
                 eligible = false;
             }
             
             if(client.getEligibleForMedicaid()){
-                notes.add("The Client is eligible for Medicaid, so they are not eligible for CHIP");
+                notes.add("Ineligible: The Client is eligible for Medicaid, so they are not eligible for CHIP");
                 eligible = false;
             }
             
@@ -300,6 +299,21 @@ public class EvaluateJobJava implements EvaluateJob  {
                 } else{
                     app.getDeniedClients().add(client.getId());
                     denied++;
+                }
+            }
+            Result r = new Result();
+            r.setClient(client);
+            r.setClient_id(""+client.getId());
+            r.setNotes(client.getNotes());
+            job.getResults().add(r);
+        }
+        
+        for(Result result : job.getResults()){
+            for(String note : result.getNotes()){
+                if(note.startsWith("Ineligible:")){
+                    Integer v = app.results.get(note);
+                    if(v == null) v = 0;
+                    app.results.put(note,v+1);
                 }
             }
         }
