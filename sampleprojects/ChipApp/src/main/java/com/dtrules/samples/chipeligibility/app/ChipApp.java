@@ -4,7 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.dtrules.interpreter.RName;
 import com.dtrules.samples.chipeligibility.app.dataobjects.Job;
@@ -15,6 +18,7 @@ public class ChipApp {
 	//
 	// These settings are loaded in from testfiles/settings.xml
 	//
+    int     db_delay     = 0;       // Simulated Database overhead per case.
 	int 	threads 	 = 0;		// number of threads to use
 	int 	numCases 	 = 0;		// number of cases to generate
 	int 	save 		 = 0;       // Save cases whose id is divisible by this number 
@@ -32,6 +36,7 @@ public class ChipApp {
 	List<Integer> approvedClients = new ArrayList<Integer>() ;  // Approved clients
 	List<Integer> deniedClients   = new ArrayList<Integer>() ;  // Denied clients
 	
+	Map<String,Integer> results = new HashMap<String,Integer>();
 	
 	// End of settings.
 	
@@ -122,7 +127,7 @@ public class ChipApp {
 			}
 		}
 		if(pulled > numCases)return null;
-		if(jobs.size()==0){
+		if(jobs.size()<50){
 			genCase.fill(); 
 		}
 		return jobs.remove(0);
@@ -224,6 +229,13 @@ public class ChipApp {
 				for(int i=1;i<processed.length;i++){
 					System.out.printf("  Processed in thread %8d : %8d\n", i, processed[i]);
 				}
+				
+				Set<String> keys = results.keySet();
+				System.out.println();
+				for(String key : keys){
+				    System.out.printf("%10d %s\n", results.get(key),key);
+				}
+				
 				if(printresults){
 					sort(approvedClients);
 					sort(deniedClients);

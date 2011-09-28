@@ -16,9 +16,12 @@
 package com.dtrules.samples.chipeligibility;
 
 
+import java.io.PrintStream;
 import java.util.Date;
 
+import com.dtrules.session.IRSession;
 import com.dtrules.testsupport.ATestHarness;
+import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestChip extends ATestHarness {
     	
@@ -31,6 +34,18 @@ public class TestChip extends ATestHarness {
     	t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
     	t.runTests();						// Run the tests.
     
+    }
+    
+    @Override
+    public void printReport(int runNumber, IRSession session, PrintStream out) throws Exception {
+        XMLPrinter xout = new XMLPrinter(out);
+        session.printEntityReport(
+                xout, 
+                false, 
+                false, 
+                session.getState(), 
+                "results", 
+                session.getState().find("results"));
     }
 }    
 	    

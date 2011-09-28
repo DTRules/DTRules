@@ -3,7 +3,7 @@
   <comment>Sonatype helps open source projects to set up Maven repositories on https://oss.sonatype.org/. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
     <project>compilerutil</project>
-    <project>dtrules</project>
+    <project>dtrules-engine</project>
   </projects>
   <buildSpec>
     <buildCommand>

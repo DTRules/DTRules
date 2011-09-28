@@ -26,8 +26,10 @@ public class LoadSettings extends AGenericXMLParser {
 			HashMap<String, String> attribs) throws Exception, IOException {
 		if(tag.equals("threads")){
 			app.threads = Integer.parseInt(body);
-		}else if (tag.equals("numCases")){
-			app.numCases = Integer.parseInt(body);
+        }else if (tag.equals("db_overhead")){
+            app.db_delay = Integer.parseInt(body);
+        }else if (tag.equals("numCases")){
+            app.numCases = Integer.parseInt(body);
 		}else if (tag.equals("save")){
 			app.save = Integer.parseInt(body);
 		}else if (tag.equals("trace")){
