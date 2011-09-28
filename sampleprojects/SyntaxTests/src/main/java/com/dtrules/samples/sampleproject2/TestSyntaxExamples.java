@@ -40,6 +40,20 @@ public class TestSyntaxExamples extends ATestHarness {
 	        ITestHarness t = new TestSyntaxExamples();
 	        t.runTests();
 	    }
+		@Override
+		public void printReport(int runNumber, IRSession session,
+				PrintStream out) throws Exception {
+			XMLPrinter xout = new XMLPrinter(out);
+			session.printEntityReport(
+					xout, 
+					true, 
+					false, 
+					session.getState(), 
+					"results", 
+					session.getState().find("results"));
+		}
 	    
 	}    
-	    
+	 
+    
+     

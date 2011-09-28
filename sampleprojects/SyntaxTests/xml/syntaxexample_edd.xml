@@ -102,7 +102,7 @@
 	</entity>
 	<entity name='job' access='rw' comment=''>
 		<field name='cases' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='currentDate' type='date' subtype='' access='r' input='main' default_value='' comment='The current date.  May be different from the actual date'></field>
+		<field name='currentDate' type='date' subtype='' access='r' input='main' default_value='02/01/1990' comment='The current date.  May be different from the actual date'></field>
 		<field name='effectiveDate' type='date' subtype='' access='r' input='main' default_value='' comment='The Elgibility date if the clients prove eligible'></field>
 		<field name='errorCodes' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='interestingCases' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
