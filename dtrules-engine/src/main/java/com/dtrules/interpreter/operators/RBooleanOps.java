@@ -65,7 +65,7 @@ public class RBooleanOps {
 		/**
 		 * InContext ( name --> boolean ) 
 		 * Checks the context to see of an Entity with the given name is in the 
-		 * current context.
+		 * current context. returns true if the Entity is found, false otherwise.
 		 * @author Paul Snow
 		 *
 		 */
@@ -75,7 +75,12 @@ public class RBooleanOps {
             public void arrayExecute(DTState state) throws RulesException {
                 RName       entityName  = state.datapop().rNameValue();
                 IREntity    entity      = state.findEntity(entityName);
-                state.datapush(entity);
+                if (entity == null)
+                {
+                	state.datapush(RBoolean.getRBoolean(false));
+                } else {
+                	state.datapush(RBoolean.getRBoolean(true));
+                }
             }
         } 
 

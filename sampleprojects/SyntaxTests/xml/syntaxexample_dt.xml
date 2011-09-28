@@ -2529,14 +2529,21 @@ currentdate cvd allocate execute deallocate pop
 null allocate execute 
 </context_postfix></context_details>
 <context_details>
-<context_number></context_number>
+<context_number>4</context_number>
 <context_comment></context_comment>
 <context_description>local array flags</context_description>
 <context_postfix>
 null allocate execute 
 </context_postfix></context_details>
 <context_details>
-<context_number>4</context_number>
+<context_number>5</context_number>
+<context_comment></context_comment>
+<context_description>local string caseFlag = &quot; false &quot;</context_description>
+<context_postfix>
+&quot; false &quot; cvs allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>6</context_number>
 <context_comment></context_comment>
 <context_description>for all clients</context_description>
 <context_postfix>
@@ -2681,20 +2688,29 @@ pregnant
 <condition_number>14</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>( boolean ) case_ID</condition_description>
+<condition_description>( boolean ) caseFlag</condition_description>
 <condition_postfix>
-case_ID cvb 
+4 local@  cvb 
 </condition_postfix>
 <condition_column column_value="N" column_number="14"></condition_column></condition_details>
 <condition_details>
 <condition_number>15</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>boolean results [ 1 ]</condition_description>
+<condition_description>boolean flags [ 0 ]</condition_description>
 <condition_postfix>
-results 1 getat 
+3 local@  0 getat 
 </condition_postfix>
-<condition_column column_value="N" column_number="15"></condition_column></condition_details></conditions>
+<condition_column column_value="N" column_number="15"></condition_column></condition_details>
+<condition_details>
+<condition_number>16</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>true</condition_description>
+<condition_postfix>
+true 
+</condition_postfix>
+<condition_column column_value="Y" column_number="16"></condition_column></condition_details></conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -2718,7 +2734,16 @@ policystatements results true  addarray
 <action_column column_value="x" column_number="12"></action_column>
 <action_column column_value="x" column_number="13"></action_column>
 <action_column column_value="x" column_number="14"></action_column>
-<action_column column_value="x" column_number="15"></action_column></action_details></actions>
+<action_column column_value="x" column_number="15"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_requirement></action_requirement>
+<action_description>Run_Test_7</action_description>
+<action_postfix>
+Run_Test_7 
+</action_postfix>
+<action_column column_value="X" column_number="16"></action_column></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>21  failed</policy_description>
@@ -2765,6 +2790,239 @@ policystatements results true  addarray
 <policy_statement column="15">
 <policy_description>35  failed</policy_description>
 <policy_statement_postfix>&quot;35  failed&quot; </policy_statement_postfix></policy_statement></policy_statements></decision_table>
+<decision_table>
+<table_name>Run_Test_7</table_name>
+<xls_file>RunTimeTests.xls</xls_file>
+<attribute_fields>
+<TYPE>ALL</TYPE>
+<COMMENTS></COMMENTS>
+<POLICY_REFERENCE></POLICY_REFERENCE></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_description>local date Today2 = currentdate</context_description>
+<context_postfix>
+currentdate cvd allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment></context_comment>
+<context_description>local date Today1</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>3</context_number>
+<context_comment></context_comment>
+<context_description>local entity firstClient</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>4</context_number>
+<context_comment></context_comment>
+<context_description>for all clients</context_description>
+<context_postfix>
+dup clients forall pop 
+</context_postfix></context_details></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set programLevel = &quot;low&quot;</initial_action_description>
+<initial_action_postfix>
+&quot;low&quot; cvs /programLevel xdef  
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>set Today1 = (date) &quot;02/01/2011&quot;</initial_action_description>
+<initial_action_postfix>
+&quot;02/01/2011&quot; cvd cvd 1 local!  
+</initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 == currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d== 
+</condition_postfix>
+<condition_column column_value="N" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &lt; currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&lt; 
+</condition_postfix>
+<condition_column column_value="N" column_number="2"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 IS BEFORE  currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&lt; 
+</condition_postfix>
+<condition_column column_value="N" column_number="3"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &gt; currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&gt; 
+</condition_postfix>
+<condition_column column_value="N" column_number="4"></condition_column></condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 IS AFTER currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&gt; 
+</condition_postfix>
+<condition_column column_value="N" column_number="5"></condition_column></condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &gt;= currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&lt; not 
+</condition_postfix>
+<condition_column column_value="N" column_number="6"></condition_column></condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 &lt;= currentdate</condition_description>
+<condition_postfix>
+0 local@  currentdate d&gt; not 
+</condition_postfix>
+<condition_column column_value="N" column_number="7"></condition_column></condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Today2 is between currentdate &amp;&amp; Today1</condition_description>
+<condition_postfix>
+currentdate 0 local@  d&gt; not 0 local@  1 local@   d&gt; not and 
+</condition_postfix>
+<condition_column column_value="N" column_number="8"></condition_column></condition_details>
+<condition_details>
+<condition_number>9</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>firstClient == the client</condition_description>
+<condition_postfix>
+2 local@  client req  
+</condition_postfix>
+<condition_column column_value="N" column_number="9"></condition_column></condition_details>
+<condition_details>
+<condition_number>10</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>firstClient != the client</condition_description>
+<condition_postfix>
+2 local@  client req not 
+</condition_postfix>
+<condition_column column_value="N" column_number="10"></condition_column></condition_details>
+<condition_details>
+<condition_number>11</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>address entity is not in context</condition_description>
+<condition_postfix>
+/address InContext not 
+</condition_postfix>
+<condition_column column_value="N" column_number="11"></condition_column></condition_details>
+<condition_details>
+<condition_number>12</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>address entity is in context</condition_description>
+<condition_postfix>
+/address InContext 
+</condition_postfix>
+<condition_column column_value="N" column_number="12"></condition_column></condition_details>
+<condition_details>
+<condition_number>13</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>boolean value of touppercase ( &quot;true&quot; )</condition_description>
+<condition_postfix>
+&quot;true&quot;  touppercase 
+</condition_postfix>
+<condition_column column_value="N" column_number="13"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_requirement></action_requirement>
+<action_description>add the policy statements to the results</action_description>
+<action_postfix>
+policystatements results true  addarray 
+</action_postfix>
+<action_column column_value="x" column_number="1"></action_column>
+<action_column column_value="x" column_number="2"></action_column>
+<action_column column_value="x" column_number="3"></action_column>
+<action_column column_value="x" column_number="4"></action_column>
+<action_column column_value="x" column_number="5"></action_column>
+<action_column column_value="x" column_number="6"></action_column>
+<action_column column_value="x" column_number="7"></action_column>
+<action_column column_value="x" column_number="8"></action_column>
+<action_column column_value="x" column_number="9"></action_column>
+<action_column column_value="x" column_number="10"></action_column>
+<action_column column_value="x" column_number="11"></action_column>
+<action_column column_value="x" column_number="12"></action_column>
+<action_column column_value="x" column_number="13"></action_column></action_details></actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>41 failed</policy_description>
+<policy_statement_postfix>&quot;41 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="2">
+<policy_description>42 failed</policy_description>
+<policy_statement_postfix>&quot;42 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="3">
+<policy_description>43 failed</policy_description>
+<policy_statement_postfix>&quot;43 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="4">
+<policy_description>44 failed</policy_description>
+<policy_statement_postfix>&quot;44 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="5">
+<policy_description>45 failed</policy_description>
+<policy_statement_postfix>&quot;45 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="6">
+<policy_description>46 failed</policy_description>
+<policy_statement_postfix>&quot;46 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="7">
+<policy_description>47 failed</policy_description>
+<policy_statement_postfix>&quot;47 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="8">
+<policy_description>48 failed</policy_description>
+<policy_statement_postfix>&quot;48 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="9">
+<policy_description>49 failed</policy_description>
+<policy_statement_postfix>&quot;49 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="10">
+<policy_description>50 failed</policy_description>
+<policy_statement_postfix>&quot;50 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="11">
+<policy_description>51 failed</policy_description>
+<policy_statement_postfix>&quot;51 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="12">
+<policy_description>52 failed</policy_description>
+<policy_statement_postfix>&quot;52 failed&quot; </policy_statement_postfix></policy_statement>
+<policy_statement column="13">
+<policy_description>53 failed</policy_description>
+<policy_statement_postfix>&quot;53 failed&quot; </policy_statement_postfix></policy_statement></policy_statements></decision_table>
 <decision_table>
 <table_name>Syntax_Examples_5</table_name>
 <xls_file>SyntaxExampleDTs.xls</xls_file>
