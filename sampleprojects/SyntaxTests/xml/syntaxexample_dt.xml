@@ -70,7 +70,7 @@ case.address entitypush execute entitypop
 <context_comment></context_comment>
 <context_description>local entity FirstClient</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>9</context_number>
@@ -84,7 +84,7 @@ client cve allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local long Anumber</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>11</context_number>
@@ -98,7 +98,7 @@ null allocate execute
 <context_comment></context_comment>
 <context_description>local double DoubleNumber</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>13</context_number>
@@ -112,7 +112,7 @@ null allocate execute
 <context_comment></context_comment>
 <context_description>local boolean Test</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>15</context_number>
@@ -126,7 +126,7 @@ true cvb allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local date Today</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>17</context_number>
@@ -140,7 +140,7 @@ currentdate cvd allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local array List</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>19</context_number>
@@ -154,7 +154,7 @@ clients allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local string Things</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>21</context_number>
@@ -278,7 +278,7 @@ dup { validatedCitizenship false beq  } job.cases  forfirst pop
 <context_comment></context_comment>
 <context_description>local entity theClient</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details></contexts>
 <initial_actions>
 <initial_action_details>
@@ -2240,7 +2240,7 @@ dup clients forall pop
 <context_comment></context_comment>
 <context_description>local entity FirstClient</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>6</context_number>
@@ -2254,7 +2254,7 @@ client cve allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local long Anumber</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>8</context_number>
@@ -2268,7 +2268,7 @@ null allocate execute
 <context_comment></context_comment>
 <context_description>local double DoubleNumber</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>10</context_number>
@@ -2282,7 +2282,7 @@ null allocate execute
 <context_comment></context_comment>
 <context_description>local boolean Test</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>12</context_number>
@@ -2296,7 +2296,7 @@ true cvb allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local date Today</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>14</context_number>
@@ -2310,7 +2310,7 @@ currentDate cvd allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local array List</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>16</context_number>
@@ -2324,7 +2324,7 @@ clients allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local string Things</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>18</context_number>
@@ -2460,7 +2460,7 @@ currentdate cvd allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local long clientAge</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number></context_number>
@@ -2739,14 +2739,14 @@ currentdate cvd allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local entity firstClient</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>4</context_number>
 <context_comment></context_comment>
 <context_description>local array flags</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>5</context_number>
@@ -3023,14 +3023,14 @@ currentdate cvd allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local date Today1</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_comment></context_comment>
 <context_description>local entity firstClient</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>4</context_number>
@@ -3248,14 +3248,14 @@ currentdate cvd allocate execute deallocate pop
 <context_comment></context_comment>
 <context_description>local string Things</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_comment></context_comment>
 <context_description>local entity firstClient</context_description>
 <context_postfix>
-null allocate execute 
+null allocate execute deallocate pop 
 </context_postfix></context_details></contexts>
 <initial_actions></initial_actions>
 <conditions>

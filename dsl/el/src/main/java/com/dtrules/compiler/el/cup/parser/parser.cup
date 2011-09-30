@@ -78,7 +78,7 @@ parser code {:
                 if(initialValue != null){
                    return initialValue + "allocate execute deallocate pop ";
                 }else{
-                   return "null allocate execute ";
+                   return "null allocate execute deallocate pop ";
                 }       
     }
 
