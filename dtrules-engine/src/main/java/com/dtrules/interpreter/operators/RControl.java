@@ -382,8 +382,9 @@ public class RControl {
 
         public void arrayExecute(DTState state) throws RulesException {
             IRObject v = state.datapop();
+            int index = state.cdepth()-state.getCurrentFrame();
             if(state.testState(DTState.TRACE)){
-                state.traceInfo("allocate", "value",v.postFix(),null);
+                state.traceInfo("allocate", "index",""+index, "value",v.postFix(),null);
             }
             state.cpush(v);
         }

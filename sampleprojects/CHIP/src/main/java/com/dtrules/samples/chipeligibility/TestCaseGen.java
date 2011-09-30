@@ -18,7 +18,7 @@ public class TestCaseGen {
 	public static PrintStream estream = System.err;
 	
 								// This is the default number of how many test cases to generate.
-	static int cnt = 5;	    	// You can pass a different number on the commandline.
+	static int cnt = 11;	    	// You can pass a different number on the commandline.
 	
 	Random 		       rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;

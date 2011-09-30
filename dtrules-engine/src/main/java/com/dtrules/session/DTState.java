@@ -596,6 +596,15 @@ public class DTState {
     }
 
     /**
+     * Returns the index to the currentframe.  
+     * @return
+     * @throws RulesException
+     */
+    public int getCurrentFrame() throws RulesException {
+        return currentframe;
+    }
+    
+    /**
      * Internal use. Pushes a frame onto the control stack from which local
      * variables can be allocated.
      * 
