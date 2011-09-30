@@ -1,0 +1,13 @@
+<job>
+   <case>
+  
+	   <client>
+	   		<age>45</age>
+	   		<eligible>false</eligible>
+	   </client>
+	   <client>
+	   		<age>16</age>
+	   		<eligible>false</eligible>
+	   </client>
+   </case>
+</job>
