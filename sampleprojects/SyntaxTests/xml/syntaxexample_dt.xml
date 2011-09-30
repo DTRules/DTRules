@@ -2231,6 +2231,219 @@ clients client_ID memberof not cvb /eligible xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment></context_comment>
+<context_description>for all clients</context_description>
+<context_postfix>
+dup clients forall pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>5</context_number>
+<context_comment></context_comment>
+<context_description>local entity FirstClient</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>6</context_number>
+<context_comment></context_comment>
+<context_description>local entity FirstClient2 = client</context_description>
+<context_postfix>
+client cve allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>7</context_number>
+<context_comment></context_comment>
+<context_description>local long Anumber</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>8</context_number>
+<context_comment></context_comment>
+<context_description>local long Anumber2 = 1234</context_description>
+<context_postfix>
+1234  cvi allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>9</context_number>
+<context_comment></context_comment>
+<context_description>local double DoubleNumber</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>10</context_number>
+<context_comment></context_comment>
+<context_description>local double DoubleNumber2 = 1.234</context_description>
+<context_postfix>
+1.234  cvr allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>11</context_number>
+<context_comment></context_comment>
+<context_description>local boolean Test</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>12</context_number>
+<context_comment></context_comment>
+<context_description>local boolean Test2 = true</context_description>
+<context_postfix>
+true cvb allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>13</context_number>
+<context_comment></context_comment>
+<context_description>local date Today</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>14</context_number>
+<context_comment></context_comment>
+<context_description>local date Today2 = currentDate</context_description>
+<context_postfix>
+currentDate cvd allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>15</context_number>
+<context_comment></context_comment>
+<context_description>local array List</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>16</context_number>
+<context_comment></context_comment>
+<context_description>local array List2 = clients</context_description>
+<context_postfix>
+clients allocate execute deallocate pop 
+</context_postfix></context_details>
+<context_details>
+<context_number>17</context_number>
+<context_comment></context_comment>
+<context_description>local string Things</context_description>
+<context_postfix>
+null allocate execute 
+</context_postfix></context_details>
+<context_details>
+<context_number>18</context_number>
+<context_comment></context_comment>
+<context_description>local string Things2 = &apos;This is a string&apos;</context_description>
+<context_postfix>
+&apos;This is a string&apos; cvs allocate execute deallocate pop 
+</context_postfix></context_details></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number>1</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>if (Today2 == currentDate) then 
+     set test = false ;
+endif</initial_action_description>
+<initial_action_postfix>
+{ false cvb 6 local!  } 9 local@  currentDate d== if 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>2</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>for all clients set eligible = true</initial_action_description>
+<initial_action_postfix>
+{ true cvb /eligible xdef  } clients forallr 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>3</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>//for each case in job.cases set eligible=true</initial_action_description>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>4</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>//for each case in job.cases where city==&apos;spokane&apos; set eligible=true</initial_action_description>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>5</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>for all clients where age &lt; 18 set eligible=false</initial_action_description>
+<initial_action_postfix>
+{ { false cvb /eligible xdef   } age 18 &lt; if } clients forallr 
+</initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>6</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>//for each case and its address in job.cases set applying = true</initial_action_description>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_details>
+<intial_action_number>7</intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>//for each case and its address in job.cases where validatedCitizenship == false set eligible = false</initial_action_description>
+<initial_action_postfix></initial_action_postfix></initial_action_details></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>does test == true ?</condition_description>
+<condition_postfix>
+6 local@  true beq 
+</condition_postfix>
+<condition_column column_value="N" column_number="1"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment></condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>true</condition_description>
+<condition_postfix>
+true 
+</condition_postfix>
+<condition_column column_value="Y" column_number="2"></condition_column></condition_details></conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_requirement></action_requirement>
+<action_description>add the policy statements to the results</action_description>
+<action_postfix>
+policystatements results true  addarray 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_requirement></action_requirement>
+<action_description>//add currentdate to the results</action_description>
+<action_postfix></action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_requirement></action_requirement>
+<action_description>Run_Test_5</action_description>
+<action_postfix>
+Run_Test_5 
+</action_postfix>
+<action_column column_value="X" column_number="2"></action_column></action_details></actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>1 failed</policy_description>
+<policy_statement_postfix>&quot;1 failed&quot; </policy_statement_postfix></policy_statement></policy_statements></decision_table>
+<decision_table>
+<table_name>Run_Test_5</table_name>
+<xls_file>RunTimeTests.xls</xls_file>
+<attribute_fields>
+<TYPE>ALL</TYPE>
+<COMMENTS></COMMENTS>
+<POLICY_REFERENCE></POLICY_REFERENCE></attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
 <context_description>local date Today2 = currentdate</context_description>
 <context_postfix>
 currentdate cvd allocate execute deallocate pop 
@@ -2829,14 +3042,6 @@ dup clients forall pop
 <initial_actions>
 <initial_action_details>
 <intial_action_number>1</intial_action_number>
-<initial_action_comment></initial_action_comment>
-<initial_action_requirement></initial_action_requirement>
-<initial_action_description>set programLevel = &quot;low&quot;</initial_action_description>
-<initial_action_postfix>
-&quot;low&quot; cvs /programLevel xdef  
-</initial_action_postfix></initial_action_details>
-<initial_action_details>
-<intial_action_number>2</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
 <initial_action_description>set Today1 = (date) &quot;02/01/2011&quot;</initial_action_description>
