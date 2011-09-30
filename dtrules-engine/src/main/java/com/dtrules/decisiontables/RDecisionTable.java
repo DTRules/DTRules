@@ -740,7 +740,9 @@ public class RDecisionTable extends ARObject {
 			     (cstk!= state.cdepth() ? "Control Stack before "+cstk+" after "+state.cdepth()+"\n":""));
 			}
 		} catch (RulesException e) {
-	        state.traceTagEnd();
+	        try{ 
+	        	state.traceTagEnd(); 
+	        }catch (RuntimeException e2){}
 			e.addDecisionTable(this.getName().stringValue(), this.getFilename());
 			state.setCurrentTable(last);
 			throw e;

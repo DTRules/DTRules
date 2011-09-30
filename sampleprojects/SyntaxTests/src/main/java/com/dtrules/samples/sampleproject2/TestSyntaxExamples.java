@@ -33,13 +33,27 @@ public class TestSyntaxExamples extends ATestHarness {
 	    public String   getPath()                 { return CompileSyntaxExamples.path;      }
 	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
 	    public String   getRuleSetName()          { return "SyntaxExamples";                }
-	    public String   getDecisionTableName()    { return "Syntax_Examples";                }
+	    public String   getDecisionTableName()    { return "Run_Test";                }
 	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             
 	   
 	    public static void main(String[] args) {
 	        ITestHarness t = new TestSyntaxExamples();
 	        t.runTests();
 	    }
+		@Override
+		public void printReport(int runNumber, IRSession session,
+				PrintStream out) throws Exception {
+			XMLPrinter xout = new XMLPrinter(out);
+			session.printEntityReport(
+					xout, 
+					true, 
+					false, 
+					session.getState(), 
+					"results", 
+					session.getState().find("results"));
+		}
 	    
 	}    
-	    
+	 
+    
+     

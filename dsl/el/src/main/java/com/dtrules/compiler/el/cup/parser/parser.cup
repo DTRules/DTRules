@@ -625,7 +625,9 @@ array_list ::= array_list:l COMMA strexpr:s                 {: RESULT = l+s;    
               array_list:l COMMA eexpr:s                    {: RESULT = l+s;                             :} |
               array_list:l COMMA fexpr:s                    {: RESULT = l+s;                             :} |
               array_list:l COMMA nexpr:s                    {: RESULT = l+s;                             :} |
-              array_list:l COMMA array_expr:s               {: RESULT = l+s;                             :} |
+              array_list:l COMMA array_expr:s               {: RESULT = l+s;                             :} |              
+              array_list:l COMMA bexpr:s               		{: RESULT = l+s;                             :} |              
+              bexpr:s                                  		{: RESULT = s;                               :} |
               array_expr:s                                  {: RESULT = s;                               :} |
               nexpr:s                                       {: RESULT = s;                               :} |
               fexpr:s                                       {: RESULT = s;                               :} |
