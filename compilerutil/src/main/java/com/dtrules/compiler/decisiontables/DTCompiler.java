@@ -111,7 +111,7 @@ public class DTCompiler implements IGenericXMLParser{
             }else if(prefix.equals("context")){
                newpostfix = compiler.compileContext(source);
             }else if(prefix.equals("initial_action")){
-               newpostfix = compiler.compileAction(source);
+               newpostfix = compiler.compileInitialAction(source);
             }else if(prefix.equals("policy_statement")){
                newpostfix = compiler.compilePolicyStatement(source); 
             }
