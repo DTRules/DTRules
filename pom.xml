@@ -22,7 +22,7 @@
 	<groupId>com.dtrules</groupId>
 	<artifactId>dtrules</artifactId>
 	<packaging>pom</packaging>
-	<version>5.0-SNAPSHOT</version>
+	<version>5.0</version>
 
 	<name>DTRules</name>
 	<url>http://www.dtrules.com/</url>
