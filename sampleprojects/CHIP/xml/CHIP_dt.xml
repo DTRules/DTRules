@@ -353,18 +353,43 @@ FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate 
 <context_description>local int FPL200 = FPL * 2</context_description>
 <context_postfix>
 0 local@  2 *  cvi allocate execute deallocate pop 
-</context_postfix></context_details></contexts>
-<initial_actions></initial_actions>
+</context_postfix></context_details>
+<context_details>
+<context_number></context_number>
+<context_comment></context_comment>
+<context_description>local int FPL = 0</context_description>
+<context_postfix></context_postfix></context_details>
+<compile_error>
+File name:      null
+Location:       &apos;Parsing a context&apos;
+Type:           &apos;compileError&apos;
+Error:          &apos;local int FPL  *ERROR*=&gt; = 0&apos;</compile_error></contexts>
+<initial_actions>
+<initial_action_details>
+<intial_action_number></intial_action_number>
+<initial_action_comment></initial_action_comment>
+<initial_action_requirement></initial_action_requirement>
+<initial_action_description>down by the bay</initial_action_description>
+<initial_action_postfix></initial_action_postfix></initial_action_details>
+<compile_error>
+File name:      null
+Location:       &apos;Parsing a action&apos;
+Type:           &apos;compileError&apos;
+Error:          &apos; *ERROR*=&gt; down by the bay&apos;</compile_error></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Are you a citizen?</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>validatedCitizenship == true</condition_description>
-<condition_postfix>
-validatedCitizenship true beq 
-</condition_postfix>
+<condition_description>validatedCitizenshipx 
+== true</condition_description>
+<condition_postfix></condition_postfix>
 <condition_column column_value="N" column_number="1"></condition_column></condition_details>
+<compile_error>
+File name:      null
+Location:       &apos;Parsing a condition&apos;
+Type:           &apos;compileError&apos;
+Error:          &apos; *ERROR*=&gt; validatedCitizenshipx  == true&apos;</compile_error>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>If not a citizen,  are you a legal immigrant(Lawfully present immigrant children who have not been in the country for 5 years)</condition_comment>
@@ -378,11 +403,14 @@ validatedImmigrationStatus true beq
 <condition_number>3</condition_number>
 <condition_comment>Group income must be &lt;=200 percent of the Federal Poverty Limit</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>client.totalGroupIncome &lt;= FPL200</condition_description>
-<condition_postfix>
-client.totalGroupIncome 1 local@  &lt;= 
-</condition_postfix>
+<condition_description>client.totalGroupIncome &lt;= &lt;= FPL200</condition_description>
+<condition_postfix></condition_postfix>
 <condition_column column_value="N" column_number="2"></condition_column></condition_details>
+<compile_error>
+File name:      null
+Location:       &apos;Parsing a condition&apos;
+Type:           &apos;compileError&apos;
+Error:          &apos;client.totalGroupIncome &lt;=  *ERROR*=&gt; &lt;= FPL200&apos;</compile_error>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
@@ -433,11 +461,14 @@ client.age 18 &lt;=
 <condition_number>9</condition_number>
 <condition_comment>If you are eligible for Medicaid, then you are not eligible for CHIP</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>eligibleForMedicaid == true</condition_description>
-<condition_postfix>
-eligibleForMedicaid true beq 
-</condition_postfix>
+<condition_description>eligibleForMedicaid == &quot;true</condition_description>
+<condition_postfix></condition_postfix>
 <condition_column column_value="Y" column_number="7"></condition_column></condition_details>
+<compile_error>
+File name:      null
+Location:       &apos;Parsing a condition&apos;
+Type:           &apos;compileError&apos;
+Error:          &apos;eligibleForMedicaid ==  *ERROR*=&gt; &quot;true&apos;</compile_error>
 <condition_details>
 <condition_number>10</condition_number>
 <condition_comment>Otherwise the client is eligible</condition_comment>

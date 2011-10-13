@@ -182,8 +182,21 @@ public class EL implements ICompiler {
         try {
            result = parser.parse().value;
         }catch(Exception e){
-           throw new Exception( "Error found at Line:Char ="+lexer.linenumber()+":"+lexer.charnumber()+" "+
-                   e.toString()); 
+           int line = 0;
+           for (int i = 0; i < lexer.linenumber(); i++){
+        	   int tryhere = s.indexOf("\n", line);
+        	   if(tryhere >0) line = tryhere;
+           }
+           s = s.replaceAll("[\n]", " ");
+           s = s.replaceAll("[\r]", " ");
+           
+           String before = s.substring(0, line+lexer.charnumber());
+           String after  = s.substring(line+lexer.charnumber());
+           
+           String location = "Parsing a "+before.substring(0,before.indexOf(" "));
+           before = before.substring(before.indexOf(" ")+1);
+           
+           throw new RulesException("compileError", location, before+" *ERROR*=> "+after);
         }
         localcnt = parser.localCnt;
         localtypes.putAll(parser.localtypes);

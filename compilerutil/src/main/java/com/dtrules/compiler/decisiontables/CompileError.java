@@ -52,5 +52,20 @@ public class CompileError {
         lineNumber      = line;
         this.info       = info==null?"":info;
         tokens          = _tokens;
+        
+        if(tokens.size()>0){
+        	String last = tokens.get(tokens.size()-1);
+        	String text = last.substring(last.indexOf(" : ")+3);
+        	if(last.startsWith("UNDEFINED")){
+        		this.info = "'"+text+"' is undefined"; 
+        	}else{
+        		if(message.indexOf("*=> "+text)<0){
+        			this.info = "Unbalanced quotes or unexpected end of statement occured (All the tokens parsed are good)";
+        		}else{
+        			this.info = "The parser didn't expect the token '"+text+"'";
+        		}
+        	}
+        }
+        
     }
 }

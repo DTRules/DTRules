@@ -133,9 +133,7 @@ public class DTCompiler implements IGenericXMLParser{
      */
     private void logResult(String prefix){
         if (message!=null){
-            String info="";
-            if(oldpostfix!=null)info="Old Postfix: "+oldpostfix;
-            errors.add(new CompileError(tablename,filename,source,message,-1,info,compiler.getParsedTokens()));
+            errors.add(new CompileError(tablename,filename,source,message,-1,null,compiler.getParsedTokens()));
             printStartTag("compile_error",null);
             printEndTag("compile_error",message);
             message    = null;
@@ -240,7 +238,7 @@ public class DTCompiler implements IGenericXMLParser{
             } catch (Exception e) {
                 errors.add(new CompileError(
                 		
-                        tablename,filename,"Error occurred in the XML parsing", e.toString(), -1,null
+                        tablename,filename,"Error occurred in the XML parsing", e.getMessage(), -1,null
                         ,compiler.getParsedTokens())
                 );
             }
@@ -270,6 +268,7 @@ public class DTCompiler implements IGenericXMLParser{
                 eOut.println("Source:         " + error.source);
                 eOut.println("Error:          " + error.message);
                 eOut.println("Info:           " + error.info);
+                eOut.println("\nThe following are the tokens that the parser recognized:");
                 Iterator<String> tokens = error.tokens.iterator();
                 while(tokens.hasNext())eOut.println(tokens.next());
                 if(error.lineNumber>=0){

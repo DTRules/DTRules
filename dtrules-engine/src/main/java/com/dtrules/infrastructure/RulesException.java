@@ -209,7 +209,7 @@ public class RulesException extends Exception {
           ((formal != null)  ?   ("Formal:         "+formal+"\r\n"):"")+
         	                      "Location:       '"+location+"'\r\n" +
         	                      "Type:           '"+errortype+"'\r\n" +
-        	                      "Error:          '"+message+"'\r\n" ;
+        	                      "Error:          '"+message+"'" ;
     }
 
     /**
