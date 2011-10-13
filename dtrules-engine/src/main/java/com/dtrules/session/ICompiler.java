@@ -67,6 +67,14 @@ public interface ICompiler {
     public abstract String compileAction(String action) throws Exception;
 
     /**
+     * Compiles a single Action.  Returns the postfix string needed by the Rules Engine.  
+     * @param action     The String in "Formal" to be compiled.
+     * @return           The postfix string representing the action.
+     * @throws Exception Throws an exception if the compile fails for any reason.
+     */
+    public abstract String compileInitialAction(String action) throws Exception;
+
+    /**
      * Compiles a Context Wrapper  Returns the postfix string needed by the Rules Engine.  
      * @param context    The String in "Formal" to be compiled.
      * @return           The postfix string representing the action.

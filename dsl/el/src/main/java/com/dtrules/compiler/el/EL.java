@@ -243,6 +243,16 @@ public class EL implements ICompiler {
     public String compileAction(String action) throws Exception {
         return compile("action "+action);
     }
+    
+    /**
+     * We allow all the same actions in the initial action section as we do
+     * the Action Section.  However, just because this compiler allows this doesn't
+     * mean others have to.
+     **/
+    @Override
+    public String compileInitialAction(String action) throws Exception {
+        return compile("action "+action);
+    }
     /**
      * @see com.dtrules.compiler.ICompiler#compileCondition(java.lang.String)
      **/
