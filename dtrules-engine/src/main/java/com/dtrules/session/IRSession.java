@@ -202,19 +202,9 @@ public interface IRSession {
      * @throws RulesException Thrown if any problem occurs (such as an undefined Entity name)
      */
     public IREntity createEntity(Object id, RName name) throws RulesException;
-    
+        
     /**
-     * If the session is provided a compiler object, then it can compile
-     * the Formal syntax into posfix using this compiler.  A Compiler is 
-     * really specific to the RuleSet.  However, in the future we may 
-     * wish that a compiler be specific to the decision table.
-     * 
-     * @param _compiler
-     */
-    public void setCompiler(ICompiler _compiler);
-    
-    /**
-     * Get the compiler object for this session.
+     * Get the compiler object for this session from the Rule Set.
      * @return
      */
     public ICompiler getCompiler();

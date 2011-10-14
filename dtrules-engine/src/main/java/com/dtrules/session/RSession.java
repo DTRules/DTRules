@@ -48,7 +48,6 @@ public class RSession implements IRSession {
     EntityFactory               ef;
     private int                 uniqueID;
     HashMap<Object,IREntity>    entityInstances = new HashMap<Object,IREntity>();
-    ICompiler                   compiler = null;    
     IComputeDefaultValue        ComputeDefault = new ComputeDefaultValue();
     ArrayList<DataMap>          registeredMaps = new ArrayList<DataMap>();  
     IDateParser					dateParser = new DateParser();
@@ -115,20 +114,22 @@ public class RSession implements IRSession {
     public RulesDirectory getRulesDirectory() {
         return rs.getRulesDirectory();
     }
-    /**
-     * If the session is provided a compiler object, then it can compile
-     * the Formal syntax into posfix using this compiler.  A Compiler is 
-     * really specific to the RuleSet.  However, in the future we may 
-     * wish that a compiler be specific to the decision table.
-     * 
-     * @param _compiler
-     */
-    public void setCompiler(ICompiler _compiler){
-        compiler = _compiler;
-    }
     
+    /**
+     * Allocate a new compiler from the Rule Set and return it.
+     * Returns null if no compiler is available, or any error is 
+     * thrown in the process.
+     */
     public ICompiler getCompiler() {
-        return compiler;
+        try {
+        	if(rs.getDefaultCompiler()!=null){
+        		return rs.getDefaultCompiler().newInstance();
+        	}
+		} catch (IllegalAccessException e) {
+		} catch (InstantiationException e) {
+		} catch (RulesException e) {
+		}
+		return null;
     }
 
     /**
