@@ -17,8 +17,9 @@
 package com.dtrules.compiler.el.cup.parser;
 
 import java.util.*;
-import java.io.*;
 import java_cup.runtime.*;
+
+import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 
 action code {:
@@ -30,7 +31,11 @@ action code {:
     public void notlocal(java.util.Stack stack){
       Symbol v = (Symbol) stack.peek();
       if(v instanceof RSymbol && ((RSymbol)v).local){
-          throw new RuntimeException("The Local Variable "+((RSymbol)v).rightvalue+" is being referenced improperly");
+          throw new RulesException(
+          		"Improper Reference",
+          		"parser",
+          		"The Local Variable "+((RSymbol)v).rightvalue+" is being referenced improperly");
+
       }
     }
     /**
