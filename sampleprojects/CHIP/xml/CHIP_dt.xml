@@ -199,8 +199,8 @@ Note that this table doesn&apos;t actually create the income group.  It just cou
 </context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
-<context_comment>We want to compare a client against every other client in the case, so we set up a local variable to point to ThisClient</context_comment>
-<context_description>local entity ThisClient = client</context_description>
+<context_comment>We want to compare a client against every other client in the case, so we set up a local variable to point to ApplyingClient</context_comment>
+<context_description>local entity ApplyingClient = client</context_description>
 <context_postfix>
 client cve allocate execute deallocate pop 
 </context_postfix></context_details>
@@ -217,7 +217,7 @@ dup clients forall pop
 <condition_number>1</condition_number>
 <condition_comment>Are we consider the client themselves?</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>ThisClient == client</condition_description>
+<condition_description>ApplyingClient == client</condition_description>
 <condition_postfix>
 0 local@  client req  
 </condition_postfix>
@@ -226,9 +226,9 @@ dup clients forall pop
 <condition_column column_value="Y" column_number="9"></condition_column></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Include ThisClient&apos;s parents</condition_comment>
+<condition_comment>Include ApplyingClient&apos;s parents</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the client is the parent of ThisClient</condition_description>
+<condition_description>the client is the parent of ApplyingClient</condition_description>
 <condition_postfix>
 /source client /target 0 local@  /type parent relationships findmatch swap pop
 </condition_postfix>
@@ -237,9 +237,9 @@ dup clients forall pop
 <condition_column column_value="Y" column_number="10"></condition_column></condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Include ThisClient&apos;s siblings</condition_comment>
+<condition_comment>Include ApplyingClient&apos;s siblings</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the client is the sibling of ThisClient</condition_description>
+<condition_description>the client is the sibling of ApplyingClient</condition_description>
 <condition_postfix>
 /source client /target 0 local@  /type sibling relationships findmatch swap pop
 </condition_postfix>
@@ -248,9 +248,9 @@ dup clients forall pop
 <condition_column column_value="Y" column_number="11"></condition_column></condition_details>
 <condition_details>
 <condition_number>4</condition_number>
-<condition_comment>Include ThisClient&apos;s children</condition_comment>
+<condition_comment>Include ApplyingClient&apos;s children</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the client is the child of ThisClient</condition_description>
+<condition_description>the client is the child of ApplyingClient</condition_description>
 <condition_postfix>
 /source client /target 0 local@  /type child relationships findmatch swap pop
 </condition_postfix>
@@ -287,7 +287,7 @@ client.age 18 &gt;
 <action_number>1</action_number>
 <action_comment>Count the Client himself and particular relatives</action_comment>
 <action_requirement></action_requirement>
-<action_description>add 1 to ThisClient&apos;s IncomeGroupCount</action_description>
+<action_description>add 1 to ApplyingClient&apos;s IncomeGroupCount</action_description>
 <action_postfix>
 1  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
 </action_postfix>
@@ -302,7 +302,7 @@ client.age 18 &gt;
 <action_number>2</action_number>
 <action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
 <action_requirement></action_requirement>
-<action_description>add expectedChildren to ThisClient&apos;s IncomeGroupCount</action_description>
+<action_description>add expectedChildren to ApplyingClient&apos;s IncomeGroupCount</action_description>
 <action_postfix>
 expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
 </action_postfix>
@@ -313,7 +313,7 @@ expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef
 <action_number>3</action_number>
 <action_comment>Add this person&apos;s Income to the ThisPerson&apos;s total group income</action_comment>
 <action_requirement></action_requirement>
-<action_description>add the client.totalIncome to ThisClient&apos;s totalGroupIncome</action_description>
+<action_description>add the client.totalIncome to ApplyingClient&apos;s totalGroupIncome</action_description>
 <action_postfix>
 client.totalIncome  0 local@  entitypush totalGroupIncome + /totalGroupIncome xdef entitypop 
 </action_postfix>
@@ -353,43 +353,18 @@ FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate 
 <context_description>local int FPL200 = FPL * 2</context_description>
 <context_postfix>
 0 local@  2 *  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
-<context_details>
-<context_number></context_number>
-<context_comment></context_comment>
-<context_description>local int FPL = 0</context_description>
-<context_postfix></context_postfix></context_details>
-<compile_error>
-File name:      null
-Location:       &apos;Parsing a context&apos;
-Type:           &apos;compileError&apos;
-Error:          &apos;local int FPL  *ERROR*=&gt; = 0&apos;</compile_error></contexts>
-<initial_actions>
-<initial_action_details>
-<intial_action_number></intial_action_number>
-<initial_action_comment></initial_action_comment>
-<initial_action_requirement></initial_action_requirement>
-<initial_action_description>down by the bay</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
-<compile_error>
-File name:      null
-Location:       &apos;Parsing a action&apos;
-Type:           &apos;compileError&apos;
-Error:          &apos; *ERROR*=&gt; down by the bay&apos;</compile_error></initial_actions>
+</context_postfix></context_details></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Are you a citizen?</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>validatedCitizenshipx 
-== true</condition_description>
-<condition_postfix></condition_postfix>
+<condition_description>ValidatedCitizenship == true</condition_description>
+<condition_postfix>
+ValidatedCitizenship true beq 
+</condition_postfix>
 <condition_column column_value="N" column_number="1"></condition_column></condition_details>
-<compile_error>
-File name:      null
-Location:       &apos;Parsing a condition&apos;
-Type:           &apos;compileError&apos;
-Error:          &apos; *ERROR*=&gt; validatedCitizenshipx  == true&apos;</compile_error>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>If not a citizen,  are you a legal immigrant(Lawfully present immigrant children who have not been in the country for 5 years)</condition_comment>
@@ -403,14 +378,11 @@ validatedImmigrationStatus true beq
 <condition_number>3</condition_number>
 <condition_comment>Group income must be &lt;=200 percent of the Federal Poverty Limit</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>client.totalGroupIncome &lt;= &lt;= FPL200</condition_description>
-<condition_postfix></condition_postfix>
+<condition_description>client.totalGroupIncome &lt;= FPL200</condition_description>
+<condition_postfix>
+client.totalGroupIncome 1 local@  &lt;= 
+</condition_postfix>
 <condition_column column_value="N" column_number="2"></condition_column></condition_details>
-<compile_error>
-File name:      null
-Location:       &apos;Parsing a condition&apos;
-Type:           &apos;compileError&apos;
-Error:          &apos;client.totalGroupIncome &lt;=  *ERROR*=&gt; &lt;= FPL200&apos;</compile_error>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
@@ -461,14 +433,11 @@ client.age 18 &lt;=
 <condition_number>9</condition_number>
 <condition_comment>If you are eligible for Medicaid, then you are not eligible for CHIP</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>eligibleForMedicaid == &quot;true</condition_description>
-<condition_postfix></condition_postfix>
+<condition_description>eligibleForMedicaid == true</condition_description>
+<condition_postfix>
+eligibleForMedicaid true beq 
+</condition_postfix>
 <condition_column column_value="Y" column_number="7"></condition_column></condition_details>
-<compile_error>
-File name:      null
-Location:       &apos;Parsing a condition&apos;
-Type:           &apos;compileError&apos;
-Error:          &apos;eligibleForMedicaid ==  *ERROR*=&gt; &quot;true&apos;</compile_error>
 <condition_details>
 <condition_number>10</condition_number>
 <condition_comment>Otherwise the client is eligible</condition_comment>
