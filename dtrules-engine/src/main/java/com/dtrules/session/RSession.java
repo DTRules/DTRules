@@ -123,7 +123,11 @@ public class RSession implements IRSession {
     public ICompiler getCompiler() {
         try {
         	if(rs.getDefaultCompiler()!=null){
-        		return rs.getDefaultCompiler().newInstance();
+        		ICompiler c = rs.getDefaultCompiler().newInstance();
+        		try {
+					c.setSession(this);
+	        		return c;
+				} catch (Exception e) { }
         	}
 		} catch (IllegalAccessException e) {
 		} catch (InstantiationException e) {

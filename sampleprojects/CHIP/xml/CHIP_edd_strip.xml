@@ -1,99 +1,99 @@
 <>
-	<entity_data_dictionary xmlns:xs='http://www.w3.org/2001/XMLSchema' version='2'>
+	<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
 		<entity access='rw' comment='' name='case'>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='case'></field>
-			<field input='' comment='' type='array' access='r' default_value='' subtype='client' name='clients'></field>
-			<field input='' comment='' type='string' access='rw' default_value='' subtype='' name='county_cd'></field>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='id'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='' comment='' type='array' access='r' default_value='' subtype='' name='relationships'></field>
+			<field input='' type='entity' subtype='' default_value='' name='case' access='r' comment=''></field>
+			<field input='' type='array' subtype='client' default_value='' name='clients' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='county_cd' access='rw' comment=''></field>
+			<field input='main' type='integer' subtype='' default_value='' name='id' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='' type='array' subtype='' default_value='' name='relationships' access='r' comment=''></field>
 		</entity>
 		<entity access='rw' comment='' name='client'>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='age'></field>
-			<field input='main' comment='' type='boolean' access='r' default_value='false' subtype='' name='applying'></field>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='client'></field>
-			<field input='' comment='' type='integer' access='rw' default_value='0' subtype='' name='client_fpl'></field>
-			<field input='main' comment='' type='boolean' access='r' default_value='false' subtype='' name='disabled'></field>
-			<field input='' comment='' type='boolean' access='rw' default_value='true' subtype='' name='eligible'></field>
-			<field input='' comment='' type='boolean' access='rw' default_value='false' subtype='' name='eligibleForMedicaid'></field>
-			<field input='main' comment='' type='integer' access='r' default_value='1' subtype='' name='expectedChildren'></field>
-			<field input='main' comment='' type='string' access='r' default_value='' subtype='' name='gender'></field>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='id'></field>
-			<field input='' comment='' type='integer' access='rw' default_value='0' subtype='' name='incomeGroupCount'></field>
-			<field input='main' comment='' type='array' access='r' default_value='' subtype='income' name='incomes'></field>
-			<field input='main' comment='' type='boolean' access='r' default_value='true' subtype='' name='livesAtResidence'></field>
-			<field input='' comment='' type='date' access='rw' default_value='1/1/2000' subtype='' name='lostInsuranceDate'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='' comment='' type='array' access='rw' default_value='' subtype='' name='notes'></field>
-			<field input='main' comment='' type='boolean' access='r' default_value='false' subtype='' name='pregnant'></field>
-			<field input='' comment='' type='string' access='rw' default_value='' subtype='' name='programLevel'></field>
-			<field input='' comment='' type='integer' access='rw' default_value='0' subtype='' name='totalGroupIncome'></field>
-			<field input='' comment='' type='integer' access='rw' default_value='0' subtype='' name='totalIncome'></field>
-			<field input='' comment='' type='boolean' access='rw' default_value='true' subtype='' name='uninsured'></field>
-			<field input='main' comment='' type='boolean' access='r' default_value='' subtype='' name='validatedCitizenship'></field>
-			<field input='' comment='' type='boolean' access='rw' default_value='false' subtype='' name='validatedImmigrationStatus'></field>
+			<field input='main' type='integer' subtype='' default_value='' name='age' access='r' comment=''></field>
+			<field input='main' type='boolean' subtype='' default_value='false' name='applying' access='r' comment=''></field>
+			<field input='' type='entity' subtype='' default_value='' name='client' access='r' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='0' name='client_fpl' access='rw' comment=''></field>
+			<field input='main' type='boolean' subtype='' default_value='false' name='disabled' access='r' comment=''></field>
+			<field input='' type='boolean' subtype='' default_value='true' name='eligible' access='rw' comment=''></field>
+			<field input='' type='boolean' subtype='' default_value='false' name='eligibleForMedicaid' access='rw' comment=''></field>
+			<field input='main' type='integer' subtype='' default_value='1' name='expectedChildren' access='r' comment=''></field>
+			<field input='main' type='string' subtype='' default_value='' name='gender' access='r' comment=''></field>
+			<field input='main' type='integer' subtype='' default_value='' name='id' access='r' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='0' name='incomeGroupCount' access='rw' comment=''></field>
+			<field input='main' type='array' subtype='income' default_value='' name='incomes' access='r' comment=''></field>
+			<field input='main' type='boolean' subtype='' default_value='true' name='livesAtResidence' access='r' comment=''></field>
+			<field input='' type='date' subtype='' default_value='1/1/2000' name='lostInsuranceDate' access='rw' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='' type='array' subtype='' default_value='' name='notes' access='rw' comment=''></field>
+			<field input='main' type='boolean' subtype='' default_value='false' name='pregnant' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='programLevel' access='rw' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='0' name='totalGroupIncome' access='rw' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='0' name='totalIncome' access='rw' comment=''></field>
+			<field input='' type='boolean' subtype='' default_value='true' name='uninsured' access='rw' comment=''></field>
+			<field input='main' type='boolean' subtype='' default_value='' name='validatedCitizenship' access='r' comment=''></field>
+			<field input='' type='boolean' subtype='' default_value='false' name='validatedImmigrationStatus' access='rw' comment=''></field>
 		</entity>
 		<entity access='rw' comment='' name='constants'>
-			<field input='' comment='' type='string' access='r' default_value='At Cost Coverage' subtype='' name='AtCostCoverage'></field>
-			<field input='' comment='' type='string' access='r' default_value='child' subtype='' name='child'></field>
-			<field input='' comment='' type='string' access='r' default_value='CS' subtype='' name='ChildSupport'></field>
-			<field input='' comment='' type='string' access='r' default_value='CHIP' subtype='' name='CHIP'></field>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='constants'></field>
-			<field input='' comment='' type='array' access='r' default_value='{ &quot;AA&quot; &quot;AK&quot; &quot;BC&quot; &quot;BK&quot; &quot;BT&quot; &quot;CR&quot; &quot;CO&quot;  &quot;TX&quot;  &quot;LO&quot;  &quot;AR&quot; &quot;XR&quot; &quot;XO&quot;  &quot;XX&quot;  &quot;XO&quot;  &quot;XR&quot;  }' subtype='' name='coveredCounties'></field>
-			<field input='' comment='' type='array' access='r' default_value='[ &quot;V2501&quot; &quot;V2502&quot; ]' subtype='' name='diagCodes'></field>
-			<field input='' comment='' type='string' access='r' default_value='DIV' subtype='' name='Dividends'></field>
-			<field input='' comment='' type='array' access='r' default_value='{ &quot;CS&quot; &quot;SSI&quot; }' subtype='' name='ExcludedIncomeTypes'></field>
-			<field input='' comment='' type='string' access='r' default_value='FS' subtype='' name='FOODSTAMPS'></field>
-			<field input='' comment='' type='integer' access='r' default_value='867' subtype='' name='FPL_Base'></field>
-			<field input='' comment='' type='integer' access='r' default_value='300' subtype='' name='FPL_PerAdditionalPerson'></field>
-			<field input='' comment='' type='string' access='r' default_value='Free Coverage' subtype='' name='FreeCoverage'></field>
-			<field input='' comment='' type='string' access='r' default_value='Low Cost Coverage' subtype='' name='LowCostCoverage'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='' comment='' type='string' access='r' default_value='MEDICAID' subtype='' name='MEDICAID'></field>
-			<field input='' comment='' type='string' access='r' default_value='parent' subtype='' name='parent'></field>
-			<field input='' comment='' type='string' access='r' default_value='SET' subtype='' name='Settlements'></field>
-			<field input='' comment='' type='string' access='r' default_value='sibling' subtype='' name='sibling'></field>
-			<field input='' comment='' type='string' access='r' default_value='SS' subtype='' name='SocialSecurity'></field>
-			<field input='' comment='' type='string' access='r' default_value='SSI' subtype='' name='SSI'></field>
-			<field input='' comment='' type='string' access='r' default_value='TIP' subtype='' name='Tips'></field>
-			<field input='' comment='' type='string' access='r' default_value='WA' subtype='' name='Wages'></field>
+			<field input='' type='string' subtype='' default_value='At Cost Coverage' name='AtCostCoverage' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='child' name='child' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='CS' name='ChildSupport' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='CHIP' name='CHIP' access='r' comment=''></field>
+			<field input='' type='entity' subtype='' default_value='' name='constants' access='r' comment=''></field>
+			<field input='' type='array' subtype='' default_value='{ &quot;AA&quot; &quot;AK&quot; &quot;BC&quot; &quot;BK&quot; &quot;BT&quot; &quot;CR&quot; &quot;CO&quot;  &quot;TX&quot;  &quot;LO&quot;  &quot;AR&quot; &quot;XR&quot; &quot;XO&quot;  &quot;XX&quot;  &quot;XO&quot;  &quot;XR&quot;  }' name='coveredCounties' access='r' comment=''></field>
+			<field input='' type='array' subtype='' default_value='[ &quot;V2501&quot; &quot;V2502&quot; ]' name='diagCodes' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='DIV' name='Dividends' access='r' comment=''></field>
+			<field input='' type='array' subtype='' default_value='{ &quot;CS&quot; &quot;SSI&quot; }' name='ExcludedIncomeTypes' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='FS' name='FOODSTAMPS' access='r' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='867' name='FPL_Base' access='r' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='300' name='FPL_PerAdditionalPerson' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='Free Coverage' name='FreeCoverage' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='Low Cost Coverage' name='LowCostCoverage' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='MEDICAID' name='MEDICAID' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='parent' name='parent' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='SET' name='Settlements' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='sibling' name='sibling' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='SS' name='SocialSecurity' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='SSI' name='SSI' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='TIP' name='Tips' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='WA' name='Wages' access='r' comment=''></field>
 		</entity>
 		<entity access='rw' comment='' name='income'>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='amount'></field>
-			<field input='main' comment='' type='boolean' access='r' default_value='' subtype='' name='earned'></field>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='id'></field>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='income'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='main' comment='' type='string' access='r' default_value='' subtype='' name='type'></field>
+			<field input='main' type='integer' subtype='' default_value='' name='amount' access='r' comment=''></field>
+			<field input='main' type='boolean' subtype='' default_value='' name='earned' access='r' comment=''></field>
+			<field input='main' type='integer' subtype='' default_value='' name='id' access='r' comment=''></field>
+			<field input='' type='entity' subtype='' default_value='' name='income' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='main' type='string' subtype='' default_value='' name='type' access='r' comment=''></field>
 		</entity>
 		<entity access='rw' comment='' name='job'>
-			<field input='main' comment='' type='date' access='r' default_value='' subtype='' name='currentdate'></field>
-			<field input='main' comment='' type='date' access='r' default_value='' subtype='' name='effectivedate'></field>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='id'></field>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='job'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='main' comment='' type='string' access='r' default_value='none' subtype='' name='program'></field>
-			<field input='' comment='' type='array' access='r' default_value='' subtype='result' name='results'></field>
+			<field input='main' type='date' subtype='' default_value='' name='currentdate' access='r' comment=''></field>
+			<field input='main' type='date' subtype='' default_value='' name='effectivedate' access='r' comment=''></field>
+			<field input='main' type='integer' subtype='' default_value='' name='id' access='r' comment=''></field>
+			<field input='' type='entity' subtype='' default_value='' name='job' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='main' type='string' subtype='' default_value='none' name='program' access='r' comment=''></field>
+			<field input='' type='array' subtype='result' default_value='' name='results' access='r' comment=''></field>
 		</entity>
 		<entity access='rw' comment='' name='relationship'>
-			<field input='main' comment='' type='integer' access='r' default_value='' subtype='' name='id'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='relationship'></field>
-			<field input='main' comment='' type='entity' access='rw' default_value='' subtype='client' name='source'></field>
-			<field input='main' comment='' type='entity' access='rw' default_value='' subtype='client' name='target'></field>
-			<field input='main' comment='' type='string' access='rw' default_value='' subtype='' name='type'></field>
+			<field input='main' type='integer' subtype='' default_value='' name='id' access='r' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='' type='entity' subtype='' default_value='' name='relationship' access='r' comment=''></field>
+			<field input='main' type='entity' subtype='client' default_value='' name='source' access='rw' comment=''></field>
+			<field input='main' type='entity' subtype='client' default_value='' name='target' access='rw' comment=''></field>
+			<field input='main' type='string' subtype='' default_value='' name='type' access='rw' comment=''></field>
 		</entity>
 		<entity access='rw' comment='' name='result'>
-			<field input='' comment='' type='entity' access='rw' default_value='' subtype='' name='client'></field>
-			<field input='' comment='' type='integer' access='rw' default_value='' subtype='' name='client_fpl'></field>
-			<field input='' comment='' type='string' access='rw' default_value='' subtype='' name='client_Id'></field>
-			<field input='' comment='' type='boolean' access='rw' default_value='' subtype='' name='eligible'></field>
-			<field input='main' comment='' type='integer' access='rw' default_value='' subtype='' name='id'></field>
-			<field input='' comment='' type='string' access='r' default_value='' subtype='' name='mapping*key'></field>
-			<field input='' comment='' type='array' access='rw' default_value='' subtype='' name='notes'></field>
-			<field input='' comment='' type='string' access='rw' default_value='' subtype='' name='program'></field>
-			<field input='' comment='' type='string' access='rw' default_value='' subtype='' name='programLevel'></field>
-			<field input='' comment='' type='entity' access='r' default_value='' subtype='' name='result'></field>
-			<field input='' comment='' type='integer' access='rw' default_value='' subtype='' name='totalGroupIncome'></field>
+			<field input='' type='entity' subtype='' default_value='' name='client' access='rw' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='' name='client_fpl' access='rw' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='client_Id' access='rw' comment=''></field>
+			<field input='' type='boolean' subtype='' default_value='' name='eligible' access='rw' comment=''></field>
+			<field input='main' type='integer' subtype='' default_value='' name='id' access='rw' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='mapping*key' access='r' comment=''></field>
+			<field input='' type='array' subtype='' default_value='' name='notes' access='rw' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='program' access='rw' comment=''></field>
+			<field input='' type='string' subtype='' default_value='' name='programLevel' access='rw' comment=''></field>
+			<field input='' type='entity' subtype='' default_value='' name='result' access='r' comment=''></field>
+			<field input='' type='integer' subtype='' default_value='' name='totalGroupIncome' access='rw' comment=''></field>
 		</entity>
 	</entity_data_dictionary>
