@@ -168,7 +168,7 @@ public class EL implements ICompiler {
      * @return          Postfix
      * @throws Exception    Throws an Exception on any error.
      */
-    private String compile (String s)throws Exception {
+    private String compile (String s)throws RulesException {
 
         
         InputStream      stream  = new ByteArrayInputStream(s.getBytes());
@@ -232,7 +232,7 @@ public class EL implements ICompiler {
      * @see com.dtrules.compiler.ICompiler#compileContext(java.lang.String)
      **/
     @Override
-    public String compileContext(String context) throws Exception {
+    public String compileContext(String context) throws RulesException {
         return compile("context "+context);
     }
     
@@ -240,7 +240,7 @@ public class EL implements ICompiler {
      * @see com.dtrules.compiler.ICompiler#compileAction(java.lang.String)
      **/
     @Override
-    public String compileAction(String action) throws Exception {
+    public String compileAction(String action) throws RulesException {
         return compile("action "+action);
     }
     
@@ -250,14 +250,14 @@ public class EL implements ICompiler {
      * mean others have to.
      **/
     @Override
-    public String compileInitialAction(String action) throws Exception {
+    public String compileInitialAction(String action) throws RulesException {
         return compile("action "+action);
     }
     /**
      * @see com.dtrules.compiler.ICompiler#compileCondition(java.lang.String)
      **/
     @Override
-    public String compileCondition(String condition) throws Exception {
+    public String compileCondition(String condition) throws RulesException {
         return compile("condition "+ condition);
     }
     
@@ -266,7 +266,7 @@ public class EL implements ICompiler {
      * replaced forcefully by single quotes.
      */
     @Override
-    public String compilePolicyStatement(String policyStatement) throws Exception {
+    public String compilePolicyStatement(String policyStatement) throws RulesException {
         if(policyStatement==null)return "";
         policyStatement = policyStatement.replaceAll("\"", "'");
         StringBuffer  sbuff = new StringBuffer();
@@ -295,7 +295,7 @@ public class EL implements ICompiler {
                 sbuff.append(value);
                 sbuff.append("cvs strconcat ");
             }catch(Exception ex){
-                throw new Exception(ex.toString()+ "\n Source: >>"+ source +"<<");
+                throw new RulesException("ParseError","PolicyStatements", ex.toString()+ "\n Source: >>"+ source +"<<");
             }
             
             s = e+1;

@@ -59,36 +59,36 @@ public interface ICompiler {
     public abstract String getLastPreFixExp();
 
     /**
-     * Compiles a single Action.  Returns the postfix string needed by the Rules Engine.  
-     * @param action 	 The String in "Formal" to be compiled.
-     * @return			 The postfix string representing the action.
+     * Compiles a Context Wrapper  Returns the postfix string needed by the Rules Engine.  
+     * @param context    The String in "Formal" to be compiled.
+     * @return           The postfix string representing the action.
      * @throws Exception Throws an exception if the compile fails for any reason.
      */
-    public abstract String compileAction(String action) throws Exception;
-
+    public abstract String compileContext(String context) throws RulesException;
+    
     /**
      * Compiles a single Action.  Returns the postfix string needed by the Rules Engine.  
      * @param action     The String in "Formal" to be compiled.
      * @return           The postfix string representing the action.
      * @throws Exception Throws an exception if the compile fails for any reason.
      */
-    public abstract String compileInitialAction(String action) throws Exception;
+    public abstract String compileInitialAction(String action) throws RulesException;
 
-    /**
-     * Compiles a Context Wrapper  Returns the postfix string needed by the Rules Engine.  
-     * @param context    The String in "Formal" to be compiled.
-     * @return           The postfix string representing the action.
-     * @throws Exception Throws an exception if the compile fails for any reason.
-     */
-    public abstract String compileContext(String context) throws Exception;
-    
     /**
      * Compiles a single Condition.  Returns the postfix string needed by the Rules Engine.
      * @param condition   The String in "Formal" to be compiled.
      * @return			  The postfix string representing the condition
      * @throws Exception  Throws an exception if the compile fails for any reason.
      */
-    public abstract String compileCondition(String condition) throws Exception;
+    public abstract String compileCondition(String condition) throws RulesException;
+
+    /**
+     * Compiles a single Action.  Returns the postfix string needed by the Rules Engine.  
+     * @param action 	 The String in "Formal" to be compiled.
+     * @return			 The postfix string representing the action.
+     * @throws Exception Throws an exception if the compile fails for any reason.
+     */
+    public abstract String compileAction(String action) throws RulesException;
 
     /**
      * Copmiles a single Policy Statement.  Returns the postfix string needed by the Rules Engine.
@@ -96,7 +96,7 @@ public interface ICompiler {
      * @return
      * @throws Exception
      */
-    public String compilePolicyStatement(String policyStatement) throws Exception;
+    public String compilePolicyStatement(String policyStatement) throws RulesException;
     
     /**
      * Returns the types HashMap.
