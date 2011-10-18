@@ -16,192 +16,219 @@ import com.dtrules.xmlparser.GenericXMLParser;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Trace {
-	
-	TraceNode root   = null;
-	
-	Map<String,IREntity> entitytable = new HashMap<String,IREntity>();
-	
-	IRSession session;
-	
-	TraceNode position;
-	
-	/**
-	 * Create entity.  If we already know the entity, we return it, otherwise
-	 * we get the entity from the session.
-	 */
-	public IREntity createEntity(String id, String name) throws RulesException {
-		IREntity e = entitytable.get(id);
-		if(e == null){
-			e = session.createEntity(id, name);
-			entitytable.put(id, e);
-		}
-		return e;
-	}
-	/**
-	 * Create a TraceNode tree from the given tracefile filepath. 
-	 * @param tracefile
-	 * @return
-	 * @throws Exception
-	 */
-	public TraceNode load (String tracefile) throws Exception {
-		InputStream tracefilestream = new FileInputStream(tracefile);
-		return load(tracefilestream);
-	}
 
-	/**
-	 * Create a TraceNode tree from the given tracefilestream.
-	 * @param tracefilestream
-	 * @return
-	 * @throws Exception
-	 */
-	public TraceNode load (InputStream tracefilestream) throws Exception {
-		TraceLoader loader = new TraceLoader();
-		GenericXMLParser.load(tracefilestream, loader);
-		root = loader.tagStack.pop().children.get(0);
-		return root;
-	}
-	
-	public TraceNode root () {
-		return root;
-	}
+    TraceNode             root        = null;
+    Map<String, IREntity> entitytable = new HashMap<String, IREntity>();
 
-	/**
-	 * Print the TraceNode tree for this object.
-	 */
-	public void print(){
-		XMLPrinter out = new XMLPrinter(System.out);
-		out.setSpaceCnt(2);
-		if(root != null ){
-			root.print( out);
-		}else{
-			System.out.println("No tree has been loaded");
-		}
-	}
-	/**
-	 * Returns a session that represents a Rules Engine in the state at 
-	 * the given node.  On any error encountered by the Rules Engine, we
-	 * return the state of the Rules Engine at that point.  If we could
-	 * not build a session at all, we return a null.
-	 * 
-	 * @param rs
-	 * @param position
-	 * @return IRSession
-	 */
-	public IRSession setState(RuleSet rs, TraceNode position) {
-		this.position = position;
-		session = null;
-		try{
-			session = rs.newSession();
-			session.getState().traceStart();	// Need the session to be trace mode.
-			root.setState(this, position);
-		}catch(RulesException e){ }
-		return session;
-	}
-	
-	
-	/**
-	 * Find the i'th node in the tree.
-	 * @param i
-	 * @return
-	 */
-	public TraceNode find(int i){
-		return root.find(i);
-	}
-	/**
-	 * Get the instances of a given entity, given the current position
-	 * in the trace.	
-	 * @param entityName
-	 * @param position
-	 * @return
-	 * @throws RulesException
-	 */
-	public List<IREntity> instancesOf( String entityName ) throws RulesException { 
-		
-		List<IREntity> entityList = new ArrayList<IREntity>();
-		root.searchTree(this, entityName, entityList);
-		return entityList;
-	}
-	
-	/**
-	 * Return the actions of the current position. If not a column, then it
-	 * looks for the enclosing column.  If there is no enclosing column, a 
-	 * null is returned.
-	 * @return List<Integer>
-	 */
-	public List<Integer> getActions(){
-		return position.getActions();
-	}
-	
-	/**
-	 * Return the actions of the given position. If not a column, then it
-	 * looks for the enclosing column.  If there is no enclosing column, a 
-	 * null is returned.
-	 * @return List<Integer>
-	 */
-	public List<Integer> getActions(TraceNode position){
-		return position.getActions();
-	}
-	
-	/**
-	 * An executable for testing functions in Trace
-	 * @param args
-	 * @throws Exception
-	 */
-	static public void main(String [] args) throws Exception {
-		
-		String tracefile    = System.getProperty("user.dir")+
-				"/../sampleprojects/CHIP/testfiles/output/test_2_trace.xml";
-		Trace trace 		= new Trace();
-		
-		trace.load(tracefile);
-		trace.print();
-		
-		TraceNode t = trace.find(250);
-		
-		RulesDirectory rd = new RulesDirectory(
-				System.getProperty("user.dir")+"/../sampleprojects/CHIP/", "DTRules.xml");
-		
-		RuleSet rs = rd.getRuleSet("CHIP");
-		
-		IRSession s = trace.setState(rs, t);
-	
-		List<IREntity> entities = trace.instancesOf("client");
-		
-		for(IREntity e : entities){
-			System.out.println(e.getName().stringValue()+" "+e.getID());
-		}
-		
-		TraceNode column;
-		List<Integer> actions;
-		
-		column = trace.find(380);
-		actions = column.getActions();
-		System.out.print("\n"+column.attributes.get("t_num")+" ");
-		for(int c : actions) System.out.print(c+" ");
+    // This is the execute_table under execution.  It is null if no execute_table has
+    // yet been executed.
+    TraceNode             execute_table     = null;
 
-		column = trace.find(419);
-		actions = column.getActions();
-		System.out.print("\n"+column.attributes.get("t_num")+" ");
-		for(int c : actions) System.out.print(c+" ");
+    // Keep a list of Change objects to provide an easy "back pointer" to where
+    // an attribute was changed.
+    Map<Change, Change>   changes     = new HashMap<Change, Change>();
 
-		column = trace.find(442);
-		actions = column.getActions();
-		System.out.print("\n"+column.attributes.get("t_num")+" ");
-		for(int c : actions) System.out.print(c+" ");
+    IRSession             session;
+    TraceNode             position;
 
-						
-		if(s==null) {
-			System.out.println("Could not build a session.");
-			return;
-		}
-		
-		int edepth = s.getState().edepth();
-		for(int i = 0; i < edepth; i++){
-			IREntity e = s.getState().getes(i);
-			System.out.println(e.getName()+" "+e.getID());
-		}
-		
-	}
-	
-	
+    /**
+     * Create entity. If we already know the entity, we return it, otherwise we get the entity from the session.
+     */
+    public IREntity createEntity(String id, String name) throws RulesException {
+        IREntity e = entitytable.get(id);
+        if (e == null) {
+            e = session.createEntity(id, name);
+            entitytable.put(id, e);
+        }
+        return e;
+    }
+
+    /**
+     * Create a TraceNode tree from the given tracefile filepath.
+     * 
+     * @param tracefile
+     * @return
+     * @throws Exception
+     */
+    public TraceNode load(String tracefile) throws Exception {
+        InputStream tracefilestream = new FileInputStream(tracefile);
+        return load(tracefilestream);
+    }
+
+    /**
+     * Create a TraceNode tree from the given tracefilestream.
+     * 
+     * @param tracefilestream
+     * @return
+     * @throws Exception
+     */
+    public TraceNode load(InputStream tracefilestream) throws Exception {
+        TraceLoader loader = new TraceLoader();
+        GenericXMLParser.load(tracefilestream, loader);
+        root = loader.tagStack.pop().children.get(0);
+        return root;
+    }
+
+    public TraceNode root() {
+        return root;
+    }
+
+    /**
+     * Print the TraceNode tree for this object.
+     */
+    public void print() {
+        XMLPrinter out = new XMLPrinter(System.out);
+        out.setSpaceCnt(2);
+        if (root != null) {
+            root.print(out);
+        } else {
+            System.out.println("No tree has been loaded");
+        }
+    }
+
+    /**
+     * Returns a session that represents a Rules Engine in the state at the given node. On any error encountered by the
+     * Rules Engine, we return the state of the Rules Engine at that point. If we could not build a session at all, we
+     * return a null.
+     * 
+     * @param rs
+     * @param position
+     * @return IRSession
+     */
+    public IRSession setState(RuleSet rs, TraceNode position) {
+        this.position = position;
+        session = null;
+        this.changed = false;
+        try {
+            session = rs.newSession();
+            session.getState().traceStart(); // Need the session to be trace mode.
+            root.setState(this, position);
+        } catch (RulesException e) {
+        }
+        return session;
+    }
+
+    /**
+     * Find the i'th node in the tree.
+     * 
+     * @param i
+     * @return
+     */
+    public TraceNode find(int i) {
+        return root.find(i);
+    }
+
+    /**
+     * Get the instances of a given entity, given the current position in the trace.
+     * 
+     * @param entityName
+     * @param position
+     * @return
+     * @throws RulesException
+     */
+    public List<IREntity> instancesOf(String entityName) throws RulesException {
+
+        List<IREntity> entityList = new ArrayList<IREntity>();
+        root.searchTree(this, entityName, entityList);
+        return entityList;
+    }
+
+    /**
+     * Return the actions of the current position. If not a column, then it looks for the enclosing column. If there is
+     * no enclosing column, a null is returned.
+     * 
+     * @return List<Integer>
+     */
+    public List<Integer> getActions() {
+        return position.getActions();
+    }
+
+    /**
+     * Return the actions of the given position. If not a column, then it looks for the enclosing column. If there is no
+     * enclosing column, a null is returned.
+     * 
+     * @return List<Integer>
+     */
+    public List<Integer> getActions(TraceNode position) {
+        return position.getActions();
+    }
+
+    /**
+     * Returns a position in the trace where the given entity's attribute has been changed by a 
+     * Decision Table.  A null is returned if the attribute hasn't been changed.
+     * @param e
+     * @param attribute
+     * @return
+     */
+    TraceNode isChanged(IREntity e, String attribute) {
+        Change c = new Change(false, e, attribute, null);   // Make a look up key.
+        c = changes.get(c);                                 // Replace the key with the value
+        if(c == null) return null;                          // Attribute still has default value.
+        return c.changed;                                   // Return the changed flag.
+    }
+
+    /**
+     * An executable for testing functions in Trace
+     * 
+     * @param args
+     * @throws Exception
+     */
+    static public void main(String[] args) throws Exception {
+
+        String tracefile = System.getProperty("user.dir")
+                + "/../sampleprojects/CHIP/testfiles/output/test_01_trace.xml";
+        Trace trace = new Trace();
+
+        trace.load(tracefile);
+        trace.print();
+
+        TraceNode t = trace.find(250);
+
+        RulesDirectory rd = new RulesDirectory(System.getProperty("user.dir") + "/../sampleprojects/CHIP/",
+                "DTRules.xml");
+
+        RuleSet rs = rd.getRuleSet("CHIP");
+
+        IRSession s = trace.setState(rs, t);
+
+        List<IREntity> entities = trace.instancesOf("client");
+
+        for (IREntity e : entities) {
+            System.out.println(e.getName().stringValue() + " " + e.getID());
+        }
+
+        TraceNode column;
+        List<Integer> actions;
+
+        column = trace.find(380);
+        actions = column.getActions();
+        System.out.print("\n" + column.attributes.get("t_num") + " ");
+        for (int c : actions)
+            System.out.print(c + " ");
+
+        column = trace.find(419);
+        actions = column.getActions();
+        System.out.print("\n" + column.attributes.get("t_num") + " ");
+        for (int c : actions)
+            System.out.print(c + " ");
+
+        column = trace.find(442);
+        actions = column.getActions();
+        System.out.print("\n" + column.attributes.get("t_num") + " ");
+        for (int c : actions)
+            System.out.print(c + " ");
+
+        if (s == null) {
+            System.out.println("Could not build a session.");
+            return;
+        }
+
+        int edepth = s.getState().edepth();
+        for (int i = 0; i < edepth; i++) {
+            IREntity e = s.getState().getes(i);
+            System.out.println(e.getName() + " " + e.getID());
+        }
+
+    }
+
 }

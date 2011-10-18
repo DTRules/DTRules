@@ -118,6 +118,11 @@ public class TraceNode {
 		// Found our position.  We are Done!
 		if(position == this) return true;
 		
+		// Keep track of where we actually execute a table.  This will happen even
+		// if we don't actually end up executing a column.
+		if(name.equals("execute_table")){
+		    trace.execute_table = this;
+		}
 		// We are an entitypush.  Find that entity and push it.
 		if(name.equals("entitypush")){
 			ds.entitypush(getEntity(trace));
@@ -135,6 +140,11 @@ public class TraceNode {
 			IRObject 	v	 = ds.datapop();
 			IREntity    e    = getEntity(trace);
 			e.put(trace.session, RName.getRName(name), v);
+			
+			Change c = new Change(trace.changed, e, name, this);
+			
+			trace.changes.put(c, c);     // Keep a hash lookup of my change object.
+			
 		}
 	
 		for(TraceNode child : children){
@@ -144,8 +154,8 @@ public class TraceNode {
 		}
 				
 		return false;
-	}
-
+	}	
+	
 	/**
 	 * Recursive search for all entities up to and including the given position.  All
 	 * entities found are added to the entityList.
