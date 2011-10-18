@@ -141,7 +141,7 @@ public class TraceNode {
 			IREntity    e    = getEntity(trace);
 			e.put(trace.session, RName.getRName(name), v);
 			
-			Change c = new Change(trace.changed, e, name, this);
+			Change c = new Change(trace.execute_table, e, name, this);
 			
 			trace.changes.put(c, c);     // Keep a hash lookup of my change object.
 			

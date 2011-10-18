@@ -6,7 +6,7 @@ public class Change {
     IREntity  e;
     String    attribute;
     boolean   changed;
-    TraceNode whereChanged;
+    TraceNode execute_table;
     /**
      * @param changed
      * @param e
