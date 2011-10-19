@@ -380,6 +380,9 @@ public class RSession implements IRSession {
             return e;
     	}else{
     		REntity e = (REntity) ref.clone(this);
+    		try {
+                e.setId(Integer.parseInt(id.toString()));
+            } catch (NumberFormatException e1) { }
     		return e;
     	}
    

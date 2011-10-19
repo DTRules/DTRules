@@ -1,29 +1,34 @@
 package com.dtrules.trace;
 
 import com.dtrules.entity.IREntity;
+import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RName;
 
 public class Change {
     IREntity  e;
-    String    attribute;
-    boolean   changed;
+    RName     attribute;
     TraceNode execute_table;
     /**
      * @param changed
      * @param e
      * @param attribute
      */
-    Change(boolean changed, IREntity e, String attribute, TraceNode whereChanged){
+    Change(IREntity e, RName attribute, TraceNode execute_table){
         this.e              = e;
         this.attribute      = attribute;
-        this.changed        = changed;
-        this.whereChanged   = whereChanged;
+        this.execute_table  = execute_table;
+    }
+    
+    @Override
+    public int hashCode() {
+        return attribute.hashCode();
     }
     
     @Override
     public boolean equals(Object arg0) {
-        if(arg0 == null)                 return false;
-        if(e != ((Change)arg0).e)        return false;
-        if(!attribute.equals(attribute)) return false;
+        if(arg0 == null)                            return false;
+        if(e.getID() != ((Change)arg0).e.getID())   return false;
+        if(!attribute.equals((IRObject) attribute)) return false;
         return true;
     }
 }

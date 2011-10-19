@@ -26,6 +26,7 @@ import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.RNull;
 import com.dtrules.session.DTState;
 import com.dtrules.xmlparser.XMLPrinter;
 /**
@@ -135,13 +136,21 @@ public class TraceNode {
 		
 		// If we are setting an attribute
 		if(name.equals("def")){
-			trace.session.execute(body);
-			String 		name = attributes.get("name");
-			IRObject 	v	 = ds.datapop();
-			IREntity    e    = getEntity(trace);
-			e.put(trace.session, RName.getRName(name), v);
+            IRObject v;
+			String   name = attributes.get("name");
 			
-			Change c = new Change(trace.execute_table, e, name, this);
+			if(body.length()==0){
+			    v = RNull.getRNull();
+			}else{
+	            trace.session.execute(body);
+		        v = ds.datapop();
+			}
+
+			IREntity    e    = getEntity(trace);
+			RName       rn   = RName.getRName(name);
+			e.put(trace.session, rn, v);
+			
+			Change c = new Change(e, rn, trace.execute_table);
 			
 			trace.changes.put(c, c);     // Keep a hash lookup of my change object.
 			

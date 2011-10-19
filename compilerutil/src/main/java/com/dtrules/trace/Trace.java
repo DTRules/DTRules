@@ -4,11 +4,13 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.RName;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
@@ -98,10 +100,11 @@ public class Trace {
     public IRSession setState(RuleSet rs, TraceNode position) {
         this.position = position;
         session = null;
-        this.changed = false;
+        this.execute_table = null;
+        changes.clear();
+        entitytable.clear();
         try {
             session = rs.newSession();
-            session.getState().traceStart(); // Need the session to be trace mode.
             root.setState(this, position);
         } catch (RulesException e) {
         }
@@ -155,18 +158,34 @@ public class Trace {
 
     /**
      * Returns a position in the trace where the given entity's attribute has been changed by a 
-     * Decision Table.  A null is returned if the attribute hasn't been changed.
+     * Decision Table.  A null is returned if the attribute hasn't been changed by a Decision Table.
+     * That does NOT mean that the attribute wasn't loaded with data.  Use isDefaultValue() to check
+     * that.
      * @param e
      * @param attribute
      * @return
      */
     TraceNode isChanged(IREntity e, String attribute) {
-        Change c = new Change(false, e, attribute, null);   // Make a look up key.
+        RName  rn = RName.getRName(attribute);
+        Change c = new Change(e, rn, null);                 // Make a look up key.
         c = changes.get(c);                                 // Replace the key with the value
         if(c == null) return null;                          // Attribute still has default value.
-        return c.changed;                                   // Return the changed flag.
+        return c.execute_table;                             // Return the changed flag.
     }
 
+    /**
+     * If an attribute has not been loaded with a value from the input data or
+     * Data Map, this routine returns true.  If the value of this attribute is 
+     * the default value for the attribute, or the attribute has been changed by
+     * a decision table, this routine returns false.
+     */
+    public boolean isDefaultValue (IREntity e, String attribute ){
+        RName  rn = RName.getRName(attribute);
+        Change c = new Change(e, rn, null);                 // Make a look up key.
+        c = changes.get(c);                                 // Replace the key with the value
+        return (c == null);                                 // Return true if still the default value.
+    }
+    
     /**
      * An executable for testing functions in Trace
      * 
@@ -182,51 +201,29 @@ public class Trace {
         trace.load(tracefile);
         trace.print();
 
-        TraceNode t = trace.find(250);
+        TraceNode t = trace.find(428);
 
-        RulesDirectory rd = new RulesDirectory(System.getProperty("user.dir") + "/../sampleprojects/CHIP/",
+        RulesDirectory rd = new RulesDirectory(
+                System.getProperty("user.dir") + "/../sampleprojects/CHIP/",
                 "DTRules.xml");
 
-        RuleSet rs = rd.getRuleSet("CHIP");
-
-        IRSession s = trace.setState(rs, t);
-
-        List<IREntity> entities = trace.instancesOf("client");
-
-        for (IREntity e : entities) {
-            System.out.println(e.getName().stringValue() + " " + e.getID());
-        }
-
-        TraceNode column;
-        List<Integer> actions;
-
-        column = trace.find(380);
-        actions = column.getActions();
-        System.out.print("\n" + column.attributes.get("t_num") + " ");
-        for (int c : actions)
-            System.out.print(c + " ");
-
-        column = trace.find(419);
-        actions = column.getActions();
-        System.out.print("\n" + column.attributes.get("t_num") + " ");
-        for (int c : actions)
-            System.out.print(c + " ");
-
-        column = trace.find(442);
-        actions = column.getActions();
-        System.out.print("\n" + column.attributes.get("t_num") + " ");
-        for (int c : actions)
-            System.out.print(c + " ");
-
+        RuleSet   rs = rd.getRuleSet("CHIP");
+        IRSession s  = trace.setState(rs, t);
+        
         if (s == null) {
             System.out.println("Could not build a session.");
             return;
         }
 
-        int edepth = s.getState().edepth();
-        for (int i = 0; i < edepth; i++) {
-            IREntity e = s.getState().getes(i);
+        for(IREntity e : trace.entitytable.values()){
             System.out.println(e.getName() + " " + e.getID());
+            Iterator<RName> ai = e.getAttributeIterator();
+            while(ai.hasNext()){
+                String attrib = ai.next().stringValue();
+                TraceNode n = trace.isChanged(e, attrib);
+                boolean   d = trace.isDefaultValue(e, attrib);
+                System.out.printf("    %1s %8d %20s\n",d?"*":" ",n!=null?n.number:-1,attrib);
+            }
         }
 
     }
