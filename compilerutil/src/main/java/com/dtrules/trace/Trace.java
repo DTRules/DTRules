@@ -122,16 +122,16 @@ public class Trace {
     }
 
     /**
-     * Get the instances of a given entity, given the current position in the trace.
-     * 
+     * Find all the instances of a particular entity.  If no position has been
+     * set, then this will return an empty list.
      * @param entityName
-     * @param position
      * @return
      * @throws RulesException
      */
     public List<IREntity> instancesOf(String entityName) throws RulesException {
 
         List<IREntity> entityList = new ArrayList<IREntity>();
+        if(session == null) return entityList;
         root.searchTree(this, entityName, entityList);
         return entityList;
     }

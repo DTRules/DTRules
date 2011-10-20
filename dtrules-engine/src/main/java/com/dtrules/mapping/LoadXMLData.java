@@ -296,7 +296,9 @@ public class LoadXMLData implements IGenericXMLParser {
 	private void queueSetAttribute( AttributeInfo.Attrib attrib, HashMap attribs){
 		if(attrib==null)return;
 		switch (attrib.type ){
-			case AttributeInfo.DATE_STRING_CODE :
+		    case AttributeInfo.ARRAY_CODE    :    // Just ignore arrays/lists
+                break;
+       	    case AttributeInfo.DATE_STRING_CODE :
 				attribs.put("set attribute date",attrib.rAttribute); 
 				break;
 			case AttributeInfo.STRING_CODE   :  

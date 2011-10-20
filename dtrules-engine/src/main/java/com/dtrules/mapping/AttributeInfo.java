@@ -19,9 +19,12 @@
 package com.dtrules.mapping;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.RName;
 import com.dtrules.session.DTState;
 
 /**
@@ -34,15 +37,33 @@ import com.dtrules.session.DTState;
 @SuppressWarnings({"unchecked"})
 class AttributeInfo {
 	
-	public static final String DATE_STRING_TYPE     = "DateString";  //Strings
-	public static final String STRING_TYPE          = "String";
-	public static final String INTEGER_TYPE         = "Integer";
-	public static final String NONE_TYPE			= "None";
-	public static final String FLOAT_TYPE			= "Float";
-    public static final String BOOLEAN_TYPE         = "Boolean";
-    public static final String ARRAY_TYPE           = "list";
-	public static final String ENTITY_TYPE          = "entity";
-	public static final String XMLVALUE_TYPE        = "XmlValue";
+    static Map<RName, Integer> string2Type = new HashMap<RName, Integer>();
+    static Map<Integer, RName> type2String = new HashMap<Integer, RName>();
+    
+    static {
+        string2Type.put(RName.getRName("DateString"),  0 );
+        string2Type.put(RName.getRName("Date"),        0 );
+        string2Type.put(RName.getRName("String"),      1 );
+        string2Type.put(RName.getRName("Integer"),     2 );
+        string2Type.put(RName.getRName("None"),        3 );
+        string2Type.put(RName.getRName("Double"),      4 );
+        string2Type.put(RName.getRName("Float"),       4 );
+        string2Type.put(RName.getRName("Boolean"),     5 );
+        string2Type.put(RName.getRName("List"),        6 );
+        string2Type.put(RName.getRName("Array"),       6 );
+        string2Type.put(RName.getRName("Entity"),      7 );
+        string2Type.put(RName.getRName("XmlValue"),    8 );
+        
+        type2String.put(0, RName.getRName("Date"));
+        type2String.put(1, RName.getRName("String"));
+        type2String.put(2, RName.getRName("Integer"));
+        type2String.put(3, RName.getRName("None"));
+        type2String.put(4, RName.getRName("Double"));
+        type2String.put(5, RName.getRName("Boolean"));
+        type2String.put(6, RName.getRName("Array"));
+        type2String.put(7, RName.getRName("Entity"));
+        type2String.put(9, RName.getRName("XmlValue"));
+    }
     
 	public static final int DATE_STRING_CODE    = 0;             //Codes
 	public static final int STRING_CODE         = 1;
@@ -53,18 +74,7 @@ class AttributeInfo {
     public static final int ARRAY_CODE          = 6;
     public static final int ENTITY_CODE         = 7;
     public static final int XMLVALUE_CODE       = 8;
-    
-	public static final String int2str[] = {DATE_STRING_TYPE,
-		                                    STRING_TYPE,
-		                                    NONE_TYPE,
-		                                    INTEGER_TYPE,
-		                                    FLOAT_TYPE,
-                                            BOOLEAN_TYPE,
-                                            ARRAY_TYPE,
-                                            ENTITY_TYPE,
-                                            XMLVALUE_TYPE,
-		                                    };
-	
+    	
 	/**
 	 * This is the information we collect for an attribute
 	 */
@@ -97,16 +107,10 @@ class AttributeInfo {
                   String _type)throws RulesException {
                 
 		final Iterator iattribs = tag_instances.iterator();
-		int attribType = -1;
-        if(_type.equalsIgnoreCase("date"))_type = "datestring";
-        for(int i=0;i<int2str.length;i++){
-            if(_type.equalsIgnoreCase(int2str[i])){
-                attribType = i;
-                break;
-            }
-        }
-       
-        if(attribType == -1){
+		
+		Integer attribType = string2Type.get(RName.getRName(_type));
+        
+         if(attribType == null){
 			throw new RuntimeException("Invalid mapping type encountered in mapping file: "+_type);  //NOPMD
 		}
 		
@@ -126,19 +130,20 @@ class AttributeInfo {
 				boolean thisisanerror = true;
 				
 				if(attrib.rAttribute.equalsIgnoreCase(_attribute)&& 
-                   int2str[attrib.type].equalsIgnoreCase(_type)){
+                   attrib.type == string2Type.get(RName.getRName(_type))){
 					  thisisanerror = false;
 				}
 				if (thisisanerror){
                     state.traceInfo("error", "Duplicate:" + _entity + "." + tag);
                 }
+				
                 String errorString =
                     (thisisanerror?"ERROR: ":"WARNING: ") + "\n"+
                     "The tag <"+tag+"> and enclosure <"+_entity+"> "+
                     "have been encountered more than once in this mapping file\n"+
                     "For "+ (_entity==""?"":"<"+_entity+"> ") +tag+"> \n"+
                              "  Existing: RAttribute '"+attrib.rAttribute+"'\n"+
-                             "            type      '"+int2str[attrib.type]+"'\n"+
+                             "            type      '"+type2String.get(attrib.type).stringValue()+"'\n"+
                              "  New:      RAttribute '"+_attribute+"'\n"+
                              "            type      '"+_type+"'\n";                        
 				state.traceInfo("error", errorString);
