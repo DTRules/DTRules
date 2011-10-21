@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
  */
-package com.dtrules.compiler.el;
+package com.dtrules.compiler.ebl;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -23,12 +23,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.management.RuntimeErrorException;
-
-import com.dtrules.compiler.el.ELType;
-import com.dtrules.compiler.el.cup.parser.DTRulesParser;
-import com.dtrules.compiler.el.cup.parser.RLocalType;
-import com.dtrules.compiler.el.flex.scanner.DTRulesscanner;
+import com.dtrules.compiler.ebl.ELType;
+import com.dtrules.compiler.ebl.cup.parser.DTRulesParser;
+import com.dtrules.compiler.ebl.cup.parser.RLocalType;
+import com.dtrules.compiler.ebl.flex.scanner.DTRulesscanner;
 import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.entity.REntityEntry;
@@ -40,7 +38,7 @@ import com.dtrules.session.ICompiler;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.IRType;
 
-public class EL implements ICompiler {
+public class EBL implements ICompiler {
     
     private       HashMap<RName,IRType>    types = null;
     private       EntityFactory            ef;
@@ -108,7 +106,7 @@ public class EL implements ICompiler {
             RName tablename = tables.next();
             ELType type = new ELType(tablename,IRObject.iDecisiontable,(REntity) ef.getDecisiontables());
             if(types.containsKey(tablename)){
-                System.out.println("Multiple Decision Tables found with the name '"+types.get(tablename)+"'");
+                System.out.println("Multiple Decision Tables or Types found with the name '"+types.get(tablename)+"'");
             }
             types.put(tablename, type);
         }
@@ -215,7 +213,7 @@ public class EL implements ICompiler {
      * an action.  Use the compiler access methods to compile each.
      * 
      */
-    public EL(){};
+    public EBL(){};
 
     /**
      * @param session Needed to generate the symbol table used by the compiler.  

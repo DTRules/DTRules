@@ -4,7 +4,7 @@
 // Thu Jun 16 16:19:07 CDT 2011
 //----------------------------------------------------
 
-package com.dtrules.compiler.el.cup.parser;
+package com.dtrules.compiler.ebl.cup.parser;
 
 /** CUP generated class containing symbol constants. */
 public class Symbols {

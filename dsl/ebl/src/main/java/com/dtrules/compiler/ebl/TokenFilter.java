@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
  */
-package com.dtrules.compiler.el;
+package com.dtrules.compiler.ebl;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.dtrules.compiler.el.cup.parser.RLocalType;
-import com.dtrules.compiler.el.cup.parser.RSymbol;
-import com.dtrules.compiler.el.cup.parser.sym;
+import com.dtrules.compiler.ebl.cup.parser.RLocalType;
+import com.dtrules.compiler.ebl.cup.parser.RSymbol;
+import com.dtrules.compiler.ebl.cup.parser.sym;
 import com.dtrules.entity.IREntity;
 import com.dtrules.entity.REntity;
 import com.dtrules.infrastructure.RulesException;

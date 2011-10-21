@@ -14,7 +14,7 @@
  * limitations under the License.  
  */
  
-package com.dtrules.compiler.el.cup.parser;
+package com.dtrules.compiler.ebl.cup.parser;
 
 import java.util.*;
 import java_cup.runtime.*;
@@ -99,16 +99,16 @@ terminal String		ABSOLUTEVALUE, ACTION, ADD, AFTER, ALL, ALLOWING, AND,
 					CURRENT_TIMESTAMP, DATE, DAYS, DEBUG, DECIMAL_PLACES, 
 					DECREMENT, DEEPCOPY, DESCENDINGORDER, DIVIDE, DOES, DOUBLE, 
 					EACH, EARLIEST, ELEMENT, ELSE, ELSEIF, ELSEIFNONEAREFOUND, 
-					END, ENDFF, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIRST, FLOAT, FOR, 
-					FORALL, FOREACH, FROM, GET, GT, GTE, HASA, HAVE, IF, IN, 
-					INCLUDE, INCLUDES, INCREMENT, INDEX_OF, INTEGER, IS, 
-					ISNOTNULL, ISNULL,	ITS, LBRACE, LCURLY, LENGTH, 
+					END, ENDFF, ENDIF, ENTITY, EQ, EQ_IGNORE_CASE, FIND, FIRST, FLOAT, 
+					FOR, FORALL, FOREACH, FROM, GET, GT, GTE, HASA, HAVE, IF, IN, 
+					INCLUDE, INCLUDES, INCREMENT, INDEX_OF, INTEGER, IS,  
+					ISNOTNULL, ISNULL, ISWITHIN, ITS, LBRACE, LCURLY, LENGTH, 
 					LOCAL, LONG, LOWER_CASE, LPAREN,  LT, LTE, MAP, MAPPINGKEY, MATCH, 
 					MATCHES, MEMBER, MINUS, MONTHS, MULTIPLY, NAME, 
 					NAMEOF, NEQ, NEQ_IGNORE_CASE, NEW, NO, NOT, NUMBEROF, OF, ON, 
 					ONE, ONERROR, OR, PERCENTOF, PERFORM, PLUS, PLUSORMINUS, 
 					POLICYSTATEMENT, POLICYSTATEMENTS, POSSESSIVE, PRINT, 
-				   QUESTIONMARK, RANDOMIZE, RARRAY, RBOOLEAN, RBRACE, 
+				    QUESTIONMARK, RANDOMIZE, RARRAY, RBOOLEAN, RBRACE, 
 					RCURLY, RDATE, RDECISIONTABLE, RDOUBLE, RELATIONSHIP_BETWEEN, 
 					REMOVE, RENTITY, 
 					RINVALID, RLONG, RNAME, RNULL, ROPERATOR, ROUNDED, RPAREN, 
@@ -137,7 +137,7 @@ non terminal String     gforallblock;   //  general forall block (build off of f
 non terminal String     foreachblock;   //  for each block
 non terminal String     forallblock;    //  for all block
 
-non terminal String     forctl;
+non terminal String     forctl, findclause;
 non terminal String     forallctl, forfirstctl;
 non terminal String     ifblock;
 non terminal String     usingblock;
@@ -227,6 +227,8 @@ done ::=
       |
       CONTEXT context_for_table:e             SEMI {: RESULT = "\n"+e+"\n"; :} 
       |
+      CONTEXT findclause:e                    SEMI {: RESULT = "\n"+e+"\n"; :} 
+      |
       CONTEXT debugstatement:d SEMI context_for_table:e SEMI {: RESULT = "\n"+d+e+"\n"; :} 
       |
       POLICYSTATEMENT strexpr:e               SEMI {: RESULT = e; :}
@@ -279,12 +281,14 @@ colonRef      ::= possessiveRef:e                             {: RESULT = e; :} 
 gforallblock ::= block:blk forallctl:ctl 
 				  {: RESULT = "{ "+blk+"} "+ctl+"pop "; :};
 
-context_for_table ::= debugstatement:e      {: RESULT = e+"execute ";            :} |
-					  forctl:ctl            {: RESULT = ctl+"pop ";              :} |
+context_for_table ::= forctl:ctl            {: RESULT = ctl+"pop ";              :} |
                       forallctl:ctl 		{: RESULT = ctl+"pop "; 			 :} |
 					  forfirstctl:ctl 		{: RESULT = ctl+"pop "; 			 :} |
 					  contextstatement:c 	{: RESULT = c +"execute entitypop "; :} |
 					  localvariables:v      {: RESULT = v;                       :} ;
+					  
+findclause ::= FIND RENTITY:e IN array_expr:a THEN context_for_table:t THEN
+                {:  RESULT = "{ "+t+"} { 0 entityfetch $"+e+" get "+e+" == } "+a+"forfirst "; :};					  
 					  
 localvariables ::=
             LOCAL ENTITY UNDEFINED:v                  {: RESULT = parser.newLocal(v, parser.iEntity, null);                     :} | 
@@ -956,6 +960,10 @@ bexpr     ::=
 			array_expr:a DOES INCLUDE includeSearch:e     {: RESULT = a+e+"memberof ";    				:}  |
             array_expr:a INCLUDES includeSearch:e         {: RESULT = a+e+"memberof ";    				:}  |
 
+            //the page_number is within the excluded_chapters
+            iexpr:i ISWITHIN array_expr:e               
+                    {: RESULT = " { true } { false } { "+i+"dup begin_page >= swap end_page <= && } "+e+"forfirstelse ";  :} |
+
             // This syntax looks for a match for each string in a1 to an
             // attribute n on some entity in an array of entities a2
             thereis MATCH FORALL array_expr:a1 TO nexpr:n IN array_expr:a2
@@ -966,9 +974,7 @@ bexpr     ::=
 			thereis eexpr:e1 inthe eexpr:e2 WHERE bexpr:b 	
 					{: RESULT = "{ true } { false } { " + b +"} "+e1.trim()+"s "+e2+"entitypush forfirstelse entitypop "; :} |
 			thereis eexpr:e1 inthe array_expr:a WHERE bexpr:b    
-                    {: RESULT = "{ true } { false } { " + b +"} "+a+ " forfirstelse ";                                    :} |
-            
-			
+                    {: RESULT = "{ true } { false } { " + b +"} "+a+ " forfirstelse ";                                    :} |       			        
 			THERE IS NO eexpr:e1 WHERE bexpr:b					
 				    {: RESULT = "{ false } { true } { " + b +"} "+e1.trim()+"s forfirstelse ";                            :} |
 			THERE IS NO eexpr:e1 inthe eexpr:e2 WHERE bexpr:b 	

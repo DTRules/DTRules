@@ -1,6 +1,6 @@
 <DTRules>
 
-  <compileralias name="EL">com.dtrules.compiler.elb.EBL</compileralias> 
+  <compileralias name="EBL">com.dtrules.compiler.ebl.EBL</compileralias> 
   <compiler>EBL</compiler>
   
   <RuleSet name="BookPreview" source="file"  >

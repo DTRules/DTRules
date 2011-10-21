@@ -14,7 +14,7 @@
  * limitations under the License.  
  **/ 
 
-package com.dtrules.samples.test;
+package com.dtrules.samples.bookpreview;
 
 import com.dtrules.compiler.excel.util.Excel2XML;
 
@@ -23,7 +23,7 @@ import com.dtrules.compiler.excel.util.Excel2XML;
  * @author Paul Snow
  *
  */
-public class Compile_Test {
+public class Compile_BookPreview {
 
     /**
      * In Eclipse, System.getProperty("user.dir") returns the project
@@ -39,7 +39,7 @@ public class Compile_Test {
     public static void main(String args[]) throws Exception { 
         try {
             
-            Excel2XML.compile(path,"DTRules.xml","TestProject","repository");
+            Excel2XML.compile(path,"DTRules.xml","BookPreview","repository");
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
  **/ 
-package com.dtrules.samples.test;
+package com.dtrules.samples.bookpreview;
 
 
 import java.io.PrintStream;
@@ -26,18 +26,18 @@ import com.dtrules.testsupport.ATestHarness;
 import com.dtrules.testsupport.ITestHarness;
 import com.dtrules.xmlparser.XMLPrinter;
 
-public class Test_Test extends ATestHarness {
+public class Test_BookPreview extends ATestHarness {
     
 	    public boolean  Trace()                   { return true;                            }
 	    public boolean  Console()                 { return true;                            }
-	    public String   getPath()                 { return Compile_Test.path;               }
+	    public String   getPath()                 { return Compile_BookPreview.path;        }
 	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
-	    public String   getRuleSetName()          { return "TestProject";                   }
-	    public String   getDecisionTableName()    { return "Test_Entry_Point";              }
+	    public String   getRuleSetName()          { return "BookPreview";                   }
+	    public String   getDecisionTableName()    { return "Book_Access_Request";           }
 	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             
 	   
 	    public static void main(String[] args) {
-	        ITestHarness t = new Test_Test();
+	        ITestHarness t = new Test_BookPreview();
 	        t.runTests();
 	    }
 	    

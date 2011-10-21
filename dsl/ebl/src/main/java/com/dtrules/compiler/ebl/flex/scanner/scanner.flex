@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and  
  * limitations under the License.  
  **/ 
-package com.dtrules.compiler.el.flex.scanner;
+package com.dtrules.compiler.ebl.flex.scanner;
 import java.util.*;
 import java.io.*;
 import java_cup.runtime.*;
-import com.dtrules.compiler.el.cup.parser.sym;
+import com.dtrules.compiler.ebl.cup.parser.sym;
 import com.dtrules.infrastructure.RulesException;
 @SuppressWarnings({"unchecked","unused"})
 %%
@@ -117,6 +117,7 @@ string     = {stringdbl}|{stringsgl}
   "rounded"        {return build(sym.ROUNDED);   }
   "decimal"{ws}+"places"
                    {return build(sym.DECIMAL_PLACES); }
+  "is"{ws}+"within" {return build(sym.ISWITHIN); }
   "with"{ws}+"boundry"
                    {return build(sym.WITH_BOUNDRY);   }
   "remove"         {return build(sym.REMOVE);    }
@@ -140,6 +141,7 @@ string     = {stringdbl}|{stringsgl}
   "context"        {return build(sym.CONTEXT); }
   "for"{ws}*"all"  {return build(sym.FORALL); }
   "for"{ws}*"each" {return build(sym.FOREACH); }
+  "find"           {return build(sym.FIND); }
   "each"           {return build(sym.EACH);   }
   "int"            {return build(sym.LONG);   }
   "long"           {return build(sym.LONG);   }
@@ -157,6 +159,7 @@ string     = {stringdbl}|{stringsgl}
   "<"|"&lt"        {return build(sym.LT); }
   ">="|"&gt="      {return build(sym.GTE); }
   "<="|"&lt="      {return build(sym.LTE); }
+  
   
   "is"{ws}+"equal"{ws}+("to"{ws})?+"ignore"{ws}+"case"                      {return build(sym.EQ_IGNORE_CASE);}  
   "is"{ws}+"not"{ws}+"equal"{ws}+("to"{ws})?+{ws}+"ignore"{ws}+"case"       {return build(sym.NEQ_IGNORE_CASE);}  
