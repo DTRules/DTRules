@@ -1,18 +1,18 @@
 <DTRules>
 
-  <compileralias name="EL">com.dtrules.compiler.el.EL</compileralias> 
-  <compiler>EL</compiler>
+  <compileralias name="EL">com.dtrules.compiler.elb.EBL</compileralias> 
+  <compiler>EBL</compiler>
   
-  <RuleSet name="TestProject" source="file"  >
+  <RuleSet name="BookPreview" source="file"  >
      <RuleSetFilePath>/xml</RuleSetFilePath>
      <WorkingDirectory>/temp</WorkingDirectory>
      
      <DTExcelFolder>/DecisionTables/</DTExcelFolder>
      <EDDExcelFolder>/edd/</EDDExcelFolder>
 
-     <Entities        name="Test_edd.xml" />
-     <Decisiontables  name="Test_dt.xml"  />
-     <Map             name="Test_map.xml" />
+     <Entities        name="BookPreview_edd.xml" />
+     <Decisiontables  name="BookPreview_dt.xml"  />
+     <Map             name="BookPreview_map.xml" />
   </RuleSet>    
 
 </DTRules>
