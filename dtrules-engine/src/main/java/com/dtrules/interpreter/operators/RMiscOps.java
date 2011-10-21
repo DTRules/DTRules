@@ -302,8 +302,9 @@ public class RMiscOps {
     }
 
     /**
-     * Pushes a copy of the top entity on the entity stack on to the
-     * data stack.
+     * Returns the nth element from the top of the entity stack (0 returns the
+     * top element, 1 returns the 1 from the top, 2 the 2 from the top, etc.)
+     * 
      * ( index -- element ) 
      * @author paul snow
      *
