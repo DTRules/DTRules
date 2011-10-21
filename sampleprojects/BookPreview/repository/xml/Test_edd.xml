@@ -1,0 +1,13 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<entity name='job' access='rw' comment=''>
+		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='main' default_value='' comment='Notes on processing the job'></field>
+		<field name='things' type='array' subtype='' access='rw' input='main' default_value='' comment='This test tests things'></field>
+	</entity>
+	<entity name='thing' access='rw' comment=''>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='thing' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='value' type='integer' subtype='' access='rw' input='main' default_value='0' comment=''></field>
+	</entity>
+</entity_data_dictionary>
