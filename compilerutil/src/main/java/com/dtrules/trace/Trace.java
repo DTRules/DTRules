@@ -165,9 +165,8 @@ public class Trace {
      * @param attribute
      * @return
      */
-    TraceNode isChanged(IREntity e, String attribute) {
-        RName  rn = RName.getRName(attribute);
-        Change c = new Change(e, rn, null);                 // Make a look up key.
+    public TraceNode isChanged(IREntity e, RName attribute) {
+        Change c = new Change(e, attribute, null);                 // Make a look up key.
         c = changes.get(c);                                 // Replace the key with the value
         if(c == null) return null;                          // Attribute still has default value.
         return c.execute_table;                             // Return the changed flag.
@@ -179,9 +178,8 @@ public class Trace {
      * the default value for the attribute, or the attribute has been changed by
      * a decision table, this routine returns false.
      */
-    public boolean isDefaultValue (IREntity e, String attribute ){
-        RName  rn = RName.getRName(attribute);
-        Change c = new Change(e, rn, null);                 // Make a look up key.
+    public boolean isDefaultValue (IREntity e, RName attribute ){
+        Change c = new Change(e, attribute, null);                 // Make a look up key.
         c = changes.get(c);                                 // Replace the key with the value
         return (c == null);                                 // Return true if still the default value.
     }
@@ -219,7 +217,7 @@ public class Trace {
             System.out.println(e.getName() + " " + e.getID());
             Iterator<RName> ai = e.getAttributeIterator();
             while(ai.hasNext()){
-                String attrib = ai.next().stringValue();
+                RName attrib = ai.next();
                 TraceNode n = trace.isChanged(e, attrib);
                 boolean   d = trace.isDefaultValue(e, attrib);
                 System.out.printf("    %1s %8d %20s\n",d?"*":" ",n!=null?n.number:-1,attrib);
