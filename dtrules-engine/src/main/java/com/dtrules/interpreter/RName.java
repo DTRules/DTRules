@@ -210,6 +210,14 @@ public class RName extends ARObject implements Comparable<RName>{
 		return entity;
 	}
 	
+	/**
+	 * Returns just the attribute component of the name
+	 */
+	public String getName(){
+	    return name;
+	}
+	
+	
 	public boolean equals(Object arg0) {
         if(arg0.getClass()!=RName.class)return false; 
 		boolean f = name.equalsIgnoreCase(((RName)arg0).name);

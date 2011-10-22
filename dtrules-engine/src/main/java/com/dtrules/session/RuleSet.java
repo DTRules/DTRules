@@ -54,6 +54,9 @@ import com.dtrules.session.IStreamSource.FileType;
  *
  */
 public class RuleSet {
+                                             // We need a reference to the IRObject here to 
+    public int t = IRObject.iInteger;        //   force the class loader to build our types.
+    
 	protected Class<ICompiler>            defaultCompiler  = null;
 	protected RName        	              name;
 	protected boolean   	              resource         = false;

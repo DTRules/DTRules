@@ -63,7 +63,7 @@ public class REntity extends ARObject implements IREntity {
 
     /** This attribute's name */
 	final RName                     name; 
-    final int                       id;
+          int                       id;
           boolean                   readonly;
     
     HashMap<RName,REntityEntry>     attributes; 
@@ -102,6 +102,15 @@ public class REntity extends ARObject implements IREntity {
      * @return
      */
     public int getID(){ return id;} 
+    
+    /**
+     * Sets the ID;  This is only useful with debugging tools that are setting
+     * up a rules engine state.
+     * @param id
+     */
+    public void setId(int id){
+        this.id = id;
+    }
     
 	/**
      * Returns an interator that provides all the names of all the attributes for this entity. 
