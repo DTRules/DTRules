@@ -23,6 +23,7 @@
 	<entity name='customer' access='rw' comment=''>
 		<field name='customer' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='notes' type='array' subtype='' access='r' input='main' default_value='' comment='Tracking for decisions made about the customer'></field>
 		<field name='open_books' type='array' subtype='book_access' access='r' input='main' default_value='' comment='Books the Customer is accessing'></field>
 	</entity>
 	<entity name='open_book' access='rw' comment=''>
