@@ -38,8 +38,8 @@ public class Compile_BookPreview {
      */
     public static void main(String args[]) throws Exception { 
         try {
-            
-            Excel2XML.compile(path,"DTRules.xml","BookPreview","repository");
+            String [] mapping = {"main"};
+            Excel2XML.compile(path,"DTRules.xml","BookPreview","repository",mapping);
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");

@@ -131,14 +131,14 @@ Other_Actions
 { open_book entitypush execute entitypop } { 0 entityfetch $book get book == } open_books forfirst 
 </context_postfix></context_details>
 <context_details>
-<context_number>1</context_number>
+<context_number>2</context_number>
 <context_comment>Put the book in our context</context_comment>
 <context_description>add the book to the context of this table</context_description>
 <context_postfix>
 book entitypush execute entitypop 
 </context_postfix></context_details>
 <context_details>
-<context_number>2</context_number>
+<context_number>3</context_number>
 <context_comment>Put the book&apos;s publisher  in the context</context_comment>
 <context_description>add the publisher to the context of this table</context_description>
 <context_postfix>

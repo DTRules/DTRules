@@ -287,7 +287,7 @@ context_for_table ::= forctl:ctl            {: RESULT = ctl+"pop ";             
 					  contextstatement:c 	{: RESULT = c +"execute entitypop "; :} |
 					  localvariables:v      {: RESULT = v;                       :} ;
 					  
-findclause ::= FIND RENTITY:e IN array_expr:a THEN context_for_table:t THEN
+findclause ::= FIND RENTITY:e IN array_expr:a THEN context_for_table:t 
                 {:  RESULT = "{ "+t+"} { 0 entityfetch $"+e+" get "+e+" == } "+a+"forfirst "; :};					  
 					  
 localvariables ::=

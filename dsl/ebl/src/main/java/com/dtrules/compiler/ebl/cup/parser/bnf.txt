@@ -126,7 +126,7 @@ Writing parser...
 [47] context_for_table ::= forfirstctl 
 [48] context_for_table ::= contextstatement 
 [49] context_for_table ::= localvariables 
-[50] findclause ::= FIND RENTITY IN array_expr THEN context_for_table THEN 
+[50] findclause ::= FIND RENTITY IN array_expr THEN context_for_table 
 [51] localvariables ::= LOCAL ENTITY UNDEFINED 
 [52] localvariables ::= LOCAL ENTITY UNDEFINED ASSIGN eexpr 
 [53] localvariables ::= LOCAL ENTITY RENTITY 
@@ -605,7 +605,7 @@ Closing files...
 ------- CUP v0.10k Parser Generation Summary -------
   0 errors and 0 warnings
   168 terminals, 67 non-terminals, and 524 productions declared, 
-  producing 1320 unique parse states.
+  producing 1319 unique parse states.
   0 terminals declared but not used.
   0 non-terminals declared but not used.
   0 productions never reduced.
