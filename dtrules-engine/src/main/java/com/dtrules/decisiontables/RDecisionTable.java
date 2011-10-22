@@ -1626,7 +1626,7 @@ public class RDecisionTable extends ARObject {
     /**
      * This method provides field values given a field name.  A few "virtual" field names are
      * supported so as to avoid having to have special code to access these values.  They include
-     * the Table_Name, File_Name, etc.
+     * the Table_Name, File_Name, 
      * @param fieldname
      * @return
      */

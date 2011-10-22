@@ -17,28 +17,22 @@ package com.dtrules.samples.bookpreview;
 
 
 import java.io.PrintStream;
-import com.dtrules.entity.IREntity;
-import com.dtrules.infrastructure.RulesException;
-import com.dtrules.interpreter.IRObject;
-import com.dtrules.interpreter.RArray;
+
 import com.dtrules.session.IRSession;
 import com.dtrules.testsupport.ATestHarness;
-import com.dtrules.testsupport.ITestHarness;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Test_BookPreview extends ATestHarness {
     
-	    public boolean  Trace()                   { return true;                            }
-	    public boolean  Console()                 { return true;                            }
-	    public String   getPath()                 { return Compile_BookPreview.path;        }
-	    public String   getRulesDirectoryPath()   { return getPath()+"xml/";                }
-	    public String   getRuleSetName()          { return "BookPreview";                   }
-	    public String   getDecisionTableName()    { return "Book_Access_Request";           }
-	    public String   getRulesDirectoryFile()   { return "DTRules.xml";                   }             
-	   
-	    public static void main(String[] args) {
-	        ITestHarness t = new Test_BookPreview();
-	        t.runTests();
+	    public static String path    = System.getProperty("user.dir")+"/";
+	      
+	    public static void main(String[] args) throws Exception {
+	        
+	        Test_BookPreview t = new Test_BookPreview();
+	        t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
+	        t.runTests();                       // Run the tests.
+	        t.writeDecisionTables("BookPreview", null, true, 10);
+	    
 	    }
 	    
 	    @Override

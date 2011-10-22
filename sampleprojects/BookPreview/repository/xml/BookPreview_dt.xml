@@ -3,9 +3,8 @@
 <table_name>Book_Access_Request</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>This Rule Set manages the Access to eBooks</COMMENTS>
-<File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
+<TYPE>FIRST</TYPE>
+<COMMENTS>This Rule Set manages the Access to eBooks</COMMENTS></attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
 <conditions>
@@ -99,9 +98,8 @@ Other_Actions
 <table_name>Purchase_Book</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>This Rule Set manages the Access to eBooks</COMMENTS>
-<File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
+<TYPE>FIRST</TYPE>
+<COMMENTS>This Rule Set manages the Access to eBooks</COMMENTS></attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
 <conditions></conditions>
@@ -111,9 +109,8 @@ Other_Actions
 <table_name>Preview_Book</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS>
-<File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
+<TYPE>FIRST</TYPE>
+<COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS></attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
 <conditions></conditions>
@@ -123,9 +120,8 @@ Other_Actions
 <table_name>Turn_Page</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS>
-<File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
+<TYPE>FIRST</TYPE>
+<COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS></attribute_fields>
 <contexts>
 <context_details>
 <context_number>1</context_number>
@@ -263,9 +259,8 @@ true cvb /allow xdef
 <table_name>Other_Actions</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Handle other requests</COMMENTS>
-<File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
+<TYPE>FIRST</TYPE>
+<COMMENTS>Handle other requests</COMMENTS></attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
 <conditions></conditions>

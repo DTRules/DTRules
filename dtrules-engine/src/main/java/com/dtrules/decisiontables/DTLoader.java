@@ -65,10 +65,8 @@ public class DTLoader implements IGenericXMLParser {
 	                                            // Any tag within this tag is interpreted as an attribute of
 	                                            // the decision table.  The Table_type tag is treated special.
 	/**
-	 *  The limit here is many times too large for actual decision tables.
-	 *  In fact, one should throw an error if a table has more than 16 columns,
-	 *  or more than 16 actions.  Tables larger than that are too hard to 
-	 *  understand to be useful.
+	 *  We have no limits on the number of columns for a decision table.  But
+	 *  from a practical point of view, 16 is a reasonable limit.
 	 **/  
 	
 	// Temp Space for collecting data for the decision tables
@@ -445,8 +443,8 @@ public class DTLoader implements IGenericXMLParser {
                 methodCache.put(tagname,m);
             }    
             m.invoke(this,(Object [])null);  			
-		} catch (NoSuchMethodException e){   // Ignore undefined tags	
-        } catch (InvocationTargetException e){  // Ignore errors thrown by Decision Table parsing
+		} catch (NoSuchMethodException e){      // Ignore undefined tags	
+        } catch (InvocationTargetException e){  // Errors thrown by Decision Table parsing
             throw new RuntimeException("An Invocation Target Exception was thrown processing the Begin XML tag "+tag+
                             "\nError states: "+e.getCause());
 		} catch (Exception e) {
