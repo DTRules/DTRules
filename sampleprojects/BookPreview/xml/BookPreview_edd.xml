@@ -2,6 +2,7 @@
 	<entity name='book' access='rw' comment=''>
 		<field name='book' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='chapters' type='array' subtype='' access='r' input='main' default_value='' comment='The chapters in the book'></field>
+		<field name='day_limit' type='integer' subtype='' access='r' input='main' default_value='120' comment='Limit on the number of days one can preview; zero is no limit'></field>
 		<field name='excluded_chapters' type='array' subtype='' access='r' input='main' default_value='' comment='The chapters that cannot be viewed in preview'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='publisher' type='entity' subtype='' access='r' input='main' default_value='' comment='This book&apos;s publisher'></field>
@@ -15,7 +16,7 @@
 	<entity name='constants' access='rw' comment=''>
 		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='Next_Page' type='string' subtype='' access='r' input='' default_value='turn page' comment=''></field>
+		<field name='Next_Page' type='string' subtype='' access='r' input='' default_value='turn_page' comment=''></field>
 		<field name='Preview' type='string' subtype='' access='r' input='' default_value='preview' comment=''></field>
 		<field name='Purchase' type='string' subtype='' access='r' input='' default_value='purchase' comment=''></field>
 	</entity>
@@ -25,12 +26,12 @@
 		<field name='open_books' type='array' subtype='book_access' access='r' input='main' default_value='' comment='Books the Customer is accessing'></field>
 	</entity>
 	<entity name='open_book' access='rw' comment=''>
+		<field name='begin_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date access to this book was granted to the customer'></field>
 		<field name='book' type='entity' subtype='' access='r' input='main' default_value='' comment='The book the customer is previewing'></field>
 		<field name='chapters_viewed' type='array' subtype='' access='r' input='main' default_value='' comment='The chapters the customer has accessed'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='open_book' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='pages_viewed' type='array' subtype='' access='r' input='main' default_value='' comment='List of pages viewed (by number)'></field>
-		<field name='start_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date access to this book was granted to the customer'></field>
 	</entity>
 	<entity name='publisher' access='rw' comment=''>
 		<field name='chapter_limit' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of chapters the customer is allowed to view. 0 is no limit.'></field>

@@ -41,5 +41,16 @@ public class Test_BookPreview extends ATestHarness {
 	        t.runTests();
 	    }
 	    
+	    @Override
+	    public void printReport(int runNumber, IRSession session, PrintStream out) throws Exception {
+	        XMLPrinter xout = new XMLPrinter(out);
+	        session.printEntityReport(
+	                xout, 
+	                false, 
+	                false, 
+	                session.getState(), 
+	                "allow", 
+	                session.getState().find("allow"));
+	    }
 	}    
 	    

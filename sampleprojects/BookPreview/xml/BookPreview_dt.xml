@@ -125,10 +125,17 @@ Other_Actions
 <contexts>
 <context_details>
 <context_number>1</context_number>
+<context_comment>Put the customer in our context</context_comment>
+<context_description>add the customer to the context of this table</context_description>
+<context_postfix>
+customer entitypush execute entitypop 
+</context_postfix></context_details>
+<context_details>
+<context_number>1</context_number>
 <context_comment>Put the book in our context</context_comment>
 <context_description>find the book in the open_books then add the open_book to the context of this table</context_description>
 <context_postfix>
-{ open_book entitypush execute entitypop } { 0 entityfetch $book get book == } open_books forfirst 
+{ open_book entitypush execute entitypop } { 0 entityfetch /book get book req } open_books forfirst 
 </context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
@@ -148,7 +155,7 @@ publisher entitypush execute entitypop
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>No view_limit means unlimited</condition_comment>
+<condition_comment>No day_limit means unlimited</condition_comment>
 <condition_requirement></condition_requirement>
 <condition_description>the page_limit == 0</condition_description>
 <condition_postfix>
@@ -157,11 +164,11 @@ page_limit 0 ==
 <condition_column column_value="N" column_number="1"></condition_column></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Only get to view for view_limit days</condition_comment>
+<condition_comment>Only get to view for a number of days</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>The days from the start_date to the current_date &gt; the page_limit</condition_description>
+<condition_description>The days from the begin_date to the current_date &gt; the day_limit</condition_description>
 <condition_postfix>
-start_date current_date daysbetween page_limit &gt; 
+begin_date current_date daysbetween day_limit &gt; 
 </condition_postfix>
 <condition_column column_value="Y" column_number="1"></condition_column></condition_details>
 <condition_details>

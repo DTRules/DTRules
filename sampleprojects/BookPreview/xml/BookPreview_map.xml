@@ -13,7 +13,7 @@
             <!--customer-->
             <!--open_book-->
             <setattribute tag='book' RAttribute='book' enclosure='open_book' type='entity' subtype=''></setattribute>
-            <setattribute tag='start_date' RAttribute='start_date' enclosure='open_book' type='date' subtype=''></setattribute>
+            <setattribute tag='begin_date' RAttribute='begin_date' enclosure='open_book' type='date' subtype=''></setattribute>
             <!--publisher-->
             <setattribute tag='chapter_limit' RAttribute='chapter_limit' enclosure='publisher' type='integer' subtype=''></setattribute>
             <setattribute tag='page_limit' RAttribute='page_limit' enclosure='publisher' type='integer' subtype=''></setattribute>

@@ -288,7 +288,7 @@ context_for_table ::= forctl:ctl            {: RESULT = ctl+"pop ";             
 					  localvariables:v      {: RESULT = v;                       :} ;
 					  
 findclause ::= FIND RENTITY:e IN array_expr:a THEN context_for_table:t 
-                {:  RESULT = "{ "+t+"} { 0 entityfetch $"+e+" get "+e+" == } "+a+"forfirst "; :};					  
+                {:  RESULT = "{ "+t+"} { 0 entityfetch /"+e+" get "+e+" req } "+a+"forfirst "; :};					  
 					  
 localvariables ::=
             LOCAL ENTITY UNDEFINED:v                  {: RESULT = parser.newLocal(v, parser.iEntity, null);                     :} | 

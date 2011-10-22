@@ -18,7 +18,7 @@ public class TestCaseGen_BookPreview {
 	public static PrintStream estream = System.err;
 	
 						      		// This is the default number of how many test cases to generate.
-	static int cnt = 10;	    	// You can pass a different number on the commandline.
+	static int cnt = 20;	    	// You can pass a different number on the commandline.
 	
 	Random 		       rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;
@@ -88,8 +88,8 @@ public class TestCaseGen_BookPreview {
             }xout.closetag();
             
             xout.opentag("publisher");{
-                xout.printdata("chapter_limit",randint(numChapters/3)+1);
-                xout.printdata("page_limit", randint(numPages/10)+1);
+                xout.printdata("chapter_limit",randint(numChapters/2)+1);
+                xout.printdata("page_limit", randint(numPages/5)+1);
             }xout.closetag();
                         
         } xout.closetag();
@@ -123,12 +123,12 @@ public class TestCaseGen_BookPreview {
             int numPages    = pages.get(thebook);
             int numChapters = chapters.get(thebook);
             
-            xout.printdata("page_number",randint(numPages));
+            xout.printdata("page_number",randint(numPages/10)+1);
             xout.printdata("book","id",bookId.get(thebook),null);
             
             xout.opentag("customer"); {
                 for(int i=0; i<openbooks; i++){
-                    xout.opentag("open_books"); {
+                    xout.opentag("open_book"); {
                         xout.printdata("book","id",bookId.get(i),null);
                         xout.printdata("begin_date", getDate(randint(180)));
                         xout.printdata("pages_viewed", randint(numPages/2));
