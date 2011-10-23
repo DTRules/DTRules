@@ -123,7 +123,7 @@ Other_Actions
 <table_name>Turn_Page</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
+<Type>ALL</Type>
 <COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS>
 <File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
 <contexts>
@@ -159,11 +159,11 @@ publisher entitypush execute entitypop
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>No day_limit means unlimited</condition_comment>
+<condition_comment>day_limit == 0 means unlimited</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the page_limit == 0</condition_description>
+<condition_description>the day_limit == 0</condition_description>
 <condition_postfix>
-page_limit 0 == 
+day_limit 0 == 
 </condition_postfix>
 <condition_column column_value="N" column_number="1"></condition_column></condition_details>
 <condition_details>
@@ -179,9 +179,9 @@ begin_date current_date daysbetween day_limit &gt;
 <condition_number>3</condition_number>
 <condition_comment>Have they viewed too many pages?</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the number of pages_viewed + 1  is greater than  the publisher.page_limit</condition_description>
+<condition_description>the number of pages_viewed + 1  is greater than  the page_limit</condition_description>
 <condition_postfix>
-pages_viewed length 1 + publisher.page_limit &gt; 
+pages_viewed length 1 + page_limit &gt; 
 </condition_postfix>
 <condition_column column_value="Y" column_number="2"></condition_column></condition_details>
 <condition_details>
@@ -207,9 +207,9 @@ pages_viewed length 1 + publisher.page_limit &gt;
 <condition_number>6</condition_number>
 <condition_comment>Check chapter limit</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the number of chapters_viewed +1 is greater than the publisher.chapter_limit</condition_description>
+<condition_description>the number of chapters_viewed +1 is greater than the chapter_limit</condition_description>
 <condition_postfix>
-chapters_viewed length 1 + publisher.chapter_limit &gt; 
+chapters_viewed length 1 + chapter_limit &gt; 
 </condition_postfix>
 <condition_column column_value="Y" column_number="4"></condition_column></condition_details>
 <condition_details>
@@ -242,6 +242,19 @@ false cvb /allow xdef
 <action_postfix>
 true cvb /allow xdef  
 </action_postfix>
+<action_column column_value="X" column_number="5"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_requirement></action_requirement>
+<action_description>add the policy statements to the customer&apos;s notes</action_description>
+<action_postfix>
+policystatements customer entitypush notes entitypop true  addarray 
+</action_postfix>
+<action_column column_value="X" column_number="1"></action_column>
+<action_column column_value="X" column_number="2"></action_column>
+<action_column column_value="X" column_number="3"></action_column>
+<action_column column_value="X" column_number="4"></action_column>
 <action_column column_value="X" column_number="5"></action_column></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
