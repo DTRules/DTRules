@@ -33,7 +33,7 @@ public class TestChip extends ATestHarness {
     	TestChip t = new TestChip();		// Create an instance of the test harness.
     	t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
     	t.runTests();						// Run the tests.
-    
+        t.writeDecisionTables("Chip", null, true, 10);
     }
     
     @Override

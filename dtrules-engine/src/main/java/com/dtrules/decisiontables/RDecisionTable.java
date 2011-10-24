@@ -80,7 +80,10 @@ public class RDecisionTable extends ARObject {
     public static  final int MAXCOL = 16;       // The Maximum number of columns in a decision table.
     
                          int maxcol = 1;        // The number of columns in this decision table.
-                             
+                         
+                         int maxbalcol = 0;     // Number of balanced columns in this decision table. This is a computed thing, not used at 
+                                                //    runtime, and only set if the balanced condition table or action table is asked for.
+                         
     private final IRSession session;        	// We need to compile within a session, so we know how to parse dates (among other things)
 	
     private final RuleSet ruleset;			    // A decision table must belong to a particular ruleset
@@ -107,13 +110,17 @@ public class RDecisionTable extends ARObject {
 
 	
 	String [][] conditiontable;
+	String [][] conditiontablebalanced;         // A balanced rendering of the Decision Table; We don't use this 
+	                                            //   at runtime; it is mostly a UI thing.
 	String   [] conditions;                     // The conditions in formal.  This is compiled to get the postfix
 	String   [] conditionsPostfix;              // The conditions in postfix. derived from the formal
 	String   [] conditionsComment;              // A comment per condition.
 	IRObject [] rconditions;					// Each compiled condition
 	
     String [][] actiontable;                    // Indicates which actions should be executed
-	String   [] actions;                        // The actions in the language specified
+    String [][] actiontablebalanced;            // A balanced rendering of the Decision Table; We don't use this
+                                                //   at runtime; it is mostly a UI thing.
+    String   [] actions;                        // The actions in the language specified
 	String   [] actionsComment;                 // A free form comment for the action
 	String   [] actionsPostfix;                 // The compiled postfix version of the action
 	IRObject [] ractions;						// Each compiled action
@@ -297,11 +304,26 @@ public class RDecisionTable extends ARObject {
         return errorlist;
     }
 
-    /**
-     * @return the balanceTable
-     */
-    public BalanceTable getBalanceTable() {
-        return balanceTable;
+    public String [][] getActionTableBalanced(IRSession session ){
+        if(actiontablebalanced == null){
+            try {
+                RDecisionTable dt = getBalancedTable(session);
+                actiontablebalanced = dt.actiontable;
+                conditiontablebalanced = dt.conditiontable;
+            } catch (RulesException e) {   }
+        }
+        return actiontablebalanced;
+    }
+
+    public String [][] getConditionTableBalanced(IRSession session ) {
+        if(conditiontablebalanced == null){
+            try {
+                RDecisionTable dt = getBalancedTable(session);
+                actiontablebalanced = dt.actiontable;
+                conditiontablebalanced = dt.conditiontable;
+            } catch (RulesException e) {   }
+        }
+        return conditiontablebalanced;
     }
 
     private void whatsUsed(){
@@ -409,7 +431,7 @@ public class RDecisionTable extends ARObject {
         dt.contexts                 = contexts.clone();
         dt.contextsPostfix          = contextsPostfix.clone();
         dt.contextsrc               = contextsrc;
-        dt.rcontext                 = rcontext.clone(s);
+        dt.rcontext                 = rcontext != null? rcontext.clone(s):null;
         
         dt.rinitialActions          = rinitialActions.clone();
         dt.initialActions           = initialActions.clone();
@@ -541,6 +563,11 @@ public class RDecisionTable extends ARObject {
     		ractions          = new IRObject[actionsPostfix.length];
     		rinitialActions   = new IRObject[initialActionsPostfix.length];
     		rpolicystatements = new IRObject[policystatementsPostfix.length];
+    		
+    		// The assumption is that if you compile the table, something changed.  We would
+    		// need to recompute these in that case.
+    		actiontablebalanced    = null;
+    		conditiontablebalanced = null;
     		
     		for(int i=0; i< initialActions.length; i++){
                  try {
@@ -1523,7 +1550,7 @@ public class RDecisionTable extends ARObject {
      * 
      * @return
      */
-    RDecisionTable balancedTable(IRSession session) throws RulesException{
+    RDecisionTable getBalancedTable(IRSession session) throws RulesException{
         if(balanceTable==null)balanceTable = new BalanceTable(this);
         return balanceTable.balancedTable(session);
     }

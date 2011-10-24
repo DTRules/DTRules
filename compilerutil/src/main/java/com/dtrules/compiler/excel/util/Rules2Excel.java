@@ -36,6 +36,9 @@ import com.dtrules.session.RulesDirectory;
 
 public class Rules2Excel {
 
+    boolean             balanced = false;
+    int                 maxCol   = 16;
+    
     IRulesAdminService  admin;
     RulesDirectory      rd;           
     RuleSet             rs;
@@ -56,6 +59,11 @@ public class Rules2Excel {
     CellStyle      cs_table;
     CellStyle      cs_type;
     CellStyle      cs_number;
+    
+    
+    public Rules2Excel(boolean balanced){
+        this.balanced = balanced;
+    }
     
     void newWb() {
         wb = new HSSFWorkbook();
@@ -150,14 +158,14 @@ public class Rules2Excel {
         s.setColumnWidth(1,12000);                      // Numbers for Contexts, Actions, Conditions, etc.
         s.setColumnWidth(2,12000);                      // Numbers for Contexts, Actions, Conditions, etc.
         
-        for(int i = 0; i < 16; i++){
+        for(int i = 0; i < maxCol; i++){
             s.setColumnWidth(i+3, 700);
         }
         
         Cell c;
         Row  r = s.createRow(0);
         r.setHeightInPoints(20);
-        for(int i =  0; i <= 18; i++){
+        for(int i =  0; i <= maxCol+2; i++){
             c = r.createCell(i);
             c.setCellValue("");
             c.setCellStyle(cs_default);
@@ -219,6 +227,14 @@ public class Rules2Excel {
      */
     private void writeDT(RDecisionTable dt){
         
+        
+        if(balanced){
+            maxCol = dt.getActionTableBalanced(session)[0].length;
+            if(maxCol <16) maxCol = 16;
+        }else{
+            maxCol = 16;
+        }
+
         Sheet s         = newDecisionTableSheet();                   // Create the sheet for this decision table
         
         int   cRow      = 0;                                         // Our current row.
@@ -260,11 +276,11 @@ public class Rules2Excel {
         sheetCnt++;
         Row  r = s.getRow(cRow);                        // Get the first row.
         Cell c = r.createCell(0);
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,18));
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,maxCol+2));
         setCell(r, c, "Name: "+name, 
                 s.getColumnWidth(1)+
                 s.getColumnWidth(2)+
-                s.getColumnWidth(3)*16);
+                s.getColumnWidth(3)*maxCol);
         c.setCellStyle(cs_title);
         
         return cRow+1; 
@@ -272,13 +288,13 @@ public class Rules2Excel {
         
     int writeType(RDecisionTable dt, Sheet s, int cRow){
         // Type
-        Row  r = nextRow(s, cRow, 18);                         // Create a new row
+        Row  r = nextRow(s, cRow, maxCol+2);                         // Create a new row
         Cell c = r.createCell(0);
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,18));
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,maxCol+2));
         setCell(r, c, "Type: "+dt.getType(), 
                 s.getColumnWidth(1)+
                 s.getColumnWidth(2)+
-                s.getColumnWidth(3)*16);
+                s.getColumnWidth(3)*maxCol);
         c.setCellStyle(cs_type);
         
         return cRow+1;
@@ -304,22 +320,22 @@ public class Rules2Excel {
         
         for(RName field : fieldnames){
             if(field.stringValue().equalsIgnoreCase("type")) continue;
-            Row  r = nextRow(s, cRow, 18);                          // Create a new row
+            Row  r = nextRow(s, cRow, maxCol+2);                          // Create a new row
             Cell c = r.createCell(0);
-            s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,18));
+            s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,maxCol+2));
             setCell(r, c, field.stringValue()+": "+fields.get(field), 
                     s.getColumnWidth(1)+
                     s.getColumnWidth(2)+
-                    s.getColumnWidth(3)*16);
+                    s.getColumnWidth(3)*maxCol);
             c.setCellStyle(cs_field);
             cRow++;
         }
 
         // Add a blank row
-        Row r = nextRow(s, cRow, 18);                               // Create a new row
+        Row r = nextRow(s, cRow, maxCol+2);                               // Create a new row
         Cell c = r.createCell(0);
         c.setCellStyle(cs_field);
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,18));
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,maxCol+2));
         return cRow+1;
     }
     
@@ -327,9 +343,9 @@ public class Rules2Excel {
 
         //CONTEXTS:
         {
-            Row  r = nextRow(s, cRow, 18);                          // Create a new row
+            Row  r = nextRow(s, cRow, maxCol+2);                          // Create a new row
             Cell c = r.createCell(0);
-            s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,18));
+            s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,maxCol+2));
             c.setCellValue("Contexts:");
             c.setCellStyle(cs_header);
             cRow++;
@@ -337,7 +353,7 @@ public class Rules2Excel {
             String contexts  [] = dt.getContexts();
             String ccontexts [] = dt.getContextsComment();
             for(int cnt = 1; cnt <= contexts.length; cnt++){
-                r = nextRow(s, cRow, 18);                            // Create a new row
+                r = nextRow(s, cRow, maxCol+2);                            // Create a new row
                 c = r.createCell(0);
                 c.setCellValue(cnt);
                 c.setCellStyle(cs_number);
@@ -347,14 +363,14 @@ public class Rules2Excel {
                 setCell(r,c, ccontexts[cnt-1],s.getColumnWidth(1));
                 
                 c = r.createCell(2);
-                s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,18));
+                s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,maxCol+2));
                 c.setCellStyle(cs_formal);
-                setCell(r,c, contexts[cnt-1], s.getColumnWidth(2)+s.getColumnWidth(3)*16);
+                setCell(r,c, contexts[cnt-1], s.getColumnWidth(2)+s.getColumnWidth(3)*maxCol);
                 
                 cRow++;
             }
-            r = nextRow(s, cRow, 18);                              // Create a new row
-            s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,18));
+            r = nextRow(s, cRow, maxCol+2);                              // Create a new row
+            s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,maxCol+2));
         }
         
         return cRow+1;
@@ -363,10 +379,10 @@ public class Rules2Excel {
      
     int writeInitialActions(RDecisionTable dt, Sheet s, int cRow){
 
-        Row  r = nextRow(s, cRow, 18);                             // Create a new row
+        Row  r = nextRow(s, cRow, maxCol+2);                             // Create a new row
         Cell c = r.createCell(0);
         s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,1));
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,18));
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,maxCol+2));
         c.setCellValue("Initial Actions:");
         c.setCellStyle(cs_header);
 
@@ -379,7 +395,7 @@ public class Rules2Excel {
         String iactions  [] = dt.getInitialActions();
         String ciactions [] = dt.getInitialActionsComment();
         for(int cnt=1; cnt<=iactions.length; cnt++){
-            r = nextRow(s, cRow, 18);                             // Create a new row
+            r = nextRow(s, cRow, maxCol+2);                             // Create a new row
             c = r.createCell(0);
             c.setCellValue(cnt);
             c.setCellStyle(cs_number);
@@ -389,28 +405,28 @@ public class Rules2Excel {
             setCell(r,c,ciactions[cnt-1],s.getColumnWidth(1));
             
             c = r.createCell(2);
-            s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,18));
+            s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,maxCol+2));
             c.setCellStyle(cs_formal);
-            setCell(r,c,iactions[cnt-1],s.getColumnWidth(2)+s.getColumnWidth(3)*16);
+            setCell(r,c,iactions[cnt-1],s.getColumnWidth(2)+s.getColumnWidth(3)*maxCol);
             c.setCellValue(iactions[cnt-1]);
             
             cRow++;
         }
-        r = nextRow(s, cRow, 18);                               // Create a new row
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,18));
+        r = nextRow(s, cRow, maxCol+2);                               // Create a new row
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,2,maxCol+2));
 
         return cRow+1;
     }
     
     int writeConditions(RDecisionTable dt, Sheet s, int cRow){
 
-        Row  r = nextRow(s, cRow, 18);                             // Create a new row
+        Row  r = nextRow(s, cRow, maxCol+2);                             // Create a new row
         Cell c = r.createCell(0);
         s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,1));
         c.setCellValue("Conditions:");
         c.setCellStyle(cs_header);
 
-        for(int i = 3; i <= 18; i++){
+        for(int i = 3; i <= maxCol+2; i++){
             c = r.createCell(i);
             c.setCellValue(i-2);
             c.setCellStyle(cs_num_header);
@@ -427,7 +443,7 @@ public class Rules2Excel {
         String conditions  [] = dt.getConditions();
         String cConditions [] = dt.getConditionsComment();
         for(int cnt=1; cnt <= conditions.length; cnt++){
-            r = nextRow(s, cRow, 18);                             // Create a new row
+            r = nextRow(s, cRow, maxCol+2);                             // Create a new row
             c = r.createCell(0);
             c.setCellValue(cnt);
             c.setCellStyle(cs_number);
@@ -442,9 +458,10 @@ public class Rules2Excel {
             
             cRow++;
         }
-        r = nextRow(s, cRow, 18);                               // Create a new row
+        r = nextRow(s, cRow, maxCol+2);                               // Create a new row
        
-        String conditionTable[][] = dt.getConditiontable();
+        String conditionTable[][] = balanced ? dt.getConditionTableBalanced(session) : dt.getConditiontable();
+        
         for(int i = 0; i < conditionTable.length; i++){
             Row cr = s.getRow(startRow+i);
             for(int j = 0; j < conditionTable[i].length; j++){
@@ -466,13 +483,13 @@ public class Rules2Excel {
     
     int writeActions(RDecisionTable dt, Sheet s, int cRow){
 
-        Row  r = nextRow(s, cRow, 18);                             // Create a new row
+        Row  r = nextRow(s, cRow, maxCol+2);                             // Create a new row
         Cell c = r.createCell(0);
         s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,1));
         c.setCellValue("Actions:");
         c.setCellStyle(cs_header);
 
-        for(int i = 3; i <= 18; i++){
+        for(int i = 3; i <= maxCol+2; i++){
             c = r.createCell(i);
             c.setCellValue(i-2);
             c.setCellStyle(cs_num_header);
@@ -489,7 +506,7 @@ public class Rules2Excel {
         String actions  [] = dt.getActions();
         String cActions [] = dt.getActionsComment();
         for(int cnt=1; cnt <= actions.length; cnt++){
-            r = nextRow(s, cRow, 18);                             // Create a new row
+            r = nextRow(s, cRow, maxCol+2);                             // Create a new row
             c = r.createCell(0);
             c.setCellValue(cnt);
             c.setCellStyle(cs_number);
@@ -504,9 +521,9 @@ public class Rules2Excel {
             
             cRow++;
         }
-        r = nextRow(s, cRow, 18);                               // Create a new row
+        r = nextRow(s, cRow, maxCol+2);                               // Create a new row
        
-        String actionTable[][] = dt.getActiontable();
+        String actionTable[][] = balanced ? dt.getActionTableBalanced(session) : dt.getActiontable();
         for(int i = 0; i < actionTable.length; i++){
             Row cr = s.getRow(startRow+i);
             for(int j = 0; j < actionTable[i].length; j++){
@@ -525,13 +542,13 @@ public class Rules2Excel {
     
     int writePolicyStatements(RDecisionTable dt, Sheet s, int cRow){
 
-        Row  r = nextRow(s, cRow, 18);                             // Create a new row
+        Row  r = nextRow(s, cRow, maxCol+2);                             // Create a new row
         Cell c = r.createCell(0);
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,18));
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,0,maxCol+2));
         c.setCellValue("Policy Statements:");
         c.setCellStyle(cs_header);
 
-        for(int i = 3; i <= 18; i++){
+        for(int i = 3; i <= maxCol+2; i++){
             c = r.createCell(i);
             c.setCellValue(i-2);
             c.setCellStyle(cs_num_header);
@@ -544,8 +561,8 @@ public class Rules2Excel {
         String policystatements  [] = dt.getPolicystatements();
         
         for(int cnt=1; cnt < policystatements.length; cnt++){
-            r = nextRow(s, cRow, 18);                             // Create a new row
-            s.addMergedRegion(new CellRangeAddress(cRow,cRow,1,18));
+            r = nextRow(s, cRow, maxCol+2);                             // Create a new row
+            s.addMergedRegion(new CellRangeAddress(cRow,cRow,1,maxCol+2));
             c = r.createCell(0);
             c.setCellValue(cnt);
             c.setCellStyle(cs_number);
@@ -555,12 +572,12 @@ public class Rules2Excel {
             setCell(r, c, policystatements[cnt], 
                     s.getColumnWidth(1)+
                     s.getColumnWidth(2)+
-                    s.getColumnWidth(3)*16);
+                    s.getColumnWidth(3)*maxCol);
                         
             cRow++;
         }
-        r = nextRow(s, cRow, 18);                               // Create a new row
-        s.addMergedRegion(new CellRangeAddress(cRow,cRow,1,18));
+        r = nextRow(s, cRow, maxCol+2);                               // Create a new row
+        s.addMergedRegion(new CellRangeAddress(cRow,cRow,1,maxCol+2));
         c = r.createCell(0);
         c.setCellStyle(cs_number);
         c = r.createCell(1);

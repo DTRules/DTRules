@@ -18,6 +18,10 @@
 
 package com.dtrules.decisiontables;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.session.IRSession;
 
@@ -31,8 +35,29 @@ public class BalanceTable {
 
     private int maxRow=0,maxCol=0;
     private int maxARow=0;
-    private String ctable[][] = new String[100][10240];
-    private String atable[][] = new String[100][10240];
+    Map<Long, String> ctable;// = new String[100][10240];
+    Map<Long, String> atable;// = new String[100][10240];
+    List<String>      b_policyStatements;
+
+    void putCT(long row, long col, String v) {
+        ctable.put((row<<32)+col, v);
+    }
+
+    String getCT(long row, long col){
+        String v = ctable.get((row<<32)+col);
+        if(v==null) return " ";
+        return v;
+    }
+    
+    void putAT(long row, long col, String v) {
+        atable.put((row<<32)+col, v);
+    }
+
+    String getAT(long row, long col){
+        String v = atable.get((row<<32)+col);
+        if(v==null) return " ";
+        return v;
+    }
     
     final   RDecisionTable  dt;
     public BalanceTable(RDecisionTable dt) throws RulesException{
@@ -45,60 +70,81 @@ public class BalanceTable {
             throw new RulesException("DecisionTableError","balancedTable()","Malformed Decision Table");
         }
         RDecisionTable btable = (RDecisionTable) dt.clone(s);
-        ctable = btable.conditiontable;
-        atable = btable.actiontable;
-        filltable(0,0,btable.decisiontree); 
+        if(dt.decisiontree == null) return btable;
+        
+        ctable = new HashMap<Long, String>();
+        atable = new HashMap<Long, String>();
+        for(int col = 0; col < btable.getConditiontable()[0].length; col++){
+            for(int row = 0; row < btable.getConditiontable().length; row++){
+                putCT(row,col,btable.getConditiontable()[row][col]);
+            }    
+        }
+        for(int col = 0; col < btable.getActiontable()[0].length; col++){
+            for(int row = 0; row < btable.getActiontable().length; row++){
+                putAT(row,col,btable.getActiontable()[row][col]);
+            }    
+        }
+        filltable(0,0,dt.decisiontree); 
+        btable.conditiontable = new String[btable.getConditiontable().length][maxCol];
+        btable.actiontable    = new String[btable.getActiontable().length]   [maxCol];
+        for(int col = 0; col < maxCol; col++){
+            for(int row = 0; row < btable.getConditiontable().length; row++){
+                btable.conditiontable[row][col]=getCT(row, col);
+            }
+            for(int row=0; row < btable.getActiontable().length; row++){
+                btable.actiontable[row][col]=getAT(row,col);
+            }
+        }
         btable.setType(RDecisionTable.Type.BALANCED);
         btable.build(s.getState());
         return btable;
     }
 
     public String getPrintableTable() throws RulesException {
-    	try{
-        if(dt.decisiontree==null)return "empty table";
-        filltable(0, 0, dt.decisiontree);
-        StringBuffer buff = new StringBuffer();
-        buff.append("Number of Columns: "+maxCol+"\r\n\r\n");
-        String spacer = " ";
-        if(maxCol < 25) spacer = "  ";
-        
-        
-        for(int i=0;i<maxRow;i++){
-            String row = (i+1)+""; 
-            row = "    ".substring(row.length())+row+spacer;
-            buff.append(row);
-            for(int j=0;j<maxCol; j++){
-                String v = ctable[i][j];
-                if(  (v == null) || (v.equals(" ") || v.equals(RDecisionTable.DASH))){
-                    ctable[i][j]=RDecisionTable.DASH;
+        try {
+            if (dt.decisiontree == null)
+                return "empty table";
+            ctable = new HashMap<Long, String>();
+            atable = new HashMap<Long, String>();
+            filltable(0, 0, dt.decisiontree);
+            StringBuffer buff = new StringBuffer();
+            buff.append("Number of Columns: " + maxCol + "\r\n\r\n");
+            String spacer = " ";
+            if (maxCol < 25)
+                spacer = "  ";
+
+            for (int i = 0; i < maxRow; i++) {
+                String row = (i + 1) + "";
+                row = "    ".substring(row.length()) + row + spacer;
+                buff.append(row);
+                for (int j = 0; j < maxCol; j++) {
+                    String v = getCT(i, j);
+                    if ((v == null) || (v.equals(" ") || v.equals(RDecisionTable.DASH))) {
+                        putCT(i, j, RDecisionTable.DASH);
+                    }
+                    buff.append(getCT(i, j));
+                    buff.append(spacer);
                 }
-                buff.append(ctable[i][j]);
-                buff.append(spacer);
+                buff.append("\r\n");
+            }
+            buff.append("\n");
+            for (int i = 0; i <= maxARow; i++) {
+                String row = (i + 1) + "";
+                row = "    ".substring(row.length()) + row + spacer;
+                buff.append(row);
+                for (int j = 0; j < maxCol; j++) {
+                    buff.append(getAT(i, j));
+                    buff.append(spacer);
+                }
+                buff.append("\r\n");
             }
             buff.append("\r\n");
+            return buff.toString();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new RulesException("Invalid", dt.getName().stringValue(),
+                    "Decision Table is too complex (generates too many columns");
         }
-        buff.append("\n");
-        for(int i=0;i<=maxARow;i++){
-            String row = (i+1)+""; 
-            row = "    ".substring(row.length())+row+spacer;
-            buff.append(row);
-            for(int j=0;j<maxCol; j++){
-                if(atable[i][j]==null)atable[i][j]=" ";
-                buff.append(atable[i][j]);
-                buff.append(spacer);
-            }
-            buff.append("\r\n");
-        }
-        buff.append("\r\n");
-        return buff.toString();
-    	}catch(ArrayIndexOutOfBoundsException e){
-    		throw new RulesException(
-    				"Invalid", 
-    				dt.getName().stringValue(), 
-    				"Decision Table is too complex (generates too many columns");
-    }
-    }
-     
+    }     
     
     private int filltable(int row, int col, DTNode node){ 
         
@@ -109,23 +155,23 @@ public class BalanceTable {
           if(cnode.conditionNumber!=row){
               ncol = filltable(row+1,col, node);
               for(int i=col;i<ncol;i++){
-                  ctable[row][i]=RDecisionTable.DASH;
+                  putCT(row,i,RDecisionTable.DASH);
               }
               return ncol;     
           }
           
           ncol = filltable(row+1,col,cnode.iftrue);
-          for(int i=col;i<ncol;i++)ctable[row][i]="y";
+          for(int i=col;i<ncol;i++)putCT(row,i,"y");
           col  = ncol;
           ncol = filltable(row+1,col,cnode.iffalse);
-          for(int i=col;i<ncol;i++)ctable[row][i]="n";
+          for(int i=col;i<ncol;i++)putCT(row,i,"n");
           col  = ncol;
        }else{
-          ctable[row][col]=RDecisionTable.DASH; 
+          putCT(row,col,RDecisionTable.DASH); 
           ANode anode = (ANode)node;
           for(int i=0;i<anode.anumbers.size();i++){
               int index = anode.anumbers.get(i).intValue();
-              atable[index][col]="x";
+              putAT(index,col,"x");
               if(maxARow<index) maxARow = index;
           }
           col++;

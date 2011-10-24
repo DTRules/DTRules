@@ -123,7 +123,7 @@ Other_Actions
 <table_name>Turn_Page</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>ALL</Type>
+<Type>FIRST</Type>
 <COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS>
 <File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
 <contexts>
@@ -242,19 +242,6 @@ false cvb /allow xdef
 <action_postfix>
 true cvb /allow xdef  
 </action_postfix>
-<action_column column_value="X" column_number="5"></action_column></action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment></action_comment>
-<action_requirement></action_requirement>
-<action_description>add the policy statements to the customer&apos;s notes</action_description>
-<action_postfix>
-policystatements customer entitypush notes entitypop true  addarray 
-</action_postfix>
-<action_column column_value="X" column_number="1"></action_column>
-<action_column column_value="X" column_number="2"></action_column>
-<action_column column_value="X" column_number="3"></action_column>
-<action_column column_value="X" column_number="4"></action_column>
 <action_column column_value="X" column_number="5"></action_column></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
