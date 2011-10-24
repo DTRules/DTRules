@@ -128,6 +128,8 @@ public class RDecisionTable extends ARObject {
 	// While actions and conditions are 0 based arrays, the policy statements are 1 based.
 	// The zero'th index is the default value (if no columns match).
 	String   [] policystatements;               // The Policy statements as defined in the Decision Table.
+	String   [] policyStatementsBalanced;       // A balanced rendering of the Policy Statements; We don't use this
+	                                            //   at runtime; it is mostly a UI thing.
 	String   [] policystatementsPostfix;        // Generally, a policy statement will be a string, but can have values
 	IRObject [] rpolicystatements;              // The IRObject that returns a string for a policy statement.
 	
@@ -307,9 +309,10 @@ public class RDecisionTable extends ARObject {
     public String [][] getActionTableBalanced(IRSession session ){
         if(actiontablebalanced == null){
             try {
-                RDecisionTable dt = getBalancedTable(session);
-                actiontablebalanced = dt.actiontable;
-                conditiontablebalanced = dt.conditiontable;
+                RDecisionTable dt        = getBalancedTable(session);
+                actiontablebalanced      = dt.actiontable;
+                conditiontablebalanced   = dt.conditiontable;
+                policyStatementsBalanced = dt.policystatements;
             } catch (RulesException e) {   }
         }
         return actiontablebalanced;
@@ -318,9 +321,10 @@ public class RDecisionTable extends ARObject {
     public String [][] getConditionTableBalanced(IRSession session ) {
         if(conditiontablebalanced == null){
             try {
-                RDecisionTable dt = getBalancedTable(session);
-                actiontablebalanced = dt.actiontable;
-                conditiontablebalanced = dt.conditiontable;
+                RDecisionTable dt        = getBalancedTable(session);
+                actiontablebalanced      = dt.actiontable;
+                conditiontablebalanced   = dt.conditiontable;
+                policyStatementsBalanced = dt.policystatements;
             } catch (RulesException e) {   }
         }
         return conditiontablebalanced;
@@ -1637,6 +1641,19 @@ public class RDecisionTable extends ARObject {
 
     public String[] getPolicystatements() {
         return policystatements;
+    }
+    
+    public String [] getPolicyStatementsBalanced(IRSession session) {
+        if(policystatements == null){
+            try {
+                RDecisionTable dt        = getBalancedTable(session);
+                actiontablebalanced      = dt.actiontable;
+                conditiontablebalanced   = dt.conditiontable;
+                policyStatementsBalanced = dt.policystatements;
+            } catch (RulesException e) {   }
+        }
+        return policyStatementsBalanced;
+   
     }
 
     public String[] getPolicystatementsPostfix() {

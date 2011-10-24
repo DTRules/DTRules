@@ -229,7 +229,7 @@ public class Rules2Excel {
         
         
         if(balanced){
-            maxCol = dt.getActionTableBalanced(session)[0].length;
+            maxCol = dt.getActionTableBalanced(session).length>0 ? dt.getActionTableBalanced(session)[0].length : 0;
             if(maxCol <16) maxCol = 16;
         }else{
             maxCol = 16;
@@ -555,10 +555,9 @@ public class Rules2Excel {
         }
                 
         cRow++;
-
-        int startRow = cRow;
-        
-        String policystatements  [] = dt.getPolicystatements();
+ 
+        String policystatements  [] = 
+                balanced? dt.getPolicyStatementsBalanced(session) : dt.getPolicystatements();
         
         for(int cnt=1; cnt < policystatements.length; cnt++){
             r = nextRow(s, cRow, maxCol+2);                             // Create a new row

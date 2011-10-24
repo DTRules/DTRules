@@ -18,11 +18,13 @@
 
 package com.dtrules.decisiontables;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.operators.RControl.PolicyStatements;
 import com.dtrules.session.IRSession;
 
 /**
@@ -33,11 +35,12 @@ import com.dtrules.session.IRSession;
  */
 public class BalanceTable {
 
-    private int maxRow=0,maxCol=0;
-    private int maxARow=0;
-    Map<Long, String> ctable;// = new String[100][10240];
-    Map<Long, String> atable;// = new String[100][10240];
-    List<String>      b_policyStatements;
+    private int         maxRow=0;
+    private int         maxCol=0;
+    private int         maxARow=0;
+    Map<Long, String>   ctable;// = new String[100][10240];
+    Map<Long, String>   atable;// = new String[100][10240];
+    List<List<Integer>> b_columns;
 
     void putCT(long row, long col, String v) {
         ctable.put((row<<32)+col, v);
@@ -74,16 +77,20 @@ public class BalanceTable {
         
         ctable = new HashMap<Long, String>();
         atable = new HashMap<Long, String>();
+        b_columns = new ArrayList<List<Integer>>();
+        
         for(int col = 0; col < btable.getConditiontable()[0].length; col++){
             for(int row = 0; row < btable.getConditiontable().length; row++){
                 putCT(row,col,btable.getConditiontable()[row][col]);
             }    
         }
+        
         for(int col = 0; col < btable.getActiontable()[0].length; col++){
             for(int row = 0; row < btable.getActiontable().length; row++){
                 putAT(row,col,btable.getActiontable()[row][col]);
             }    
         }
+        
         filltable(0,0,dt.decisiontree); 
         btable.conditiontable = new String[btable.getConditiontable().length][maxCol];
         btable.actiontable    = new String[btable.getActiontable().length]   [maxCol];
@@ -95,6 +102,17 @@ public class BalanceTable {
                 btable.actiontable[row][col]=getAT(row,col);
             }
         }
+        
+        btable.policystatements = new String[maxCol+1];
+        for(int i=1; i< maxCol+1; i++){
+            btable.policystatements[i] ="";
+            if(b_columns.get(i)!=null) for(int j : b_columns.get(i)){
+                if(j < dt.policystatements.length){
+                    btable.policystatements[i] += dt.getPolicystatements()[j] +";  ";
+                }
+            }
+        }
+        
         btable.setType(RDecisionTable.Type.BALANCED);
         btable.build(s.getState());
         return btable;
@@ -104,8 +122,12 @@ public class BalanceTable {
         try {
             if (dt.decisiontree == null)
                 return "empty table";
-            ctable = new HashMap<Long, String>();
-            atable = new HashMap<Long, String>();
+            
+            ctable    = new HashMap<Long, String>();
+            atable    = new HashMap<Long, String>();
+            b_columns = new ArrayList<List<Integer>>();
+            
+            
             filltable(0, 0, dt.decisiontree);
             StringBuffer buff = new StringBuffer();
             buff.append("Number of Columns: " + maxCol + "\r\n\r\n");
@@ -146,9 +168,23 @@ public class BalanceTable {
         }
     }     
     
+    /**
+     * This routine takes the given Decision Table, and runs down its Decision Tree,
+     * and builds up the balanced Decision Tree in the sparse arrays atable and ctable.
+     * It also collects the column information from the action nodes and stores them
+     * per each column in the b_columns list.
+     * 
+     * From this the calling routine (either printing or filling out a balanced Decision
+     * Table object) can process to get the balanced information
+     *
+     * @param row
+     * @param col
+     * @param node
+     * @return
+     */
     private int filltable(int row, int col, DTNode node){ 
         
-        if(node.getClass()==CNode.class){
+        if(node.getClass()==CNode.class){           // The Node is a Condition Node
           int ncol;
           CNode cnode = (CNode) node;
           
@@ -166,7 +202,7 @@ public class BalanceTable {
           ncol = filltable(row+1,col,cnode.iffalse);
           for(int i=col;i<ncol;i++)putCT(row,i,"n");
           col  = ncol;
-       }else{
+       }else{                                       // The Node is an action node
           putCT(row,col,RDecisionTable.DASH); 
           ANode anode = (ANode)node;
           for(int i=0;i<anode.anumbers.size();i++){
@@ -174,6 +210,10 @@ public class BalanceTable {
               putAT(index,col,"x");
               if(maxARow<index) maxARow = index;
           }
+          while(col+1 >= b_columns.size()){           // Make sure there is room for the
+              b_columns.add(null);                  //   column information
+          }
+          b_columns.add(col+1, anode.getColumns());
           col++;
        }
        maxRow = maxRow<row?row:maxRow;
