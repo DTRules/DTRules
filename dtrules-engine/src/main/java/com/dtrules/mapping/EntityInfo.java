@@ -52,6 +52,9 @@ class EntityInfo {
         IREntity newentity = (IREntity) entity.clone(s);
         if(rarray!=null && rarray.type().getId() ==IRObject.iArray){
            ((RArray)rarray).add(newentity); 
+           if (state.testState(DTState.TRACE)) {
+               state.traceInfo("addto", "arrayId", ((RArray)rarray).getID() + "", newentity.postFix());
+           }
         }
         return newentity;
     }

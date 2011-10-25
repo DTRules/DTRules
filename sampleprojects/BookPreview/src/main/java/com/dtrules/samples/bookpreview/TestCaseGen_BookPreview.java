@@ -18,7 +18,7 @@ public class TestCaseGen_BookPreview {
 	public static PrintStream estream = System.err;
 	
 						      		// This is the default number of how many test cases to generate.
-	static int cnt = 20;	    	// You can pass a different number on the commandline.
+	static int cnt = 100;	    	// You can pass a different number on the commandline.
 	
 	Random 		       rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;
@@ -88,8 +88,8 @@ public class TestCaseGen_BookPreview {
             }xout.closetag();
             
             xout.opentag("publisher");{
-                xout.printdata("chapter_limit",randint(numChapters/2)+1);
-                xout.printdata("page_limit", randint(numPages/5)+1);
+                xout.printdata("chapter_limit",randint(numChapters/5)+1);
+                xout.printdata("page_limit", randint(numPages/50)+1);
             }xout.closetag();
                         
         } xout.closetag();

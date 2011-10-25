@@ -219,10 +219,16 @@ public class RTableOps {
              boolean duplicates = state.datapop().booleanValue();
              RArray  keys       = state.datapop().rArrayValue();
              RTable  table      = state.datapop().rTableValue();
-             RArray valueArray = new RArray(state.getSession().getUniqueID(),duplicates,false);
+             RArray valueArray = RArray.newArray(state.getSession(),duplicates,false);
              for(IRObject key : keys){
                  if(table.containsKey(key)){
-                    valueArray.add(table.getValue(key));
+                    IRObject o = table.getValue(key);
+                    valueArray.add(o);
+                    if (state.testState(DTState.TRACE)) {
+                        state.traceInfo("addto", "arrayId", valueArray.getID() + "",
+                                o.postFix());
+                    }
+
                  }
              }
              state.datapush(valueArray);

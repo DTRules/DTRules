@@ -84,12 +84,11 @@ public class RArrayOps {
 			}
 			String[] results = v.split(pattern);
 
-			RArray r = new RArray(state.getSession().getUniqueID(), false,
-					false);
+			RArray r = RArray.newArray(state.getSession(), false, false);
 			for (String t : results) {
 				r.add(RString.newRString(t));
 				if (state.testState(DTState.TRACE)) {
-					state.traceInfo("addto", "arrayID", r.getID() + "", t);
+					state.traceInfo("addto", "arrayId", r.getID() + "", t);
 				}
 			}
 			state.datapush(r);
@@ -111,7 +110,7 @@ public class RArrayOps {
 			IRObject value = state.datapop();
 			RArray rarray = state.datapop().rArrayValue();
 			if (state.testState(DTState.TRACE)) {
-				state.traceInfo("addto", "arrayID", rarray.getID() + "",
+				state.traceInfo("addto", "arrayId", rarray.getID() + "",
 						value.postFix());
 			}
 			rarray.add(value);
@@ -192,7 +191,7 @@ public class RArrayOps {
 			int position = state.datapop().intValue();
 			RArray rarray = state.datapop().rArrayValue();
 			if (state.testState(DTState.TRACE)) {
-				state.traceInfo("addat", "arrayID", rarray.getID() + "",
+				state.traceInfo("addat", "arrayId", rarray.getID() + "",
 						"index", position + "", value.postFix());
 			}
 			rarray.add(position, value);
@@ -219,7 +218,7 @@ public class RArrayOps {
 				for (int i = 0; i < array.size();) {
 					if (value.equals((IRObject) array.get(i))) {
 						if (state.testState(DTState.TRACE)) {
-							state.traceInfo("removed", "arrayID",
+							state.traceInfo("removed", "arrayId",
 									rarray.getID() + "", value.postFix());
 						}
 						array.remove(i);
@@ -253,11 +252,15 @@ public class RArrayOps {
 
 			List<IRObject> array = rarray.arrayValue();
 			if (state.testState(DTState.TRACE)) {
-				state.traceInfo("removed", "arrayID", rarray.getID() + "",
+				state.traceInfo("removed", "arrayId", rarray.getID() + "",
 						"position", position + "", null);
 			}
 
 			array.remove(position);
+			if (state.testState(DTState.TRACE)) {
+                state.traceInfo("removedat", "arrayId",
+                        rarray.getID() + "", position+"");
+            }
 			state.datapush(RBoolean.getRBoolean(true));
 		}
 	}
@@ -287,8 +290,7 @@ public class RArrayOps {
 		}
 
 		public void arrayExecute(DTState state) throws RulesException {
-			IRObject irobject = new RArray(state.getSession().getUniqueID(),
-					true, false);
+			IRObject irobject = RArray.newArray(state.getSession(), true, false);
 			state.datapush(irobject);
 		}
 	}
@@ -348,7 +350,7 @@ public class RArrayOps {
 				state.traceInfo("copyelements", "id", rarray.getID() + "",
 						"newarrayid", newRArray.getID() + "", null);
 				for (IRObject v : newRArray) {
-					state.traceInfo("addto", "arrayID", rarray.getID() + "",
+					state.traceInfo("addto", "arrayId", rarray.getID() + "",
 							v.postFix());
 				}
 			}
@@ -376,7 +378,7 @@ public class RArrayOps {
 				state.traceInfo("copyelements", "id", rarray.getID() + "",
 						"newarrayid", newRArray.getID() + "", null);
 				for (IRObject v : newRArray) {
-					state.traceInfo("addto", "arrayID", rarray.getID() + "",
+					state.traceInfo("addto", "arrayId", rarray.getID() + "",
 							v.postFix());
 				}
 			}
@@ -403,7 +405,7 @@ public class RArrayOps {
 			List<IRObject> array = rarray.arrayValue();
 
 			if (state.testState(DTState.TRACE)) {
-				state.traceInfo("sort", "length", array.size() + "", "arrayID",
+				state.traceInfo("sort", "length", array.size() + "", "arrayId",
 						rarray.getID() + "", asc ? "true" : "false");
 			}
 
@@ -460,7 +462,7 @@ public class RArrayOps {
 			List<IRObject> array = rarray.arrayValue();
 			if (state.testState(DTState.TRACE)) {
 				state.traceInfo("sortentities", "length", array.size() + "",
-						"by", rname.stringValue(), "arrayID", rarray.getID()
+						"by", rname.stringValue(), "arrayId", rarray.getID()
 								+ "", asc ? "true" : "false");
 			}
 			REntity temp = null;
@@ -549,8 +551,7 @@ public class RArrayOps {
 			List<IRObject> newarray = new ArrayList<IRObject>();
 			newarray.addAll(array1);
 			newarray.addAll(array2);
-			state.datapush(new RArray(state.getSession().getUniqueID(), false,
-					newarray, false));
+			state.datapush(RArray.newArray(state.getSession(), false, newarray, false));
 		}
 	}
 
@@ -579,17 +580,25 @@ public class RArrayOps {
 		}
 
 		public void arrayExecute(DTState state) throws RulesException {
-			int im = state.ddepth() - 1; // Index of top of stack
-			while (im >= 0 && state.getds(im).type().getId() != iMark)
-				im--; // Index of mark
-			RArray newarray = new RArray(state.getSession().getUniqueID(),
-					true, false); // Create a new array
-			int newdepth = im++; // skip the mark (remember its index)
-			while (im < state.ddepth()) { // copy elements to the array
-				newarray.add(state.getds(im++));
+			int im = state.ddepth() - 1;                                         // Index of top of stack
+
+			while (im >= 0 && state.getds(im).type().getId() != iMark) im--;     // Index of mark
+			
+			RArray newarray = RArray.newArray(state.getSession(), true, false);  // Create a new array
+			int newdepth = im++;                                                 // skip the mark (remember its index)
+			
+			while (im < state.ddepth()) {                                        // copy elements to the array
+				IRObject o = state.getds(im++);
+			    newarray.add(o);
+				if (state.testState(DTState.TRACE)) {
+	                state.traceInfo("addto", "arrayId", newarray.getID() + "",
+	                        o.postFix());
+	            }
 			}
+			
 			while (newdepth < state.ddepth())
 				state.datapop(); // toss elements AND mark
+			
 			state.datapush(newarray); // push the new array.
 		}
 	}
@@ -634,11 +643,15 @@ public class RArrayOps {
 			RArray array1 = state.datapop().rArrayValue();
 			RArray array2 = state.datapop().rArrayValue();
 
-			RArray ret = RArray.NewArray(state.getSession(), false, false);
+			RArray ret = RArray.newArray(state.getSession(), false, false);
 
 			for (IRObject v : array1) {
 				if (array2.contains(v)) {
 					ret.add(v);
+					if (state.testState(DTState.TRACE)) {
+		                state.traceInfo("addto", "arrayId", ret.getID() + "",
+		                        v.postFix());
+		            }
 				}
 			}
 

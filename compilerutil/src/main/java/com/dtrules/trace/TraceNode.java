@@ -25,6 +25,7 @@ import java.util.Map;
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RNull;
 import com.dtrules.session.DTState;
@@ -156,6 +157,74 @@ public class TraceNode {
 			
 		}
 	
+		// Creating an array
+		if(name.equals("newarray")){
+		    int id = Integer.parseInt(attributes.get("arrayId"));
+		    if(!trace.arraytable.containsKey(id)){
+		        trace.arraytable.put(id, RArray.newArrayTraceInterface(id, true, false));
+		    }
+		}
+
+		// Adding to an array
+		if(name.equals("addto")){
+		    int    id = Integer.parseInt(attributes.get("arrayId"));
+            RArray ar = trace.arraytable.get(id);
+            if(ar==null){   // Now this shouldn't happen, but if it does, create the array
+                ar = RArray.newArrayTraceInterface(id, true, false);
+                trace.arraytable.put(id, ar);
+            }
+            IRObject v;
+            
+            if(body.length()==0){
+                v = RNull.getRNull();
+            }else{
+                trace.session.execute(body);
+                v = ds.datapop();
+            }
+
+            ar.add(v);
+		}
+		
+		// Remove a value from an array
+		if(name.equals("remove")){
+		    int    id = Integer.parseInt(attributes.get("arrayId"));
+            RArray ar = trace.arraytable.get(id);
+            if(ar==null){   // Now this shouldn't happen, but if it does, create the array
+                ar = RArray.newArrayTraceInterface(id, true, false);
+                trace.arraytable.put(id, ar);
+            }
+            IRObject v;
+            
+            if(body.length()==0){
+                v = RNull.getRNull();
+            }else{
+                trace.session.execute(body);
+                v = ds.datapop();
+            }
+            ds.datapush(ar);
+            ds.datapush(v);
+            ds.getSession().execute("remove");
+            ds.datapop();
+		}
+		
+	      // Remove a value from an array at a location
+        if(name.equals("remove")){
+            int    id = Integer.parseInt(attributes.get("arrayId"));
+            RArray ar = trace.arraytable.get(id);
+            if(ar==null){   // Now this shouldn't happen, but if it does, create the array
+                ar = RArray.newArrayTraceInterface(id, true, false);
+                trace.arraytable.put(id, ar);
+            }
+            trace.session.execute(body);
+            IRObject i = ds.datapop();
+            
+            ds.datapush(ar);
+            ds.datapush(i);
+            ds.getSession().execute("removeat");
+            ds.datapop();
+        }
+		
+		
 		for(TraceNode child : children){
 			if(child.setState(trace, position)){
 				return true;

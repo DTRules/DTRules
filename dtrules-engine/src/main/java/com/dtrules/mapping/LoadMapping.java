@@ -342,6 +342,10 @@ public class LoadMapping implements IGenericXMLParser {
                 // If not a member of this list, then add it.
                 if(!((RArray)elist).contains(e)){
                    ((RArray)elist).add(e);
+                   if (state.testState(DTState.TRACE)) {
+                       state.traceInfo("addto", "arrayId", ((RArray)elist).getID() + "", e.postFix());
+                   }
+
                 }
             }
         }

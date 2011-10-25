@@ -47,7 +47,7 @@ public class ComputeDefaultValue implements IComputeDefaultValue {
                 return e;
         }
         if(itype == IRObject.iArray) {
-                if(defaultstr.length()==0) return new RArray(ef.getUniqueID(), true,false);
+                if(defaultstr.length()==0) return RArray.newArray(session, true,false);
                 RArray rval;
                 try{
                      RArray v = (RArray) RString.compile(session, defaultstr, false);     // We assume any values are surrounded by brackets, and regardless make

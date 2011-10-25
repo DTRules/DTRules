@@ -6,6 +6,7 @@
             <!--                 -->
             <!--book-->
             <setattribute tag='publisher' RAttribute='publisher' enclosure='book' type='entity' subtype=''></setattribute>
+            <setattribute tag='day_limit'  RAttribute='day_limit' enclosure='book' type='integer' subtype=''></setattribute>
             <!--chapter-->
             <setattribute tag='begin_page' RAttribute='begin_page' enclosure='chapter' type='integer' subtype=''></setattribute>
             <setattribute tag='end_page' RAttribute='end_page' enclosure='chapter' type='integer' subtype=''></setattribute>

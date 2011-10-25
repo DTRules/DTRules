@@ -205,7 +205,7 @@ public class RString extends ARObject {
     static private IRObject compile(RuleSet ruleset, SimpleTokenizer tokenizer, String v, boolean executable, int depth) throws RulesException {        
        try{
     	   IRSession session  = ruleset.newSession();
-           RArray   result    = new RArray(0,true,executable);
+           RArray   result    = RArray.newArray(session,true,executable);
            Token    token;    
 		   while((token=tokenizer.nextToken())!=null){
 			   if(token.getType()== Token.Type.STRING) {

@@ -506,7 +506,7 @@ public abstract class ATestHarness implements ITestHarness {
             		 autoDataMap.printDataLoadXML(new FileOutputStream(getOutputDirectory()+number+root+"_datamap.xml"));
             	  }
                   entityfile = new FileOutputStream(getOutputDirectory()+number+root+"_entities_before.xml");
-                  RArray entitystack = new RArray(0,false,false);
+                  RArray entitystack = RArray.newArray(session,false,false);
                   for(int i=0; i< session.getState().edepth()-2; i++){
                       entitystack.add(session.getState().entityfetch(i));
                   }
@@ -524,7 +524,7 @@ public abstract class ATestHarness implements ITestHarness {
               // Then if asked, dump the entities.
               if(Verbose()){
                   entityfile = new FileOutputStream(getOutputDirectory()+number+root+"_entities_after.xml");
-                  RArray entitystack = new RArray(0,false,false);
+                  RArray entitystack = RArray.newArray(session,false,false);
                   for(int i=0; i< session.getState().edepth()-2; i++){
                       entitystack.add(session.getState().entityfetch(i));
                   }
@@ -575,7 +575,7 @@ public abstract class ATestHarness implements ITestHarness {
      */
     public void printReport(int runNumber, IRSession session, PrintStream out)
             throws Exception {
-        RArray entitystack = new RArray(0,false,false);
+        RArray entitystack = RArray.newArray(session,false,false);
         for(int i=0; i< session.getState().edepth()-2; i++){
             entitystack.add(session.getState().entityfetch(i));
         }

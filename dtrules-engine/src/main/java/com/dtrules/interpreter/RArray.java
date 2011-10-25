@@ -163,7 +163,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
      * @param bogus
      * @param exectuable
      */
-    protected RArray(int id, boolean duplicates, List<IRObject> thearray, RArray otherpair, boolean executable){
+    private RArray(int id, boolean duplicates, List<IRObject> thearray, RArray otherpair, boolean executable){
     	this.id         = id;
         this.array      = thearray;
     	this.code       = null;
@@ -172,24 +172,51 @@ public class RArray extends ARObject implements Collection<IRObject> {
     	this.dups       = duplicates;
     }
 
-    static public RArray NewArray(IRSession session, boolean duplicates, boolean executable) throws RulesException {
-        return new RArray(session.getEntityFactory().getUniqueID(), duplicates, executable);
+    static public RArray newArray(IRSession session, boolean duplicates, boolean executable) throws RulesException {
+        RArray ar = new RArray(session.getEntityFactory().getUniqueID(), duplicates, executable);
+        if (session.getState().testState(DTState.TRACE)) {
+            session.getState().traceInfo("newarray", "arrayId", ar.getID() + "",null);
+        }
+        return ar;
     }
 
+    static public RArray newArray(IRSession session, boolean duplicates, List<IRObject> thearray, boolean executable) throws RulesException {
+        RArray ar = new RArray(session.getEntityFactory().getUniqueID(), duplicates, thearray, executable);
+        if (session.getState().testState(DTState.TRACE)) {
+            session.getState().traceInfo("newarray", "arrayId", ar.getID() + "",null);
+            for(IRObject v : thearray){
+                session.getState().traceInfo("addto", "arrayId", ar.getID()+"", v.postFix());
+            }
+        }
+        return ar;
+    }
     
+    /**
+     * This interface is for LOW LEVEL, DEBUGGING sorts of access only!  
+     * @param id
+     * @param duplicates
+     * @param executable
+     * @return
+     * @throws RulesException
+     */
+    static public RArray newArrayTraceInterface(int id, boolean duplicates, boolean executable) throws RulesException {
+        RArray ar = new RArray(id, duplicates, executable);
+        return ar;
+    }
     /**
      * Creates a RArray
      * @param id        A unique ID for all arrays.  Get this from the RSession object
      * @param duplicates
      * @param executable
      */
-    public RArray(int id, boolean duplicates, boolean executable){
+    private RArray(int id, boolean duplicates, boolean executable){
        this.id         = id;
        array           = new ArrayList<IRObject>();
        code            = null;
        this.executable = executable;
        dups            = duplicates;
        pair            = new RArray(id,dups, array, this, !executable);
+       
     }
     /**
      * Create an RArray from an arraylist
@@ -198,7 +225,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
      * @param thearray
      * @param executable
      */
-    public RArray(int id, boolean duplicates, List<IRObject> thearray, boolean executable){
+    private RArray(int id, boolean duplicates, List<IRObject> thearray, boolean executable){
         this.id         = id;
         this.array      = thearray;
         this.code       = null;
@@ -432,7 +459,16 @@ public class RArray extends ARObject implements Collection<IRObject> {
 				newArray.add(v);
 			}
 		}
-		return new RArray(session.getUniqueID(), dups, newArray, executable);
+		
+		RArray ar;
+		
+		try {
+            ar = newArray(session, dups, newArray, executable);
+        } catch (RulesException e) {
+            throw new RuntimeException("Error cloning Array");
+        }
+		
+		return ar;
 	}
 
 	/**

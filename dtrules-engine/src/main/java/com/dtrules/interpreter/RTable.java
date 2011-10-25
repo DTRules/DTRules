@@ -208,10 +208,10 @@ public class RTable extends ARObject {
         return v;
     }
     
-    public RArray getKeys (DTState state){
+    public RArray getKeys (DTState state) throws RulesException {
         ArrayList <IRObject> keys = new ArrayList<IRObject>(table.keySet());
         int id = state.getSession().getUniqueID();
-        return new RArray(id, true, keys,false);
+        return RArray.newArray(state.getSession(), true, keys,false);
     }
     
     public String stringValue() {

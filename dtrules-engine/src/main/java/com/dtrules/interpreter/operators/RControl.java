@@ -527,7 +527,7 @@ public class RControl {
         PolicyStatements(){super("policystatements");}
 
         public void arrayExecute(DTState state) throws RulesException {
-            RArray ra = new RArray(state.getSession().getUniqueID(),true,false);
+            RArray ra = RArray.newArray(state.getSession(),true,false);
             state.datapush(ra);
             if(!state.getCurrentTable().equals(state.getAnode().getrDecisionTable())){
                 return;
@@ -544,6 +544,10 @@ public class RControl {
                           ps = state.datapop();
                           if(ps != RNull.getRNull()){
                               ra.add(ps);
+                              if (state.testState(DTState.TRACE)) {
+                                  state.traceInfo("addto", "arrayId", ra.getID() + "",
+                                          ps.postFix());
+                              }
                           }
                        }
                     }
@@ -555,6 +559,10 @@ public class RControl {
                        ps = state.datapop();
                        if(ps != RNull.getRNull()){
                            ra.add(ps);
+                           if (state.testState(DTState.TRACE)) {
+                               state.traceInfo("addto", "arrayId", ra.getID() + "",
+                                       ps.postFix());
+                           }
                        }
                     }
                  

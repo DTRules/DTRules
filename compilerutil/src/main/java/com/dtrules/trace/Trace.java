@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.RArray;
 import com.dtrules.interpreter.RName;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
@@ -21,7 +22,8 @@ public class Trace {
 
     TraceNode             root        = null;
     Map<String, IREntity> entitytable = new HashMap<String, IREntity>();
-
+    Map<Integer, RArray>  arraytable  = new HashMap<Integer, RArray>();
+    
     // This is the execute_table under execution.  It is null if no execute_table has
     // yet been executed.
     TraceNode             execute_table     = null;

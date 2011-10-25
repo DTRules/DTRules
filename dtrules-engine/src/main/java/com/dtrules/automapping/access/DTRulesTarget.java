@@ -48,6 +48,7 @@ import com.dtrules.interpreter.RString;
 import com.dtrules.interpreter.RTable;
 import com.dtrules.interpreter.RDate;
 import com.dtrules.interpreter.RType;
+import com.dtrules.session.DTState;
 
 /**
  * @author Paul Snow
@@ -204,7 +205,13 @@ public class DTRulesTarget implements IDataTarget {
                 if(list == null) return null;
        
                 if(node.getData()!=null) for (Object d : (List<Object>) node.getData()){
-                    list.add(iconvert(d));
+                    IRObject dobj = iconvert(d);
+                    list.add(dobj);
+                    if (autoDataMap.getSession().getState().testState(DTState.TRACE)) {
+                        autoDataMap.getSession().getState().traceInfo(
+                                "addto", "arrayId", ((RArray)list).getID() + "", dobj.postFix());
+                    }
+
                 }
                 return list;
             }else{
@@ -219,7 +226,11 @@ public class DTRulesTarget implements IDataTarget {
                     if(list!=null                                         // If we have a list, and
                             && o != null                                  //   a rules engine object
                             && o instanceof IRObject){                    //   then add it to our list.
-                        list.add((IRObject)o);                            
+                        list.add((IRObject)o);
+                        if (autoDataMap.getSession().getState().testState(DTState.TRACE)) {
+                            autoDataMap.getSession().getState().traceInfo(
+                                    "addto", "arrayId", ((RArray)list).getID() + "", ((IRObject)o).postFix());
+                        }                          
                     }
                 }
             }
