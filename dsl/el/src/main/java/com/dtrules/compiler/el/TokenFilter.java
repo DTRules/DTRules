@@ -230,12 +230,12 @@ public class TokenFilter implements Scanner{
             } else if (theType == -1                         ){ next.sym=(sym.UNDEFINED);                              
             } else {
                     System.out.println("Unhandled Type");
-                    tokens.add(next.sym+" "+type2str(next.sym)+" "+next.value.toString());
+                    tokens.add(type2str(next.sym)+" : "+next.value.toString());
                     throw new RuntimeException("Unhandled Type: "+next.value);
             }
         }
         
-        tokens.add(next.sym+" "+type2str(next.sym)+" "+next.value.toString());
+        tokens.add(type2str(next.sym)+" : "+next.value.toString());
         lastToken = next;
         return next;
     
