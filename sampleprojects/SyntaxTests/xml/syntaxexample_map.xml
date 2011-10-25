@@ -35,22 +35,24 @@
 			<createentity entity='income' 		tag='income' 		id='id'></createentity>
 			<createentity entity='constants' 	tag='constants' 	id='id'></createentity>
 			<createentity entity='result' 		tag='result' 		id='id'></createentity>
+			<createentity entity='address' 		tag='address' 		id='id'></createentity>
+        
         </map>
 		<entities>
 			<entity name='constants' 	number='1'></entity>
 			<entity name='job'		 	number='1'></entity>
-			<entity name='case' 		number='1'></entity>
+			<entity name='case' 		number='*'></entity>
 
 			<entity name='client' 		number='*'></entity>
 			<entity name='relationship' number='*'></entity>
 			<entity name='income' 		number='*'></entity>
 			<entity name='result' 		number='*'></entity>
+			<entity name='address' 		number='*'></entity>
         </entities>
 
 		<initialization>
 			<initialentity entity='constants' 	epush='true'></initialentity>
 			<initialentity entity='job' 		epush='true'></initialentity>
-			<initialentity entity='case' 		epush='true'></initialentity>
         </initialization>
     </XMLtoEDD>
 </mapping>
