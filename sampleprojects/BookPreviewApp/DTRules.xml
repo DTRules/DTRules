@@ -1,0 +1,16 @@
+<DTRules>
+  
+  <RuleSet name="BookPreview" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables/</DTExcelFolder>
+     <EDDExcelFolder>/edd/</EDDExcelFolder>
+
+     <Entities        name="BookPreview_edd.xml" />
+     <Decisiontables  name="BookPreview_dt.xml"  />
+     <Map             name="BookPreview_map.xml" />
+  </RuleSet>    
+
+</DTRules>
+
