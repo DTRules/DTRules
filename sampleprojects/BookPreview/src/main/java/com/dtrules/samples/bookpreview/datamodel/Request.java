@@ -51,7 +51,7 @@ public class Request extends ABookObj {
         this.current_date = current_date;
     }
     
-    public void print(DataMap datamap){
+    public void write2DataMap(DataMap datamap){
         
         SimpleDateFormat sdf           = new SimpleDateFormat("MM/dd/yyyy");
         
@@ -61,8 +61,8 @@ public class Request extends ABookObj {
                 return;
             }
             datamap.readDO(this, "request");
-            book.print(datamap);
-            customer.print(datamap);
+            book.write2DataMap(datamap);
+            customer.write2DataMap(datamap);
         datamap.closetag();
     }
 }

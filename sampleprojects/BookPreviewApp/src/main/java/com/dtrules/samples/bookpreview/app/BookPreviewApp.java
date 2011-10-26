@@ -7,10 +7,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.dtrules.interpreter.RName;
-import com.dtrules.samples.bookpreview.datamodel.Request;
+import com.dtrules.samples.bookpreview.datamodel.DataObj;
 import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
 
@@ -53,7 +52,7 @@ public class BookPreviewApp {
 	String 		  ruleset;
 	RName 		  rsName;
 	RuleSet 	  rs;
-	List<Request> requests     = Collections.synchronizedList(new ArrayList<Request>());
+	List<DataObj> jobs     = Collections.synchronizedList(new ArrayList<DataObj>());
 	
 
 	int 		  pulled       = 0;
@@ -98,10 +97,10 @@ public class BookPreviewApp {
 	}
 
 	int jobsWaiting(){
-		return requests.size();
+		return jobs.size();
 	}
 		
-	synchronized Request next() {
+	synchronized DataObj next() {
 		pulled++;
 		if(numCases>=50){
 			if(pulled%(numCases/50) ==0){
@@ -127,10 +126,10 @@ public class BookPreviewApp {
 			}
 		}
 		if(pulled > numCases)return null;
-		if(requests.size()<50){
+		if(jobs.size()<50){
 			genCase.fill(); 
 		}
-		return requests.remove(0);
+		return jobs.remove(0);
 	}
 
 	public static void main(String[] args) {
@@ -220,41 +219,12 @@ public class BookPreviewApp {
 				double dt = (now.getTime() - (double) start.getTime()) / (jobcnt);
 				
 				System.out.printf("\n\nA Job is processed every: %.8f seconds.\n\n",dt/1000);
-				System.out.printf ("Number of Cases:          %8d\n",numCases);
-                System.out.printf ("Total clients in cases:   %8d\n",total);
-				System.out.printf ("Total clients applying:   %8d\n",(approved+denied));
-				System.out.printf ("Clients approved:         %8d\n",approved);
-				System.out.printf ("Clients denied:           %8d\n",denied);
 				System.out.println("\n");
 				for(int i=1;i<processed.length;i++){
 					System.out.printf("  Processed in thread %8d : %8d\n", i, processed[i]);
 				}
 				
-				Set<String> keys = results.keySet();
-				System.out.println();
-				for(String key : keys){
-				    System.out.printf("%10d %s\n", results.get(key),key);
-				}
 				
-				if(printresults){
-					sort(approvedClients);
-					sort(deniedClients);
-					
-					System.out.println("\n\nApproved:\n");
-					int c = 1;
-					for(Integer id : approvedClients){
-						System.out.printf("%8d ",id);
-						if(c%10 == 0)System.out.println();
-						c++;
-					}
-					System.out.println("\n\nDenied:\n");
-				    c = 1;
-					for(Integer id : deniedClients){
-						System.out.printf("%8d ",id);
-						if(c%10 == 0)System.out.println();
-						c++;
-					}
-				}
 			}
 			{
 				long dt = (now.getTime() - start.getTime());

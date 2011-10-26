@@ -1,14 +1,7 @@
 package com.dtrules.samples.bookpreview.app;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Random;
-
 import com.dtrules.samples.bookpreview.TestCaseGen_BookPreview;
-import com.dtrules.samples.bookpreview.datamodel.Request;
+import com.dtrules.samples.bookpreview.datamodel.DataObj;
 
 public class GenCase  {
 
@@ -25,7 +18,7 @@ public class GenCase  {
 		this.app = app;
 	}
 	
-	Request generate(){
+	DataObj generate(){
 	    TestCaseGen_BookPreview gen = new TestCaseGen_BookPreview();
 	    try{
 	        return gen.generate();
@@ -40,8 +33,8 @@ public class GenCase  {
 	 */
 	public void fill() {
 		while(app.jobsWaiting()<level){
-			Request request = generate();
-			app.requests.add(request);
+		    DataObj request = generate();
+			app.jobs.add(request);
 		}
 	}
 	

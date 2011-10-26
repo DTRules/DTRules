@@ -20,7 +20,7 @@ public class Publisher extends ABookObj {
     }
     
     @Override
-    public void print(DataMap datamap) {
+    public void write2DataMap(DataMap datamap) {
         datamap.opentag(this,"publisher");
         if(printed){
             datamap.closetag();

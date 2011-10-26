@@ -31,7 +31,7 @@ public class Chapter extends ABookObj{
     }
     
     @Override
-    public void print(DataMap datamap) { print(datamap, "chapter");}
+    public void write2DataMap(DataMap datamap) { print(datamap, "chapter");}
     
     @Override
     public String toString() {

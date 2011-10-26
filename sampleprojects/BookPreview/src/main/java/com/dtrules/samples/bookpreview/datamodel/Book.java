@@ -44,17 +44,17 @@ public class Book extends ABookObj {
         this.pages = pages;
     }
     
-    public void print(DataMap datamap){
+    public void write2DataMap(DataMap datamap){
         datamap.opentag(this,"book");
         datamap.readDO(this,"book"); {
             if(printed){
                 datamap.closetag();
                 return;
             }
-            publisher.print(datamap);
+            publisher.write2DataMap(datamap);
             datamap.opentag("chapters");{
                 for(Chapter c : chapters){
-                    c.print(datamap);
+                    c.write2DataMap(datamap);
                 }
             } datamap.closetag();
         

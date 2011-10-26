@@ -17,6 +17,7 @@ import com.dtrules.mapping.DataMap;
 import com.dtrules.samples.bookpreview.datamodel.Book;
 import com.dtrules.samples.bookpreview.datamodel.Chapter;
 import com.dtrules.samples.bookpreview.datamodel.Customer;
+import com.dtrules.samples.bookpreview.datamodel.DataObj;
 import com.dtrules.samples.bookpreview.datamodel.Open_Book;
 import com.dtrules.samples.bookpreview.datamodel.Page;
 import com.dtrules.samples.bookpreview.datamodel.Publisher;
@@ -116,7 +117,7 @@ public class TestCaseGen_BookPreview {
 	    return book;
 	}
 	
-	public Request generate() throws Exception {
+	public DataObj generate() throws Exception {
 	    request = new Request();
 	    request.setCustomer(new Customer());
 	    request.setBook(newBook());
@@ -213,8 +214,8 @@ public class TestCaseGen_BookPreview {
 				OutputStream out = new FileOutputStream(filename(name,numCases,i));
                 DataMap datamap = session.getDataMap(session.getMapping(),"BookPreview");
 				
-                Request request = generate();
-				request.print(datamap);
+                DataObj request = generate();
+				request.write2DataMap(datamap);
                 datamap.print(out);
 			}
 		} catch (FileNotFoundException e) {

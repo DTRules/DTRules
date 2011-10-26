@@ -39,7 +39,7 @@ public class Open_Book extends ABookObj{
         this.book = book;
     }
     
-    public void print(DataMap datamap){
+    public void write2DataMap(DataMap datamap){
         
         SimpleDateFormat sdf           = new SimpleDateFormat("MM/dd/yyyy");
       
@@ -52,7 +52,7 @@ public class Open_Book extends ABookObj{
             
             datamap.opentag("pages");
                 for(Page p : pages){
-                    p.print(datamap);
+                    p.write2DataMap(datamap);
                 }
             datamap.closetag();
             
@@ -62,7 +62,7 @@ public class Open_Book extends ABookObj{
                 }
             datamap.closetag();
             
-            book.print(datamap);
+            book.write2DataMap(datamap);
        
         }datamap.closetag();
        

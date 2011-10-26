@@ -1,21 +1,6 @@
 package com.dtrules.samples.bookpreview.app;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-
-import com.dtrules.entity.IREntity;
-import com.dtrules.infrastructure.RulesException;
-import com.dtrules.interpreter.IRObject;
-import com.dtrules.interpreter.RArray;
-import com.dtrules.mapping.DataMap;
-import com.dtrules.mapping.Mapping;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Case;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Client;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Income;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Job;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Relationship;
-import com.dtrules.session.DTState;
-import com.dtrules.session.IRSession;
+import com.dtrules.samples.bookpreview.datamodel.DataObj;
 
 
 public class RunThread extends Thread {
@@ -23,7 +8,7 @@ public class RunThread extends Thread {
 	BookPreviewApp app;
 	int      t;
 
-	String getJobName(Job job){
+	String getJobName(DataObj job){
 		int id = job.getId();
 		String cnt = ""+id;
         for(;id<100000;id*=10)cnt = "0"+cnt;
@@ -38,7 +23,7 @@ public class RunThread extends Thread {
 	}
 	
 	public void run () {
-		Job job = app.next();
+		DataObj job = app.next();
 		while(job != null){
 			String err=null;
 	        if(app.db_delay!=0){
@@ -65,7 +50,7 @@ public class RunThread extends Thread {
      * @param dataset
      * @return
      */
-    public String runfile(Job job) {
+    public String runfile(DataObj job) {
    
     	return app.ejob.evaluate(t, app, job);
        

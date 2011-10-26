@@ -42,7 +42,7 @@ public class LoadSettings extends AGenericXMLParser {
 			if(body.equals("dtrules")){
 				app.ejob = new EvaluateJobDTRules();
 			}else if( body.equals("java")){
-				app.ejob = new EvaluateJobJava();
+				//app.ejob = new EvaluateJobJava();
 			}else{
 				app.ejob = new EvaluateJobNone();
 			}

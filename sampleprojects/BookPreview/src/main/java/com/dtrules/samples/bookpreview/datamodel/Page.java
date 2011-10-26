@@ -15,7 +15,7 @@ public class Page extends ABookObj {
     }
     
     @Override
-    public void print(DataMap datamap) {
+    public void write2DataMap(DataMap datamap) {
         datamap.opentag(this,"page");
         datamap.readDO(this,"page");
         datamap.closetag();

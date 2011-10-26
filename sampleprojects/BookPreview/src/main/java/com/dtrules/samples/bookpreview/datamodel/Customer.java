@@ -22,7 +22,7 @@ public class Customer extends ABookObj {
         this.notes = notes;
     }
     
-    public void print(DataMap datamap){
+    public void write2DataMap(DataMap datamap){
         datamap.opentag(this,"customer");
             if(printed){
                 datamap.closetag();
@@ -30,7 +30,7 @@ public class Customer extends ABookObj {
             }
             datamap.opentag("open_books");
                 for(Open_Book ob : open_books){
-                    ob.print(datamap);
+                    ob.write2DataMap(datamap);
                 }
             datamap.closetag();
         datamap.closetag();
