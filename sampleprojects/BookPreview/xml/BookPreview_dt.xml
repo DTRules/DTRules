@@ -179,9 +179,10 @@ begin_date current_date daysbetween day_limit &gt;
 <condition_number>3</condition_number>
 <condition_comment>Have they viewed too many pages?</condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>the number of pages_viewed + 1  is greater than  the page_limit</condition_description>
+<condition_description>the number of the open_book&apos;s pages + 1  is greater than  
+  The page_limit</condition_description>
 <condition_postfix>
-pages_viewed length 1 + page_limit &gt; 
+open_book entitypush pages entitypop length 1 + page_limit &gt; 
 </condition_postfix>
 <condition_column column_value="Y" column_number="2"></condition_column></condition_details>
 <condition_details>

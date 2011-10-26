@@ -32,7 +32,12 @@
 		<field name='chapters_viewed' type='array' subtype='' access='r' input='main' default_value='' comment='The chapters the customer has accessed'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='open_book' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='pages_viewed' type='array' subtype='' access='r' input='main' default_value='' comment='List of pages viewed (by number)'></field>
+		<field name='pages' type='array' subtype='' access='r' input='main' default_value='' comment='List of pages viewed (by number)'></field>
+	</entity>
+	<entity name='page' access='rw' comment=''>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='number' type='integer' subtype='' access='r' input='main' default_value='' comment='Page Number'></field>
+		<field name='page' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 	</entity>
 	<entity name='publisher' access='rw' comment=''>
 		<field name='chapter_limit' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of chapters the customer is allowed to view. 0 is no limit.'></field>

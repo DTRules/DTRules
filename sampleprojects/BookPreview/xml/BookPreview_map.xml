@@ -15,6 +15,8 @@
             <!--open_book-->
             <setattribute tag='book' RAttribute='book' enclosure='open_book' type='entity' subtype=''></setattribute>
             <setattribute tag='begin_date' RAttribute='begin_date' enclosure='open_book' type='date' subtype=''></setattribute>
+            <!--page-->
+            <setattribute tag='number' RAttribute='number' enclosure='page' type='integer' subtype=''></setattribute>
             <!--publisher-->
             <setattribute tag='chapter_limit' RAttribute='chapter_limit' enclosure='publisher' type='integer' subtype=''></setattribute>
             <setattribute tag='page_limit' RAttribute='page_limit' enclosure='publisher' type='integer' subtype=''></setattribute>
@@ -28,32 +30,36 @@
             <!--                 -->
             <!-- Create Entities -->
             <!--                 -->
-            <createentity entity='book' tag='book' id='id'></createentity>
-            <createentity entity='chapter' tag='chapter' id='id'></createentity>
+            <createentity entity='book'      tag='book'      id='id'></createentity>
+            <createentity entity='chapter'   tag='chapter'   id='id'></createentity>
+            <createentity entity='chapter'   tag='excluded_chapter'   id='id'></createentity>
+            <createentity entity='chapter'   tag='chapter_viewed'  list="chapters_viewed" id='id'></createentity>
             <createentity entity='constants' tag='constants' id='id'></createentity>
-            <createentity entity='customer' tag='customer' id='id'></createentity>
+            <createentity entity='customer'  tag='customer'  id='id'></createentity>
             <createentity entity='open_book' tag='open_book' id='id'></createentity>
+            <createentity entity='page'      tag='page'      id='id'></createentity>
             <createentity entity='publisher' tag='publisher' id='id'></createentity>
-            <createentity entity='request' tag='request' id='id'></createentity>
+            <createentity entity='request'   tag='request'   id='id'></createentity>
         </map>
         <!--                 -->
         <!-- Entity List     -->
         <!--                 -->
         <entities>
-            <entity name='request' number='1'></entity>
+            <entity name='request'   number='1'></entity>
             <entity name='constants' number='1'></entity>
-            <entity name='book' number='*'></entity>
-            <entity name='chapter' number='*'></entity>
-            <entity name='customer' number='*'></entity>
+            <entity name='book'      number='*'></entity>
+            <entity name='chapter'   number='*'></entity>
+            <entity name='customer'  number='*'></entity>
             <entity name='open_book' number='*'></entity>
+            <entity name='page'      number='*'></entity>
             <entity name='publisher' number='*'></entity>
         </entities>
         <!--                 -->
         <!-- Initialization  -->
         <!--                 -->
         <initialization>
-            <initialentity entity='request' epush='true'></initialentity>
             <initialentity entity='constants' epush='true'></initialentity>
+            <initialentity entity='request'   epush='true'></initialentity>
         </initialization>
     </XMLtoEDD>
 </mapping>

@@ -43,8 +43,8 @@ public class Test_BookPreview extends ATestHarness {
 	                false, 
 	                false, 
 	                session.getState(), 
-	                "allow", 
-	                session.getState().find("allow"));
+	                "access", 
+	                session.getState().find("access"));
 	    }
 	}    
 	    

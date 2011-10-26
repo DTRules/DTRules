@@ -11,6 +11,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
+import com.dtrules.samples.bookpreview.datamodel.Book;
+import com.dtrules.samples.bookpreview.datamodel.Chapter;
+import com.dtrules.samples.bookpreview.datamodel.Customer;
+import com.dtrules.samples.bookpreview.datamodel.Open_Book;
+import com.dtrules.samples.bookpreview.datamodel.Page;
+import com.dtrules.samples.bookpreview.datamodel.Publisher;
+import com.dtrules.samples.bookpreview.datamodel.Request;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestCaseGen_BookPreview {
@@ -20,7 +27,7 @@ public class TestCaseGen_BookPreview {
 						      		// This is the default number of how many test cases to generate.
 	static int cnt = 100;	    	// You can pass a different number on the commandline.
 	
-	Random 		       rand 		 = new Random(1013);
+	static Random      rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;
 	String 	 		   path 		 = System.getProperty("user.dir")+"/testfiles/";
 	
@@ -28,18 +35,29 @@ public class TestCaseGen_BookPreview {
 	Date        	   currentdate   = new Date();
 	int                id            = 1;
 	
+	Request            request       = null;
+	static Publisher   publishers[]  = new Publisher[4];       // We select from one of four publishers
+	
+    static {
+	    for(int i=0;i<4;i++){
+	        publishers[i]= new Publisher();
+	        publishers[i].setChapter_limit(randint(5)+1);
+	        publishers[i].setPage_limit(randint(100)+1); 
+	    }
+	}
+	
 	/**
 	 * Return a date that is some number of days before the given 
 	 * date
 	 */
-	String getDate(long days){
+	Date getDate(long days){
 	    Date d = new Date(currentdate.getTime()-(days*24l*60l*60l*1000l));
-	    return sdf.format(d); 
+	    return d; 
 	}
 	
     int getId() { return id++; }
 	
-	int randint(int limit){
+	static int randint(int limit){
 	    if(limit < 1) limit = 1;
 		return Math.abs(rand.nextInt()%limit);
 	}
@@ -59,88 +77,96 @@ public class TestCaseGen_BookPreview {
 		return randint(100)<=percent;
 	}
 	
-	int genCustomer(int open_books){
-		int customerId = id++;
-		return customerId;
-	}
-		
-	int numChapters;
-	
-	int genBook(int numPages ){
+	private Book newBook(){
+	    Book book = new Book();
+	    book.setPublisher(publishers[randint(4)]);
+	    int pages = randint(200)+200;
+	    book.setPages(pages);
+	    int start = 1;
+	    boolean excluded = false;
+	    while(start < pages){
+	        int end = randint(20)+20+start;            // Chapters are 20 to 40 pages
+	        if(pages-end < 10 || end >= pages) end = pages; // Okay, we fit in the last chapter
+	        Chapter c = new Chapter();                 // Set up the chapter
+	        c.setBegin_page(start);
+	        c.setEnd_page(end);
+	        
+	        book.getChapters().add(c);                 // Add the chapter, and 
+	        start = end+1;                             //  set the start of the next chapter
+	  
+	        if(excluded){                              // We exclude the ending chapters randomly.
+	            book.getExcluded_chapters().add(c);
+	        }else{
+	           excluded = randint(100)>70;             // Once we start excluding, we exclude the rest.
+	        }
+	    }
 	    
-	    int bookId = getId();
-	    xout.opentag("book","id",bookId ); {
-            
-	        numChapters = 0;
-            
-            xout.opentag("chapters"); {
-                for(int begin=0; begin < numPages; numChapters++){
-                    xout.opentag("chapter"); {
-                        int end = begin+randint(30)+20;
-                        if(end+30 > numPages){
-                            end = numPages;
-                        }
-                        xout.printdata("begin_page",begin);
-                        xout.printdata("end_page"  ,end);
-                        begin = end+1;
-                    } xout.closetag();
-                }
-            }xout.closetag();
-            
-            xout.opentag("publisher");{
-                xout.printdata("chapter_limit",randint(numChapters/5)+1);
-                xout.printdata("page_limit", randint(numPages/50)+1);
-            }xout.closetag();
-                        
-        } xout.closetag();
-        
-        return bookId;
+	    if(flip()){                                    // Half the books get a day limit.
+	        book.setDay_limit((randint(5)+1)*30);      // Limit to 30, 60, 90, 120, or 180 days.
+	    }else{
+	        book.setDay_limit(0);
+	    }
+	    return book;
 	}
 	
-	void generate(){
-		
-        int openbooks = randint(20)+1;
-        ArrayList<Integer> bookId   = new ArrayList<Integer>();
-        ArrayList<Integer> pages    = new ArrayList<Integer>();
-        ArrayList<Integer> chapters = new ArrayList<Integer>();
-
-        xout.opentag("books");{
-            for(int i=0; i<openbooks; i++){
-                xout.opentag("book");{
-                    int numPages    = randint(200)+100;  
-                    bookId.add(genBook(numPages));
-                    chapters.add(numChapters);
-                    pages.add(numPages);
-                }xout.closetag();
-            }
-        } xout.closetag();
-        
-		xout.opentag("request","id",getId()); {
-    		xout.printdata("current_date",sdf.format(currentdate));
-            xout.printdata("access","turn_page");
-
-            int thebook     = randint(bookId.size());
-            int numPages    = pages.get(thebook);
-            int numChapters = chapters.get(thebook);
-            
-            xout.printdata("page_number",randint(numPages/10)+1);
-            xout.printdata("book","id",bookId.get(thebook),null);
-            
-            xout.opentag("customer"); {
-                for(int i=0; i<openbooks; i++){
-                    xout.opentag("open_book"); {
-                        xout.printdata("book","id",bookId.get(i),null);
-                        xout.printdata("begin_date", getDate(randint(180)));
-                        xout.printdata("pages_viewed", randint(numPages/2));
-                        xout.printdata("chapters_viewed",randint(numChapters)/2);
-                    }xout.closetag();
-                }
-            }xout.closetag();
-            
-		} xout.closetag();
-		
-		
+	private void generate() throws Exception {
+	    request = new Request();
+	    request.setCustomer(new Customer());
+	    request.setBook(newBook());
+	    request.setAccess("turn_page");
+	    request.setCurrent_date(sdf.parse("01/02/2011"));
+	    request.setPage_number(randint(request.getBook().getPages())+1);
+	    
+	    Customer customer = request.getCustomer();
+	    int num_openbooks = randint(5)+1;
+	    for(int i=0; i<num_openbooks; i++){
+	        Open_Book ob = new Open_Book();
+	        ob.setBook(newBook());
+	        customer.getOpen_books().add(ob);
+	        ob.setBegin_date(getDate(randint(200)));
+	    }
+	    int index = randint(customer.getOpen_books().size());
+	    customer.getOpen_books().get(index).setBook(request.getBook()); // Make one of the open books match 
+	                                                                    //   the request.
+	    
+	    for(int i=0; i<num_openbooks; i++){
+	        Open_Book  ob          = customer.getOpen_books().get(i);
+	        Book       b           = ob.getBook();
+	        int        pages_read  = randint(60);
+	        int        this_page   = randint(5)+1;
+	        Chapter    c           = b.getChapters().get(0);
+	        
+	        while(this_page < pages_read){
+	            if(b.getExcluded_chapters().contains(c)) break;
+	            if(this_page > pages_read)break;
+	            if(this_page <= c.getEnd_page()){
+	                if(!ob.getChapters_viewed().contains(c)){
+	                    ob.getChapters_viewed().add(c);
+	                }
+	                Page page = new Page();
+	                page.setNumber(this_page);
+	                this_page += 1;
+	                ob.getPages().add(page);
+	            }
+	            if(this_page > c.getEnd_page()){
+	                for(Chapter n : b.getChapters()){
+	                    if(n.getBegin_page()<this_page && n.getEnd_page()>= this_page){
+	                        c = n;
+	                        break;
+	                    }
+	                }
+	            }
+	            this_page += (randint(20)/7);
+	        }
+	    }
+	
+	}  
+	
+	
+	private void print(){
+	    request.print(xout);
 	}
+	
 	
 	String filename(String name, int max, int num){
 		int    len = (max+"").length();
@@ -149,7 +175,7 @@ public class TestCaseGen_BookPreview {
 		return path+name+"_"+cnt+".xml";
 	}
 	
-	void generate(String name, int numCases){
+	void generate(String name, int numCases) throws Exception {
 		try{
 			ostream.println("Clearing away old tests");
             // Delete old output files
@@ -177,6 +203,7 @@ public class TestCaseGen_BookPreview {
 				if(i>0 && i%lines ==0 )ostream.print("\n");
 				xout = new XMLPrinter("book_preview",new FileOutputStream(filename(name,numCases,i)));
 				generate();
+				print();
 				xout.close();
 			}
 		} catch (FileNotFoundException e) {
@@ -185,7 +212,7 @@ public class TestCaseGen_BookPreview {
 		}
 	}
 	
-	public static void main(String args[]){
+	public static void main(String args[]) throws Exception {
 		TestCaseGen_BookPreview tcg = new TestCaseGen_BookPreview();
 		tcg.generate("test",cnt);
 	}
