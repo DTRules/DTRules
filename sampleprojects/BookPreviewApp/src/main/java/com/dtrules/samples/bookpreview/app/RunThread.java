@@ -1,4 +1,4 @@
-package com.dtrules.samples.chipeligibility.app;
+package com.dtrules.samples.bookpreview.app;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -20,7 +20,7 @@ import com.dtrules.session.IRSession;
 
 public class RunThread extends Thread {
 	
-	ChipApp app;
+	BookPreviewApp app;
 	int      t;
 
 	String getJobName(Job job){
@@ -30,7 +30,7 @@ public class RunThread extends Thread {
         return "Job_"+cnt;
 	}
 	
-	public RunThread(int t, ChipApp app){
+	public RunThread(int t, BookPreviewApp app){
 		System.out.print("T "+t+" ");
 		if(t%32==0)System.out.println();
 		this.t   = t;

@@ -3,6 +3,7 @@ package com.dtrules.samples.bookpreview.datamodel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dtrules.mapping.DataMap;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Customer extends ABookObj {
@@ -21,18 +22,18 @@ public class Customer extends ABookObj {
         this.notes = notes;
     }
     
-    public void print(XMLPrinter xout){
-        xout.opentag("customer","id",id);
+    public void print(DataMap datamap){
+        datamap.opentag(this,"customer");
             if(printed){
-                xout.closetag();
+                datamap.closetag();
                 return;
             }
-            xout.opentag("open_books");
+            datamap.opentag("open_books");
                 for(Open_Book ob : open_books){
-                    ob.print(xout);
+                    ob.print(datamap);
                 }
-            xout.closetag();
-        xout.closetag();
+            datamap.closetag();
+        datamap.closetag();
     }
     
 }

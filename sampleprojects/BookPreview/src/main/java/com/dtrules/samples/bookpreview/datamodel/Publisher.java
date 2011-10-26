@@ -1,5 +1,6 @@
 package com.dtrules.samples.bookpreview.datamodel;
 
+import com.dtrules.mapping.DataMap;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Publisher extends ABookObj {
@@ -19,15 +20,14 @@ public class Publisher extends ABookObj {
     }
     
     @Override
-    void print(XMLPrinter xout) {
-        xout.opentag("publisher","id",id);
+    public void print(DataMap datamap) {
+        datamap.opentag(this,"publisher");
         if(printed){
-            xout.closetag();
+            datamap.closetag();
             return;
         }
-        xout.printdata("chapter_limit",chapter_limit);
-        xout.printdata("page_limit",page_limit);
-        xout.closetag();
+        datamap.readDO(this,"publisher");
+        datamap.closetag();
     }
     
 }

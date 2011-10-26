@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.dtrules.mapping.DataMap;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Open_Book extends ABookObj{
@@ -38,33 +39,32 @@ public class Open_Book extends ABookObj{
         this.book = book;
     }
     
-    public void print(XMLPrinter xout){
+    public void print(DataMap datamap){
         
         SimpleDateFormat sdf           = new SimpleDateFormat("MM/dd/yyyy");
       
-        xout.opentag("open_book","id",id);
+        datamap.opentag(this,"open_book"); {
             if(printed){
-                xout.closetag();
+                datamap.closetag();
                 return;
             }
-
-            xout.printdata("begin_date",sdf.format(begin_date));
+            datamap.readDO(this, "open_book");
             
-            xout.opentag("pages");
+            datamap.opentag("pages");
                 for(Page p : pages){
-                    p.print(xout);
+                    p.print(datamap);
                 }
-            xout.closetag();
+            datamap.closetag();
             
-            xout.opentag("chapters_viewed");
+            datamap.opentag("chapters_viewed");
                 for(Chapter c : chapters_viewed){
-                    c.print("chapter_viewed", xout);
+                    c.print(datamap,"chapter_viewed");
                 }
-            xout.closetag();
+            datamap.closetag();
             
-            book.print(xout);
+            book.print(datamap);
        
-        xout.closetag();
+        }datamap.closetag();
        
     }
     

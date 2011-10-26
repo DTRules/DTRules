@@ -3,6 +3,7 @@ package com.dtrules.samples.bookpreview;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
+import com.dtrules.interpreter.RName;
+import com.dtrules.mapping.DataMap;
 import com.dtrules.samples.bookpreview.datamodel.Book;
 import com.dtrules.samples.bookpreview.datamodel.Chapter;
 import com.dtrules.samples.bookpreview.datamodel.Customer;
@@ -18,6 +21,10 @@ import com.dtrules.samples.bookpreview.datamodel.Open_Book;
 import com.dtrules.samples.bookpreview.datamodel.Page;
 import com.dtrules.samples.bookpreview.datamodel.Publisher;
 import com.dtrules.samples.bookpreview.datamodel.Request;
+import com.dtrules.session.EntityFactory;
+import com.dtrules.session.IRSession;
+import com.dtrules.session.RuleSet;
+import com.dtrules.session.RulesDirectory;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestCaseGen_BookPreview {
@@ -109,7 +116,7 @@ public class TestCaseGen_BookPreview {
 	    return book;
 	}
 	
-	private void generate() throws Exception {
+	public Request generate() throws Exception {
 	    request = new Request();
 	    request.setCustomer(new Customer());
 	    request.setBook(newBook());
@@ -160,12 +167,8 @@ public class TestCaseGen_BookPreview {
 	        }
 	    }
 	
+	    return request;
 	}  
-	
-	
-	private void print(){
-	    request.print(xout);
-	}
 	
 	
 	String filename(String name, int max, int num){
@@ -190,7 +193,13 @@ public class TestCaseGen_BookPreview {
         }catch(Exception e){
             throw new RuntimeException(e);
         }
-        
+
+		String          path    = System.getProperty("user.dir")+"/";
+		String          config  = "DTRules_BookPreview.xml";
+        RulesDirectory  rd      = new RulesDirectory(path, config);
+        RuleSet         rs      = rd.getRuleSet(RName.getRName("BookPreview"));
+        IRSession       session = rs.newSession();
+
 		try {
 			ostream.println("Generating "+numCases+" Tests");
 			int inc = 100;
@@ -201,10 +210,12 @@ public class TestCaseGen_BookPreview {
 			for(int i=1;i<=numCases; i++){
 				if(i>0 && i%inc   ==0 )ostream.print(i+" ");
 				if(i>0 && i%lines ==0 )ostream.print("\n");
-				xout = new XMLPrinter("book_preview",new FileOutputStream(filename(name,numCases,i)));
-				generate();
-				print();
-				xout.close();
+				OutputStream out = new FileOutputStream(filename(name,numCases,i));
+                DataMap datamap = session.getDataMap(session.getMapping(),"BookPreview");
+				
+                Request request = generate();
+				request.print(datamap);
+                datamap.print(out);
 			}
 		} catch (FileNotFoundException e) {
 			ostream.println(e.toString());

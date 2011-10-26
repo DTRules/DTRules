@@ -1,4 +1,4 @@
-package com.dtrules.samples.chipeligibility.app;
+package com.dtrules.samples.bookpreview.app;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import com.dtrules.xmlparser.AGenericXMLParser;
 import com.dtrules.xmlparser.GenericXMLParser;
 
 public class LoadSettings extends AGenericXMLParser {
-	ChipApp app;	
+	BookPreviewApp app;	
 	
-	LoadSettings(ChipApp app){
+	LoadSettings(BookPreviewApp app){
 		this.app = app;
 	}
 	
@@ -60,7 +60,7 @@ public class LoadSettings extends AGenericXMLParser {
 
 
 
-	public static void loadSettings(ChipApp app) throws Exception {
+	public static void loadSettings(BookPreviewApp app) throws Exception {
 		LoadSettings ls = new LoadSettings(app);
 		FileInputStream settings = 
 			new FileInputStream(app.getRulesDirectoryPath()+"settings.xml");

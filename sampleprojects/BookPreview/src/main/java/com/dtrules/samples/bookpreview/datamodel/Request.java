@@ -3,6 +3,7 @@ package com.dtrules.samples.bookpreview.datamodel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.dtrules.mapping.DataMap;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Request extends ABookObj {
@@ -50,22 +51,18 @@ public class Request extends ABookObj {
         this.current_date = current_date;
     }
     
-    public void print(XMLPrinter xout){
+    public void print(DataMap datamap){
         
         SimpleDateFormat sdf           = new SimpleDateFormat("MM/dd/yyyy");
         
-        xout.opentag("request","id",id);
+        datamap.opentag(this,"request");
             if(printed){
-                xout.closetag();
+                datamap.closetag();
                 return;
             }
-
-            book.print(xout);
-            customer.print(xout);
-            xout.printdata("access",access);
-            xout.printdata("allow", allow);
-            xout.printdata("page_number",page_number);
-            xout.printdata("current_date", sdf.format(current_date));
-        xout.closetag();
+            datamap.readDO(this, "request");
+            book.print(datamap);
+            customer.print(datamap);
+        datamap.closetag();
     }
 }

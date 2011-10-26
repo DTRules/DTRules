@@ -1,5 +1,6 @@
 package com.dtrules.samples.bookpreview.datamodel;
 
+import com.dtrules.mapping.DataMap;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Chapter extends ABookObj{
@@ -19,20 +20,18 @@ public class Chapter extends ABookObj{
         this.end_page = end_page;
     }
     
-    void print(String tag, XMLPrinter xout){
-        xout.opentag(tag, "id",id);
-            if(printed){
-                xout.closetag();
-                return;
-            }
-    
-            xout.printdata("begin_page",begin_page);
-            xout.printdata("end_page",end_page);
-        xout.closetag();
+    void print(DataMap datamap, String tag){
+        datamap.opentag(this,tag);
+        if(printed){
+            datamap.closetag();
+            return;
+        }
+        datamap.readDO(this, tag);
+        datamap.closetag();
     }
     
     @Override
-    void print(XMLPrinter xout) { print("chapter",xout);}
+    public void print(DataMap datamap) { print(datamap, "chapter");}
     
     @Override
     public String toString() {

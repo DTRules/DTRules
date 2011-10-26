@@ -54,6 +54,28 @@
             <entity name='page'      number='*'></entity>
             <entity name='publisher' number='*'></entity>
         </entities>
+        
+        <!--  Data Maps -->
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Book" 
+                          key="id" key_attribute="id" entity="book" entity_tag="book"               />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Chapter" 
+                          key="id" key_attribute="id" entity="chapter" entity_tag="chapter"         />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Chapter" 
+                          key="id" key_attribute="id" entity="chapter" entity_tag="excluded_chapter"/>
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Chapter" 
+                          key="id" key_attribute="id" entity="chapter" entity_tag="chapter_viewed"  />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Customer" 
+                          key="id" key_attribute="id" entity="customer" entity_tag="customer"       />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Open_Book" 
+                          key="id" key_attribute="id" entity="open_book" entity_tag="open_book"     />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Page" 
+                          key="id" key_attribute="id" entity="page" entity_tag="page"               />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Publisher" 
+                          key="id" key_attribute="id" entity="publisher" entity_tag="publisher"     />
+        <do2entitymap class="com.dtrules.samples.bookpreview.datamodel.Request" 
+                          key="id" key_attribute="id" entity="request" entity_tag="request"         />
+
+
         <!--                 -->
         <!-- Initialization  -->
         <!--                 -->

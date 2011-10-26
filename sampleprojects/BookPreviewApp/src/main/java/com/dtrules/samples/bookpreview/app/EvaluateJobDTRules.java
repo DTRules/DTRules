@@ -1,7 +1,8 @@
-package com.dtrules.samples.chipeligibility.app;
+package com.dtrules.samples.bookpreview.app;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
@@ -9,12 +10,12 @@ import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RArray;
 import com.dtrules.mapping.DataMap;
 import com.dtrules.mapping.Mapping;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Case;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Client;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Income;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Job;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Relationship;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Result;
+import com.dtrules.samples.bookpreview.datamodel.Book;
+import com.dtrules.samples.bookpreview.datamodel.Chapter;
+import com.dtrules.samples.bookpreview.datamodel.Customer;
+import com.dtrules.samples.bookpreview.datamodel.Open_Book;
+import com.dtrules.samples.bookpreview.datamodel.Publisher;
+import com.dtrules.samples.bookpreview.datamodel.Request;
 import com.dtrules.session.DTState;
 import com.dtrules.session.IRSession;
 
@@ -26,21 +27,21 @@ public class EvaluateJobDTRules implements EvaluateJob {
 		return "dtrules";
 	}
 	
-	String getJobName(Job job){
-		int id = job.getId();
+	String getJobName(Request request){
+		int id = request.getId();
 		String cnt = ""+id;
         for(;id<100000;id*=10)cnt = "0"+cnt;
-        return "Job_"+cnt;
+        return "Request_"+cnt;
 	}
 	
-	public String evaluate(int threadnum, ChipApp app, Job job) {
+	public String evaluate(int threadnum, BookPreviewApp app, Request request) {
             
         try {
              IRSession      session    = app.rs.newSession();
              
-             if(app.trace && (job.getId()%app.save == 0) ){
+             if(app.trace && (request.getId()%app.save == 0) ){
             	 OutputStream out = new FileOutputStream(
-            			 app.getOutputDirectory()+getJobName(job)+"_trace.xml");
+            			 app.getOutputDirectory()+getJobName(request)+"_trace.xml");
             	 session.getState().setOutput(out, System.out);
             	 session.getState().setState(DTState.TRACE | DTState.DEBUG);
             	 session.getState().traceStart();
@@ -52,14 +53,19 @@ public class EvaluateJobDTRules implements EvaluateJob {
              Mapping   	mapping  = session.getMapping();
 	         DataMap 	datamap  = session.getDataMap(mapping,null);
 	         
-	         datamap.opentag(job,"job");
-	         datamap.readDO(job, "job");
-	         
-		         Case c = job.getCase();
-		         datamap.opentag(c,"case");
-		         datamap.readDO(c,"case");
-		         	for(Client client : c.getClients()){
-		         		datamap.opentag(client,"client");
+	         datamap.opentag(request,"request");{
+	             datamap.readDO(request, "request");
+	             
+	             Book b = request.getBook();
+	             datamap.opentag(b,"book"); {
+	             datamap.readDO(b,"book");
+     
+                 Customer c = request.getCustomer();
+	             datamap.opentag(c,"customer");
+		         datamap.readDO(c,"customer");
+		            datamap.opentag("open_books"); for(Open_Book ob : c.getOpen_books()){
+		         	    List<Chapter> chapters = ob.getChapters_viewed();
+		         	    datamap.opentag(client,"client");
 		         		datamap.readDO(client,"client");
 		         			for(Income income : client.getIncomes()){
 		         				
@@ -67,7 +73,7 @@ public class EvaluateJobDTRules implements EvaluateJob {
 		    	         		
 		         			}
 		         		datamap.closetag();
-		         	}
+		         	}datamap.closetag();
 		         	for(Relationship r : c.getRelationships()){
 		         		datamap.opentag("relationship");
 			         		datamap.printdata("type", r.getType());
@@ -79,7 +85,7 @@ public class EvaluateJobDTRules implements EvaluateJob {
 		         
 	         datamap.closetag();
 	         
-             int    id  = job.getId();
+             int    id  = request.getId();
              
              if(app.save >0 && id % app.save == 0){
             	 String cnt = ""+id;
@@ -96,7 +102,7 @@ public class EvaluateJobDTRules implements EvaluateJob {
 	         // Once the data is loaded, execute the rules.
              session.execute(app.getDecisionTableName());
 		     
-             if(app.trace && (job.getId()%app.save == 0)){
+             if(app.trace && (request.getId()%app.save == 0)){
                  session.getState().traceEnd();
              }
              
@@ -112,7 +118,7 @@ public class EvaluateJobDTRules implements EvaluateJob {
          return null;
      }
     
-    public void printReport(int threadnum, ChipApp app, IRSession session) throws RulesException {
+    public void printReport(int threadnum, BookPreviewApp app, IRSession session) throws RulesException {
         IREntity 	job     = session.getState().find("job.job").rEntityValue();
         RArray 		results = job.get("job.results").rArrayValue();
         String      jobId   = job.get("id").stringValue();

@@ -3,7 +3,8 @@ package com.dtrules.samples.bookpreview.datamodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dtrules.xmlparser.XMLPrinter;
+import com.dtrules.mapping.DataMap;
+
 
 public class Book extends ABookObj {
     Publisher       publisher;
@@ -43,25 +44,26 @@ public class Book extends ABookObj {
         this.pages = pages;
     }
     
-    public void print(XMLPrinter xout){
-        xout.opentag("book", "id", id);
+    public void print(DataMap datamap){
+        datamap.opentag(this,"book");
+        datamap.readDO(this,"book"); {
             if(printed){
-                xout.closetag();
+                datamap.closetag();
                 return;
             }
-            xout.printdata("day_limit",day_limit);
-            publisher.print(xout);
-            xout.opentag("chapters");
+            publisher.print(datamap);
+            datamap.opentag("chapters");{
                 for(Chapter c : chapters){
-                    c.print(xout);
+                    c.print(datamap);
                 }
-            xout.closetag();
-            xout.opentag("excluded_chapters");
+            } datamap.closetag();
+        
+            datamap.opentag("excluded_chapters");{
                 for(Chapter c : excluded_chapters){
-                    c.print("excluded_chapter", xout);
+                    c.print(datamap,"excluded_chapter");
                 }
-            xout.closetag();
-       xout.closetag();
+            }datamap.closetag();
+        }datamap.closetag();
        
     }
     

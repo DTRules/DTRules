@@ -1,4 +1,4 @@
-package com.dtrules.samples.chipeligibility.app;
+package com.dtrules.samples.bookpreview.app;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.dtrules.interpreter.RName;
-import com.dtrules.samples.chipeligibility.app.dataobjects.Job;
+import com.dtrules.samples.bookpreview.datamodel.Request;
 import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
 
-public class ChipApp {
+public class BookPreviewApp {
 	//
 	// These settings are loaded in from testfiles/settings.xml
 	//
@@ -40,26 +40,26 @@ public class ChipApp {
 	
 	// End of settings.
 	
-	String 		path = System.getProperty("user.dir") + "/";
-	Date 		start = new Date();
+	String 		  path = System.getProperty("user.dir") + "/";
+	Date 		  start = new Date();
 
-	int 		processed[];
-	int 		approved     = 0;
-	int 		denied       = 0;
-	int         total        = 0;
-	int         empty        = 0;
+	int 		  processed[];
+	int 		  approved     = 0;
+	int 		  denied       = 0;
+	int           total        = 0;
+	int           empty        = 0;
 	
-	GenCase 	genCase 	 = new GenCase(this);
-	String 		ruleset;
-	RName 		rsName;
-	RuleSet 	rs;
-	List<Job> 	jobs        = Collections.synchronizedList(new ArrayList<Job>());
+	GenCase 	  genCase 	   = new GenCase(this);
+	String 		  ruleset;
+	RName 		  rsName;
+	RuleSet 	  rs;
+	List<Request> requests     = Collections.synchronizedList(new ArrayList<Request>());
 	
 
-	int 		pulled 		= 0;
-	int 		done 		= 0;
-	int         cacheloads  = 0;
-	int         spaces      = 0;
+	int 		  pulled       = 0;
+	int 		  done         = 0;
+	int           cacheloads   = 0;
+	int           spaces       = 0;
 	
 	
 	RulesDirectory rd;
@@ -78,15 +78,15 @@ public class ChipApp {
 	}
 
 	public String getRuleSetName() {
-		return "CHIP";
+		return "BookPreview";
 	}
 
 	public String getDecisionTableName() {
-		return "Compute_Eligibility";
+		return "Book_Access_Request";
 	}
 
 	public String getRulesDirectoryFile() {
-		return "DTRules.xml";
+		return "DTRules_BookPreview.xml";
 	}
 
 	public String getTestDirectory() {
@@ -98,10 +98,10 @@ public class ChipApp {
 	}
 
 	int jobsWaiting(){
-		return jobs.size();
+		return requests.size();
 	}
 		
-	synchronized Job next() {
+	synchronized Request next() {
 		pulled++;
 		if(numCases>=50){
 			if(pulled%(numCases/50) ==0){
@@ -127,15 +127,15 @@ public class ChipApp {
 			}
 		}
 		if(pulled > numCases)return null;
-		if(jobs.size()<50){
+		if(requests.size()<50){
 			genCase.fill(); 
 		}
-		return jobs.remove(0);
+		return requests.remove(0);
 	}
 
 	public static void main(String[] args) {
-		ChipApp chipApp = new ChipApp();
-		chipApp.run();
+		BookPreviewApp bookPreviewApp = new BookPreviewApp();
+		bookPreviewApp.run();
 	}
 
 	public void run() {		

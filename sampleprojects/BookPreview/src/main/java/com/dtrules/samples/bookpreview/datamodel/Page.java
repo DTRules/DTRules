@@ -1,5 +1,6 @@
 package com.dtrules.samples.bookpreview.datamodel;
 
+import com.dtrules.mapping.DataMap;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Page extends ABookObj {
@@ -14,15 +15,10 @@ public class Page extends ABookObj {
     }
     
     @Override
-    void print(XMLPrinter xout) {
-        
-        xout.opentag("page","id",id);
-        if(printed){
-            xout.closetag();
-            return;
-        }
-        xout.printdata("number",number);
-        xout.closetag();
+    public void print(DataMap datamap) {
+        datamap.opentag(this,"page");
+        datamap.readDO(this,"page");
+        datamap.closetag();
     }
     
 }
