@@ -49,7 +49,7 @@ public class Book extends ABookObj {
                 xout.closetag();
                 return;
             }
-
+            xout.printdata("day_limit",day_limit);
             publisher.print(xout);
             xout.opentag("chapters");
                 for(Chapter c : chapters){

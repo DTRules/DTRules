@@ -38,6 +38,7 @@ public class Test_BookPreview extends ATestHarness {
 	    @Override
 	    public void printReport(int runNumber, IRSession session, PrintStream out) throws Exception {
 	        XMLPrinter xout = new XMLPrinter(out);
+	        xout.opentag("result");
 	        session.printEntityReport(
 	                xout, 
 	                false, 
@@ -45,6 +46,14 @@ public class Test_BookPreview extends ATestHarness {
 	                session.getState(), 
 	                "access", 
 	                session.getState().find("access"));
+	        session.printEntityReport(
+                    xout, 
+                    false, 
+                    false, 
+                    session.getState(), 
+                    "note", 
+                    session.getState().find("customer").rEntityValue().get("notes"));
+            xout.closetag();
 	    }
 	}    
 	    

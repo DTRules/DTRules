@@ -1,7 +1,7 @@
 <testharness>
 
     <trace>true</trace>
-    <console>false</console>
+    <console>true</console>
     <numbered>false</numbered>
     <verbose>false</verbose>
     <coverage>true</coverage>

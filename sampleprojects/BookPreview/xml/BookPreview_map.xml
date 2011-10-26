@@ -32,7 +32,7 @@
             <!--                 -->
             <createentity entity='book'      tag='book'      id='id'></createentity>
             <createentity entity='chapter'   tag='chapter'   id='id'></createentity>
-            <createentity entity='chapter'   tag='excluded_chapter'   id='id'></createentity>
+            <createentity entity='chapter'   tag='excluded_chapter' list="excluded_chapters" id='id'></createentity>
             <createentity entity='chapter'   tag='chapter_viewed'  list="chapters_viewed" id='id'></createentity>
             <createentity entity='constants' tag='constants' id='id'></createentity>
             <createentity entity='customer'  tag='customer'  id='id'></createentity>

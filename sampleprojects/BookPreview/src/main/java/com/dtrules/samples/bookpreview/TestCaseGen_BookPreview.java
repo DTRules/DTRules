@@ -36,12 +36,12 @@ public class TestCaseGen_BookPreview {
 	int                id            = 1;
 	
 	Request            request       = null;
-	static Publisher   publishers[]  = new Publisher[4];       // We select from one of four publishers
+	static Publisher   publishers[]  = new Publisher[8];       // We select from one of four publishers
 	
     static {
-	    for(int i=0;i<4;i++){
+	    for(int i=0;i<publishers.length;i++){
 	        publishers[i]= new Publisher();
-	        publishers[i].setChapter_limit(randint(5)+1);
+	        publishers[i].setChapter_limit(randint(3)+1);
 	        publishers[i].setPage_limit(randint(100)+1); 
 	    }
 	}
@@ -79,7 +79,7 @@ public class TestCaseGen_BookPreview {
 	
 	private Book newBook(){
 	    Book book = new Book();
-	    book.setPublisher(publishers[randint(4)]);
+	    book.setPublisher(publishers[randint(publishers.length)]);
 	    int pages = randint(200)+200;
 	    book.setPages(pages);
 	    int start = 1;
@@ -101,7 +101,7 @@ public class TestCaseGen_BookPreview {
 	        }
 	    }
 	    
-	    if(flip()){                                    // Half the books get a day limit.
+	    if(flip()||flip()){                            // Half the books get a day limit.
 	        book.setDay_limit((randint(5)+1)*30);      // Limit to 30, 60, 90, 120, or 180 days.
 	    }else{
 	        book.setDay_limit(0);
@@ -123,7 +123,7 @@ public class TestCaseGen_BookPreview {
 	        Open_Book ob = new Open_Book();
 	        ob.setBook(newBook());
 	        customer.getOpen_books().add(ob);
-	        ob.setBegin_date(getDate(randint(200)));
+	        ob.setBegin_date(getDate(randint(400)));
 	    }
 	    int index = randint(customer.getOpen_books().size());
 	    customer.getOpen_books().get(index).setBook(request.getBook()); // Make one of the open books match 
