@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.dtrules.interpreter.RName;
 import com.dtrules.samples.bookpreview.datamodel.DataObj;
@@ -22,8 +23,6 @@ public class BookPreviewApp {
 	int 	numCases 	 = 0;		// number of cases to generate
 	int 	save 		 = 0;       // Save cases whose id is divisible by this number 
 					                //   1 would save every file, 3 would save every 3rd file.
-	boolean trace 		 = false;	// Create trace files (a coverage file will be generated if tracing)
-									//   When used with save, only saved files are traced.
 	boolean console      = false;   // Write results to console.
 	
 	EvaluateJob ejob     = new EvaluateJobDTRules(); // Use DTRules to evaluate the rules.
@@ -145,7 +144,6 @@ public class BookPreviewApp {
 			System.out.println("Executing  "+threads+" threads");
 			System.out.println("Processing "+numCases+" cases");
 			System.out.println("Capturing jobs with numbers divisable by "+save);
-			System.out.println("Tracing    "+(trace?"On":"Off"));
 			System.out.println("Console Results "+(console?"On":"Off")+"\n");
 			
 			processed = new int [threads+1];
@@ -220,11 +218,12 @@ public class BookPreviewApp {
 				
 				System.out.printf("\n\nA Job is processed every: %.8f seconds.\n\n",dt/1000);
 				System.out.println("\n");
-				for(int i=1;i<processed.length;i++){
-					System.out.printf("  Processed in thread %8d : %8d\n", i, processed[i]);
+				
+				String [] keys = results.keySet().toArray(new String [0]);
+				sort(keys);
+				for(String key : keys){
+				    System.out.printf("%60s %8d\n", key, results.get(key));
 				}
-				
-				
 			}
 			{
 				long dt = (now.getTime() - start.getTime());
@@ -239,6 +238,21 @@ public class BookPreviewApp {
 			throw new RuntimeException(e);
 		}
 
+	}
+	
+	public void sort(String[] v){
+	    boolean done = false;
+	    for(int i=0; !done && i <v.length-1; i++){
+	        done = true;
+	        for(int j=0; j<v.length-i-1; j++){
+	            if(v[j].compareTo(v[j+1])>0){
+    	            String h = v[j];
+    	            v[j]     = v[j+1];
+    	            v[j+1]   = h;
+    	            done = false;
+	            }
+	        }
+	    }
 	}
 	
 	public void sort(List<Integer> array){

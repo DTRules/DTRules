@@ -6,7 +6,7 @@ import com.dtrules.samples.bookpreview.datamodel.DataObj;
 public class RunThread extends Thread {
 	
 	BookPreviewApp app;
-	int      t;
+	int            t;
 
 	String getJobName(DataObj job){
 		int id = job.getId();
@@ -51,7 +51,7 @@ public class RunThread extends Thread {
      * @return
      */
     public String runfile(DataObj job) {
-   
+        app.processed[t]++;
     	return app.ejob.evaluate(t, app, job);
        
     }

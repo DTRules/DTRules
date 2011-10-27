@@ -5,6 +5,8 @@ import java.io.OutputStream;
 
 import com.dtrules.entity.IREntity;
 import com.dtrules.infrastructure.RulesException;
+import com.dtrules.interpreter.IRObject;
+import com.dtrules.interpreter.RArray;
 import com.dtrules.mapping.DataMap;
 import com.dtrules.mapping.Mapping;
 import com.dtrules.samples.bookpreview.datamodel.DataObj;
@@ -30,15 +32,7 @@ public class EvaluateJobDTRules implements EvaluateJob {
             
         try {
              IRSession      session    = app.rs.newSession();
-             
-             if(app.trace && (request.getId()%app.save == 0) ){
-            	 OutputStream out = new FileOutputStream(
-            			 app.getOutputDirectory()+getJobName(request)+"_trace.xml");
-            	 session.getState().setOutput(out, System.out);
-            	 session.getState().setState(DTState.TRACE | DTState.DEBUG);
-            	 session.getState().traceStart();
-             }
-             
+                          
              // Map the data from the job into the Rules Engine
               
              // First create a data map.
@@ -62,12 +56,7 @@ public class EvaluateJobDTRules implements EvaluateJob {
 	         mapping.loadData(session, datamap);
 	         
 	         // Once the data is loaded, execute the rules.
-             session.execute(app.getDecisionTableName());
-		     
-             if(app.trace && (request.getId()%app.save == 0)){
-                 session.getState().traceEnd();
-             }
-             
+             session.execute(app.getDecisionTableName());             
              
              printReport(threadnum, app, session);
            
@@ -80,9 +69,18 @@ public class EvaluateJobDTRules implements EvaluateJob {
          return null;
      }
     
-    public void printReport(int threadnum, BookPreviewApp app, IRSession session) throws RulesException {
+    synchronized public void printReport(int threadnum, BookPreviewApp app, IRSession session) throws RulesException {
         IREntity 	request  = session.getState().find("request").rEntityValue();
         IREntity    customer = request.get("customer").rEntityValue();
-        
+        RArray      notes    = customer.get("notes").rArrayValue();
+        for(IRObject note : notes){
+            Integer cnt = app.results.get(note.stringValue());
+            if(cnt == null){
+                cnt = 1;
+            }else{
+                cnt += 1;
+            }
+            app.results.put(note.stringValue(),cnt);
+        }
     }
 }

@@ -32,8 +32,6 @@ public class LoadSettings extends AGenericXMLParser {
             app.numCases = Integer.parseInt(body);
 		}else if (tag.equals("save")){
 			app.save = Integer.parseInt(body);
-		}else if (tag.equals("trace")){
-			app.trace = isTrue(body);
 		}else if (tag.equals("console")){
 			app.console = isTrue(body);
 		}else if (tag.equals("update")){
@@ -49,13 +47,7 @@ public class LoadSettings extends AGenericXMLParser {
 		}else if (tag.equals("printresults")){
 			app.printresults = isTrue(body);
 		}
-		
-		// If we don't specify a save, but we are tracing, then we save 
-		// every file.
-		if(app.save == 0 && app.trace){
-			app.save = 1;
-		}
-		
+				
 	}
 
 
