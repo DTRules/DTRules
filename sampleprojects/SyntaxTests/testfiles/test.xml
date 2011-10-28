@@ -1,13 +1,36 @@
 <job>
-   <case>
-  
+   <case> 
+   		<case_ID>1</case_ID> 
 	   <client>
 	   		<age>45</age>
 	   		<eligible>false</eligible>
+	   		<validatedCitizenship>false</validatedCitizenship>
 	   </client>
 	   <client>
 	   		<age>16</age>
 	   		<eligible>false</eligible>
+	   		<validatedCitizenship>false</validatedCitizenship>
 	   </client>
+	   <address>
+	   		<street>11044 research Blvd</street>
+	   		<city>Austin</city>
+	   </address>
+   </case>
+   <case>  
+   		<case_ID>2</case_ID>
+	   <client>
+	   		<age>18</age>
+	   		<eligible>false</eligible>
+	   		<validatedCitizenship>true</validatedCitizenship>
+	   </client>
+	   <client>
+	   		<age>53</age>
+	   		<eligible>false</eligible>
+	   		<validatedCitizenship>false</validatedCitizenship>
+	   </client>
+	   <address>
+	   		<street>11044 research Blvd</street>
+	   		<city>New York</city>
+	   </address>
    </case>
 </job>

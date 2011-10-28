@@ -766,9 +766,9 @@ public class RDecisionTable extends ARObject {
 			   cstk!= state.cdepth() ){
 			    throw new RulesException("Stacks Not balanced","DecisionTables", 
 			    "Error while executing table: "+getName().stringValue() +"\n" +
-			     (estk!= state.edepth() ? "Entity Stack before  "+estk+" after "+state.edepth()+"\n":"")+
-			     (dstk!= state.ddepth() ? "Data Stack before    "+dstk+" after "+state.ddepth()+"\n":"")+
-			     (cstk!= state.cdepth() ? "Control Stack before "+cstk+" after "+state.cdepth()+"\n":""));
+			     (estk!= state.edepth() ? "Entity Stack size before: "+estk+" after: "+state.edepth()+"\n":"")+
+			     (dstk!= state.ddepth() ? "Data Stack size before: "+dstk+" after: "+state.ddepth()+"\n":"")+
+			     (cstk!= state.cdepth() ? "Control Stack size before: "+cstk+" after: "+state.cdepth()+"\n":""));
 			}
 		} catch (RulesException e) {
 	        try{ 
@@ -812,7 +812,11 @@ public class RDecisionTable extends ARObject {
                 try{
                    state.traceTagBegin("initialAction");
                    state.traceInfo("formal",initialActions[i]);
+                   int dstk = state.ddepth();
                    rinitialActions[i].execute(state);
+                   if(dstk != state.ddepth()){
+                       throw new RulesException("datastackunbalanced", "initialActions", "Initial Action: "+(i+1)+" failed!");
+                   }
                    state.traceTagEnd();
                 }catch(RulesException e){
                     e.setSection("Initial Actions", i+1);

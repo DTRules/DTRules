@@ -1,15 +1,15 @@
 <entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
 	<entity name='address' access='rw' comment=''>
 		<field name='address' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='billingAddress' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='city' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='homeAddresses' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='locations' type='array' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='mailingAddress' type='entity' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='billingAddress' type='entity' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='city' type='string' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='homeAddresses' type='array' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='locations' type='array' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='mailingAddress' type='entity' subtype='' access='rw' input='main' default_value='' comment=''></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='state' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='street' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
-		<field name='zip' type='string' subtype='' access='rw' input='' default_value='' comment=''></field>
+		<field name='state' type='string' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='street' type='string' subtype='' access='rw' input='main' default_value='' comment=''></field>
+		<field name='zip' type='string' subtype='' access='rw' input='main' default_value='' comment=''></field>
 	</entity>
 	<entity name='case' access='rw' comment=''>
 		<field name='address' type='entity' subtype='' access='rw' input='main' default_value='' comment=''></field>
