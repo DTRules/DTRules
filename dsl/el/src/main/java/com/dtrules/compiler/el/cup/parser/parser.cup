@@ -207,7 +207,7 @@ done ::=
       |                                                 // This allows us to comment out statements.
       CONDITION SEMI                 {: RESULT = ""; :}
       |
-      CONTEXT SEMI                   {: RESULT = ""; :}
+      CONTEXT SEMI                   {: RESULT = "execute "; :}
       |
       POLICYSTATEMENT SEMI           {: RESULT = ""; :}
       |

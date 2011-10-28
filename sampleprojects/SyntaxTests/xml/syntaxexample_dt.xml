@@ -30,7 +30,7 @@ You can instead have the two context statements:
     For each case in the job allowing cases to be removed 
     Add the case.address to the context of this table</context_comment>
 <context_description>// for each case and its address in the job.cases</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number></context_number>
 <context_comment></context_comment>
@@ -49,22 +49,22 @@ case.address entitypush execute entitypop
 <context_number>4</context_number>
 <context_comment>no longer supported</context_comment>
 <context_description>// for each case and its address in the job.cases allowing cases to be removed</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>5</context_number>
 <context_comment>no longer supported</context_comment>
 <context_description>// for each case and its address in the job.cases where &apos;Austin&apos;==city</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>6</context_number>
 <context_comment>no longer supported</context_comment>
 <context_description>// For each case and its address in the job.cases where street == &apos;Opal&apos; allowing job.Cases to be removed</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>7</context_number>
 <context_comment>no longer supported</context_comment>
 <context_description>// For each case and its address in the job.cases where street == &apos;Opal&apos; allowing job.Cases to be removed</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>8</context_number>
 <context_comment></context_comment>
@@ -2464,51 +2464,63 @@ Run_Test_2
 <context_details>
 <context_number>1</context_number>
 <context_comment></context_comment>
-<context_description>for all clients //for the first of the job.cases where validatedCitizenship == true</context_description>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details>
+<context_description>//for all clients //for the first of the job.cases where validatedCitizenship == true</context_description>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_comment>for first of job.cases and it&apos;s case where    
       City == &apos;New York&apos;</context_comment>
 <context_description>//for the first of the job.cases and its address where city == &apos;Austin&apos;</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_comment></context_comment>
 <context_description>//for the first in the job.cases where validatedCitizenship == false</context_description>
-<context_postfix></context_postfix></context_details>
+<context_postfix>execute </context_postfix></context_details>
 <context_details>
 <context_number>4</context_number>
 <context_comment></context_comment>
 <context_description>//local entity theClient</context_description>
-<context_postfix></context_postfix></context_details></contexts>
+<context_postfix>execute </context_postfix></context_details></contexts>
 <initial_actions>
 <initial_action_details>
 <intial_action_number>1</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>//for first of job.cases where age &lt; 18 then { set eligible = true } else if none are found { set eligible = false } endff</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>for first of job.cases where age &lt; 18 then { set eligible = true } else if none are found { set eligible = false } endff</initial_action_description>
+<initial_action_postfix>
+{ true cvb /eligible xdef  
+ } { false cvb /eligible xdef  
+ } { age 18 &lt;  } job.cases  forfirstelse 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>2</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>//for first of job.cases and its case where city == &apos;New York&apos; then { set eligible = false } else if none are found { set eligible = true } endff</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>for first of job.cases and its case where city == &apos;New York&apos; then { set eligible = false } else if none are found { set eligible = true } endff</initial_action_description>
+<initial_action_postfix>
+{ case  entitypush false cvb /eligible xdef  
+entitypop } { true cvb /eligible xdef  
+ } { case  entitypush city &apos;New York&apos; streq entitypop } job.cases  forfirstelse 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>3</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>//for first of job.cases where validatedCitizenship == true then { set eligible = true }  endff</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>for first of job.cases where validatedCitizenship == true then { set eligible = true }  endff</initial_action_description>
+<initial_action_postfix>
+{ true cvb /eligible xdef  
+} { validatedCitizenship true beq  } job.cases  forfirst 
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>4</intial_action_number>
 <initial_action_comment></initial_action_comment>
 <initial_action_requirement></initial_action_requirement>
-<initial_action_description>//{ for all clients where age &gt; 18 set eligible = true }</initial_action_description>
-<initial_action_postfix></initial_action_postfix></initial_action_details>
+<initial_action_description>{ for all clients where age &gt; 18 set eligible = true }</initial_action_description>
+<initial_action_postfix>
+{ { true cvb /eligible xdef   } age 18 &gt; if } clients forallr 
+
+</initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>5</intial_action_number>
 <initial_action_comment></initial_action_comment>
@@ -5293,16 +5305,7 @@ pregnant  isnull
 <condition_postfix>
 pregnant  isnull not 
 </condition_postfix>
-<condition_column column_value="N" column_number="15"></condition_column></condition_details>
-<condition_details>
-<condition_number></condition_number>
-<condition_comment></condition_comment>
-<condition_requirement></condition_requirement>
-<condition_description>true</condition_description>
-<condition_postfix>
-true 
-</condition_postfix>
-<condition_column column_value="Y" column_number="16"></condition_column></condition_details></conditions>
+<condition_column column_value="N" column_number="15"></condition_column></condition_details></conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -5584,16 +5587,7 @@ pregnant
 <condition_postfix>
 3 local@  0 getat 
 </condition_postfix>
-<condition_column column_value="N" column_number="15"></condition_column></condition_details>
-<condition_details>
-<condition_number>16</condition_number>
-<condition_comment></condition_comment>
-<condition_requirement></condition_requirement>
-<condition_description>true</condition_description>
-<condition_postfix>
-true 
-</condition_postfix>
-<condition_column column_value="Y" column_number="16"></condition_column></condition_details></conditions>
+<condition_column column_value="N" column_number="15"></condition_column></condition_details></conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
