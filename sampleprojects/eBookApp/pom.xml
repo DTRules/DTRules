@@ -26,6 +26,11 @@
 	<name>DTRules :: eBook App</name>
 
 	<dependencies>
+        <dependency>
+            <groupId>com.dtrules</groupId>
+            <artifactId>eBook</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>com.dtrules</groupId>
 			<artifactId>dtrules-engine</artifactId>

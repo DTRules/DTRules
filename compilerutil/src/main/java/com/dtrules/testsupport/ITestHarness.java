@@ -132,6 +132,12 @@ public interface ITestHarness {
     String getOutputDirectory();
     
     /**
+     * Set the directory where we will write our ouputs from our tests.
+     * @param outputDirectory
+     */
+    void setOutputDirectory(String outputDirectory);
+    
+    /**
      * This is where we are going to look for past results to compare
      * our new results to.
      * @return

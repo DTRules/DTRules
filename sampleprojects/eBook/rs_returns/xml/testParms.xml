@@ -1,15 +1,16 @@
 <testharness>
 
     <trace>true</trace>
-    <console>true</console>
+    <console>false</console>
     <numbered>false</numbered>
     <verbose>false</verbose>
     <coverage>true</coverage>
     
-    <path systemproperty = "user.dir">/</path>
-    <rulesdirectorypath systemproperty = "user.dir">/xml/</rulesdirectorypath>
-    <outputdirectory systemproperty = "user.dir">/outputl/</rulesdirectorypath>
+    <path               systemproperty = "user.dir">/</path>
+    <rulesdirectorypath systemproperty = "user.dir">/rs_returns/xml/</rulesdirectorypath>
+    <outputdirectory    systemproperty = "user.dir">/rs_returns//output/</outputdirectory>
+    <testdirectory      systemproperty = "user.dir">/rs_returns/testfiles/</testdirectory>
     <rulesetname>BookPreview</rulesetname>
     <decisiontablename>Book_Access_Request</decisiontablename>
-    <rulesdirectoryfile>DTRules_BookPreview.xml</rulesdirectoryfile>
+    <rulesdirectoryfile>DTRules_eBooks.xml</rulesdirectoryfile>
 </testharness>

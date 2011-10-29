@@ -18,22 +18,30 @@ package com.dtrules.samples.booksells;
 
 import java.io.PrintStream;
 
+import com.dtrules.samples.bookreturns.Test_BookReturns;
 import com.dtrules.session.IRSession;
 import com.dtrules.testsupport.ATestHarness;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class Test_BookSells extends ATestHarness {
     
-	    public static String path    = System.getProperty("user.dir")+"/";
-	      
-	    public static void main(String[] args) throws Exception {
-	        
-	        Test_BookSells t = new Test_BookSells();
-	        t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
-	        t.runTests();                       // Run the tests.
-	        t.writeDecisionTables("BookPreview", null, true, 10);
-	    
-	    }
+    public static String path  = System.getProperty("user.dir") + "/";
+    public static String parms = path + "/rs_sells/xml/testParms.xml";
+
+    public Test_BookSells() {
+        try {
+            load(parms);
+        } catch (Exception e) {
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        Test_BookSells t = new Test_BookSells();
+        t.runTests(); 
+        t.writeDecisionTables("BookSells", null, true, 10);
+
+    }
 	    
 	    @Override
 	    public void printReport(int runNumber, IRSession session, PrintStream out) throws Exception {

@@ -66,6 +66,7 @@ public abstract class ATestHarness implements ITestHarness {
     protected String      decisionTableName     = null;
     protected String      rulesDirectoryFile    = "DTRules.xml";
     protected String      testDirectory         = null;
+    protected String      outputDirectory       = null;
     
     /**
      * Getters and Setters for the basic Rules Engine parameters.
@@ -76,7 +77,7 @@ public abstract class ATestHarness implements ITestHarness {
     public String getRuleSetName()          { return ruleSetName; }
     public String getDecisionTableName()    { return decisionTableName; }
     public String getRulesDirectoryFile()   { return rulesDirectoryFile; }
-    public String getTestDirectory()        { return testDirectory; }
+    public String getTestDirectory()        { return testDirectory == null? getPath()+"/testfiles" : testDirectory; }
     
     public void   setPath(String path)      						{ this.path               = path; }
     public void   setRulesDirectoryPath(String rulesDirectoryPath)  { this.rulesDirectoryPath = rulesDirectoryPath; }
@@ -177,7 +178,22 @@ public abstract class ATestHarness implements ITestHarness {
      * This is where we are going to put the trace files, report files, etc.
      * @return
      */
-    public String getOutputDirectory(){ return getTestDirectory()+"output/"; }
+    public String getOutputDirectory(){ 
+        if(outputDirectory == null){
+            outputDirectory = getTestDirectory()+"output/"; 
+        }
+        return outputDirectory;
+    }
+    
+    /**
+     * Set the path to the output directory to be used by the test
+     * harness to write the results of tests.
+     * @param outputDirectory
+     */
+    @Override
+    public void setOutputDirectory(String outputDirectory) {
+        this.outputDirectory = outputDirectory;
+    }
     
     /**
      * Do you want to print the report data to the Console as well as to the

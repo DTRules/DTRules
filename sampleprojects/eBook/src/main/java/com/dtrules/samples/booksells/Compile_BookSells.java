@@ -39,7 +39,7 @@ public class Compile_BookSells {
     public static void main(String args[]) throws Exception { 
         try {
             String [] mapping = {"main"};
-            Excel2XML.compile(path,"DTRules_BookPreview.xml","BookPreview","repository",mapping);
+            Excel2XML.compile(path,"DTRules_eBooks.xml","BookSells","repository",mapping);
                        
         } catch ( Exception ex ) {
             System.out.println("Failed to convert the Excel files");
