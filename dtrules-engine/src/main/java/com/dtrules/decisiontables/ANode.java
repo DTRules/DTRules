@@ -26,6 +26,8 @@ import java.util.Iterator;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RArray;
+import com.dtrules.interpreter.RName;
+import com.dtrules.interpreter.operators.RControl.PolicyStatements;
 import com.dtrules.interpreter.operators.ROperator;
 import com.dtrules.session.DTState;
 
@@ -66,6 +68,16 @@ public class ANode implements DTNode {
            if(dt.actiontable[i][col].equalsIgnoreCase("x")){
         	   if(dt.ractions!=null && dt.ractions.length>=i){
                   list.add(dt.ractions[i]);
+                  try {
+                      // Look and see if we are adding an instance of the 
+                      // policystatements operator.  We can't optimize
+                      // ALL tables if we are!
+                      for(IRObject obj : dt.ractions[i].rArrayValue()){
+                          if(obj == PolicyStatements.getInstance()){
+                              dt.optimize = false;
+                          }
+                      }
+                  } catch (RulesException e) { }
                   numbers.add(Integer.valueOf(i));
         	   }   
            }

@@ -147,6 +147,8 @@ public class RDecisionTable extends ARObject {
 	int otherwiseColumn = -1;
 	int alwaysColumn    = -1;
 	
+	boolean optimize = true;                    // Don't optimize all tables with a refernce to policestatements
+	
 	// Virtual field values.
     public static  RName    table_name = RName.getRName("Name");
     public static  RName    file_name = RName.getRName("File_Name");
@@ -159,8 +161,6 @@ public class RDecisionTable extends ARObject {
     private int numberOfRealColumns = 0;        // Number of real columns (as unbalanced tables can have
     											// far more columns than they appear to have).
 
-    boolean optimize = true;					// We can't collapse columns if an ALL table
-    											//   that reads the policy statements.
 	public boolean getHasNullColumn(){
 	    return hasNullColumn;
 	}
@@ -1329,7 +1329,7 @@ public class RDecisionTable extends ARObject {
        ANode defaults;
        defaults = new ANode(this);
        addDefaults(top,defaults);                                   // Add defaults to all unmapped branches
-       decisiontree = optimize(state, top);                                // Optimize the given tree.
+       decisiontree = optimize(state, top);                         // Optimize the given tree.
     }     
 
     /**
@@ -1358,22 +1358,10 @@ public class RDecisionTable extends ARObject {
      */
     private DTNode optimize(DTState state, DTNode node){
     	
-    	if(!state.getSession().getRulesDirectory().isOptimize()){  // We don't want to optimize if
-    		return node;                						   //   we are tracing as that messes
-    	}
+    	if(!optimize && type == Type.ALL){ // We don't want to optimize if
+    		return node;                   //   we are an ALL table with a 
+    	}                                  //   reference to policystatements
     	
-    	if(type == Type.ALL){
-    		boolean opt = true;
-    		for(int i = 0; opt && i < actionsPostfix.length; i++){
-    			String tokens[] = actionsPostfix[i].split("[ \t\r\n]");
-    			for(int j = 0; opt && j<tokens.length; j++){
-    				if(tokens[j].equalsIgnoreCase("policystatements")){
-    					opt = false;
-    				}
-    			}
-    		}
-    		if(!opt)return node;
-    	}
     	return optimize2(state,node);
     }
     
