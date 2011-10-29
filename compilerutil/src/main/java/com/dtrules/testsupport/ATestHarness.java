@@ -333,8 +333,7 @@ public abstract class ATestHarness implements ITestHarness {
              // A Rule set is a set of decision tables defined in XML, 
              // the Entity Description Dictionary (the EDD, or schema) assumed by those tables, and
              // A Mapping file that maps data into this EDD.
-             boolean           opt   = !Trace();
-             RulesDirectory rd       = new RulesDirectory(getPath(),getRulesDirectoryFile(),opt);
+             RulesDirectory rd       = new RulesDirectory(getPath(),getRulesDirectoryFile());
              
              // Select a particular rule set and create a session to load the data and evaluate
              // that data against the rules within this ruleset.  

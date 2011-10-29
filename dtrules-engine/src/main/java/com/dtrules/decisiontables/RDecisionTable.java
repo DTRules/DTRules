@@ -1358,9 +1358,9 @@ public class RDecisionTable extends ARObject {
      */
     private DTNode optimize(DTState state, DTNode node){
     	
-    	if(!optimize && type == Type.ALL){ // We don't want to optimize if
-    		return node;                   //   we are an ALL table with a 
-    	}                                  //   reference to policystatements
+    	if(!optimize){                 // We don't want to optimize if
+    		return node;               //   we are an ALL table with a 
+    	}                              //   reference to policystatements
     	
     	return optimize2(state,node);
     }
