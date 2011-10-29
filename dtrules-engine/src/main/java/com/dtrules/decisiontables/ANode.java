@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.dtrules.decisiontables.RDecisionTable.Type;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RArray;
@@ -68,16 +69,18 @@ public class ANode implements DTNode {
            if(dt.actiontable[i][col].equalsIgnoreCase("x")){
         	   if(dt.ractions!=null && dt.ractions.length>=i){
                   list.add(dt.ractions[i]);
-                  try {
-                      // Look and see if we are adding an instance of the 
-                      // policystatements operator.  We can't optimize
-                      // ALL tables if we are!
-                      for(IRObject obj : dt.ractions[i].rArrayValue()){
-                          if(obj == PolicyStatements.getInstance()){
-                              dt.optimize = false;
+                  if(dt.type == Type.ALL){
+                      try {
+                          // Look and see if we are adding an instance of the 
+                          // policystatements operator.  We can't optimize
+                          // ALL tables if we are!
+                          for(IRObject obj : dt.ractions[i].rArrayValue()){
+                              if(obj == PolicyStatements.getInstance()){
+                                  dt.optimize = false;
+                              }
                           }
-                      }
-                  } catch (RulesException e) { }
+                      } catch (RulesException e) { }
+                  }
                   numbers.add(Integer.valueOf(i));
         	   }   
            }
@@ -246,30 +249,9 @@ public class ANode implements DTNode {
         if(other==null)return false;                            // No common path? Not Equal then!
         if(other.anumbers.size()!=anumbers.size()) return false;// Must be the same length.
         for(int i = 0; i< anumbers.size(); i++){
-            if(callsPS(action.get(i), new ArrayList<IRObject>())){
-                return false;
-            }
             if(!other.anumbers.get(i).equals(anumbers.get(i)))return false;  //   Make sure each action is the same action.
         }                                                                    //     If a mismatch is found, Not Equal!!!
         return true;
-    }
-
-    private boolean callsPS(IRObject v, ArrayList <IRObject> m){
-        
-        if(v instanceof RArray){
-            
-            if(m.contains(v)) return false;
-            m.add(v);
-            for(IRObject vv : (RArray) v){
-                if(callsPS(vv,m)) return true;
-            }
-            
-        }else if (v instanceof ROperator){
-            if(v.stringValue().equalsIgnoreCase("policystatements")){
-                return true;
-            }
-        }
-        return false;
     }
     
     public ANode getCommonANode(DTState state) {
