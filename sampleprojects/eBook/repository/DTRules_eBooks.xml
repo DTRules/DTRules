@@ -1,0 +1,43 @@
+<DTRules>
+
+  <compileralias name="EBL">com.dtrules.compiler.ebl.EBL</compileralias> 
+  <compiler>EBL</compiler>
+  
+  <RuleSet name="BookPreview" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables_Preview/</DTExcelFolder>
+     <EDDExcelFolder>/Edd_Preview/</EDDExcelFolder>
+
+     <Entities        name="BookPreview_edd.xml" />
+     <Decisiontables  name="BookPreview_dt.xml"  />
+     <Map             name="BookPreview_map.xml" />
+  </RuleSet>    
+
+  <RuleSet name="BookReturns" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables_Returns/</DTExcelFolder>
+     <EDDExcelFolder>/Edd_Returns/</EDDExcelFolder>
+
+     <Entities        name="BookReturns_edd.xml" />
+     <Decisiontables  name="BookReturns_dt.xml"  />
+     <Map             name="BookReturns_map.xml" />
+  </RuleSet>    
+
+  <RuleSet name="BookSells" source="file"  >
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+     
+     <DTExcelFolder>/DecisionTables_Sells/</DTExcelFolder>
+     <EDDExcelFolder>/Edd_Sells/</EDDExcelFolder>
+
+     <Entities        name="BookSells_edd.xml" />
+     <Decisiontables  name="BookSells_dt.xml"  />
+     <Map             name="BookSells_map.xml" />
+  </RuleSet>    
+
+</DTRules>
+

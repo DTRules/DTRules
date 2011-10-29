@@ -65,6 +65,7 @@ public abstract class ATestHarness implements ITestHarness {
     protected String      ruleSetName           = null;
     protected String      decisionTableName     = null;
     protected String      rulesDirectoryFile    = "DTRules.xml";
+    protected String      testDirectory         = null;
     
     /**
      * Getters and Setters for the basic Rules Engine parameters.
@@ -75,12 +76,14 @@ public abstract class ATestHarness implements ITestHarness {
     public String getRuleSetName()          { return ruleSetName; }
     public String getDecisionTableName()    { return decisionTableName; }
     public String getRulesDirectoryFile()   { return rulesDirectoryFile; }
+    public String getTestDirectory()        { return testDirectory; }
     
     public void   setPath(String path)      						{ this.path               = path; }
     public void   setRulesDirectoryPath(String rulesDirectoryPath)  { this.rulesDirectoryPath = rulesDirectoryPath; }
-    public void   setRuleSetName(String ruleSetName)      		    { this.ruleSetName       = ruleSetName; }
+    public void   setRuleSetName(String ruleSetName)      		    { this.ruleSetName        = ruleSetName; }
     public void   setDecisionTableName(String decisionTableName)    { this.decisionTableName  = decisionTableName; }
     public void   setRulesDirectoryFile(String rulesDirectoryFile)  { this.rulesDirectoryFile = rulesDirectoryFile; }
+    public void   setTestDirectory(String testDirectory)            { this.testDirectory      = testDirectory; }
 
     public void load(String settings) throws Exception{
         InputStream s = null;
@@ -169,13 +172,6 @@ public abstract class ATestHarness implements ITestHarness {
      * Rule Set
      */
     public String getXMLDirectory() { return getPath()+"xml/"; }
-    
-    /**
-     * Default directory with all the test files.
-     */
-    public String getTestDirectory(){
-        return getPath()+"testfiles/"; 
-    }
     
     /**
      * This is where we are going to put the trace files, report files, etc.
