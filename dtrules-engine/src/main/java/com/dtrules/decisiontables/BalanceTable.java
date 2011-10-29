@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.dtrules.infrastructure.RulesException;
-import com.dtrules.interpreter.operators.RControl.PolicyStatements;
 import com.dtrules.session.IRSession;
 
 /**
@@ -130,7 +129,8 @@ public class BalanceTable {
             
             filltable(0, 0, dt.decisiontree);
             StringBuffer buff = new StringBuffer();
-            buff.append("Number of Columns: " + maxCol + "\r\n\r\n");
+            buff.append("Number of Columns: " + maxCol + "\n");
+            buff.append("Type: "+dt.getType().name()+"\n");
             String spacer = " ";
             if (maxCol < 25)
                 spacer = "  ";
