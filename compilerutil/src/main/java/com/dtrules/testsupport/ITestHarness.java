@@ -105,10 +105,26 @@ public interface ITestHarness {
      * Specifies a directory of test files.  Directories or files that are
      * not .xml files are ignored.  Each test file is executed, and a report
      * entry is made in the report file.
+     * 
+     * When tests are run, an output directory is created in this directory 
+     * for the output of the tests (and trace files if specified).  
+     * 
+     * If a /results directory exists under the test directory, the results
+     * for a test is compared to the same file in the /results directory 
+     * (assuming one exists).
+     * 
      * @return
      */
     String getTestDirectory();
    
+    /**
+     * Specifies a directory of test files.  Directories or files that are
+     * not .xml files are ignored.  Each test file is executed, and a report
+     * entry is made in the report file.
+     * @return
+     */
+    void setTestDirectory(String testDirectory);
+    
     /**
      * This is where we are going to put the trace files, report files, etc.
      * @return

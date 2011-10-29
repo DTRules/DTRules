@@ -8,8 +8,8 @@
     
     <path systemproperty = "user.dir">/</path>
     <rulesdirectorypath systemproperty = "user.dir">/xml/</rulesdirectorypath>
+    <outputdirectory systemproperty = "user.dir">/outputl/</rulesdirectorypath>
     <rulesetname>BookPreview</rulesetname>
     <decisiontablename>Book_Access_Request</decisiontablename>
     <rulesdirectoryfile>DTRules_BookPreview.xml</rulesdirectoryfile>
-
 </testharness>

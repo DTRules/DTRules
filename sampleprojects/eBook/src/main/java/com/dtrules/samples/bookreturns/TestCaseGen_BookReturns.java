@@ -1,4 +1,4 @@
-package com.dtrules.samples.bookpreview;
+package com.dtrules.samples.bookreturns;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +28,7 @@ import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
 import com.dtrules.xmlparser.XMLPrinter;
 
-public class TestCaseGen_BookPreview {
+public class TestCaseGen_BookReturns {
 	public static PrintStream ostream = System.out;
 	public static PrintStream estream = System.err;
 	
@@ -225,7 +225,7 @@ public class TestCaseGen_BookPreview {
 	}
 	
 	public static void main(String args[]) throws Exception {
-		TestCaseGen_BookPreview tcg = new TestCaseGen_BookPreview();
+		TestCaseGen_BookReturns tcg = new TestCaseGen_BookReturns();
 		tcg.generate("test",cnt);
 	}
 }
