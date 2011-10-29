@@ -24,13 +24,20 @@ import com.dtrules.xmlparser.XMLPrinter;
 
 public class Test_BookPreview extends ATestHarness {
     
-	    public static String path    = System.getProperty("user.dir")+"/";
+        public static String path  = System.getProperty("user.dir")+"/";
+        public static String parms = path+"/rs_preview/xml/testParms.xml";
+    
+        public Test_BookPreview() {
+            try {
+                load(parms);
+            } catch (Exception e) { }
+        }
+    
 	      
 	    public static void main(String[] args) throws Exception {
 	        
 	        Test_BookPreview t = new Test_BookPreview();
-	        t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
-	        t.runTests();                       // Run the tests.
+	        t.runTests();                                       // Run the tests.
 	        t.writeDecisionTables("BookPreview", null, true, 10);
 	    
 	    }

@@ -1,0 +1,2988 @@
+<DTRulesTrace>
+	<createentity name='constants' id='10180'></createentity>
+	<entitypush entity='constants' id='10180'></entitypush>
+	<createentity name='request' id='10181'></createentity>
+	<entitypush entity='request' id='10181'></entitypush>
+	<loadData>
+		<root>
+			<BookPreview>
+				<request>
+					<entitypush entity='request' id='10181'></entitypush>
+					<mapCreateEntity name='request' data_id='1006000'>
+						<current_date>
+							<def id='10181' entity='request' name='current_date'>&quot;01/02/2011 00:00:00:0000&quot; cvd</def>
+							<message>   /current_date &quot;Sun Jan 02 00:00:00 CST 2011&quot; def</message>
+						</current_date>
+						<allow>
+							<def id='10181' entity='request' name='allow'>false</def>
+							<message>   /allow &quot;false&quot; def</message>
+						</allow>
+						<customer>
+							<newarray arrayId='181'></newarray>
+							<newarray arrayId='182'></newarray>
+							<createentity name='customer' id='10182'></createentity>
+							<entitypush entity='customer' id='10182'></entitypush>
+							<mapCreateEntity name='customer' data_id=''>
+								<entitypop></entitypop>
+							</mapCreateEntity>
+							<def id='10181' entity='request' name='customer'>/customer 10182 fce </def>
+							<message>   /customer &quot;&quot; def</message>
+						</customer>
+						<book>
+							<newarray arrayId='183'></newarray>
+							<newarray arrayId='184'></newarray>
+							<createentity name='book' id='10184'></createentity>
+							<entitypush entity='book' id='10184'></entitypush>
+							<mapCreateEntity name='book' data_id=''>
+								<entitypop></entitypop>
+							</mapCreateEntity>
+							<def id='10181' entity='request' name='book'>/book 10184 fce </def>
+							<message>   /book &quot;&quot; def</message>
+						</book>
+						<page_number>
+							<def id='10181' entity='request' name='page_number'>296</def>
+							<message>   /page_number &quot;296&quot; def</message>
+						</page_number>
+						<access>
+							<def id='10181' entity='request' name='access'>&quot;turn_page&quot;</def>
+							<message>   /access &quot;turn_page&quot; def</message>
+						</access>
+						<book>
+							<newarray arrayId='185'></newarray>
+							<newarray arrayId='186'></newarray>
+							<createentity name='book' id='10186'></createentity>
+							<entitypush entity='book' id='10186'></entitypush>
+							<mapCreateEntity name='book' data_id='1006002'>
+								<publisher>
+									<createentity name='publisher' id='10187'></createentity>
+									<entitypush entity='publisher' id='10187'></entitypush>
+									<mapCreateEntity name='publisher' data_id=''>
+										<entitypop></entitypop>
+									</mapCreateEntity>
+									<def id='10186' entity='book' name='publisher'>/publisher 10187 fce </def>
+									<message>   /publisher &quot;&quot; def</message>
+								</publisher>
+								<day_limit>
+									<def id='10186' entity='book' name='day_limit'>0</def>
+									<message>   /day_limit &quot;0&quot; def</message>
+								</day_limit>
+								<publisher>
+									<createentity name='publisher' id='10189'></createentity>
+									<entitypush entity='publisher' id='10189'></entitypush>
+									<mapCreateEntity name='publisher' data_id='1'>
+										<chapter_limit>
+											<def id='10189' entity='publisher' name='chapter_limit'>2</def>
+											<message>   /chapter_limit &quot;2&quot; def</message>
+										</chapter_limit>
+										<page_limit>
+											<def id='10189' entity='publisher' name='page_limit'>9</def>
+											<message>   /page_limit &quot;9&quot; def</message>
+										</page_limit>
+										<entitypop></entitypop>
+									</mapCreateEntity>
+									<def id='10186' entity='book' name='publisher'>/publisher 10189 fce </def>
+									<message>   /publisher &quot;&quot; def</message>
+								</publisher>
+								<chapters>
+									<chapter>
+										<createentity name='chapter' id='10191'></createentity>
+										<addto arrayId='185'>/chapter 10191 fce </addto>
+										<entitypush entity='chapter' id='10191'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006003'>
+											<begin_page>
+												<def id='10191' entity='chapter' name='begin_page'>1</def>
+												<message>   /begin_page &quot;1&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10191' entity='chapter' name='end_page'>28</def>
+												<message>   /end_page &quot;28&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10193'></createentity>
+										<addto arrayId='185'>/chapter 10193 fce </addto>
+										<entitypush entity='chapter' id='10193'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006004'>
+											<begin_page>
+												<def id='10193' entity='chapter' name='begin_page'>29</def>
+												<message>   /begin_page &quot;29&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10193' entity='chapter' name='end_page'>57</def>
+												<message>   /end_page &quot;57&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10195'></createentity>
+										<addto arrayId='185'>/chapter 10195 fce </addto>
+										<entitypush entity='chapter' id='10195'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006005'>
+											<begin_page>
+												<def id='10195' entity='chapter' name='begin_page'>58</def>
+												<message>   /begin_page &quot;58&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10195' entity='chapter' name='end_page'>92</def>
+												<message>   /end_page &quot;92&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10197'></createentity>
+										<addto arrayId='185'>/chapter 10197 fce </addto>
+										<entitypush entity='chapter' id='10197'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006006'>
+											<begin_page>
+												<def id='10197' entity='chapter' name='begin_page'>93</def>
+												<message>   /begin_page &quot;93&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10197' entity='chapter' name='end_page'>123</def>
+												<message>   /end_page &quot;123&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10199'></createentity>
+										<addto arrayId='185'>/chapter 10199 fce </addto>
+										<entitypush entity='chapter' id='10199'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006007'>
+											<begin_page>
+												<def id='10199' entity='chapter' name='begin_page'>124</def>
+												<message>   /begin_page &quot;124&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10199' entity='chapter' name='end_page'>163</def>
+												<message>   /end_page &quot;163&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10201'></createentity>
+										<addto arrayId='185'>/chapter 10201 fce </addto>
+										<entitypush entity='chapter' id='10201'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006008'>
+											<begin_page>
+												<def id='10201' entity='chapter' name='begin_page'>164</def>
+												<message>   /begin_page &quot;164&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10201' entity='chapter' name='end_page'>201</def>
+												<message>   /end_page &quot;201&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10203'></createentity>
+										<addto arrayId='185'>/chapter 10203 fce </addto>
+										<entitypush entity='chapter' id='10203'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006009'>
+											<begin_page>
+												<def id='10203' entity='chapter' name='begin_page'>202</def>
+												<message>   /begin_page &quot;202&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10203' entity='chapter' name='end_page'>224</def>
+												<message>   /end_page &quot;224&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10205'></createentity>
+										<addto arrayId='185'>/chapter 10205 fce </addto>
+										<entitypush entity='chapter' id='10205'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006010'>
+											<begin_page>
+												<def id='10205' entity='chapter' name='begin_page'>225</def>
+												<message>   /begin_page &quot;225&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10205' entity='chapter' name='end_page'>248</def>
+												<message>   /end_page &quot;248&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10207'></createentity>
+										<addto arrayId='185'>/chapter 10207 fce </addto>
+										<entitypush entity='chapter' id='10207'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006011'>
+											<begin_page>
+												<def id='10207' entity='chapter' name='begin_page'>249</def>
+												<message>   /begin_page &quot;249&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10207' entity='chapter' name='end_page'>283</def>
+												<message>   /end_page &quot;283&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+									<chapter>
+										<createentity name='chapter' id='10209'></createentity>
+										<addto arrayId='185'>/chapter 10209 fce </addto>
+										<entitypush entity='chapter' id='10209'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006012'>
+											<begin_page>
+												<def id='10209' entity='chapter' name='begin_page'>284</def>
+												<message>   /begin_page &quot;284&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10209' entity='chapter' name='end_page'>304</def>
+												<message>   /end_page &quot;304&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</chapter>
+								</chapters>
+								<excluded_chapters>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10193 fce </addto>
+										<entitypush entity='chapter' id='10193'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006004'>
+											<begin_page>
+												<def id='10193' entity='chapter' name='begin_page'>29</def>
+												<message>   /begin_page &quot;29&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10193' entity='chapter' name='end_page'>57</def>
+												<message>   /end_page &quot;57&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10195 fce </addto>
+										<entitypush entity='chapter' id='10195'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006005'>
+											<begin_page>
+												<def id='10195' entity='chapter' name='begin_page'>58</def>
+												<message>   /begin_page &quot;58&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10195' entity='chapter' name='end_page'>92</def>
+												<message>   /end_page &quot;92&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10197 fce </addto>
+										<entitypush entity='chapter' id='10197'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006006'>
+											<begin_page>
+												<def id='10197' entity='chapter' name='begin_page'>93</def>
+												<message>   /begin_page &quot;93&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10197' entity='chapter' name='end_page'>123</def>
+												<message>   /end_page &quot;123&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10199 fce </addto>
+										<entitypush entity='chapter' id='10199'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006007'>
+											<begin_page>
+												<def id='10199' entity='chapter' name='begin_page'>124</def>
+												<message>   /begin_page &quot;124&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10199' entity='chapter' name='end_page'>163</def>
+												<message>   /end_page &quot;163&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10201 fce </addto>
+										<entitypush entity='chapter' id='10201'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006008'>
+											<begin_page>
+												<def id='10201' entity='chapter' name='begin_page'>164</def>
+												<message>   /begin_page &quot;164&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10201' entity='chapter' name='end_page'>201</def>
+												<message>   /end_page &quot;201&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10203 fce </addto>
+										<entitypush entity='chapter' id='10203'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006009'>
+											<begin_page>
+												<def id='10203' entity='chapter' name='begin_page'>202</def>
+												<message>   /begin_page &quot;202&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10203' entity='chapter' name='end_page'>224</def>
+												<message>   /end_page &quot;224&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10205 fce </addto>
+										<entitypush entity='chapter' id='10205'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006010'>
+											<begin_page>
+												<def id='10205' entity='chapter' name='begin_page'>225</def>
+												<message>   /begin_page &quot;225&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10205' entity='chapter' name='end_page'>248</def>
+												<message>   /end_page &quot;248&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10207 fce </addto>
+										<entitypush entity='chapter' id='10207'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006011'>
+											<begin_page>
+												<def id='10207' entity='chapter' name='begin_page'>249</def>
+												<message>   /begin_page &quot;249&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10207' entity='chapter' name='end_page'>283</def>
+												<message>   /end_page &quot;283&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+									<excluded_chapter>
+										<addto arrayId='186'>/chapter 10209 fce </addto>
+										<entitypush entity='chapter' id='10209'></entitypush>
+										<mapCreateEntity name='chapter' data_id='1006012'>
+											<begin_page>
+												<def id='10209' entity='chapter' name='begin_page'>284</def>
+												<message>   /begin_page &quot;284&quot; def</message>
+											</begin_page>
+											<end_page>
+												<def id='10209' entity='chapter' name='end_page'>304</def>
+												<message>   /end_page &quot;304&quot; def</message>
+											</end_page>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</excluded_chapter>
+								</excluded_chapters>
+								<entitypop></entitypop>
+							</mapCreateEntity>
+							<def id='10181' entity='request' name='book'>/book 10186 fce </def>
+							<message>   /book &quot;&quot; def</message>
+						</book>
+						<customer>
+							<newarray arrayId='187'></newarray>
+							<newarray arrayId='188'></newarray>
+							<createentity name='customer' id='10221'></createentity>
+							<entitypush entity='customer' id='10221'></entitypush>
+							<mapCreateEntity name='customer' data_id='1006001'>
+								<open_books>
+									<open_book>
+										<newarray arrayId='189'></newarray>
+										<newarray arrayId='190'></newarray>
+										<createentity name='open_book' id='10222'></createentity>
+										<addto arrayId='188'>/open_book 10222 fce </addto>
+										<entitypush entity='open_book' id='10222'></entitypush>
+										<mapCreateEntity name='open_book' data_id='1006013'>
+											<book>
+												<newarray arrayId='191'></newarray>
+												<newarray arrayId='192'></newarray>
+												<createentity name='book' id='10223'></createentity>
+												<entitypush entity='book' id='10223'></entitypush>
+												<mapCreateEntity name='book' data_id=''>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10222' entity='open_book' name='book'>/book 10223 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<begin_date>
+												<def id='10222' entity='open_book' name='begin_date'>&quot;10/20/2011 00:00:00:0000&quot; cvd</def>
+												<message>   /begin_date &quot;Thu Oct 20 00:00:00 CDT 2011&quot; def</message>
+											</begin_date>
+											<pages>
+												<page>
+													<createentity name='page' id='10225'></createentity>
+													<addto arrayId='190'>/page 10225 fce </addto>
+													<entitypush entity='page' id='10225'></entitypush>
+													<mapCreateEntity name='page' data_id='1006071'>
+														<number>
+															<def id='10225' entity='page' name='number'>4</def>
+															<message>   /number &quot;4&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10227'></createentity>
+													<addto arrayId='190'>/page 10227 fce </addto>
+													<entitypush entity='page' id='10227'></entitypush>
+													<mapCreateEntity name='page' data_id='1006072'>
+														<number>
+															<def id='10227' entity='page' name='number'>6</def>
+															<message>   /number &quot;6&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10229'></createentity>
+													<addto arrayId='190'>/page 10229 fce </addto>
+													<entitypush entity='page' id='10229'></entitypush>
+													<mapCreateEntity name='page' data_id='1006073'>
+														<number>
+															<def id='10229' entity='page' name='number'>8</def>
+															<message>   /number &quot;8&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10231'></createentity>
+													<addto arrayId='190'>/page 10231 fce </addto>
+													<entitypush entity='page' id='10231'></entitypush>
+													<mapCreateEntity name='page' data_id='1006074'>
+														<number>
+															<def id='10231' entity='page' name='number'>10</def>
+															<message>   /number &quot;10&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10233'></createentity>
+													<addto arrayId='190'>/page 10233 fce </addto>
+													<entitypush entity='page' id='10233'></entitypush>
+													<mapCreateEntity name='page' data_id='1006075'>
+														<number>
+															<def id='10233' entity='page' name='number'>12</def>
+															<message>   /number &quot;12&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10235'></createentity>
+													<addto arrayId='190'>/page 10235 fce </addto>
+													<entitypush entity='page' id='10235'></entitypush>
+													<mapCreateEntity name='page' data_id='1006076'>
+														<number>
+															<def id='10235' entity='page' name='number'>15</def>
+															<message>   /number &quot;15&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10237'></createentity>
+													<addto arrayId='190'>/page 10237 fce </addto>
+													<entitypush entity='page' id='10237'></entitypush>
+													<mapCreateEntity name='page' data_id='1006077'>
+														<number>
+															<def id='10237' entity='page' name='number'>17</def>
+															<message>   /number &quot;17&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10239'></createentity>
+													<addto arrayId='190'>/page 10239 fce </addto>
+													<entitypush entity='page' id='10239'></entitypush>
+													<mapCreateEntity name='page' data_id='1006078'>
+														<number>
+															<def id='10239' entity='page' name='number'>18</def>
+															<message>   /number &quot;18&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10241'></createentity>
+													<addto arrayId='190'>/page 10241 fce </addto>
+													<entitypush entity='page' id='10241'></entitypush>
+													<mapCreateEntity name='page' data_id='1006079'>
+														<number>
+															<def id='10241' entity='page' name='number'>20</def>
+															<message>   /number &quot;20&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10243'></createentity>
+													<addto arrayId='190'>/page 10243 fce </addto>
+													<entitypush entity='page' id='10243'></entitypush>
+													<mapCreateEntity name='page' data_id='1006080'>
+														<number>
+															<def id='10243' entity='page' name='number'>22</def>
+															<message>   /number &quot;22&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10245'></createentity>
+													<addto arrayId='190'>/page 10245 fce </addto>
+													<entitypush entity='page' id='10245'></entitypush>
+													<mapCreateEntity name='page' data_id='1006081'>
+														<number>
+															<def id='10245' entity='page' name='number'>24</def>
+															<message>   /number &quot;24&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10247'></createentity>
+													<addto arrayId='190'>/page 10247 fce </addto>
+													<entitypush entity='page' id='10247'></entitypush>
+													<mapCreateEntity name='page' data_id='1006082'>
+														<number>
+															<def id='10247' entity='page' name='number'>26</def>
+															<message>   /number &quot;26&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10249'></createentity>
+													<addto arrayId='190'>/page 10249 fce </addto>
+													<entitypush entity='page' id='10249'></entitypush>
+													<mapCreateEntity name='page' data_id='1006083'>
+														<number>
+															<def id='10249' entity='page' name='number'>28</def>
+															<message>   /number &quot;28&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10251'></createentity>
+													<addto arrayId='190'>/page 10251 fce </addto>
+													<entitypush entity='page' id='10251'></entitypush>
+													<mapCreateEntity name='page' data_id='1006084'>
+														<number>
+															<def id='10251' entity='page' name='number'>29</def>
+															<message>   /number &quot;29&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10253'></createentity>
+													<addto arrayId='190'>/page 10253 fce </addto>
+													<entitypush entity='page' id='10253'></entitypush>
+													<mapCreateEntity name='page' data_id='1006085'>
+														<number>
+															<def id='10253' entity='page' name='number'>33</def>
+															<message>   /number &quot;33&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10255'></createentity>
+													<addto arrayId='190'>/page 10255 fce </addto>
+													<entitypush entity='page' id='10255'></entitypush>
+													<mapCreateEntity name='page' data_id='1006086'>
+														<number>
+															<def id='10255' entity='page' name='number'>35</def>
+															<message>   /number &quot;35&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10257'></createentity>
+													<addto arrayId='190'>/page 10257 fce </addto>
+													<entitypush entity='page' id='10257'></entitypush>
+													<mapCreateEntity name='page' data_id='1006087'>
+														<number>
+															<def id='10257' entity='page' name='number'>37</def>
+															<message>   /number &quot;37&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10259'></createentity>
+													<addto arrayId='190'>/page 10259 fce </addto>
+													<entitypush entity='page' id='10259'></entitypush>
+													<mapCreateEntity name='page' data_id='1006088'>
+														<number>
+															<def id='10259' entity='page' name='number'>38</def>
+															<message>   /number &quot;38&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10261'></createentity>
+													<addto arrayId='190'>/page 10261 fce </addto>
+													<entitypush entity='page' id='10261'></entitypush>
+													<mapCreateEntity name='page' data_id='1006089'>
+														<number>
+															<def id='10261' entity='page' name='number'>41</def>
+															<message>   /number &quot;41&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10263'></createentity>
+													<addto arrayId='190'>/page 10263 fce </addto>
+													<entitypush entity='page' id='10263'></entitypush>
+													<mapCreateEntity name='page' data_id='1006090'>
+														<number>
+															<def id='10263' entity='page' name='number'>43</def>
+															<message>   /number &quot;43&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10265'></createentity>
+													<addto arrayId='190'>/page 10265 fce </addto>
+													<entitypush entity='page' id='10265'></entitypush>
+													<mapCreateEntity name='page' data_id='1006091'>
+														<number>
+															<def id='10265' entity='page' name='number'>44</def>
+															<message>   /number &quot;44&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10267'></createentity>
+													<addto arrayId='190'>/page 10267 fce </addto>
+													<entitypush entity='page' id='10267'></entitypush>
+													<mapCreateEntity name='page' data_id='1006092'>
+														<number>
+															<def id='10267' entity='page' name='number'>47</def>
+															<message>   /number &quot;47&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10269'></createentity>
+													<addto arrayId='190'>/page 10269 fce </addto>
+													<entitypush entity='page' id='10269'></entitypush>
+													<mapCreateEntity name='page' data_id='1006093'>
+														<number>
+															<def id='10269' entity='page' name='number'>48</def>
+															<message>   /number &quot;48&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10271'></createentity>
+													<addto arrayId='190'>/page 10271 fce </addto>
+													<entitypush entity='page' id='10271'></entitypush>
+													<mapCreateEntity name='page' data_id='1006094'>
+														<number>
+															<def id='10271' entity='page' name='number'>54</def>
+															<message>   /number &quot;54&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10273'></createentity>
+													<addto arrayId='190'>/page 10273 fce </addto>
+													<entitypush entity='page' id='10273'></entitypush>
+													<mapCreateEntity name='page' data_id='1006095'>
+														<number>
+															<def id='10273' entity='page' name='number'>57</def>
+															<message>   /number &quot;57&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+											</pages>
+											<chapters_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10275'></createentity>
+													<addto arrayId='189'>/chapter 10275 fce </addto>
+													<entitypush entity='chapter' id='10275'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006015'>
+														<begin_page>
+															<def id='10275' entity='chapter' name='begin_page'>1</def>
+															<message>   /begin_page &quot;1&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10275' entity='chapter' name='end_page'>29</def>
+															<message>   /end_page &quot;29&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10277'></createentity>
+													<addto arrayId='189'>/chapter 10277 fce </addto>
+													<entitypush entity='chapter' id='10277'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006016'>
+														<begin_page>
+															<def id='10277' entity='chapter' name='begin_page'>30</def>
+															<message>   /begin_page &quot;30&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10277' entity='chapter' name='end_page'>50</def>
+															<message>   /end_page &quot;50&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10279'></createentity>
+													<addto arrayId='189'>/chapter 10279 fce </addto>
+													<entitypush entity='chapter' id='10279'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006017'>
+														<begin_page>
+															<def id='10279' entity='chapter' name='begin_page'>51</def>
+															<message>   /begin_page &quot;51&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10279' entity='chapter' name='end_page'>77</def>
+															<message>   /end_page &quot;77&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+											</chapters_viewed>
+											<book>
+												<newarray arrayId='193'></newarray>
+												<newarray arrayId='194'></newarray>
+												<createentity name='book' id='10281'></createentity>
+												<entitypush entity='book' id='10281'></entitypush>
+												<mapCreateEntity name='book' data_id='1006014'>
+													<publisher>
+														<createentity name='publisher' id='10282'></createentity>
+														<entitypush entity='publisher' id='10282'></entitypush>
+														<mapCreateEntity name='publisher' data_id=''>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10281' entity='book' name='publisher'>/publisher 10282 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<day_limit>
+														<def id='10281' entity='book' name='day_limit'>0</def>
+														<message>   /day_limit &quot;0&quot; def</message>
+													</day_limit>
+													<publisher>
+														<entitypush entity='publisher' id='10189'></entitypush>
+														<mapCreateEntity name='publisher' data_id='1'>
+															<chapter_limit>
+																<def id='10189' entity='publisher' name='chapter_limit'>2</def>
+																<message>   /chapter_limit &quot;2&quot; def</message>
+															</chapter_limit>
+															<page_limit>
+																<def id='10189' entity='publisher' name='page_limit'>9</def>
+																<message>   /page_limit &quot;9&quot; def</message>
+															</page_limit>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10281' entity='book' name='publisher'>/publisher 10189 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<chapters>
+														<chapter>
+															<addto arrayId='193'>/chapter 10275 fce </addto>
+															<entitypush entity='chapter' id='10275'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006015'>
+																<begin_page>
+																	<def id='10275' entity='chapter' name='begin_page'>1</def>
+																	<message>   /begin_page &quot;1&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10275' entity='chapter' name='end_page'>29</def>
+																	<message>   /end_page &quot;29&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<addto arrayId='193'>/chapter 10277 fce </addto>
+															<entitypush entity='chapter' id='10277'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006016'>
+																<begin_page>
+																	<def id='10277' entity='chapter' name='begin_page'>30</def>
+																	<message>   /begin_page &quot;30&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10277' entity='chapter' name='end_page'>50</def>
+																	<message>   /end_page &quot;50&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<addto arrayId='193'>/chapter 10279 fce </addto>
+															<entitypush entity='chapter' id='10279'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006017'>
+																<begin_page>
+																	<def id='10279' entity='chapter' name='begin_page'>51</def>
+																	<message>   /begin_page &quot;51&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10279' entity='chapter' name='end_page'>77</def>
+																	<message>   /end_page &quot;77&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10288'></createentity>
+															<addto arrayId='193'>/chapter 10288 fce </addto>
+															<entitypush entity='chapter' id='10288'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006018'>
+																<begin_page>
+																	<def id='10288' entity='chapter' name='begin_page'>78</def>
+																	<message>   /begin_page &quot;78&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10288' entity='chapter' name='end_page'>114</def>
+																	<message>   /end_page &quot;114&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10290'></createentity>
+															<addto arrayId='193'>/chapter 10290 fce </addto>
+															<entitypush entity='chapter' id='10290'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006019'>
+																<begin_page>
+																	<def id='10290' entity='chapter' name='begin_page'>115</def>
+																	<message>   /begin_page &quot;115&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10290' entity='chapter' name='end_page'>145</def>
+																	<message>   /end_page &quot;145&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10292'></createentity>
+															<addto arrayId='193'>/chapter 10292 fce </addto>
+															<entitypush entity='chapter' id='10292'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006020'>
+																<begin_page>
+																	<def id='10292' entity='chapter' name='begin_page'>146</def>
+																	<message>   /begin_page &quot;146&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10292' entity='chapter' name='end_page'>168</def>
+																	<message>   /end_page &quot;168&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10294'></createentity>
+															<addto arrayId='193'>/chapter 10294 fce </addto>
+															<entitypush entity='chapter' id='10294'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006021'>
+																<begin_page>
+																	<def id='10294' entity='chapter' name='begin_page'>169</def>
+																	<message>   /begin_page &quot;169&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10294' entity='chapter' name='end_page'>193</def>
+																	<message>   /end_page &quot;193&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10296'></createentity>
+															<addto arrayId='193'>/chapter 10296 fce </addto>
+															<entitypush entity='chapter' id='10296'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006022'>
+																<begin_page>
+																	<def id='10296' entity='chapter' name='begin_page'>194</def>
+																	<message>   /begin_page &quot;194&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10296' entity='chapter' name='end_page'>218</def>
+																	<message>   /end_page &quot;218&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+													</chapters>
+													<excluded_chapters>
+														<excluded_chapter>
+															<addto arrayId='194'>/chapter 10290 fce </addto>
+															<entitypush entity='chapter' id='10290'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006019'>
+																<begin_page>
+																	<def id='10290' entity='chapter' name='begin_page'>115</def>
+																	<message>   /begin_page &quot;115&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10290' entity='chapter' name='end_page'>145</def>
+																	<message>   /end_page &quot;145&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='194'>/chapter 10292 fce </addto>
+															<entitypush entity='chapter' id='10292'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006020'>
+																<begin_page>
+																	<def id='10292' entity='chapter' name='begin_page'>146</def>
+																	<message>   /begin_page &quot;146&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10292' entity='chapter' name='end_page'>168</def>
+																	<message>   /end_page &quot;168&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='194'>/chapter 10294 fce </addto>
+															<entitypush entity='chapter' id='10294'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006021'>
+																<begin_page>
+																	<def id='10294' entity='chapter' name='begin_page'>169</def>
+																	<message>   /begin_page &quot;169&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10294' entity='chapter' name='end_page'>193</def>
+																	<message>   /end_page &quot;193&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='194'>/chapter 10296 fce </addto>
+															<entitypush entity='chapter' id='10296'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006022'>
+																<begin_page>
+																	<def id='10296' entity='chapter' name='begin_page'>194</def>
+																	<message>   /begin_page &quot;194&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10296' entity='chapter' name='end_page'>218</def>
+																	<message>   /end_page &quot;218&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+													</excluded_chapters>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10222' entity='open_book' name='book'>/book 10281 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</open_book>
+									<open_book>
+										<newarray arrayId='195'></newarray>
+										<newarray arrayId='196'></newarray>
+										<createentity name='open_book' id='10304'></createentity>
+										<addto arrayId='188'>/open_book 10304 fce </addto>
+										<entitypush entity='open_book' id='10304'></entitypush>
+										<mapCreateEntity name='open_book' data_id='1006023'>
+											<book>
+												<newarray arrayId='197'></newarray>
+												<newarray arrayId='198'></newarray>
+												<createentity name='book' id='10305'></createentity>
+												<entitypush entity='book' id='10305'></entitypush>
+												<mapCreateEntity name='book' data_id=''>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10304' entity='open_book' name='book'>/book 10305 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<begin_date>
+												<def id='10304' entity='open_book' name='begin_date'>&quot;07/07/2011 00:00:00:0000&quot; cvd</def>
+												<message>   /begin_date &quot;Thu Jul 07 00:00:00 CDT 2011&quot; def</message>
+											</begin_date>
+											<pages>
+												<page>
+													<createentity name='page' id='10307'></createentity>
+													<addto arrayId='196'>/page 10307 fce </addto>
+													<entitypush entity='page' id='10307'></entitypush>
+													<mapCreateEntity name='page' data_id='1006096'>
+														<number>
+															<def id='10307' entity='page' name='number'>1</def>
+															<message>   /number &quot;1&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10309'></createentity>
+													<addto arrayId='196'>/page 10309 fce </addto>
+													<entitypush entity='page' id='10309'></entitypush>
+													<mapCreateEntity name='page' data_id='1006097'>
+														<number>
+															<def id='10309' entity='page' name='number'>2</def>
+															<message>   /number &quot;2&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10311'></createentity>
+													<addto arrayId='196'>/page 10311 fce </addto>
+													<entitypush entity='page' id='10311'></entitypush>
+													<mapCreateEntity name='page' data_id='1006098'>
+														<number>
+															<def id='10311' entity='page' name='number'>3</def>
+															<message>   /number &quot;3&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10313'></createentity>
+													<addto arrayId='196'>/page 10313 fce </addto>
+													<entitypush entity='page' id='10313'></entitypush>
+													<mapCreateEntity name='page' data_id='1006099'>
+														<number>
+															<def id='10313' entity='page' name='number'>5</def>
+															<message>   /number &quot;5&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10315'></createentity>
+													<addto arrayId='196'>/page 10315 fce </addto>
+													<entitypush entity='page' id='10315'></entitypush>
+													<mapCreateEntity name='page' data_id='1006100'>
+														<number>
+															<def id='10315' entity='page' name='number'>7</def>
+															<message>   /number &quot;7&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10317'></createentity>
+													<addto arrayId='196'>/page 10317 fce </addto>
+													<entitypush entity='page' id='10317'></entitypush>
+													<mapCreateEntity name='page' data_id='1006101'>
+														<number>
+															<def id='10317' entity='page' name='number'>9</def>
+															<message>   /number &quot;9&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10319'></createentity>
+													<addto arrayId='196'>/page 10319 fce </addto>
+													<entitypush entity='page' id='10319'></entitypush>
+													<mapCreateEntity name='page' data_id='1006102'>
+														<number>
+															<def id='10319' entity='page' name='number'>10</def>
+															<message>   /number &quot;10&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10321'></createentity>
+													<addto arrayId='196'>/page 10321 fce </addto>
+													<entitypush entity='page' id='10321'></entitypush>
+													<mapCreateEntity name='page' data_id='1006103'>
+														<number>
+															<def id='10321' entity='page' name='number'>13</def>
+															<message>   /number &quot;13&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10323'></createentity>
+													<addto arrayId='196'>/page 10323 fce </addto>
+													<entitypush entity='page' id='10323'></entitypush>
+													<mapCreateEntity name='page' data_id='1006104'>
+														<number>
+															<def id='10323' entity='page' name='number'>16</def>
+															<message>   /number &quot;16&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10325'></createentity>
+													<addto arrayId='196'>/page 10325 fce </addto>
+													<entitypush entity='page' id='10325'></entitypush>
+													<mapCreateEntity name='page' data_id='1006105'>
+														<number>
+															<def id='10325' entity='page' name='number'>17</def>
+															<message>   /number &quot;17&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10327'></createentity>
+													<addto arrayId='196'>/page 10327 fce </addto>
+													<entitypush entity='page' id='10327'></entitypush>
+													<mapCreateEntity name='page' data_id='1006106'>
+														<number>
+															<def id='10327' entity='page' name='number'>18</def>
+															<message>   /number &quot;18&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10329'></createentity>
+													<addto arrayId='196'>/page 10329 fce </addto>
+													<entitypush entity='page' id='10329'></entitypush>
+													<mapCreateEntity name='page' data_id='1006107'>
+														<number>
+															<def id='10329' entity='page' name='number'>19</def>
+															<message>   /number &quot;19&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10331'></createentity>
+													<addto arrayId='196'>/page 10331 fce </addto>
+													<entitypush entity='page' id='10331'></entitypush>
+													<mapCreateEntity name='page' data_id='1006108'>
+														<number>
+															<def id='10331' entity='page' name='number'>22</def>
+															<message>   /number &quot;22&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10333'></createentity>
+													<addto arrayId='196'>/page 10333 fce </addto>
+													<entitypush entity='page' id='10333'></entitypush>
+													<mapCreateEntity name='page' data_id='1006109'>
+														<number>
+															<def id='10333' entity='page' name='number'>23</def>
+															<message>   /number &quot;23&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10335'></createentity>
+													<addto arrayId='196'>/page 10335 fce </addto>
+													<entitypush entity='page' id='10335'></entitypush>
+													<mapCreateEntity name='page' data_id='1006110'>
+														<number>
+															<def id='10335' entity='page' name='number'>25</def>
+															<message>   /number &quot;25&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10337'></createentity>
+													<addto arrayId='196'>/page 10337 fce </addto>
+													<entitypush entity='page' id='10337'></entitypush>
+													<mapCreateEntity name='page' data_id='1006111'>
+														<number>
+															<def id='10337' entity='page' name='number'>26</def>
+															<message>   /number &quot;26&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10339'></createentity>
+													<addto arrayId='196'>/page 10339 fce </addto>
+													<entitypush entity='page' id='10339'></entitypush>
+													<mapCreateEntity name='page' data_id='1006112'>
+														<number>
+															<def id='10339' entity='page' name='number'>27</def>
+															<message>   /number &quot;27&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+											</pages>
+											<chapters_viewed>
+												<chapter_viewed>
+													<addto arrayId='195'>/chapter 10191 fce </addto>
+													<entitypush entity='chapter' id='10191'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006003'>
+														<begin_page>
+															<def id='10191' entity='chapter' name='begin_page'>1</def>
+															<message>   /begin_page &quot;1&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10191' entity='chapter' name='end_page'>28</def>
+															<message>   /end_page &quot;28&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+											</chapters_viewed>
+											<book>
+												<entitypush entity='book' id='10186'></entitypush>
+												<mapCreateEntity name='book' data_id='1006002'>
+													<publisher>
+														<createentity name='publisher' id='10342'></createentity>
+														<entitypush entity='publisher' id='10342'></entitypush>
+														<mapCreateEntity name='publisher' data_id=''>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10186' entity='book' name='publisher'>/publisher 10342 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<day_limit>
+														<def id='10186' entity='book' name='day_limit'>0</def>
+														<message>   /day_limit &quot;0&quot; def</message>
+													</day_limit>
+													<publisher>
+														<entitypush entity='publisher' id='10189'></entitypush>
+														<mapCreateEntity name='publisher' data_id='1'>
+															<chapter_limit>
+																<def id='10189' entity='publisher' name='chapter_limit'>2</def>
+																<message>   /chapter_limit &quot;2&quot; def</message>
+															</chapter_limit>
+															<page_limit>
+																<def id='10189' entity='publisher' name='page_limit'>9</def>
+																<message>   /page_limit &quot;9&quot; def</message>
+															</page_limit>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10186' entity='book' name='publisher'>/publisher 10189 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<chapters>
+														<chapter>
+															<entitypush entity='chapter' id='10191'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006003'>
+																<begin_page>
+																	<def id='10191' entity='chapter' name='begin_page'>1</def>
+																	<message>   /begin_page &quot;1&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10191' entity='chapter' name='end_page'>28</def>
+																	<message>   /end_page &quot;28&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10193'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006004'>
+																<begin_page>
+																	<def id='10193' entity='chapter' name='begin_page'>29</def>
+																	<message>   /begin_page &quot;29&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10193' entity='chapter' name='end_page'>57</def>
+																	<message>   /end_page &quot;57&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10195'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006005'>
+																<begin_page>
+																	<def id='10195' entity='chapter' name='begin_page'>58</def>
+																	<message>   /begin_page &quot;58&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10195' entity='chapter' name='end_page'>92</def>
+																	<message>   /end_page &quot;92&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10197'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006006'>
+																<begin_page>
+																	<def id='10197' entity='chapter' name='begin_page'>93</def>
+																	<message>   /begin_page &quot;93&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10197' entity='chapter' name='end_page'>123</def>
+																	<message>   /end_page &quot;123&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10199'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006007'>
+																<begin_page>
+																	<def id='10199' entity='chapter' name='begin_page'>124</def>
+																	<message>   /begin_page &quot;124&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10199' entity='chapter' name='end_page'>163</def>
+																	<message>   /end_page &quot;163&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10201'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006008'>
+																<begin_page>
+																	<def id='10201' entity='chapter' name='begin_page'>164</def>
+																	<message>   /begin_page &quot;164&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10201' entity='chapter' name='end_page'>201</def>
+																	<message>   /end_page &quot;201&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10203'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006009'>
+																<begin_page>
+																	<def id='10203' entity='chapter' name='begin_page'>202</def>
+																	<message>   /begin_page &quot;202&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10203' entity='chapter' name='end_page'>224</def>
+																	<message>   /end_page &quot;224&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10205'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006010'>
+																<begin_page>
+																	<def id='10205' entity='chapter' name='begin_page'>225</def>
+																	<message>   /begin_page &quot;225&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10205' entity='chapter' name='end_page'>248</def>
+																	<message>   /end_page &quot;248&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10207'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006011'>
+																<begin_page>
+																	<def id='10207' entity='chapter' name='begin_page'>249</def>
+																	<message>   /begin_page &quot;249&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10207' entity='chapter' name='end_page'>283</def>
+																	<message>   /end_page &quot;283&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<entitypush entity='chapter' id='10209'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006012'>
+																<begin_page>
+																	<def id='10209' entity='chapter' name='begin_page'>284</def>
+																	<message>   /begin_page &quot;284&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10209' entity='chapter' name='end_page'>304</def>
+																	<message>   /end_page &quot;304&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+													</chapters>
+													<excluded_chapters>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10193'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006004'>
+																<begin_page>
+																	<def id='10193' entity='chapter' name='begin_page'>29</def>
+																	<message>   /begin_page &quot;29&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10193' entity='chapter' name='end_page'>57</def>
+																	<message>   /end_page &quot;57&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10195'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006005'>
+																<begin_page>
+																	<def id='10195' entity='chapter' name='begin_page'>58</def>
+																	<message>   /begin_page &quot;58&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10195' entity='chapter' name='end_page'>92</def>
+																	<message>   /end_page &quot;92&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10197'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006006'>
+																<begin_page>
+																	<def id='10197' entity='chapter' name='begin_page'>93</def>
+																	<message>   /begin_page &quot;93&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10197' entity='chapter' name='end_page'>123</def>
+																	<message>   /end_page &quot;123&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10199'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006007'>
+																<begin_page>
+																	<def id='10199' entity='chapter' name='begin_page'>124</def>
+																	<message>   /begin_page &quot;124&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10199' entity='chapter' name='end_page'>163</def>
+																	<message>   /end_page &quot;163&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10201'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006008'>
+																<begin_page>
+																	<def id='10201' entity='chapter' name='begin_page'>164</def>
+																	<message>   /begin_page &quot;164&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10201' entity='chapter' name='end_page'>201</def>
+																	<message>   /end_page &quot;201&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10203'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006009'>
+																<begin_page>
+																	<def id='10203' entity='chapter' name='begin_page'>202</def>
+																	<message>   /begin_page &quot;202&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10203' entity='chapter' name='end_page'>224</def>
+																	<message>   /end_page &quot;224&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10205'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006010'>
+																<begin_page>
+																	<def id='10205' entity='chapter' name='begin_page'>225</def>
+																	<message>   /begin_page &quot;225&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10205' entity='chapter' name='end_page'>248</def>
+																	<message>   /end_page &quot;248&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10207'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006011'>
+																<begin_page>
+																	<def id='10207' entity='chapter' name='begin_page'>249</def>
+																	<message>   /begin_page &quot;249&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10207' entity='chapter' name='end_page'>283</def>
+																	<message>   /end_page &quot;283&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<entitypush entity='chapter' id='10209'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006012'>
+																<begin_page>
+																	<def id='10209' entity='chapter' name='begin_page'>284</def>
+																	<message>   /begin_page &quot;284&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10209' entity='chapter' name='end_page'>304</def>
+																	<message>   /end_page &quot;304&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+													</excluded_chapters>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10304' entity='open_book' name='book'>/book 10186 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</open_book>
+									<open_book>
+										<newarray arrayId='199'></newarray>
+										<newarray arrayId='200'></newarray>
+										<createentity name='open_book' id='10366'></createentity>
+										<addto arrayId='188'>/open_book 10366 fce </addto>
+										<entitypush entity='open_book' id='10366'></entitypush>
+										<mapCreateEntity name='open_book' data_id='1006035'>
+											<book>
+												<newarray arrayId='201'></newarray>
+												<newarray arrayId='202'></newarray>
+												<createentity name='book' id='10367'></createentity>
+												<entitypush entity='book' id='10367'></entitypush>
+												<mapCreateEntity name='book' data_id=''>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10366' entity='open_book' name='book'>/book 10367 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<begin_date>
+												<def id='10366' entity='open_book' name='begin_date'>&quot;09/11/2011 00:00:00:0000&quot; cvd</def>
+												<message>   /begin_date &quot;Sun Sep 11 00:00:00 CDT 2011&quot; def</message>
+											</begin_date>
+											<pages>
+												<page>
+													<createentity name='page' id='10369'></createentity>
+													<addto arrayId='200'>/page 10369 fce </addto>
+													<entitypush entity='page' id='10369'></entitypush>
+													<mapCreateEntity name='page' data_id='1006113'>
+														<number>
+															<def id='10369' entity='page' name='number'>1</def>
+															<message>   /number &quot;1&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10371'></createentity>
+													<addto arrayId='200'>/page 10371 fce </addto>
+													<entitypush entity='page' id='10371'></entitypush>
+													<mapCreateEntity name='page' data_id='1006114'>
+														<number>
+															<def id='10371' entity='page' name='number'>3</def>
+															<message>   /number &quot;3&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10373'></createentity>
+													<addto arrayId='200'>/page 10373 fce </addto>
+													<entitypush entity='page' id='10373'></entitypush>
+													<mapCreateEntity name='page' data_id='1006115'>
+														<number>
+															<def id='10373' entity='page' name='number'>4</def>
+															<message>   /number &quot;4&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+											</pages>
+											<chapters_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10375'></createentity>
+													<addto arrayId='199'>/chapter 10375 fce </addto>
+													<entitypush entity='chapter' id='10375'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006037'>
+														<begin_page>
+															<def id='10375' entity='chapter' name='begin_page'>1</def>
+															<message>   /begin_page &quot;1&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10375' entity='chapter' name='end_page'>29</def>
+															<message>   /end_page &quot;29&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+											</chapters_viewed>
+											<book>
+												<newarray arrayId='203'></newarray>
+												<newarray arrayId='204'></newarray>
+												<createentity name='book' id='10377'></createentity>
+												<entitypush entity='book' id='10377'></entitypush>
+												<mapCreateEntity name='book' data_id='1006036'>
+													<publisher>
+														<createentity name='publisher' id='10378'></createentity>
+														<entitypush entity='publisher' id='10378'></entitypush>
+														<mapCreateEntity name='publisher' data_id=''>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10377' entity='book' name='publisher'>/publisher 10378 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<day_limit>
+														<def id='10377' entity='book' name='day_limit'>150</def>
+														<message>   /day_limit &quot;150&quot; def</message>
+													</day_limit>
+													<publisher>
+														<createentity name='publisher' id='10380'></createentity>
+														<entitypush entity='publisher' id='10380'></entitypush>
+														<mapCreateEntity name='publisher' data_id='3'>
+															<chapter_limit>
+																<def id='10380' entity='publisher' name='chapter_limit'>2</def>
+																<message>   /chapter_limit &quot;2&quot; def</message>
+															</chapter_limit>
+															<page_limit>
+																<def id='10380' entity='publisher' name='page_limit'>74</def>
+																<message>   /page_limit &quot;74&quot; def</message>
+															</page_limit>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10377' entity='book' name='publisher'>/publisher 10380 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<chapters>
+														<chapter>
+															<addto arrayId='203'>/chapter 10375 fce </addto>
+															<entitypush entity='chapter' id='10375'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006037'>
+																<begin_page>
+																	<def id='10375' entity='chapter' name='begin_page'>1</def>
+																	<message>   /begin_page &quot;1&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10375' entity='chapter' name='end_page'>29</def>
+																	<message>   /end_page &quot;29&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10383'></createentity>
+															<addto arrayId='203'>/chapter 10383 fce </addto>
+															<entitypush entity='chapter' id='10383'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006038'>
+																<begin_page>
+																	<def id='10383' entity='chapter' name='begin_page'>30</def>
+																	<message>   /begin_page &quot;30&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10383' entity='chapter' name='end_page'>68</def>
+																	<message>   /end_page &quot;68&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10385'></createentity>
+															<addto arrayId='203'>/chapter 10385 fce </addto>
+															<entitypush entity='chapter' id='10385'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006039'>
+																<begin_page>
+																	<def id='10385' entity='chapter' name='begin_page'>69</def>
+																	<message>   /begin_page &quot;69&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10385' entity='chapter' name='end_page'>108</def>
+																	<message>   /end_page &quot;108&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10387'></createentity>
+															<addto arrayId='203'>/chapter 10387 fce </addto>
+															<entitypush entity='chapter' id='10387'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006040'>
+																<begin_page>
+																	<def id='10387' entity='chapter' name='begin_page'>109</def>
+																	<message>   /begin_page &quot;109&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10387' entity='chapter' name='end_page'>141</def>
+																	<message>   /end_page &quot;141&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10389'></createentity>
+															<addto arrayId='203'>/chapter 10389 fce </addto>
+															<entitypush entity='chapter' id='10389'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006041'>
+																<begin_page>
+																	<def id='10389' entity='chapter' name='begin_page'>142</def>
+																	<message>   /begin_page &quot;142&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10389' entity='chapter' name='end_page'>176</def>
+																	<message>   /end_page &quot;176&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10391'></createentity>
+															<addto arrayId='203'>/chapter 10391 fce </addto>
+															<entitypush entity='chapter' id='10391'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006042'>
+																<begin_page>
+																	<def id='10391' entity='chapter' name='begin_page'>177</def>
+																	<message>   /begin_page &quot;177&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10391' entity='chapter' name='end_page'>199</def>
+																	<message>   /end_page &quot;199&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10393'></createentity>
+															<addto arrayId='203'>/chapter 10393 fce </addto>
+															<entitypush entity='chapter' id='10393'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006043'>
+																<begin_page>
+																	<def id='10393' entity='chapter' name='begin_page'>200</def>
+																	<message>   /begin_page &quot;200&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10393' entity='chapter' name='end_page'>238</def>
+																	<message>   /end_page &quot;238&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10395'></createentity>
+															<addto arrayId='203'>/chapter 10395 fce </addto>
+															<entitypush entity='chapter' id='10395'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006044'>
+																<begin_page>
+																	<def id='10395' entity='chapter' name='begin_page'>239</def>
+																	<message>   /begin_page &quot;239&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10395' entity='chapter' name='end_page'>261</def>
+																	<message>   /end_page &quot;261&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10397'></createentity>
+															<addto arrayId='203'>/chapter 10397 fce </addto>
+															<entitypush entity='chapter' id='10397'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006045'>
+																<begin_page>
+																	<def id='10397' entity='chapter' name='begin_page'>262</def>
+																	<message>   /begin_page &quot;262&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10397' entity='chapter' name='end_page'>300</def>
+																	<message>   /end_page &quot;300&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10399'></createentity>
+															<addto arrayId='203'>/chapter 10399 fce </addto>
+															<entitypush entity='chapter' id='10399'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006046'>
+																<begin_page>
+																	<def id='10399' entity='chapter' name='begin_page'>301</def>
+																	<message>   /begin_page &quot;301&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10399' entity='chapter' name='end_page'>332</def>
+																	<message>   /end_page &quot;332&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10401'></createentity>
+															<addto arrayId='203'>/chapter 10401 fce </addto>
+															<entitypush entity='chapter' id='10401'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006047'>
+																<begin_page>
+																	<def id='10401' entity='chapter' name='begin_page'>333</def>
+																	<message>   /begin_page &quot;333&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10401' entity='chapter' name='end_page'>363</def>
+																	<message>   /end_page &quot;363&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+													</chapters>
+													<excluded_chapters>
+														<excluded_chapter>
+															<addto arrayId='204'>/chapter 10395 fce </addto>
+															<entitypush entity='chapter' id='10395'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006044'>
+																<begin_page>
+																	<def id='10395' entity='chapter' name='begin_page'>239</def>
+																	<message>   /begin_page &quot;239&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10395' entity='chapter' name='end_page'>261</def>
+																	<message>   /end_page &quot;261&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='204'>/chapter 10397 fce </addto>
+															<entitypush entity='chapter' id='10397'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006045'>
+																<begin_page>
+																	<def id='10397' entity='chapter' name='begin_page'>262</def>
+																	<message>   /begin_page &quot;262&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10397' entity='chapter' name='end_page'>300</def>
+																	<message>   /end_page &quot;300&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='204'>/chapter 10399 fce </addto>
+															<entitypush entity='chapter' id='10399'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006046'>
+																<begin_page>
+																	<def id='10399' entity='chapter' name='begin_page'>301</def>
+																	<message>   /begin_page &quot;301&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10399' entity='chapter' name='end_page'>332</def>
+																	<message>   /end_page &quot;332&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='204'>/chapter 10401 fce </addto>
+															<entitypush entity='chapter' id='10401'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006047'>
+																<begin_page>
+																	<def id='10401' entity='chapter' name='begin_page'>333</def>
+																	<message>   /begin_page &quot;333&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10401' entity='chapter' name='end_page'>363</def>
+																	<message>   /end_page &quot;363&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+													</excluded_chapters>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10366' entity='open_book' name='book'>/book 10377 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</open_book>
+									<open_book>
+										<newarray arrayId='205'></newarray>
+										<newarray arrayId='206'></newarray>
+										<createentity name='open_book' id='10409'></createentity>
+										<addto arrayId='188'>/open_book 10409 fce </addto>
+										<entitypush entity='open_book' id='10409'></entitypush>
+										<mapCreateEntity name='open_book' data_id='1006048'>
+											<book>
+												<newarray arrayId='207'></newarray>
+												<newarray arrayId='208'></newarray>
+												<createentity name='book' id='10410'></createentity>
+												<entitypush entity='book' id='10410'></entitypush>
+												<mapCreateEntity name='book' data_id=''>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10409' entity='open_book' name='book'>/book 10410 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<begin_date>
+												<def id='10409' entity='open_book' name='begin_date'>&quot;07/21/2011 00:00:00:0000&quot; cvd</def>
+												<message>   /begin_date &quot;Thu Jul 21 00:00:00 CDT 2011&quot; def</message>
+											</begin_date>
+											<pages>
+												<page>
+													<createentity name='page' id='10412'></createentity>
+													<addto arrayId='206'>/page 10412 fce </addto>
+													<entitypush entity='page' id='10412'></entitypush>
+													<mapCreateEntity name='page' data_id='1006116'>
+														<number>
+															<def id='10412' entity='page' name='number'>1</def>
+															<message>   /number &quot;1&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10414'></createentity>
+													<addto arrayId='206'>/page 10414 fce </addto>
+													<entitypush entity='page' id='10414'></entitypush>
+													<mapCreateEntity name='page' data_id='1006117'>
+														<number>
+															<def id='10414' entity='page' name='number'>3</def>
+															<message>   /number &quot;3&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10416'></createentity>
+													<addto arrayId='206'>/page 10416 fce </addto>
+													<entitypush entity='page' id='10416'></entitypush>
+													<mapCreateEntity name='page' data_id='1006118'>
+														<number>
+															<def id='10416' entity='page' name='number'>6</def>
+															<message>   /number &quot;6&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10418'></createentity>
+													<addto arrayId='206'>/page 10418 fce </addto>
+													<entitypush entity='page' id='10418'></entitypush>
+													<mapCreateEntity name='page' data_id='1006119'>
+														<number>
+															<def id='10418' entity='page' name='number'>9</def>
+															<message>   /number &quot;9&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10420'></createentity>
+													<addto arrayId='206'>/page 10420 fce </addto>
+													<entitypush entity='page' id='10420'></entitypush>
+													<mapCreateEntity name='page' data_id='1006120'>
+														<number>
+															<def id='10420' entity='page' name='number'>11</def>
+															<message>   /number &quot;11&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10422'></createentity>
+													<addto arrayId='206'>/page 10422 fce </addto>
+													<entitypush entity='page' id='10422'></entitypush>
+													<mapCreateEntity name='page' data_id='1006121'>
+														<number>
+															<def id='10422' entity='page' name='number'>12</def>
+															<message>   /number &quot;12&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10424'></createentity>
+													<addto arrayId='206'>/page 10424 fce </addto>
+													<entitypush entity='page' id='10424'></entitypush>
+													<mapCreateEntity name='page' data_id='1006122'>
+														<number>
+															<def id='10424' entity='page' name='number'>14</def>
+															<message>   /number &quot;14&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10426'></createentity>
+													<addto arrayId='206'>/page 10426 fce </addto>
+													<entitypush entity='page' id='10426'></entitypush>
+													<mapCreateEntity name='page' data_id='1006123'>
+														<number>
+															<def id='10426' entity='page' name='number'>15</def>
+															<message>   /number &quot;15&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10428'></createentity>
+													<addto arrayId='206'>/page 10428 fce </addto>
+													<entitypush entity='page' id='10428'></entitypush>
+													<mapCreateEntity name='page' data_id='1006124'>
+														<number>
+															<def id='10428' entity='page' name='number'>18</def>
+															<message>   /number &quot;18&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10430'></createentity>
+													<addto arrayId='206'>/page 10430 fce </addto>
+													<entitypush entity='page' id='10430'></entitypush>
+													<mapCreateEntity name='page' data_id='1006125'>
+														<number>
+															<def id='10430' entity='page' name='number'>21</def>
+															<message>   /number &quot;21&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10432'></createentity>
+													<addto arrayId='206'>/page 10432 fce </addto>
+													<entitypush entity='page' id='10432'></entitypush>
+													<mapCreateEntity name='page' data_id='1006126'>
+														<number>
+															<def id='10432' entity='page' name='number'>22</def>
+															<message>   /number &quot;22&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10434'></createentity>
+													<addto arrayId='206'>/page 10434 fce </addto>
+													<entitypush entity='page' id='10434'></entitypush>
+													<mapCreateEntity name='page' data_id='1006127'>
+														<number>
+															<def id='10434' entity='page' name='number'>24</def>
+															<message>   /number &quot;24&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10436'></createentity>
+													<addto arrayId='206'>/page 10436 fce </addto>
+													<entitypush entity='page' id='10436'></entitypush>
+													<mapCreateEntity name='page' data_id='1006128'>
+														<number>
+															<def id='10436' entity='page' name='number'>27</def>
+															<message>   /number &quot;27&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10438'></createentity>
+													<addto arrayId='206'>/page 10438 fce </addto>
+													<entitypush entity='page' id='10438'></entitypush>
+													<mapCreateEntity name='page' data_id='1006129'>
+														<number>
+															<def id='10438' entity='page' name='number'>33</def>
+															<message>   /number &quot;33&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10440'></createentity>
+													<addto arrayId='206'>/page 10440 fce </addto>
+													<entitypush entity='page' id='10440'></entitypush>
+													<mapCreateEntity name='page' data_id='1006130'>
+														<number>
+															<def id='10440' entity='page' name='number'>36</def>
+															<message>   /number &quot;36&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10442'></createentity>
+													<addto arrayId='206'>/page 10442 fce </addto>
+													<entitypush entity='page' id='10442'></entitypush>
+													<mapCreateEntity name='page' data_id='1006131'>
+														<number>
+															<def id='10442' entity='page' name='number'>39</def>
+															<message>   /number &quot;39&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10444'></createentity>
+													<addto arrayId='206'>/page 10444 fce </addto>
+													<entitypush entity='page' id='10444'></entitypush>
+													<mapCreateEntity name='page' data_id='1006132'>
+														<number>
+															<def id='10444' entity='page' name='number'>41</def>
+															<message>   /number &quot;41&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10446'></createentity>
+													<addto arrayId='206'>/page 10446 fce </addto>
+													<entitypush entity='page' id='10446'></entitypush>
+													<mapCreateEntity name='page' data_id='1006133'>
+														<number>
+															<def id='10446' entity='page' name='number'>44</def>
+															<message>   /number &quot;44&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10448'></createentity>
+													<addto arrayId='206'>/page 10448 fce </addto>
+													<entitypush entity='page' id='10448'></entitypush>
+													<mapCreateEntity name='page' data_id='1006134'>
+														<number>
+															<def id='10448' entity='page' name='number'>46</def>
+															<message>   /number &quot;46&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10450'></createentity>
+													<addto arrayId='206'>/page 10450 fce </addto>
+													<entitypush entity='page' id='10450'></entitypush>
+													<mapCreateEntity name='page' data_id='1006135'>
+														<number>
+															<def id='10450' entity='page' name='number'>48</def>
+															<message>   /number &quot;48&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+											</pages>
+											<chapters_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10452'></createentity>
+													<addto arrayId='205'>/chapter 10452 fce </addto>
+													<entitypush entity='chapter' id='10452'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006050'>
+														<begin_page>
+															<def id='10452' entity='chapter' name='begin_page'>1</def>
+															<message>   /begin_page &quot;1&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10452' entity='chapter' name='end_page'>28</def>
+															<message>   /end_page &quot;28&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10454'></createentity>
+													<addto arrayId='205'>/chapter 10454 fce </addto>
+													<entitypush entity='chapter' id='10454'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006051'>
+														<begin_page>
+															<def id='10454' entity='chapter' name='begin_page'>29</def>
+															<message>   /begin_page &quot;29&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10454' entity='chapter' name='end_page'>61</def>
+															<message>   /end_page &quot;61&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+											</chapters_viewed>
+											<book>
+												<newarray arrayId='209'></newarray>
+												<newarray arrayId='210'></newarray>
+												<createentity name='book' id='10456'></createentity>
+												<entitypush entity='book' id='10456'></entitypush>
+												<mapCreateEntity name='book' data_id='1006049'>
+													<publisher>
+														<createentity name='publisher' id='10457'></createentity>
+														<entitypush entity='publisher' id='10457'></entitypush>
+														<mapCreateEntity name='publisher' data_id=''>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10456' entity='book' name='publisher'>/publisher 10457 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<day_limit>
+														<def id='10456' entity='book' name='day_limit'>60</def>
+														<message>   /day_limit &quot;60&quot; def</message>
+													</day_limit>
+													<publisher>
+														<createentity name='publisher' id='10459'></createentity>
+														<entitypush entity='publisher' id='10459'></entitypush>
+														<mapCreateEntity name='publisher' data_id='2'>
+															<chapter_limit>
+																<def id='10459' entity='publisher' name='chapter_limit'>2</def>
+																<message>   /chapter_limit &quot;2&quot; def</message>
+															</chapter_limit>
+															<page_limit>
+																<def id='10459' entity='publisher' name='page_limit'>64</def>
+																<message>   /page_limit &quot;64&quot; def</message>
+															</page_limit>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10456' entity='book' name='publisher'>/publisher 10459 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<chapters>
+														<chapter>
+															<addto arrayId='209'>/chapter 10452 fce </addto>
+															<entitypush entity='chapter' id='10452'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006050'>
+																<begin_page>
+																	<def id='10452' entity='chapter' name='begin_page'>1</def>
+																	<message>   /begin_page &quot;1&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10452' entity='chapter' name='end_page'>28</def>
+																	<message>   /end_page &quot;28&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<addto arrayId='209'>/chapter 10454 fce </addto>
+															<entitypush entity='chapter' id='10454'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006051'>
+																<begin_page>
+																	<def id='10454' entity='chapter' name='begin_page'>29</def>
+																	<message>   /begin_page &quot;29&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10454' entity='chapter' name='end_page'>61</def>
+																	<message>   /end_page &quot;61&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10463'></createentity>
+															<addto arrayId='209'>/chapter 10463 fce </addto>
+															<entitypush entity='chapter' id='10463'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006052'>
+																<begin_page>
+																	<def id='10463' entity='chapter' name='begin_page'>62</def>
+																	<message>   /begin_page &quot;62&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10463' entity='chapter' name='end_page'>91</def>
+																	<message>   /end_page &quot;91&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10465'></createentity>
+															<addto arrayId='209'>/chapter 10465 fce </addto>
+															<entitypush entity='chapter' id='10465'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006053'>
+																<begin_page>
+																	<def id='10465' entity='chapter' name='begin_page'>92</def>
+																	<message>   /begin_page &quot;92&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10465' entity='chapter' name='end_page'>117</def>
+																	<message>   /end_page &quot;117&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10467'></createentity>
+															<addto arrayId='209'>/chapter 10467 fce </addto>
+															<entitypush entity='chapter' id='10467'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006054'>
+																<begin_page>
+																	<def id='10467' entity='chapter' name='begin_page'>118</def>
+																	<message>   /begin_page &quot;118&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10467' entity='chapter' name='end_page'>150</def>
+																	<message>   /end_page &quot;150&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10469'></createentity>
+															<addto arrayId='209'>/chapter 10469 fce </addto>
+															<entitypush entity='chapter' id='10469'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006055'>
+																<begin_page>
+																	<def id='10469' entity='chapter' name='begin_page'>151</def>
+																	<message>   /begin_page &quot;151&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10469' entity='chapter' name='end_page'>190</def>
+																	<message>   /end_page &quot;190&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10471'></createentity>
+															<addto arrayId='209'>/chapter 10471 fce </addto>
+															<entitypush entity='chapter' id='10471'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006056'>
+																<begin_page>
+																	<def id='10471' entity='chapter' name='begin_page'>191</def>
+																	<message>   /begin_page &quot;191&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10471' entity='chapter' name='end_page'>227</def>
+																	<message>   /end_page &quot;227&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10473'></createentity>
+															<addto arrayId='209'>/chapter 10473 fce </addto>
+															<entitypush entity='chapter' id='10473'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006057'>
+																<begin_page>
+																	<def id='10473' entity='chapter' name='begin_page'>228</def>
+																	<message>   /begin_page &quot;228&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10473' entity='chapter' name='end_page'>260</def>
+																	<message>   /end_page &quot;260&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+													</chapters>
+													<excluded_chapters>
+														<excluded_chapter>
+															<addto arrayId='210'>/chapter 10465 fce </addto>
+															<entitypush entity='chapter' id='10465'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006053'>
+																<begin_page>
+																	<def id='10465' entity='chapter' name='begin_page'>92</def>
+																	<message>   /begin_page &quot;92&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10465' entity='chapter' name='end_page'>117</def>
+																	<message>   /end_page &quot;117&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='210'>/chapter 10467 fce </addto>
+															<entitypush entity='chapter' id='10467'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006054'>
+																<begin_page>
+																	<def id='10467' entity='chapter' name='begin_page'>118</def>
+																	<message>   /begin_page &quot;118&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10467' entity='chapter' name='end_page'>150</def>
+																	<message>   /end_page &quot;150&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='210'>/chapter 10469 fce </addto>
+															<entitypush entity='chapter' id='10469'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006055'>
+																<begin_page>
+																	<def id='10469' entity='chapter' name='begin_page'>151</def>
+																	<message>   /begin_page &quot;151&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10469' entity='chapter' name='end_page'>190</def>
+																	<message>   /end_page &quot;190&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='210'>/chapter 10471 fce </addto>
+															<entitypush entity='chapter' id='10471'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006056'>
+																<begin_page>
+																	<def id='10471' entity='chapter' name='begin_page'>191</def>
+																	<message>   /begin_page &quot;191&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10471' entity='chapter' name='end_page'>227</def>
+																	<message>   /end_page &quot;227&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='210'>/chapter 10473 fce </addto>
+															<entitypush entity='chapter' id='10473'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006057'>
+																<begin_page>
+																	<def id='10473' entity='chapter' name='begin_page'>228</def>
+																	<message>   /begin_page &quot;228&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10473' entity='chapter' name='end_page'>260</def>
+																	<message>   /end_page &quot;260&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+													</excluded_chapters>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10409' entity='open_book' name='book'>/book 10456 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</open_book>
+									<open_book>
+										<newarray arrayId='211'></newarray>
+										<newarray arrayId='212'></newarray>
+										<createentity name='open_book' id='10482'></createentity>
+										<addto arrayId='188'>/open_book 10482 fce </addto>
+										<entitypush entity='open_book' id='10482'></entitypush>
+										<mapCreateEntity name='open_book' data_id='1006058'>
+											<book>
+												<newarray arrayId='213'></newarray>
+												<newarray arrayId='214'></newarray>
+												<createentity name='book' id='10483'></createentity>
+												<entitypush entity='book' id='10483'></entitypush>
+												<mapCreateEntity name='book' data_id=''>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10482' entity='open_book' name='book'>/book 10483 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<begin_date>
+												<def id='10482' entity='open_book' name='begin_date'>&quot;11/11/2010 00:00:00:0000&quot; cvd</def>
+												<message>   /begin_date &quot;Thu Nov 11 00:00:00 CST 2010&quot; def</message>
+											</begin_date>
+											<pages>
+												<page>
+													<createentity name='page' id='10485'></createentity>
+													<addto arrayId='212'>/page 10485 fce </addto>
+													<entitypush entity='page' id='10485'></entitypush>
+													<mapCreateEntity name='page' data_id='1006136'>
+														<number>
+															<def id='10485' entity='page' name='number'>4</def>
+															<message>   /number &quot;4&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10487'></createentity>
+													<addto arrayId='212'>/page 10487 fce </addto>
+													<entitypush entity='page' id='10487'></entitypush>
+													<mapCreateEntity name='page' data_id='1006137'>
+														<number>
+															<def id='10487' entity='page' name='number'>5</def>
+															<message>   /number &quot;5&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10489'></createentity>
+													<addto arrayId='212'>/page 10489 fce </addto>
+													<entitypush entity='page' id='10489'></entitypush>
+													<mapCreateEntity name='page' data_id='1006138'>
+														<number>
+															<def id='10489' entity='page' name='number'>7</def>
+															<message>   /number &quot;7&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10491'></createentity>
+													<addto arrayId='212'>/page 10491 fce </addto>
+													<entitypush entity='page' id='10491'></entitypush>
+													<mapCreateEntity name='page' data_id='1006139'>
+														<number>
+															<def id='10491' entity='page' name='number'>10</def>
+															<message>   /number &quot;10&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10493'></createentity>
+													<addto arrayId='212'>/page 10493 fce </addto>
+													<entitypush entity='page' id='10493'></entitypush>
+													<mapCreateEntity name='page' data_id='1006140'>
+														<number>
+															<def id='10493' entity='page' name='number'>11</def>
+															<message>   /number &quot;11&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10495'></createentity>
+													<addto arrayId='212'>/page 10495 fce </addto>
+													<entitypush entity='page' id='10495'></entitypush>
+													<mapCreateEntity name='page' data_id='1006141'>
+														<number>
+															<def id='10495' entity='page' name='number'>13</def>
+															<message>   /number &quot;13&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10497'></createentity>
+													<addto arrayId='212'>/page 10497 fce </addto>
+													<entitypush entity='page' id='10497'></entitypush>
+													<mapCreateEntity name='page' data_id='1006142'>
+														<number>
+															<def id='10497' entity='page' name='number'>14</def>
+															<message>   /number &quot;14&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+												<page>
+													<createentity name='page' id='10499'></createentity>
+													<addto arrayId='212'>/page 10499 fce </addto>
+													<entitypush entity='page' id='10499'></entitypush>
+													<mapCreateEntity name='page' data_id='1006143'>
+														<number>
+															<def id='10499' entity='page' name='number'>15</def>
+															<message>   /number &quot;15&quot; def</message>
+														</number>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</page>
+											</pages>
+											<chapters_viewed>
+												<chapter_viewed>
+													<createentity name='chapter' id='10501'></createentity>
+													<addto arrayId='211'>/chapter 10501 fce </addto>
+													<entitypush entity='chapter' id='10501'></entitypush>
+													<mapCreateEntity name='chapter' data_id='1006060'>
+														<begin_page>
+															<def id='10501' entity='chapter' name='begin_page'>1</def>
+															<message>   /begin_page &quot;1&quot; def</message>
+														</begin_page>
+														<end_page>
+															<def id='10501' entity='chapter' name='end_page'>40</def>
+															<message>   /end_page &quot;40&quot; def</message>
+														</end_page>
+														<entitypop></entitypop>
+													</mapCreateEntity>
+												</chapter_viewed>
+											</chapters_viewed>
+											<book>
+												<newarray arrayId='215'></newarray>
+												<newarray arrayId='216'></newarray>
+												<createentity name='book' id='10503'></createentity>
+												<entitypush entity='book' id='10503'></entitypush>
+												<mapCreateEntity name='book' data_id='1006059'>
+													<publisher>
+														<createentity name='publisher' id='10504'></createentity>
+														<entitypush entity='publisher' id='10504'></entitypush>
+														<mapCreateEntity name='publisher' data_id=''>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10503' entity='book' name='publisher'>/publisher 10504 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<day_limit>
+														<def id='10503' entity='book' name='day_limit'>0</def>
+														<message>   /day_limit &quot;0&quot; def</message>
+													</day_limit>
+													<publisher>
+														<createentity name='publisher' id='10506'></createentity>
+														<entitypush entity='publisher' id='10506'></entitypush>
+														<mapCreateEntity name='publisher' data_id='5'>
+															<chapter_limit>
+																<def id='10506' entity='publisher' name='chapter_limit'>1</def>
+																<message>   /chapter_limit &quot;1&quot; def</message>
+															</chapter_limit>
+															<page_limit>
+																<def id='10506' entity='publisher' name='page_limit'>35</def>
+																<message>   /page_limit &quot;35&quot; def</message>
+															</page_limit>
+															<entitypop></entitypop>
+														</mapCreateEntity>
+														<def id='10503' entity='book' name='publisher'>/publisher 10506 fce </def>
+														<message>   /publisher &quot;&quot; def</message>
+													</publisher>
+													<chapters>
+														<chapter>
+															<addto arrayId='215'>/chapter 10501 fce </addto>
+															<entitypush entity='chapter' id='10501'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006060'>
+																<begin_page>
+																	<def id='10501' entity='chapter' name='begin_page'>1</def>
+																	<message>   /begin_page &quot;1&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10501' entity='chapter' name='end_page'>40</def>
+																	<message>   /end_page &quot;40&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10509'></createentity>
+															<addto arrayId='215'>/chapter 10509 fce </addto>
+															<entitypush entity='chapter' id='10509'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006061'>
+																<begin_page>
+																	<def id='10509' entity='chapter' name='begin_page'>41</def>
+																	<message>   /begin_page &quot;41&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10509' entity='chapter' name='end_page'>74</def>
+																	<message>   /end_page &quot;74&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10511'></createentity>
+															<addto arrayId='215'>/chapter 10511 fce </addto>
+															<entitypush entity='chapter' id='10511'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006062'>
+																<begin_page>
+																	<def id='10511' entity='chapter' name='begin_page'>75</def>
+																	<message>   /begin_page &quot;75&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10511' entity='chapter' name='end_page'>108</def>
+																	<message>   /end_page &quot;108&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10513'></createentity>
+															<addto arrayId='215'>/chapter 10513 fce </addto>
+															<entitypush entity='chapter' id='10513'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006063'>
+																<begin_page>
+																	<def id='10513' entity='chapter' name='begin_page'>109</def>
+																	<message>   /begin_page &quot;109&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10513' entity='chapter' name='end_page'>143</def>
+																	<message>   /end_page &quot;143&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10515'></createentity>
+															<addto arrayId='215'>/chapter 10515 fce </addto>
+															<entitypush entity='chapter' id='10515'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006064'>
+																<begin_page>
+																	<def id='10515' entity='chapter' name='begin_page'>144</def>
+																	<message>   /begin_page &quot;144&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10515' entity='chapter' name='end_page'>171</def>
+																	<message>   /end_page &quot;171&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10517'></createentity>
+															<addto arrayId='215'>/chapter 10517 fce </addto>
+															<entitypush entity='chapter' id='10517'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006065'>
+																<begin_page>
+																	<def id='10517' entity='chapter' name='begin_page'>172</def>
+																	<message>   /begin_page &quot;172&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10517' entity='chapter' name='end_page'>206</def>
+																	<message>   /end_page &quot;206&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10519'></createentity>
+															<addto arrayId='215'>/chapter 10519 fce </addto>
+															<entitypush entity='chapter' id='10519'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006066'>
+																<begin_page>
+																	<def id='10519' entity='chapter' name='begin_page'>207</def>
+																	<message>   /begin_page &quot;207&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10519' entity='chapter' name='end_page'>233</def>
+																	<message>   /end_page &quot;233&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10521'></createentity>
+															<addto arrayId='215'>/chapter 10521 fce </addto>
+															<entitypush entity='chapter' id='10521'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006067'>
+																<begin_page>
+																	<def id='10521' entity='chapter' name='begin_page'>234</def>
+																	<message>   /begin_page &quot;234&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10521' entity='chapter' name='end_page'>270</def>
+																	<message>   /end_page &quot;270&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10523'></createentity>
+															<addto arrayId='215'>/chapter 10523 fce </addto>
+															<entitypush entity='chapter' id='10523'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006068'>
+																<begin_page>
+																	<def id='10523' entity='chapter' name='begin_page'>271</def>
+																	<message>   /begin_page &quot;271&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10523' entity='chapter' name='end_page'>302</def>
+																	<message>   /end_page &quot;302&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10525'></createentity>
+															<addto arrayId='215'>/chapter 10525 fce </addto>
+															<entitypush entity='chapter' id='10525'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006069'>
+																<begin_page>
+																	<def id='10525' entity='chapter' name='begin_page'>303</def>
+																	<message>   /begin_page &quot;303&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10525' entity='chapter' name='end_page'>323</def>
+																	<message>   /end_page &quot;323&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+														<chapter>
+															<createentity name='chapter' id='10527'></createentity>
+															<addto arrayId='215'>/chapter 10527 fce </addto>
+															<entitypush entity='chapter' id='10527'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006070'>
+																<begin_page>
+																	<def id='10527' entity='chapter' name='begin_page'>324</def>
+																	<message>   /begin_page &quot;324&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10527' entity='chapter' name='end_page'>346</def>
+																	<message>   /end_page &quot;346&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</chapter>
+													</chapters>
+													<excluded_chapters>
+														<excluded_chapter>
+															<addto arrayId='216'>/chapter 10517 fce </addto>
+															<entitypush entity='chapter' id='10517'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006065'>
+																<begin_page>
+																	<def id='10517' entity='chapter' name='begin_page'>172</def>
+																	<message>   /begin_page &quot;172&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10517' entity='chapter' name='end_page'>206</def>
+																	<message>   /end_page &quot;206&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='216'>/chapter 10519 fce </addto>
+															<entitypush entity='chapter' id='10519'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006066'>
+																<begin_page>
+																	<def id='10519' entity='chapter' name='begin_page'>207</def>
+																	<message>   /begin_page &quot;207&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10519' entity='chapter' name='end_page'>233</def>
+																	<message>   /end_page &quot;233&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='216'>/chapter 10521 fce </addto>
+															<entitypush entity='chapter' id='10521'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006067'>
+																<begin_page>
+																	<def id='10521' entity='chapter' name='begin_page'>234</def>
+																	<message>   /begin_page &quot;234&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10521' entity='chapter' name='end_page'>270</def>
+																	<message>   /end_page &quot;270&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='216'>/chapter 10523 fce </addto>
+															<entitypush entity='chapter' id='10523'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006068'>
+																<begin_page>
+																	<def id='10523' entity='chapter' name='begin_page'>271</def>
+																	<message>   /begin_page &quot;271&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10523' entity='chapter' name='end_page'>302</def>
+																	<message>   /end_page &quot;302&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='216'>/chapter 10525 fce </addto>
+															<entitypush entity='chapter' id='10525'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006069'>
+																<begin_page>
+																	<def id='10525' entity='chapter' name='begin_page'>303</def>
+																	<message>   /begin_page &quot;303&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10525' entity='chapter' name='end_page'>323</def>
+																	<message>   /end_page &quot;323&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+														<excluded_chapter>
+															<addto arrayId='216'>/chapter 10527 fce </addto>
+															<entitypush entity='chapter' id='10527'></entitypush>
+															<mapCreateEntity name='chapter' data_id='1006070'>
+																<begin_page>
+																	<def id='10527' entity='chapter' name='begin_page'>324</def>
+																	<message>   /begin_page &quot;324&quot; def</message>
+																</begin_page>
+																<end_page>
+																	<def id='10527' entity='chapter' name='end_page'>346</def>
+																	<message>   /end_page &quot;346&quot; def</message>
+																</end_page>
+																<entitypop></entitypop>
+															</mapCreateEntity>
+														</excluded_chapter>
+													</excluded_chapters>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+												<def id='10482' entity='open_book' name='book'>/book 10503 fce </def>
+												<message>   /book &quot;&quot; def</message>
+											</book>
+											<entitypop></entitypop>
+										</mapCreateEntity>
+									</open_book>
+								</open_books>
+								<entitypop></entitypop>
+							</mapCreateEntity>
+							<def id='10181' entity='request' name='customer'>/customer 10221 fce </def>
+							<message>   /customer &quot;&quot; def</message>
+						</customer>
+						<entitypop></entitypop>
+					</mapCreateEntity>
+				</request>
+			</BookPreview>
+		</root>
+	</loadData>
+	<decisiontable name='Book_Access_Request'>
+		<execute_table>
+			<initialActions></initialActions>
+			<Condition n='1' v='N'></Condition>
+			<Condition n='2' v='N'></Condition>
+			<Condition n='3' v='Y'></Condition>
+			<column n='3 '>
+				<action n='3'>
+					<decisiontable name='Turn_Page'>
+						<context execute='{ { { { /Turn_Page executeTable  } publisher entitypush execute entitypop } book entitypush execute entitypop } { open_book entitypush execute entitypop } { 0 entityfetch /book get book req } open_books forfirst } customer entitypush execute entitypop'>
+							<execute_table>
+								<entitypush entity='customer' id='10221'></entitypush>
+								<entitypush value='customer' id='10221'></entitypush>
+								<entitypush entity='open_book' id='10222'></entitypush>
+								<entitypush entity='open_book' id='10222'></entitypush>
+								<entitypush value='open_book' id='10222'></entitypush>
+								<entitypush entity='book' id='10281'></entitypush>
+								<entitypush value='book' id='10281'></entitypush>
+								<entitypush entity='publisher' id='10189'></entitypush>
+								<entitypush value='publisher' id='10189'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='Y'></Condition>
+								<entitypush entity='open_book' id='10222'></entitypush>
+								<entitypush value='open_book' id='10222'></entitypush>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<Condition n='3' v='Y'></Condition>
+								<column n='2 '>
+									<action n='1'>
+										<def id='10181' entity='request' name='allow'>false</def>
+									</action>
+									<action n='3'>
+										<newarray arrayId='219'></newarray>
+										<addto arrayId='219'>&quot;Column 2: The total number of viewable pages has been reached&quot;</addto>
+										<entitypush entity='customer' id='10221'></entitypush>
+										<entitypush value='customer' id='10221'></entitypush>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+							</execute_table>
+						</context>
+					</decisiontable>
+				</action>
+			</column>
+		</execute_table>
+		<execute_table></execute_table>
+	</decisiontable>
+</DTRulesTrace>

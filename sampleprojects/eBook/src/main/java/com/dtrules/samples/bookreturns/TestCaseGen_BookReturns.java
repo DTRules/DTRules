@@ -6,13 +6,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Random;
 
-import com.dtrules.interpreter.RName;
 import com.dtrules.mapping.DataMap;
 import com.dtrules.samples.bookpreview.datamodel.Book;
 import com.dtrules.samples.bookpreview.datamodel.Chapter;
@@ -22,22 +18,24 @@ import com.dtrules.samples.bookpreview.datamodel.Open_Book;
 import com.dtrules.samples.bookpreview.datamodel.Page;
 import com.dtrules.samples.bookpreview.datamodel.Publisher;
 import com.dtrules.samples.bookpreview.datamodel.Request;
-import com.dtrules.session.EntityFactory;
 import com.dtrules.session.IRSession;
 import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
+import com.dtrules.testsupport.ATestHarness;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestCaseGen_BookReturns {
+    
 	public static PrintStream ostream = System.out;
 	public static PrintStream estream = System.err;
 	
+	public static ATestHarness testObj = new Test_BookReturns();
+	
 						      		// This is the default number of how many test cases to generate.
-	static int cnt = 100;	    	// You can pass a different number on the commandline.
+	static int cnt = 10;	    	// You can pass a different number on the commandline.
 	
 	static Random      rand 		 = new Random(1013);
 	XMLPrinter 	       xout 		 = null;
-	String 	 		   path 		 = System.getProperty("user.dir")+"/testfiles/";
 	
 	SimpleDateFormat   sdf           = new SimpleDateFormat("MM/dd/yyyy");
 	Date        	   currentdate   = new Date();
@@ -53,6 +51,11 @@ public class TestCaseGen_BookReturns {
 	        publishers[i].setPage_limit(randint(100)+1); 
 	    }
 	}
+    
+    public static void main(String args[]) throws Exception {
+        TestCaseGen_BookReturns tcg = new TestCaseGen_BookReturns();
+        tcg.generate("test",cnt);
+    }
 	
 	/**
 	 * Return a date that is some number of days before the given 
@@ -176,14 +179,14 @@ public class TestCaseGen_BookReturns {
 		int    len = (max+"").length();
 		String cnt = num+"";
 		while(cnt.length()<len){ cnt = "0"+cnt; }
-		return path+name+"_"+cnt+".xml";
+		return testObj.getTestDirectory()+name+"_"+cnt+".xml";
 	}
 	
 	void generate(String name, int numCases) throws Exception {
 		try{
 			ostream.println("Clearing away old tests");
             // Delete old output files
-            File dir         = new File(path);
+            File dir         = new File(testObj.getTestDirectory());
             if(!dir.exists()){
             	dir.mkdirs();
             }
@@ -196,9 +199,9 @@ public class TestCaseGen_BookReturns {
         }
 
 		String          path    = System.getProperty("user.dir")+"/";
-		String          config  = "DTRules_BookPreview.xml";
+		String          config  = "DTRules_eBooks.xml";
         RulesDirectory  rd      = new RulesDirectory(path, config);
-        RuleSet         rs      = rd.getRuleSet(RName.getRName("BookPreview"));
+        RuleSet         rs      = rd.getRuleSet(testObj.getRuleSetName());
         IRSession       session = rs.newSession();
 
 		try {
@@ -212,7 +215,7 @@ public class TestCaseGen_BookReturns {
 				if(i>0 && i%inc   ==0 )ostream.print(i+" ");
 				if(i>0 && i%lines ==0 )ostream.print("\n");
 				OutputStream out = new FileOutputStream(filename(name,numCases,i));
-                DataMap datamap = session.getDataMap(session.getMapping(),"BookPreview");
+                DataMap datamap = session.getDataMap(session.getMapping(),testObj.getRuleSetName());
 				
                 DataObj request = generate();
 				request.write2DataMap(datamap);
@@ -222,10 +225,5 @@ public class TestCaseGen_BookReturns {
 			ostream.println(e.toString());
 			e.printStackTrace();
 		}
-	}
-	
-	public static void main(String args[]) throws Exception {
-		TestCaseGen_BookReturns tcg = new TestCaseGen_BookReturns();
-		tcg.generate("test",cnt);
 	}
 }

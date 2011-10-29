@@ -1,0 +1,10 @@
+1	1.391	test_01.xml
+2	0.778	test_02.xml
+3	0.468	test_03.xml
+4	0.562	test_04.xml
+5	0.292	test_05.xml
+6	0.327	test_06.xml
+7	0.211	test_07.xml
+8	0.571	test_08.xml
+9	0.251	test_09.xml
+10	0.175	test_10.xml

@@ -42,8 +42,10 @@ public class LoadSettings extends AGenericXMLParser {
 			t.setPath(getProperty(attribs, body));
 		}else if(tag.equals("rulesdirectorypath")){
             t.setRulesDirectoryPath(getProperty(attribs, body));
-		}else if(tag.equals("outputdirectory")){
-            t.setRulesDirectoryPath(getProperty(attribs, body));
+        }else if(tag.equals("outputdirectory")){
+            t.setOutputDirectory(getProperty(attribs, body));
+        }else if(tag.equals("testdirectory")){
+            t.setTestDirectory(getProperty(attribs, body));
         }else if(tag.equals("rulesetname")){
 			t.setRuleSetName(body);
 		}else if(tag.equals("decisiontablename")){
