@@ -77,7 +77,6 @@ public abstract class ATestHarness implements ITestHarness {
     public String getRuleSetName()          { return ruleSetName; }
     public String getDecisionTableName()    { return decisionTableName; }
     public String getRulesDirectoryFile()   { return rulesDirectoryFile; }
-    public String getTestDirectory()        { return testDirectory == null? getPath()+"/testfiles" : testDirectory; }
     
     public void   setPath(String path)      						{ this.path               = path; }
     public void   setRulesDirectoryPath(String rulesDirectoryPath)  { this.rulesDirectoryPath = rulesDirectoryPath; }
@@ -86,6 +85,30 @@ public abstract class ATestHarness implements ITestHarness {
     public void   setRulesDirectoryFile(String rulesDirectoryFile)  { this.rulesDirectoryFile = rulesDirectoryFile; }
     public void   setTestDirectory(String testDirectory)            { this.testDirectory      = testDirectory; }
 
+    String addSlash(String dir){
+        if(dir.endsWith("/"))return dir;
+        return dir+"/";
+    }
+    
+    
+    public String getTestDirectory(RuleSet rs) { 
+        if(testDirectory == null){
+            Object dir = rs.getAttribute("testdirectory");
+            if(dir == null){
+                testDirectory = getPath()+"/testfiles"; 
+            }else{
+                testDirectory = dir.toString(); 
+            }
+            testDirectory = addSlash(testDirectory);
+        }
+        File td = new File(testDirectory);
+        if(!td.exists()){
+            td.mkdirs();
+        }
+
+        return testDirectory;
+    }
+    
     public void load(String settings) throws Exception{
         InputStream s = null;
         try{
@@ -178,10 +201,21 @@ public abstract class ATestHarness implements ITestHarness {
      * This is where we are going to put the trace files, report files, etc.
      * @return
      */
-    public String getOutputDirectory(){ 
+    public String getOutputDirectory(RuleSet rs){ 
         if(outputDirectory == null){
-            outputDirectory = getTestDirectory()+"output/"; 
+            Object name = rs.getAttribute("outputdirectory");
+            if(name == null){
+                outputDirectory = getTestDirectory(rs)+"output/";
+            }else{
+                outputDirectory = name.toString();
+            }
+            outputDirectory = addSlash(outputDirectory);
         }
+        File od = new File(outputDirectory);
+        if(!od.exists()){
+            od.mkdirs();
+        }
+        
         return outputDirectory;
     }
     
@@ -269,14 +303,16 @@ public abstract class ATestHarness implements ITestHarness {
      * The name of the report file.
      * @return
      */
-    public String getReportFileName() { 
-        return getOutputDirectory()+"report.txt"; 
+    public String getReportFileName(RuleSet rs) { 
+        return getOutputDirectory(rs)+"report.txt"; 
     }
     
     @Override
-    public File [] getFiles(){
-    	File   dir      = new File(getTestDirectory());
+    public File [] getFiles(RuleSet rs){
+    	File   dir      = new File(getTestDirectory(rs));
         File   files[]  = dir.listFiles();
+        
+        if(files == null ) files = new File[0];
         
 		for (int i = 0; i < files.length-1; i++){
 			for(int j = 0; j < files.length-1-i; j++){
@@ -323,23 +359,12 @@ public abstract class ATestHarness implements ITestHarness {
     
     
     PrintStream rpt=null; // Report file where summaries are written.
+    
     public void runTests(){
-         
-        try{
-            // Delete old output files
-            File dir         = new File(getOutputDirectory());
-            if(!dir.exists()){
-            	dir.mkdirs();
-            }
-            File oldOutput[] = dir.listFiles();
-            for(File file : oldOutput){
-               file.delete(); 
-            }
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
+        
+        RuleSet        rs = null;
+        
         try {
-            rpt = new PrintStream(getReportFileName());            
              
              // Allocate a RulesDirectory.  This object can contain many different Rule Sets.
              // A Rule set is a set of decision tables defined in XML, 
@@ -352,14 +377,32 @@ public abstract class ATestHarness implements ITestHarness {
            
              String         ruleset  = getRuleSetName();
              RName          rsName   = RName.getRName(ruleset);
-             RuleSet        rs       = rd.getRuleSet(rsName);
-         	 File           dir      = new File(getTestDirectory());
-             File           files[]  = getFiles();
+                            rs       = rd.getRuleSet(rsName);
+         	 File           dir      = new File(getTestDirectory(rs));
+             File           files[]  = getFiles(rs);
              int            dfcnt    = 1;
+         
+             rpt = new PrintStream(getReportFileName(rs));            
              
              if(rs == null){
             	 ostream.println("Could not find the Rule Set '"+ruleset+"'");
             	 throw new RuntimeException("Undefined: '"+ruleset+"'");
+             }
+         
+             try{
+                 // Delete old output files
+                 File dirx         = new File(getOutputDirectory(rs));
+                 if(!dirx.exists()){
+                     dirx.mkdirs();
+                 }
+                 File oldOutput[] = dirx.listFiles();
+                 for(File file : oldOutput){
+                     if(!file.isDirectory()){
+                         file.delete();
+                     }
+                 }
+             }catch(Exception e){
+                 throw new RuntimeException(e);
              }
              
              Date start = new Date();
@@ -402,9 +445,9 @@ public abstract class ATestHarness implements ITestHarness {
              }
              
              if(Trace() && coverageReport()){
-                 Coverage c = new Coverage(rs,getOutputDirectory());
+                 Coverage c = new Coverage(rs,getOutputDirectory(rs));
                  c.compute();
-                 c.printReport(new PrintStream(getOutputDirectory()+"coverage.xml"));
+                 c.printReport(new PrintStream(getOutputDirectory(rs)+"coverage.xml"));
              }
              
              {
@@ -428,7 +471,7 @@ public abstract class ATestHarness implements ITestHarness {
          
          rpt.close();
          try{
-             compareTestResults();
+             compareTestResults(rs);
          }catch(Exception e){
              ostream.println("Error comparing Test Results: "+e);
          }
@@ -492,9 +535,9 @@ public abstract class ATestHarness implements ITestHarness {
          
          try {
 
-        	  out        = new PrintStream     (getOutputDirectory()+number+root+"_results.xml");
+        	  out        = new PrintStream     (getOutputDirectory(rs)+number+root+"_results.xml");
               if(Trace()){
-                  tracefile  = new FileOutputStream(getOutputDirectory()+number+root+"_trace.xml");
+                  tracefile  = new FileOutputStream(getOutputDirectory(rs)+number+root+"_trace.xml");
               }
               IRSession      session    = rs.newSession();
               DTState        state      = session.getState();
@@ -512,11 +555,11 @@ public abstract class ATestHarness implements ITestHarness {
               
               if(Verbose()){
             	  if(harnessVersion() < 2){
-                     datamap.print(new FileOutputStream(getOutputDirectory()+number+root+"_datamap.xml"));
+                     datamap.print(new FileOutputStream(getOutputDirectory(rs)+number+root+"_datamap.xml"));
             	  }else{
-            		 autoDataMap.printDataLoadXML(new FileOutputStream(getOutputDirectory()+number+root+"_datamap.xml"));
+            		 autoDataMap.printDataLoadXML(new FileOutputStream(getOutputDirectory(rs)+number+root+"_datamap.xml"));
             	  }
-                  entityfile = new FileOutputStream(getOutputDirectory()+number+root+"_entities_before.xml");
+                  entityfile = new FileOutputStream(getOutputDirectory(rs)+number+root+"_entities_before.xml");
                   RArray entitystack = RArray.newArray(session,false,false);
                   for(int i=0; i< session.getState().edepth()-2; i++){
                       entitystack.add(session.getState().entityfetch(i));
@@ -534,7 +577,7 @@ public abstract class ATestHarness implements ITestHarness {
               
               // Then if asked, dump the entities.
               if(Verbose()){
-                  entityfile = new FileOutputStream(getOutputDirectory()+number+root+"_entities_after.xml");
+                  entityfile = new FileOutputStream(getOutputDirectory(rs)+number+root+"_entities_after.xml");
                   RArray entitystack = RArray.newArray(session,false,false);
                   for(int i=0; i< session.getState().edepth()-2; i++){
                       entitystack.add(session.getState().entityfetch(i));
@@ -651,15 +694,15 @@ public abstract class ATestHarness implements ITestHarness {
     	}
     }
      
-    public void compareTestResults() throws Exception {
-        XMLPrinter report = new XMLPrinter(compareTestResultsReport());
+    public void compareTestResults(RuleSet rs) throws Exception {
+        XMLPrinter report = new XMLPrinter(compareTestResultsReport(rs));
         
         ostream.println();
         
         report.opentag("results");
-        File outputs = new File(getOutputDirectory());
+        File outputs = new File(getOutputDirectory(rs));
         if(outputs == null || !outputs.isDirectory()){
-            ostream.println("'"+getOutputDirectory()+"' does not exist or is not a directory");
+            ostream.println("'"+getOutputDirectory(rs)+"' does not exist or is not a directory");
         }
         boolean changes = false;
         boolean missingResults = false;
@@ -669,7 +712,7 @@ public abstract class ATestHarness implements ITestHarness {
                 Node result1=null, result2=null;
                 try{
                     result1 = XMLTree.BuildTree(new FileInputStream(file),false,false);
-                    result2 = XMLTree.BuildTree(new FileInputStream(getResultDirectory()+file.getName()),false, false);
+                    result2 = XMLTree.BuildTree(new FileInputStream(getResultDirectory(rs)+file.getName()),false, false);
                     if(result1 != null && result2 != null){
                         removeIds(result1);
                         removeIds(result2);
@@ -712,15 +755,15 @@ public abstract class ATestHarness implements ITestHarness {
      * <br>
      *      <testdirectory>/results <br>
      */
-    public String getResultDirectory() {
-        return getOutputDirectory()+"results/";        
+    public String getResultDirectory(RuleSet rs) {
+        return getOutputDirectory(rs)+"results/";        
     }
     
     /**
      * Returns standard out by default.
      */
-    public PrintStream  compareTestResultsReport () throws Exception {
-        PrintStream ctrr = new PrintStream(getOutputDirectory()+"TestResults.xml");
+    public PrintStream  compareTestResultsReport (RuleSet rs) throws Exception {
+        PrintStream ctrr = new PrintStream(getOutputDirectory(rs)+"TestResults.xml");
         return ctrr;
         
     }

@@ -26,6 +26,7 @@ import java.io.PrintStream;
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.mapping.DataMap;
 import com.dtrules.session.IRSession;
+import com.dtrules.session.RuleSet;
 import com.dtrules.xmlparser.XMLTree.Node;
 
 /**
@@ -113,9 +114,11 @@ public interface ITestHarness {
      * for a test is compared to the same file in the /results directory 
      * (assuming one exists).
      * 
+     * @param ruleset This is the rule set, and it might be an attribute on the rs
+     *                where we get the Test Directory.
      * @return
      */
-    String getTestDirectory();
+    String getTestDirectory(RuleSet ruleset);
    
     /**
      * Specifies a directory of test files.  Directories or files that are
@@ -127,9 +130,11 @@ public interface ITestHarness {
     
     /**
      * This is where we are going to put the trace files, report files, etc.
+     * We might need to get the directory from the RuleSet
+     * @param ruleset
      * @return
      */
-    String getOutputDirectory();
+    String getOutputDirectory(RuleSet ruleset);
     
     /**
      * Set the directory where we will write our ouputs from our tests.
@@ -140,9 +145,10 @@ public interface ITestHarness {
     /**
      * This is where we are going to look for past results to compare
      * our new results to.
+     * @param ruleset
      * @return
      */
-    String getResultDirectory();
+    String getResultDirectory(RuleSet ruleset);
     
     /**
      * Do you want to print the report data to the Console as well as to the
@@ -217,7 +223,7 @@ public interface ITestHarness {
      * The name of the report file.
      * @return
      */
-    String getReportFileName();
+    String getReportFileName(RuleSet rs);
     
     /**
      * Runs all the test files in the TestDirectory;
@@ -242,12 +248,12 @@ public interface ITestHarness {
      * 
      * @return
      */
-    PrintStream  compareTestResultsReport () throws Exception ;
+    PrintStream  compareTestResultsReport (RuleSet rs) throws Exception ;
     
     /**
      * Compare our new results with a set of past result files.
      */
-    public void    compareTestResults() throws Exception ;
+    public void    compareTestResults(RuleSet rs) throws Exception ;
 
     
     /**
@@ -295,7 +301,7 @@ public interface ITestHarness {
      * run files in a different order.
      * @return
      */
-    public File [] getFiles();
+    public File [] getFiles(RuleSet rs);
     /**
      * Set the path to where the Rule Set control file is kept (the
      * RulesDirectoryFile). 
