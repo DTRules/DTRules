@@ -97,7 +97,7 @@ public abstract class ATestHarness implements ITestHarness {
             if(dir == null){
                 testDirectory = getPath()+"/testfiles"; 
             }else{
-                testDirectory = dir.toString(); 
+                testDirectory = rs.getRulesDirectory().getSystemPath()+dir.toString(); 
             }
             testDirectory = addSlash(testDirectory);
         }
@@ -203,11 +203,11 @@ public abstract class ATestHarness implements ITestHarness {
      */
     public String getOutputDirectory(RuleSet rs){ 
         if(outputDirectory == null){
-            Object name = rs.getAttribute("outputdirectory");
-            if(name == null){
+            Object dir = rs.getAttribute("outputdirectory");
+            if(dir == null){
                 outputDirectory = getTestDirectory(rs)+"output/";
             }else{
-                outputDirectory = name.toString();
+                outputDirectory = rs.getRulesDirectory().getSystemPath()+dir.toString();
             }
             outputDirectory = addSlash(outputDirectory);
         }
