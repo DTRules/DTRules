@@ -182,12 +182,19 @@ public class TestCaseGen_BookPreview {
 	}
 	
 	void generate(String name, int numCases) throws Exception {
-		try{
-			ostream.println("Clearing away old tests");
+
+		String          path    = System.getProperty("user.dir")+"/";
+		String          config  = "DTRules_eBooks.xml";
+        RulesDirectory  rd      = new RulesDirectory(path, config);
+                        rs      = rd.getRuleSet(ruleset);
+        IRSession       session = rs.newSession();
+
+        try{
+            ostream.println("Clearing away old tests");
             // Delete old output files
             File dir         = new File(testObj.getTestDirectory(rs));
             if(!dir.exists()){
-            	dir.mkdirs();
+                dir.mkdirs();
             }
             File oldOutput[] = dir.listFiles();
             for(File file : oldOutput){
@@ -196,13 +203,7 @@ public class TestCaseGen_BookPreview {
         }catch(Exception e){
             throw new RuntimeException(e);
         }
-
-		String          path    = System.getProperty("user.dir")+"/";
-		String          config  = "DTRules_eBooks.xml";
-        RulesDirectory  rd      = new RulesDirectory(path, config);
-                        rs      = rd.getRuleSet(ruleset);
-        IRSession       session = rs.newSession();
-
+        
 		try {
 			ostream.println("Generating "+numCases+" Tests");
 			int inc = 100;
