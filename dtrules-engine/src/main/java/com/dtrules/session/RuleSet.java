@@ -34,6 +34,7 @@ import com.dtrules.interpreter.IRObject;
 import com.dtrules.interpreter.RName;
 import com.dtrules.mapping.Mapping;
 import com.dtrules.session.IStreamSource.FileType;
+
 /**
  * Defines the set of artifacts which make up a logical set of
  * rules.  These include the schema for the rules (The Entity
@@ -78,11 +79,33 @@ public class RuleSet {
     protected String                      filepath         = null;
     protected String                      workingdirectory = null;
     
+    // Support for tracking various attributes useful in various systems and
+    //   configurations
+    Map<String, Object>                   attributes       = new HashMap<String,Object>();
+    
     // Support for the new AutoMap data interface
     protected Map<String,String>          mapFiles         = new HashMap<String,String>();
     protected Map<String,AutoDataMapDef>  mapDefinitions   = new HashMap<String,AutoDataMapDef>();
     protected Map<String, String>         entrypoints      = new HashMap<String,String>();
     protected Map<String, List<String>>   contexts         = new HashMap<String,List<String>>();
+    
+    /**
+     * Set an attribute on this Rule Set
+     * @param key
+     * @param value
+     */
+    public void setAttribute(String key, Object value){
+        attributes.put(key, value);
+    }
+    /**
+     * Return an attribute that has been previously set on this Rule Set.
+     * Returns null if no attribute of that name has been previously set.
+     * @param key
+     * @return
+     */
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
     
     public AutoDataMap getAutoDataMap(IRSession session, String name) throws RulesException{
         if(!mapDefinitions.containsKey(name)){
