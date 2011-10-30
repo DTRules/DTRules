@@ -43,7 +43,7 @@ public class RulesDirectory {
     									// We use the streamSource object to read files.  
     									// We have a default implementation, but will take
     									// an implementation upon creating a RulesDirectory.
-    IStreamSource			   streamSource = new StreamSource();
+    IStreamSource		   streamSource = new StreamSource();
     
     public Class<ICompiler> getDefaultCompiler() throws RulesException {
     	if(defaultCompiler == null){
@@ -321,6 +321,12 @@ public class RulesDirectory {
 	                    currentset.contexts.put(entryPoint, entities);
 	                }
 	                entities.add(body.trim());
+	            }else if (tag.equals("value")){
+	                String name  = attribs.get("name");
+	                String value = attribs.get("value");
+	                currentset.setAttribute(name, value);
+	            }else{
+	                throw new RulesException("undefined", "RulesDirectory","Unexpected tag encountered: "+tag);
 	            }
 			}
 		}    	
