@@ -8,8 +8,6 @@
     
     <path               systemproperty = "user.dir">/</path>
     <rulesdirectorypath systemproperty = "user.dir">/rs_returns/xml/</rulesdirectorypath>
-    <outputdirectory    systemproperty = "user.dir">/rs_returns//output/</outputdirectory>
-    <testdirectory      systemproperty = "user.dir">/rs_returns/testfiles/</testdirectory>
     <rulesetname>BookPreview</rulesetname>
     <decisiontablename>Book_Access_Request</decisiontablename>
     <rulesdirectoryfile>DTRules_eBooks.xml</rulesdirectoryfile>

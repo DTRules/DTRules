@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.dtrules.infrastructure.RulesException;
 import com.dtrules.interpreter.RName;
@@ -31,6 +32,9 @@ import com.dtrules.xmlparser.GenericXMLParser;
 
 @SuppressWarnings({"unchecked"})
 public class RulesDirectory {
+    
+    private String                 name;        // Name of this Rules Directory.
+    private Map<String,Object>     attributes = new HashMap<String,Object>();
     
 	boolean                loaded;
 	HashMap<RName,RuleSet> rulesets;
@@ -44,6 +48,46 @@ public class RulesDirectory {
     									// We have a default implementation, but will take
     									// an implementation upon creating a RulesDirectory.
     IStreamSource		   streamSource = new StreamSource();
+    
+    
+    
+    /**
+     * Return the name of this Rules Directory.  Useful in tools to 
+     * identify the grouping of a set of Rule Sets
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Set the name of this Rules Directory.
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Return an object associated with this Rules Directory.  This is
+     * useful for marking or managing meta information about the Rules
+     * Directory.
+     * @param key
+     * @return
+     */
+    public Object getAttribute(String key){
+        return attributes.get(key);
+    }
+    
+    /**
+     * Put a value into the attributes of this Rules Directory.  Useful
+     * for managing meta informatin about the Rules Directory.
+     * @param key
+     * @param value
+     */
+    public void setAttribute(String key, Object value){
+        attributes.put(key, value);
+    }
     
     public Class<ICompiler> getDefaultCompiler() throws RulesException {
     	if(defaultCompiler == null){
@@ -257,7 +301,11 @@ public class RulesDirectory {
 	
 			// Parse Rule Set tags.... If not inside a Rule Set, then we are going to skip processing these tags
 			if(currentset==null) {
-			    if (tag.equals("compileralias")){
+			    if (tag.equals("DTRules")){
+			        // Nothing to do here; Just ignore this tag.
+			    }else if (tag.equals("name")){
+			        rd.setName(body);
+			    }else if (tag.equals("compileralias")){
                     String key = attribs.get("name");
                     compileralias.put(key,body);
                 }else if(tag.equals("compiler")){
@@ -265,7 +313,13 @@ public class RulesDirectory {
 				        body = compileralias.get(body);
 				    }
 					rd.setDefaultCompiler(body.trim());
-				}
+				}else if (tag.equals("value")){
+                    String name  = attribs.get("name");
+                    String value = attribs.get("value");
+                    rd.setAttribute(name, value);
+                }else{
+                    throw new RulesException("undefined", "RulesDirectory","Unexpected tag encountered: "+tag);
+                }
 			}else{
 				if (tag.equals("include")){
 				    currentset.getIncludedRuleSets().add(body);

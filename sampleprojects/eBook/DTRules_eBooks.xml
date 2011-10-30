@@ -1,11 +1,13 @@
 <DTRules>
 
+  <name>EBooks Rule Sets</name>
+
   <compileralias name="EBL">com.dtrules.compiler.ebl.EBL</compileralias> 
   <compiler>EBL</compiler>
   
   <RuleSet name="BookPreview" source="file"  >
-     <RuleSetFilePath>/rs_preview/xml</RuleSetFilePath>
-     <WorkingDirectory>/rs_preview/temp</WorkingDirectory>
+     <RuleSetFilePath>/rs_preview/xml/</RuleSetFilePath>
+     <WorkingDirectory>/rs_preview/temp/</WorkingDirectory>
      
      <DTExcelFolder>/rs_preview/DecisionTables/</DTExcelFolder>
      <EDDExcelFolder>/rs_preview/Edd/</EDDExcelFolder>
@@ -13,6 +15,9 @@
      <Entities        name="BookPreview_edd.xml" />
      <Decisiontables  name="BookPreview_dt.xml"  />
      <Map             name="BookPreview_map.xml" />
+     
+     <value name="outputdirectory" value="/rs_preview/output/" />
+     <value name="testdirectory"   value="/rs_preview/testfiles/" />
   </RuleSet>    
 
   <RuleSet name="BookReturns" source="file"  >
@@ -25,11 +30,14 @@
      <Entities        name="BookReturns_edd.xml" />
      <Decisiontables  name="BookReturns_dt.xml"  />
      <Map             name="BookReturns_map.xml" />
+
+     <value name="outputdirectory" value="/rs_returns/output/" />
+     <value name="testdirectory"   value="/rs_returns/testfiles/" />
   </RuleSet>    
   
   <RuleSet name="BookSells" source="file"  >
-     <RuleSetFilePath>/rs_sells/xml</RuleSetFilePath>
-     <WorkingDirectory>/rs_sells/temp</WorkingDirectory>
+     <RuleSetFilePath>/rs_sells/xml/</RuleSetFilePath>
+     <WorkingDirectory>/rs_sells/temp/</WorkingDirectory>
      
      <DTExcelFolder>/rs_sells/DecisionTables/</DTExcelFolder>
      <EDDExcelFolder>/rs_sells/Edd/</EDDExcelFolder>
@@ -37,6 +45,10 @@
      <Entities        name="BookSells_edd.xml" />
      <Decisiontables  name="BookSells_dt.xml"  />
      <Map             name="BookSells_map.xml" />
+     
+     <value name="outputdirectory" value="/rs_sells/output/" />
+     <value name="testdirectory"   value="/rs_sells/testfiles/" />
+     
   </RuleSet>    
 
 </DTRules>

@@ -45,6 +45,8 @@ public class TestCaseGen_BookSells {
     Request            request       = null;
     static Publisher   publishers[]  = new Publisher[8];       // We select from one of four publishers
     
+    RuleSet            rs            = null;
+    
     static {
         for(int i=0;i<publishers.length;i++){
             publishers[i]= new Publisher();
@@ -180,31 +182,31 @@ public class TestCaseGen_BookSells {
         int    len = (max+"").length();
         String cnt = num+"";
         while(cnt.length()<len){ cnt = "0"+cnt; }
-        return testObj.getTestDirectory()+name+"_"+cnt+".xml";
+        return testObj.getTestDirectory(rs)+name+"_"+cnt+".xml";
     }
     
     void generate(String name, int numCases) throws Exception {
+      
+        String          path    = System.getProperty("user.dir")+"/";
+        String          config  = "DTRules_eBooks.xml";
+        RulesDirectory  rd      = new RulesDirectory(path, config);
+                        rs      = rd.getRuleSet(testObj.getRuleSetName());
+        IRSession       session = rs.newSession();
+
         try{
             ostream.println("Clearing away old tests");
             // Delete old output files
-            File dir         = new File(testObj.getTestDirectory());
-            if(!dir.exists()){
-                dir.mkdirs();
+            File dirx         = new File(testObj.getTestDirectory(rs));
+            if(!dirx.exists()){
+                dirx.mkdirs();
             }
-            File oldOutput[] = dir.listFiles();
+            File oldOutput[] = dirx.listFiles();
             for(File file : oldOutput){
                file.delete(); 
             }
         }catch(Exception e){
             throw new RuntimeException(e);
         }
-
-        String          path    = System.getProperty("user.dir")+"/";
-        String          config  = "DTRules_eBooks.xml";
-        RulesDirectory  rd      = new RulesDirectory(path, config);
-        RuleSet         rs      = rd.getRuleSet(testObj.getRuleSetName());
-        IRSession       session = rs.newSession();
-
         try {
             ostream.println("Generating "+numCases+" Tests");
             int inc = 100;
