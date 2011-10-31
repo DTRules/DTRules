@@ -37,8 +37,8 @@ public class BalanceTable {
     private int         maxRow=0;
     private int         maxCol=0;
     private int         maxARow=0;
-    Map<Long, String>   ctable;// = new String[100][10240];
-    Map<Long, String>   atable;// = new String[100][10240];
+    Map<Long, String>   ctable;
+    Map<Long, String>   atable;
     List<List<Integer>> b_columns;
 
     void putCT(long row, long col, String v) {
@@ -78,27 +78,17 @@ public class BalanceTable {
         atable = new HashMap<Long, String>();
         b_columns = new ArrayList<List<Integer>>();
         
-        for(int col = 0; col < btable.getConditiontable()[0].length; col++){
-            for(int row = 0; row < btable.getConditiontable().length; row++){
-                putCT(row,col,btable.getConditiontable()[row][col]);
-            }    
-        }
-        
-        for(int col = 0; col < btable.getActiontable()[0].length; col++){
-            for(int row = 0; row < btable.getActiontable().length; row++){
-                putAT(row,col,btable.getActiontable()[row][col]);
-            }    
-        }
-        
         filltable(0,0,dt.decisiontree); 
         btable.conditiontable = new String[btable.getConditiontable().length][maxCol];
         btable.actiontable    = new String[btable.getActiontable().length]   [maxCol];
         for(int col = 0; col < maxCol; col++){
             for(int row = 0; row < btable.getConditiontable().length; row++){
-                btable.conditiontable[row][col]=getCT(row, col);
+                String v = getCT(row,col);
+                btable.conditiontable[row][col]=v;
             }
             for(int row=0; row < btable.getActiontable().length; row++){
-                btable.actiontable[row][col]=getAT(row,col);
+                String v = getAT(row,col);
+                btable.actiontable[row][col]=v;
             }
         }
         
