@@ -1648,7 +1648,7 @@ public class RDecisionTable extends ARObject {
     }
     
     public String [] getPolicyStatementsBalanced(IRSession session) {
-        if(policystatements == null){
+        if(policyStatementsBalanced == null){
             try {
                 RDecisionTable dt        = getBalancedTable(session);
                 actiontablebalanced      = dt.actiontable;
