@@ -203,7 +203,6 @@ open_book entitypush pages entitypop length 1 + page_limit &gt;
 <condition_postfix>
  { true } { false } { page_number dup begin_page &gt;= swap end_page &lt;= &amp;&amp; } excluded_chapters forfirstelse 
 </condition_postfix>
-<condition_column column_value="Y" column_number="1"></condition_column>
 <condition_column column_value="Y" column_number="3"></condition_column></condition_details>
 <condition_details>
 <condition_number>6</condition_number>

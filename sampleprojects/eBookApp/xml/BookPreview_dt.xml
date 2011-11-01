@@ -123,7 +123,7 @@ Other_Actions
 <table_name>Turn_Page</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>
 <attribute_fields>
-<Type>ALL</Type>
+<Type>FIRST</Type>
 <COMMENTS>The goal here is to determine if we should send another page of a book under preview to the customer</COMMENTS>
 <File_Name>BookPreview_dt.xls</File_Name></attribute_fields>
 <contexts>
@@ -259,20 +259,20 @@ policystatements customer entitypush notes entitypop true  addarray
 <action_column column_value="X" column_number="5"></action_column></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>The preview period for the book has expired</policy_description>
-<policy_statement_postfix>&quot;The preview period for the book has expired&quot; </policy_statement_postfix></policy_statement>
+<policy_description>Column 1: The preview period for the book has expired</policy_description>
+<policy_statement_postfix>&quot;Column 1: The preview period for the book has expired&quot; </policy_statement_postfix></policy_statement>
 <policy_statement column="2">
-<policy_description>The total number of viewable pages has been reached</policy_description>
-<policy_statement_postfix>&quot;The total number of viewable pages has been reached&quot; </policy_statement_postfix></policy_statement>
+<policy_description>Column 2: The total number of viewable pages has been reached</policy_description>
+<policy_statement_postfix>&quot;Column 2: The total number of viewable pages has been reached&quot; </policy_statement_postfix></policy_statement>
 <policy_statement column="3">
-<policy_description>The chapter of the next page is excluded from view</policy_description>
-<policy_statement_postfix>&quot;The chapter of the next page is excluded from view&quot; </policy_statement_postfix></policy_statement>
+<policy_description>Column 3: The chapter of the next page is excluded from view</policy_description>
+<policy_statement_postfix>&quot;Column 3: The chapter of the next page is excluded from view&quot; </policy_statement_postfix></policy_statement>
 <policy_statement column="4">
-<policy_description>The total number of viewable chapters has been reached.</policy_description>
-<policy_statement_postfix>&quot;The total number of viewable chapters has been reached.&quot; </policy_statement_postfix></policy_statement>
+<policy_description>Column 4: The total number of viewable chapters has been reached.</policy_description>
+<policy_statement_postfix>&quot;Column 4: The total number of viewable chapters has been reached.&quot; </policy_statement_postfix></policy_statement>
 <policy_statement column="5">
-<policy_description>Approve the next page</policy_description>
-<policy_statement_postfix>&quot;Approve the next page&quot; </policy_statement_postfix></policy_statement></policy_statements></decision_table>
+<policy_description>Column 5: Approve the next page</policy_description>
+<policy_statement_postfix>&quot;Column 5: Approve the next page&quot; </policy_statement_postfix></policy_statement></policy_statements></decision_table>
 <decision_table>
 <table_name>Other_Actions</table_name>
 <xls_file>BookPreview_dt.xls</xls_file>

@@ -222,7 +222,7 @@ public class BookPreviewApp {
 				String [] keys = results.keySet().toArray(new String [0]);
 				sort(keys);
 				for(String key : keys){
-				    System.out.printf("%60s %8d\n", key, results.get(key));
+				    System.out.printf("%70s %8d\n", key, results.get(key));
 				}
 			}
 			{
