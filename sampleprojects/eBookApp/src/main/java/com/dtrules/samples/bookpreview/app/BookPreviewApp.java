@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dtrules.interpreter.RName;
 import com.dtrules.samples.bookpreview.datamodel.DataObj;
+import com.dtrules.samples.bookpreview.datamodel.Request;
 import com.dtrules.session.RuleSet;
 import com.dtrules.session.RulesDirectory;
 
@@ -34,6 +35,7 @@ public class BookPreviewApp {
 	List<Integer> approvedClients = new ArrayList<Integer>() ;  // Approved clients
 	List<Integer> deniedClients   = new ArrayList<Integer>() ;  // Denied clients
 	
+	int           numOpenBooks = 0; // The number of open books held by users processed.
 	Map<String,Integer> results = new HashMap<String,Integer>();
 	
 	// End of settings.
@@ -128,7 +130,9 @@ public class BookPreviewApp {
 		if(jobs.size()<50){
 			genCase.fill(); 
 		}
-		return jobs.remove(0);
+		DataObj r = jobs.remove(0);
+		numOpenBooks += ((Request) r).getCustomer().getOpen_books().size();
+		return r;
 	}
 
 	public static void main(String[] args) {
@@ -220,6 +224,7 @@ public class BookPreviewApp {
 				System.out.println("\n");
 				
 				String [] keys = results.keySet().toArray(new String [0]);
+				System.out.printf("%70s %8d\n", "The number of open books held by all customers:",numOpenBooks);
 				sort(keys);
 				for(String key : keys){
 				    System.out.printf("%70s %8d\n", key, results.get(key));
