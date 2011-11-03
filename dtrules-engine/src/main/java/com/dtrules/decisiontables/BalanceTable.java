@@ -79,8 +79,8 @@ public class BalanceTable {
         b_columns = new ArrayList<List<Integer>>();
         
         filltable(0,0,dt.decisiontree); 
-        btable.conditiontable = new String[btable.getConditiontable().length][maxCol];
-        btable.actiontable    = new String[btable.getActiontable().length]   [maxCol];
+        btable.conditiontable = new String[dt.getConditiontable().length][maxCol];
+        btable.actiontable    = new String[dt.getActiontable().length]   [maxCol];
         for(int col = 0; col < maxCol; col++){
             for(int row = 0; row < btable.getConditiontable().length; row++){
                 String v = getCT(row,col);
