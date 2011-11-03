@@ -19,7 +19,7 @@
      <value name="outputdirectory" value="/rs_preview/output/" />
      <value name="testdirectory"   value="/rs_preview/testfiles/" />
   </RuleSet>    
-
+<!--  
   <RuleSet name="BookReturns" source="file"  >
      <RuleSetFilePath>/rs_returns/xml</RuleSetFilePath>
      <WorkingDirectory>/rs_returns/temp</WorkingDirectory>
@@ -50,6 +50,6 @@
      <value name="testdirectory"   value="/rs_sells/testfiles/" />
      
   </RuleSet>    
-
+-->
 </DTRules>
 

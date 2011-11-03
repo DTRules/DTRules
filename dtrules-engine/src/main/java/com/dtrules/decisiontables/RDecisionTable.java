@@ -35,6 +35,7 @@ import com.dtrules.interpreter.RName;
 import com.dtrules.interpreter.RNull;
 import com.dtrules.interpreter.RString;
 import com.dtrules.interpreter.RType;
+import com.dtrules.interpreter.operators.ROperator;
 import com.dtrules.session.DTState;
 import com.dtrules.session.EntityFactory;
 import com.dtrules.session.IDecisionTableError;
@@ -555,6 +556,33 @@ public class RDecisionTable extends ARObject {
 		}    
 	}
 	
+	ROperator ps = ROperator.getInstance("policystatements");
+	
+	/**
+	 * If the given array calls the policystatements operator, then we cannot
+	 * optimize ALL tables.
+	 */
+	private boolean callsPolicyStatement(IRObject c, ArrayList<IRObject> list) {
+	    if(list == null) list = new ArrayList<IRObject>();
+	    if(list.contains(c)) return false;
+	    try{
+	        if(ps.equals(c)) {
+	            return true;
+	        }
+	   
+    	    if(c.type().getId() == iArray){
+    	        list.add(c);
+    	        RArray ar = c.rArrayValue();
+    	        for(IRObject v : ar){
+    	            boolean f = callsPolicyStatement(v,list);
+    	            if(f) return f;
+    	        }
+    	    }
+    	    
+	    }catch(RulesException e) {} return false;
+	   
+	}
+	
 	/**
 	 * Compile each condition and action.  We mark the decision table as
 	 * uncompiled if any error is detected.  However, we still attempt to 
@@ -609,6 +637,10 @@ public class RDecisionTable extends ARObject {
     		for(int i=0;i<ractions.length;i++){
     			try {
     				ractions[i]= RString.compile(session, actionsPostfix[i],true);
+                    if(ractions[i] != null && type == Type.ALL && callsPolicyStatement(ractions[i],null)){
+                        optimize = false;
+                    }
+                    
     			} catch (RulesException e) {
                     errorlist.add(
                             new CompilerError(
@@ -1292,8 +1324,7 @@ public class RDecisionTable extends ARObject {
            errorlist.add(
                    new CompilerError(
                            IDecisionTableError.Type.CONDITION,
-                           "You have to have at least one condition in a decision table",
-                           0,0)
+                           "You have to have at least one condition in a decision table", 0,0)
            );        
        }
 

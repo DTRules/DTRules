@@ -34,9 +34,9 @@ public class TestCaseGen_BookPreview {
 	public static ATestHarness testObj = new Test_BookPreview();
 	
 						      		// This is the default number of how many test cases to generate.
-	static int cnt = 10;	    	// You can pass a different number on the commandline.
+	static int cnt = 3;	          	// You can pass a different number on the commandline.
 	
-	static Random      rand 		 = new Random(1013);
+	static Random      rand 		 = new Random(102417);
 	XMLPrinter 	       xout 		 = null;
 	
 	SimpleDateFormat   sdf           = new SimpleDateFormat("MM/dd/yyyy");

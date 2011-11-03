@@ -45,9 +45,7 @@ public abstract class ROperator extends ARObject {
 	public static RType type = RType.newType("operator");
 	
 	static final REntity primitives = new REntity(1,true,RName.getRName("primities",false));
-    
-	private static ROperator instance;
-		
+    		
 	static {
 		new RMath();
 		new RArrayOps();
@@ -152,7 +150,17 @@ public abstract class ROperator extends ARObject {
      * Get an instance of this operator.
      * @return
      */
-    public static ROperator getInstance(){ return instance; }
+    public static ROperator getInstance(String name ){
+        return (ROperator) primitives.get(name); 
+    }
+    
+    /**
+     * Get an instance of this operator.
+     * @return
+     */
+    public static ROperator getInstance(RName name ){ 
+        return (ROperator) primitives.get(name); 
+    }
     
     /**
      * A method that makes it a bit easier to call the other alias function when I am
@@ -174,7 +182,6 @@ public abstract class ROperator extends ARObject {
     public ROperator(String _name){
         name = RName.getRName(_name, true);
         alias((IRObject) this,_name);
-        instance = this;
     }
     
     public boolean isExecutable() { return true; }

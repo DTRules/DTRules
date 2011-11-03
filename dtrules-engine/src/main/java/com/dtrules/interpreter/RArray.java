@@ -309,6 +309,7 @@ public class RArray extends ARObject implements Collection<IRObject> {
 	 */
 	public boolean equals(IRObject o) throws RulesException {
 		uncache();
+		if(o.type() != type()) return false;
 		return ((RArray)o).array.equals(o.rArrayValue().array);
 	}
 	
