@@ -28,7 +28,7 @@ action code {:
        return ((RSymbol)stack.peek()).leftvalue;
     }   
 
-    public void notlocal(java.util.Stack stack){
+    public void notlocal(java.util.Stack stack) throws RulesException {
       Symbol v = (Symbol) stack.peek();
       if(v instanceof RSymbol && ((RSymbol)v).local){
           throw new RulesException(
