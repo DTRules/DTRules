@@ -198,9 +198,9 @@ public abstract class ROperator extends ARObject {
 		return name.stringValue();
 	}
     
-    abstract public void arrayExecute(DTState state) throws RulesException ;
+    abstract public void execute(DTState state) throws RulesException ;
     
-    public void execute(DTState state) throws RulesException {
-    	arrayExecute(state);
+    public void arrayExecute(DTState state) throws RulesException {
+    	execute(state);
     }
 }

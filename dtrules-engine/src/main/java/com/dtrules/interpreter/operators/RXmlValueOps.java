@@ -42,7 +42,7 @@ public class RXmlValueOps {
 	    public static class NewXmlAttribute extends ROperator {
 	        NewXmlAttribute(){super("newxmlattribute"); }
 	        @Override
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 RName     name      = state.datapop().rNameValue();
                 XMLTag    xmlNode   = new XMLTag(name.stringValue(),null);
                 RXmlValue xmlValue  = new RXmlValue(state,xmlNode);
@@ -61,7 +61,7 @@ public class RXmlValueOps {
 			SetXmlAttribute(){super("setxmlattribute");}
 
 			@Override
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
 				IRObject  value     = state.datapop();
 				IRObject  attribute = state.datapop();
 				XMLNode   xmlNode   = state.datapop().xmlTagValue();
@@ -83,7 +83,7 @@ public class RXmlValueOps {
             GetXmlAttribute(){super("getxmlattribute");}
 
             @Override
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 String    attribute = state.datapop().stringValue();
                 XMLNode   xmlNode    = state.datapop().xmlTagValue();
                 if(xmlNode == null) {

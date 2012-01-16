@@ -45,36 +45,36 @@ public class RControl {
         new If();           new Ifelse();           new While();        
         new Forallr();      new Forall();           new For();          
         new Forr();         new Entityforall();     new Forfirst();  
-        new Doloop();       new ForFirstElse();     new arrayExecuteTable(); 
-        new arrayExecute();      new Deallocate();       new Allocate();     
+        new Doloop();       new ForFirstElse();     new executeTable(); 
+        new execute();      new Deallocate();       new Allocate();     
         new Localfetch();   new Localstore();       new PerformCatchError();
         new Lookup();       new PolicyStatements(); new ThrowException();
     }
     
     /**
-     * ( body boolean -- ) arrayExecutes the body if the boolean is true.
+     * ( body boolean -- ) executes the body if the boolean is true.
      * @author paul snow
      *
      */
     public static class If extends ROperator {
         If(){super("if");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             boolean  test = state.datapop().booleanValue();
             IRObject body = state.datapop();
             if(test)body.execute(state);
         }
     }
     /**
-     * ( truebody falsebody test -- ) arrayExecutes truebody if the boolean test is true, otherwise 
-     * arrayExecutes falsebody.
+     * ( truebody falsebody test -- ) executes truebody if the boolean test is true, otherwise 
+     * executes falsebody.
      * @author paul snow
      *
      */
     public static class Ifelse extends ROperator {
         Ifelse(){super("ifelse");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             boolean  test      = state.datapop().booleanValue();
             IRObject falsebody = state.datapop();
             IRObject truebody  = state.datapop();
@@ -88,42 +88,42 @@ public class RControl {
     
     /**
      * This is an internal operator which doesn't have any use outside of the
-     * Rules Engine itself.  It is used to arrayExecute the conditions and actions 
+     * Rules Engine itself.  It is used to execute the conditions and actions 
      * for a table within the context as defined in the table.
      * 
      * ( DecisionTableName -- ) Takes the DecisionTable name and looks it up
-     * in the decisiontable entity.  It then arrayExecutes the table within that
+     * in the decisiontable entity.  It then executes the table within that
      * decision table.  Because of this extra lookup, this path shouldn't be
-     * used unless there actually is a context to be arrayExecuted.
+     * used unless there actually is a context to be executed.
      * 
      * @author paul snow
      *
      */
-    public static class arrayExecuteTable extends ROperator {
-        arrayExecuteTable(){super("executetable");}
+    public static class executeTable extends ROperator {
+        executeTable(){super("executetable");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RName dtname = state.datapop().rNameValue();
             state.getSession().getEntityFactory().getDecisionTable(dtname).executeTable(state);
         }
     }
     /**
-     * ( RObject -- ? ) arrayExecutes the object on the top of the data stack.
-     * The behavior of this operator is defined by the object arrayExecuted.  Usually
+     * ( RObject -- ? ) executes the object on the top of the data stack.
+     * The behavior of this operator is defined by the object executed.  Usually
      * the data stack will be left clean.
      * @author paul snow
      *
      */
-    public static class arrayExecute extends ROperator {
-        arrayExecute(){super("execute"); }
+    public static class execute extends ROperator {
+        execute(){super("execute"); }
         
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             state.datapop().getExecutable().execute(state);
         }
     }
     
     /**
-     * ( body test -- ) arrayExecutes test.  If test returns true, arrayExecutes body.  
+     * ( body test -- ) executes test.  If test returns true, executes body.  
      * Repeats until the test returns false.
      * 
      * @author paul snow
@@ -132,13 +132,13 @@ public class RControl {
     public static class While extends ROperator {
         While(){super("while");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             IRObject test = state.datapop();         // Get the test
             IRObject body = state.datapop();         // Get the body
             
             test.execute(state);                     // evaluate the test
             while(state.datapop().booleanValue()){   // If true, keep looping
-                body.execute(state);                 // arrayExecute the body.
+                body.execute(state);                 // execute the body.
                 test.execute(state);                 // check the test again.
             }
             
@@ -146,8 +146,8 @@ public class RControl {
         }
     }
     /**
-     * ( body array -- ) arrayExecute the body for each entity in the array.
-     * arrayExecutes backwards through the array, and the entity can be removed
+     * ( body array -- ) execute the body for each entity in the array.
+     * executes backwards through the array, and the entity can be removed
      * from the array by the body.
      * 
      * @author paul snow
@@ -156,7 +156,7 @@ public class RControl {
     public static class Forallr extends ROperator {
         Forallr(){super("forallr");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
 
             List<IRObject> array  = state.datapop().arrayValue(); // Get the array
             int            length = array.size();                 // get Array length.
@@ -177,8 +177,8 @@ public class RControl {
     }
     
     /**
-     * ( body array -- ) arrayExecutes the body for each entity in the array.  Uses an 
-     * Iterator and arrayExecutes forward in the array.  The entity cannot be removed from
+     * ( body array -- ) executes the body for each entity in the array.  Uses an 
+     * Iterator and executes forward in the array.  The entity cannot be removed from
      * the array by the body.
      * 
      * @author paul snow
@@ -187,7 +187,7 @@ public class RControl {
     public static class Forall extends ROperator {
         Forall(){super("forall");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             
             RArray   array = state.datapop().rArrayValue();
             IRObject body = state.datapop();        // Get the body
@@ -206,14 +206,14 @@ public class RControl {
     }
     
     /**
-     * ( body array -- ) Pushes each element on to the data stack, then arrayExecutes the body.
+     * ( body array -- ) Pushes each element on to the data stack, then executes the body.
      * @author paul snow
      *
      */
     public static class For extends ROperator {
         For(){super("for");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RArray   list = state.datapop().rArrayValue();
             IRObject body = state.datapop();        // Get the body
             for(IRObject o : list){
@@ -223,7 +223,7 @@ public class RControl {
         }
     }
     /**
-     * ( body array  -- ) pushes each element on to the data stack, then arrayExecutes the body.
+     * ( body array  -- ) pushes each element on to the data stack, then executes the body.
      * Because the array is evaluated in reverse order, the element can be removed from the
      * array if you care to.
      * 
@@ -233,7 +233,7 @@ public class RControl {
     public static class Forr extends ROperator {
         Forr(){super("forr");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             
             List<IRObject> array  = state.datapop().arrayValue(); // Get the array
             int            length = array.size();                 // get Array length.
@@ -247,7 +247,7 @@ public class RControl {
         }
     }
     /**
-     * ( body entity -- ) arrayExecutes the body for each key value pair in the Entity.
+     * ( body entity -- ) executes the body for each key value pair in the Entity.
      * 
      * @author paul snow
      *
@@ -255,7 +255,7 @@ public class RControl {
     public static class Entityforall extends ROperator {
         Entityforall(){super("entityforall");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             IREntity        entity  = state.datapop().rEntityValue();  // Get the entity
             IRObject        body    = state.datapop();                    // Get the body
             Iterator<RName> keys    = entity.getAttributeIterator();      // Get the Attribute Iterator
@@ -274,7 +274,7 @@ public class RControl {
     /**
      * ( body test array -- )
      * Each entity within the array is placed on the entity stack.  The test is evaluated, which should
-     * return the boolean.  If true, the body is arrayExecuted, and the loop stops. 
+     * return the boolean.  If true, the body is executed, and the loop stops. 
      * @author paul snow
      * Jan 10, 2007
      *
@@ -282,7 +282,7 @@ public class RControl {
     public static class Forfirst extends ROperator {
         Forfirst(){super("forfirst");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RArray              array = state.datapop().rArrayValue();
             IRObject            test  = state.datapop();
             IRObject            body  = state.datapop();
@@ -303,8 +303,8 @@ public class RControl {
     /**
      * ( body1 body2 test array -- )
      * Each entity within the array is placed on the entity stack.  The test is 
-     * evaluated, which should return the boolean.  If true, the body1 is arrayExecuted, 
-     * and the loop stops.  If no match is found, body2 is arrayExecuted.  Kinda a 
+     * evaluated, which should return the boolean.  If true, the body1 is executed, 
+     * and the loop stops.  If no match is found, body2 is executed.  Kinda a 
      * default operation. 
      * @author paul snow
      * Jan 10, 2007
@@ -313,7 +313,7 @@ public class RControl {
     public static class ForFirstElse extends ROperator {
         ForFirstElse(){super("forfirstelse");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RArray   array = state.datapop().rArrayValue();
             IRObject test  = state.datapop();
             IRObject body2 = state.datapop();
@@ -336,9 +336,9 @@ public class RControl {
     /**
      * ( body start increment limit -- ) Starts the index with the value "start".  If the
      * increment is positive and start is below the limit, the index
-     * is pushed and body is arrayExecuted, then the index is incremented
+     * is pushed and body is executed, then the index is incremented
      * by increment.  If the increment is negative and stat is above
-     * the limit, then the index is pushed and the body is arrayExecuted,
+     * the limit, then the index is pushed and the body is executed,
      * then the index is decremented by the increment.  This continues
      * until the limit is reached.
      * 
@@ -349,7 +349,7 @@ public class RControl {
     public static class Doloop extends ROperator {
         Doloop(){super("doloop");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             int         limit     = state.datapop().intValue();
             int         increment = state.datapop().intValue();
             int         start     = state.datapop().intValue();
@@ -380,7 +380,7 @@ public class RControl {
     public static class Allocate extends ROperator {
         Allocate(){super("allocate"); alias("cpush");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             IRObject v = state.datapop();
             int index = state.cdepth()-state.getCurrentFrame();
             if(state.testState(DTState.TRACE)){
@@ -400,7 +400,7 @@ public class RControl {
      */
     public static class Deallocate extends ROperator {
         Deallocate(){super("deallocate"); alias("cpop");}
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             state.datapush(state.cpop());
         }
     }
@@ -413,7 +413,7 @@ public class RControl {
     public static class Localfetch extends ROperator {
         Localfetch(){super("local@");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             int      index = state.datapop().intValue();
             IRObject value = state.getFrameValue(index);
             if(state.testState(DTState.TRACE) && state.testState(DTState.VERBOSE)){
@@ -431,7 +431,7 @@ public class RControl {
     public static class Localstore extends ROperator {
         Localstore(){super("local!");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             int      index = state.datapop().intValue();
             IRObject value = state.datapop();
             if(state.testState(DTState.TRACE)){
@@ -443,7 +443,7 @@ public class RControl {
 
     /**
      * performCatchError (table error_table error_entity -- )
-     * arrayExecutes the given table.  If a RulesException is thrown, a RulesException
+     * executes the given table.  If a RulesException is thrown, a RulesException
      * is created and put into the context.  Then the error_table is called.
      * <br><br>
      * Intended to support something like the following syntax:
@@ -458,7 +458,7 @@ public class RControl {
         private IRObject p(String v) { return RString.newRString(v==null?"":v); }
         private RName    n(String x) { return RName.getRName(x);}
         
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RName    error        = state.datapop().rNameValue();
             RName    table        = state.datapop().rNameValue();
             
@@ -502,7 +502,7 @@ public class RControl {
     public static class Lookup extends ROperator {
         Lookup(){super("lookup");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RName name = state.datapop().rNameValue();
             IRObject value = state.find(name);
             if(value == null){
@@ -526,7 +526,7 @@ public class RControl {
     public static class PolicyStatements extends ROperator {
         PolicyStatements(){super("policystatements");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             RArray ra = RArray.newArray(state.getSession(),true,false);
             state.datapush(ra);
             if(!state.getCurrentTable().equals(state.getAnode().getrDecisionTable())){
@@ -580,7 +580,7 @@ public class RControl {
     public static class ThrowException extends ROperator {
         ThrowException(){super("throwexception");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             IRObject value = state.datapop();
             throw new RulesException(
                         "throwException",

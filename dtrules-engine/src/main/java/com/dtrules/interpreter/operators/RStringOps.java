@@ -40,7 +40,7 @@ public class RStringOps {
         Stringlength(){super("strlength");}
 
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String   str = state.datapop().stringValue();
             RInteger len = RInteger.getRIntegerValue(str.length());
             state.datapush(len);
@@ -56,7 +56,7 @@ public class RStringOps {
         Touppercase(){super("touppercase");}
 
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String   str  = state.datapop().stringValue();
             String   str2 = str.toUpperCase();
             state.datapush(RString.newRString(str2));
@@ -72,7 +72,7 @@ public class RStringOps {
         Tolowercase(){super("tolowercase");}
 
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String   str  = state.datapop().stringValue();
             String   str2 = str.toLowerCase();
             state.datapush(RString.newRString(str2));
@@ -88,7 +88,7 @@ public class RStringOps {
         Trim(){super("strtrim");}
 
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String   str  = state.datapop().stringValue();
             String   str2 = str.trim();
             state.datapush(RString.newRString(str2));
@@ -104,7 +104,7 @@ public class RStringOps {
         substring(){super("substring");}
 
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String   str  = state.datapop().stringValue();
             int      b    = state.datapop().intValue();
             int      e    = state.datapop().intValue();
@@ -124,7 +124,7 @@ public class RStringOps {
         RegexMatch(){super("regexmatch");}
         
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String string = state.datapop().stringValue();
             String regex  = state.datapop().stringValue();
             boolean b = string.matches(regex);
@@ -143,7 +143,7 @@ public class RStringOps {
         Indexof(){super("indexof");}
         
         @Override
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String string2 = state.datapop().stringValue();
             String string1 = state.datapop().stringValue();
             int index = string2.indexOf(string1);
@@ -158,7 +158,7 @@ public class RStringOps {
     public static class StrConcat extends ROperator {
         StrConcat(){super("s+"); alias("strconcat");}
 
-        public void arrayExecute(DTState state) throws RulesException {
+        public void execute(DTState state) throws RulesException {
             String value2 = state.datapop().stringValue();
             String value1 = state.datapop().stringValue();
             state.datapush(RString.newRString(value1+value2));

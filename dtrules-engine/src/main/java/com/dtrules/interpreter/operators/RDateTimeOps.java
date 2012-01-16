@@ -77,7 +77,7 @@ public class RDateTimeOps {
 		public static class Newdate extends ROperator {
 			Newdate(){super("newdate");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 			    IRObject obj   = state.datapop();
 			    String   date  = obj.stringValue();
 				try{
@@ -97,7 +97,7 @@ public class RDateTimeOps {
         public static class Days extends ROperator {
             Days(){super("days");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Calendar c = state.calendar;
                 c.clear();
                 int  days = state.datapop().intValue();
@@ -115,7 +115,7 @@ public class RDateTimeOps {
         public static class Months extends ROperator {
             Months(){super("months");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Calendar c = state.calendar;
                 c.clear();
                 int  months = state.datapop().intValue();
@@ -133,7 +133,7 @@ public class RDateTimeOps {
         public static class Years extends ROperator {
             Years(){super("years");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Calendar c = state.calendar;
                 c.clear();
                 int  months = state.datapop().intValue();
@@ -151,7 +151,7 @@ public class RDateTimeOps {
         public static class FirstOfMonth extends ROperator {
             FirstOfMonth(){super("firstofmonth");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Date  date = state.datapop().timeValue();
                 state.calendar.setTime(date);
                 state.calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -169,7 +169,7 @@ public class RDateTimeOps {
         public static class FirstOfYear extends ROperator {
             FirstOfYear(){super("firstofyear");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Date  date = state.datapop().timeValue();
                 state.calendar.setTime(date);
                 state.calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -188,7 +188,7 @@ public class RDateTimeOps {
         public static class EndOfMonth extends ROperator {
             EndOfMonth(){super("endofmonth");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Date  date = state.datapop().timeValue();
                 state.calendar.setTime(date);
                 int maxdays = state.calendar.getActualMaximum(Calendar.DAY_OF_MONTH); 
@@ -209,7 +209,7 @@ public class RDateTimeOps {
         public static class AddYears extends ROperator {
             AddYears(){super("addyears");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 int   years = state.datapop().intValue();
                 Date  date  = state.datapop().timeValue();
                 state.calendar.setTime(date);
@@ -230,7 +230,7 @@ public class RDateTimeOps {
         public static class AddMonths extends ROperator {
             AddMonths(){super("addmonths");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 int   months = state.datapop().intValue();
                 Date  date   = state.datapop().timeValue();
                 state.calendar.setTime(date);
@@ -248,7 +248,7 @@ public class RDateTimeOps {
         public static class AddDays extends ROperator {
             AddDays(){super("adddays");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 int   days  = state.datapop().intValue();
                 Date  date  = state.datapop().timeValue();
                 state.calendar.setTime(date);
@@ -264,7 +264,7 @@ public class RDateTimeOps {
 		public static class SetCalendar extends ROperator {
 			SetCalendar(){super("setCalendar");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				try {
 					Class<?> clazz = Class.forName(state.datapop().stringValue());
 					Object obj = clazz.newInstance();
@@ -286,7 +286,7 @@ public class RDateTimeOps {
 		public static class Yearof extends ROperator {
 			Yearof(){super("yearof");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(state.datapop().timeValue());
 				state.datapush(RInteger.getRIntegerValue(calendar.get(Calendar.YEAR)));
@@ -300,7 +300,7 @@ public class RDateTimeOps {
         public static class Monthof extends ROperator {
             Monthof(){super("monthof");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(state.datapop().timeValue());
                 state.datapush(RInteger.getRIntegerValue(calendar.get(Calendar.MONTH)));
@@ -314,7 +314,7 @@ public class RDateTimeOps {
         public static class Dayof extends ROperator {
             Dayof(){super("dayof");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(state.datapop().timeValue());
                 state.datapush(RInteger.getRIntegerValue(calendar.get(Calendar.DAY_OF_MONTH)));
@@ -327,7 +327,7 @@ public class RDateTimeOps {
 		public static class Getdaysinyear extends ROperator {
 			Getdaysinyear(){super("getdaysinyear");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				GregorianCalendar calendar = new GregorianCalendar();
 				calendar.setTime(state.datapop().timeValue());
 				if(calendar.isLeapYear(calendar.get(Calendar.YEAR))){
@@ -344,7 +344,7 @@ public class RDateTimeOps {
 		public static class Getdayofmonth extends ROperator {
 			Getdayofmonth(){super("getdayofmonth");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				GregorianCalendar calendar = new GregorianCalendar();
 				calendar.setTime(state.datapop().timeValue());
 				int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -358,7 +358,7 @@ public class RDateTimeOps {
 		public static class Getdaysinmonth extends ROperator {
 			Getdaysinmonth(){super("getdaysinmonth");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				GregorianCalendar calendar = new GregorianCalendar();
 				calendar.setTime(state.datapop().timeValue());
 				int daysinmonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -373,7 +373,7 @@ public class RDateTimeOps {
 		public static class Datelt extends ROperator {
 			Datelt(){super("d<");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				Date date2 = state.datapop().timeValue();
 				Date date1 = state.datapop().timeValue();
                 boolean test =date1.before(date2);
@@ -388,7 +388,7 @@ public class RDateTimeOps {
 		public static class Dategt extends ROperator {
 			Dategt(){super("d>");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				IRObject o2 = state.datapop();
 				IRObject o1 = state.datapop();
 				Date date1=null, date2=null;
@@ -420,7 +420,7 @@ public class RDateTimeOps {
 		public static class Dateeq extends ROperator {
 			Dateeq(){super("d==");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				Date date2 = state.datapop().timeValue();
 				Date date1 = state.datapop().timeValue();
 				state.datapush(RBoolean.getRBoolean(date1.compareTo(date2)==0));
@@ -434,7 +434,7 @@ public class RDateTimeOps {
 		public static class Gettimestamp extends ROperator {
 			Gettimestamp(){super("gettimestamp");}
 
-			public void arrayExecute(DTState state) throws RulesException {
+			public void execute(DTState state) throws RulesException {
 				Date date = state.datapop().timeValue();
 				state.datapush(RString.newRString((new Timestamp(date.getTime())).toString()));
 			}
@@ -450,7 +450,7 @@ public class RDateTimeOps {
         public static class GetDate extends ROperator {
             GetDate(){super("getdate");}
 
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Date date = new Date();
                 state.datapush(RDate.getRTime(date));
             }
@@ -463,7 +463,7 @@ public class RDateTimeOps {
          */
         public static class DatePlus extends ROperator {
             DatePlus() {super("d+"); }
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 long date2 = state.datapop().timeValue().getTime();
                 long date1 = state.datapop().timeValue().getTime();
                 state.datapush(RDate.getRTime(new Date(date1+date2)));
@@ -478,7 +478,7 @@ public class RDateTimeOps {
          */
         public static class DateMinus extends ROperator {
             DateMinus() {super("d-"); }
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 long date2 = state.datapop().timeValue().getTime();
                 long date1 = state.datapop().timeValue().getTime();
                 state.datapush(RDate.getRTime(new Date(date1-date2)));
@@ -492,7 +492,7 @@ public class RDateTimeOps {
          */
         public static class YearsBetween extends ROperator {
             YearsBetween() {super("yearsbetween"); alias("numberofyears");}
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Date date2 = state.datapop().timeValue();
                 Date date1 = state.datapop().timeValue();
                 boolean swapped = false; 
@@ -525,7 +525,7 @@ public class RDateTimeOps {
          */
         public static class MonthsBetween extends ROperator {
             MonthsBetween() {super("monthsbetween"); alias("numberofmonths");}
-            public void arrayExecute(DTState state) throws RulesException {
+            public void execute(DTState state) throws RulesException {
                 Date date2 = state.datapop().timeValue();
                 Date date1 = state.datapop().timeValue();
                 boolean swapped = false;
@@ -563,7 +563,7 @@ public class RDateTimeOps {
            */
           public static class DaysBetween extends ROperator {
         	  DaysBetween() {super("daysbetween"); alias("numberofdays");}
-              public void arrayExecute(DTState state) throws RulesException {
+              public void execute(DTState state) throws RulesException {
                   Date date2 = state.datapop().timeValue();
                   Date date1 = state.datapop().timeValue();
                   boolean swapped = false;
@@ -595,7 +595,7 @@ public class RDateTimeOps {
            */
           public static class TestDateFormat extends ROperator {
         	  TestDateFormat() {super("testdateformat"); }
-              public void arrayExecute(DTState state) throws RulesException {
+              public void execute(DTState state) throws RulesException {
                   RArray formatStrings = state.datapop().rArrayValue();
                   String formats[]     = new String[formatStrings.size()];
                   for(int i=0; i<formats.length; i++){
