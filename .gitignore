@@ -33,3 +33,6 @@ testfiles/
 ._*
 
 output/
+Uncompiled_Edd.xml
+*_dt_strip.xml
+*_edd_strip.xml
