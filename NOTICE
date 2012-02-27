@@ -1,17 +1,15 @@
-http://DTRules.com 
+DTRules, a Decision Table based Rules Engine
+Copyright 2004-2012 DTRules.com
 
-DTRules is a Decision Table based Rules Engine.
+DTRules was developed by Paul Snow to provide a readily 
+accessible version of a Decision Table based Rules Engine.  Its
+design and implementation is derived from the lessons learned 
+while implementing Decision Table based Rules Engines for the 
+Texas TIERS project, and for the Ohio OFAST project.
 
-Decision Tables coupled with the use of a Domain Specific Langauge (DSL) provide about the best approach around to describe complex policy and logic. Decision Tables provide a common representation of policy and rules that can be understood by policy experts and developers alike.  A DSL insures the syntax for conditions and actions does not become a barrier to policy experts in understanding the tables.
+DTRules is used in a number of production systems, including 
+systems that manage assistance programs in various states in
+the United States of America, as well as commercial systems 
+world wide.
 
-DTRules is distributed under the Apache License Version 2.0. 
-
-Copyright 2004-2010 DTRules.com,
-
-DTRules is a Trademark of DTRules.com
-
-Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+For updates and documentation, go to http://DTRules.com
