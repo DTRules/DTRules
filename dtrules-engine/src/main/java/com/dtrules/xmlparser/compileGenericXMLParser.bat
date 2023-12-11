@@ -17,7 +17,7 @@ rem - See the License for the specific language governing permissions and
 rem - limitations under the License.  
 rem -
 rem
-rem to run this bat file from dos, cd to the com.dtrules.smlparser directory.
+rem to run this bat file from dos, cd to the com.dtrules.xmlparser directory.
 rem
 set pdir2=..\..\..\..\..\..\..\DSLCompiler2\lib\
 java -classpath %pdir2%\JFlex.jar JFlex.Main -d .\ GenericXMLParser.flex
