@@ -1,12 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="src" path="/compilerutil"/>
-  <classpathentry kind="src" path="/dtrules-engine"/>
-  <classpathentry kind="src" path="/el"/>
-  <classpathentry kind="var" path="M2_REPO/edu/princeton/cup/java-cup/10k/java-cup-10k.jar"/>
-  <classpathentry kind="var" path="M2_REPO/de/jflex/jflex/1.4.1/jflex-1.4.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/poi/poi/3.7/poi-3.7.jar"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="/compilerutil"/>
+	<classpathentry kind="src" path="/dtrules-engine"/>
+	<classpathentry kind="src" path="/el"/>
+	<classpathentry kind="var" path="M2_REPO/de/jflex/jflex/1.4.1/jflex-1.4.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/poi/poi/3.7/poi-3.7.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/paul/go/src/github.com/C3Rules/SCO_60/lib/java-cup-11a.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

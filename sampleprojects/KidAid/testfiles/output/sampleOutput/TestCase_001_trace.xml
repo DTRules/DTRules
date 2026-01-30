@@ -1,0 +1,521 @@
+<DTRulesTrace>
+	<loadMapping file='kidaid_map.xml'></loadMapping>
+	<createentity name='constants' id='10140'></createentity>
+	<entitypush entity='constants' id='10140'></entitypush>
+	<createentity name='job' id='10144'></createentity>
+	<entitypush entity='job' id='10144'></entitypush>
+	<createentity name='case' id='10146'></createentity>
+	<entitypush entity='case' id='10146'></entitypush>
+	<loadData>
+		<root>
+			<job>
+				<entitypush entity='job' id='10144'></entitypush>
+				<mapCreateEntity name='job' data_id=''>
+					<copyright></copyright>
+					<currentdate>
+						<def id='10144' entity='job' name='currentdate'>&quot;09/12/2008 00:00:00:0000&quot; cvd</def>
+						<message>   /currentdate &quot;Fri Sep 12 00:00:00 CDT 2008&quot; def</message>
+					</currentdate>
+					<effectivedate>
+						<def id='10144' entity='job' name='effectivedate'>&quot;10/01/2008 00:00:00:0000&quot; cvd</def>
+						<message>   /effectivedate &quot;Wed Oct 01 00:00:00 CDT 2008&quot; def</message>
+					</effectivedate>
+					<program>
+						<def id='10144' entity='job' name='program'>&quot;KidAid&quot;</def>
+						<message>   /program &quot;KidAid&quot; def</message>
+					</program>
+					<case>
+						<entitypush entity='case' id='10146'></entitypush>
+						<mapCreateEntity name='case' data_id=''>
+							<case_id></case_id>
+							<county_cd>
+								<def id='10146' entity='case' name='county_cd'>&quot;LO&quot;</def>
+								<message>   /county_cd &quot;LO&quot; def</message>
+							</county_cd>
+							<clients>
+								<client>
+									<createentity name='client' id='10150'></createentity>
+									<entitypush entity='client' id='10150'></entitypush>
+									<mapCreateEntity name='client' data_id='1001'>
+										<client_ID>
+											<def id='10150' entity='client' name='client_id'>&quot;1001&quot;</def>
+											<message>   /client_id &quot;1001&quot; def</message>
+										</client_ID>
+										<age>
+											<def id='10150' entity='client' name='age'>50</def>
+											<message>   /age &quot;50&quot; def</message>
+										</age>
+										<applying>
+											<def id='10150' entity='client' name='applying'>true</def>
+											<message>   /applying &quot;true&quot; def</message>
+										</applying>
+										<genderCode></genderCode>
+										<validatedCitizenship>
+											<def id='10150' entity='client' name='validatedcitizenship'>true</def>
+											<message>   /validatedcitizenship &quot;true&quot; def</message>
+										</validatedCitizenship>
+										<livesAtResidence>
+											<def id='10150' entity='client' name='livesatresidence'>true</def>
+											<message>   /livesatresidence &quot;true&quot; def</message>
+										</livesAtResidence>
+										<pregnant>
+											<def id='10150' entity='client' name='pregnant'>false</def>
+											<message>   /pregnant &quot;false&quot; def</message>
+										</pregnant>
+										<expectedChildren>
+											<def id='10150' entity='client' name='expectedchildren'>0</def>
+											<message>   /expectedchildren &quot;0&quot; def</message>
+										</expectedChildren>
+										<disabled>
+											<def id='10150' entity='client' name='disabled'>false</def>
+											<message>   /disabled &quot;false&quot; def</message>
+										</disabled>
+										<incomes>
+											<income>
+												<createentity name='income' id='10153'></createentity>
+												<entitypush entity='income' id='10153'></entitypush>
+												<mapCreateEntity name='income' data_id=''>
+													<type>
+														<def id='10153' entity='income' name='type'>&quot;WA&quot;</def>
+														<message>   /type &quot;WA&quot; def</message>
+													</type>
+													<amount>
+														<def id='10153' entity='income' name='amount'>1200</def>
+														<message>   /amount &quot;1200&quot; def</message>
+													</amount>
+													<earned>
+														<def id='10153' entity='income' name='earned'>true</def>
+														<message>   /earned &quot;true&quot; def</message>
+													</earned>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+											</income>
+											<income>
+												<createentity name='income' id='10155'></createentity>
+												<entitypush entity='income' id='10155'></entitypush>
+												<mapCreateEntity name='income' data_id=''>
+													<type>
+														<def id='10155' entity='income' name='type'>&quot;CS&quot;</def>
+														<message>   /type &quot;CS&quot; def</message>
+													</type>
+													<amount>
+														<def id='10155' entity='income' name='amount'>800</def>
+														<message>   /amount &quot;800&quot; def</message>
+													</amount>
+													<earned>
+														<def id='10155' entity='income' name='earned'>false</def>
+														<message>   /earned &quot;false&quot; def</message>
+													</earned>
+													<entitypop></entitypop>
+												</mapCreateEntity>
+											</income>
+										</incomes>
+										<entitypop></entitypop>
+									</mapCreateEntity>
+								</client>
+								<client>
+									<createentity name='client' id='10158'></createentity>
+									<entitypush entity='client' id='10158'></entitypush>
+									<mapCreateEntity name='client' data_id='1002'>
+										<client_ID>
+											<def id='10158' entity='client' name='client_id'>&quot;1002&quot;</def>
+											<message>   /client_id &quot;1002&quot; def</message>
+										</client_ID>
+										<age>
+											<def id='10158' entity='client' name='age'>4</def>
+											<message>   /age &quot;4&quot; def</message>
+										</age>
+										<applying>
+											<def id='10158' entity='client' name='applying'>true</def>
+											<message>   /applying &quot;true&quot; def</message>
+										</applying>
+										<genderCode></genderCode>
+										<validatedCitizenship>
+											<def id='10158' entity='client' name='validatedcitizenship'>true</def>
+											<message>   /validatedcitizenship &quot;true&quot; def</message>
+										</validatedCitizenship>
+										<livesAtResidence>
+											<def id='10158' entity='client' name='livesatresidence'>true</def>
+											<message>   /livesatresidence &quot;true&quot; def</message>
+										</livesAtResidence>
+										<pregnant>
+											<def id='10158' entity='client' name='pregnant'>false</def>
+											<message>   /pregnant &quot;false&quot; def</message>
+										</pregnant>
+										<expectedChildren>
+											<def id='10158' entity='client' name='expectedchildren'>0</def>
+											<message>   /expectedchildren &quot;0&quot; def</message>
+										</expectedChildren>
+										<disabled>
+											<def id='10158' entity='client' name='disabled'>false</def>
+											<message>   /disabled &quot;false&quot; def</message>
+										</disabled>
+										<entitypop></entitypop>
+									</mapCreateEntity>
+								</client>
+							</clients>
+							<relationships>
+								<relationship>
+									<createentity name='relationship' id='10162'></createentity>
+									<entitypush entity='relationship' id='10162'></entitypush>
+									<mapCreateEntity name='relationship' data_id=''>
+										<source>
+											<entitypush entity='client' id='10150'></entitypush>
+											<mapCreateEntity name='client' data_id='1001'>
+												<entitypop></entitypop>
+											</mapCreateEntity>
+											<def id='10162' entity='relationship' name='source'>/client 10150 fce </def>
+											<message>   /source &quot;&quot; def</message>
+										</source>
+										<target>
+											<entitypush entity='client' id='10158'></entitypush>
+											<mapCreateEntity name='client' data_id='1002'>
+												<entitypop></entitypop>
+											</mapCreateEntity>
+											<def id='10162' entity='relationship' name='target'>/client 10158 fce </def>
+											<message>   /target &quot;&quot; def</message>
+										</target>
+										<type>
+											<def id='10162' entity='relationship' name='type'>&quot;parent&quot;</def>
+											<message>   /type &quot;parent&quot; def</message>
+										</type>
+										<entitypop></entitypop>
+									</mapCreateEntity>
+								</relationship>
+								<relationship>
+									<createentity name='relationship' id='10166'></createentity>
+									<entitypush entity='relationship' id='10166'></entitypush>
+									<mapCreateEntity name='relationship' data_id=''>
+										<source>
+											<entitypush entity='client' id='10158'></entitypush>
+											<mapCreateEntity name='client' data_id='1002'>
+												<entitypop></entitypop>
+											</mapCreateEntity>
+											<def id='10166' entity='relationship' name='source'>/client 10158 fce </def>
+											<message>   /source &quot;&quot; def</message>
+										</source>
+										<target>
+											<entitypush entity='client' id='10150'></entitypush>
+											<mapCreateEntity name='client' data_id='1001'>
+												<entitypop></entitypop>
+											</mapCreateEntity>
+											<def id='10166' entity='relationship' name='target'>/client 10150 fce </def>
+											<message>   /target &quot;&quot; def</message>
+										</target>
+										<type>
+											<def id='10166' entity='relationship' name='type'>&quot;child&quot;</def>
+											<message>   /type &quot;child&quot; def</message>
+										</type>
+										<entitypop></entitypop>
+									</mapCreateEntity>
+								</relationship>
+							</relationships>
+							<entitypop></entitypop>
+						</mapCreateEntity>
+					</case>
+					<entitypop></entitypop>
+				</mapCreateEntity>
+			</job>
+		</root>
+	</loadData>
+	<decisiontable name='Compute_Eligibility'>
+		<execute_table>
+			<initialActions></initialActions>
+			<Condition n='1' v='Y'></Condition>
+			<Condition n='2' v='N'></Condition>
+			<Condition n='3' v='N'></Condition>
+			<Condition n='4' v='Y'></Condition>
+			<column n='1 '>
+				<action n='1'>
+					<decisiontable name='Calculate_Individual_Income'>
+						<context execute='{ { /Calculate_Individual_Income executeTable  } dup incomes forall pop } dup clients forall pop'>
+							<execute_table>
+								<entitypush entity='client' id='10150'></entitypush>
+								<entitypush entity='income' id='10153'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='Y'></Condition>
+								<column n='1 '>
+									<action n='1'>
+										<def id='10150' entity='client' name='client.totalIncome'>1200</def>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypush entity='income' id='10155'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='N'></Condition>
+								<Condition n='2' v='Y'></Condition>
+								<column n=''></column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypush entity='client' id='10158'></entitypush>
+								<entitypop></entitypop>
+							</execute_table>
+						</context>
+					</decisiontable>
+				</action>
+				<action n='2'>
+					<decisiontable name='Calculate_Group_Size'>
+						<context execute='{ { { /Calculate_Group_Size executeTable  } dup clients forall pop } client cve allocate execute deallocate pop } { dup applying true beq if } clients forall pop'>
+							<execute_table>
+								<entitypush entity='client' id='10150'></entitypush>
+								<allocate index='0' value='/client 10150 fce '></allocate>
+								<entitypush entity='client' id='10150'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='Y'></Condition>
+								<Condition n='2' v='N'></Condition>
+								<Condition n='3' v='N'></Condition>
+								<Condition n='4' v='N'></Condition>
+								<Condition n='5' v='N'></Condition>
+								<Condition n='6' v='Y'></Condition>
+								<column n='1 9 '>
+									<action n='1'>
+										<entitypush entity='client' id='10150'></entitypush>
+										<entitypush value='client' id='10150'></entitypush>
+										<def id='10150' entity='client' name='IncomeGroupCount'>1</def>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+									<action n='3'>
+										<entitypush entity='client' id='10150'></entitypush>
+										<entitypush value='client' id='10150'></entitypush>
+										<def id='10150' entity='client' name='totalGroupIncome'>1200</def>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypush entity='client' id='10158'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='N'></Condition>
+								<Condition n='2' v='N'></Condition>
+								<Condition n='3' v='N'></Condition>
+								<Condition n='4' v='Y'></Condition>
+								<Condition n='6' v='N'></Condition>
+								<column n='7 '>
+									<action n='1'>
+										<entitypush entity='client' id='10150'></entitypush>
+										<entitypush value='client' id='10150'></entitypush>
+										<def id='10150' entity='client' name='IncomeGroupCount'>2</def>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypush entity='client' id='10158'></entitypush>
+								<allocate index='0' value='/client 10158 fce '></allocate>
+								<entitypush entity='client' id='10150'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='N'></Condition>
+								<Condition n='2' v='Y'></Condition>
+								<Condition n='3' v='N'></Condition>
+								<Condition n='4' v='N'></Condition>
+								<Condition n='5' v='N'></Condition>
+								<Condition n='6' v='Y'></Condition>
+								<column n='3 10 '>
+									<action n='1'>
+										<entitypush entity='client' id='10158'></entitypush>
+										<entitypush value='client' id='10158'></entitypush>
+										<def id='10158' entity='client' name='IncomeGroupCount'>1</def>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+									<action n='3'>
+										<entitypush entity='client' id='10158'></entitypush>
+										<entitypush value='client' id='10158'></entitypush>
+										<def id='10158' entity='client' name='totalGroupIncome'>1200</def>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypush entity='client' id='10158'></entitypush>
+								<initialActions></initialActions>
+								<Condition n='1' v='Y'></Condition>
+								<Condition n='2' v='N'></Condition>
+								<Condition n='3' v='N'></Condition>
+								<Condition n='4' v='N'></Condition>
+								<Condition n='5' v='N'></Condition>
+								<Condition n='6' v='N'></Condition>
+								<column n='1 '>
+									<action n='1'>
+										<entitypush entity='client' id='10158'></entitypush>
+										<entitypush value='client' id='10158'></entitypush>
+										<def id='10158' entity='client' name='IncomeGroupCount'>2</def>
+										<entitypop></entitypop>
+										<entitypop></entitypop>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+							</execute_table>
+						</context>
+					</decisiontable>
+				</action>
+				<action n='3'>
+					<decisiontable name='Evaluate_KidAid_Eligibility'>
+						<context execute='{ { { { { { { { /Evaluate_KidAid_Eligibility executeTable  } 0 local@  3 *  cvi allocate execute deallocate pop } 0 local@  2.5 fmul  cvi allocate execute deallocate pop } 0 local@  2 *  cvi allocate execute deallocate pop } 0 local@  1.75 fmul  cvi allocate execute deallocate pop } 0 local@  1.5 fmul  cvi allocate execute deallocate pop } 0 local@  1.25 fmul  cvi allocate execute deallocate pop } FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate execute deallocate pop } { dup applying true beq if } clients forall pop'>
+							<execute_table>
+								<entitypush entity='client' id='10150'></entitypush>
+								<allocate index='0' value='1167'></allocate>
+								<allocate index='1' value='1458'></allocate>
+								<allocate index='2' value='1750'></allocate>
+								<allocate index='3' value='2042'></allocate>
+								<allocate index='4' value='2334'></allocate>
+								<allocate index='5' value='2917'></allocate>
+								<allocate index='6' value='3501'></allocate>
+								<initialActions></initialActions>
+								<Condition n='1' v='Y'></Condition>
+								<Condition n='2' v='Y'></Condition>
+								<Condition n='3' v='N'></Condition>
+								<Condition n='4' v='N'></Condition>
+								<Condition n='5' v='N'></Condition>
+								<column n='15 '>
+									<action n='8'>
+										<addto arrayID='10152'>&quot;Must be 18 or younger to qualify for KidAid&quot;</addto>
+									</action>
+									<action n='9'>
+										<def id='10150' entity='client' name='client_fpl'>102</def>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypush entity='client' id='10158'></entitypush>
+								<allocate index='0' value='1167'></allocate>
+								<allocate index='1' value='1458'></allocate>
+								<allocate index='2' value='1750'></allocate>
+								<allocate index='3' value='2042'></allocate>
+								<allocate index='4' value='2334'></allocate>
+								<allocate index='5' value='2917'></allocate>
+								<allocate index='6' value='3501'></allocate>
+								<initialActions></initialActions>
+								<Condition n='1' v='Y'></Condition>
+								<Condition n='2' v='Y'></Condition>
+								<Condition n='3' v='N'></Condition>
+								<Condition n='4' v='Y'></Condition>
+								<Condition n='5' v='Y'></Condition>
+								<Condition n='7' v='N'></Condition>
+								<Condition n='9' v='N'></Condition>
+								<Condition n='13' v='Y'></Condition>
+								<column n='11 '>
+									<action n='4'>
+										<def id='10158' entity='client' name='client.eligible'>false</def>
+									</action>
+									<action n='5'>
+										<addto arrayID='10160'>&quot;Client is eligible for Medicaid, so cannot enroll in KidAid&quot;</addto>
+									</action>
+									<action n='9'>
+										<def id='10158' entity='client' name='client_fpl'>102</def>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+							</execute_table>
+						</context>
+					</decisiontable>
+				</action>
+				<action n='6'>
+					<decisiontable name='Evaluate_Results'>
+						<context execute='{ /Evaluate_Results executeTable  } { dup applying true beq if } clients forall pop'>
+							<execute_table>
+								<entitypush entity='client' id='10150'></entitypush>
+								<initialActions></initialActions>
+								<column n='1 '>
+									<action n='1'>
+										<createentity name='result' id='10172'></createentity>
+										<entitypush entity='result' id='10172'></entitypush>
+										<entitypush value='result' id='10172'></entitypush>
+									</action>
+									<action n='2'>
+										<addto arrayID='10145'>/result 10172 fce </addto>
+									</action>
+									<action n='3'></action>
+									<action n='4'></action>
+									<action n='5'>
+										<def id='10172' entity='result' name='Result.client_id'>&quot;1001&quot;</def>
+									</action>
+									<action n='6'>
+										<def id='10172' entity='result' name='Result.client'>/client 10150 fce </def>
+									</action>
+									<action n='7'>
+										<def id='10172' entity='result' name='Result.program'>&quot;KidAid&quot;</def>
+									</action>
+									<action n='8'>
+										<def id='10172' entity='result' name='Result.programLevel'></def>
+									</action>
+									<action n='9'>
+										<def id='10172' entity='result' name='Result.eligible'>true</def>
+									</action>
+									<action n='10'>
+										<def id='10172' entity='result' name='Result.client_fpl'>102</def>
+									</action>
+									<action n='11'>
+										<def id='10172' entity='result' name='Result.totalGroupIncome'>1200</def>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+								<entitypush entity='client' id='10158'></entitypush>
+								<initialActions></initialActions>
+								<column n='1 '>
+									<action n='1'>
+										<createentity name='result' id='10174'></createentity>
+										<entitypush entity='result' id='10174'></entitypush>
+										<entitypush value='result' id='10174'></entitypush>
+									</action>
+									<action n='2'>
+										<addto arrayID='10145'>/result 10174 fce </addto>
+									</action>
+									<action n='3'></action>
+									<action n='4'></action>
+									<action n='5'>
+										<def id='10174' entity='result' name='Result.client_id'>&quot;1002&quot;</def>
+									</action>
+									<action n='6'>
+										<def id='10174' entity='result' name='Result.client'>/client 10158 fce </def>
+									</action>
+									<action n='7'>
+										<def id='10174' entity='result' name='Result.program'>&quot;KidAid&quot;</def>
+									</action>
+									<action n='8'>
+										<def id='10174' entity='result' name='Result.programLevel'></def>
+									</action>
+									<action n='9'>
+										<def id='10174' entity='result' name='Result.eligible'>false</def>
+									</action>
+									<action n='10'>
+										<def id='10174' entity='result' name='Result.client_fpl'>102</def>
+									</action>
+									<action n='11'>
+										<def id='10174' entity='result' name='Result.totalGroupIncome'>1200</def>
+									</action>
+								</column>
+							</execute_table>
+							<execute_table>
+								<entitypop></entitypop>
+								<entitypop></entitypop>
+							</execute_table>
+						</context>
+					</decisiontable>
+				</action>
+			</column>
+		</execute_table>
+		<execute_table></execute_table>
+	</decisiontable>
+</DTRulesTrace>
