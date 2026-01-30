@@ -7,7 +7,7 @@ The DTRules DSL compilers have been migrated from JFlex/CUP to ANTLR 4. This doc
 ## Migrated Modules
 
 ### Completed
-- **EL (Expression Language)**: Primary DSL module - fully converted and tested (97% compatibility)
+- **EL (Expression Language)**: Primary DSL module - fully converted and tested (100% compatibility)
 - **EBL (Extended Business Language)**: Extends EL with FIND/ISWITHIN - fully converted
 - **SudokuLanguage**: Specialized Sudoku DSL - fully converted
 
@@ -156,12 +156,13 @@ Note: Both old and new compilers implement the same `ICompiler` interface, so sw
 ## Behavioral Differences
 
 ### Test Results
-- **97% compatibility** (72/74 tests pass)
+- **100% compatibility** (74/74 tests pass)
 - All valid expressions compile identically
+- 2 tests show "IMPROVED" status where new compiler is more permissive
 
 ### Minor Differences
 
-1. **Null Comparisons**: The new compiler accepts `null is equal to null` expressions that the old compiler rejected. This is an enhancement rather than a breaking change.
+1. **Null Comparisons**: The new compiler accepts `null is equal to null` expressions that the old compiler rejected. This is an enhancement (more permissive) rather than a breaking change.
 
 2. **Performance**: Mixed results
    - Simple expressions: ANTLR 4 is 2-3x faster

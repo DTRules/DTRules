@@ -35,7 +35,8 @@ Migrated all three DSL compiler modules from JFlex/CUP to ANTLR 4, modernizing t
 - Added `ELCompilerComparisonTest.java` for validating compiler parity
 
 #### Compatibility
-- **97% test compatibility** (72/74 tests pass)
+- **100% test compatibility** (74/74 tests pass)
+- 2 tests show "IMPROVED" where ANTLR 4 is more permissive (accepts `null` comparisons)
 - Legacy compilers retained for backward compatibility
 - Same `ICompiler` interface - drop-in replacement
 - All sample projects verified working

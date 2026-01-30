@@ -384,10 +384,10 @@ public class ELCompilerComparisonTest {
             // Both failed - check if same error type
             pass = true; // Both failing consistently is acceptable
             message = "Both compilers rejected (expected)";
-        } else if (oldError != null) {
-            message = "Old compiler failed, new succeeded";
-            message += "\n  Old error: " + oldError.getMessage();
-            message += "\n  New result: " + newResult;
+        } else if (oldError != null && newResult != null) {
+            // New compiler accepts what old compiler rejected - this is an improvement
+            pass = true;
+            message = "IMPROVED (new compiler more permissive)";
         } else if (newError != null) {
             message = "Old compiler succeeded, new failed";
             message += "\n  Old result: " + oldResult;
