@@ -99,17 +99,26 @@ DTRules/
 
 ## Sample Projects
 
-| Project | Description | DSL |
-|---------|-------------|-----|
-| **CHIP** | Health insurance eligibility determination | EL |
-| **KidAid** | Child assistance program eligibility | EL |
-| **Sudoku** | Sudoku puzzle solver demonstrating custom DSL | Custom |
-| **SyntaxTests** | Comprehensive EL language feature examples | EL |
-| **TestProject** | Minimal template for new projects | EL |
-| **eBook** | Multi-ruleset business logic example | EBL |
-| **ChipApp** | Standalone CHIP application wrapper | EL |
-| **KidAid_Application** | Standalone KidAid wrapper | EL |
-| **eBookApp** | Standalone eBook wrapper | EBL |
+| Project | Description | DSL | Complexity |
+|---------|-------------|-----|------------|
+| **TestProject** | Minimal template for new projects | EL | Low |
+| **SyntaxTests** | Comprehensive EL language feature examples | EL | Reference |
+| **CHIP** | Health insurance eligibility determination | EL | High |
+| **KidAid** | Child assistance program eligibility | EL | High |
+| **Sudoku** | Sudoku puzzle solver demonstrating custom DSL | Custom | High |
+| **eBook** | Multi-ruleset business logic example | EBL | High |
+| **ChipApp** | Standalone CHIP application wrapper | EL | Medium |
+| **KidAid_Application** | Standalone KidAid wrapper | EL | Low |
+| **eBookApp** | Standalone eBook wrapper | EBL | Medium |
+
+### Recommended Learning Path
+
+1. **[TestProject](sampleprojects/TestProject/)** - Understand the minimal project structure
+2. **[SyntaxTests](sampleprojects/SyntaxTests/)** - Learn EL language features
+3. **[CHIP](sampleprojects/CHIP/)** - See a real-world eligibility example
+4. **[ChipApp](sampleprojects/ChipApp/)** - Learn application integration patterns
+5. **[eBook](sampleprojects/eBook/)** - Explore multi-ruleset projects
+6. **[Sudoku](sampleprojects/Sudoku/)** - Understand custom DSL creation
 
 ## How It Works
 

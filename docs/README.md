@@ -28,7 +28,16 @@ Additional documentation is available in legacy formats:
 
 ## Sample Projects
 
-Each sample project demonstrates different aspects of DTRules:
+### Recommended Learning Path
+
+1. **[TestProject](../sampleprojects/TestProject/)** - Understand the minimal project structure
+2. **[SyntaxTests](../sampleprojects/SyntaxTests/)** - Learn EL language features
+3. **[CHIP](../sampleprojects/CHIP/)** - See a real-world eligibility example
+4. **[ChipApp](../sampleprojects/ChipApp/)** - Learn application integration patterns
+5. **[eBook](../sampleprojects/eBook/)** - Explore multi-ruleset projects
+6. **[Sudoku](../sampleprojects/Sudoku/)** - Understand custom DSL creation
+
+### All Sample Projects
 
 | Project | Purpose | Complexity |
 |---------|---------|------------|
@@ -42,43 +51,19 @@ Each sample project demonstrates different aspects of DTRules:
 | [KidAid_Application](../sampleprojects/KidAid_Application/) | Simple integration example | Low |
 | [eBookApp](../sampleprojects/eBookApp/) | EBL application wrapper | Medium |
 
-See the [Sample Projects Overview](../sampleprojects/README.md) for details.
+See the [Sample Projects Overview](../sampleprojects/README.md) for the complete guide.
 
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         Your Application                                │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────────────┐ │
-│  │ Input Data  │───▶│  DTRules    │───▶│  Results/Decisions          │ │
-│  │ (XML/Java)  │    │  Engine     │    │  (XML/Java)                 │ │
-│  └─────────────┘    └─────────────┘    └─────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      Compiled Rules (XML)                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────┐ │
-│  │   Entity        │  │   Decision      │  │   Data                  │ │
-│  │   Definitions   │  │   Tables        │  │   Mappings              │ │
-│  │   (*_edd.xml)   │  │   (*_dt.xml)    │  │   (*_map.xml)           │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────────┘
-                              ▲
-                              │ Compile (Excel2XML)
-                              │
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      Excel Source Files                                 │
-│  ┌─────────────────┐  ┌─────────────────────────────────────────────┐  │
-│  │   Entity        │  │              Decision Tables                │  │
-│  │   Definition    │  │  ┌─────────────────────────────────────┐   │  │
-│  │   Document      │  │  │ Conditions (EL expressions)         │   │  │
-│  │   (*_edd.xls)   │  │  │ Actions (EL statements)             │   │  │
-│  │                 │  │  │ Rule columns (Y/N/X)                │   │  │
-│  └─────────────────┘  │  └─────────────────────────────────────┘   │  │
-│                       └─────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Excel Files    ──compile──▶   XML Rules   ──load──▶  Engine  ──▶  Results
+│  (EDD + DT)                    (*_edd.xml,              │
+│                                 *_dt.xml)          Your Application
+└─────────────────────────────────────────────────────────────┘
 ```
+
+For detailed architecture diagrams and component descriptions, see the [Architecture Guide](ARCHITECTURE.md).
 
 ## Key Concepts
 

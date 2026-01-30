@@ -294,16 +294,16 @@ mvn clean install -U
 
 ## Next Steps
 
-1. **Explore SyntaxTests** - Comprehensive EL language examples
-   ```bash
-   cd sampleprojects/SyntaxTests
-   ```
+Follow the recommended learning path:
 
-2. **Read the Documentation** - `dtrules-engine/docs/DTRules.doc`
+1. **[SyntaxTests](../sampleprojects/SyntaxTests/)** - Learn all EL language features
+2. **[CHIP](../sampleprojects/CHIP/)** - See a complete real-world example
+3. **[ChipApp](../sampleprojects/ChipApp/)** - Learn application integration patterns
+4. **[eBook](../sampleprojects/eBook/)** - Explore multi-ruleset projects with EBL
+5. **[Sudoku](../sampleprojects/Sudoku/)** - Understand custom DSL creation
 
-3. **Try the Sudoku Example** - See how a custom DSL works
-   ```bash
-   cd sampleprojects/Sudoku
-   ```
+### Additional Resources
 
-4. **Build an Application** - See ChipApp for a complete application example
+- [EL Language Reference](EL-REFERENCE.md) - Complete syntax documentation
+- [Architecture Guide](ARCHITECTURE.md) - System design and components
+- [API Guide](API-GUIDE.md) - Java integration examples

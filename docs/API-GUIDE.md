@@ -283,6 +283,21 @@ session.printEntityReport(printer, false, false, state, "results",
 output.close();
 ```
 
+**Note:** `printEntityReport` has three overloaded signatures:
+
+```java
+// Simple form - looks up entity by name
+void printEntityReport(IXMLPrinter rpt, DTState state, String entityName);
+
+// With options - looks up entity by name
+void printEntityReport(IXMLPrinter rpt, boolean printIds, boolean verbose,
+                       DTState state, String entityName);
+
+// Full form - pass entity directly
+void printEntityReport(IXMLPrinter rpt, boolean printIds, boolean verbose,
+                       DTState state, String name, IRObject entity);
+```
+
 ### Mapping Configuration
 
 In your mapping XML file:
