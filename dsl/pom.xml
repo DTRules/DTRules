@@ -27,6 +27,8 @@
 
 	<modules>
 		<module>el</module>
+		<module>ebl</module>
+		<module>sudoku_language</module>
 	</modules>
 
 </project>
