@@ -25,7 +25,7 @@ TestProject/
 ├── xml/                           # Compiled XML (generated)
 ├── repository/                    # Packaged rules
 └── src/main/java/
-    └── com/dtrules/samples/testproject/
+    └── com/dtrules/samples/test/
         ├── Compile_Test.java      # Compiles Excel → XML
         └── Test_Test.java         # Runs tests
 ```
@@ -51,13 +51,13 @@ mvn clean install
 
 ```bash
 cd sampleprojects/TestProject
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.testproject.Compile_Test"
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.test.Compile_Test"
 ```
 
 ### Run Tests
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.testproject.Test_Test"
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.test.Test_Test"
 ```
 
 ## Creating Your Own Project

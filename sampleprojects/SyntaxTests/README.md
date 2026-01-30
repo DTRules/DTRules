@@ -32,7 +32,7 @@ SyntaxTests/
 ├── testfiles/                         # Test input files
 ├── EL Documentation-1.odt             # EL language reference document
 └── src/main/java/
-    └── com/dtrules/samples/syntaxexamples/
+    └── com/dtrules/samples/sampleproject2/
         ├── CompileSyntaxExamples.java # Compiles Excel → XML
         └── TestSyntaxExamples.java    # Runs tests
 ```
@@ -83,13 +83,13 @@ mvn clean install
 
 ```bash
 cd sampleprojects/SyntaxTests
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.syntaxexamples.CompileSyntaxExamples"
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.CompileSyntaxExamples"
 ```
 
 ### Run Tests
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.syntaxexamples.TestSyntaxExamples"
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.TestSyntaxExamples"
 ```
 
 ## EL Quick Reference

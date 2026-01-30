@@ -30,7 +30,7 @@ KidAid/
 │       ├── TestCase_001.xml
 │       └── TestCase_002.xml
 └── src/main/java/
-    └── com/dtrules/samples/kidaid/
+    └── com/dtrules/samples/sampleproject2/
         ├── CompileKidAid.java     # Compiles Excel → XML
         └── TestKidAid.java        # Runs test cases
 ```
@@ -61,13 +61,13 @@ mvn clean install
 
 ```bash
 cd sampleprojects/KidAid
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.kidaid.CompileKidAid"
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.CompileKidAid"
 ```
 
 ### Run Tests
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.kidaid.TestKidAid"
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.TestKidAid"
 ```
 
 ## Configuration
