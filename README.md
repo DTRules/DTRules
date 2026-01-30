@@ -85,9 +85,9 @@ DTRules/
 ├── dtrules-engine/     # Core rules execution engine
 ├── compilerutil/       # Excel-to-XML compiler utilities
 ├── dsl/                # Domain Specific Languages
-│   ├── el/             # Expression Language (EL)
-│   ├── ebl/            # Entity Business Language (EBL)
-│   └── el_antlr/       # ANTLR-based EL parser
+│   ├── el/             # Expression Language (EL) - JFlex/CUP + ANTLR 4
+│   ├── ebl/            # Entity Business Language (EBL) - JFlex/CUP + ANTLR 4
+│   └── sudoku_language/ # Sudoku DSL - JFlex/CUP + ANTLR 4
 ├── sampleprojects/     # Example implementations
 │   ├── CHIP/           # Health insurance eligibility
 │   ├── KidAid/         # Child assistance program

@@ -260,10 +260,15 @@ DTRules/
 │
 ├── dsl/                     # Domain Specific Languages
 │   ├── el/                  # Expression Language
-│   │   ├── flex/            # Lexer (scanner.flex)
-│   │   └── cup/             # Parser (parser.cup)
+│   │   ├── antlr4/          # ANTLR 4 grammar (EL.g4) - recommended
+│   │   ├── flex/            # Legacy lexer (scanner.flex)
+│   │   └── cup/             # Legacy parser (parser.cup)
 │   ├── ebl/                 # Entity Business Language
+│   │   ├── antlr4/          # ANTLR 4 grammar (EBL.g4)
+│   │   └── ...              # Legacy JFlex/CUP files
 │   └── sudoku_language/     # Custom DSL example
+│       ├── antlr4/          # ANTLR 4 grammar (Sudoku.g4)
+│       └── ...              # Legacy JFlex/CUP files
 │
 └── sampleprojects/          # Example implementations
 ```
@@ -442,17 +447,26 @@ Create a custom compiler by implementing the compiler interface:
 ┌─────────────────────────────────────────────────────────────┐
 │                    Custom DSL                               │
 ├─────────────────────────────────────────────────────────────┤
+│  Option A: ANTLR 4 (Recommended)                            │
+│  1. Define grammar (MyDSL.g4)                               │
+│  2. Create visitor class extending generated base visitor   │
+│  3. Implement ICompiler interface                           │
+│  4. Generate postfix code in visitor methods                │
+│                                                             │
+│  Option B: JFlex/CUP (Legacy)                               │
 │  1. Define grammar (scanner.flex, parser.cup)               │
 │  2. Implement ICompiler interface                           │
-│  3. Generate postfix code                                   │
-│  4. Register in DTRules.xml:                                │
+│  3. Generate postfix code in parser actions                 │
 │                                                             │
+│  Register in DTRules.xml:                                   │
 │     <compileralias name="MyDSL">                           │
 │       com.example.MyDSLCompiler                             │
 │     </compileralias>                                        │
 │     <compiler>MyDSL</compiler>                              │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+See `dsl/ANTLR_MIGRATION.md` for detailed examples of both approaches.
 
 ### Custom Operators
 

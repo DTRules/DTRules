@@ -15,6 +15,13 @@
 | [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
 | [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
 
+### Migration & Development Documentation
+
+| Document | Location | Description |
+|----------|----------|-------------|
+| ANTLR 4 Migration | `dsl/ANTLR_MIGRATION.md` | Parser modernization guide |
+| Changelog | `CHANGELOG.md` | Version history and changes |
+
 ### Legacy Documentation
 
 Additional documentation is available in legacy formats:
@@ -23,7 +30,7 @@ Additional documentation is available in legacy formats:
 |----------|----------|-------------|
 | DTRules Overview | `dtrules-engine/docs/DTRules.doc` | Core engine documentation |
 | Operator Reference | `dtrules-engine/docs/OperatorList.doc` | List of available operators |
-| EL Overview | `dsl/el/docs/Overview_of_DTRules_and_EL.pdf` | Expression Language overview |
+| EL Overview | `dtrules-engine/docs/Overview_of_DTRules_and_EL.pdf` | Expression Language overview |
 | EL Examples | `sampleprojects/SyntaxTests/EL Documentation-1.odt` | Comprehensive EL syntax examples |
 
 ## Sample Projects

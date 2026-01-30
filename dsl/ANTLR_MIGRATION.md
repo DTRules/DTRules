@@ -67,7 +67,8 @@ dsl/el/
 │   ├── EL.java                  # Legacy JFlex/CUP implementation (retained)
 │   └── TokenFilter.java         # Legacy token filter (retained)
 └── src/test/java/com/dtrules/compiler/el/
-    └── ELCompilerComparisonTest.java  # Comparison test suite
+    ├── CompilerTest.java              # Parameterized test suite (128 tests)
+    └── ELCompilerComparisonTest.java  # Standalone comparison test
 ```
 
 #### EBL Module
@@ -104,7 +105,7 @@ compiler.setSession(session);
 
 // Compile expressions
 String postfix = compiler.compileCondition("1 < 2");
-String action = compiler.compileAction("set x to 1 + 2");
+String action = compiler.compileAction("set eligible = true");
 ```
 
 ### EBL Compiler
@@ -156,9 +157,11 @@ Note: Both old and new compilers implement the same `ICompiler` interface, so sw
 ## Behavioral Differences
 
 ### Test Results
-- **100% compatibility** (74/74 tests pass)
+- **100% compatibility** - 128 tests pass (64 tests × 2 compilers)
 - All valid expressions compile identically
 - 2 tests show "IMPROVED" status where new compiler is more permissive
+
+The `CompilerTest.java` parameterized test suite validates both compilers with identical test cases covering conditions, actions, contexts, policy statements, and error handling.
 
 ### Minor Differences
 
