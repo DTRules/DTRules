@@ -82,7 +82,7 @@ public class Application {
 2. Compile KidAid rules (if not already done):
    ```bash
    cd sampleprojects/KidAid
-   mvn exec:java -Dexec.mainClass="com.dtrules.samples.kidaid.CompileKidAid"
+   mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.CompileKidAid"
    ```
 
 ### Run the Application
