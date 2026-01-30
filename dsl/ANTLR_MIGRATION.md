@@ -125,6 +125,34 @@ compiler.setSession(session);
 // <compiler>SudokuAntlr</compiler>
 ```
 
+## Switching Compilers in DTRules.xml
+
+To use the new ANTLR 4 compilers in your project, update the `DTRules.xml` configuration:
+
+### Using ELAntlr instead of EL
+```xml
+<!-- Old configuration -->
+<compileralias name="EL">com.dtrules.compiler.el.EL</compileralias>
+<compiler>EL</compiler>
+
+<!-- New ANTLR 4 configuration -->
+<compileralias name="EL">com.dtrules.compiler.el.ELAntlr</compileralias>
+<compiler>EL</compiler>
+```
+
+### Using SudokuAntlr instead of SudokuLanguage
+```xml
+<!-- Old configuration -->
+<compileralias name="SudokuLanguage">com.dtrules.compiler.sudoku.SudokuLanguage</compileralias>
+<compiler>SudokuLanguage</compiler>
+
+<!-- New ANTLR 4 configuration -->
+<compileralias name="SudokuLanguage">com.dtrules.compiler.sudoku.SudokuAntlr</compileralias>
+<compiler>SudokuLanguage</compiler>
+```
+
+Note: Both old and new compilers implement the same `ICompiler` interface, so switching is a simple configuration change with no code modifications required.
+
 ## Behavioral Differences
 
 ### Test Results
@@ -223,7 +251,7 @@ mvn exec:java -Dexec.mainClass="com.dtrules.compiler.el.ELCompilerComparisonTest
 ### Building All Modules
 ```bash
 cd DTRules
-mvn clean compile -pl dsl/el,dsl/ebl -am
+mvn clean compile -pl dsl/el,dsl/ebl,dsl/sudoku_language -am
 ```
 
 ## Migration Notes
