@@ -1,17 +1,17 @@
-/*  
+/*
  * Copyright 2004-2009 DTRules.com, Inc.
- *   
- * Licensed under the Apache License, Version 2.0 (the "License");  
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at  
- *   
- *      http://www.apache.org/licenses/LICENSE-2.0  
- *   
- * Unless required by applicable law or agreed to in writing, software  
- * distributed under the License is distributed on an "AS IS" BASIS,  
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
- * See the License for the specific language governing permissions and  
- * limitations under the License.  
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.dtrules.compiler.sudoku;
 
@@ -41,19 +41,19 @@ import com.dtrules.session.IRSession;
 import com.dtrules.session.IRType;
 
 public class SudokuLanguage implements ICompiler {
-    
+
     private       HashMap<RName,IRType>    types = null;
     private       EntityFactory            ef;
     private       IRSession                session;
-       
-    private       int                      localcnt = 0;  // Count of local variables 
-                  HashMap<String,RLocalType> localtypes = new HashMap<String,RLocalType>();
-       
+
+    private       int                      localcnt = 0;  // Count of local variables
+              HashMap<String,RLocalType> localtypes = new HashMap<String,RLocalType>();
+
     public void setTableName(String tablename) {
-        
+
     }
-    
-    
+
+
     /**
      * Add a identifier and type to the types HashMap.
      * @param entity
@@ -86,9 +86,9 @@ public class SudokuLanguage implements ICompiler {
      * @throws Exception
      */
     public HashMap<RName,IRType> getTypes(EntityFactory ef) throws Exception {
-        
+
         if(types!=null)return types;
-        
+
         types = new HashMap<RName, IRType>();
         Iterator<RName> entities = ef.getEntityRNameIterator();
         while(entities.hasNext()){
@@ -102,7 +102,7 @@ public class SudokuLanguage implements ICompiler {
                 addType(entity,attribname,entry.type.getId());
             }
         }
-        
+
         Iterator<RName> tables = ef.getDecisionTableRNameIterator();
         while(tables.hasNext()){
             RName tablename = tables.next();
@@ -112,10 +112,10 @@ public class SudokuLanguage implements ICompiler {
             }
             types.put(tablename, type);
         }
-        
+
         return types;
     }
-    
+
     /**
      * Prints all the types known to the compiler
      */
@@ -144,21 +144,21 @@ public class SudokuLanguage implements ICompiler {
         for(int i=0;i<typenames.length; i++){
             out.println(types.get(typenames[i]));
         }
-            
+
     }
-    
-    
+
+
     private TokenFilter   tfilter;
-    
+
     public ArrayList<String> getParsedTokens(){
         return tfilter.getParsedTokens();
     }
-    
+
     public void newDecisionTable () {
         localcnt = 0;
         localtypes.clear();
     }
-    
+
     /**
      * The actual routine to compile either an action or condition.  The code
      * is all the same, only a flag is needed to decide to compile an action vs
@@ -170,26 +170,26 @@ public class SudokuLanguage implements ICompiler {
      */
     private String compile (String s)throws Exception {
 
-        
+
         InputStream      stream  = new ByteArrayInputStream(s.getBytes());
         DataInputStream  input   = new DataInputStream(stream);
         DTRulesscanner   lexer   = new DTRulesscanner (input);
                          tfilter = new TokenFilter(session, lexer,types, localtypes);
         DTRulesParser    parser  = new DTRulesParser(tfilter);
         Object           result  = null;
-        
+
         parser.localCnt = localcnt;
         try {
            result = parser.parse().value;
         }catch(Exception e){
            throw new Exception( "Error found at Line:Char ="+lexer.linenumber()+":"+lexer.charnumber()+" "+
-                   e.toString()); 
+                   e.toString());
         }
         localcnt = parser.localCnt;
         localtypes.putAll(parser.localtypes);
         return result.toString();
     }
-    
+
     /* (non-Javadoc)
      * @see com.dtrules.compiler.ICompiler#getLastPreFixExp()
      */
@@ -200,12 +200,12 @@ public class SudokuLanguage implements ICompiler {
     /**
      * Build a compiler instance.  This compiler compiles either a condition or
      * an action.  Use the compiler access methods to compile each.
-     * 
+     *
      */
     public SudokuLanguage(){};
 
     /**
-     * @param session Needed to generate the symbol table used by the compiler.  
+     * @param session Needed to generate the symbol table used by the compiler.
      * @throws If we cannot set up the session and entityfactory, an exception might be thrown.
      */
     public void setSession(IRSession session) throws Exception {
@@ -214,7 +214,7 @@ public class SudokuLanguage implements ICompiler {
         getTypes(ef);
     }
 
-    
+
     /**
      * @see com.dtrules.compiler.ICompiler#compileContext(java.lang.String)
      **/
@@ -246,6 +246,7 @@ public class SudokuLanguage implements ICompiler {
             throw new RulesException("Compiler Error", "compileAction", e.getMessage());
         }
     }
+
     /**
      * @see com.dtrules.compiler.ICompiler#compileCondition(java.lang.String)
      **/
@@ -284,7 +285,7 @@ public class SudokuLanguage implements ICompiler {
             if(e<0){
                 throw new RuntimeException("Unbalanced braces: "+policyStatement);
             }
-            
+
             String source = "policystatement " + policyStatement.substring(s+1,e);
 
             try{
@@ -294,11 +295,11 @@ public class SudokuLanguage implements ICompiler {
             }catch(Exception ex){
                 throw new RulesException("Compiler Error", "compilePolicyStatement", ex.toString()+ "\n Source: >>"+ source +"<<");
             }
-            
+
             s = e+1;
             e = policyStatement.indexOf("{",s);
         }
-        
+
         sbuff.append("\"");
         sbuff.append(policyStatement.substring(s));
         if(s==0){
@@ -306,7 +307,7 @@ public class SudokuLanguage implements ICompiler {
         }else{
             sbuff.append("\" strconcat");
         }
-        
+
         return sbuff.toString();
     }
 
@@ -337,5 +338,5 @@ public class SudokuLanguage implements ICompiler {
             v.addAll(((SLType)type).getUnReferenced());
         }
         return v;
-    }   
+    }
 }
