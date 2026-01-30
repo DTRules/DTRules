@@ -193,6 +193,11 @@ public class ELAntlr implements ICompiler {
     private String compile(String s) throws RulesException {
         parsedTokens.clear();
 
+        // Add trailing semicolon to match TokenFilter behavior (it injects SEMI at EOF)
+        if (!s.trim().endsWith(";")) {
+            s = s + " ;";
+        }
+
         // Create lexer and parser
         ELLexer lexer = new ELLexer(CharStreams.fromString(s));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
