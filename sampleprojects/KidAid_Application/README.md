@@ -20,9 +20,14 @@ This project wraps the KidAid eligibility rules in a simple application, demonst
 ```
 KidAid_Application/
 ├── repository/
-│   └── DTRules.xml               # Rules configuration
-├── lib/
-│   └── DTRulesNoSource.jar       # Compiled DTRules library
+│   ├── DTRules.xml               # Rules configuration
+│   └── xml/                      # Compiled rules (from KidAid)
+│       ├── kidaid_edd.xml
+│       ├── kidaid_dt.xml
+│       └── kidaid_map.xml
+├── testfiles/                    # Test input files
+│   ├── TestCase_001.xml
+│   └── TestCase_002.xml
 └── src/main/java/
     └── com/dtrules/SampleProject2/application/
         └── Application.java       # Main application
