@@ -114,13 +114,21 @@ func (c *Compiler) compileTokenToBytecode(bc *dtrules.BytecodeChunk, token strin
 	if strings.HasPrefix(token, "/") {
 		literalName := token[1:]
 		name := dtrules.GetRName(literalName)
+		if name == nil {
+			return fmt.Errorf("invalid name syntax: %s", literalName)
+		}
 		bc.EmitPushName(name)
 		return nil
 	}
 
+	// Get the name for this token - used for operator, table, and name lookups
+	name := dtrules.GetRName(token)
+	if name == nil {
+		return fmt.Errorf("invalid name syntax: %s", token)
+	}
+
 	// Check if it's an operator - use indexed lookup
-	opName := dtrules.GetRName(token)
-	if idx, ok := operators.GetIndex(opName); ok {
+	if idx, ok := operators.GetIndex(name); ok {
 		// Map common operators to dedicated opcodes for efficiency
 		switch token {
 		case "+":
@@ -169,8 +177,7 @@ func (c *Compiler) compileTokenToBytecode(bc *dtrules.BytecodeChunk, token strin
 	}
 
 	// Check if it's a decision table name
-	tableName := dtrules.GetRName(token)
-	if dt, err := c.factory.GetDecisionTable(tableName); err == nil && dt != nil {
+	if dt, err := c.factory.GetDecisionTable(name); err == nil && dt != nil {
 		// Decision tables are executed via Object interface
 		bc.EmitPushConstant(dtrules.NewValueObject(dt))
 		bc.Emit(dtrules.OpExec)
@@ -178,7 +185,6 @@ func (c *Compiler) compileTokenToBytecode(bc *dtrules.BytecodeChunk, token strin
 	}
 
 	// Otherwise, treat it as a name to be looked up at runtime
-	name := dtrules.GetRName(token)
 	bc.EmitPushName(name)
 	bc.Emit(dtrules.OpLookup)
 	return nil

@@ -86,6 +86,9 @@ func opInContext(state dtrules.State) error {
 	var name *dtrules.RName
 	if nameObj.Type() == dtrules.TypeString {
 		name = dtrules.GetRName(nameObj.StringValue())
+		if name == nil {
+			return dtrules.TypeCheckError("InContext", "invalid name syntax: "+nameObj.StringValue())
+		}
 	} else {
 		name, err = nameObj.RNameValue()
 		if err != nil {

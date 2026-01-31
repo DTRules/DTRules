@@ -365,3 +365,65 @@ func TestCompileConditional(t *testing.T) {
 		t.Errorf("Expected operator for ifelse, got %v", arr[3].Type())
 	}
 }
+
+func TestCompileInvalidNameSyntax(t *testing.T) {
+	c := newTestCompiler()
+
+	tests := []struct {
+		name    string
+		expr    string
+		wantErr bool
+	}{
+		{"valid name", "foo", false},
+		{"valid dotted name", "entity.attr", false},
+		{"leading dot", ".attr", true},
+		{"trailing dot", "entity.", true},
+		{"multiple dots", "a.b.c", true},
+		{"literal with leading dot", "/.attr", true},
+		{"empty string", "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := c.Compile(tt.expr)
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("Compile(%q) expected error, got nil", tt.expr)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Compile(%q) unexpected error: %v", tt.expr, err)
+				}
+			}
+		})
+	}
+}
+
+func TestCompileToBytecodeInvalidNameSyntax(t *testing.T) {
+	c := newTestCompiler()
+
+	tests := []struct {
+		name    string
+		expr    string
+		wantErr bool
+	}{
+		{"valid name", "foo", false},
+		{"leading dot", ".attr", true},
+		{"literal with trailing dot", "/entity.", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := c.CompileToBytecode(tt.expr)
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("CompileToBytecode(%q) expected error, got nil", tt.expr)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("CompileToBytecode(%q) unexpected error: %v", tt.expr, err)
+				}
+			}
+		})
+	}
+}

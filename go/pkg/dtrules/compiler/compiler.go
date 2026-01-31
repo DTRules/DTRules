@@ -182,22 +182,29 @@ func (c *Compiler) compileToken(token string) (dtrules.Object, error) {
 		// Strip the / and return a non-executable name
 		literalName := token[1:]
 		name := dtrules.GetRName(literalName)
+		if name == nil {
+			return nil, fmt.Errorf("invalid name syntax: %s", literalName)
+		}
 		return name.GetNonExecutable(), nil
 	}
 
+	// Get the name for this token - used for operator, table, and name lookups
+	name := dtrules.GetRName(token)
+	if name == nil {
+		return nil, fmt.Errorf("invalid name syntax: %s", token)
+	}
+
 	// Check if it's an operator
-	if op, ok := operators.Get(dtrules.GetRName(token)); ok {
+	if op, ok := operators.Get(name); ok {
 		return op, nil
 	}
 
 	// Check if it's a decision table name
-	tableName := dtrules.GetRName(token)
-	if dt, err := c.factory.GetDecisionTable(tableName); err == nil && dt != nil {
+	if dt, err := c.factory.GetDecisionTable(name); err == nil && dt != nil {
 		return dt, nil
 	}
 
 	// Otherwise, treat it as a name (which will be looked up at runtime)
-	name := dtrules.GetRName(token)
 	return name.GetExecutable(), nil
 }
 
