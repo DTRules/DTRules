@@ -116,13 +116,13 @@ pkg/dtrules/
 
 | Test Category | Status | Coverage |
 |---------------|--------|----------|
-| Unit Tests | **PASS** | All 166 tests pass |
+| Unit Tests | **PASS** | All 199 tests pass (373 including subtests) |
 | Integration | **PASS** | CHIP sample works |
 | Benchmarks | **PASS** | All benchmarks run |
-| Edge Cases | **NEEDS WORK** | Need more Value edge cases |
+| Loader Tests | **PASS** | EDD and DT loader tests added |
+| Error Path Tests | **PASS** | Name parsing, XML errors covered |
 
 ### Known Gaps
-- Value type needs more edge case tests
 - Bytecode VM needs control flow tests (if/while)
 - No fuzz testing yet
 
@@ -144,9 +144,11 @@ pkg/dtrules/
 | Bytecode bounds | **PASS** | Varints and indices validated |
 
 ### Mitigations
-- Value.unsafe only used for Object interface reconstruction
+- Value.unsafe only used for Object interface reconstruction (documented with safety rationale)
 - All stack operations return errors, not panics
+- Name parsing uses TryGetRName() with error returns instead of panics
 - Bytecode reader validates indices
+- XML loaders return EDDLoadError with proper error chaining
 
 ---
 
@@ -201,8 +203,10 @@ pkg/dtrules/
 
 ### Immediate
 1. ✅ Fix import cycle (DONE)
-2. Add more Value edge case tests
-3. Add bytecode control flow tests
+2. ✅ Replace panics with error returns (DONE - TryGetRName)
+3. ✅ Add loader/decisiontable tests (DONE)
+4. ✅ Document unsafe pointer usage (DONE)
+5. Add bytecode control flow tests
 
 ### Short-term
 4. Integrate bytecode with decision tables
