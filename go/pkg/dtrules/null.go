@@ -73,8 +73,8 @@ func (r *RNull) Equals(o Object) (bool, error) {
 // Compare returns 0 for other nulls, -1 for anything else.
 // Null is considered less than anything else (for sorting).
 func (r *RNull) Compare(o Object) (int, error) {
-	eq, _ := r.Equals(o)
-	if eq {
+	// Null equals null (Equals only checks type, so no error possible for null)
+	if o.Type() == TypeNull {
 		return 0, nil
 	}
 	return -1, nil

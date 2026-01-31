@@ -510,8 +510,8 @@ func (s *DTState) FindEntity(name *dtrules.RName) (dtrules.Entity, error) {
 		// Entity prefix specified - must match entity name AND have attribute
 		for i := len(s.entityStk) - 1; i >= 0; i-- {
 			e := s.entityStk[i]
-			eq, _ := e.GetName().Equals(entityName)
-			if eq && e.ContainsAttribute(attrName) {
+			eq, err := e.GetName().Equals(entityName)
+			if err == nil && eq && e.ContainsAttribute(attrName) {
 				return e, nil
 			}
 		}
@@ -577,8 +577,8 @@ func (s *DTState) InContext(entityName string) bool {
 func (s *DTState) InContextRName(entityName *dtrules.RName) bool {
 	for i := 0; i < len(s.entityStk); i++ {
 		e := s.entityStk[i]
-		eq, _ := e.GetName().Equals(entityName)
-		if eq {
+		eq, err := e.GetName().Equals(entityName)
+		if err == nil && eq {
 			return true
 		}
 	}

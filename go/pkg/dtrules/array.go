@@ -392,8 +392,8 @@ func (r *RArray) Delete(index int) {
 func (r *RArray) Remove(v Object) {
 	r.uncache()
 	for i, elem := range r.array {
-		eq, _ := elem.Equals(v)
-		if eq {
+		eq, err := elem.Equals(v)
+		if err == nil && eq {
 			r.Delete(i)
 			return
 		}
@@ -404,8 +404,8 @@ func (r *RArray) Remove(v Object) {
 func (r *RArray) Contains(v Object) bool {
 	r.uncache()
 	for _, elem := range r.array {
-		eq, _ := elem.Equals(v)
-		if eq {
+		eq, err := elem.Equals(v)
+		if err == nil && eq {
 			return true
 		}
 	}

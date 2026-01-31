@@ -333,14 +333,17 @@ func opRoundTo(state dtrules.State) error {
 		return v
 	}
 
+	// Use int64 to prevent overflow on 32-bit systems
 	if places > 0 {
-		number *= float64(10 * places)
+		scale := float64(int64(10) * int64(places))
+		number *= scale
 		number = round(number, boundary)
-		number /= float64(10 * places)
+		number /= scale
 	} else {
-		number /= float64(-10 * places)
+		scale := float64(int64(-10) * int64(places))
+		number /= scale
 		number = round(number, boundary)
-		number *= float64(-10 * places)
+		number *= scale
 	}
 
 	return state.DataPush(dtrules.GetRDoubleValue(number))

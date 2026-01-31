@@ -107,8 +107,8 @@ func opInContext(state dtrules.State) error {
 			break
 		}
 		savedEntities = append(savedEntities, entity)
-		eq, _ := entity.GetName().Equals(name)
-		if eq {
+		eq, eqErr := entity.GetName().Equals(name)
+		if eqErr == nil && eq {
 			found = true
 			break
 		}

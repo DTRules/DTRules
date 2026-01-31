@@ -679,8 +679,8 @@ func opFindMatch(state dtrules.State) error {
 			if err != nil {
 				continue
 			}
-			eq, _ := v.Equals(v3)
-			if !eq {
+			eq, eqErr := v.Equals(v3)
+			if eqErr != nil || !eq {
 				continue
 			}
 		}
@@ -695,8 +695,8 @@ func opFindMatch(state dtrules.State) error {
 			if err != nil {
 				continue
 			}
-			eq, _ := v.Equals(v2)
-			if !eq {
+			eq, eqErr := v.Equals(v2)
+			if eqErr != nil || !eq {
 				continue
 			}
 		}
@@ -711,8 +711,8 @@ func opFindMatch(state dtrules.State) error {
 			if err != nil {
 				continue
 			}
-			eq, _ := v.Equals(v1)
-			if !eq {
+			eq, eqErr := v.Equals(v1)
+			if eqErr != nil || !eq {
 				continue
 			}
 		}

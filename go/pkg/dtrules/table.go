@@ -233,8 +233,8 @@ func (r *RTable) ContainsKey(key Object) bool {
 // ContainsValue returns true if the value exists in the table.
 func (r *RTable) ContainsValue(value Object) bool {
 	for _, v := range r.table {
-		eq, _ := v.Equals(value)
-		if eq {
+		eq, err := v.Equals(value)
+		if err == nil && eq {
 			return true
 		}
 	}
