@@ -116,14 +116,15 @@ pkg/dtrules/
 
 | Test Category | Status | Coverage |
 |---------------|--------|----------|
-| Unit Tests | **PASS** | All 214 tests pass (394 including subtests) |
+| Unit Tests | **PASS** | All 456 tests pass (including subtests) |
 | Integration | **PASS** | CHIP sample works |
 | Benchmarks | **PASS** | All benchmarks run |
 | Loader Tests | **PASS** | EDD and DT loader tests added |
 | Error Path Tests | **PASS** | Name parsing, XML errors covered |
+| Bytecode VM Tests | **PASS** | All opcodes tested |
+| Value Stack Tests | **PASS** | Stack operations tested |
 
 ### Known Gaps
-- Bytecode VM needs control flow tests (if/while)
 - No fuzz testing yet
 
 ---
@@ -216,7 +217,10 @@ pkg/dtrules/
 12. ✅ Add bytecode bounds checking (DONE - TryReadOpcode, TryReadVarint with error returns)
 13. ✅ Fix VM silent failure on invalid index (DONE - returns OutOfBoundsError)
 14. ✅ Replace panic in Alias() with TryAlias() error return (DONE)
-15. Add bytecode control flow tests
+15. ✅ Add XML size limits to loaders (DONE - MaxXMLSize configurable, default 10MB)
+16. ✅ Add iteration limits to loop operators (DONE - MaxIterations configurable, default 1M)
+17. ✅ Add bytecode VM tests (DONE - comprehensive tests for all VM operations)
+18. ✅ Add Value stack tests (DONE - tests for value stack operations)
 
 ### Short-term
 4. Integrate bytecode with decision tables

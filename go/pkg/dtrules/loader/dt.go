@@ -154,10 +154,21 @@ type DTPolicyStatement struct {
 }
 
 // Load loads decision tables from an io.Reader.
+// The input size is limited by MaxXMLSize (default 10 MB) to prevent memory exhaustion.
 func (l *DTLoader) Load(r io.Reader) error {
+	// Apply size limit if configured
+	if MaxXMLSize > 0 {
+		r = io.LimitReader(r, MaxXMLSize+1) // +1 to detect overflow
+	}
+
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("failed to read decision tables: %w", err)
+	}
+
+	// Check if we hit the size limit
+	if MaxXMLSize > 0 && int64(len(data)) > MaxXMLSize {
+		return fmt.Errorf("decision tables XML exceeds maximum size limit of %d bytes", MaxXMLSize)
 	}
 
 	var dtFile DTFile

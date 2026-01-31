@@ -16,8 +16,21 @@
 package operators
 
 import (
+	"fmt"
+
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
 )
+
+// DefaultMaxIterations is the default maximum iterations for loop operators.
+// This prevents infinite loops from consuming unbounded CPU.
+const DefaultMaxIterations = 1000000
+
+// MaxIterations is the configurable maximum iterations for loop operators.
+// Set to 0 to disable the limit (not recommended for untrusted rules).
+var MaxIterations = DefaultMaxIterations
+
+// ErrMaxIterationsExceeded is returned when a loop exceeds MaxIterations.
+var ErrMaxIterationsExceeded = fmt.Errorf("loop exceeded maximum iterations (%d)", DefaultMaxIterations)
 
 func init() {
 	Register("if", opIf)
@@ -90,9 +103,8 @@ func opIfelse(state dtrules.State) error {
 }
 
 // opWhile: ( body test -- ) executes body while test returns true.
-// NOTE: This operator has no built-in iteration limit. Infinite loops are possible
-// if test never returns false. This matches the Java DTRules behavior.
-// Rule authors must ensure termination conditions are met.
+// Has a configurable iteration limit (MaxIterations, default 1M) to prevent infinite loops.
+// Set MaxIterations = 0 to disable the limit (not recommended for untrusted rules).
 func opWhile(state dtrules.State) error {
 	test, err := state.DataPop()
 	if err != nil {
@@ -116,7 +128,14 @@ func opWhile(state dtrules.State) error {
 		return err
 	}
 
+	iterations := 0
 	for result {
+		// Check iteration limit
+		iterations++
+		if MaxIterations > 0 && iterations > MaxIterations {
+			return fmt.Errorf("while: %w", ErrMaxIterationsExceeded)
+		}
+
 		if err := body.Execute(state); err != nil {
 			return err
 		}
@@ -270,6 +289,7 @@ func opForallr(state dtrules.State) error {
 }
 
 // opDoloop: ( body start increment limit -- )
+// Has a configurable iteration limit (MaxIterations) to prevent infinite loops.
 func opDoloop(state dtrules.State) error {
 	limitObj, err := state.DataPop()
 	if err != nil {
@@ -301,10 +321,20 @@ func opDoloop(state dtrules.State) error {
 		return err
 	}
 
+	// Check for zero increment (would cause infinite loop)
+	if increment == 0 {
+		return dtrules.UndefinedError("doloop", "increment cannot be zero")
+	}
+
 	// Note: This uses a simplified approach without control stack frames
 	// The full implementation would use the control stack for the loop variable
+	iterations := 0
 	if increment > 0 {
 		for i := start; i < limit; i += increment {
+			iterations++
+			if MaxIterations > 0 && iterations > MaxIterations {
+				return fmt.Errorf("doloop: %w", ErrMaxIterationsExceeded)
+			}
 			if err := state.DataPush(dtrules.GetRIntegerValueFromInt(i)); err != nil {
 				return err
 			}
@@ -314,6 +344,10 @@ func opDoloop(state dtrules.State) error {
 		}
 	} else {
 		for i := start; i > limit; i += increment {
+			iterations++
+			if MaxIterations > 0 && iterations > MaxIterations {
+				return fmt.Errorf("doloop: %w", ErrMaxIterationsExceeded)
+			}
 			if err := state.DataPush(dtrules.GetRIntegerValueFromInt(i)); err != nil {
 				return err
 			}

@@ -88,3 +88,56 @@ func TestNewDTLoader(t *testing.T) {
 		t.Error("Expected factory to be set")
 	}
 }
+
+func TestDTLoaderXMLSizeLimit(t *testing.T) {
+	// Save original value and restore after test
+	originalMax := MaxXMLSize
+	defer func() { MaxXMLSize = originalMax }()
+
+	// Set a small limit for testing
+	MaxXMLSize = 100
+
+	factory := entity.NewFactory(nil)
+	loader := NewDTLoader(nil, factory)
+
+	// Create XML larger than the limit
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>LargeTable</table_name>
+        <attribute_fields>
+            <Type>First</Type>
+            <COMMENTS>This comment makes the XML larger than the size limit for testing purposes</COMMENTS>
+        </attribute_fields>
+    </decision_table>
+</decision_tables>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err == nil {
+		t.Fatal("Expected error for oversized XML")
+	}
+	if !strings.Contains(err.Error(), "exceeds maximum size limit") {
+		t.Errorf("Expected size limit error, got: %v", err)
+	}
+}
+
+func TestDTLoaderXMLSizeLimitDisabled(t *testing.T) {
+	// Save original value and restore after test
+	originalMax := MaxXMLSize
+	defer func() { MaxXMLSize = originalMax }()
+
+	// Disable the limit
+	MaxXMLSize = 0
+
+	factory := entity.NewFactory(nil)
+	loader := NewDTLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+</decision_tables>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Expected no error with size limit disabled: %v", err)
+	}
+}

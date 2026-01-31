@@ -253,3 +253,760 @@ func TestGetSession(t *testing.T) {
 		t.Error("GetSession should return the session")
 	}
 }
+
+// =============================================================================
+// Value Stack Tests
+// =============================================================================
+
+func TestValueStack(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Test empty stack
+	if state.ValueStackDepth() != 0 {
+		t.Errorf("Expected empty value stack, got size %d", state.ValueStackDepth())
+	}
+
+	// Test push
+	state.ValuePush(dtrules.NewValueInteger(1))
+	state.ValuePush(dtrules.NewValueInteger(2))
+	state.ValuePush(dtrules.NewValueInteger(3))
+
+	if state.ValueStackDepth() != 3 {
+		t.Errorf("Expected value stack size 3, got %d", state.ValueStackDepth())
+	}
+
+	// Test pop (LIFO order)
+	v, err := state.ValuePop()
+	if err != nil {
+		t.Fatalf("ValuePop failed: %v", err)
+	}
+	if v.AsInteger() != 3 {
+		t.Errorf("Expected 3, got %d", v.AsInteger())
+	}
+
+	v, err = state.ValuePop()
+	if err != nil {
+		t.Fatalf("ValuePop failed: %v", err)
+	}
+	if v.AsInteger() != 2 {
+		t.Errorf("Expected 2, got %d", v.AsInteger())
+	}
+
+	// Pop remaining and test underflow
+	state.ValuePop()
+	_, err = state.ValuePop()
+	if err == nil {
+		t.Error("Expected value stack underflow error")
+	}
+}
+
+func TestValueStackDup(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	state.ValuePush(dtrules.NewValueInteger(42))
+	err := state.ValueDup()
+	if err != nil {
+		t.Fatalf("ValueDup failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 2 {
+		t.Errorf("Expected depth 2 after dup, got %d", state.ValueStackDepth())
+	}
+
+	v1, _ := state.ValuePop()
+	v2, _ := state.ValuePop()
+	if v1.AsInteger() != 42 || v2.AsInteger() != 42 {
+		t.Error("Dup should duplicate the value")
+	}
+}
+
+func TestValueStackSwap(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	state.ValuePush(dtrules.NewValueInteger(1))
+	state.ValuePush(dtrules.NewValueInteger(2))
+
+	err := state.ValueSwap()
+	if err != nil {
+		t.Fatalf("ValueSwap failed: %v", err)
+	}
+
+	v1, _ := state.ValuePop()
+	v2, _ := state.ValuePop()
+	if v1.AsInteger() != 1 || v2.AsInteger() != 2 {
+		t.Errorf("Expected [2,1] after swap, got [%d,%d]", v2.AsInteger(), v1.AsInteger())
+	}
+}
+
+func TestValueStackRot(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	state.ValuePush(dtrules.NewValueInteger(1))
+	state.ValuePush(dtrules.NewValueInteger(2))
+	state.ValuePush(dtrules.NewValueInteger(3))
+
+	err := state.ValueRot()
+	if err != nil {
+		t.Fatalf("ValueRot failed: %v", err)
+	}
+
+	// After rot: 2 3 1 (top is 1)
+	v1, _ := state.ValuePop()
+	v2, _ := state.ValuePop()
+	v3, _ := state.ValuePop()
+
+	if v1.AsInteger() != 1 || v2.AsInteger() != 3 || v3.AsInteger() != 2 {
+		t.Errorf("Expected [2,3,1], got [%d,%d,%d]", v3.AsInteger(), v2.AsInteger(), v1.AsInteger())
+	}
+}
+
+func TestValueStackUnderflowErrors(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Dup on empty
+	if err := state.ValueDup(); err == nil {
+		t.Error("Expected error for dup on empty stack")
+	}
+
+	// Swap with one element
+	state.ValuePush(dtrules.NewValueInteger(1))
+	if err := state.ValueSwap(); err == nil {
+		t.Error("Expected error for swap with one element")
+	}
+
+	// Rot with two elements
+	state.ValuePush(dtrules.NewValueInteger(2))
+	if err := state.ValueRot(); err == nil {
+		t.Error("Expected error for rot with two elements")
+	}
+}
+
+// =============================================================================
+// Bytecode VM Tests
+// =============================================================================
+
+func TestBytecodeExecutionPushOperations(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	tests := []struct {
+		name     string
+		setup    func(*dtrules.BytecodeChunk)
+		expected dtrules.Value
+	}{
+		{
+			name: "push true",
+			setup: func(bc *dtrules.BytecodeChunk) {
+				bc.Emit(dtrules.OpPushTrue)
+			},
+			expected: dtrules.ValueTrue,
+		},
+		{
+			name: "push false",
+			setup: func(bc *dtrules.BytecodeChunk) {
+				bc.Emit(dtrules.OpPushFalse)
+			},
+			expected: dtrules.ValueFalse,
+		},
+		{
+			name: "push null",
+			setup: func(bc *dtrules.BytecodeChunk) {
+				bc.Emit(dtrules.OpPushNull)
+			},
+			expected: dtrules.ValueNull,
+		},
+		{
+			name: "push zero",
+			setup: func(bc *dtrules.BytecodeChunk) {
+				bc.Emit(dtrules.OpPushZero)
+			},
+			expected: dtrules.NewValueInteger(0),
+		},
+		{
+			name: "push one",
+			setup: func(bc *dtrules.BytecodeChunk) {
+				bc.Emit(dtrules.OpPushOne)
+			},
+			expected: dtrules.NewValueInteger(1),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bc := dtrules.NewBytecodeChunk()
+			tt.setup(bc)
+
+			// Clear state
+			for state.ValueStackDepth() > 0 {
+				state.ValuePop()
+			}
+
+			err := state.ExecuteBytecode(bc)
+			if err != nil {
+				t.Fatalf("ExecuteBytecode failed: %v", err)
+			}
+
+			result, err := state.ValuePop()
+			if err != nil {
+				t.Fatalf("ValuePop failed: %v", err)
+			}
+
+			if !result.Equal(tt.expected) {
+				t.Errorf("Expected %v, got %v", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestBytecodeExecutionArithmetic(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	tests := []struct {
+		name     string
+		a, b     int64
+		op       dtrules.Opcode
+		expected int64
+	}{
+		{"add", 10, 20, dtrules.OpAdd, 30},
+		{"sub", 50, 20, dtrules.OpSub, 30},
+		{"mul", 6, 7, dtrules.OpMul, 42},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bc := dtrules.NewBytecodeChunk()
+			bc.EmitPushConstant(dtrules.NewValueInteger(tt.a))
+			bc.EmitPushConstant(dtrules.NewValueInteger(tt.b))
+			bc.Emit(tt.op)
+
+			// Clear state
+			for state.ValueStackDepth() > 0 {
+				state.ValuePop()
+			}
+
+			err := state.ExecuteBytecode(bc)
+			if err != nil {
+				t.Fatalf("ExecuteBytecode failed: %v", err)
+			}
+
+			result, _ := state.ValuePop()
+			if result.AsInteger() != tt.expected {
+				t.Errorf("Expected %d, got %d", tt.expected, result.AsInteger())
+			}
+		})
+	}
+}
+
+func TestBytecodeExecutionDivision(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	bc := dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(100))
+	bc.EmitPushConstant(dtrules.NewValueInteger(5))
+	bc.Emit(dtrules.OpDiv)
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode failed: %v", err)
+	}
+
+	result, _ := state.ValuePop()
+	// Division always returns double
+	if result.AsDouble() != 20.0 {
+		t.Errorf("Expected 20.0, got %f", result.AsDouble())
+	}
+}
+
+func TestBytecodeExecutionComparison(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	tests := []struct {
+		name     string
+		a, b     int64
+		op       dtrules.Opcode
+		expected bool
+	}{
+		{"eq true", 5, 5, dtrules.OpEq, true},
+		{"eq false", 5, 10, dtrules.OpEq, false},
+		{"ne true", 5, 10, dtrules.OpNe, true},
+		{"ne false", 5, 5, dtrules.OpNe, false},
+		{"lt true", 5, 10, dtrules.OpLt, true},
+		{"lt false", 10, 5, dtrules.OpLt, false},
+		{"le true equal", 5, 5, dtrules.OpLe, true},
+		{"le true less", 5, 10, dtrules.OpLe, true},
+		{"le false", 10, 5, dtrules.OpLe, false},
+		{"gt true", 10, 5, dtrules.OpGt, true},
+		{"gt false", 5, 10, dtrules.OpGt, false},
+		{"ge true equal", 5, 5, dtrules.OpGe, true},
+		{"ge true greater", 10, 5, dtrules.OpGe, true},
+		{"ge false", 5, 10, dtrules.OpGe, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bc := dtrules.NewBytecodeChunk()
+			bc.EmitPushConstant(dtrules.NewValueInteger(tt.a))
+			bc.EmitPushConstant(dtrules.NewValueInteger(tt.b))
+			bc.Emit(tt.op)
+
+			// Clear state
+			for state.ValueStackDepth() > 0 {
+				state.ValuePop()
+			}
+
+			err := state.ExecuteBytecode(bc)
+			if err != nil {
+				t.Fatalf("ExecuteBytecode failed: %v", err)
+			}
+
+			result, _ := state.ValuePop()
+			if result.AsBoolean() != tt.expected {
+				t.Errorf("Expected %v, got %v", tt.expected, result.AsBoolean())
+			}
+		})
+	}
+}
+
+func TestBytecodeExecutionBoolean(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	tests := []struct {
+		name     string
+		a, b     bool
+		op       dtrules.Opcode
+		expected bool
+	}{
+		{"and true true", true, true, dtrules.OpAnd, true},
+		{"and true false", true, false, dtrules.OpAnd, false},
+		{"and false true", false, true, dtrules.OpAnd, false},
+		{"and false false", false, false, dtrules.OpAnd, false},
+		{"or true true", true, true, dtrules.OpOr, true},
+		{"or true false", true, false, dtrules.OpOr, true},
+		{"or false true", false, true, dtrules.OpOr, true},
+		{"or false false", false, false, dtrules.OpOr, false},
+		{"xor true true", true, true, dtrules.OpXor, false},
+		{"xor true false", true, false, dtrules.OpXor, true},
+		{"xor false true", false, true, dtrules.OpXor, true},
+		{"xor false false", false, false, dtrules.OpXor, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bc := dtrules.NewBytecodeChunk()
+			bc.EmitPushConstant(dtrules.NewValueBoolean(tt.a))
+			bc.EmitPushConstant(dtrules.NewValueBoolean(tt.b))
+			bc.Emit(tt.op)
+
+			// Clear state
+			for state.ValueStackDepth() > 0 {
+				state.ValuePop()
+			}
+
+			err := state.ExecuteBytecode(bc)
+			if err != nil {
+				t.Fatalf("ExecuteBytecode failed: %v", err)
+			}
+
+			result, _ := state.ValuePop()
+			if result.AsBoolean() != tt.expected {
+				t.Errorf("Expected %v, got %v", tt.expected, result.AsBoolean())
+			}
+		})
+	}
+}
+
+func TestBytecodeExecutionNot(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	tests := []struct {
+		input    bool
+		expected bool
+	}{
+		{true, false},
+		{false, true},
+	}
+
+	for _, tt := range tests {
+		bc := dtrules.NewBytecodeChunk()
+		bc.EmitPushConstant(dtrules.NewValueBoolean(tt.input))
+		bc.Emit(dtrules.OpNot)
+
+		// Clear state
+		for state.ValueStackDepth() > 0 {
+			state.ValuePop()
+		}
+
+		err := state.ExecuteBytecode(bc)
+		if err != nil {
+			t.Fatalf("ExecuteBytecode failed: %v", err)
+		}
+
+		result, _ := state.ValuePop()
+		if result.AsBoolean() != tt.expected {
+			t.Errorf("not %v: expected %v, got %v", tt.input, tt.expected, result.AsBoolean())
+		}
+	}
+}
+
+func TestBytecodeExecutionNegIncDec(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Test neg
+	bc := dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(42))
+	bc.Emit(dtrules.OpNeg)
+
+	err := state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (neg) failed: %v", err)
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsInteger() != -42 {
+		t.Errorf("neg 42: expected -42, got %d", result.AsInteger())
+	}
+
+	// Test inc
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(10))
+	bc.Emit(dtrules.OpInc)
+
+	err = state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (inc) failed: %v", err)
+	}
+
+	result, _ = state.ValuePop()
+	if result.AsInteger() != 11 {
+		t.Errorf("inc 10: expected 11, got %d", result.AsInteger())
+	}
+
+	// Test dec
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(10))
+	bc.Emit(dtrules.OpDec)
+
+	err = state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (dec) failed: %v", err)
+	}
+
+	result, _ = state.ValuePop()
+	if result.AsInteger() != 9 {
+		t.Errorf("dec 10: expected 9, got %d", result.AsInteger())
+	}
+}
+
+func TestBytecodeExecutionStackOps(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Test pop
+	bc := dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(1))
+	bc.EmitPushConstant(dtrules.NewValueInteger(2))
+	bc.Emit(dtrules.OpPop)
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (pop) failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 1 {
+		t.Errorf("Expected stack depth 1 after pop, got %d", state.ValueStackDepth())
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsInteger() != 1 {
+		t.Errorf("Expected 1 remaining after pop, got %d", result.AsInteger())
+	}
+
+	// Test dup
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(42))
+	bc.Emit(dtrules.OpDup)
+
+	err = state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (dup) failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 2 {
+		t.Errorf("Expected stack depth 2 after dup, got %d", state.ValueStackDepth())
+	}
+
+	v1, _ := state.ValuePop()
+	v2, _ := state.ValuePop()
+	if v1.AsInteger() != 42 || v2.AsInteger() != 42 {
+		t.Error("Dup should duplicate the value")
+	}
+
+	// Test swap
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(1))
+	bc.EmitPushConstant(dtrules.NewValueInteger(2))
+	bc.Emit(dtrules.OpSwap)
+
+	err = state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (swap) failed: %v", err)
+	}
+
+	v1, _ = state.ValuePop()
+	v2, _ = state.ValuePop()
+	if v1.AsInteger() != 1 || v2.AsInteger() != 2 {
+		t.Errorf("Expected [2,1] after swap, got [%d,%d]", v2.AsInteger(), v1.AsInteger())
+	}
+
+	// Test rot
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(1))
+	bc.EmitPushConstant(dtrules.NewValueInteger(2))
+	bc.EmitPushConstant(dtrules.NewValueInteger(3))
+	bc.Emit(dtrules.OpRot)
+
+	err = state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode (rot) failed: %v", err)
+	}
+
+	v1, _ = state.ValuePop()
+	v2, _ = state.ValuePop()
+	v3, _ := state.ValuePop()
+	if v1.AsInteger() != 1 || v2.AsInteger() != 3 || v3.AsInteger() != 2 {
+		t.Errorf("Expected [2,3,1], got [%d,%d,%d]", v3.AsInteger(), v2.AsInteger(), v1.AsInteger())
+	}
+}
+
+func TestBytecodeExecutionConstantPool(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	bc := dtrules.NewBytecodeChunk()
+	// Add a large integer that goes into constant pool
+	bc.EmitPushConstant(dtrules.NewValueInteger(1000000))
+	bc.EmitPushConstant(dtrules.NewValueDouble(3.14159))
+	bc.EmitPushConstant(dtrules.NewValueString("hello"))
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 3 {
+		t.Errorf("Expected 3 values on stack, got %d", state.ValueStackDepth())
+	}
+
+	// Pop in reverse order
+	v3, _ := state.ValuePop()
+	v2, _ := state.ValuePop()
+	v1, _ := state.ValuePop()
+
+	if v1.AsInteger() != 1000000 {
+		t.Errorf("Expected 1000000, got %d", v1.AsInteger())
+	}
+	if v2.AsDouble() != 3.14159 {
+		t.Errorf("Expected 3.14159, got %f", v2.AsDouble())
+	}
+	if v3.AsString() != "hello" {
+		t.Errorf("Expected 'hello', got '%s'", v3.AsString())
+	}
+}
+
+func TestBytecodeExecutionErrors(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Test stack underflow on binary op
+	bc := dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(1))
+	bc.Emit(dtrules.OpAdd) // Only one operand
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err == nil {
+		t.Error("Expected stack underflow error")
+	}
+
+	// Test invalid constant index
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitWithArg(dtrules.OpConstant, 999) // Invalid index
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err = state.ExecuteBytecode(bc)
+	if err == nil {
+		t.Error("Expected out of bounds error for invalid constant index")
+	}
+
+	// Test invalid name index
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitWithArg(dtrules.OpName, 999) // Invalid index
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err = state.ExecuteBytecode(bc)
+	if err == nil {
+		t.Error("Expected out of bounds error for invalid name index")
+	}
+
+	// Test invalid opcode
+	bc = dtrules.NewBytecodeChunk()
+	bc.Emit(dtrules.Opcode(255)) // Invalid opcode
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err = state.ExecuteBytecode(bc)
+	if err == nil {
+		t.Error("Expected error for invalid opcode")
+	}
+}
+
+func TestBytecodeExecutionNamePush(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	bc := dtrules.NewBytecodeChunk()
+	testName := dtrules.GetRName("testattr")
+	bc.EmitPushName(testName)
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode failed: %v", err)
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsName() != testName {
+		t.Errorf("Expected name 'testattr', got %v", result.AsName())
+	}
+}
+
+func TestBytecodeConditionEvaluation(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Test true condition
+	bc := dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(5))
+	bc.EmitPushConstant(dtrules.NewValueInteger(3))
+	bc.Emit(dtrules.OpGt)
+
+	result, err := state.EvaluateBytecodeCondition(bc)
+	if err != nil {
+		t.Fatalf("EvaluateBytecodeCondition failed: %v", err)
+	}
+	if !result {
+		t.Error("Expected true for 5 > 3")
+	}
+
+	// Test false condition
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(3))
+	bc.EmitPushConstant(dtrules.NewValueInteger(5))
+	bc.Emit(dtrules.OpGt)
+
+	result, err = state.EvaluateBytecodeCondition(bc)
+	if err != nil {
+		t.Fatalf("EvaluateBytecodeCondition failed: %v", err)
+	}
+	if result {
+		t.Error("Expected false for 3 > 5")
+	}
+}
+
+func TestBytecodeActionEvaluation(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Test action that leaves stack balanced
+	bc := dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(1))
+	bc.Emit(dtrules.OpPop)
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.EvaluateBytecodeAction(bc)
+	if err != nil {
+		t.Fatalf("EvaluateBytecodeAction failed: %v", err)
+	}
+
+	// Test action that leaves stack unbalanced
+	bc = dtrules.NewBytecodeChunk()
+	bc.EmitPushConstant(dtrules.NewValueInteger(1))
+	// Don't pop - stack is unbalanced
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err = state.EvaluateBytecodeAction(bc)
+	if err == nil {
+		t.Error("Expected error for unbalanced stack")
+	}
+}
+
+func TestBytecodeNop(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	bc := dtrules.NewBytecodeChunk()
+	bc.Emit(dtrules.OpNop)
+	bc.EmitPushConstant(dtrules.NewValueInteger(42))
+	bc.Emit(dtrules.OpNop)
+
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 1 {
+		t.Errorf("Expected 1 value on stack, got %d", state.ValueStackDepth())
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsInteger() != 42 {
+		t.Errorf("Expected 42, got %d", result.AsInteger())
+	}
+}

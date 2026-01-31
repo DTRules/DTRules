@@ -26,6 +26,13 @@ import (
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
 )
 
+// DefaultMaxXMLSize is the default maximum size for XML input (10 MB).
+const DefaultMaxXMLSize = 10 * 1024 * 1024
+
+// MaxXMLSize is the configurable maximum size for XML input.
+// Set to 0 to disable size limit (not recommended for untrusted input).
+var MaxXMLSize int64 = DefaultMaxXMLSize
+
 // EDDLoader loads Entity Data Dictionary XML files.
 type EDDLoader struct {
 	session dtrules.Session
@@ -71,10 +78,21 @@ type EDDField struct {
 }
 
 // Load loads an EDD from an io.Reader.
+// The input size is limited by MaxXMLSize (default 10 MB) to prevent memory exhaustion.
 func (l *EDDLoader) Load(r io.Reader) error {
+	// Apply size limit if configured
+	if MaxXMLSize > 0 {
+		r = io.LimitReader(r, MaxXMLSize+1) // +1 to detect overflow
+	}
+
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("failed to read EDD: %w", err)
+	}
+
+	// Check if we hit the size limit
+	if MaxXMLSize > 0 && int64(len(data)) > MaxXMLSize {
+		return fmt.Errorf("EDD XML exceeds maximum size limit of %d bytes", MaxXMLSize)
 	}
 
 	var edd EDDFile

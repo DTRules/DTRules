@@ -351,3 +351,55 @@ func TestEDDLoaderInvalidFieldName(t *testing.T) {
 		t.Errorf("Expected 'invalid field name syntax' error in collected errors")
 	}
 }
+
+func TestEDDLoaderXMLSizeLimit(t *testing.T) {
+	// Save original value and restore after test
+	originalMax := MaxXMLSize
+	defer func() { MaxXMLSize = originalMax }()
+
+	// Set a small limit for testing
+	MaxXMLSize = 100
+
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	// Create XML larger than the limit
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+    <entity name="test">
+        <field name="value" type="integer" access="rw" comment="This comment makes the XML larger than the limit"/>
+    </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err == nil {
+		t.Fatal("Expected error for oversized XML")
+	}
+	if !strings.Contains(err.Error(), "exceeds maximum size limit") {
+		t.Errorf("Expected size limit error, got: %v", err)
+	}
+}
+
+func TestEDDLoaderXMLSizeLimitDisabled(t *testing.T) {
+	// Save original value and restore after test
+	originalMax := MaxXMLSize
+	defer func() { MaxXMLSize = originalMax }()
+
+	// Disable the limit
+	MaxXMLSize = 0
+
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+    <entity name="test">
+        <field name="value" type="integer" access="rw"/>
+    </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Expected no error with size limit disabled: %v", err)
+	}
+}
