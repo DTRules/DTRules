@@ -20,6 +20,8 @@ import (
 
 // ExecuteBytecode executes a bytecode chunk on the state's value stack.
 // This is the optimized execution path for compiled expressions.
+// Returns an error if bytecode is malformed (out of bounds, overflow, etc.)
+// rather than panicking, allowing graceful error handling.
 func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 	code := bc.Code()
 	constants := bc.Constants()
@@ -28,7 +30,10 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 	reader := dtrules.NewBytecodeReader(code)
 
 	for reader.HasMore() {
-		op := reader.ReadOpcode()
+		op, err := reader.TryReadOpcode()
+		if err != nil {
+			return err
+		}
 
 		switch op {
 		case dtrules.OpNop:
@@ -56,12 +61,18 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 				return err
 			}
 		case dtrules.OpPushInt:
-			v := int64(reader.ReadVarint())
-			if err := s.ValuePush(dtrules.NewValueInteger(v)); err != nil {
+			v, err := reader.TryReadVarint()
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueInteger(int64(v))); err != nil {
 				return err
 			}
 		case dtrules.OpConstant:
-			idx := reader.ReadVarint()
+			idx, err := reader.TryReadVarint()
+			if err != nil {
+				return err
+			}
 			if idx < 0 || idx >= len(constants) {
 				return dtrules.OutOfBoundsError("ExecuteBytecode", "constant index out of range")
 			}
@@ -69,7 +80,10 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 				return err
 			}
 		case dtrules.OpName:
-			idx := reader.ReadVarint()
+			idx, err := reader.TryReadVarint()
+			if err != nil {
+				return err
+			}
 			if idx < 0 || idx >= len(names) {
 				return dtrules.OutOfBoundsError("ExecuteBytecode", "name index out of range")
 			}
@@ -346,7 +360,10 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 		// Call operator by index
 		// Note: This requires the OperatorTable to be set on the state
 		case dtrules.OpOperator:
-			idx := reader.ReadVarint()
+			idx, err := reader.TryReadVarint()
+			if err != nil {
+				return err
+			}
 			if s.operatorTable == nil || idx >= len(s.operatorTable) {
 				return dtrules.UndefinedError("OpOperator", "operator not found")
 			}
