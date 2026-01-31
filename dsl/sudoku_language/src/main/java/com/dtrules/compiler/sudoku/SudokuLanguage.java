@@ -219,31 +219,51 @@ public class SudokuLanguage implements ICompiler {
      * @see com.dtrules.compiler.ICompiler#compileContext(java.lang.String)
      **/
     @Override
-    public String compileContext(String context) throws Exception {
-        return compile("context "+context);
+    public String compileContext(String context) throws RulesException {
+        try {
+            return compile("context "+context);
+        } catch (Exception e) {
+            throw new RulesException("Compiler Error", "compileContext", e.getMessage());
+        }
     }
-    
+
+    /**
+     * @see com.dtrules.compiler.ICompiler#compileInitialAction(java.lang.String)
+     **/
+    @Override
+    public String compileInitialAction(String action) throws RulesException {
+        return compileAction(action);
+    }
+
     /**
      * @see com.dtrules.compiler.ICompiler#compileAction(java.lang.String)
      **/
     @Override
-    public String compileAction(String action) throws Exception {
-        return compile("action "+action);
+    public String compileAction(String action) throws RulesException {
+        try {
+            return compile("action "+action);
+        } catch (Exception e) {
+            throw new RulesException("Compiler Error", "compileAction", e.getMessage());
+        }
     }
     /**
      * @see com.dtrules.compiler.ICompiler#compileCondition(java.lang.String)
      **/
     @Override
-    public String compileCondition(String condition) throws Exception {
-        return compile("condition "+ condition);
+    public String compileCondition(String condition) throws RulesException {
+        try {
+            return compile("condition "+ condition);
+        } catch (Exception e) {
+            throw new RulesException("Compiler Error", "compileCondition", e.getMessage());
+        }
     }
-    
+
     /**
      * Returns the compiled version of the policy statement.  Double quotes are
      * replaced forcefully by single quotes.
      */
     @Override
-    public String compilePolicyStatement(String policyStatement) throws Exception {
+    public String compilePolicyStatement(String policyStatement) throws RulesException {
         if(policyStatement==null)return "";
         policyStatement = policyStatement.replaceAll("\"", "'");
         StringBuffer  sbuff = new StringBuffer();
@@ -272,7 +292,7 @@ public class SudokuLanguage implements ICompiler {
                 sbuff.append(value);
                 sbuff.append("cvs strconcat ");
             }catch(Exception ex){
-                throw new Exception(ex.toString()+ "\n Source: >>"+ source +"<<");
+                throw new RulesException("Compiler Error", "compilePolicyStatement", ex.toString()+ "\n Source: >>"+ source +"<<");
             }
             
             s = e+1;

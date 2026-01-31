@@ -1,16 +1,13 @@
 <DTRules>
 
-  <RuleSet name="SampleProject2" source="file"  >
+  <RuleSet name="SampleProject2" source="file">
      <RuleSetFilePath>/xml</RuleSetFilePath>
      <WorkingDirectory>/temp</WorkingDirectory>
-     
-     <DTExcelFolder>/DecisionTables/</DTExcelFolder>
-     <EDDExcelFile>/edd/sp2_edd.xls</EDDExcelFile>
 
-     <Entities        name="sp2_edd.xml" />
-     <Decisiontables  name="sp2_dt.xml"  />
-     <Map             name="sp2_map.xml" />
-  </RuleSet>    
+     <Entities        name="kidaid_edd.xml" />
+     <Decisiontables  name="kidaid_dt.xml"  />
+     <Map             name="kidaid_map.xml" />
+  </RuleSet>
 
 </DTRules>
 

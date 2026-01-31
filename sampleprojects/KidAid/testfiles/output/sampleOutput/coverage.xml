@@ -1,0 +1,63 @@
+<coverage total_columns_executed='24'>
+	<minimum_files_for_coverage>
+		<trace_file>TestCase_002_trace.xml</trace_file>
+		<trace_file>TestCase_001_trace.xml</trace_file>
+	</minimum_files_for_coverage>
+	<trace_files>
+		<trace_file>TestCase_002_trace.xml</trace_file>
+		<trace_file>TestCase_001_trace.xml</trace_file>
+	</trace_files>
+	<tables>
+		<table name='Calculate_Group_Size' count_of_calls='2' percent_covered='58.33'>
+			<column n='none' hits='0'></column>
+			<column n='1' hits='3'></column>
+			<column n='2' hits='1'></column>
+			<column n='3' hits='1'></column>
+			<column n='4' hits='1'></column>
+			<column n='5' hits='0'></column>
+			<column n='6' hits='0'></column>
+			<column n='7' hits='2'></column>
+			<column n='9' hits='2'></column>
+			<column n='10' hits='2'></column>
+			<column n='11' hits='0'></column>
+			<column n='12' hits='0'></column>
+		</table>
+		<table name='Calculate_Individual_Income' count_of_calls='2' percent_covered='66.66'>
+			<column n='none' hits='2'></column>
+			<column n='1' hits='2'></column>
+			<column n='2' hits='0'></column>
+		</table>
+		<table name='Compute_Eligibility' count_of_calls='2' percent_covered='20.0'>
+			<column n='none' hits='0'></column>
+			<column n='1' hits='2'></column>
+			<column n='2' hits='0'></column>
+			<column n='3' hits='0'></column>
+			<column n='4' hits='0'></column>
+		</table>
+		<table name='Evaluate_FOODSTAMPS_Eligibility' count_of_calls='0' percent_covered='0.0'>
+			<column n='none' hits='0'></column>
+			<column n='1' hits='0'></column>
+		</table>
+		<table name='Evaluate_KidAid_Eligibility' count_of_calls='2' percent_covered='25.0'>
+			<column n='1' hits='0'></column>
+			<column n='2' hits='1'></column>
+			<column n='3' hits='0'></column>
+			<column n='5' hits='0'></column>
+			<column n='6' hits='0'></column>
+			<column n='7' hits='0'></column>
+			<column n='9' hits='0'></column>
+			<column n='11' hits='1'></column>
+			<column n='12' hits='0'></column>
+			<column n='13' hits='0'></column>
+			<column n='14' hits='0'></column>
+			<column n='15' hits='2'></column>
+		</table>
+		<table name='Evaluate_MEDICAID_Eligibility' count_of_calls='0' percent_covered='0.0'>
+			<column n='none' hits='0'></column>
+			<column n='1' hits='0'></column>
+		</table>
+		<table name='Evaluate_Results' count_of_calls='2' percent_covered='100.0'>
+			<column n='1' hits='4'></column>
+		</table>
+	</tables>
+</coverage>

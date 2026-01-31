@@ -1,5 +1,7 @@
 testfiles/output/*.*
 ~*
+*.settings
+*.project
 *.class
 *.exe
 *.o

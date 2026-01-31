@@ -1,0 +1,23 @@
+<results runNumber='1'>
+	<Client id='1001'>
+		<totalGroupIncome>1200</totalGroupIncome>
+		<client_fpl>102</client_fpl>
+		<Approved>
+			<program>&quot;KidAid&quot;</program>
+			<programLevel></programLevel>
+			<Notes>
+				<note>Must be 18 or younger to qualify for KidAid</note>
+			</Notes>
+		</Approved>
+	</Client>
+	<Client id='1002'>
+		<totalGroupIncome>1200</totalGroupIncome>
+		<client_fpl>102</client_fpl>
+		<NotApproved>
+			<program>&quot;KidAid&quot;</program>
+			<Notes>
+				<note>Client is eligible for Medicaid, so cannot enroll in KidAid</note>
+			</Notes>
+		</NotApproved>
+	</Client>
+</results>
