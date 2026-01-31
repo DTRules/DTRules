@@ -60,8 +60,8 @@ type EntityInfo struct {
 
 // AttributeInfo holds information about setting an attribute.
 type AttributeInfo struct {
-	Tag      string
-	Attribs  map[string]*Attrib // keyed by enclosure entity name (empty string for default)
+	Tag     string
+	Attribs map[string]*Attrib // keyed by enclosure entity name (empty string for default)
 }
 
 // Attrib represents a single attribute mapping.

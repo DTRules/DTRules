@@ -58,22 +58,22 @@ func (t TableType) String() string {
 type RDecisionTable struct {
 	dtrules.BaseObject
 
-	name     *dtrules.RName          // The decision table's name
-	filename string                  // Filename where the table is defined
-	tableType TableType             // Type of decision table
+	name      *dtrules.RName // The decision table's name
+	filename  string         // Filename where the table is defined
+	tableType TableType      // Type of decision table
 
 	maxCol int // Number of columns in this decision table
 
-	session dtrules.Session       // Session for compilation context
-	fields  map[string]string     // Meta information about this decision table
+	session dtrules.Session   // Session for compilation context
+	fields  map[string]string // Meta information about this decision table
 
 	compiled bool // Whether the table has been compiled
 
 	// Context setup
-	contexts         []string         // Context entity names
-	contextsPostfix  []string         // Compiled postfix for context setup
-	contextsComment  []string         // Comments on contexts
-	rcontext         dtrules.Object   // Compiled context setup code
+	contexts        []string       // Context entity names
+	contextsPostfix []string       // Compiled postfix for context setup
+	contextsComment []string       // Comments on contexts
+	rcontext        dtrules.Object // Compiled context setup code
 
 	// Initial actions (executed before conditions)
 	initialActions        []string
@@ -82,18 +82,18 @@ type RDecisionTable struct {
 	rinitialActions       []dtrules.Object
 
 	// Conditions
-	conditionTable   [][]string       // conditionTable[row][col] - "y", "n", "-", "*"
-	conditions       []string         // Condition expressions (formal)
-	conditionsPostfix []string        // Compiled postfix
-	conditionsComment []string        // Comments
-	rconditions      []dtrules.Object // Compiled condition code
+	conditionTable    [][]string       // conditionTable[row][col] - "y", "n", "-", "*"
+	conditions        []string         // Condition expressions (formal)
+	conditionsPostfix []string         // Compiled postfix
+	conditionsComment []string         // Comments
+	rconditions       []dtrules.Object // Compiled condition code
 
 	// Actions
-	actionTable   [][]string       // actionTable[row][col] - "x" or ""
-	actions       []string         // Action expressions (formal)
-	actionsPostfix []string        // Compiled postfix
-	actionsComment []string        // Comments
-	ractions      []dtrules.Object // Compiled action code
+	actionTable    [][]string       // actionTable[row][col] - "x" or ""
+	actions        []string         // Action expressions (formal)
+	actionsPostfix []string         // Compiled postfix
+	actionsComment []string         // Comments
+	ractions       []dtrules.Object // Compiled action code
 
 	// Policy statements
 	policyStatements        []string

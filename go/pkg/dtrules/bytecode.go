@@ -41,23 +41,23 @@ const (
 	OpMark    Opcode = 10 // Push mark
 
 	// Arithmetic
-	OpAdd    Opcode = 20 // a + b
-	OpSub    Opcode = 21 // a - b
-	OpMul    Opcode = 22 // a * b
-	OpDiv    Opcode = 23 // a / b
-	OpMod    Opcode = 24 // a % b
-	OpNeg    Opcode = 25 // -a
-	OpAbs    Opcode = 26 // |a|
-	OpInc    Opcode = 27 // a + 1
-	OpDec    Opcode = 28 // a - 1
+	OpAdd Opcode = 20 // a + b
+	OpSub Opcode = 21 // a - b
+	OpMul Opcode = 22 // a * b
+	OpDiv Opcode = 23 // a / b
+	OpMod Opcode = 24 // a % b
+	OpNeg Opcode = 25 // -a
+	OpAbs Opcode = 26 // |a|
+	OpInc Opcode = 27 // a + 1
+	OpDec Opcode = 28 // a - 1
 
 	// Comparison
-	OpEq  Opcode = 30 // a == b
-	OpNe  Opcode = 31 // a != b
-	OpLt  Opcode = 32 // a < b
-	OpLe  Opcode = 33 // a <= b
-	OpGt  Opcode = 34 // a > b
-	OpGe  Opcode = 35 // a >= b
+	OpEq Opcode = 30 // a == b
+	OpNe Opcode = 31 // a != b
+	OpLt Opcode = 32 // a < b
+	OpLe Opcode = 33 // a <= b
+	OpGt Opcode = 34 // a > b
+	OpGe Opcode = 35 // a >= b
 
 	// Boolean
 	OpAnd Opcode = 40 // a && b
@@ -66,16 +66,16 @@ const (
 	OpXor Opcode = 43 // a ^ b
 
 	// Control flow
-	OpExec    Opcode = 50 // Execute top of stack
-	OpIf      Opcode = 51 // Conditional execution
-	OpIfElse  Opcode = 52 // if-else
-	OpWhile   Opcode = 53 // while loop
-	OpFor     Opcode = 54 // for loop
-	OpForAll  Opcode = 55 // iterate array
-	OpReturn  Opcode = 56 // Return from procedure
-	OpJump    Opcode = 57 // Unconditional jump (followed by offset)
-	OpJumpIf  Opcode = 58 // Conditional jump
-	OpCall    Opcode = 59 // Call operator by index
+	OpExec   Opcode = 50 // Execute top of stack
+	OpIf     Opcode = 51 // Conditional execution
+	OpIfElse Opcode = 52 // if-else
+	OpWhile  Opcode = 53 // while loop
+	OpFor    Opcode = 54 // for loop
+	OpForAll Opcode = 55 // iterate array
+	OpReturn Opcode = 56 // Return from procedure
+	OpJump   Opcode = 57 // Unconditional jump (followed by offset)
+	OpJumpIf Opcode = 58 // Conditional jump
+	OpCall   Opcode = 59 // Call operator by index
 
 	// Entity operations
 	OpEntityPush Opcode = 60 // Push entity onto entity stack
@@ -85,16 +85,16 @@ const (
 	OpNewEntity  Opcode = 64 // Create new entity
 
 	// Array operations
-	OpNewArray  Opcode = 70 // Create new array
-	OpAddTo     Opcode = 71 // Add to array
-	OpLength    Opcode = 72 // Get array length
-	OpGet       Opcode = 73 // Get array element
-	OpPut       Opcode = 74 // Put array element
+	OpNewArray Opcode = 70 // Create new array
+	OpAddTo    Opcode = 71 // Add to array
+	OpLength   Opcode = 72 // Get array length
+	OpGet      Opcode = 73 // Get array element
+	OpPut      Opcode = 74 // Put array element
 
 	// Table operations
-	OpNewTable  Opcode = 80 // Create new table
-	OpTableGet  Opcode = 81 // Get table value
-	OpTablePut  Opcode = 82 // Put table value
+	OpNewTable Opcode = 80 // Create new table
+	OpTableGet Opcode = 81 // Get table value
+	OpTablePut Opcode = 82 // Put table value
 
 	// String operations
 	OpConcat    Opcode = 90 // String concatenation
@@ -115,9 +115,9 @@ const (
 
 // BytecodeChunk holds compiled bytecode and its constant pool.
 type BytecodeChunk struct {
-	code      []byte    // Bytecode instructions
-	constants []Value   // Constant pool (immediate values, strings, etc.)
-	names     []*RName  // Name pool (for lookup operations)
+	code      []byte   // Bytecode instructions
+	constants []Value  // Constant pool (immediate values, strings, etc.)
+	names     []*RName // Name pool (for lookup operations)
 }
 
 // NewBytecodeChunk creates a new bytecode chunk.

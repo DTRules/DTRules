@@ -181,14 +181,14 @@ type DateParser struct {
 func NewDateParser() *DateParser {
 	return &DateParser{
 		formats: []string{
-			"01/02/2006",           // MM/DD/YYYY
-			"1/2/2006",             // M/D/YYYY
-			"01/02/2006 15:04:05",  // MM/DD/YYYY HH:MM:SS
-			"2006-01-02",           // YYYY-MM-DD
-			"2006-01-02 15:04:05",  // YYYY-MM-DD HH:MM:SS
-			"Jan 2, 2006",          // Month D, YYYY
-			"January 2, 2006",      // Month D, YYYY
-			dtrules.DateFormat,     // Default format
+			"01/02/2006",          // MM/DD/YYYY
+			"1/2/2006",            // M/D/YYYY
+			"01/02/2006 15:04:05", // MM/DD/YYYY HH:MM:SS
+			"2006-01-02",          // YYYY-MM-DD
+			"2006-01-02 15:04:05", // YYYY-MM-DD HH:MM:SS
+			"Jan 2, 2006",         // Month D, YYYY
+			"January 2, 2006",     // Month D, YYYY
+			dtrules.DateFormat,    // Default format
 		},
 	}
 }

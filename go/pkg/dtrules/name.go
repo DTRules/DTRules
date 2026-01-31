@@ -16,6 +16,7 @@
 package dtrules
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 )
@@ -38,14 +39,17 @@ var (
 	names   = make(map[string]*RName)
 )
 
-// GetRName returns an RName for the given string.
+// ErrInvalidNameSyntax is returned when a name has invalid syntax.
+var ErrInvalidNameSyntax = fmt.Errorf("invalid name syntax")
+
+// TryGetRName returns an RName for the given string, or an error if invalid.
 // Parses the string for leading slash (literal) and dot syntax (entity.attribute).
 // Names are cached and interned.
-func GetRName(name string) *RName {
+func TryGetRName(name string) (*RName, error) {
 	namesMu.RLock()
 	if rn, ok := names[name]; ok {
 		namesMu.RUnlock()
-		return rn
+		return rn, nil
 	}
 	namesMu.RUnlock()
 
@@ -66,11 +70,15 @@ func GetRName(name string) *RName {
 	dot := strings.Index(name, ".")
 	if dot >= 0 {
 		if dot == 0 || dot+1 == len(name) || strings.Index(name[dot+1:], ".") >= 0 {
-			panic("Invalid Name Syntax: (" + name + ")")
+			return nil, fmt.Errorf("%w: %s", ErrInvalidNameSyntax, name)
 		}
 		entityPart := name[:dot]
 		// Recursively get entity name BEFORE acquiring the write lock
-		entityRName = GetRName(entityPart)
+		var err error
+		entityRName, err = TryGetRName(entityPart)
+		if err != nil {
+			return nil, err
+		}
 		name = name[dot+1:] // attrPart
 	}
 
@@ -80,12 +88,27 @@ func GetRName(name string) *RName {
 
 	// Double-check after getting write lock
 	if rn, ok := names[cache]; ok {
-		return rn
+		return rn, nil
 	}
 
 	rname := getRNameWithEntity(entityRName, name, executable)
 	names[cache] = rname
-	return rname
+	return rname, nil
+}
+
+// GetRName returns an RName for the given string.
+// Parses the string for leading slash (literal) and dot syntax (entity.attribute).
+// Names are cached and interned.
+// For error handling, use TryGetRName instead.
+func GetRName(name string) *RName {
+	rn, err := TryGetRName(name)
+	if err != nil {
+		// Return an empty name rather than panicking
+		// This preserves backwards compatibility while avoiding panics
+		rn, _ = TryGetRName("_invalid_")
+		return rn
+	}
+	return rn
 }
 
 // GetRNameExecutable returns an RName with the specified executable state.

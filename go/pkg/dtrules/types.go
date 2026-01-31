@@ -28,10 +28,10 @@ type RType struct {
 }
 
 var (
-	typesMu   sync.RWMutex
-	types     = make(map[string]*RType)
-	typeList  = []*RType{nil} // Index 0 is nil, IDs start at 1
-	subtypes  = make(map[string]*RType)
+	typesMu  sync.RWMutex
+	types    = make(map[string]*RType)
+	typeList = []*RType{nil} // Index 0 is nil, IDs start at 1
+	subtypes = make(map[string]*RType)
 )
 
 // NewType defines a new type with the given name.

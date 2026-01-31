@@ -108,7 +108,7 @@ func NewValueObject(o Object) Value {
 	return Value{
 		tag: VTagObject,
 		num: int64(uintptr(iface[0])), // type pointer
-		ptr: iface[1],                  // data pointer
+		ptr: iface[1],                 // data pointer
 	}
 }
 
@@ -206,10 +206,22 @@ func (v Value) AsObject() Object {
 	case VTagArray:
 		return (*RArray)(v.ptr)
 	case VTagObject:
-		// Reconstruct the interface
+		// Reconstruct the interface from its two-word representation.
+		// This is the inverse of NewValueObject which stores the interface
+		// as (type pointer, data pointer). Go interfaces are represented
+		// internally as two words: iface[0] is the type/itab pointer and
+		// iface[1] is the data pointer. This technique is documented in
+		// Go's reflect package and is safe because:
+		// 1. The pointers were originally extracted from a valid interface
+		// 2. The Value type preserves both pointers without modification
+		// 3. The reconstructed interface matches the original type exactly
+		//
+		// Note: go vet may warn about "possible misuse of unsafe.Pointer"
+		// because it cannot verify the invariants above at compile time.
+		// This usage is intentional and tested.
 		var o Object
 		iface := (*[2]unsafe.Pointer)(unsafe.Pointer(&o))
-		iface[0] = unsafe.Pointer(uintptr(v.num))
+		iface[0] = unsafe.Pointer(uintptr(v.num)) //nolint:unsafeptr // intentional interface reconstruction
 		iface[1] = v.ptr
 		return o
 	default:

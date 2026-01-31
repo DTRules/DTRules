@@ -37,13 +37,13 @@ type mockSession struct {
 	uniqueID int
 }
 
-func (m *mockSession) GetState() dtrules.State                              { return nil }
-func (m *mockSession) GetEntityFactory() dtrules.EntityFactory              { return nil }
-func (m *mockSession) GetUniqueID() int                                     { m.uniqueID++; return m.uniqueID }
-func (m *mockSession) GetDateParser() dtrules.DateParser                    { return nil }
-func (m *mockSession) GetRuleSet() dtrules.RuleSet                          { return nil }
+func (m *mockSession) GetState() dtrules.State                                  { return nil }
+func (m *mockSession) GetEntityFactory() dtrules.EntityFactory                  { return nil }
+func (m *mockSession) GetUniqueID() int                                         { m.uniqueID++; return m.uniqueID }
+func (m *mockSession) GetDateParser() dtrules.DateParser                        { return nil }
+func (m *mockSession) GetRuleSet() dtrules.RuleSet                              { return nil }
 func (m *mockSession) CreateEntity(name *dtrules.RName) (dtrules.Entity, error) { return nil, nil }
-func (m *mockSession) Compile(expr string) (dtrules.Object, error)          { return nil, nil }
+func (m *mockSession) Compile(expr string) (dtrules.Object, error)              { return nil, nil }
 
 func newTestState() *interpreter.DTState {
 	return interpreter.NewDTState(&mockSession{})

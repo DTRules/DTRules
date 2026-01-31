@@ -25,11 +25,11 @@ import (
 // ANode executes a list of actions.
 // It represents a leaf node in the decision tree.
 type ANode struct {
-	decisionTable *RDecisionTable   // The Decision Table to which this ANode belongs
-	actions       []dtrules.Object  // The compiled action code to execute
-	actionNumbers []int             // The action numbers (0-based, for tracing)
-	columns       []int             // Column numbers that lead to this node (1-based)
-	star          bool              // Whether this column has a star
+	decisionTable *RDecisionTable  // The Decision Table to which this ANode belongs
+	actions       []dtrules.Object // The compiled action code to execute
+	actionNumbers []int            // The action numbers (0-based, for tracing)
+	columns       []int            // Column numbers that lead to this node (1-based)
+	star          bool             // Whether this column has a star
 }
 
 // NewANode creates a new empty ANode for the given decision table

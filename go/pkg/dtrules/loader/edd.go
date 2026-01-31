@@ -90,7 +90,28 @@ func (l *EDDLoader) Load(r io.Reader) error {
 	}
 
 	if len(l.errors) > 0 {
-		return fmt.Errorf("EDD loading completed with %d errors", len(l.errors))
+		return &EDDLoadError{Errors: l.errors}
+	}
+	return nil
+}
+
+// EDDLoadError contains all errors encountered during EDD loading.
+type EDDLoadError struct {
+	Errors []error
+}
+
+// Error implements the error interface.
+func (e *EDDLoadError) Error() string {
+	if len(e.Errors) == 1 {
+		return fmt.Sprintf("EDD loading error: %v", e.Errors[0])
+	}
+	return fmt.Sprintf("EDD loading completed with %d errors; first: %v", len(e.Errors), e.Errors[0])
+}
+
+// Unwrap returns the first error for errors.Is/As compatibility.
+func (e *EDDLoadError) Unwrap() error {
+	if len(e.Errors) > 0 {
+		return e.Errors[0]
 	}
 	return nil
 }

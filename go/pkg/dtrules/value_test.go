@@ -172,10 +172,10 @@ func TestValueDivision(t *testing.T) {
 
 func TestValueComparison(t *testing.T) {
 	tests := []struct {
-		name     string
-		a, b     Value
-		less     bool
-		equal    bool
+		name  string
+		a, b  Value
+		less  bool
+		equal bool
 	}{
 		{"less", NewValueInteger(5), NewValueInteger(10), true, false},
 		{"equal", NewValueInteger(10), NewValueInteger(10), false, true},

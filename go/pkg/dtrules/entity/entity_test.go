@@ -80,8 +80,8 @@ func TestEntityAttributes(t *testing.T) {
 		attrName,
 		"",
 		dtrules.NewRString(""),
-		true,  // writable
-		true,  // readable
+		true, // writable
+		true, // readable
 		dtrules.TypeString,
 		"",
 		"Person's name",

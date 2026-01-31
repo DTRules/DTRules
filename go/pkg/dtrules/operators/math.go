@@ -316,11 +316,11 @@ func opRoundTo(state dtrules.State) error {
 	}
 
 	round := func(n, b float64) float64 {
-		v := float64(int(n))           // Integer portion
+		v := float64(int(n)) // Integer portion
 		if b >= 1 {
 			return v
 		}
-		r := math.Abs(n - v)           // Fractional portion
+		r := math.Abs(n - v) // Fractional portion
 		if b <= 0 {
 			if r > 0 {
 				v++

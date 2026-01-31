@@ -24,12 +24,12 @@ import (
 // They share the same underlying data but have different execution behavior.
 type RArray struct {
 	BaseObject
-	array      []Object  // Dynamic array form
-	code       []Object  // Cached/compiled form for execution
-	pair       *RArray   // Partner with opposite executable state
-	executable bool      // Whether this is the executable version
-	dups       bool      // Whether duplicates are allowed
-	id         int       // Unique ID for this array
+	array      []Object // Dynamic array form
+	code       []Object // Cached/compiled form for execution
+	pair       *RArray  // Partner with opposite executable state
+	executable bool     // Whether this is the executable version
+	dups       bool     // Whether duplicates are allowed
+	id         int      // Unique ID for this array
 }
 
 // NewArray creates a new RArray with the specified properties.
