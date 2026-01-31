@@ -89,7 +89,10 @@ func opIfelse(state dtrules.State) error {
 	return falsebody.Execute(state)
 }
 
-// opWhile: ( body test -- ) executes body while test returns true
+// opWhile: ( body test -- ) executes body while test returns true.
+// NOTE: This operator has no built-in iteration limit. Infinite loops are possible
+// if test never returns false. This matches the Java DTRules behavior.
+// Rule authors must ensure termination conditions are met.
 func opWhile(state dtrules.State) error {
 	test, err := state.DataPop()
 	if err != nil {

@@ -104,15 +104,11 @@ func TestTryGetRNameInvalidSyntax(t *testing.T) {
 	}
 }
 
-func TestGetRNameInvalidSyntaxReturnsPlaceholder(t *testing.T) {
-	// GetRName should not panic, but return a placeholder
+func TestGetRNameInvalidSyntaxReturnsNil(t *testing.T) {
+	// GetRName should not panic, but return nil and log a warning
 	name := GetRName(".invalid")
-	if name == nil {
-		t.Fatal("Expected non-nil placeholder name")
-	}
-	// The placeholder should be "_invalid_"
-	if name.StringValue() != "_invalid_" {
-		t.Logf("Got placeholder name: '%s'", name.StringValue())
+	if name != nil {
+		t.Errorf("Expected nil for invalid syntax, got: %s", name.StringValue())
 	}
 }
 

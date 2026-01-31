@@ -354,7 +354,11 @@ func (r *RArray) Add(v Object) bool {
 }
 
 // AddAt adds an element at a specific index.
-func (r *RArray) AddAt(index int, v Object) {
+// Returns an error if index is negative.
+func (r *RArray) AddAt(index int, v Object) error {
+	if index < 0 {
+		return OutOfBoundsError("RArray.AddAt", "negative index not allowed")
+	}
 	r.uncache()
 	if index >= len(r.array) {
 		r.array = append(r.array, v)
@@ -363,6 +367,7 @@ func (r *RArray) AddAt(index int, v Object) {
 		r.array[index] = v
 	}
 	r.pair.array = r.array
+	return nil
 }
 
 // Get returns the element at the given index.

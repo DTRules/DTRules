@@ -381,3 +381,29 @@ func TestParseFromString(t *testing.T) {
 		t.Error("Expected false")
 	}
 }
+
+func TestArrayAddAtNegativeIndex(t *testing.T) {
+	// Use NewArrayTraceInterface which doesn't require a session
+	arr := NewArrayTraceInterface(1, true, false)
+
+	// Add some elements
+	arr.Add(GetRIntegerValue(1))
+	arr.Add(GetRIntegerValue(2))
+
+	// Try to add at negative index - should return error
+	err := arr.AddAt(-1, GetRIntegerValue(99))
+	if err == nil {
+		t.Error("Expected error for negative index")
+	}
+
+	// Valid index should work
+	err = arr.AddAt(0, GetRIntegerValue(0))
+	if err != nil {
+		t.Errorf("Unexpected error for valid index: %v", err)
+	}
+
+	// Verify the array has the expected elements
+	if arr.Size() != 3 {
+		t.Errorf("Expected size 3, got %d", arr.Size())
+	}
+}

@@ -99,8 +99,7 @@ func opAddAt(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	arr.AddAt(index, element)
-	return nil
+	return arr.AddAt(index, element)
 }
 
 // opLength: ( array -- length ) returns array length

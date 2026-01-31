@@ -282,9 +282,21 @@ func (v Value) Mul(other Value) Value {
 }
 
 // Div performs division on two values.
+// NOTE: Unlike Object-based operators, this returns +Inf/-Inf/NaN on division by zero
+// for performance (no error branch). Use TryDiv for error-checked division.
 func (v Value) Div(other Value) Value {
 	// Division always returns double to handle fractions
 	return NewValueDouble(v.AsDouble() / other.AsDouble())
+}
+
+// TryDiv performs division with explicit zero check.
+// Returns an error if dividing by zero, consistent with Object-based operators.
+func (v Value) TryDiv(other Value) (Value, error) {
+	divisor := other.AsDouble()
+	if divisor == 0 {
+		return ValueNull, fmt.Errorf("division by zero")
+	}
+	return NewValueDouble(v.AsDouble() / divisor), nil
 }
 
 // Less returns true if v < other.

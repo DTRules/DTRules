@@ -165,3 +165,31 @@ func TestRDecisionTableIsExecutable(t *testing.T) {
 		t.Error("Expected decision table to be executable")
 	}
 }
+
+func TestSetMaxColValidation(t *testing.T) {
+	name := dtrules.GetRName("MaxColTest")
+	dt := NewRDecisionTable(name, nil)
+
+	// Test clamping to minimum
+	dt.SetMaxCol(0)
+	if dt.GetMaxCol() != 1 {
+		t.Errorf("Expected MaxCol to be clamped to 1, got %d", dt.GetMaxCol())
+	}
+
+	dt.SetMaxCol(-5)
+	if dt.GetMaxCol() != 1 {
+		t.Errorf("Expected MaxCol to be clamped to 1, got %d", dt.GetMaxCol())
+	}
+
+	// Test clamping to maximum
+	dt.SetMaxCol(100)
+	if dt.GetMaxCol() != MAXCOL {
+		t.Errorf("Expected MaxCol to be clamped to MAXCOL (%d), got %d", MAXCOL, dt.GetMaxCol())
+	}
+
+	// Test valid value
+	dt.SetMaxCol(8)
+	if dt.GetMaxCol() != 8 {
+		t.Errorf("Expected MaxCol to be 8, got %d", dt.GetMaxCol())
+	}
+}

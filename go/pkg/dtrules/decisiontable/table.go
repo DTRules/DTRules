@@ -173,8 +173,14 @@ func (dt *RDecisionTable) GetMaxCol() int {
 	return dt.maxCol
 }
 
-// SetMaxCol sets the number of columns
+// SetMaxCol sets the number of columns.
+// Values are clamped to the range [1, MAXCOL].
 func (dt *RDecisionTable) SetMaxCol(n int) {
+	if n < 1 {
+		n = 1
+	} else if n > MAXCOL {
+		n = MAXCOL
+	}
 	dt.maxCol = n
 }
 

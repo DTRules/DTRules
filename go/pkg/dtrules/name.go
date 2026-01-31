@@ -17,6 +17,7 @@ package dtrules
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 )
@@ -99,14 +100,15 @@ func TryGetRName(name string) (*RName, error) {
 // GetRName returns an RName for the given string.
 // Parses the string for leading slash (literal) and dot syntax (entity.attribute).
 // Names are cached and interned.
-// For error handling, use TryGetRName instead.
+//
+// WARNING: If the name has invalid syntax (e.g., ".foo", "foo.", "a.b.c"),
+// this function logs a warning and returns nil. Callers should use TryGetRName
+// for explicit error handling, or check the return value for nil.
 func GetRName(name string) *RName {
 	rn, err := TryGetRName(name)
 	if err != nil {
-		// Return an empty name rather than panicking
-		// This preserves backwards compatibility while avoiding panics
-		rn, _ = TryGetRName("_invalid_")
-		return rn
+		log.Printf("WARNING: GetRName called with invalid name syntax %q: %v", name, err)
+		return nil
 	}
 	return rn
 }

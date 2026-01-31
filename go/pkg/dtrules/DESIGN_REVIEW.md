@@ -206,7 +206,12 @@ pkg/dtrules/
 2. ✅ Replace panics with error returns (DONE - TryGetRName)
 3. ✅ Add loader/decisiontable tests (DONE)
 4. ✅ Document unsafe pointer usage (DONE)
-5. Add bytecode control flow tests
+5. ✅ Fix negative array index panic (DONE - AddAt returns error)
+6. ✅ Fix GetRName silent error masking (DONE - returns nil with warning)
+7. ✅ Enforce MAXCOL in SetMaxCol (DONE)
+8. ✅ Document while operator termination (DONE)
+9. ✅ Add TryDiv for consistent division by zero handling (DONE)
+10. Add bytecode control flow tests
 
 ### Short-term
 4. Integrate bytecode with decision tables

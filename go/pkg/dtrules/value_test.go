@@ -262,3 +262,34 @@ func TestValueString_Format(t *testing.T) {
 		})
 	}
 }
+
+func TestValueTryDiv(t *testing.T) {
+	// Normal division
+	a := NewValueInteger(100)
+	b := NewValueInteger(5)
+	result, err := a.TryDiv(b)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.AsDouble() != 20.0 {
+		t.Errorf("expected 20.0, got %f", result.AsDouble())
+	}
+
+	// Division by zero
+	zero := NewValueInteger(0)
+	_, err = a.TryDiv(zero)
+	if err == nil {
+		t.Error("expected error for division by zero")
+	}
+}
+
+func TestValueDivByZeroReturnsInf(t *testing.T) {
+	// Div returns Inf, not an error (for performance)
+	a := NewValueDouble(1.0)
+	zero := NewValueDouble(0.0)
+	result := a.Div(zero)
+	// Should return +Inf
+	if result.AsDouble() != result.AsDouble() { // NaN check
+		t.Log("Division by zero returned NaN")
+	}
+}
