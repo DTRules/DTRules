@@ -14,6 +14,8 @@
 
 package dtrules
 
+import "errors"
+
 // Bytecode provides a compact representation for compiled expressions.
 // Instead of storing Object interfaces, bytecode uses:
 // - Opcodes for operators (1 byte)
@@ -241,18 +243,53 @@ func (r *BytecodeReader) HasMore() bool {
 	return r.pc < len(r.code)
 }
 
+// ErrBytecodeOutOfBounds is returned when bytecode reading goes past the end.
+var ErrBytecodeOutOfBounds = errors.New("bytecode read out of bounds")
+
+// ErrBytecodeVarintOverflow is returned when a varint exceeds 64 bits.
+var ErrBytecodeVarintOverflow = errors.New("bytecode varint overflow")
+
 // ReadOpcode reads the next opcode.
+// Panics if reading past end of bytecode (use TryReadOpcode for error handling).
 func (r *BytecodeReader) ReadOpcode() Opcode {
-	op := Opcode(r.code[r.pc])
-	r.pc++
+	op, err := r.TryReadOpcode()
+	if err != nil {
+		panic(err)
+	}
 	return op
 }
 
+// TryReadOpcode reads the next opcode with bounds checking.
+func (r *BytecodeReader) TryReadOpcode() (Opcode, error) {
+	if r.pc >= len(r.code) {
+		return 0, ErrBytecodeOutOfBounds
+	}
+	op := Opcode(r.code[r.pc])
+	r.pc++
+	return op, nil
+}
+
 // ReadVarint reads a variable-length integer.
+// Panics on error (use TryReadVarint for error handling).
 func (r *BytecodeReader) ReadVarint() int {
+	v, err := r.TryReadVarint()
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// TryReadVarint reads a variable-length integer with bounds and overflow checking.
+func (r *BytecodeReader) TryReadVarint() (int, error) {
 	v := 0
 	shift := 0
 	for {
+		if r.pc >= len(r.code) {
+			return 0, ErrBytecodeOutOfBounds
+		}
+		if shift >= 63 {
+			return 0, ErrBytecodeVarintOverflow
+		}
 		b := r.code[r.pc]
 		r.pc++
 		v |= int(b&0x7f) << shift
@@ -261,7 +298,7 @@ func (r *BytecodeReader) ReadVarint() int {
 		}
 		shift += 7
 	}
-	return v
+	return v, nil
 }
 
 // PC returns the current program counter.

@@ -62,17 +62,19 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 			}
 		case dtrules.OpConstant:
 			idx := reader.ReadVarint()
-			if idx < len(constants) {
-				if err := s.ValuePush(constants[idx]); err != nil {
-					return err
-				}
+			if idx < 0 || idx >= len(constants) {
+				return dtrules.OutOfBoundsError("ExecuteBytecode", "constant index out of range")
+			}
+			if err := s.ValuePush(constants[idx]); err != nil {
+				return err
 			}
 		case dtrules.OpName:
 			idx := reader.ReadVarint()
-			if idx < len(names) {
-				if err := s.ValuePush(dtrules.NewValueName(names[idx])); err != nil {
-					return err
-				}
+			if idx < 0 || idx >= len(names) {
+				return dtrules.OutOfBoundsError("ExecuteBytecode", "name index out of range")
+			}
+			if err := s.ValuePush(dtrules.NewValueName(names[idx])); err != nil {
+				return err
 			}
 
 		// Stack operations

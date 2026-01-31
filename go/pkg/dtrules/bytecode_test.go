@@ -222,3 +222,70 @@ func TestBytecodeSetPC(t *testing.T) {
 		t.Errorf("expected PC=0 after SetPC, got %d", reader.PC())
 	}
 }
+
+func TestBytecodeReaderBoundsChecking(t *testing.T) {
+	// Test TryReadOpcode on empty bytecode
+	reader := NewBytecodeReader([]byte{})
+	_, err := reader.TryReadOpcode()
+	if err != ErrBytecodeOutOfBounds {
+		t.Errorf("expected ErrBytecodeOutOfBounds, got %v", err)
+	}
+
+	// Test TryReadOpcode at end of bytecode
+	reader = NewBytecodeReader([]byte{byte(OpAdd)})
+	reader.ReadOpcode() // consume the one byte
+	_, err = reader.TryReadOpcode()
+	if err != ErrBytecodeOutOfBounds {
+		t.Errorf("expected ErrBytecodeOutOfBounds at end, got %v", err)
+	}
+
+	// Test TryReadVarint on empty bytecode
+	reader = NewBytecodeReader([]byte{})
+	_, err = reader.TryReadVarint()
+	if err != ErrBytecodeOutOfBounds {
+		t.Errorf("expected ErrBytecodeOutOfBounds for varint, got %v", err)
+	}
+
+	// Test TryReadVarint with truncated varint (continuation bit set but no more bytes)
+	reader = NewBytecodeReader([]byte{0x80}) // continuation bit set
+	_, err = reader.TryReadVarint()
+	if err != ErrBytecodeOutOfBounds {
+		t.Errorf("expected ErrBytecodeOutOfBounds for truncated varint, got %v", err)
+	}
+}
+
+func TestBytecodeReaderReadOpcodeSuccess(t *testing.T) {
+	bc := NewBytecodeChunk()
+	bc.Emit(OpAdd)
+	bc.Emit(OpSub)
+
+	reader := NewBytecodeReader(bc.Code())
+	op, err := reader.TryReadOpcode()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if op != OpAdd {
+		t.Errorf("expected OpAdd, got %d", op)
+	}
+}
+
+func TestBytecodeReaderReadVarintSuccess(t *testing.T) {
+	// Manually create bytecode with a varint
+	// Varint encoding: 42 = 0x2A (single byte, high bit clear)
+	code := []byte{byte(OpPushInt), 0x2A}
+
+	reader := NewBytecodeReader(code)
+	// Skip the opcode
+	_, err := reader.TryReadOpcode()
+	if err != nil {
+		t.Fatalf("unexpected error reading opcode: %v", err)
+	}
+	// Read the varint
+	v, err := reader.TryReadVarint()
+	if err != nil {
+		t.Fatalf("unexpected error reading varint: %v", err)
+	}
+	if v != 42 {
+		t.Errorf("expected 42, got %d", v)
+	}
+}

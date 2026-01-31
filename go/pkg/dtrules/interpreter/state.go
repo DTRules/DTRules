@@ -477,6 +477,9 @@ func (s *DTState) Find(name *dtrules.RName) (dtrules.Object, error) {
 	attrName := name
 	if name.GetEntityName() != nil {
 		attrName = dtrules.GetRName(name.GetName())
+		if attrName == nil {
+			return nil, dtrules.UndefinedError("GetValue", "invalid attribute name: "+name.GetName())
+		}
 	}
 	return entity.Get(attrName)
 }
@@ -490,6 +493,9 @@ func (s *DTState) FindEntity(name *dtrules.RName) (dtrules.Entity, error) {
 	if entityName != nil {
 		// Extract just the attribute part for ContainsAttribute lookup
 		attrName = dtrules.GetRName(name.GetName())
+		if attrName == nil {
+			return nil, dtrules.UndefinedError("FindEntity", "invalid attribute name: "+name.GetName())
+		}
 	}
 
 	if entityName == nil {

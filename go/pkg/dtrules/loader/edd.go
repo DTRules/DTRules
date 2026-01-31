@@ -119,6 +119,9 @@ func (e *EDDLoadError) Unwrap() error {
 // processEntity processes a single entity definition.
 func (l *EDDLoader) processEntity(ent *EDDEntity) error {
 	entityName := dtrules.GetRName(strings.TrimSpace(ent.Name))
+	if entityName == nil {
+		return fmt.Errorf("invalid entity name syntax: %s", ent.Name)
+	}
 
 	// Create or find the reference entity
 	refEntity, err := l.factory.FindCreateRefEntity(false, entityName)
@@ -155,6 +158,9 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 	}
 
 	attributeName := dtrules.GetRName(strings.TrimSpace(field.Name))
+	if attributeName == nil {
+		return fmt.Errorf("invalid field name syntax: %s", field.Name)
+	}
 
 	// Compute default value
 	defaultValue := l.computeDefaultValue(field.DefaultValue, rtype)

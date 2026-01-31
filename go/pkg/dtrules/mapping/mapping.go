@@ -140,7 +140,11 @@ func (m *Mapping) LoadData(r io.Reader) error {
 // Initialize creates the initial entities and pushes them onto the entity stack.
 func (m *Mapping) Initialize() error {
 	for _, entityName := range m.entitystack {
-		entity, err := m.session.CreateEntity(dtrules.GetRName(entityName))
+		rname := dtrules.GetRName(entityName)
+		if rname == nil {
+			return fmt.Errorf("invalid entity name syntax in entity stack: %s", entityName)
+		}
+		entity, err := m.session.CreateEntity(rname)
 		if err != nil {
 			return fmt.Errorf("failed to create initial entity %s: %w", entityName, err)
 		}

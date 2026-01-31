@@ -90,8 +90,13 @@ func (f *Factory) FindRefEntity(name *dtrules.RName) *REntity {
 }
 
 // FindRefEntityByString looks up a reference entity by string name.
+// Returns nil if the name has invalid syntax.
 func (f *Factory) FindRefEntityByString(name string) *REntity {
-	return f.FindRefEntity(dtrules.GetRName(name))
+	rname := dtrules.GetRName(name)
+	if rname == nil {
+		return nil
+	}
+	return f.FindRefEntity(rname)
 }
 
 // FindCreateRefEntity finds or creates a reference entity.

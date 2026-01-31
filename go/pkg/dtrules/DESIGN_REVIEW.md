@@ -116,7 +116,7 @@ pkg/dtrules/
 
 | Test Category | Status | Coverage |
 |---------------|--------|----------|
-| Unit Tests | **PASS** | All 209 tests pass (389 including subtests) |
+| Unit Tests | **PASS** | All 214 tests pass (394 including subtests) |
 | Integration | **PASS** | CHIP sample works |
 | Benchmarks | **PASS** | All benchmarks run |
 | Loader Tests | **PASS** | EDD and DT loader tests added |
@@ -211,8 +211,12 @@ pkg/dtrules/
 7. ✅ Enforce MAXCOL in SetMaxCol (DONE)
 8. ✅ Document while operator termination (DONE)
 9. ✅ Add TryDiv for consistent division by zero handling (DONE)
-10. ✅ Fix nil pointer dereference after GetRName fix (DONE - all callers check for nil)
-11. Add bytecode control flow tests
+10. ✅ Fix nil pointer dereference after GetRName fix (DONE - compiler callers check for nil)
+11. ✅ Fix remaining GetRName nil dereferences (DONE - loaders, registry, state, mapping)
+12. ✅ Add bytecode bounds checking (DONE - TryReadOpcode, TryReadVarint with error returns)
+13. ✅ Fix VM silent failure on invalid index (DONE - returns OutOfBoundsError)
+14. ✅ Replace panic in Alias() with TryAlias() error return (DONE)
+15. Add bytecode control flow tests
 
 ### Short-term
 4. Integrate bytecode with decision tables

@@ -131,7 +131,10 @@ func (l *dataLoader) handleStartElement(elem xml.StartElement) error {
 				l.codeCnt++
 				code = fmt.Sprintf("v%d", l.codeCnt)
 			}
-			entity.Put(dtrules.GetRName("mapping*key"), dtrules.NewRString(code))
+			mappingKey := dtrules.GetRName("mapping*key")
+			if mappingKey != nil {
+				entity.Put(mappingKey, dtrules.NewRString(code))
+			}
 
 			// Push onto entity stack
 			l.state.EntityPush(entity)

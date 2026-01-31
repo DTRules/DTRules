@@ -300,3 +300,54 @@ func TestGetErrors(t *testing.T) {
 		t.Error("Expected errors after loading invalid type")
 	}
 }
+
+func TestEDDLoaderInvalidEntityName(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	// Entity name with invalid syntax (leading dot)
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+    <entity name=".invalid">
+        <field name="value" type="integer" access="rw"/>
+    </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err == nil {
+		t.Fatal("Expected error for invalid entity name")
+	}
+	if !strings.Contains(err.Error(), "invalid entity name syntax") {
+		t.Errorf("Expected 'invalid entity name syntax' error, got: %v", err)
+	}
+}
+
+func TestEDDLoaderInvalidFieldName(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	// Field name with invalid syntax (trailing dot)
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+    <entity name="test">
+        <field name="value." type="integer" access="rw"/>
+    </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err == nil {
+		t.Fatal("Expected error for invalid field name")
+	}
+	// The error is collected, so we check via GetErrors
+	errs := loader.GetErrors()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Error(), "invalid field name syntax") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("Expected 'invalid field name syntax' error in collected errors")
+	}
+}

@@ -180,6 +180,9 @@ func (l *DTLoader) Load(r io.Reader) error {
 // processTable processes a single decision table.
 func (l *DTLoader) processTable(table *DTTable) error {
 	name := dtrules.GetRName(strings.TrimSpace(table.TableName))
+	if name == nil {
+		return fmt.Errorf("invalid decision table name syntax: %s", table.TableName)
+	}
 
 	// Create the decision table using the builder
 	builder := decisiontable.NewBuilder(name.StringValue(), l.session)

@@ -53,6 +53,10 @@ func Register(name string, fn OperatorFunc) *Operator {
 // RegisterWithPriority registers an operator with a specific priority.
 func RegisterWithPriority(name string, fn OperatorFunc, priority int) *Operator {
 	rname := dtrules.GetRName(name)
+	if rname == nil {
+		// Invalid operator name - this is a programming error during init
+		panic(fmt.Sprintf("RegisterWithPriority: invalid operator name syntax: %s", name))
+	}
 
 	operatorsMu.Lock()
 	defer operatorsMu.Unlock()
@@ -91,9 +95,25 @@ func RegisterWithPriority(name string, fn OperatorFunc, priority int) *Operator 
 }
 
 // Alias creates an alias for an existing operator.
+// Panics if the names are invalid or if there's a conflicting alias.
+// This is intended for use in init() functions with known-good names.
 func Alias(existing, alias string) {
+	if err := TryAlias(existing, alias); err != nil {
+		panic(err.Error())
+	}
+}
+
+// TryAlias creates an alias for an existing operator.
+// Returns an error if the names are invalid or if there's a conflicting alias.
+func TryAlias(existing, alias string) error {
 	existingName := dtrules.GetRName(existing)
+	if existingName == nil {
+		return fmt.Errorf("TryAlias: invalid existing operator name syntax: %s", existing)
+	}
 	aliasName := dtrules.GetRName(alias)
+	if aliasName == nil {
+		return fmt.Errorf("TryAlias: invalid alias name syntax: %s", alias)
+	}
 
 	operatorsMu.Lock()
 	defer operatorsMu.Unlock()
@@ -102,12 +122,13 @@ func Alias(existing, alias string) {
 		// Check for duplicate - allow if it's the same operator (idempotent)
 		if existingOp, exists := operators[aliasName]; exists {
 			if existingOp != op {
-				panic(fmt.Sprintf("Duplicate Operators defined for %s", alias))
+				return fmt.Errorf("TryAlias: duplicate operators defined for %s", alias)
 			}
-			return // Already aliased to the same operator
+			return nil // Already aliased to the same operator
 		}
 		operators[aliasName] = op
 	}
+	return nil
 }
 
 // Get returns an operator by name.
@@ -158,7 +179,11 @@ func GetOperatorTable() []dtrules.Object {
 
 // GetByString returns an operator by string name.
 func GetByString(name string) (*Operator, bool) {
-	return Get(dtrules.GetRName(name))
+	rname := dtrules.GetRName(name)
+	if rname == nil {
+		return nil, false
+	}
+	return Get(rname)
 }
 
 // Type returns the operator type.
@@ -314,8 +339,13 @@ type PrimitivesEntity struct {
 
 // NewPrimitivesEntity creates the primitives entity
 func NewPrimitivesEntity() *PrimitivesEntity {
+	name := dtrules.GetRName("primitives")
+	if name == nil {
+		// "primitives" is a valid name, this should never happen
+		panic("NewPrimitivesEntity: failed to create name for 'primitives'")
+	}
 	return &PrimitivesEntity{
-		name: dtrules.GetRName("primitives"),
+		name: name,
 	}
 }
 
