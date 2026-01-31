@@ -1,19 +1,47 @@
 # DTRules Documentation
 
-## Getting Started
+DTRules has implementations in both **Java** and **Go**. This documentation primarily covers the Java implementation. For Go-specific documentation, see the [Go README](../go/README.md).
+
+## Implementations
+
+| Implementation | Documentation | Best For |
+|----------------|---------------|----------|
+| **Java** | This directory | Full tooling, Excel compilers, IDE integration |
+| **Go** | [go/README.md](../go/README.md) | High-performance runtime, microservices |
+
+## Getting Started (Java)
 
 | Document | Description |
 |----------|-------------|
 | [Quick Start Guide](QUICKSTART.md) | Step-by-step guide to running your first DTRules project |
 | [Building from Source](BUILDING.md) | Detailed build instructions and IDE setup |
 
-## Reference Documentation
+## Reference Documentation (Java)
 
 | Document | Description |
 |----------|-------------|
 | [Expression Language Reference](EL-REFERENCE.md) | Complete EL syntax, operators, and functions |
 | [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
 | [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
+
+## Go Implementation
+
+| Document | Description |
+|----------|-------------|
+| [Go README](../go/README.md) | Installation, CLI usage, quick start |
+| [Design Review](../go/pkg/dtrules/DESIGN_REVIEW.md) | Architecture, design decisions, security review |
+| [Performance Analysis](../go/pkg/dtrules/benchmark/PERFORMANCE_ANALYSIS.md) | Detailed benchmarks and optimizations |
+
+### Go Quick Start
+
+```bash
+# Build CLI
+cd go && go build -o dtrules ./cmd/dtrules
+
+# Run with existing Java-compiled rules
+./dtrules -rules /path/to/xml -list
+./dtrules -rules /path/to/xml -entry Main
+```
 
 ### Legacy Documentation
 
