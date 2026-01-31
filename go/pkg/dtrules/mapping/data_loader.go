@@ -246,12 +246,17 @@ func (l *dataLoader) findOrCreateEntity(info *EntityInfo, attrs map[string]strin
 	var entity dtrules.Entity
 	var err error
 
+	entityRName := dtrules.GetRName(entityName)
+	if entityRName == nil {
+		return nil, fmt.Errorf("invalid entity name syntax: %s", entityName)
+	}
+
 	if cardinality == "1" {
 		// Singleton - reuse if exists
 		if e, ok := l.entities[entityName]; ok {
 			return e, nil
 		}
-		entity, err = l.session.CreateEntity(dtrules.GetRName(entityName))
+		entity, err = l.session.CreateEntity(entityRName)
 		if err != nil {
 			return nil, err
 		}
@@ -266,7 +271,7 @@ func (l *dataLoader) findOrCreateEntity(info *EntityInfo, attrs map[string]strin
 			}
 		}
 
-		entity, err = l.session.CreateEntity(dtrules.GetRName(entityName))
+		entity, err = l.session.CreateEntity(entityRName)
 		if err != nil {
 			return nil, err
 		}
@@ -282,6 +287,9 @@ func (l *dataLoader) findOrCreateEntity(info *EntityInfo, attrs map[string]strin
 // setAttribute sets an attribute value on the current entity.
 func (l *dataLoader) setAttribute(pending pendingAttrib, body string, createdEntity dtrules.Entity) error {
 	attrName := dtrules.GetRName(pending.rAttribute)
+	if attrName == nil {
+		return nil // Invalid attribute name, skip
+	}
 
 	// Find the entity that has this attribute
 	entity, err := l.state.FindEntity(attrName)
@@ -365,6 +373,9 @@ func (l *dataLoader) updateReferences(entity dtrules.Entity, info *EntityInfo) e
 		listName = entityName + "s" // default pluralization
 	}
 	listRName := dtrules.GetRName(listName)
+	if listRName == nil {
+		return nil // Invalid list name, skip
+	}
 
 	// Look for arrays on the entity stack
 	depth := l.state.EntityDepth()

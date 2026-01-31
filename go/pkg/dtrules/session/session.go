@@ -135,6 +135,9 @@ func (s *RSession) SetAttribute(key string, value interface{}) {
 // Execute executes a decision table by name.
 func (s *RSession) Execute(tableName string) error {
 	name := dtrules.GetRName(tableName)
+	if name == nil {
+		return dtrules.UndefinedError("Execute", "Invalid decision table name syntax: "+tableName)
+	}
 	dt, err := s.entityFactory.GetDecisionTable(name)
 	if err != nil {
 		return err
@@ -149,6 +152,9 @@ func (s *RSession) Execute(tableName string) error {
 func (s *RSession) ExecuteAt(tableName string, entityName string) error {
 	// Find the entity
 	eName := dtrules.GetRName(entityName)
+	if eName == nil {
+		return dtrules.UndefinedError("ExecuteAt", "Invalid entity name syntax: "+entityName)
+	}
 	entity, err := s.state.FindEntity(eName)
 	if err != nil || entity == nil {
 		return dtrules.UndefinedError("ExecuteAt", "Entity not found: "+entityName)

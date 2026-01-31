@@ -93,8 +93,15 @@ func (t *RType) GetID() int {
 }
 
 // GetName returns the RName for this type.
+// Note: Type names are validated at registration, so this should never return nil.
 func (t *RType) GetName() *RName {
-	return GetRName(t.typename)
+	rname := GetRName(t.typename)
+	if rname == nil {
+		// This shouldn't happen since type names are validated,
+		// but handle defensively
+		return GetRName("unknown")
+	}
+	return rname
 }
 
 // String returns the string value for this type.

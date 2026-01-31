@@ -540,6 +540,9 @@ func (s *DTState) Def(name *dtrules.RName, value dtrules.Object, trace bool) (bo
 	attrName := name
 	if name.GetEntityName() != nil {
 		attrName = dtrules.GetRName(name.GetName())
+		if attrName == nil {
+			return false, dtrules.UndefinedError("Def", "invalid attribute name: "+name.GetName())
+		}
 	}
 
 	err = entity.Put(attrName, value)
@@ -563,7 +566,11 @@ func (s *DTState) DefProtected(name *dtrules.RName, value dtrules.Object, protec
 
 // InContext checks if an entity with the given name is on the entity stack.
 func (s *DTState) InContext(entityName string) bool {
-	return s.InContextRName(dtrules.GetRName(entityName))
+	rname := dtrules.GetRName(entityName)
+	if rname == nil {
+		return false
+	}
+	return s.InContextRName(rname)
 }
 
 // InContextRName checks if an entity with the given RName is on the entity stack.

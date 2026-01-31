@@ -38,9 +38,14 @@ type RuleSet struct {
 }
 
 // NewRuleSet creates a new rule set with the given name.
+// Returns nil if name has invalid syntax.
 func NewRuleSet(name string) *RuleSet {
+	rname := dtrules.GetRName(name)
+	if rname == nil {
+		return nil
+	}
 	return &RuleSet{
-		name:          dtrules.GetRName(name),
+		name:          rname,
 		entityFactory: entity.NewFactory(nil),
 		eddNames:      make([]string, 0),
 		dtNames:       make([]string, 0),

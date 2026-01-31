@@ -27,9 +27,14 @@ type Builder struct {
 }
 
 // NewBuilder creates a new decision table builder.
+// Returns nil if name has invalid syntax.
 func NewBuilder(name string, session dtrules.Session) *Builder {
+	rname := dtrules.GetRName(name)
+	if rname == nil {
+		return nil
+	}
 	return &Builder{
-		dt: NewRDecisionTable(dtrules.GetRName(name), session),
+		dt: NewRDecisionTable(rname, session),
 	}
 }
 

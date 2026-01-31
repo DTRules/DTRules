@@ -270,8 +270,13 @@ func (r *RString) RStringValue() *RString {
 }
 
 // RNameValue returns an RName for this string value.
+// Returns an error if the string has invalid name syntax.
 func (r *RString) RNameValue() (*RName, error) {
-	return GetRName(r.value), nil
+	rname, err := TryGetRName(r.value)
+	if err != nil {
+		return nil, err
+	}
+	return rname, nil
 }
 
 // Value returns the underlying string value.
