@@ -34,7 +34,7 @@ A modern React-based visual editor for creating and managing DTRules decision ta
 
 ```bash
 # 1. Start the backend server (in one terminal)
-cd ../go
+cd go
 go run ./cmd/api
 
 # 2. Start the frontend (in another terminal)
@@ -44,6 +44,30 @@ npm run dev
 ```
 
 The backend runs on http://localhost:8080 and the frontend on http://localhost:5173.
+
+**Opening a Project:**
+1. Open http://localhost:5173 in your browser
+2. Click "Open CHIP Sample Project" (or "Open Custom Project")
+3. Enter the absolute path to a DTRules project, e.g.:
+   - Linux/Mac: `/home/user/DTRules/sampleprojects/CHIP/xml`
+   - Windows: `C:\Users\user\DTRules\sampleprojects\CHIP\xml`
+
+**Optional: Pre-configure the CHIP path**
+
+Create a `.env.local` file in the `ui/` directory:
+
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` to set your CHIP project path:
+
+```
+VITE_API_URL=http://localhost:8080/api
+VITE_CHIP_PROJECT_PATH=/absolute/path/to/DTRules/sampleprojects/CHIP/xml
+```
+
+With this configured, clicking "Open CHIP Sample Project" will open it automatically.
 
 ## Installation
 

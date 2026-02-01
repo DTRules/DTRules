@@ -229,6 +229,53 @@ Apache License, Version 2.0
 
 Copyright 2004-2012 DTRules.com
 
+## Go Implementation & Visual UI
+
+In addition to the Java implementation, DTRules includes:
+
+### Go Rules Engine
+
+A high-performance Go implementation with the same XML format compatibility:
+
+```bash
+cd go
+
+# Run tests
+go test ./...
+
+# Build CLI
+go build -o dtrules ./cmd/dtrules
+
+# Execute rules
+./dtrules -rules ../sampleprojects/CHIP/xml -entry Compute_Eligibility -trace
+```
+
+See [go/README.md](go/README.md) for full documentation.
+
+### Visual UI (React + Go Backend)
+
+A modern web-based UI for editing decision tables, entities, and testing rules:
+
+```bash
+# Terminal 1: Start the Go API backend
+cd go
+go run ./cmd/api
+
+# Terminal 2: Start the React frontend
+cd ui
+npm install
+npm run dev
+```
+
+Then open http://localhost:5173 in your browser.
+
+**Quick Start:**
+1. Click "Open CHIP Sample Project" on the welcome screen
+2. Enter the path: `/path/to/DTRules/sampleprojects/CHIP/xml`
+3. Explore entities, decision tables, and run tests
+
+See [ui/README.md](ui/README.md) for full documentation.
+
 ## Links
 
 - Website: http://DTRules.com
