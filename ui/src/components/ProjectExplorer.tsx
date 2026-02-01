@@ -92,8 +92,12 @@ export function ProjectExplorer() {
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-2">
+    <div className="h-full flex flex-col">
+      <div className="p-3 border-b border-border/50 bg-gradient-to-r from-muted/50 to-transparent">
+        <span className="text-sm font-semibold text-foreground/80">Project Explorer</span>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-2">
         {/* EDD Files */}
         <TreeNode
           label="Entities (EDD)"
@@ -167,7 +171,8 @@ export function ProjectExplorer() {
             ))}
           </TreeNode>
         )}
-      </div>
-    </ScrollArea>
+        </div>
+      </ScrollArea>
+    </div>
   );
 }

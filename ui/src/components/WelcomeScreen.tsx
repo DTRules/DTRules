@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useProjectStore } from '@/stores/projectStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { FileText, Table2, GitBranch, FolderOpen, Play, BookOpen } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const CHIP_PROJECT_PATH = '/home/paul/DTRules/sampleprojects/CHIP/xml';
 
@@ -20,16 +21,33 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
+  accentColor?: 'blue' | 'purple' | 'green';
 }
 
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
+function FeatureCard({ icon, title, description, accentColor = 'blue' }: FeatureCardProps) {
+  const borderColorMap = {
+    blue: 'hover:border-blue-500/30',
+    purple: 'hover:border-purple-500/30',
+    green: 'hover:border-green-500/30',
+  };
+
+  const iconBgMap = {
+    blue: 'bg-blue-500/10',
+    purple: 'bg-purple-500/10',
+    green: 'bg-green-500/10',
+  };
+
   return (
-    <div className="flex flex-col items-center p-6 bg-card rounded-lg border border-border hover:border-primary/50 transition-colors">
-      <div className="p-3 bg-primary/10 rounded-full mb-4">
+    <div className={cn(
+      "flex flex-col items-center text-center p-6 glass rounded-2xl",
+      "transition-all duration-300 hover:shadow-lg hover:shadow-black/20",
+      borderColorMap[accentColor]
+    )}>
+      <div className={`p-3 ${iconBgMap[accentColor]} rounded-xl mb-4`}>
         {icon}
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground text-center">{description}</p>
+      <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -77,15 +95,17 @@ export function WelcomeScreen() {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-background p-8">
-      <div className="max-w-4xl w-full space-y-12">
+    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-blue-950/20 p-8">
+      <div className="max-w-4xl w-full space-y-10">
         {/* Hero Section */}
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-3 bg-primary rounded-lg">
-              <Table2 className="h-10 w-10 text-primary-foreground" />
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg shadow-blue-500/25">
+              <Table2 className="h-12 w-12 text-white" />
             </div>
-            <h1 className="text-5xl font-bold">DTRules</h1>
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+              DTRules
+            </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             A powerful visual editor for creating and managing decision tables,
@@ -96,19 +116,22 @@ export function WelcomeScreen() {
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FeatureCard
-            icon={<FileText className="h-6 w-6 text-primary" />}
+            icon={<FileText className="h-6 w-6 text-blue-400" />}
             title="Entity Definitions"
             description="Define and manage entities with attributes, types, and validation rules in a visual editor."
+            accentColor="blue"
           />
           <FeatureCard
-            icon={<Table2 className="h-6 w-6 text-primary" />}
+            icon={<Table2 className="h-6 w-6 text-purple-400" />}
             title="Decision Tables"
             description="Create condition-action matrices to encode complex business logic in an easy-to-read format."
+            accentColor="purple"
           />
           <FeatureCard
-            icon={<GitBranch className="h-6 w-6 text-primary" />}
+            icon={<GitBranch className="h-6 w-6 text-green-400" />}
             title="Tree Visualization"
             description="Visualize decision table dependencies and execution flow as an interactive tree diagram."
+            accentColor="green"
           />
         </div>
 
@@ -116,7 +139,7 @@ export function WelcomeScreen() {
         <div className="flex flex-col items-center gap-4">
           <Button
             size="lg"
-            className="w-80"
+            className="w-80 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300"
             onClick={handleOpenChipProject}
             disabled={isLoading}
           >
@@ -129,6 +152,7 @@ export function WelcomeScreen() {
               variant="secondary"
               onClick={handleSkipTutorial}
               disabled={isLoading}
+              className="hover:bg-secondary/80"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Skip Tutorial
@@ -138,6 +162,7 @@ export function WelcomeScreen() {
               variant="outline"
               onClick={() => setCustomPathDialogOpen(true)}
               disabled={isLoading}
+              className="border-border/50 hover:border-border hover:bg-accent/50"
             >
               <FolderOpen className="h-4 w-4 mr-2" />
               Open Custom Project
