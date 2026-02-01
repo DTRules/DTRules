@@ -291,16 +291,23 @@ export function GuidedTutorial() {
       hideCloseButton
       disableOverlayClose
       disableScrollParentFix
-      scrollToFirstStep
+      disableScrolling
+      scrollOffset={100}
       spotlightPadding={4}
       callback={handleJoyrideCallback}
       tooltipComponent={CustomTooltip}
       floaterProps={{
         disableAnimation: true,
         hideArrow: true,
+        offset: 16,
         styles: {
           floater: {
-            transition: 'none',
+            transition: 'none !important',
+            filter: 'none',
+            transitionProperty: 'none',
+          },
+          arrow: {
+            display: 'none',
           },
         },
       }}
@@ -311,9 +318,19 @@ export function GuidedTutorial() {
         },
         spotlight: {
           borderRadius: 8,
+          transition: 'none',
         },
         overlay: {
           transition: 'none',
+        },
+        beacon: {
+          display: 'none',
+        },
+        beaconInner: {
+          display: 'none',
+        },
+        beaconOuter: {
+          display: 'none',
         },
       }}
     />
