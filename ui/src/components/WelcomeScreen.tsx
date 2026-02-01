@@ -15,7 +15,9 @@ import { useOnboardingStore } from '@/stores/onboardingStore';
 import { FileText, Table2, GitBranch, FolderOpen, Play, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const CHIP_PROJECT_PATH = '/home/paul/DTRules/sampleprojects/CHIP/xml';
+// CHIP sample project path - can be overridden via VITE_CHIP_PROJECT_PATH env variable
+// For development, set this in .env.local or pass when starting the server
+const CHIP_PROJECT_PATH = import.meta.env.VITE_CHIP_PROJECT_PATH || '';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -60,6 +62,11 @@ export function WelcomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenChipProject = async () => {
+    // If CHIP path is not configured, open the custom path dialog
+    if (!CHIP_PROJECT_PATH) {
+      setCustomPathDialogOpen(true);
+      return;
+    }
     setIsLoading(true);
     const success = await openProject(CHIP_PROJECT_PATH);
     if (success) {
@@ -74,6 +81,11 @@ export function WelcomeScreen() {
   };
 
   const handleSkipTutorial = async () => {
+    // If CHIP path is not configured, open the custom path dialog
+    if (!CHIP_PROJECT_PATH) {
+      setCustomPathDialogOpen(true);
+      return;
+    }
     setIsLoading(true);
     const success = await openProject(CHIP_PROJECT_PATH);
     if (success) {

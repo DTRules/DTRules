@@ -82,11 +82,11 @@
     },
     "extraResources": [
       {
-        "from": "../go/cmd/dtrules-server",
+        "from": "../go/cmd/api",
         "to": "backend",
         "filter": [
-          "dtrules-server",
-          "dtrules-server.exe"
+          "api",
+          "api.exe"
         ]
       }
     ]

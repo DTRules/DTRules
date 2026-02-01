@@ -24,8 +24,8 @@ import type {
   FileInfo,
 } from '@/types/dtrules';
 
-/** Base URL for all API requests */
-const API_BASE = 'http://localhost:8080/api';
+/** Base URL for all API requests - can be overridden via VITE_API_URL env variable */
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 /**
  * Generic fetch wrapper that handles JSON serialization/deserialization.

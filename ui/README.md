@@ -30,6 +30,21 @@ A modern React-based visual editor for creating and managing DTRules decision ta
 - npm or yarn
 - Go 1.21+ (for backend server)
 
+## Quick Start
+
+```bash
+# 1. Start the backend server (in one terminal)
+cd ../go
+go run ./cmd/api
+
+# 2. Start the frontend (in another terminal)
+cd ui
+npm install
+npm run dev
+```
+
+The backend runs on http://localhost:8080 and the frontend on http://localhost:5173.
+
 ## Installation
 
 ```bash
@@ -125,7 +140,7 @@ The CHIP (Children's Health Insurance Program) sample project demonstrates:
 - Decision tables: Compute_Eligibility, Check_Age, Check_Income, Check_Citizenship
 - Test data and execution tracing
 
-Location: `/home/paul/DTRules/sampleprojects/CHIP/xml`
+Location: `../sampleprojects/CHIP/xml` (relative to the ui directory)
 
 ## Configuration
 
