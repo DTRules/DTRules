@@ -1,6 +1,29 @@
+/**
+ * Onboarding Store - Manages tutorial and welcome screen state.
+ *
+ * This store handles the two-phase tutorial system:
+ * - Phase 1: Concept Modals - 5 modal dialogs teaching DTRules concepts
+ * - Phase 2: UI Tour - 20-step interactive Joyride tour
+ *
+ * State is persisted to localStorage to remember tutorial completion.
+ *
+ * @module stores/onboardingStore
+ *
+ * @example
+ * // Start the tutorial
+ * const { startTutorial } = useOnboardingStore();
+ * startTutorial();
+ *
+ * // Check if tutorial is complete
+ * const { tutorialCompleted } = useOnboardingStore();
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+/**
+ * Complete state interface for the onboarding store.
+ */
 interface OnboardingState {
   // State
   showWelcome: boolean;

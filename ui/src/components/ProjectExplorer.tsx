@@ -64,8 +64,6 @@ function TreeNode({ label, icon, children, onClick, selected, modified, dataTuto
 export function ProjectExplorer() {
   const {
     projectPath,
-    eddFiles,
-    dtFiles,
     mapFiles,
     entities,
     decisionTables,
@@ -74,13 +72,7 @@ export function ProjectExplorer() {
     selectEntity,
     selectTable,
     setActiveTab,
-    files,
   } = useProjectStore();
-
-  const getFileModified = (path: string): boolean => {
-    const file = files.find(f => f.path === path);
-    return file?.modified ?? false;
-  };
 
   if (!projectPath) {
     return (
@@ -98,61 +90,43 @@ export function ProjectExplorer() {
       </div>
       <ScrollArea className="flex-1">
         <div className="p-2">
-        {/* EDD Files */}
+        {/* Entities */}
         <TreeNode
-          label="Entities (EDD)"
-          icon={<Folder className="h-4 w-4 text-yellow-500" />}
+          label={`Entities (${entities.length})`}
+          icon={<Folder className="h-4 w-4 text-blue-500" />}
           dataTutorial="entities-section"
         >
-          {eddFiles.map((file) => (
+          {entities.map((entity) => (
             <TreeNode
-              key={file}
-              label={file}
+              key={entity.name}
+              label={entity.name}
               icon={<FileText className="h-4 w-4 text-blue-400" />}
-              modified={getFileModified(file)}
-            >
-              {entities.map((entity) => (
-                <TreeNode
-                  key={entity.name}
-                  label={entity.name}
-                  icon={<FileText className="h-4 w-4 text-blue-300" />}
-                  onClick={() => {
-                    selectEntity(entity.name);
-                    setActiveTab('edd');
-                  }}
-                  selected={currentEntity?.name === entity.name}
-                />
-              ))}
-            </TreeNode>
+              onClick={() => {
+                selectEntity(entity.name);
+                setActiveTab('edd');
+              }}
+              selected={currentEntity?.name === entity.name}
+            />
           ))}
         </TreeNode>
 
         {/* Decision Tables */}
         <TreeNode
-          label="Decision Tables"
-          icon={<Folder className="h-4 w-4 text-yellow-500" />}
+          label={`Decision Tables (${decisionTables.length})`}
+          icon={<Folder className="h-4 w-4 text-green-500" />}
           dataTutorial="decision-tables-section"
         >
-          {dtFiles.map((file) => (
+          {decisionTables.map((table) => (
             <TreeNode
-              key={file}
-              label={file}
+              key={table.name}
+              label={table.name}
               icon={<Table2 className="h-4 w-4 text-green-400" />}
-              modified={getFileModified(file)}
-            >
-              {decisionTables.map((table) => (
-                <TreeNode
-                  key={table.name}
-                  label={table.name}
-                  icon={<Table2 className="h-4 w-4 text-green-300" />}
-                  onClick={() => {
-                    selectTable(table.name);
-                    setActiveTab('dt');
-                  }}
-                  selected={currentTable?.tableName === table.name}
-                />
-              ))}
-            </TreeNode>
+              onClick={() => {
+                selectTable(table.name);
+                setActiveTab('dt');
+              }}
+              selected={currentTable?.tableName === table.name}
+            />
           ))}
         </TreeNode>
 

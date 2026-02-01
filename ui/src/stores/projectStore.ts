@@ -1,3 +1,25 @@
+/**
+ * Project Store - Central state management for DTRules projects.
+ *
+ * This store manages all project-related state including:
+ * - Project metadata (path, loading state, errors)
+ * - File lists (EDD, DT, map files)
+ * - Loaded data (entities, decision tables)
+ * - Currently selected items (entity, table)
+ * - UI state (active tab, navigation history)
+ *
+ * Uses Zustand for lightweight, TypeScript-first state management.
+ *
+ * @module stores/projectStore
+ *
+ * @example
+ * // In a component
+ * const { projectPath, entities, selectEntity } = useProjectStore();
+ *
+ * // Select specific state (prevents unnecessary re-renders)
+ * const entities = useProjectStore((state) => state.entities);
+ */
+
 import { create } from 'zustand';
 import type {
   Entity,
@@ -7,6 +29,11 @@ import type {
 } from '@/types/dtrules';
 import * as api from '@/api/client';
 
+/**
+ * Complete state interface for the project store.
+ *
+ * Includes both state values and action methods.
+ */
 interface ProjectState {
   // Project state
   projectPath: string | null;
