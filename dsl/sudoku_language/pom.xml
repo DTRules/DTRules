@@ -24,32 +24,51 @@
 	<packaging>jar</packaging>
 
 	<name>DTRules :: DSL :: Sudoku Language</name>
-
-	<properties>
-		<antlr4.version>4.13.2</antlr4.version>
-	</properties>
-
  	<build>
 		<plugins>
-			<!-- ANTLR 4 Maven Plugin -->
-			<plugin>
-				<groupId>org.antlr</groupId>
-				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>${antlr4.version}</version>
-				<executions>
-					<execution>
-						<id>antlr</id>
-						<goals>
-							<goal>antlr4</goal>
-						</goals>
-						<configuration>
-							<listener>true</listener>
-							<visitor>true</visitor>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-   		</plugins>
+
+	      <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+               <execution>
+                  <id>generate-bnf</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <executable>./parser.sh</executable>
+            </configuration>
+         </plugin>
+
+	     <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+               <execution>
+                  <id>generate-scanner</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>java</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <classifier>pre-process</classifier>
+               <mainClass>JFlex.Main</mainClass>
+               <arguments>
+                  <argument>-d</argument>
+                  <argument>${project.build.sourceDirectory}/com/dtrules/compiler/sudoku/flex/scanner</argument>
+                  <argument>${project.build.sourceDirectory}/com/dtrules/compiler/sudoku/flex/scanner/scanner.flex</argument>
+               </arguments>
+            </configuration>
+         </plugin>
+   	</plugins>
 	</build>
 	<dependencies>
 		<dependency>
@@ -59,13 +78,6 @@
 			<type>jar</type>
 			<optional>false</optional>
 		</dependency>
-		<!-- ANTLR 4 Runtime -->
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr4-runtime</artifactId>
-			<version>${antlr4.version}</version>
-		</dependency>
-		<!-- Keep JFlex and CUP for legacy SudokuLanguage.java until full migration -->
 		<dependency>
 			<groupId>de.jflex</groupId>
 			<artifactId>jflex</artifactId>

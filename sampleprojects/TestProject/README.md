@@ -127,7 +127,7 @@ After getting comfortable with this template:
 
 1. **SyntaxTests** - Learn all EL language features
 2. **CHIP** - See a real-world eligibility example
-3. **eBook** - Explore multi-ruleset projects
+3. **ChipApp** - Learn application integration patterns
 
 ## DSL
 

@@ -10,17 +10,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.dtrules.admin.IRulesAdminService;
 import com.dtrules.admin.RulesAdminService;
@@ -66,10 +68,10 @@ public class Rules2Excel {
     }
     
     void newWb() {
-        wb = new HSSFWorkbook();
-        
+        wb = new XSSFWorkbook();
+
         sheetCnt = 0;
-        
+
         cs_default      = wb.createCellStyle();
         cs_title        = wb.createCellStyle();
         cs_header       = wb.createCellStyle();
@@ -80,18 +82,17 @@ public class Rules2Excel {
         cs_table        = wb.createCellStyle();
         cs_type         = wb.createCellStyle();
         cs_number       = wb.createCellStyle();
-        
+
         Font title_font = wb.createFont();
         title_font.setFontHeightInPoints((short)12);
-        title_font.setColor(HSSFColor.DARK_BLUE.index);
-        
+        title_font.setColor(IndexedColors.DARK_BLUE.getIndex());
+
         Font header_font = wb.createFont();
-        header_font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-        header_font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-        
+        header_font.setBold(true);
+
         Font table_font = wb.createFont();
-        table_font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-        
+        table_font.setBold(true);
+
         defaultcellstyle(cs_default);
         defaultcellstyle(cs_title);
         defaultcellstyle(cs_header);
@@ -109,45 +110,43 @@ public class Rules2Excel {
         cs_table.setFont(table_font);
 
         // Background
-        cs_title.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        cs_title.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        cs_header.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-        cs_header.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        cs_header.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        cs_header.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        cs_num_header.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-        cs_num_header.setFillPattern(CellStyle.SOLID_FOREGROUND);
-        cs_num_header.setAlignment(CellStyle.ALIGN_CENTER);
-        cs_num_header.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        cs_num_header.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        cs_num_header.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cs_num_header.setAlignment(HorizontalAlignment.CENTER);
+        cs_num_header.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        cs_formal.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        cs_comment.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        cs_formal.setVerticalAlignment(VerticalAlignment.CENTER);
+        cs_comment.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        cs_type.setFillForegroundColor(HSSFColor.LIGHT_YELLOW.index);
-        cs_type.setFillPattern(CellStyle.SOLID_FOREGROUND);
-        
-        cs_number.setAlignment(CellStyle.ALIGN_CENTER);
-        cs_number.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        
-        cs_table.setAlignment(CellStyle.ALIGN_CENTER);
-        cs_table.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        
+        cs_type.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+        cs_type.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        cs_number.setAlignment(HorizontalAlignment.CENTER);
+        cs_number.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        cs_table.setAlignment(HorizontalAlignment.CENTER);
+        cs_table.setVerticalAlignment(VerticalAlignment.CENTER);
+
     }
 
     private void defaultcellstyle(CellStyle cs){
-        
-        cs.setBorderBottom(CellStyle.BORDER_THIN);
+
+        cs.setBorderBottom(BorderStyle.THIN);
         cs.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-        cs.setBorderTop(CellStyle.BORDER_THIN);
+        cs.setBorderTop(BorderStyle.THIN);
         cs.setTopBorderColor(IndexedColors.BLACK.getIndex());
-        cs.setBorderLeft(CellStyle.BORDER_THIN);
+        cs.setBorderLeft(BorderStyle.THIN);
         cs.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-        cs.setBorderRight(CellStyle.BORDER_THIN);
+        cs.setBorderRight(BorderStyle.THIN);
         cs.setRightBorderColor(IndexedColors.BLACK.getIndex());
         cs.setWrapText(true);
-        cs.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        cs.setAlignment(CellStyle.ALIGN_LEFT);
-
-
+        cs.setVerticalAlignment(VerticalAlignment.CENTER);
+        cs.setAlignment(HorizontalAlignment.LEFT);
 
     }
         
@@ -637,7 +636,7 @@ public class Rules2Excel {
                 for(int i = 0; i < limit && index < dts.size();i++,index++){
                     writeDT(dts.get(index));
                 }
-                String filename = excelName+"_"+filecnt++ +"_.xls";
+                String filename = excelName+"_"+filecnt++ +"_.xlsx";
                 FileOutputStream excelfile = new FileOutputStream(filename);
                 wb.write(excelfile);
                 excelfile.close();
@@ -678,8 +677,8 @@ public class Rules2Excel {
         r.createCell(6).setCellValue("Access");
         r.createCell(7).setCellValue("Comment");
 
-        cs_title.setAlignment(CellStyle.ALIGN_CENTER);
-        cs_title.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        cs_title.setAlignment(HorizontalAlignment.CENTER);
+        cs_title.setVerticalAlignment(VerticalAlignment.CENTER);
         
         for(int i=0; i<8; i++){
             r.getCell(i).setCellStyle(cs_title);
@@ -752,7 +751,7 @@ public class Rules2Excel {
             session       = rs.newSession();
             
             writeDecisionTables(ruleset.getWorkingdirectory()+excelName,fields,ascending, limit);
-            writeEDD(ruleset.getWorkingdirectory()+excelName+"_edd.xls");
+            writeEDD(ruleset.getWorkingdirectory()+excelName+"_edd.xlsx");
         
         }catch(Exception e){
             System.err.println("\n"+e.toString());

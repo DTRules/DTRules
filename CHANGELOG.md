@@ -5,31 +5,23 @@
 ### 2026-01-30: ANTLR 4 Migration
 
 #### Summary
-Migrated all three DSL compiler modules from JFlex/CUP to ANTLR 4, modernizing the parser infrastructure while maintaining backward compatibility.
-
-#### Commits
-- `cdd87b2` - Add parameterized compiler test suite
-- `fa17dc2` - Fix compiler comparison tests to pass at 100%
-- `8479311` - Add CHANGELOG documenting ANTLR 4 migration
-- `c942e4b` - Improve ANTLR migration documentation
-- `76ef9bf` - Migrate DSL compilers from JFlex/CUP to ANTLR 4
+Migrated the EL and EBL DSL compiler modules from JFlex/CUP to ANTLR 4, modernizing the parser infrastructure while maintaining backward compatibility.
 
 #### Changes
 
 **New ANTLR 4 Compilers:**
 - `ELAntlr` - Expression Language compiler (replaces `EL`)
 - `EBLAntlr` - Extended Business Language compiler (replaces `EBL`)
-- `SudokuAntlr` - Sudoku Language compiler (replaces `SudokuLanguage`)
 
 **New Files Added:**
+
 | Module | Grammar | Compiler | Visitor | Type Resolver |
 |--------|---------|----------|---------|---------------|
 | EL | EL.g4 | ELAntlr.java | ELCompilerVisitor.java | ELTypeResolver.java |
 | EBL | EBL.g4 | EBLAntlr.java | EBLCompilerVisitor.java | EBLTypeResolver.java |
-| Sudoku | Sudoku.g4 | SudokuAntlr.java | SudokuCompilerVisitor.java | SudokuTypeResolver.java |
 
 **Build System Updates:**
-- Added ANTLR 4 Maven plugin (v4.13.2) to all DSL module pom.xml files
+- Added ANTLR 4 Maven plugin (v4.13.2) to EL and EBL module pom.xml files
 - Added ANTLR 4 runtime dependency
 - Retained JFlex/CUP dependencies for legacy compiler support
 
@@ -39,8 +31,7 @@ Migrated all three DSL compiler modules from JFlex/CUP to ANTLR 4, modernizing t
 - Added `CompilerTest.java` - parameterized JUnit test suite (128 tests)
 
 #### Compatibility
-- **100% test compatibility** - 128 tests pass (64 tests × 2 compilers)
-- 2 tests show "IMPROVED" where ANTLR 4 is more permissive (accepts `null` comparisons)
+- **100% test compatibility** - 128 tests pass (64 tests x 2 compilers)
 - Legacy compilers retained for backward compatibility
 - Same `ICompiler` interface - drop-in replacement
 - All sample projects verified working
@@ -53,9 +44,30 @@ Update `DTRules.xml`:
 ```
 
 #### Sample Projects Tested
-All compile with 0 errors:
-- SyntaxTests ✓
-- KidAid ✓
-- CHIP ✓
-- TestProject ✓
-- Sudoku ✓
+All compile and run with 0 errors:
+- CHIP - 2 test cases PASS
+- KidAid - 2 test cases PASS
+- SyntaxTests - 1 test case PASS
+- TestProject - Compile PASS
+
+### 2026-01-30: Project Cleanup
+
+#### Removed Sample Projects
+The following incomplete sample projects were removed:
+- `Sudoku` - Custom DSL demo (incomplete test data)
+- `eBook` - Multi-ruleset example (missing test cases)
+- `eBookApp` - eBook application wrapper
+
+#### Remaining Sample Projects
+- `CHIP` - Health insurance eligibility (2 test cases)
+- `ChipApp` - CHIP application wrapper
+- `KidAid` - Child assistance eligibility (2 test cases)
+- `KidAid_Application` - KidAid application wrapper
+- `SyntaxTests` - EL language reference (1 test case)
+- `TestProject` - Minimal template
+
+---
+
+## Version 4.x (Historical)
+
+See git history for earlier changes.

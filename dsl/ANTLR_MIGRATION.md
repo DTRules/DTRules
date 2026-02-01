@@ -2,14 +2,15 @@
 
 ## Overview
 
-The DTRules DSL compilers have been migrated from JFlex/CUP to ANTLR 4. This document describes the changes made, how to use the new implementations, and any behavioral differences.
+The DTRules EL and EBL DSL compilers have been migrated from JFlex/CUP to ANTLR 4. This document describes the changes made, how to use the new implementations, and any behavioral differences.
 
 ## Migrated Modules
 
-### Completed
-- **EL (Expression Language)**: Primary DSL module - fully converted and tested (100% compatibility)
-- **EBL (Extended Business Language)**: Extends EL with FIND/ISWITHIN - fully converted
-- **SudokuLanguage**: Specialized Sudoku DSL - fully converted
+| Module | Status | Description |
+|--------|--------|-------------|
+| **EL** | Complete | Expression Language - 100% test compatibility |
+| **EBL** | Complete | Entity Business Language - extends EL |
+| **SudokuLanguage** | Not migrated | Remains on JFlex/CUP |
 
 ## Key Changes
 
@@ -83,18 +84,6 @@ dsl/ebl/
 │   └── EBL.java                  # Legacy JFlex/CUP implementation (retained)
 ```
 
-#### SudokuLanguage Module
-```
-dsl/sudoku_language/
-├── src/main/antlr4/com/dtrules/compiler/sudoku/
-│   └── Sudoku.g4                    # ANTLR 4 grammar (1000 lines)
-├── src/main/java/com/dtrules/compiler/sudoku/
-│   ├── SudokuAntlr.java             # New ANTLR-based ICompiler implementation
-│   ├── SudokuCompilerVisitor.java   # Visitor for postfix code generation
-│   ├── SudokuTypeResolver.java      # Type resolution (replaces TokenFilter)
-│   └── SudokuLanguage.java          # Legacy JFlex/CUP implementation (retained)
-```
-
 ## Using the New Compiler
 
 ### EL Compiler
@@ -115,17 +104,6 @@ ICompiler compiler = new EBLAntlr();
 compiler.setSession(session);
 ```
 
-### SudokuLanguage Compiler
-```java
-// New ANTLR 4 implementation
-ICompiler compiler = new SudokuAntlr();
-compiler.setSession(session);
-
-// Or configure in DTRules.xml
-// <compileralias name="SudokuAntlr">com.dtrules.compiler.sudoku.SudokuAntlr</compileralias>
-// <compiler>SudokuAntlr</compiler>
-```
-
 ## Switching Compilers in DTRules.xml
 
 To use the new ANTLR 4 compilers in your project, update the `DTRules.xml` configuration:
@@ -141,23 +119,12 @@ To use the new ANTLR 4 compilers in your project, update the `DTRules.xml` confi
 <compiler>EL</compiler>
 ```
 
-### Using SudokuAntlr instead of SudokuLanguage
-```xml
-<!-- Old configuration -->
-<compileralias name="SudokuLanguage">com.dtrules.compiler.sudoku.SudokuLanguage</compileralias>
-<compiler>SudokuLanguage</compiler>
-
-<!-- New ANTLR 4 configuration -->
-<compileralias name="SudokuLanguage">com.dtrules.compiler.sudoku.SudokuAntlr</compileralias>
-<compiler>SudokuLanguage</compiler>
-```
-
 Note: Both old and new compilers implement the same `ICompiler` interface, so switching is a simple configuration change with no code modifications required.
 
 ## Behavioral Differences
 
 ### Test Results
-- **100% compatibility** - 128 tests pass (64 tests × 2 compilers)
+- **100% compatibility** - 128 tests pass (64 tests x 2 compilers)
 - All valid expressions compile identically
 - 2 tests show "IMPROVED" status where new compiler is more permissive
 
@@ -245,6 +212,13 @@ public String visitIntAdd(ELParser.IntAddContext ctx) {
 
 ## Running Tests
 
+### Full Test Suite
+```bash
+cd dsl/el
+mvn test
+# Runs 128 parameterized tests
+```
+
 ### Comparison Test
 ```bash
 cd dsl/el
@@ -255,7 +229,7 @@ mvn exec:java -Dexec.mainClass="com.dtrules.compiler.el.ELCompilerComparisonTest
 ### Building All Modules
 ```bash
 cd DTRules
-mvn clean compile -pl dsl/el,dsl/ebl,dsl/sudoku_language -am
+mvn clean compile -pl dsl/el,dsl/ebl -am
 ```
 
 ## Migration Notes

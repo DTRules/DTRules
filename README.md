@@ -16,6 +16,7 @@ Decision Tables provide a tabular representation of business rules that can be u
 - **Auto-mapping** - Automatic mapping between Java objects and rule entities
 - **Test Harness** - Built-in testing framework for validating rules
 - **Trace & Debug** - Comprehensive tracing for debugging rule execution
+- **ANTLR 4 Parsers** - Modern parser infrastructure (migrated from JFlex/CUP)
 
 ### Production Use
 
@@ -42,7 +43,7 @@ mvn clean install
 This builds all modules:
 - `dtrules-engine` - Core rules engine
 - `compilerutil` - Excel to XML compiler utilities
-- `dsl` - Domain Specific Language implementations
+- `dsl` - Domain Specific Language implementations (EL, EBL)
 - `sampleprojects` - Example projects
 
 ### 2. Run a Sample Project
@@ -85,13 +86,14 @@ DTRules/
 ├── dtrules-engine/     # Core rules execution engine
 ├── compilerutil/       # Excel-to-XML compiler utilities
 ├── dsl/                # Domain Specific Languages
-│   ├── el/             # Expression Language (EL) - JFlex/CUP + ANTLR 4
-│   ├── ebl/            # Entity Business Language (EBL) - JFlex/CUP + ANTLR 4
-│   └── sudoku_language/ # Sudoku DSL - JFlex/CUP + ANTLR 4
+│   ├── el/             # Expression Language (EL) - ANTLR 4
+│   ├── ebl/            # Entity Business Language (EBL) - ANTLR 4
+│   └── sudoku_language/ # Sudoku DSL (JFlex/CUP)
 ├── sampleprojects/     # Example implementations
 │   ├── CHIP/           # Health insurance eligibility
+│   ├── ChipApp/        # CHIP application wrapper
 │   ├── KidAid/         # Child assistance program
-│   ├── Sudoku/         # Sudoku solver (custom DSL demo)
+│   ├── KidAid_Application/ # KidAid application wrapper
 │   ├── SyntaxTests/    # Language feature examples
 │   └── TestProject/    # Minimal starter template
 └── pom.xml             # Maven parent configuration
@@ -99,17 +101,14 @@ DTRules/
 
 ## Sample Projects
 
-| Project | Description | DSL | Complexity |
-|---------|-------------|-----|------------|
-| **TestProject** | Minimal template for new projects | EL | Low |
-| **SyntaxTests** | Comprehensive EL language feature examples | EL | Reference |
-| **CHIP** | Health insurance eligibility determination | EL | High |
-| **KidAid** | Child assistance program eligibility | EL | High |
-| **Sudoku** | Sudoku puzzle solver demonstrating custom DSL | Custom | High |
-| **eBook** | Multi-ruleset business logic example | EBL | High |
-| **ChipApp** | Standalone CHIP application wrapper | EL | Medium |
-| **KidAid_Application** | Standalone KidAid wrapper | EL | Low |
-| **eBookApp** | Standalone eBook wrapper | EBL | Medium |
+| Project | Description | Type |
+|---------|-------------|------|
+| **TestProject** | Minimal template for new projects | Rule Set |
+| **SyntaxTests** | Comprehensive EL language feature examples | Reference |
+| **CHIP** | Health insurance eligibility determination | Rule Set |
+| **KidAid** | Child assistance program eligibility | Rule Set |
+| **ChipApp** | Multi-threaded CHIP application wrapper | Application |
+| **KidAid_Application** | Simple KidAid integration example | Application |
 
 ### Recommended Learning Path
 
@@ -117,8 +116,6 @@ DTRules/
 2. **[SyntaxTests](sampleprojects/SyntaxTests/)** - Learn EL language features
 3. **[CHIP](sampleprojects/CHIP/)** - See a real-world eligibility example
 4. **[ChipApp](sampleprojects/ChipApp/)** - Learn application integration patterns
-5. **[eBook](sampleprojects/eBook/)** - Explore multi-ruleset projects
-6. **[Sudoku](sampleprojects/Sudoku/)** - Understand custom DSL creation
 
 ## How It Works
 
@@ -132,7 +129,7 @@ Create an Entity Definition Document in Excel (`*_edd.xls`) that defines:
 ### 2. Write Decision Tables
 
 Create Decision Tables in Excel (`*_dt.xls`) with:
-- **Conditions** - Boolean expressions in EL/EBL syntax
+- **Conditions** - Boolean expressions in EL syntax
 - **Actions** - Operations to perform when conditions match
 - **Columns** - Each column represents a rule
 
@@ -195,9 +192,12 @@ Each project has a `DTRules.xml` configuration file:
 - [API Guide](docs/API-GUIDE.md) - Java integration patterns and examples
 - [Documentation Index](docs/README.md) - Full documentation overview
 
+### Development
+- [ANTLR Migration Guide](dsl/ANTLR_MIGRATION.md) - Parser modernization details
+- [Changelog](CHANGELOG.md) - Version history
+
 ### Legacy Documentation
 - `dtrules-engine/docs/` - Core engine documentation (PDF/DOC)
-- `dsl/el/docs/` - Expression Language overview (PDF)
 
 ## Creating a New Project
 
@@ -207,6 +207,21 @@ Each project has a `DTRules.xml` configuration file:
 4. Create your Decision Tables in `DecisionTables/`
 5. Update `DTRules.xml` with your file names
 6. Create compile and test Java classes
+
+## Running Tests
+
+```bash
+# Run all tests
+mvn test
+
+# Run EL compiler tests (128 parameterized tests)
+cd dsl/el
+mvn test
+
+# Run sample project tests
+cd sampleprojects/CHIP
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"
+```
 
 ## License
 

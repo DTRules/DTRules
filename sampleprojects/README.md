@@ -8,24 +8,21 @@ This directory contains sample projects demonstrating various aspects of DTRules
 
 These projects define decision tables and entity models:
 
-| Project | Description | DSL | Complexity |
-|---------|-------------|-----|------------|
-| [CHIP](CHIP/) | Health insurance eligibility | EL | High |
-| [KidAid](KidAid/) | Child assistance eligibility | EL | High |
-| [Sudoku](Sudoku/) | Puzzle solver with custom DSL | Custom | High |
-| [SyntaxTests](SyntaxTests/) | EL language feature examples | EL | Reference |
-| [TestProject](TestProject/) | Minimal starter template | EL | Low |
-| [eBook](eBook/) | Multi-ruleset business logic | EBL | High |
+| Project | Description | Test Cases | Complexity |
+|---------|-------------|------------|------------|
+| [TestProject](TestProject/) | Minimal starter template | Compile only | Low |
+| [SyntaxTests](SyntaxTests/) | EL language feature examples | 1 | Reference |
+| [CHIP](CHIP/) | Health insurance eligibility | 2 | High |
+| [KidAid](KidAid/) | Child assistance eligibility | 2 | High |
 
 ### Application Wrappers
 
-These projects wrap rule sets in executable applications:
+These projects demonstrate how to integrate DTRules into applications:
 
 | Project | Wraps | Features |
 |---------|-------|----------|
-| [ChipApp](ChipApp/) | CHIP | Multi-threaded, performance testing |
+| [ChipApp](ChipApp/) | CHIP | Multi-threaded execution, performance benchmarking |
 | [KidAid_Application](KidAid_Application/) | KidAid | Simple integration example |
-| [eBookApp](eBookApp/) | eBook | EBL-based application |
 
 ## Getting Started
 
@@ -35,8 +32,6 @@ These projects wrap rule sets in executable applications:
 2. **[SyntaxTests](SyntaxTests/)** - Learn EL language features
 3. **[CHIP](CHIP/)** - See a real-world example
 4. **[ChipApp](ChipApp/)** - Learn application integration
-5. **[eBook](eBook/)** - Explore multi-ruleset projects
-6. **[Sudoku](Sudoku/)** - Understand custom DSL creation
 
 ### Quick Start
 
@@ -56,15 +51,15 @@ mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Rule Set Projects                        │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐  │
-│  │   CHIP   │  │  KidAid  │  │  eBook   │  │   Sudoku   │  │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────────────┘  │
-│       │             │             │                         │
-│       ▼             ▼             ▼                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                  │
-│  │ ChipApp  │  │ KidAid   │  │ eBookApp │                  │
-│  │          │  │ _App     │  │          │                  │
-│  └──────────┘  └──────────┘  └──────────┘                  │
+│  ┌──────────┐  ┌──────────┐                                 │
+│  │   CHIP   │  │  KidAid  │                                 │
+│  └────┬─────┘  └────┬─────┘                                 │
+│       │             │                                        │
+│       ▼             ▼                                        │
+│  ┌──────────┐  ┌──────────────┐                             │
+│  │ ChipApp  │  │ KidAid_App   │                             │
+│  │          │  │              │                             │
+│  └──────────┘  └──────────────┘                             │
 │           Application Wrappers                              │
 └─────────────────────────────────────────────────────────────┘
 
@@ -91,17 +86,42 @@ ProjectName/
 ├── xml/                      # Compiled XML (generated)
 ├── repository/               # Packaged for deployment
 ├── testfiles/                # Test inputs
+│   └── TestScenarios/        # Test case XML files
 ├── pom.xml                   # Maven configuration
 └── src/main/java/            # Compile/Test classes
 ```
 
-## DSL Comparison
+## Running Tests
 
-| DSL | Projects | Description |
-|-----|----------|-------------|
-| **EL** | CHIP, KidAid, SyntaxTests, TestProject | Standard Expression Language |
-| **EBL** | eBook, eBookApp | Enhanced Business Language |
-| **Custom** | Sudoku | Domain-specific (SudokuLanguage) |
+### Individual Projects
+
+```bash
+# CHIP
+cd CHIP
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"
+# Output: ALL PASS
+
+# KidAid
+cd KidAid
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.TestKidAid"
+# Output: ALL PASS
+
+# SyntaxTests
+cd SyntaxTests
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.TestSyntaxExamples"
+# Output: ALL PASS
+
+# TestProject (compile only)
+cd TestProject
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.test.Compile_Test"
+```
+
+### All Projects
+
+```bash
+cd sampleprojects
+mvn clean install
+```
 
 ## Creating Your Own Project
 
@@ -110,15 +130,17 @@ ProjectName/
 3. Refer to [SyntaxTests](SyntaxTests/) for EL syntax examples
 4. Use [ChipApp](ChipApp/) as a pattern for application integration
 
-## Building All Samples
+## Test Results Summary
 
-```bash
-cd sampleprojects
-mvn clean install
-```
+| Project | Tests | Status |
+|---------|-------|--------|
+| CHIP | 2 cases | PASS |
+| KidAid | 2 cases | PASS |
+| SyntaxTests | 1 case | PASS |
+| TestProject | Compile | PASS |
 
-Or build a specific project:
+## Documentation
 
-```bash
-mvn clean install -pl CHIP
-```
+- [Main Documentation](../docs/README.md)
+- [EL Reference](../docs/EL-REFERENCE.md)
+- [API Guide](../docs/API-GUIDE.md)
