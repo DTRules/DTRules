@@ -305,11 +305,14 @@ export function DTEditor() {
               </div>
 
               <TabsContent value="matrix" className="flex-1 m-0 overflow-hidden">
-                <div className="h-full flex flex-col">
-                  {/* Conditions grid */}
-                  <div className="flex-1 min-h-0">
-                    <div className="p-2 text-sm font-medium bg-muted">Conditions</div>
-                    <div className="ag-theme-alpine-dark h-[calc(100%-2rem)]">
+                <div className="h-full flex flex-col gap-2 p-2">
+                  {/* Conditions grid - blue tint */}
+                  <div className="flex-1 min-h-0 bg-blue-500/5 rounded-lg border border-blue-500/10">
+                    <div className="p-2 text-sm font-medium text-blue-400 border-b border-blue-500/20 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-400" />
+                      Conditions
+                    </div>
+                    <div className="ag-theme-alpine-dark h-[calc(100%-2.5rem)]">
                       <AgGridReact
                         columnDefs={columnDefs}
                         rowData={conditionRowData}
@@ -322,10 +325,13 @@ export function DTEditor() {
                     </div>
                   </div>
 
-                  {/* Actions grid */}
-                  <div className="flex-1 min-h-0 border-t border-border">
-                    <div className="p-2 text-sm font-medium bg-muted">Actions</div>
-                    <div className="ag-theme-alpine-dark h-[calc(100%-2rem)]">
+                  {/* Actions grid - green tint */}
+                  <div className="flex-1 min-h-0 bg-green-500/5 rounded-lg border border-green-500/10">
+                    <div className="p-2 text-sm font-medium text-green-400 border-b border-green-500/20 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-400" />
+                      Actions
+                    </div>
+                    <div className="ag-theme-alpine-dark h-[calc(100%-2.5rem)]">
                       <AgGridReact
                         columnDefs={columnDefs}
                         rowData={actionRowData}

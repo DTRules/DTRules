@@ -115,12 +115,14 @@ export function Toolbar() {
   };
 
   return (
-    <div className="h-12 border-b border-border flex items-center px-4 gap-2">
+    <div className="h-14 border-b border-border/50 flex items-center px-4 gap-2 bg-gradient-to-r from-background via-background to-blue-950/10">
       {/* Logo/Title */}
-      <div className="font-semibold text-lg mr-2">DTRules</div>
+      <div className="font-bold text-lg mr-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        DTRules
+      </div>
 
       {/* Browser-style Navigation */}
-      <div className="flex items-center mr-2">
+      <div className="flex items-center mr-2 bg-muted/30 rounded-lg p-1">
         <Button
           variant="ghost"
           size="icon"
@@ -143,14 +145,16 @@ export function Toolbar() {
         </Button>
       </div>
 
-      {/* Open Project */}
-      <Dialog open={openDialogOpen} onOpenChange={setOpenDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="ghost" size="sm">
-            <FolderOpen className="h-4 w-4 mr-2" />
-            Open
-          </Button>
-        </DialogTrigger>
+      {/* File Actions Group */}
+      <div className="flex items-center bg-muted/30 rounded-lg p-1 gap-1">
+        {/* Open Project */}
+        <Dialog open={openDialogOpen} onOpenChange={setOpenDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="hover:bg-accent/50">
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Open
+            </Button>
+          </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Open Project</DialogTitle>
@@ -178,51 +182,59 @@ export function Toolbar() {
         </DialogContent>
       </Dialog>
 
-      {/* Save */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => saveProject()}
-        disabled={!projectPath || isLoading}
-        data-tutorial="toolbar-save"
-      >
-        <Save className="h-4 w-4 mr-2" />
-        Save
-      </Button>
+        {/* Save */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => saveProject()}
+          disabled={!projectPath || isLoading}
+          data-tutorial="toolbar-save"
+          className="hover:bg-accent/50"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save
+        </Button>
 
-      {/* Refresh */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleRefresh}
-        disabled={!projectPath || isLoading}
-        data-tutorial="toolbar-refresh"
-      >
-        <RefreshCw className="h-4 w-4 mr-2" />
-        Refresh
-      </Button>
+        {/* Refresh */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={!projectPath || isLoading}
+          data-tutorial="toolbar-refresh"
+          className="hover:bg-accent/50"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </Button>
+      </div>
 
       <div className="flex-1" />
 
-      {/* Validate */}
-      <Button
-        variant="ghost"
-        size="sm"
-        disabled={!projectPath || isLoading}
-      >
-        <FileCheck className="h-4 w-4 mr-2" />
-        Validate
-      </Button>
+      {/* Action Group */}
+      <div className="flex items-center bg-muted/30 rounded-lg p-1 gap-1">
+        {/* Validate */}
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={!projectPath || isLoading}
+          className="hover:bg-accent/50"
+        >
+          <FileCheck className="h-4 w-4 mr-2" />
+          Validate
+        </Button>
 
-      {/* Execute */}
-      <Button
-        variant="ghost"
-        size="sm"
-        disabled={!projectPath || isLoading}
-      >
-        <Play className="h-4 w-4 mr-2" />
-        Execute
-      </Button>
+        {/* Execute */}
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={!projectPath || isLoading}
+          className="hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+        >
+          <Play className="h-4 w-4 mr-2" />
+          Execute
+        </Button>
+      </div>
 
       {/* FAQ Dialog */}
       <Dialog open={faqDialogOpen} onOpenChange={setFaqDialogOpen}>
