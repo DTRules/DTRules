@@ -5,6 +5,8 @@ import {
   Edge,
   Controls,
   Background,
+  Handle,
+  Position,
   useNodesState,
   useEdgesState,
   MarkerType,
@@ -23,28 +25,46 @@ import {
 import { Label } from '@/components/ui/label';
 import type { TreeNode } from '@/types/dtrules';
 
-// Custom node components
+// Custom node components with handles for edge connections
 const ConditionNode = ({ data }: { data: { label: string; description?: string } }) => (
   <div className="px-4 py-2 shadow-md rounded-md bg-blue-600 border-2 border-blue-400 min-w-[150px]">
+    <Handle type="target" position={Position.Top} className="!bg-blue-400" />
     <div className="font-bold text-white text-sm">{data.label}</div>
     {data.description && (
       <div className="text-blue-200 text-xs mt-1">{data.description}</div>
     )}
+    <Handle type="source" position={Position.Bottom} className="!bg-blue-400" />
   </div>
 );
 
 const ActionNode = ({ data }: { data: { label: string; description?: string } }) => (
   <div className="px-4 py-2 shadow-md rounded-md bg-green-600 border-2 border-green-400 min-w-[150px]">
+    <Handle type="target" position={Position.Top} className="!bg-green-400" />
     <div className="font-bold text-white text-sm">{data.label}</div>
     {data.description && (
       <div className="text-green-200 text-xs mt-1">{data.description}</div>
     )}
+    <Handle type="source" position={Position.Bottom} className="!bg-green-400" />
   </div>
 );
 
 const StartNode = ({ data }: { data: { label: string } }) => (
   <div className="px-4 py-2 shadow-md rounded-full bg-gray-600 border-2 border-gray-400">
+    <Handle type="target" position={Position.Top} className="!bg-gray-400" />
     <div className="font-bold text-white text-sm">{data.label}</div>
+    <Handle type="source" position={Position.Bottom} className="!bg-gray-400" />
+  </div>
+);
+
+// Default fallback node for any unrecognized types
+const DefaultNode = ({ data }: { data: { label: string; description?: string } }) => (
+  <div className="px-4 py-2 shadow-md rounded-md bg-purple-600 border-2 border-purple-400 min-w-[150px]">
+    <Handle type="target" position={Position.Top} className="!bg-purple-400" />
+    <div className="font-bold text-white text-sm">{data.label}</div>
+    {data.description && (
+      <div className="text-purple-200 text-xs mt-1">{data.description}</div>
+    )}
+    <Handle type="source" position={Position.Bottom} className="!bg-purple-400" />
   </div>
 );
 
@@ -54,27 +74,37 @@ const nodeTypes = {
   actions: ActionNode,
   start: StartNode,
   end: StartNode,
+  default: DefaultNode,
 };
+
+// Valid node types that have registered components
+const validNodeTypes = new Set(['condition', 'action', 'actions', 'start', 'end']);
 
 function treeToFlow(tree: TreeNode | null): { nodes: Node[]; edges: Edge[] } {
   if (!tree) return { nodes: [], edges: [] };
 
   const nodes: Node[] = [];
   const edges: Edge[] = [];
+  const nodeIds = new Set<string>(); // Track created nodes for edge validation
 
   function traverse(node: TreeNode, x: number, y: number, parentId?: string, edgeLabel?: string) {
     const id = node.id;
+    // Normalize node type - use 'default' for unrecognized types
+    const nodeType = validNodeTypes.has(node.type) ? node.type : 'default';
+
+    nodeIds.add(id);
 
     nodes.push({
       id,
-      type: node.type,
+      type: nodeType,
       position: { x, y },
       data: { label: node.label, description: node.description },
     });
 
-    if (parentId) {
+    // Only create edge if parent node was created
+    if (parentId && nodeIds.has(parentId)) {
       edges.push({
-        id: `${parentId}-${id}`,
+        id: `edge-${parentId}-${id}`,
         source: parentId,
         target: id,
         label: edgeLabel,
