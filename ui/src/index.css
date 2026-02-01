@@ -150,3 +150,13 @@
   -webkit-text-fill-color: transparent;
 }
 
+/* Joyride tutorial - disable transitions to prevent flashing artifacts */
+.react-joyride__overlay,
+.react-joyride__spotlight,
+.__floater,
+.__floater__body,
+.__floater__container {
+  transition: none !important;
+  animation: none !important;
+}
+

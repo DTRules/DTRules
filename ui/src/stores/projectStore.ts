@@ -58,6 +58,7 @@ interface ProjectState {
   setSelectedFile: (file: string | null) => void;
   clearError: () => void;
   closeProject: () => void;
+  autoSelectFirstItems: () => Promise<void>;
 
   // Navigation actions (browser-style)
   canGoBack: () => boolean;
@@ -354,6 +355,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     navigationHistory: ['edd'],
     navigationIndex: 0,
   }),
+
+  autoSelectFirstItems: async () => {
+    const { entities, decisionTables, selectEntity, selectTable } = get();
+
+    // Auto-select first entity to populate EDD editor
+    if (entities.length > 0 && entities[0].name) {
+      await selectEntity(entities[0].name);
+    }
+
+    // Auto-select first decision table to populate DT editor
+    if (decisionTables.length > 0 && decisionTables[0].name) {
+      await selectTable(decisionTables[0].name);
+    }
+  },
 
   // Navigation actions (browser-style)
   canGoBack: () => get().navigationIndex > 0,

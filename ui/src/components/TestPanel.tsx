@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -45,6 +45,13 @@ export function TestPanel() {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [trace, setTrace] = useState<TraceEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-select first table when tables load and nothing is selected
+  useEffect(() => {
+    if (!selectedTable && decisionTables.length > 0) {
+      setSelectedTable(decisionTables[0].name);
+    }
+  }, [decisionTables, selectedTable]);
 
   const handleExecute = async () => {
     if (!selectedTable) return;
@@ -139,7 +146,7 @@ export function TestPanel() {
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-4">
             {error && (
-              <div className="p-4 border border-red-500/50 rounded-md bg-red-500/10">
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 backdrop-blur">
                 <div className="flex items-center gap-2 text-red-500 mb-2">
                   <XCircle className="h-4 w-4" />
                   <span className="font-medium">Error</span>
@@ -149,7 +156,7 @@ export function TestPanel() {
             )}
 
             {result && (
-              <div className="p-4 border border-green-500/50 rounded-md bg-green-500/10">
+              <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 backdrop-blur">
                 <div className="flex items-center gap-2 text-green-500 mb-2">
                   <CheckCircle2 className="h-4 w-4" />
                   <span className="font-medium">Result</span>
@@ -166,7 +173,7 @@ export function TestPanel() {
                 {trace.map((entry, i) => (
                   <div
                     key={i}
-                    className="p-2 border border-border rounded text-xs font-mono"
+                    className="p-3 border border-border/50 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors text-xs font-mono"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">

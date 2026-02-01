@@ -20,7 +20,7 @@ function CustomTooltip({
   return (
     <div
       {...tooltipProps}
-      className="bg-popover text-popover-foreground border border-border rounded-lg shadow-lg max-w-md animate-in fade-in-0 zoom-in-95"
+      className="bg-popover text-popover-foreground border border-border rounded-lg shadow-xl max-w-md"
     >
       {/* Header */}
       <div className="p-4 pb-2">
@@ -292,19 +292,28 @@ export function GuidedTutorial() {
       disableOverlayClose
       disableScrollParentFix
       scrollToFirstStep
+      spotlightPadding={4}
       callback={handleJoyrideCallback}
       tooltipComponent={CustomTooltip}
       floaterProps={{
         disableAnimation: true,
         hideArrow: true,
+        styles: {
+          floater: {
+            transition: 'none',
+          },
+        },
       }}
       styles={{
         options: {
           zIndex: 10000,
-          overlayColor: 'rgba(0, 0, 0, 0.75)',
+          overlayColor: 'rgba(0, 0, 0, 0.5)',
         },
         spotlight: {
           borderRadius: 8,
+        },
+        overlay: {
+          transition: 'none',
         },
       }}
     />

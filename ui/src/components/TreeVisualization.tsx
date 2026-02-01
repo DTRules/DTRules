@@ -114,6 +114,13 @@ export function TreeVisualization() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Auto-select first table when tables load and nothing is selected
+  useEffect(() => {
+    if (!selectedTable && decisionTables.length > 0) {
+      setSelectedTable(decisionTables[0].name);
+    }
+  }, [decisionTables, selectedTable]);
+
   const loadTree = useCallback(async (tableName: string) => {
     if (!tableName) {
       setNodes([]);

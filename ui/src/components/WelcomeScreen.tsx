@@ -53,7 +53,7 @@ function FeatureCard({ icon, title, description, accentColor = 'blue' }: Feature
 }
 
 export function WelcomeScreen() {
-  const { openProject } = useProjectStore();
+  const { openProject, autoSelectFirstItems } = useProjectStore();
   const { setShowWelcome, setOfferTutorial, tutorialCompleted, dontAskAgain } = useOnboardingStore();
   const [customPathDialogOpen, setCustomPathDialogOpen] = useState(false);
   const [customPath, setCustomPath] = useState('');
@@ -62,36 +62,42 @@ export function WelcomeScreen() {
   const handleOpenChipProject = async () => {
     setIsLoading(true);
     const success = await openProject(CHIP_PROJECT_PATH);
-    setIsLoading(false);
     if (success) {
+      // Auto-select first items so all editors have content visible
+      await autoSelectFirstItems();
       setShowWelcome(false);
       if (!tutorialCompleted && !dontAskAgain) {
         setOfferTutorial(true);
       }
     }
+    setIsLoading(false);
   };
 
   const handleSkipTutorial = async () => {
     setIsLoading(true);
     const success = await openProject(CHIP_PROJECT_PATH);
-    setIsLoading(false);
     if (success) {
+      // Auto-select first items so all editors have content visible
+      await autoSelectFirstItems();
       setShowWelcome(false);
     }
+    setIsLoading(false);
   };
 
   const handleOpenCustomProject = async () => {
     if (!customPath) return;
     setIsLoading(true);
     const success = await openProject(customPath);
-    setIsLoading(false);
     if (success) {
+      // Auto-select first items so all editors have content visible
+      await autoSelectFirstItems();
       setCustomPathDialogOpen(false);
       setShowWelcome(false);
       if (!tutorialCompleted && !dontAskAgain) {
         setOfferTutorial(true);
       }
     }
+    setIsLoading(false);
   };
 
   return (
