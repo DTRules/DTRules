@@ -53,7 +53,7 @@ function FeatureCard({ icon, title, description, accentColor = 'blue' }: Feature
 
 export function WelcomeScreen() {
   const { openProject, autoSelectFirstItems } = useProjectStore();
-  const { setShowWelcome, setOfferTutorial, tutorialCompleted, dontAskAgain } = useOnboardingStore();
+  const { setShowWelcome, startTutorial } = useOnboardingStore();
   const [customPathDialogOpen, setCustomPathDialogOpen] = useState(false);
   const [customPath, setCustomPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -87,9 +87,8 @@ export function WelcomeScreen() {
       if (success) {
         await autoSelectFirstItems();
         setShowWelcome(false);
-        if (!tutorialCompleted && !dontAskAgain) {
-          setOfferTutorial(true);
-        }
+        // Always start the tutorial when opening CHIP sample project
+        startTutorial();
       }
       setIsLoading(false);
       return;
@@ -106,6 +105,7 @@ export function WelcomeScreen() {
       if (success) {
         await autoSelectFirstItems();
         setShowWelcome(false);
+        // Don't start tutorial - user explicitly chose to skip
       }
       setIsLoading(false);
       return;
