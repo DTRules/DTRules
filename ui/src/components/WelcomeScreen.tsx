@@ -179,7 +179,7 @@ export function WelcomeScreen() {
             disabled={isLoading}
           >
             <Play className="h-5 w-5 mr-2" />
-            Open CHIP Sample Project
+            Start Tutorial
           </Button>
 
           <div className="flex gap-4">
@@ -190,7 +190,7 @@ export function WelcomeScreen() {
               className="hover:bg-secondary/80"
             >
               <BookOpen className="h-4 w-4 mr-2" />
-              Skip Tutorial
+              Open Sample Project
             </Button>
 
             <Button
@@ -207,7 +207,7 @@ export function WelcomeScreen() {
 
         {/* Footer hint */}
         <p className="text-center text-sm text-muted-foreground">
-          New to DTRules? Click "Open CHIP Sample Project" to explore with a guided tour.
+          New to DTRules? Click "Start Tutorial" to explore with a guided tour.
         </p>
       </div>
 

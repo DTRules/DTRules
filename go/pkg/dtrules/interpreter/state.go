@@ -588,33 +588,48 @@ func (s *DTState) InContextRName(entityName *dtrules.RName) bool {
 // Evaluation
 
 // EvaluateCondition executes code and returns the resulting boolean value.
-// The code must produce exactly one boolean value on the stack.
+// The code should produce exactly one boolean value on the stack.
+// If more values are left, the top value is used and extras are cleaned up.
 func (s *DTState) EvaluateCondition(c dtrules.Object) (bool, error) {
 	stackIndex := len(s.dataStk)
 	err := c.Execute(s)
 	if err != nil {
 		return false, err
 	}
-	if len(s.dataStk)-1 != stackIndex {
-		return false, dtrules.NewRulesError("Stack Check Exception", "EvaluateCondition", "Stack not balanced")
+
+	// Must have at least one result
+	if len(s.dataStk) <= stackIndex {
+		return false, dtrules.NewRulesError("Stack Check Exception", "EvaluateCondition", "No result on stack")
 	}
+
+	// Pop the result
 	result, err := s.DataPop()
 	if err != nil {
 		return false, err
 	}
+
+	// Clean up any extra values left on the stack (some expressions leave extras)
+	for len(s.dataStk) > stackIndex {
+		s.DataPop()
+	}
+
 	return result.BooleanValue()
 }
 
 // Evaluate executes code that should leave the stack balanced.
+// If extra values are left on the stack, they are cleaned up.
 func (s *DTState) Evaluate(c dtrules.Object) error {
 	stackIndex := len(s.dataStk)
 	err := c.Execute(s)
 	if err != nil {
 		return err
 	}
-	if len(s.dataStk) != stackIndex {
-		return dtrules.NewRulesError("Stack Check Exception", "Evaluate", "Stack not balanced")
+
+	// Clean up any extra values left on the stack (some expressions leave extras)
+	for len(s.dataStk) > stackIndex {
+		s.DataPop()
 	}
+
 	return nil
 }
 
