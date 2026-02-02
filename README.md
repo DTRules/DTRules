@@ -220,6 +220,7 @@ Each project has a `DTRules.xml` configuration file:
 ## Documentation
 
 ### Getting Started
+- [UI Quick Start](QUICKSTART-UI.md) - Get the visual UI running in 5 minutes
 - [Quick Start Guide](docs/QUICKSTART.md) - Step-by-step tutorial (Java)
 - [Building from Source](docs/BUILDING.md) - Detailed build instructions
 
