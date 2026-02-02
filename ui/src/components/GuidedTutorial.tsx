@@ -432,6 +432,7 @@ export function GuidedTutorial() {
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       completeTutorial();
+      setActiveTab('edd'); // Navigate to first tab after tutorial
       return;
     }
 
@@ -442,6 +443,7 @@ export function GuidedTutorial() {
       // Check if we're finishing the last step (clicking Next/Finish on the last step)
       if (action === 'next' && index === tutorialSteps.length - 1) {
         completeTutorial();
+        setActiveTab('edd'); // Navigate to first tab after tutorial
         return;
       }
 

@@ -81,7 +81,7 @@ export function TestPanel() {
   return (
     <div className="h-full flex" data-tutorial="test-panel">
       {/* Test data input */}
-      <div className="flex-1 flex flex-col border-r border-border/50" data-tutorial="test-input">
+      <div className="w-1/2 flex flex-col border-r border-border/50" data-tutorial="test-input">
         <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
           <div className="grid gap-1 flex-1">
             <Label className="text-xs text-muted-foreground">Decision Table</Label>
@@ -139,8 +139,8 @@ export function TestPanel() {
         </div>
       </div>
 
-      {/* Results panel */}
-      <div className="w-96 flex flex-col" data-tutorial="test-results">
+      {/* Results panel - now takes half the space */}
+      <div className="w-1/2 flex flex-col" data-tutorial="test-results">
         <div className="p-4 border-b border-border/50 bg-gradient-to-r from-purple-500/10 to-transparent">
           <h3 className="font-semibold text-foreground/80">Execution Results</h3>
         </div>
@@ -158,14 +158,32 @@ export function TestPanel() {
             )}
 
             {result && (
-              <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 backdrop-blur">
-                <div className="flex items-center gap-2 text-green-500 mb-2">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-green-500">
                   <CheckCircle2 className="h-4 w-4" />
-                  <span className="font-medium">Result</span>
+                  <span className="font-medium">Execution Successful</span>
                 </div>
-                <pre className="text-xs font-mono overflow-auto max-h-64">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
+                <div className="text-xs text-muted-foreground mb-2">
+                  Entity state after execution:
+                </div>
+                <div className="h-64 border border-border/50 rounded-lg overflow-hidden">
+                  <Editor
+                    height="100%"
+                    defaultLanguage="json"
+                    value={JSON.stringify(result, null, 2)}
+                    theme="vs-dark"
+                    options={{
+                      readOnly: true,
+                      minimap: { enabled: false },
+                      fontSize: 12,
+                      scrollBeyondLastLine: false,
+                      automaticLayout: true,
+                      lineNumbers: 'off',
+                      folding: true,
+                      wordWrap: 'on',
+                    }}
+                  />
+                </div>
               </div>
             )}
 

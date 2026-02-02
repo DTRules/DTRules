@@ -34,6 +34,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
@@ -394,6 +395,34 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 
 	// Create rule set
 	s.ruleSet = session.NewRuleSet("ui-project")
+
+	// Load EDD files into the rule set for execution
+	for _, eddFile := range s.eddFiles {
+		path := filepath.Join(s.projectPath, eddFile)
+		f, err := os.Open(path)
+		if err != nil {
+			log.Printf("Warning: Failed to open EDD file %s for rule set: %v", eddFile, err)
+			continue
+		}
+		if err := s.ruleSet.LoadEDD(f); err != nil {
+			log.Printf("Warning: Failed to load EDD file %s into rule set: %v", eddFile, err)
+		}
+		f.Close()
+	}
+
+	// Load decision table files into the rule set for execution
+	for _, dtFile := range s.dtFiles {
+		path := filepath.Join(s.projectPath, dtFile)
+		f, err := os.Open(path)
+		if err != nil {
+			log.Printf("Warning: Failed to open DT file %s for rule set: %v", dtFile, err)
+			continue
+		}
+		if err := s.ruleSet.LoadDecisionTables(f); err != nil {
+			log.Printf("Warning: Failed to load DT file %s into rule set: %v", dtFile, err)
+		}
+		f.Close()
+	}
 
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
@@ -985,10 +1014,17 @@ func (s *Server) handleExecute(w http.ResponseWriter, r *http.Request) {
 
 	rsess := sess.(*session.RSession)
 	state := rsess.GetState().(*interpreter.DTState)
+	factory := rsess.GetEntityFactory().(*entity.Factory)
 
 	// Enable tracing if requested
 	if req.Trace {
 		state.EnableTrace()
+	}
+
+	// Load input data into entities
+	if err := loadInputData(rsess, state, factory, req.Data); err != nil {
+		jsonError(w, fmt.Sprintf("Failed to load input data: %v", err), http.StatusInternalServerError)
+		return
 	}
 
 	// Execute
@@ -997,9 +1033,40 @@ func (s *Server) handleExecute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get results
+	// Get results - extract entity values from the state
 	result := make(map[string]interface{})
-	// TODO: Extract entity values as results
+
+	// Extract values from all entities on the entity stack
+	for i := 0; i < state.EntityDepth(); i++ {
+		ent, err := state.GetEntityStack(i)
+		if err != nil || ent == nil {
+			continue
+		}
+
+		// Get entity as REntity to access attributes
+		rentity, ok := ent.(*entity.REntity)
+		if !ok {
+			continue
+		}
+
+		entityName := rentity.GetName().StringValue()
+		entityData := make(map[string]interface{})
+
+		// Extract all attribute values
+		for _, attrName := range rentity.GetAttributeNames() {
+			val, err := rentity.Get(attrName)
+			if err != nil || val == nil {
+				continue
+			}
+
+			// Convert DTRules value to Go value
+			entityData[attrName.StringValue()] = convertToGoValue(val)
+		}
+
+		if len(entityData) > 0 {
+			result[entityName] = entityData
+		}
+	}
 
 	jsonResponse(w, map[string]interface{}{
 		"success": true,
@@ -1035,6 +1102,168 @@ func (s *Server) handleValidateExecution(w http.ResponseWriter, r *http.Request)
 		"success": true,
 		"message": "Validation passed",
 	})
+}
+
+// loadInputData loads the input JSON data into DTRules entities and pushes them onto the entity stack
+func loadInputData(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, data map[string]interface{}) error {
+	for key, value := range data {
+		switch v := value.(type) {
+		case map[string]interface{}:
+			// Single entity
+			if err := loadEntity(sess, state, factory, key, v); err != nil {
+				log.Printf("Warning: Failed to load entity %s: %v", key, err)
+				// Continue with other entities
+			}
+		case []interface{}:
+			// Array of entities (e.g., "clients")
+			// Try to determine singular form (e.g., "clients" -> "client")
+			entityName := key
+			if len(key) > 1 && key[len(key)-1] == 's' {
+				entityName = key[:len(key)-1]
+			}
+			for i, item := range v {
+				if itemMap, ok := item.(map[string]interface{}); ok {
+					if err := loadEntity(sess, state, factory, entityName, itemMap); err != nil {
+						log.Printf("Warning: Failed to load %s[%d]: %v", key, i, err)
+					}
+				}
+			}
+		default:
+			// Skip non-object values at top level
+			log.Printf("Skipping top-level non-object value: %s", key)
+		}
+	}
+	return nil
+}
+
+// loadEntity creates a DTRules entity from a map and pushes it onto the entity stack
+func loadEntity(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, entityName string, data map[string]interface{}) error {
+	// Get the RName for the entity
+	name := dtrules.GetRName(entityName)
+	if name == nil {
+		return fmt.Errorf("invalid entity name: %s", entityName)
+	}
+
+	// Create an entity instance
+	ent, err := factory.CreateEntity(sess, name)
+	if err != nil {
+		return fmt.Errorf("failed to create entity %s: %w", entityName, err)
+	}
+	if ent == nil {
+		return fmt.Errorf("entity type not found: %s", entityName)
+	}
+
+	// Get as REntity to set values
+	rentity, ok := ent.(*entity.REntity)
+	if !ok {
+		return fmt.Errorf("entity is not an REntity: %s", entityName)
+	}
+
+	// Set attribute values
+	for attrKey, attrValue := range data {
+		attrName := dtrules.GetRName(attrKey)
+		if attrName == nil {
+			log.Printf("Warning: Invalid attribute name: %s", attrKey)
+			continue
+		}
+
+		// Convert Go value to DTRules object
+		dtValue := goValueToDTRules(attrValue)
+		if dtValue == nil {
+			continue
+		}
+
+		// Set the value on the entity
+		if err := rentity.Put(attrName, dtValue); err != nil {
+			log.Printf("Warning: Failed to set %s.%s: %v", entityName, attrKey, err)
+		}
+	}
+
+	// Push the entity onto the entity stack
+	if err := state.EntityPush(rentity); err != nil {
+		return fmt.Errorf("failed to push entity %s: %w", entityName, err)
+	}
+
+	return nil
+}
+
+// goValueToDTRules converts a Go value to a DTRules object
+func goValueToDTRules(value interface{}) dtrules.Object {
+	if value == nil {
+		return dtrules.GetRNull()
+	}
+
+	switch v := value.(type) {
+	case bool:
+		return dtrules.GetRBoolean(v)
+	case float64:
+		// JSON numbers are float64
+		// Check if it's actually an integer
+		if v == float64(int64(v)) {
+			return dtrules.GetRIntegerValue(int64(v))
+		}
+		return dtrules.GetRDoubleValue(v)
+	case int:
+		return dtrules.GetRIntegerValue(int64(v))
+	case int64:
+		return dtrules.GetRIntegerValue(v)
+	case string:
+		return dtrules.GetRString(v)
+	case []interface{}, map[string]interface{}:
+		// For arrays and nested objects, convert to JSON string for now
+		jsonBytes, err := json.Marshal(v)
+		if err != nil {
+			return dtrules.GetRString(fmt.Sprintf("%v", v))
+		}
+		return dtrules.GetRString(string(jsonBytes))
+	default:
+		// Try to convert to string
+		return dtrules.GetRString(fmt.Sprintf("%v", v))
+	}
+}
+
+// convertToGoValue converts a DTRules object to a Go value for JSON serialization
+func convertToGoValue(obj dtrules.Object) interface{} {
+	if obj == nil {
+		return nil
+	}
+
+	switch obj.Type() {
+	case dtrules.TypeInteger:
+		if v, err := obj.IntValue(); err == nil {
+			return v
+		}
+		return obj.StringValue()
+	case dtrules.TypeDouble:
+		if v, err := obj.DoubleValue(); err == nil {
+			return v
+		}
+		return obj.StringValue()
+	case dtrules.TypeBoolean:
+		if v, err := obj.BooleanValue(); err == nil {
+			return v
+		}
+		return obj.StringValue()
+	case dtrules.TypeString, dtrules.TypeName:
+		return obj.StringValue()
+	case dtrules.TypeDate:
+		return obj.StringValue() // Return date as string
+	case dtrules.TypeNull:
+		return nil
+	case dtrules.TypeArray:
+		// Handle arrays
+		if arr, err := obj.ArrayValue(); err == nil {
+			result := make([]interface{}, len(arr))
+			for i, item := range arr {
+				result[i] = convertToGoValue(item)
+			}
+			return result
+		}
+		return obj.StringValue()
+	default:
+		// For other types, return string representation
+		return obj.StringValue()
+	}
 }
 
 // XML file loading/saving
