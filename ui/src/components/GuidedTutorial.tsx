@@ -268,9 +268,8 @@ export function GuidedTutorial() {
     completeTutorial,
     setTutorialStepIndex,
   } = useOnboardingStore();
-  const { projectPath, setActiveTab } = useProjectStore();
+  const { projectPath, setActiveTab, activeTab } = useProjectStore();
   const [stepIndex, setStepIndex] = useState(0);
-  const [isReady, setIsReady] = useState(true);
 
   // Stop tutorial if no project is open
   useEffect(() => {
@@ -283,7 +282,6 @@ export function GuidedTutorial() {
   useEffect(() => {
     if (uiTourActive) {
       setStepIndex(0);
-      setIsReady(true);
     }
   }, [uiTourActive]);
 
@@ -295,44 +293,45 @@ export function GuidedTutorial() {
       return;
     }
 
-    // Handle step transitions
+    // Switch tab BEFORE the step renders
+    if (type === 'step:before') {
+      const step = tutorialSteps[index] as TutorialStep;
+      if (step.tab && step.tab !== activeTab) {
+        setActiveTab(step.tab);
+      }
+      setTutorialStepIndex(index);
+    }
+
+    // Handle step navigation
     if (type === 'step:after') {
       const nextIndex = index + (action === 'prev' ? -1 : 1);
-      const nextStep = tutorialSteps[nextIndex] as TutorialStep | undefined;
-
-      // If next step requires a tab switch, pause briefly to let UI update
-      if (nextStep?.tab) {
-        setIsReady(false);
-        setActiveTab(nextStep.tab);
-        // Wait for tab content to render before showing next step
-        setTimeout(() => {
-          setStepIndex(nextIndex);
-          setTutorialStepIndex(nextIndex);
-          setIsReady(true);
-        }, 150);
-      } else {
+      if (nextIndex >= 0 && nextIndex < tutorialSteps.length) {
         setStepIndex(nextIndex);
-        setTutorialStepIndex(nextIndex);
       }
     }
 
-    // Handle case where target element is not found
+    // Handle case where target element is not found - skip to next
     if (type === 'error:target_not_found') {
       console.warn('Tutorial target not found for step', index);
-      // Skip to next step
       const nextIndex = index + 1;
       if (nextIndex < tutorialSteps.length) {
-        setStepIndex(nextIndex);
-        setTutorialStepIndex(nextIndex);
+        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+        if (nextStep.tab) {
+          setActiveTab(nextStep.tab);
+        }
+        setTimeout(() => {
+          setStepIndex(nextIndex);
+          setTutorialStepIndex(nextIndex);
+        }, 100);
       }
     }
 
     if (action === 'close') {
       stopTutorial();
     }
-  }, [completeTutorial, setActiveTab, setTutorialStepIndex, stopTutorial]);
+  }, [activeTab, completeTutorial, setActiveTab, setTutorialStepIndex, stopTutorial]);
 
-  if (!uiTourActive || !projectPath || !isReady) {
+  if (!uiTourActive || !projectPath) {
     return null;
   }
 
@@ -370,15 +369,14 @@ export function GuidedTutorial() {
       styles={{
         options: {
           zIndex: 10000,
-          overlayColor: 'rgba(0, 0, 0, 0.5)',
+          overlayColor: 'rgba(0, 0, 0, 0.3)',
         },
         spotlight: {
           borderRadius: 12,
-          transition: 'none',
-          boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.4), 0 0 40px rgba(99, 102, 241, 0.3)',
+          boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.5), 0 0 50px rgba(99, 102, 241, 0.4)',
         },
         overlay: {
-          transition: 'none',
+          mixBlendMode: 'normal',
         },
         beacon: {
           display: 'none',
