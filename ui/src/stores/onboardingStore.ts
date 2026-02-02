@@ -20,6 +20,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useEffect, useState } from 'react';
 
 /**
  * Complete state interface for the onboarding store.
@@ -79,13 +80,17 @@ export const useOnboardingStore = create<OnboardingState>()(
       setShowWelcome: (show) => set({ showWelcome: show }),
 
       startTutorial: () => set({
+        // Explicitly reset ALL state fields to prevent stale localStorage data from interfering
+        showWelcome: false,
         tutorialActive: true,
+        tutorialStepIndex: 0,
+        tutorialCompleted: false,
+        offerTutorial: false,
+        dontAskAgain: false,
         conceptPhaseActive: true,
         conceptPhaseComplete: false,
         currentConceptStep: 0,
         uiTourActive: false,
-        tutorialStepIndex: 0,
-        offerTutorial: false,
       }),
 
       stopTutorial: () => set({
@@ -156,7 +161,40 @@ export const useOnboardingStore = create<OnboardingState>()(
       }),
     }),
     {
-      name: 'dtrules-onboarding',
+      // Changed key name to force fresh start and clear stale data from old key
+      name: 'dtrules-onboarding-v2',
+
+      // Only persist user preferences, NOT transient tutorial state
+      // This fixes the race condition where stale tutorial state from localStorage
+      // would overwrite state set by startTutorial()
+      partialize: (state) => ({
+        tutorialCompleted: state.tutorialCompleted,
+        dontAskAgain: state.dontAskAgain,
+      }),
     }
   )
 );
+
+/**
+ * Hook that returns true only after the store has finished hydrating from localStorage.
+ * Use this to prevent rendering overlay components during the hydration race window.
+ */
+export const useHasHydrated = () => {
+  // Initialize directly from the store's hydration status to avoid first-render delay
+  const [hasHydrated, setHasHydrated] = useState(() =>
+    useOnboardingStore.persist.hasHydrated()
+  );
+
+  useEffect(() => {
+    // Subscribe to hydration completion in case it hasn't finished yet
+    const unsubFinishHydration = useOnboardingStore.persist.onFinishHydration(() => {
+      setHasHydrated(true);
+    });
+
+    return () => {
+      unsubFinishHydration();
+    };
+  }, []);
+
+  return hasHydrated;
+};

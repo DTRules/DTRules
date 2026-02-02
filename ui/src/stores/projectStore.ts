@@ -386,14 +386,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   autoSelectFirstItems: async () => {
     const { entities, decisionTables, selectEntity, selectTable } = get();
 
-    // Auto-select first entity to populate EDD editor
-    if (entities.length > 0 && entities[0].name) {
-      await selectEntity(entities[0].name);
+    // Auto-select first entity with a valid name to populate EDD editor
+    const firstValidEntity = entities.find(e => e.name && e.name.trim() !== '');
+    if (firstValidEntity) {
+      await selectEntity(firstValidEntity.name);
     }
 
-    // Auto-select first decision table to populate DT editor
-    if (decisionTables.length > 0 && decisionTables[0].name) {
-      await selectTable(decisionTables[0].name);
+    // Auto-select first decision table with a valid name to populate DT editor
+    const firstValidTable = decisionTables.find(t => t.name && t.name.trim() !== '');
+    if (firstValidTable) {
+      await selectTable(firstValidTable.name);
     }
   },
 

@@ -86,9 +86,9 @@ export function WelcomeScreen() {
         // Small delay to let React process state updates before auto-selecting
         await new Promise(resolve => setTimeout(resolve, 100));
         await autoSelectFirstItems();
+        // Start tutorial BEFORE hiding welcome screen to ensure state is set
+        startTutorial();
         setShowWelcome(false);
-        // Small delay before starting tutorial to ensure UI is ready
-        setTimeout(() => startTutorial(), 200);
       }
       setIsLoading(false);
       return;

@@ -90,11 +90,13 @@ export function TestPanel() {
                 <SelectValue placeholder="Select a table to execute" />
               </SelectTrigger>
               <SelectContent>
-                {decisionTables.map((table) => (
-                  <SelectItem key={table.name} value={table.name}>
-                    {table.name}
-                  </SelectItem>
-                ))}
+                {decisionTables
+                  .filter((table) => table.name && table.name.trim() !== '')
+                  .map((table) => (
+                    <SelectItem key={table.name} value={table.name}>
+                      {table.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>

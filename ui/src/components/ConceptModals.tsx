@@ -1,3 +1,4 @@
+import { useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,7 +8,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useOnboardingStore } from '@/stores/onboardingStore';
+import { useOnboardingStore, useHasHydrated } from '@/stores/onboardingStore';
 
 interface ConceptStep {
   title: string;
@@ -158,6 +159,7 @@ const conceptSteps: ConceptStep[] = [
 ];
 
 export function ConceptModals() {
+  const hasHydrated = useHasHydrated();
   const {
     conceptPhaseActive,
     currentConceptStep,
@@ -167,31 +169,64 @@ export function ConceptModals() {
     stopTutorial,
   } = useOnboardingStore();
 
-  if (!conceptPhaseActive) {
-    return null;
-  }
-
   const currentStep = conceptSteps[currentConceptStep];
   const isFirstStep = currentConceptStep === 0;
   const isLastStep = currentConceptStep === conceptSteps.length - 1;
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (isLastStep) {
       completeConceptPhase();
     } else {
       nextConceptStep();
     }
-  };
+  }, [isLastStep, completeConceptPhase, nextConceptStep]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (!isFirstStep) {
       prevConceptStep();
     }
-  };
+  }, [isFirstStep, prevConceptStep]);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     stopTutorial();
-  };
+  }, [stopTutorial]);
+
+  // Keyboard navigation for concept modals
+  useEffect(() => {
+    if (!conceptPhaseActive) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Enter':
+        case ' ':
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          handleNext();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          handleBack();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          handleSkip();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [conceptPhaseActive, handleNext, handleBack, handleSkip]);
+
+  if (!hasHydrated) {
+    return null;
+  }
+
+  if (!conceptPhaseActive) {
+    return null;
+  }
 
   return (
     <Dialog open={conceptPhaseActive} onOpenChange={() => {}}>
@@ -215,20 +250,26 @@ export function ConceptModals() {
           </div>
         </DialogDescription>
         <DialogFooter className="flex-row justify-between sm:justify-between">
-          <Button variant="ghost" onClick={handleSkip}>
-            Skip Tutorial
-          </Button>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={isFirstStep}
-            >
-              Back
+          <div className="flex flex-col gap-1">
+            <Button variant="ghost" onClick={handleSkip}>
+              Skip Tutorial
             </Button>
-            <Button onClick={handleNext}>
-              {isLastStep ? 'Start UI Tour' : 'Next'}
-            </Button>
+            <span className="text-[10px] text-muted-foreground/60 ml-1">Press Esc</span>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={isFirstStep}
+              >
+                Back
+              </Button>
+              <Button onClick={handleNext}>
+                {isLastStep ? 'Start UI Tour' : 'Next'}
+              </Button>
+            </div>
+            <span className="text-[10px] text-muted-foreground/60">Press Enter or Arrow keys</span>
           </div>
         </DialogFooter>
       </DialogContent>

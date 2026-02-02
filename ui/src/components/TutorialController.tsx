@@ -10,13 +10,13 @@ import { TutorialNavigation, ConceptPhaseProgress } from '@/components/TutorialN
  * - No element targeting, so no positioning issues
  * - 5 steps covering concepts, entities, tables, CHIP example, and workflow
  *
- * Phase 2: UI Tour (Simplified Joyride)
- * - Only targets stable elements (tabs, toolbar buttons)
- * - Avoids elements inside ScrollArea or overflow containers
- * - 6 steps pointing at tab triggers and toolbar
+ * Phase 2: UI Tour (Joyride)
+ * - 20 steps exploring all major UI components
+ * - Targets tabs, editors, and toolbar elements
+ * - Handles tab switching with element visibility waiting
  *
  * Flow:
- * Tutorial Start -> Concept Modals (5 steps) -> UI Tour (6 steps) -> Complete
+ * Tutorial Start -> Concept Modals (5 steps) -> UI Tour (20 steps) -> Complete
  */
 export function TutorialController() {
   return (

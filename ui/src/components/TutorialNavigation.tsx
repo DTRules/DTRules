@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { useOnboardingStore } from '@/stores/onboardingStore';
+import { useOnboardingStore, useHasHydrated } from '@/stores/onboardingStore';
 import { UI_TOUR_STEP_COUNT } from '@/components/GuidedTutorial';
 import { X } from 'lucide-react';
 
 const CONCEPT_STEPS = 5;
 
 export function TutorialNavigation() {
+  const hasHydrated = useHasHydrated();
   const {
     tutorialActive,
     conceptPhaseActive,
@@ -13,6 +14,10 @@ export function TutorialNavigation() {
     tutorialStepIndex,
     stopTutorial,
   } = useOnboardingStore();
+
+  if (!hasHydrated) {
+    return null;
+  }
 
   // Don't show if tutorial is not active
   if (!tutorialActive) {
@@ -79,10 +84,15 @@ export function TutorialNavigation() {
 
 // Separate component for concept phase navigation (shown outside the modal)
 export function ConceptPhaseProgress() {
+  const hasHydrated = useHasHydrated();
   const {
     conceptPhaseActive,
     currentConceptStep,
   } = useOnboardingStore();
+
+  if (!hasHydrated) {
+    return null;
+  }
 
   if (!conceptPhaseActive) {
     return null;

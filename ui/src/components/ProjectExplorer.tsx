@@ -91,44 +91,54 @@ export function ProjectExplorer() {
       <ScrollArea className="flex-1">
         <div className="p-2">
         {/* Entities */}
-        <TreeNode
-          label={`Entities (${entities.length})`}
-          icon={<Folder className="h-4 w-4 text-blue-500" />}
-          dataTutorial="entities-section"
-        >
-          {entities.map((entity) => (
+        {(() => {
+          const validEntities = entities.filter(e => e.name && e.name.trim() !== '');
+          return (
             <TreeNode
-              key={entity.name}
-              label={entity.name}
-              icon={<FileText className="h-4 w-4 text-blue-400" />}
-              onClick={() => {
-                selectEntity(entity.name);
-                setActiveTab('edd');
-              }}
-              selected={currentEntity?.name === entity.name}
-            />
-          ))}
-        </TreeNode>
+              label={`Entities (${validEntities.length})`}
+              icon={<Folder className="h-4 w-4 text-blue-500" />}
+              dataTutorial="entities-section"
+            >
+              {validEntities.map((entity) => (
+                <TreeNode
+                  key={entity.name}
+                  label={entity.name}
+                  icon={<FileText className="h-4 w-4 text-blue-400" />}
+                  onClick={() => {
+                    selectEntity(entity.name);
+                    setActiveTab('edd');
+                  }}
+                  selected={currentEntity?.name === entity.name}
+                />
+              ))}
+            </TreeNode>
+          );
+        })()}
 
         {/* Decision Tables */}
-        <TreeNode
-          label={`Decision Tables (${decisionTables.length})`}
-          icon={<Folder className="h-4 w-4 text-green-500" />}
-          dataTutorial="decision-tables-section"
-        >
-          {decisionTables.map((table) => (
+        {(() => {
+          const validTables = decisionTables.filter(t => t.name && t.name.trim() !== '');
+          return (
             <TreeNode
-              key={table.name}
-              label={table.name}
-              icon={<Table2 className="h-4 w-4 text-green-400" />}
-              onClick={() => {
-                selectTable(table.name);
-                setActiveTab('dt');
-              }}
-              selected={currentTable?.tableName === table.name}
-            />
-          ))}
-        </TreeNode>
+              label={`Decision Tables (${validTables.length})`}
+              icon={<Folder className="h-4 w-4 text-green-500" />}
+              dataTutorial="decision-tables-section"
+            >
+              {validTables.map((table) => (
+                <TreeNode
+                  key={table.name}
+                  label={table.name}
+                  icon={<Table2 className="h-4 w-4 text-green-400" />}
+                  onClick={() => {
+                    selectTable(table.name);
+                    setActiveTab('dt');
+                  }}
+                  selected={currentTable?.tableName === table.name}
+                />
+              ))}
+            </TreeNode>
+          );
+        })()}
 
         {/* Map Files */}
         {mapFiles.length > 0 && (

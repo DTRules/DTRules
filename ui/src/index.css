@@ -150,46 +150,13 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Joyride tutorial - comprehensive fix for flashing artifacts */
-/* Disable ALL transitions and animations on Joyride elements */
-.react-joyride__overlay,
-.react-joyride__spotlight,
-.react-joyride__beacon,
-.react-joyride__tooltip,
-.__floater,
-.__floater__body,
-.__floater__container,
-.__floater__content,
-.__floater__arrow,
-.__floater__open,
-[data-react-floater] {
-  transition: none !important;
-  animation: none !important;
-  transition-property: none !important;
-  transition-duration: 0s !important;
-}
-
-/* Hide the arrow completely to prevent flashing */
-.__floater__arrow {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
-
-/* Spotlight styling - don't override backgroundColor or boxShadow as it breaks the hole effect */
+/* Joyride tutorial - disable transitions to prevent flashing */
 .react-joyride__spotlight {
   border-radius: 12px !important;
 }
 
-/* Prevent any opacity transitions on the floater */
-.__floater,
-.__floater__body {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Remove any transform transitions that cause repositioning flicker */
-[data-placement] {
-  transition: none !important;
+/* Hide the arrow */
+.__floater__arrow {
+  display: none !important;
 }
 

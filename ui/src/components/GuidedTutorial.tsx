@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import Joyride, { CallBackProps, STATUS, Step, TooltipRenderProps } from 'react-joyride';
-import { useOnboardingStore } from '@/stores/onboardingStore';
+import { useOnboardingStore, useHasHydrated } from '@/stores/onboardingStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { Button } from '@/components/ui/button';
 
@@ -54,31 +54,37 @@ function CustomTooltip({
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer with keyboard hint */}
       <div className="flex items-center justify-between p-4 pt-3 border-t border-border/30 bg-muted/20">
-        <Button
-          {...skipProps}
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Skip Tour
-        </Button>
-        <div className="flex gap-2">
-          {index > 0 && (
-            <Button {...backProps} variant="outline" size="sm" className="border-border/50">
-              Back
-            </Button>
-          )}
-          {continuous && (
-            <Button
-              {...primaryProps}
-              size="sm"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
-            >
-              {isLastStep ? 'Finish' : 'Next'}
-            </Button>
-          )}
+        <div className="flex flex-col gap-1">
+          <Button
+            {...skipProps}
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Skip Tour
+          </Button>
+          <span className="text-[10px] text-muted-foreground/60 ml-1">Press Esc</span>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex gap-2">
+            {index > 0 && (
+              <Button {...backProps} variant="outline" size="sm" className="tutorial-back-btn border-border/50">
+                Back
+              </Button>
+            )}
+            {continuous && (
+              <Button
+                {...primaryProps}
+                size="sm"
+                className="tutorial-next-btn bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
+              >
+                {isLastStep ? 'Finish' : 'Next'}
+              </Button>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground/60">Press Enter or Arrow keys</span>
         </div>
       </div>
     </div>
@@ -89,6 +95,97 @@ function CustomTooltip({
 interface TutorialStep extends Step {
   tab?: 'edd' | 'dt' | 'test' | 'tree';
 }
+
+/**
+ * Waits for an element to be visible with non-zero dimensions.
+ * Used to ensure tab content is fully rendered before Joyride advances.
+ */
+const waitForElement = (selector: string, timeout = 500): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      const el = document.querySelector(selector);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          resolve(true);
+          return;
+        }
+      }
+      if (Date.now() - start < timeout) {
+        requestAnimationFrame(check);
+      } else {
+        resolve(false);
+      }
+    };
+    check();
+  });
+};
+
+// Steps that should scroll to the bottom of the page (0-indexed)
+// User sees steps 5, 9, 13, 17 but array is 0-indexed so: 4, 8, 12, 16
+const SCROLL_TO_BOTTOM_STEPS = [4, 8, 12, 16];
+
+/**
+ * Scrolls to the bottom of scrollable containers.
+ */
+const scrollToBottom = () => {
+  // Try scrolling the main content area first
+  const mainContent = document.querySelector('main') as HTMLElement;
+  if (mainContent && mainContent.scrollHeight > mainContent.clientHeight) {
+    mainContent.scrollTop = mainContent.scrollHeight;
+  }
+
+  // Also scroll any scrollable parent containers
+  const scrollableContainers = document.querySelectorAll('[class*="overflow-auto"], [class*="overflow-y-auto"], [class*="overflow-scroll"]');
+  scrollableContainers.forEach((container) => {
+    const el = container as HTMLElement;
+    if (el.scrollHeight > el.clientHeight) {
+      el.scrollTop = el.scrollHeight;
+    }
+  });
+
+  // Also scroll the window/document
+  window.scrollTo({
+    top: document.documentElement.scrollHeight,
+    behavior: 'instant',
+  });
+};
+
+/**
+ * Scrolls to ensure the tooltip is visible after it renders.
+ * For specific steps, scrolls to the bottom of the page instead.
+ */
+const scrollTooltipIntoView = (stepIndex: number) => {
+  // For specific steps, scroll to bottom of page
+  if (SCROLL_TO_BOTTOM_STEPS.includes(stepIndex)) {
+    scrollToBottom();
+    return;
+  }
+
+  // Find the tooltip element
+  const tooltip = document.querySelector('.react-joyride__tooltip') as HTMLElement;
+  if (tooltip) {
+    const rect = tooltip.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+
+    // If tooltip is below the viewport, scroll it into view
+    if (rect.bottom > viewportHeight) {
+      const scrollAmount = rect.bottom - viewportHeight + 50; // 50px padding
+      window.scrollBy({
+        top: scrollAmount,
+        behavior: 'instant',
+      });
+    }
+    // If tooltip is above the viewport, scroll up
+    else if (rect.top < 0) {
+      window.scrollBy({
+        top: rect.top - 50, // 50px padding from top
+        behavior: 'instant',
+      });
+    }
+  }
+};
 
 // Comprehensive tutorial steps - 20 steps exploring all tabs
 const tutorialSteps: TutorialStep[] = [
@@ -262,14 +359,17 @@ const tutorialSteps: TutorialStep[] = [
 ];
 
 export function GuidedTutorial() {
+  const hasHydrated = useHasHydrated();
   const {
     uiTourActive,
+    conceptPhaseActive,
     stopTutorial,
     completeTutorial,
     setTutorialStepIndex,
   } = useOnboardingStore();
   const { projectPath, setActiveTab } = useProjectStore();
   const [stepIndex, setStepIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Stop tutorial if no project is open
   useEffect(() => {
@@ -285,7 +385,49 @@ export function GuidedTutorial() {
     }
   }, [uiTourActive]);
 
-  const handleJoyrideCallback = useCallback((data: CallBackProps) => {
+  // Global keyboard handler for tutorial navigation
+  useEffect(() => {
+    if (!uiTourActive || conceptPhaseActive || isTransitioning) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'Enter':
+        case ' ':
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          // Simulate clicking the Next/Finish button
+          const nextBtn = document.querySelector('.tutorial-next-btn') as HTMLButtonElement;
+          if (nextBtn) {
+            nextBtn.click();
+          }
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          // Simulate clicking the Back button
+          const backBtn = document.querySelector('.tutorial-back-btn') as HTMLButtonElement;
+          if (backBtn) {
+            backBtn.click();
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          stopTutorial();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [uiTourActive, conceptPhaseActive, isTransitioning, stopTutorial]);
+
+  const handleJoyrideCallback = useCallback(async (data: CallBackProps) => {
     const { status, index, action, type } = data;
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
@@ -296,31 +438,66 @@ export function GuidedTutorial() {
     // Handle step navigation
     if (type === 'step:after') {
       const nextIndex = index + (action === 'prev' ? -1 : 1);
+
+      // Check if we're finishing the last step (clicking Next/Finish on the last step)
+      if (action === 'next' && index === tutorialSteps.length - 1) {
+        completeTutorial();
+        return;
+      }
+
       if (nextIndex >= 0 && nextIndex < tutorialSteps.length) {
         const nextStep = tutorialSteps[nextIndex] as TutorialStep;
 
-        // Switch tab if needed (content is always mounted, so instant)
+        // Hide tooltip during transition to prevent flash
+        setIsTransitioning(true);
+
+        // Switch tab if needed
         if (nextStep.tab) {
           setActiveTab(nextStep.tab);
+          // Wait for element to be visible after tab switch to prevent black screen
+          await waitForElement(nextStep.target as string);
         }
 
         setStepIndex(nextIndex);
         setTutorialStepIndex(nextIndex);
+
+        // Show tooltip after positioning is complete
+        setTimeout(() => {
+          setIsTransitioning(false);
+          // Scroll tooltip into view after it renders
+          setTimeout(() => {
+            scrollTooltipIntoView(nextIndex);
+          }, 100);
+        }, 100);
       }
+      return;
     }
 
-    // Handle case where target element is not found - skip to next
+    // Handle case where target element is not found - wait and retry before skipping
     if (type === 'error:target_not_found') {
       console.warn('Tutorial target not found for step', index);
-      const nextIndex = index + 1;
-      if (nextIndex < tutorialSteps.length) {
-        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
-        if (nextStep.tab) {
-          setActiveTab(nextStep.tab);
+      // Wait a frame for element to potentially appear
+      requestAnimationFrame(async () => {
+        const currentStep = tutorialSteps[index] as TutorialStep;
+        const el = document.querySelector(currentStep.target as string);
+        if (!el) {
+          // Only skip if element is truly missing after waiting
+          const nextIndex = index + 1;
+          if (nextIndex < tutorialSteps.length) {
+            const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+            if (nextStep.tab) {
+              setActiveTab(nextStep.tab);
+              await waitForElement(nextStep.target as string);
+            }
+            setStepIndex(nextIndex);
+            setTutorialStepIndex(nextIndex);
+            // Scroll tooltip into view after it renders
+            setTimeout(() => {
+              scrollTooltipIntoView(nextIndex);
+            }, 150);
+          }
         }
-        setStepIndex(nextIndex);
-        setTutorialStepIndex(nextIndex);
-      }
+      });
     }
 
     if (action === 'close') {
@@ -328,7 +505,13 @@ export function GuidedTutorial() {
     }
   }, [completeTutorial, setActiveTab, setTutorialStepIndex, stopTutorial]);
 
-  if (!uiTourActive || !projectPath) {
+  // Don't render until hydration completes
+  if (!hasHydrated) {
+    return null;
+  }
+
+  // Don't render during concept phase or when UI tour is inactive
+  if (!uiTourActive || !projectPath || conceptPhaseActive) {
     return null;
   }
 
@@ -336,14 +519,14 @@ export function GuidedTutorial() {
     <Joyride
       steps={tutorialSteps}
       stepIndex={stepIndex}
-      run={true}
+      run={!isTransitioning}
       continuous
       showSkipButton
       hideCloseButton
       disableOverlayClose={false}
-      disableScrollParentFix
-      disableScrolling
-      scrollOffset={100}
+      disableScrolling={true}
+      disableScrollParentFix={true}
+      scrollToFirstStep={false}
       spotlightPadding={8}
       spotlightClicks
       callback={handleJoyrideCallback}
@@ -352,6 +535,7 @@ export function GuidedTutorial() {
         disableAnimation: true,
         hideArrow: true,
         offset: 16,
+        placement: 'auto',
         styles: {
           floater: {
             transition: 'none !important',
@@ -371,9 +555,18 @@ export function GuidedTutorial() {
         },
         spotlight: {
           borderRadius: 12,
+          transition: 'none',
         },
         overlay: {
-          // Keep default mixBlendMode: 'hard-light' for spotlight hole effect
+          transition: 'none',
+          animation: 'none',
+        },
+        tooltip: {
+          transition: 'none',
+          animation: 'none',
+        },
+        tooltipContainer: {
+          transition: 'none',
         },
         beacon: {
           display: 'none',

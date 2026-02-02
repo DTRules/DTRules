@@ -1171,53 +1171,75 @@ func (s *Server) saveEDDFile(path string) error {
 	return os.WriteFile(path, append([]byte(xml.Header), data...), 0644)
 }
 
-// DT XML structures
+// DT XML structures - matches the actual DTRules XML format
 type DTXML struct {
 	XMLName xml.Name       `xml:"decision_tables"`
 	Tables  []DTTableXML   `xml:"decision_table"`
 }
 
 type DTTableXML struct {
-	Name             string               `xml:"table_name,attr"`
-	Type             string               `xml:"type,attr"`
-	Number           string               `xml:"number,attr"`
-	XlsFile          string               `xml:"xls_file,attr"`
-	Comments         string               `xml:"comments"`
-	Contexts         []ContextXML         `xml:"context"`
+	Name             string               `xml:"table_name"`
+	XlsFile          string               `xml:"xls_file"`
+	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
+	Contexts         ContextsXML          `xml:"contexts"`
 	InitialActions   string               `xml:"initial_actions"`
-	Conditions       []ConditionXML       `xml:"condition"`
-	Actions          []ActionXML          `xml:"action"`
+	Conditions       ConditionsXML        `xml:"conditions"`
+	Actions          ActionsXML           `xml:"actions"`
 	PolicyStatements []PolicyStatementXML `xml:"policy_statement"`
 }
 
+type AttributeFieldsXML struct {
+	Type        string `xml:"Type"`
+	Comments    string `xml:"COMMENTS"`
+	FileName    string `xml:"File_Name"`
+	TableNumber string `xml:"TABLE_NUMBER"`
+}
+
+type ContextsXML struct {
+	Contexts []ContextXML `xml:"context_details"`
+}
+
 type ContextXML struct {
-	Number      int    `xml:"number,attr"`
-	Comment     string `xml:"comment,attr"`
-	Description string `xml:"description"`
-	Postfix     string `xml:"postfix"`
+	Number      int    `xml:"context_number"`
+	Comment     string `xml:"context_comment"`
+	Description string `xml:"context_description"`
+	Postfix     string `xml:"context_postfix"`
+}
+
+type ConditionsXML struct {
+	Conditions []ConditionXML `xml:"condition_details"`
 }
 
 type ConditionXML struct {
-	Number      int          `xml:"number,attr"`
-	Comment     string       `xml:"comment,attr"`
-	Requirement string       `xml:"requirement,attr"`
-	Description string       `xml:"description"`
-	Postfix     string       `xml:"postfix"`
-	Columns     []ColumnXML  `xml:"column"`
+	Number      int                `xml:"condition_number"`
+	Comment     string             `xml:"condition_comment"`
+	Requirement string             `xml:"condition_requirement"`
+	Description string             `xml:"condition_description"`
+	Postfix     string             `xml:"condition_postfix"`
+	Columns     []ConditionColXML  `xml:"condition_column"`
+}
+
+type ConditionColXML struct {
+	Number string `xml:"column_number,attr"`
+	Value  string `xml:"column_value,attr"`
+}
+
+type ActionsXML struct {
+	Actions []ActionXML `xml:"action_details"`
 }
 
 type ActionXML struct {
-	Number      int          `xml:"number,attr"`
-	Comment     string       `xml:"comment,attr"`
-	Requirement string       `xml:"requirement,attr"`
-	Description string       `xml:"description"`
-	Postfix     string       `xml:"postfix"`
-	Columns     []ColumnXML  `xml:"column"`
+	Number      int             `xml:"action_number"`
+	Comment     string          `xml:"action_comment"`
+	Requirement string          `xml:"action_requirement"`
+	Description string          `xml:"action_description"`
+	Postfix     string          `xml:"action_postfix"`
+	Columns     []ActionColXML  `xml:"action_column"`
 }
 
-type ColumnXML struct {
-	Number string `xml:"number,attr"`
-	Value  string `xml:",chardata"`
+type ActionColXML struct {
+	Number string `xml:"column_number,attr"`
+	Value  string `xml:"column_value,attr"`
 }
 
 type PolicyStatementXML struct {
@@ -1240,21 +1262,27 @@ func (s *Server) loadDTFile(path string) error {
 
 	var dt DTXML
 	if err := xml.Unmarshal(data, &dt); err != nil {
+		log.Printf("Failed to parse DT file %s: %v", path, err)
 		return err
 	}
 
 	for _, t := range dt.Tables {
+		// Skip tables with no name
+		if t.Name == "" {
+			continue
+		}
+
 		table := &DecisionTableData{
 			TableName:      t.Name,
 			XlsFile:        t.XlsFile,
-			Type:           t.Type,
-			Comments:       t.Comments,
-			TableNumber:    t.Number,
+			Type:           t.AttributeFields.Type,
+			Comments:       t.AttributeFields.Comments,
+			TableNumber:    t.AttributeFields.TableNumber,
 			InitialActions: t.InitialActions,
 		}
 
 		// Load contexts
-		for _, ctx := range t.Contexts {
+		for _, ctx := range t.Contexts.Contexts {
 			table.Contexts = append(table.Contexts, ContextData{
 				Number:      ctx.Number,
 				Comment:     ctx.Comment,
@@ -1265,7 +1293,7 @@ func (s *Server) loadDTFile(path string) error {
 
 		// Load conditions and determine column count
 		maxCol := 0
-		for _, cond := range t.Conditions {
+		for _, cond := range t.Conditions.Conditions {
 			condData := ConditionData{
 				Number:      cond.Number,
 				Comment:     cond.Comment,
@@ -1287,7 +1315,7 @@ func (s *Server) loadDTFile(path string) error {
 		}
 
 		// Load actions
-		for _, action := range t.Actions {
+		for _, action := range t.Actions.Actions {
 			actionData := ActionData{
 				Number:      action.Number,
 				Comment:     action.Comment,
@@ -1318,7 +1346,9 @@ func (s *Server) loadDTFile(path string) error {
 		}
 
 		table.ColumnCount = maxCol
-		s.tables[table.TableName] = table
+		if table.TableName != "" {
+			s.tables[table.TableName] = table
+		}
 	}
 
 	return nil
@@ -1330,16 +1360,18 @@ func (s *Server) saveDTFile(path string) error {
 	for _, table := range s.tables {
 		t := DTTableXML{
 			Name:           table.TableName,
-			Type:           table.Type,
-			Number:         table.TableNumber,
 			XlsFile:        table.XlsFile,
-			Comments:       table.Comments,
 			InitialActions: table.InitialActions,
+			AttributeFields: AttributeFieldsXML{
+				Type:        table.Type,
+				Comments:    table.Comments,
+				TableNumber: table.TableNumber,
+			},
 		}
 
 		// Save contexts
 		for _, ctx := range table.Contexts {
-			t.Contexts = append(t.Contexts, ContextXML{
+			t.Contexts.Contexts = append(t.Contexts.Contexts, ContextXML{
 				Number:      ctx.Number,
 				Comment:     ctx.Comment,
 				Description: ctx.Description,
@@ -1357,12 +1389,12 @@ func (s *Server) saveDTFile(path string) error {
 				Postfix:     cond.Postfix,
 			}
 			for colNum, val := range cond.Columns {
-				c.Columns = append(c.Columns, ColumnXML{
+				c.Columns = append(c.Columns, ConditionColXML{
 					Number: colNum,
 					Value:  val,
 				})
 			}
-			t.Conditions = append(t.Conditions, c)
+			t.Conditions.Conditions = append(t.Conditions.Conditions, c)
 		}
 
 		// Save actions
@@ -1375,12 +1407,12 @@ func (s *Server) saveDTFile(path string) error {
 				Postfix:     action.Postfix,
 			}
 			for colNum, val := range action.Columns {
-				a.Columns = append(a.Columns, ColumnXML{
+				a.Columns = append(a.Columns, ActionColXML{
 					Number: colNum,
 					Value:  val,
 				})
 			}
-			t.Actions = append(t.Actions, a)
+			t.Actions.Actions = append(t.Actions.Actions, a)
 		}
 
 		// Save policy statements
