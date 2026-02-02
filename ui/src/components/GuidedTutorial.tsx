@@ -294,6 +294,12 @@ export function GuidedTutorial() {
       setTutorialStepIndex(index);
     }
 
+    // Handle case where target element is not found
+    if (type === 'error:target_not_found') {
+      console.warn('Tutorial target not found, skipping to next step');
+      // The tutorial will automatically try to continue
+    }
+
     if (action === 'close') {
       stopTutorial();
     }
@@ -310,11 +316,12 @@ export function GuidedTutorial() {
       continuous
       showSkipButton
       hideCloseButton
-      disableOverlayClose
+      disableOverlayClose={false}
       disableScrollParentFix
       disableScrolling
       scrollOffset={100}
-      spotlightPadding={4}
+      spotlightPadding={8}
+      spotlightClicks
       callback={handleJoyrideCallback}
       tooltipComponent={CustomTooltip}
       floaterProps={{
@@ -335,16 +342,15 @@ export function GuidedTutorial() {
       styles={{
         options: {
           zIndex: 10000,
-          overlayColor: 'rgba(0, 0, 0, 0.7)',
+          overlayColor: 'rgba(0, 0, 0, 0.5)',
         },
         spotlight: {
           borderRadius: 12,
           transition: 'none',
-          boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.3), 0 0 30px rgba(99, 102, 241, 0.2)',
+          boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.4), 0 0 40px rgba(99, 102, 241, 0.3)',
         },
         overlay: {
           transition: 'none',
-          backdropFilter: 'blur(2px)',
         },
         beacon: {
           display: 'none',
