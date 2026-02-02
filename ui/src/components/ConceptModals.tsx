@@ -234,7 +234,7 @@ export function ConceptModals() {
         className="sm:max-w-[500px]"
         hideCloseButton
         onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => { e.preventDefault(); handleSkip(); }}
       >
         <DialogHeader>
           <div className="flex items-center justify-between mb-2">

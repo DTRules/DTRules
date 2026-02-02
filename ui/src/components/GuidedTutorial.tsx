@@ -123,8 +123,8 @@ const waitForElement = (selector: string, timeout = 500): Promise<boolean> => {
 };
 
 // Steps that should scroll to the bottom of the page (0-indexed)
-// User sees steps 5, 9, 13, 17, 18 but array is 0-indexed so: 4, 8, 12, 16, 17
-const SCROLL_TO_BOTTOM_STEPS = [4, 8, 12, 16, 17];
+// User sees steps 5, 9, 10, 13, 17, 18 but array is 0-indexed so: 4, 8, 9, 12, 16, 17
+const SCROLL_TO_BOTTOM_STEPS = [4, 8, 9, 12, 16, 17];
 
 /**
  * Scrolls to the bottom of scrollable containers.
