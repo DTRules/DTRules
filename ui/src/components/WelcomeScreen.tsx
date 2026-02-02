@@ -83,10 +83,12 @@ export function WelcomeScreen() {
       setIsLoading(true);
       const success = await openProject(chipProject.path);
       if (success) {
+        // Small delay to let React process state updates before auto-selecting
+        await new Promise(resolve => setTimeout(resolve, 100));
         await autoSelectFirstItems();
         setShowWelcome(false);
-        // Always start the tutorial when opening CHIP sample project
-        startTutorial();
+        // Small delay before starting tutorial to ensure UI is ready
+        setTimeout(() => startTutorial(), 200);
       }
       setIsLoading(false);
       return;
@@ -101,6 +103,8 @@ export function WelcomeScreen() {
       setIsLoading(true);
       const success = await openProject(chipProject.path);
       if (success) {
+        // Small delay to let React process state updates before auto-selecting
+        await new Promise(resolve => setTimeout(resolve, 100));
         await autoSelectFirstItems();
         setShowWelcome(false);
         // Don't start tutorial - user explicitly chose to skip

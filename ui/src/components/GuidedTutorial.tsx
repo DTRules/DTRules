@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Joyride, { CallBackProps, STATUS, Step, TooltipRenderProps } from 'react-joyride';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { useProjectStore } from '@/stores/projectStore';
@@ -269,6 +269,8 @@ export function GuidedTutorial() {
     setTutorialStepIndex,
   } = useOnboardingStore();
   const { projectPath, setActiveTab } = useProjectStore();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [isReady, setIsReady] = useState(true);
 
   // Stop tutorial if no project is open
   useEffect(() => {
@@ -277,7 +279,15 @@ export function GuidedTutorial() {
     }
   }, [uiTourActive, projectPath, stopTutorial]);
 
-  const handleJoyrideCallback = (data: CallBackProps) => {
+  // Reset step index when tutorial starts
+  useEffect(() => {
+    if (uiTourActive) {
+      setStepIndex(0);
+      setIsReady(true);
+    }
+  }, [uiTourActive]);
+
+  const handleJoyrideCallback = useCallback((data: CallBackProps) => {
     const { status, index, action, type } = data;
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
@@ -285,33 +295,51 @@ export function GuidedTutorial() {
       return;
     }
 
-    // Switch to the required tab BEFORE showing the step
-    if (type === 'step:before') {
-      const step = tutorialSteps[index] as TutorialStep;
-      if (step.tab) {
-        setActiveTab(step.tab);
+    // Handle step transitions
+    if (type === 'step:after') {
+      const nextIndex = index + (action === 'prev' ? -1 : 1);
+      const nextStep = tutorialSteps[nextIndex] as TutorialStep | undefined;
+
+      // If next step requires a tab switch, pause briefly to let UI update
+      if (nextStep?.tab) {
+        setIsReady(false);
+        setActiveTab(nextStep.tab);
+        // Wait for tab content to render before showing next step
+        setTimeout(() => {
+          setStepIndex(nextIndex);
+          setTutorialStepIndex(nextIndex);
+          setIsReady(true);
+        }, 150);
+      } else {
+        setStepIndex(nextIndex);
+        setTutorialStepIndex(nextIndex);
       }
-      setTutorialStepIndex(index);
     }
 
     // Handle case where target element is not found
     if (type === 'error:target_not_found') {
-      console.warn('Tutorial target not found, skipping to next step');
-      // The tutorial will automatically try to continue
+      console.warn('Tutorial target not found for step', index);
+      // Skip to next step
+      const nextIndex = index + 1;
+      if (nextIndex < tutorialSteps.length) {
+        setStepIndex(nextIndex);
+        setTutorialStepIndex(nextIndex);
+      }
     }
 
     if (action === 'close') {
       stopTutorial();
     }
-  };
+  }, [completeTutorial, setActiveTab, setTutorialStepIndex, stopTutorial]);
 
-  if (!uiTourActive || !projectPath) {
+  if (!uiTourActive || !projectPath || !isReady) {
     return null;
   }
 
   return (
     <Joyride
       steps={tutorialSteps}
+      stepIndex={stepIndex}
       run={uiTourActive}
       continuous
       showSkipButton
