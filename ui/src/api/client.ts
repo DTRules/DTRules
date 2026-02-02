@@ -348,3 +348,41 @@ export async function validateExecution(
 export async function healthCheck(): Promise<{ status: string }> {
   return fetchJSON(`${API_BASE}/health`);
 }
+
+// ============================================================================
+// Sample Projects Discovery
+// ============================================================================
+
+/**
+ * Sample project information returned by the API.
+ */
+export interface SampleProject {
+  name: string;
+  path: string;
+  description: string;
+}
+
+/**
+ * Retrieves available sample projects from the backend.
+ *
+ * The backend discovers sample projects by scanning for directories
+ * containing xml subdirectories with EDD files.
+ *
+ * @returns Promise with array of available sample projects
+ *
+ * @example
+ * const result = await getSampleProjects();
+ * if (result.success && result.samples.length > 0) {
+ *   const chipProject = result.samples.find(s => s.name === 'CHIP');
+ *   if (chipProject) {
+ *     await openProject(chipProject.path);
+ *   }
+ * }
+ */
+export async function getSampleProjects(): Promise<{
+  success: boolean;
+  samples: SampleProject[];
+  message?: string;
+}> {
+  return fetchJSON(`${API_BASE}/samples`);
+}

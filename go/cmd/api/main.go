@@ -163,6 +163,9 @@ func main() {
 	// Health check
 	mux.HandleFunc("/api/health", server.handleHealth)
 
+	// Sample projects discovery
+	mux.HandleFunc("/api/samples", server.handleSamples)
+
 	// Project endpoints
 	mux.HandleFunc("/api/project/open", server.handleProjectOpen)
 	mux.HandleFunc("/api/project/save", server.handleProjectSave)
@@ -227,6 +230,108 @@ func jsonError(w http.ResponseWriter, message string, code int) {
 // Health check endpoint
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, map[string]string{"status": "ok"})
+}
+
+// handleSamples returns available sample projects
+func (s *Server) handleSamples(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		jsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Find the DTRules root directory by looking for sampleprojects
+	// Start from the executable location and search upward
+	execPath, err := os.Executable()
+	if err != nil {
+		execPath, _ = os.Getwd()
+	}
+
+	// Try to find sampleprojects directory
+	searchPaths := []string{
+		filepath.Dir(execPath),                           // Same dir as executable
+		filepath.Join(filepath.Dir(execPath), ".."),      // Parent of executable
+		filepath.Join(filepath.Dir(execPath), "../.."),   // Grandparent (go/cmd/api -> go -> DTRules)
+		".",                                               // Current working directory
+		"..",                                              // Parent of cwd
+		"../..",                                           // Grandparent of cwd
+	}
+
+	var samplesDir string
+	for _, base := range searchPaths {
+		candidate := filepath.Join(base, "sampleprojects")
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			samplesDir, _ = filepath.Abs(candidate)
+			break
+		}
+	}
+
+	if samplesDir == "" {
+		jsonResponse(w, map[string]interface{}{
+			"success": true,
+			"samples": []interface{}{},
+			"message": "No sample projects found",
+		})
+		return
+	}
+
+	// Scan for sample projects (directories containing xml subdirectory with *_edd.xml files)
+	type SampleProject struct {
+		Name string `json:"name"`
+		Path string `json:"path"`
+		Description string `json:"description"`
+	}
+
+	var samples []SampleProject
+
+	entries, err := os.ReadDir(samplesDir)
+	if err != nil {
+		jsonError(w, "Failed to read samples directory: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		projectName := entry.Name()
+		xmlDir := filepath.Join(samplesDir, projectName, "xml")
+
+		// Check if xml directory exists and contains EDD files
+		if info, err := os.Stat(xmlDir); err == nil && info.IsDir() {
+			files, _ := os.ReadDir(xmlDir)
+			hasEDD := false
+			for _, f := range files {
+				if strings.HasSuffix(f.Name(), "_edd.xml") {
+					hasEDD = true
+					break
+				}
+			}
+			if hasEDD {
+				description := ""
+				switch projectName {
+				case "CHIP":
+					description = "Children's Health Insurance Program eligibility rules"
+				case "KidAid":
+					description = "Child assistance program eligibility rules"
+				case "TestProject":
+					description = "Minimal template for new projects"
+				case "SyntaxTests":
+					description = "Expression Language syntax examples"
+				}
+				samples = append(samples, SampleProject{
+					Name: projectName,
+					Path: xmlDir,
+					Description: description,
+				})
+			}
+		}
+	}
+
+	jsonResponse(w, map[string]interface{}{
+		"success": true,
+		"samples": samples,
+	})
 }
 
 // Project endpoints

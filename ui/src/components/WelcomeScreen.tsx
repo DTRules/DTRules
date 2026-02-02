@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,10 +14,7 @@ import { useProjectStore } from '@/stores/projectStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { FileText, Table2, GitBranch, FolderOpen, Play, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// CHIP sample project path - can be overridden via VITE_CHIP_PROJECT_PATH env variable
-// For development, set this in .env.local or pass when starting the server
-const CHIP_PROJECT_PATH = import.meta.env.VITE_CHIP_PROJECT_PATH || '';
+import { getSampleProjects, type SampleProject } from '@/api/client';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -60,40 +57,61 @@ export function WelcomeScreen() {
   const [customPathDialogOpen, setCustomPathDialogOpen] = useState(false);
   const [customPath, setCustomPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sampleProjects, setSampleProjects] = useState<SampleProject[]>([]);
+  const [samplesLoaded, setSamplesLoaded] = useState(false);
+
+  // Fetch available sample projects from the backend on mount
+  useEffect(() => {
+    const fetchSamples = async () => {
+      try {
+        const result = await getSampleProjects();
+        if (result.success && result.samples) {
+          setSampleProjects(result.samples);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sample projects:', error);
+      }
+      setSamplesLoaded(true);
+    };
+    fetchSamples();
+  }, []);
+
+  // Find the CHIP project from the discovered samples
+  const chipProject = sampleProjects.find(p => p.name === 'CHIP');
 
   const handleOpenChipProject = async () => {
-    // If CHIP path is not configured, open the custom path dialog
-    if (!CHIP_PROJECT_PATH) {
-      setCustomPathDialogOpen(true);
+    // If CHIP project was discovered, use its path directly
+    if (chipProject) {
+      setIsLoading(true);
+      const success = await openProject(chipProject.path);
+      if (success) {
+        await autoSelectFirstItems();
+        setShowWelcome(false);
+        if (!tutorialCompleted && !dontAskAgain) {
+          setOfferTutorial(true);
+        }
+      }
+      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
-    const success = await openProject(CHIP_PROJECT_PATH);
-    if (success) {
-      // Auto-select first items so all editors have content visible
-      await autoSelectFirstItems();
-      setShowWelcome(false);
-      if (!tutorialCompleted && !dontAskAgain) {
-        setOfferTutorial(true);
-      }
-    }
-    setIsLoading(false);
+    // If not discovered, open dialog for manual entry
+    setCustomPathDialogOpen(true);
   };
 
   const handleSkipTutorial = async () => {
-    // If CHIP path is not configured, open the custom path dialog
-    if (!CHIP_PROJECT_PATH) {
-      setCustomPathDialogOpen(true);
+    // If CHIP project was discovered, use its path directly
+    if (chipProject) {
+      setIsLoading(true);
+      const success = await openProject(chipProject.path);
+      if (success) {
+        await autoSelectFirstItems();
+        setShowWelcome(false);
+      }
+      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
-    const success = await openProject(CHIP_PROJECT_PATH);
-    if (success) {
-      // Auto-select first items so all editors have content visible
-      await autoSelectFirstItems();
-      setShowWelcome(false);
-    }
-    setIsLoading(false);
+    // If not discovered, open dialog for manual entry
+    setCustomPathDialogOpen(true);
   };
 
   const handleOpenCustomProject = async () => {
