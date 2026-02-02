@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
+  ReactFlowProvider,
   Node,
   Edge,
   Controls,
@@ -9,6 +10,7 @@ import {
   Position,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   MarkerType,
   BackgroundVariant,
 } from '@xyflow/react';
@@ -138,6 +140,47 @@ function treeToFlow(tree: TreeNode | null): { nodes: Node[]; edges: Edge[] } {
   return { nodes, edges };
 }
 
+// Inner component that uses useReactFlow to center the tree
+function FlowWithFitView({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange
+}: {
+  nodes: Node[];
+  edges: Edge[];
+  onNodesChange: (changes: import('@xyflow/react').NodeChange<Node>[]) => void;
+  onEdgesChange: (changes: import('@xyflow/react').EdgeChange<Edge>[]) => void;
+}) {
+  const { fitView } = useReactFlow();
+
+  // Center the view whenever nodes change
+  useEffect(() => {
+    if (nodes.length > 0) {
+      // Small delay to ensure nodes are rendered
+      const timer = setTimeout(() => {
+        fitView({ padding: 0.3, duration: 200 });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [nodes, fitView]);
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      nodeTypes={nodeTypes}
+      fitView
+      fitViewOptions={{ padding: 0.3 }}
+    >
+      <Controls />
+      <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+    </ReactFlow>
+  );
+}
+
 export function TreeVisualization() {
   const { decisionTables } = useProjectStore();
   const [selectedTable, setSelectedTable] = useState<string>('');
@@ -221,19 +264,14 @@ export function TreeVisualization() {
 
       <div className="flex-1">
         {nodes.length > 0 ? (
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            fitView
-            fitViewOptions={{ padding: 0.5, minZoom: 0.5, maxZoom: 1.5 }}
-            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-          >
-            <Controls />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
+          <ReactFlowProvider>
+            <FlowWithFitView
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+            />
+          </ReactFlowProvider>
         ) : (
           <div className="h-full flex items-center justify-center">
             <div className="text-center">

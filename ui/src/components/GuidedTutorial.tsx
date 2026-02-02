@@ -327,7 +327,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     target: '[data-tutorial="tree-visualization"]',
     content: 'This diagram shows the call hierarchy. For CHIP: "Compute_Eligibility" at the top calls age, income, and citizenship checking tables. Click nodes to navigate to that table.',
-    placement: 'left-start',
+    placement: 'top-start',
     disableBeacon: true,
     disableOverlay: true,
     title: 'Rule Flow Diagram',
@@ -336,7 +336,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     target: '[data-tutorial="tree-visualization"]',
     content: 'Understanding this flow helps you debug complex rule chains and see how changes to one table might affect others in the hierarchy.',
-    placement: 'left-start',
+    placement: 'top-start',
     disableBeacon: true,
     disableOverlay: true,
     title: 'Debugging with Tree View',
