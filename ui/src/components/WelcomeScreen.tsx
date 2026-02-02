@@ -123,9 +123,6 @@ export function WelcomeScreen() {
       await autoSelectFirstItems();
       setCustomPathDialogOpen(false);
       setShowWelcome(false);
-      if (!tutorialCompleted && !dontAskAgain) {
-        setOfferTutorial(true);
-      }
     }
     setIsLoading(false);
   };
