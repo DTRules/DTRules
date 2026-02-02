@@ -270,6 +270,7 @@ export function GuidedTutorial() {
   } = useOnboardingStore();
   const { projectPath, setActiveTab, activeTab } = useProjectStore();
   const [stepIndex, setStepIndex] = useState(0);
+  const [isRunning, setIsRunning] = useState(true);
 
   // Stop tutorial if no project is open
   useEffect(() => {
@@ -278,10 +279,11 @@ export function GuidedTutorial() {
     }
   }, [uiTourActive, projectPath, stopTutorial]);
 
-  // Reset step index when tutorial starts
+  // Reset state when tutorial starts
   useEffect(() => {
     if (uiTourActive) {
       setStepIndex(0);
+      setIsRunning(true);
     }
   }, [uiTourActive]);
 
@@ -293,20 +295,27 @@ export function GuidedTutorial() {
       return;
     }
 
-    // Switch tab BEFORE the step renders
-    if (type === 'step:before') {
-      const step = tutorialSteps[index] as TutorialStep;
-      if (step.tab && step.tab !== activeTab) {
-        setActiveTab(step.tab);
-      }
-      setTutorialStepIndex(index);
-    }
-
-    // Handle step navigation
+    // Handle step navigation - check if we need to switch tabs
     if (type === 'step:after') {
       const nextIndex = index + (action === 'prev' ? -1 : 1);
       if (nextIndex >= 0 && nextIndex < tutorialSteps.length) {
-        setStepIndex(nextIndex);
+        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+
+        // If next step needs a different tab, pause, switch, wait, then resume
+        if (nextStep.tab && nextStep.tab !== activeTab) {
+          setIsRunning(false); // Pause Joyride
+          setActiveTab(nextStep.tab);
+
+          // Wait for tab content to render (Monaco Editor needs time)
+          setTimeout(() => {
+            setStepIndex(nextIndex);
+            setTutorialStepIndex(nextIndex);
+            setIsRunning(true); // Resume Joyride
+          }, 400);
+        } else {
+          setStepIndex(nextIndex);
+          setTutorialStepIndex(nextIndex);
+        }
       }
     }
 
@@ -316,13 +325,15 @@ export function GuidedTutorial() {
       const nextIndex = index + 1;
       if (nextIndex < tutorialSteps.length) {
         const nextStep = tutorialSteps[nextIndex] as TutorialStep;
-        if (nextStep.tab) {
+        setIsRunning(false);
+        if (nextStep.tab && nextStep.tab !== activeTab) {
           setActiveTab(nextStep.tab);
         }
         setTimeout(() => {
           setStepIndex(nextIndex);
           setTutorialStepIndex(nextIndex);
-        }, 100);
+          setIsRunning(true);
+        }, 400);
       }
     }
 
@@ -339,7 +350,7 @@ export function GuidedTutorial() {
     <Joyride
       steps={tutorialSteps}
       stepIndex={stepIndex}
-      run={uiTourActive}
+      run={uiTourActive && isRunning}
       continuous
       showSkipButton
       hideCloseButton
