@@ -176,16 +176,9 @@
   opacity: 0 !important;
 }
 
-/* Style spotlight with purple-blue gradient glow */
+/* Spotlight styling - don't override backgroundColor or boxShadow as it breaks the hole effect */
 .react-joyride__spotlight {
-  border: 3px solid rgba(139, 92, 246, 0.9) !important;
-  outline: 3px solid rgba(59, 130, 246, 0.6) !important;
-  outline-offset: 0px !important;
-  box-shadow:
-    0 0 0 6px rgba(139, 92, 246, 0.3),
-    0 0 30px rgba(139, 92, 246, 0.5),
-    0 0 60px rgba(59, 130, 246, 0.4),
-    inset 0 0 30px rgba(139, 92, 246, 0.15) !important;
+  border-radius: 12px !important;
 }
 
 /* Prevent any opacity transitions on the floater */
@@ -198,10 +191,5 @@
 /* Remove any transform transitions that cause repositioning flicker */
 [data-placement] {
   transition: none !important;
-}
-
-/* Style the overlay with purple tint */
-.react-joyride__overlay {
-  background-color: rgba(15, 10, 30, 0.5) !important;
 }
 

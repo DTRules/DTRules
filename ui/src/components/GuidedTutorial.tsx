@@ -369,20 +369,14 @@ export function GuidedTutorial() {
       styles={{
         options: {
           zIndex: 10000,
-          overlayColor: 'rgba(15, 10, 40, 0.4)',
+          overlayColor: 'rgba(0, 0, 0, 0.75)',
+          spotlightShadow: '0 0 20px rgba(139, 92, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.6)',
         },
         spotlight: {
           borderRadius: 12,
-          boxShadow: `
-            0 0 0 3px rgba(139, 92, 246, 0.8),
-            0 0 0 6px rgba(59, 130, 246, 0.5),
-            0 0 30px rgba(139, 92, 246, 0.6),
-            0 0 60px rgba(59, 130, 246, 0.4),
-            inset 0 0 20px rgba(139, 92, 246, 0.1)
-          `,
         },
         overlay: {
-          mixBlendMode: 'normal',
+          // Keep default mixBlendMode: 'hard-light' for spotlight hole effect
         },
         beacon: {
           display: 'none',
