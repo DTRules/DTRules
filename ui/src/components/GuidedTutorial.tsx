@@ -369,11 +369,17 @@ export function GuidedTutorial() {
       styles={{
         options: {
           zIndex: 10000,
-          overlayColor: 'rgba(0, 0, 0, 0.3)',
+          overlayColor: 'rgba(15, 10, 40, 0.4)',
         },
         spotlight: {
           borderRadius: 12,
-          boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.5), 0 0 50px rgba(99, 102, 241, 0.4)',
+          boxShadow: `
+            0 0 0 3px rgba(139, 92, 246, 0.8),
+            0 0 0 6px rgba(59, 130, 246, 0.5),
+            0 0 30px rgba(139, 92, 246, 0.6),
+            0 0 60px rgba(59, 130, 246, 0.4),
+            inset 0 0 20px rgba(139, 92, 246, 0.1)
+          `,
         },
         overlay: {
           mixBlendMode: 'normal',
