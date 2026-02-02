@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, FileText } from 'lucide-react';
 import type { Entity, Field, FieldType } from '@/types/dtrules';
 
 const FIELD_TYPES: FieldType[] = ['string', 'integer', 'boolean', 'date', 'double', 'entity', 'array'];
@@ -106,9 +106,9 @@ export function EDDEditor() {
   return (
     <div className="h-full flex" data-tutorial="entity-editor">
       {/* Entity list sidebar */}
-      <div className="w-48 border-r border-border flex flex-col" data-tutorial="entity-list">
-        <div className="p-2 border-b border-border flex items-center justify-between">
-          <span className="text-sm font-medium">Entities</span>
+      <div className="w-48 border-r border-border/50 flex flex-col" data-tutorial="entity-list">
+        <div className="p-3 border-b border-border/50 bg-gradient-to-r from-blue-500/10 to-transparent flex items-center justify-between">
+          <span className="text-sm font-semibold text-foreground/80">Entities</span>
           <Dialog open={newEntityDialogOpen} onOpenChange={setNewEntityDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -160,7 +160,7 @@ export function EDDEditor() {
         {editedEntity ? (
           <>
             {/* Entity header */}
-            <div className="p-4 border-b border-border flex items-center gap-4">
+            <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
               <div className="flex-1 flex items-center gap-4">
                 <div className="grid gap-1">
                   <Label className="text-xs text-muted-foreground">Entity Name</Label>
@@ -198,7 +198,7 @@ export function EDDEditor() {
               <Button variant="outline" size="sm" onClick={handleDeleteEntity}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="sm" onClick={handleSave} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0">
                 <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
@@ -207,7 +207,7 @@ export function EDDEditor() {
             {/* Fields table */}
             <div className="flex-1 overflow-auto">
               <table className="w-full text-sm">
-                <thead className="bg-muted sticky top-0">
+                <thead className="bg-gradient-to-r from-muted via-muted/80 to-muted sticky top-0">
                   <tr>
                     <th className="text-left p-2 font-medium">Name</th>
                     <th className="text-left p-2 font-medium w-28">Type</th>
@@ -305,16 +305,22 @@ export function EDDEditor() {
             </div>
 
             {/* Add field button */}
-            <div className="p-2 border-t border-border">
-              <Button variant="outline" size="sm" onClick={handleAddField}>
+            <div className="p-3 border-t border-border/50 bg-gradient-to-r from-muted/20 via-transparent to-muted/20">
+              <Button variant="outline" size="sm" onClick={handleAddField} className="border-blue-500/30 hover:border-blue-500/50 hover:bg-blue-500/10">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Field
               </Button>
             </div>
           </>
         ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            <p>Select an entity to edit</p>
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                <FileText className="h-8 w-8 text-blue-400/60" />
+              </div>
+              <p className="text-muted-foreground">Select an entity to edit</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Choose from the list on the left</p>
+            </div>
           </div>
         )}
       </div>

@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { GitBranch } from 'lucide-react';
 import type { TreeNode } from '@/types/dtrules';
 
 // Custom node components with handles for edge connections
@@ -181,7 +182,7 @@ export function TreeVisualization() {
 
   return (
     <div className="h-full flex flex-col" data-tutorial="tree-visualization">
-      <div className="p-4 border-b border-border flex items-center gap-4">
+      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
         <div className="grid gap-1 w-64">
           <Label className="text-xs text-muted-foreground">Decision Table</Label>
           <Select value={selectedTable} onValueChange={setSelectedTable}>
@@ -204,11 +205,15 @@ export function TreeVisualization() {
 
         <div className="flex-1" />
 
-        <div className="text-sm text-muted-foreground">
-          <span className="inline-block w-3 h-3 bg-blue-600 rounded mr-1"></span>
-          Condition
-          <span className="inline-block w-3 h-3 bg-green-600 rounded ml-4 mr-1"></span>
-          Action
+        <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-lg">
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 bg-blue-600 rounded shadow-[0_0_6px_rgba(59,130,246,0.5)]"></span>
+            <span>Condition</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 bg-green-600 rounded shadow-[0_0_6px_rgba(34,197,94,0.5)]"></span>
+            <span>Action</span>
+          </div>
         </div>
       </div>
 
@@ -227,8 +232,14 @@ export function TreeVisualization() {
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           </ReactFlow>
         ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            <p>Select a decision table to visualize its structure.</p>
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-green-500/20 flex items-center justify-center">
+                <GitBranch className="h-8 w-8 text-blue-400/60" />
+              </div>
+              <p className="text-muted-foreground">Select a decision table to visualize its structure.</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">The tree shows how rules connect and flow</p>
+            </div>
           </div>
         )}
       </div>

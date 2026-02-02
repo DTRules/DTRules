@@ -71,7 +71,7 @@ function App() {
       <div className="flex-1 flex overflow-hidden">
         {/* Project Explorer */}
         <div
-          className="w-64 border-r border-border overflow-hidden flex flex-col"
+          className="w-64 border-r border-border/50 overflow-hidden flex flex-col"
           data-tutorial="project-explorer"
         >
           <ProjectExplorer />
@@ -80,7 +80,7 @@ function App() {
         {/* Editor Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTabWithHistory(v as typeof activeTab)} className="flex-1 flex flex-col">
-            <div className="border-b border-border px-4">
+            <div className="border-b border-border/50 px-4 bg-muted/20">
               <TabsList className="h-10">
                 <TabsTrigger value="edd" data-tutorial="tab-edd">Entity Editor</TabsTrigger>
                 <TabsTrigger value="dt" data-tutorial="tab-dt">Decision Tables</TabsTrigger>

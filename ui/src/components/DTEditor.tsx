@@ -15,7 +15,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { Save } from 'lucide-react';
+import { Save, Table2 } from 'lucide-react';
 import type { ColDef, CellValueChangedEvent } from 'ag-grid-community';
 import type { DecisionTable } from '@/types/dtrules';
 
@@ -234,9 +234,9 @@ export function DTEditor() {
   return (
     <div className="h-full flex" data-tutorial="dt-editor">
       {/* Table list sidebar */}
-      <div className="w-56 border-r border-border flex flex-col" data-tutorial="dt-list">
-        <div className="p-2 border-b border-border">
-          <span className="text-sm font-medium">Decision Tables</span>
+      <div className="w-56 border-r border-border/50 flex flex-col" data-tutorial="dt-list">
+        <div className="p-3 border-b border-border/50 bg-gradient-to-r from-green-500/10 to-transparent">
+          <span className="text-sm font-semibold text-foreground/80">Decision Tables</span>
         </div>
         <ScrollArea className="flex-1">
           {decisionTables.map((table) => (
@@ -262,7 +262,7 @@ export function DTEditor() {
         {editedTable ? (
           <>
             {/* Table header */}
-            <div className="p-4 border-b border-border flex items-center gap-4">
+            <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
               <div className="flex-1 flex items-center gap-4">
                 <div className="grid gap-1">
                   <Label className="text-xs text-muted-foreground">Table Name</Label>
@@ -288,7 +288,7 @@ export function DTEditor() {
                   <div className="text-sm">{editedTable.columnCount}</div>
                 </div>
               </div>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="sm" onClick={handleSave} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0">
                 <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
@@ -296,7 +296,7 @@ export function DTEditor() {
 
             {/* Decision table grids */}
             <Tabs defaultValue="matrix" className="flex-1 flex flex-col">
-              <div className="border-b border-border px-4">
+              <div className="border-b border-border/50 px-4 bg-muted/20">
                 <TabsList className="h-10">
                   <TabsTrigger value="matrix">Decision Matrix</TabsTrigger>
                   <TabsTrigger value="contexts">Contexts</TabsTrigger>
@@ -387,8 +387,14 @@ export function DTEditor() {
             </Tabs>
           </>
         ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            <p>Select a decision table to edit</p>
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-500/20 to-blue-500/20 flex items-center justify-center">
+                <Table2 className="h-8 w-8 text-green-400/60" />
+              </div>
+              <p className="text-muted-foreground">Select a decision table to edit</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Choose from the list on the left</p>
+            </div>
           </div>
         )}
       </div>

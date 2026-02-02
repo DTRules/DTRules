@@ -252,11 +252,11 @@ export function Toolbar() {
             </DialogDescription>
           </DialogHeader>
           <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-4">
+            <div className="space-y-3">
               {faqItems.map((item, index) => (
-                <div key={index} className="border-b border-border pb-4 last:border-0">
-                  <h4 className="font-medium text-sm mb-2">{item.question}</h4>
-                  <p className="text-sm text-muted-foreground">{item.answer}</p>
+                <div key={index} className="p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-blue-500/30 transition-colors">
+                  <h4 className="font-medium text-sm mb-2 text-foreground">{item.question}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
                 </div>
               ))}
             </div>

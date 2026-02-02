@@ -12,7 +12,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Editor from '@monaco-editor/react';
 import { executeRules } from '@/api/client';
-import { Play, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Play, CheckCircle2, XCircle } from 'lucide-react';
 import type { TraceEntry } from '@/types/dtrules';
 
 const SAMPLE_TEST_DATA = `{
@@ -81,8 +81,8 @@ export function TestPanel() {
   return (
     <div className="h-full flex" data-tutorial="test-panel">
       {/* Test data input */}
-      <div className="flex-1 flex flex-col border-r border-border" data-tutorial="test-input">
-        <div className="p-4 border-b border-border flex items-center gap-4">
+      <div className="flex-1 flex flex-col border-r border-border/50" data-tutorial="test-input">
+        <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
           <div className="grid gap-1 flex-1">
             <Label className="text-xs text-muted-foreground">Decision Table</Label>
             <Select value={selectedTable} onValueChange={setSelectedTable}>
@@ -108,7 +108,7 @@ export function TestPanel() {
               />
               Enable Trace
             </label>
-            <Button onClick={handleExecute} disabled={!selectedTable || isExecuting}>
+            <Button onClick={handleExecute} disabled={!selectedTable || isExecuting} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0 disabled:opacity-50">
               <Play className="h-4 w-4 mr-2" />
               Execute
             </Button>
@@ -116,7 +116,7 @@ export function TestPanel() {
         </div>
 
         <div className="flex-1 flex flex-col">
-          <div className="p-2 text-sm font-medium bg-muted border-b border-border">
+          <div className="p-3 text-sm font-semibold bg-gradient-to-r from-blue-500/10 to-transparent border-b border-border/50 text-foreground/80">
             Test Data (JSON)
           </div>
           <div className="flex-1">
@@ -139,8 +139,8 @@ export function TestPanel() {
 
       {/* Results panel */}
       <div className="w-96 flex flex-col" data-tutorial="test-results">
-        <div className="p-4 border-b border-border">
-          <h3 className="font-medium">Execution Results</h3>
+        <div className="p-4 border-b border-border/50 bg-gradient-to-r from-purple-500/10 to-transparent">
+          <h3 className="font-semibold text-foreground/80">Execution Results</h3>
         </div>
 
         <ScrollArea className="flex-1">
@@ -214,10 +214,12 @@ export function TestPanel() {
             )}
 
             {!error && !result && trace.length === 0 && (
-              <div className="text-center text-muted-foreground py-8">
-                <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>Select a table and click Execute to run rules.</p>
-                <p className="text-xs mt-2">
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
+                  <Play className="h-8 w-8 text-purple-400/60" />
+                </div>
+                <p className="text-muted-foreground">Select a table and click Execute to run rules.</p>
+                <p className="text-xs text-muted-foreground/60 mt-2">
                   Note: Full execution requires the Java DTRules engine.
                 </p>
               </div>
