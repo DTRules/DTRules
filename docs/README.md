@@ -1,13 +1,22 @@
 # DTRules Documentation
 
-## Getting Started
+DTRules has implementations in both **Java** and **Go**. This documentation primarily covers the Java implementation. For Go-specific documentation, see the [Go README](../go/README.md).
+
+## Implementations
+
+| Implementation | Documentation | Best For |
+|----------------|---------------|----------|
+| **Java** | This directory | Full tooling, Excel compilers, IDE integration |
+| **Go** | [go/README.md](../go/README.md) | High-performance runtime, microservices |
+
+## Getting Started (Java)
 
 | Document | Description |
 |----------|-------------|
 | [Quick Start Guide](QUICKSTART.md) | Step-by-step guide to running your first DTRules project |
 | [Building from Source](BUILDING.md) | Detailed build instructions and IDE setup |
 
-## Reference Documentation
+## Reference Documentation (Java)
 
 | Document | Description |
 |----------|-------------|
@@ -15,6 +24,39 @@
 | [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
 | [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
 | [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md) | Excel, ODS, and Google Sheets support |
+
+## Go Implementation
+
+| Document | Description |
+|----------|-------------|
+| [Go README](../go/README.md) | Installation, CLI usage, quick start |
+| [Design Review](../go/pkg/dtrules/DESIGN_REVIEW.md) | Architecture, design decisions, security review |
+| [Performance Analysis](../go/pkg/dtrules/benchmark/PERFORMANCE_ANALYSIS.md) | Detailed benchmarks and optimizations |
+
+### Go Quick Start
+
+```bash
+# Build CLI
+cd go && go build -o dtrules ./cmd/dtrules
+
+# Run with existing Java-compiled rules
+./dtrules -rules /path/to/xml -list
+./dtrules -rules /path/to/xml -entry Main
+```
+
+## Visual UI
+
+A modern React-based UI for editing decision tables and testing rules:
+
+```bash
+# Terminal 1: Start the Go API backend
+cd go && go run ./cmd/api
+
+# Terminal 2: Start the React frontend
+cd ui && npm install && npm run dev
+```
+
+Then open http://localhost:5173 in your browser. See [ui/README.md](../ui/README.md) for details.
 
 ## Development Documentation
 

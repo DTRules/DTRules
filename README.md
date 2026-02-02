@@ -1,6 +1,6 @@
 # DTRules
 
-A Decision Table based Rules Engine for Java.
+A Decision Table based Rules Engine with implementations in **Java** and **Go**.
 
 ## Overview
 
@@ -25,10 +25,41 @@ DTRules has been used in production systems including:
 - Insurance eligibility determination systems
 - Commercial business logic applications
 
+## Implementations
+
+| Implementation | Status | Use Case |
+|----------------|--------|----------|
+| **[Java](dtrules-engine/)** | Production | Original implementation with full tooling |
+| **[Go](go/)** | Production | High-performance runtime, 130x faster operator lookup |
+
+### Java Implementation
+
+The original Java implementation provides:
+- Excel-to-XML compilers for decision tables
+- Full IDE support and debugging
+- Comprehensive test harness
+- Production-proven stability
+
+### Go Implementation
+
+The Go implementation provides:
+- **Full compatibility** with Java DTRules XML formats
+- **High performance**: 130x faster operator lookup, 24x faster arithmetic
+- **Zero-allocation** hot paths for reduced GC pressure
+- **CLI tool** for rule validation and execution
+
+See [go/README.md](go/README.md) for Go-specific documentation.
+
 ## Requirements
+
+### Java
 
 - **Java 8+** (built with Java 1.6 target for compatibility)
 - **Apache Maven 3.x**
+
+### Go
+
+- **Go 1.21+**
 
 ## Quick Start
 
@@ -83,12 +114,17 @@ sampleprojects/CHIP/
 
 ```
 DTRules/
-├── dtrules-engine/     # Core rules execution engine
+├── dtrules-engine/     # Core Java rules execution engine
 ├── compilerutil/       # Excel-to-XML compiler utilities
 ├── dsl/                # Domain Specific Languages
 │   ├── el/             # Expression Language (EL) - ANTLR 4
 │   ├── ebl/            # Entity Business Language (EBL) - ANTLR 4
 │   └── sudoku_language/ # Sudoku DSL (JFlex/CUP)
+├── go/                 # Go implementation
+│   ├── cmd/dtrules/    # CLI tool
+│   ├── cmd/api/        # REST API server for UI
+│   └── pkg/dtrules/    # Core library
+├── ui/                 # React-based visual UI
 ├── sampleprojects/     # Example implementations
 │   ├── CHIP/           # Health insurance eligibility
 │   ├── ChipApp/        # CHIP application wrapper
@@ -96,6 +132,7 @@ DTRules/
 │   ├── KidAid_Application/ # KidAid application wrapper
 │   ├── SyntaxTests/    # Language feature examples
 │   └── TestProject/    # Minimal starter template
+├── docs/               # Documentation
 └── pom.xml             # Maven parent configuration
 ```
 
@@ -183,14 +220,19 @@ Each project has a `DTRules.xml` configuration file:
 ## Documentation
 
 ### Getting Started
-- [Quick Start Guide](docs/QUICKSTART.md) - Step-by-step tutorial
+- [Quick Start Guide](docs/QUICKSTART.md) - Step-by-step tutorial (Java)
 - [Building from Source](docs/BUILDING.md) - Detailed build instructions
 
-### Reference
+### Java Reference
 - [Expression Language Reference](docs/EL-REFERENCE.md) - Complete EL syntax and operators
 - [Architecture Guide](docs/ARCHITECTURE.md) - System design and components
 - [API Guide](docs/API-GUIDE.md) - Java integration patterns and examples
 - [Documentation Index](docs/README.md) - Full documentation overview
+
+### Go Reference
+- [Go README](go/README.md) - Installation, CLI usage, and quick start
+- [Design Review](go/pkg/dtrules/DESIGN_REVIEW.md) - Architecture and design decisions
+- [Performance Analysis](go/pkg/dtrules/benchmark/PERFORMANCE_ANALYSIS.md) - Detailed benchmarks
 
 ### Development
 - [ANTLR Migration Guide](dsl/ANTLR_MIGRATION.md) - Parser modernization details
