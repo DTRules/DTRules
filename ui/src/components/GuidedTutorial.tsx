@@ -4,7 +4,7 @@ import { useOnboardingStore } from '@/stores/onboardingStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { Button } from '@/components/ui/button';
 
-// Custom tooltip component using Tailwind/shadcn styling
+// Custom tooltip component with modern glassmorphism styling
 function CustomTooltip({
   continuous,
   index,
@@ -20,41 +20,62 @@ function CustomTooltip({
   return (
     <div
       {...tooltipProps}
-      className="bg-popover text-popover-foreground border border-border rounded-lg shadow-xl max-w-md"
+      className="bg-background/90 backdrop-blur-xl text-foreground border border-border/50 rounded-2xl shadow-2xl shadow-black/40 max-w-md overflow-hidden"
     >
+      {/* Gradient accent bar at top */}
+      <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500" />
+
       {/* Header */}
-      <div className="p-4 pb-2">
-        {step.title && (
-          <h3 className="font-semibold text-base">{step.title}</h3>
-        )}
-        <span className="text-xs text-muted-foreground">
-          Step {index + 1} of {size}
-        </span>
+      <div className="p-5 pb-3">
+        <div className="flex items-center justify-between mb-1">
+          {step.title && (
+            <h3 className="font-semibold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              {step.title}
+            </h3>
+          )}
+          <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+            {index + 1} / {size}
+          </span>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="px-4 pb-4 text-sm leading-relaxed">
+      <div className="px-5 pb-5 text-sm leading-relaxed text-foreground/90">
         {step.content}
       </div>
 
+      {/* Progress bar */}
+      <div className="px-5 pb-3">
+        <div className="h-1 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+            style={{ width: `${((index + 1) / size) * 100}%` }}
+          />
+        </div>
+      </div>
+
       {/* Footer */}
-      <div className="flex items-center justify-between p-4 pt-2 border-t border-border">
+      <div className="flex items-center justify-between p-4 pt-3 border-t border-border/30 bg-muted/20">
         <Button
           {...skipProps}
           variant="ghost"
           size="sm"
-          className="text-muted-foreground"
+          className="text-muted-foreground hover:text-foreground"
         >
           Skip Tour
         </Button>
         <div className="flex gap-2">
           {index > 0 && (
-            <Button {...backProps} variant="outline" size="sm">
+            <Button {...backProps} variant="outline" size="sm" className="border-border/50">
               Back
             </Button>
           )}
           {continuous && (
-            <Button {...primaryProps} size="sm">
+            <Button
+              {...primaryProps}
+              size="sm"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
+            >
               {isLastStep ? 'Finish' : 'Next'}
             </Button>
           )}
@@ -314,14 +335,16 @@ export function GuidedTutorial() {
       styles={{
         options: {
           zIndex: 10000,
-          overlayColor: 'rgba(0, 0, 0, 0.5)',
+          overlayColor: 'rgba(0, 0, 0, 0.7)',
         },
         spotlight: {
-          borderRadius: 8,
+          borderRadius: 12,
           transition: 'none',
+          boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.3), 0 0 30px rgba(99, 102, 241, 0.2)',
         },
         overlay: {
           transition: 'none',
+          backdropFilter: 'blur(2px)',
         },
         beacon: {
           display: 'none',
