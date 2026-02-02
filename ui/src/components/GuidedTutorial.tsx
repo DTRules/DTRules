@@ -108,14 +108,14 @@ const tutorialSteps: TutorialStep[] = [
     title: 'Project Explorer',
   },
 
-  // === ENTITY EDITOR TAB (5 steps) ===
+  // === ENTITY EDITOR TAB (4 steps) ===
   {
     target: '[data-tutorial="tab-edd"]',
-    content: 'Let\'s start with the Entity Editor. Click this tab to define your data structures - the "vocabulary" your rules will use.',
+    content: 'Let\'s start with the Entity Editor. This tab defines your data structures - the "vocabulary" your rules will use.',
     placement: 'bottom',
     disableBeacon: true,
     title: 'Entity Editor Tab',
-    tab: 'edd',
+    // NOTE: Don't switch tabs here - tab button is always visible. Next step will switch.
   },
   {
     target: '[data-tutorial="entity-list"]',
@@ -142,14 +142,14 @@ const tutorialSteps: TutorialStep[] = [
     tab: 'edd',
   },
 
-  // === DECISION TABLES TAB (6 steps) ===
+  // === DECISION TABLES TAB (5 steps) ===
   {
     target: '[data-tutorial="tab-dt"]',
     content: 'Now let\'s explore Decision Tables - this is where you create your business rules. Each table is like a spreadsheet that\'s easy to read and maintain.',
     placement: 'bottom',
     disableBeacon: true,
     title: 'Decision Tables Tab',
-    tab: 'dt',
+    // NOTE: Don't switch tabs here - tab button is always visible. Next step will switch.
   },
   {
     target: '[data-tutorial="dt-list"]',
@@ -184,14 +184,14 @@ const tutorialSteps: TutorialStep[] = [
     tab: 'dt',
   },
 
-  // === TEST & EXECUTE TAB (5 steps) ===
+  // === TEST & EXECUTE TAB (4 steps) ===
   {
     target: '[data-tutorial="tab-test"]',
-    content: 'The Test & Execute tab lets you validate your rules. Provide sample data, run your tables, and verify the results match expectations.',
+    content: 'The Test & Execute tab lets you validate your rules. Click this tab to provide sample data, run your tables, and verify results.',
     placement: 'bottom',
     disableBeacon: true,
     title: 'Test & Execute Tab',
-    tab: 'test',
+    // NOTE: Don't switch tabs here - tab button is always visible. Next step will switch.
   },
   {
     target: '[data-tutorial="test-input"]',
@@ -221,11 +221,11 @@ const tutorialSteps: TutorialStep[] = [
   // === TREE VIEW TAB (3 steps) ===
   {
     target: '[data-tutorial="tab-tree"]',
-    content: 'The Tree View visualizes how your decision tables connect. See which tables call which, and understand the flow of rule execution.',
+    content: 'The Tree View visualizes how your decision tables connect. Click this tab to see which tables call which.',
     placement: 'bottom',
     disableBeacon: true,
     title: 'Tree View Tab',
-    tab: 'tree',
+    // NOTE: Don't switch tabs here - tab button is always visible. Next step will switch.
   },
   {
     target: '[data-tutorial="tree-visualization"]',
