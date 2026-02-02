@@ -58,7 +58,6 @@ export function WelcomeScreen() {
   const [customPath, setCustomPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sampleProjects, setSampleProjects] = useState<SampleProject[]>([]);
-  const [samplesLoaded, setSamplesLoaded] = useState(false);
 
   // Fetch available sample projects from the backend on mount
   useEffect(() => {
@@ -71,7 +70,6 @@ export function WelcomeScreen() {
       } catch (error) {
         console.error('Failed to fetch sample projects:', error);
       }
-      setSamplesLoaded(true);
     };
     fetchSamples();
   }, []);
