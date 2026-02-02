@@ -1041,15 +1041,15 @@ func (s *Server) handleValidateExecution(w http.ResponseWriter, r *http.Request)
 
 // EDD XML structures
 type EDDXML struct {
-	XMLName  xml.Name     `xml:"edd_set"`
+	XMLName  xml.Name     `xml:"entity_data_dictionary"`
 	Entities []EntityXML  `xml:"entity"`
 }
 
 type EntityXML struct {
 	Name    string     `xml:"name,attr"`
 	Access  string     `xml:"access,attr"`
-	Comment string     `xml:"comment"`
-	Fields  []FieldXML `xml:"attribute"`
+	Comment string     `xml:"comment,attr"`
+	Fields  []FieldXML `xml:"field"`
 }
 
 type FieldXML struct {
@@ -1058,8 +1058,8 @@ type FieldXML struct {
 	Subtype      string `xml:"subtype,attr"`
 	Access       string `xml:"access,attr"`
 	Input        string `xml:"input,attr"`
-	DefaultValue string `xml:"default,attr"`
-	Comment      string `xml:"comment"`
+	DefaultValue string `xml:"default_value,attr"`
+	Comment      string `xml:"comment,attr"`
 }
 
 func (s *Server) loadEDDFile(path string) error {
