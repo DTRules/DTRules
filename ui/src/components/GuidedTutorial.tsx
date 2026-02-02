@@ -123,8 +123,8 @@ const waitForElement = (selector: string, timeout = 500): Promise<boolean> => {
 };
 
 // Steps that should scroll to the bottom of the page (0-indexed)
-// User sees steps 5, 9, 13, 17 but array is 0-indexed so: 4, 8, 12, 16
-const SCROLL_TO_BOTTOM_STEPS = [4, 8, 12, 16];
+// User sees steps 5, 9, 13, 17, 18 but array is 0-indexed so: 4, 8, 12, 16, 17
+const SCROLL_TO_BOTTOM_STEPS = [4, 8, 12, 16, 17];
 
 /**
  * Scrolls to the bottom of scrollable containers.
@@ -327,7 +327,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     target: '[data-tutorial="tree-visualization"]',
     content: 'This diagram shows the call hierarchy. For CHIP: "Compute_Eligibility" at the top calls age, income, and citizenship checking tables. Click nodes to navigate to that table.',
-    placement: 'left',
+    placement: 'right',
     disableBeacon: true,
     title: 'Rule Flow Diagram',
     tab: 'tree',
@@ -335,7 +335,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     target: '[data-tutorial="tree-visualization"]',
     content: 'Understanding this flow helps you debug complex rule chains and see how changes to one table might affect others in the hierarchy.',
-    placement: 'bottom',
+    placement: 'right',
     disableBeacon: true,
     title: 'Debugging with Tree View',
     tab: 'tree',
