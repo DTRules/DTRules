@@ -133,7 +133,7 @@ function treeToFlow(tree: TreeNode | null): { nodes: Node[]; edges: Edge[] } {
     }
   }
 
-  traverse(tree, 400, 50);
+  traverse(tree, 0, 50);
 
   return { nodes, edges };
 }
@@ -228,7 +228,8 @@ export function TreeVisualization() {
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.2 }}
+            fitViewOptions={{ padding: 0.5, minZoom: 0.5, maxZoom: 1.5 }}
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
           >
             <Controls />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
