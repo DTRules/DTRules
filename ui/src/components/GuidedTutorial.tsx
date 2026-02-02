@@ -270,7 +270,6 @@ export function GuidedTutorial() {
   } = useOnboardingStore();
   const { projectPath, setActiveTab } = useProjectStore();
   const [stepIndex, setStepIndex] = useState(0);
-  const [showTutorial, setShowTutorial] = useState(true);
 
   // Stop tutorial if no project is open
   useEffect(() => {
@@ -283,27 +282,8 @@ export function GuidedTutorial() {
   useEffect(() => {
     if (uiTourActive) {
       setStepIndex(0);
-      setShowTutorial(true);
     }
   }, [uiTourActive]);
-
-  const goToStep = useCallback((nextIndex: number) => {
-    const nextStep = tutorialSteps[nextIndex] as TutorialStep;
-
-    // Hide tutorial, switch tab, wait for render, then show tutorial at new step
-    setShowTutorial(false);
-
-    if (nextStep.tab) {
-      setActiveTab(nextStep.tab);
-    }
-
-    // Wait for tab content to fully render before showing tutorial
-    setTimeout(() => {
-      setStepIndex(nextIndex);
-      setTutorialStepIndex(nextIndex);
-      setShowTutorial(true);
-    }, 600);
-  }, [setActiveTab, setTutorialStepIndex]);
 
   const handleJoyrideCallback = useCallback((data: CallBackProps) => {
     const { status, index, action, type } = data;
@@ -317,7 +297,15 @@ export function GuidedTutorial() {
     if (type === 'step:after') {
       const nextIndex = index + (action === 'prev' ? -1 : 1);
       if (nextIndex >= 0 && nextIndex < tutorialSteps.length) {
-        goToStep(nextIndex);
+        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+
+        // Switch tab if needed (content is always mounted, so instant)
+        if (nextStep.tab) {
+          setActiveTab(nextStep.tab);
+        }
+
+        setStepIndex(nextIndex);
+        setTutorialStepIndex(nextIndex);
       }
     }
 
@@ -326,17 +314,21 @@ export function GuidedTutorial() {
       console.warn('Tutorial target not found for step', index);
       const nextIndex = index + 1;
       if (nextIndex < tutorialSteps.length) {
-        goToStep(nextIndex);
+        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+        if (nextStep.tab) {
+          setActiveTab(nextStep.tab);
+        }
+        setStepIndex(nextIndex);
+        setTutorialStepIndex(nextIndex);
       }
     }
 
     if (action === 'close') {
       stopTutorial();
     }
-  }, [completeTutorial, goToStep, stopTutorial]);
+  }, [completeTutorial, setActiveTab, setTutorialStepIndex, stopTutorial]);
 
-  // Don't render anything if tutorial not active or during transitions
-  if (!uiTourActive || !projectPath || !showTutorial) {
+  if (!uiTourActive || !projectPath) {
     return null;
   }
 

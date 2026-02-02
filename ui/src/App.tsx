@@ -89,20 +89,21 @@ function App() {
               </TabsList>
             </div>
 
-            <div className="flex-1 overflow-hidden">
-              <TabsContent value="edd" className="h-full m-0 p-0">
+            <div className="flex-1 overflow-hidden relative">
+              {/* Keep all tabs mounted to avoid loading delays during tutorial */}
+              <TabsContent value="edd" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
                 <EDDEditor />
               </TabsContent>
 
-              <TabsContent value="dt" className="h-full m-0 p-0">
+              <TabsContent value="dt" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
                 <DTEditor />
               </TabsContent>
 
-              <TabsContent value="test" className="h-full m-0 p-0">
+              <TabsContent value="test" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
                 <TestPanel />
               </TabsContent>
 
-              <TabsContent value="tree" className="h-full m-0 p-0">
+              <TabsContent value="tree" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
                 <TreeVisualization />
               </TabsContent>
             </div>
