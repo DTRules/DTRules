@@ -274,10 +274,10 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     target: '[data-tutorial="dt-list"]',
-    content: 'Tables can call other tables in their actions, creating a hierarchy. "Compute_Eligibility" calls "Check_Age", "Check_Income", and "Check_Citizenship" to make its decision.',
+    content: 'Click any table name to view and edit it. Try selecting different tables to see how conditions and actions vary. Each table focuses on one specific decision.',
     placement: 'right',
     disableBeacon: true,
-    title: 'Table Hierarchy',
+    title: 'Selecting Tables',
     tab: 'dt',
   },
 
