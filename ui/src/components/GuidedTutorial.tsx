@@ -268,9 +268,9 @@ export function GuidedTutorial() {
     completeTutorial,
     setTutorialStepIndex,
   } = useOnboardingStore();
-  const { projectPath, setActiveTab, activeTab } = useProjectStore();
+  const { projectPath, setActiveTab } = useProjectStore();
   const [stepIndex, setStepIndex] = useState(0);
-  const [isRunning, setIsRunning] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(true);
 
   // Stop tutorial if no project is open
   useEffect(() => {
@@ -283,9 +283,27 @@ export function GuidedTutorial() {
   useEffect(() => {
     if (uiTourActive) {
       setStepIndex(0);
-      setIsRunning(true);
+      setShowTutorial(true);
     }
   }, [uiTourActive]);
+
+  const goToStep = useCallback((nextIndex: number) => {
+    const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+
+    // Hide tutorial, switch tab, wait for render, then show tutorial at new step
+    setShowTutorial(false);
+
+    if (nextStep.tab) {
+      setActiveTab(nextStep.tab);
+    }
+
+    // Wait for tab content to fully render before showing tutorial
+    setTimeout(() => {
+      setStepIndex(nextIndex);
+      setTutorialStepIndex(nextIndex);
+      setShowTutorial(true);
+    }, 600);
+  }, [setActiveTab, setTutorialStepIndex]);
 
   const handleJoyrideCallback = useCallback((data: CallBackProps) => {
     const { status, index, action, type } = data;
@@ -295,27 +313,11 @@ export function GuidedTutorial() {
       return;
     }
 
-    // Handle step navigation - check if we need to switch tabs
+    // Handle step navigation
     if (type === 'step:after') {
       const nextIndex = index + (action === 'prev' ? -1 : 1);
       if (nextIndex >= 0 && nextIndex < tutorialSteps.length) {
-        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
-
-        // If next step needs a different tab, pause, switch, wait, then resume
-        if (nextStep.tab && nextStep.tab !== activeTab) {
-          setIsRunning(false); // Pause Joyride
-          setActiveTab(nextStep.tab);
-
-          // Wait for tab content to render (Monaco Editor needs time)
-          setTimeout(() => {
-            setStepIndex(nextIndex);
-            setTutorialStepIndex(nextIndex);
-            setIsRunning(true); // Resume Joyride
-          }, 400);
-        } else {
-          setStepIndex(nextIndex);
-          setTutorialStepIndex(nextIndex);
-        }
+        goToStep(nextIndex);
       }
     }
 
@@ -324,25 +326,17 @@ export function GuidedTutorial() {
       console.warn('Tutorial target not found for step', index);
       const nextIndex = index + 1;
       if (nextIndex < tutorialSteps.length) {
-        const nextStep = tutorialSteps[nextIndex] as TutorialStep;
-        setIsRunning(false);
-        if (nextStep.tab && nextStep.tab !== activeTab) {
-          setActiveTab(nextStep.tab);
-        }
-        setTimeout(() => {
-          setStepIndex(nextIndex);
-          setTutorialStepIndex(nextIndex);
-          setIsRunning(true);
-        }, 400);
+        goToStep(nextIndex);
       }
     }
 
     if (action === 'close') {
       stopTutorial();
     }
-  }, [activeTab, completeTutorial, setActiveTab, setTutorialStepIndex, stopTutorial]);
+  }, [completeTutorial, goToStep, stopTutorial]);
 
-  if (!uiTourActive || !projectPath) {
+  // Don't render anything if tutorial not active or during transitions
+  if (!uiTourActive || !projectPath || !showTutorial) {
     return null;
   }
 
@@ -350,7 +344,7 @@ export function GuidedTutorial() {
     <Joyride
       steps={tutorialSteps}
       stepIndex={stepIndex}
-      run={uiTourActive && isRunning}
+      run={true}
       continuous
       showSkipButton
       hideCloseButton
