@@ -7,8 +7,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://eembach.github.io',
-  base: '/DTRules/',
+  site: 'https://dtrules.com',
   vite: {
     plugins: [tailwindcss()]
   },
