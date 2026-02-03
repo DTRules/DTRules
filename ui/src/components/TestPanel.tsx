@@ -205,8 +205,46 @@ export function TestPanel() {
                   <span className="font-medium">Execution Successful</span>
                   <span className="text-xs text-muted-foreground">({selectedTable})</span>
                 </div>
+
+                {/* Key Results Summary - shows important outcomes at a glance */}
+                {(result as Record<string, Record<string, unknown>>).client && (
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <h4 className="text-sm font-medium mb-2 text-foreground/80">Key Results</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Eligible:</span>
+                        <span className={
+                          (result as Record<string, Record<string, unknown>>).client.eligible
+                            ? 'text-green-500 font-medium'
+                            : 'text-red-500 font-medium'
+                        }>
+                          {String((result as Record<string, Record<string, unknown>>).client.eligible)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Program Level:</span>
+                        <span className="text-foreground">
+                          {String((result as Record<string, Record<string, unknown>>).client.programLevel || 'N/A')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Income Group Count:</span>
+                        <span className="text-foreground">
+                          {String((result as Record<string, Record<string, unknown>>).client.incomeGroupCount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">FPL:</span>
+                        <span className="text-foreground">
+                          {String((result as Record<string, Record<string, unknown>>).client.client_fpl)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-xs text-muted-foreground mb-2">
-                  Entity state after execution:
+                  Full entity state after execution:
                 </div>
                 <div className="h-64 border border-border/50 rounded-lg overflow-hidden">
                   <Editor
