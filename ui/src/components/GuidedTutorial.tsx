@@ -123,8 +123,8 @@ const waitForElement = (selector: string, timeout = 500): Promise<boolean> => {
 };
 
 // Steps that should scroll to the bottom of the page (0-indexed)
-// After consolidating redundant steps, these are: 4, 8, 11
-const SCROLL_TO_BOTTOM_STEPS = [4, 8, 10, 11];
+// 4=entity-editor, 8&9=dt-grid, 10=tab-test, 11=test-input
+const SCROLL_TO_BOTTOM_STEPS = [4, 8, 9, 10, 11];
 
 /**
  * Scrolls to the bottom of scrollable containers.
@@ -370,6 +370,19 @@ export function GuidedTutorial() {
     }
   }, [uiTourActive]);
 
+  // Force scroll to bottom for specific steps
+  useEffect(() => {
+    if (!uiTourActive) return;
+    if (!SCROLL_TO_BOTTOM_STEPS.includes(stepIndex)) return;
+
+    // Single delayed scroll after Joyride has finished positioning
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [stepIndex, uiTourActive]);
+
   // Global keyboard handler for tutorial navigation
   useEffect(() => {
     if (!uiTourActive || conceptPhaseActive || isTransitioning) return;
@@ -440,6 +453,12 @@ export function GuidedTutorial() {
         // Hide tooltip during transition to prevent flash
         setIsTransitioning(true);
 
+        // For steps that need bottom scroll, do it BEFORE changing step
+        // to prevent Joyride from scrolling away
+        if (SCROLL_TO_BOTTOM_STEPS.includes(nextIndex)) {
+          scrollToBottom();
+        }
+
         // Switch tab if needed
         if (nextStep.tab) {
           setActiveTab(nextStep.tab);
@@ -453,7 +472,7 @@ export function GuidedTutorial() {
         // Show tooltip after positioning is complete
         setTimeout(() => {
           setIsTransitioning(false);
-          // Scroll tooltip into view after it renders
+          // Scroll again after Joyride repositions to ensure we're at the right place
           setTimeout(() => {
             scrollTooltipIntoView(nextIndex);
           }, 100);
@@ -474,13 +493,19 @@ export function GuidedTutorial() {
           const nextIndex = index + 1;
           if (nextIndex < tutorialSteps.length) {
             const nextStep = tutorialSteps[nextIndex] as TutorialStep;
+
+            // For steps that need bottom scroll, do it BEFORE changing step
+            if (SCROLL_TO_BOTTOM_STEPS.includes(nextIndex)) {
+              scrollToBottom();
+            }
+
             if (nextStep.tab) {
               setActiveTab(nextStep.tab);
               await waitForElement(nextStep.target as string);
             }
             setStepIndex(nextIndex);
             setTutorialStepIndex(nextIndex);
-            // Scroll tooltip into view after it renders
+            // Scroll again after Joyride repositions
             setTimeout(() => {
               scrollTooltipIntoView(nextIndex);
             }, 150);
