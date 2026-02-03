@@ -248,13 +248,17 @@ func (s *Server) handleSamples(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Try to find sampleprojects directory
+	// When running from go/cmd/api, we need to go up 3 levels to reach DTRules root
+	cwd, _ := os.Getwd()
 	searchPaths := []string{
-		filepath.Dir(execPath),                           // Same dir as executable
-		filepath.Join(filepath.Dir(execPath), ".."),      // Parent of executable
-		filepath.Join(filepath.Dir(execPath), "../.."),   // Grandparent (go/cmd/api -> go -> DTRules)
-		".",                                               // Current working directory
-		"..",                                              // Parent of cwd
-		"../..",                                           // Grandparent of cwd
+		filepath.Dir(execPath),                              // Same dir as executable
+		filepath.Join(filepath.Dir(execPath), ".."),         // Parent of executable
+		filepath.Join(filepath.Dir(execPath), "../.."),      // Grandparent (go/cmd/api -> go -> DTRules)
+		filepath.Join(filepath.Dir(execPath), "../../.."),   // Great-grandparent
+		cwd,                                                 // Current working directory
+		filepath.Join(cwd, ".."),                            // Parent of cwd
+		filepath.Join(cwd, "../.."),                         // Grandparent of cwd
+		filepath.Join(cwd, "../../.."),                      // Great-grandparent of cwd (go/cmd/api -> go -> DTRules)
 	}
 
 	var samplesDir string
@@ -379,8 +383,13 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 			s.eddFiles = append(s.eddFiles, relPath)
 			s.loadEDDFile(path)
 		} else if strings.Contains(nameLower, "_dt") || strings.Contains(nameLower, "decisiontable") {
-			s.dtFiles = append(s.dtFiles, relPath)
-			s.loadDTFile(path)
+			// Skip "Uncompiled" files - they have no postfix expressions and would overwrite valid tables
+			if strings.Contains(nameLower, "uncompiled") {
+				log.Printf("Skipping uncompiled DT file: %s", relPath)
+			} else {
+				s.dtFiles = append(s.dtFiles, relPath)
+				s.loadDTFile(path)
+			}
 		} else if strings.Contains(nameLower, "map") {
 			s.mapFiles = append(s.mapFiles, relPath)
 		}
@@ -1021,15 +1030,44 @@ func (s *Server) handleExecute(w http.ResponseWriter, r *http.Request) {
 		state.EnableTrace()
 	}
 
+	// Create and push the constants entity if it exists (needed for lookups like CHIP, MEDICAID, etc.)
+	constantsName := dtrules.GetRName("constants")
+	if constantsName != nil {
+		if constantsEntity, err := factory.CreateEntity(rsess, constantsName); err == nil && constantsEntity != nil {
+			state.EntityPush(constantsEntity)
+		}
+	}
+
 	// Load input data into entities
-	if err := loadInputData(rsess, state, factory, req.Data); err != nil {
+	warnings, err := loadInputData(rsess, state, factory, req.Data)
+	if err != nil {
 		jsonError(w, fmt.Sprintf("Failed to load input data: %v", err), http.StatusInternalServerError)
 		return
 	}
 
+	// Log entity stack for debugging
+	log.Printf("Entity stack before execute (depth=%d):", state.EntityDepth())
+	for i := 0; i < state.EntityDepth(); i++ {
+		if ent, err := state.GetEntityStack(i); err == nil && ent != nil {
+			log.Printf("  [%d] %s", i, ent.GetName().StringValue())
+		}
+	}
+
 	// Execute
 	if err := rsess.Execute(req.TableName); err != nil {
-		jsonError(w, fmt.Sprintf("Execution failed: %v", err), http.StatusInternalServerError)
+		// Include more context in error response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   fmt.Sprintf("Execution failed: %v", err),
+			"context": map[string]interface{}{
+				"tableName":   req.TableName,
+				"stackDepth":  state.DataStackDepth(),
+				"entityDepth": state.EntityDepth(),
+			},
+			"warnings": warnings,
+		})
 		return
 	}
 
@@ -1068,10 +1106,14 @@ func (s *Server) handleExecute(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	jsonResponse(w, map[string]interface{}{
+	response := map[string]interface{}{
 		"success": true,
 		"result":  result,
-	})
+	}
+	if len(warnings) > 0 {
+		response["warnings"] = warnings
+	}
+	jsonResponse(w, response)
 }
 
 func (s *Server) handleValidateExecution(w http.ResponseWriter, r *http.Request) {
@@ -1105,17 +1147,29 @@ func (s *Server) handleValidateExecution(w http.ResponseWriter, r *http.Request)
 }
 
 // loadInputData loads the input JSON data into DTRules entities and pushes them onto the entity stack
-func loadInputData(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, data map[string]interface{}) error {
+// Returns a slice of warnings encountered during loading (non-fatal issues)
+func loadInputData(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, data map[string]interface{}) ([]string, error) {
+	var warnings []string
+
 	for key, value := range data {
 		switch v := value.(type) {
 		case map[string]interface{}:
-			// Single entity
-			if err := loadEntity(sess, state, factory, key, v); err != nil {
-				log.Printf("Warning: Failed to load entity %s: %v", key, err)
-				// Continue with other entities
+			// Single entity - load it with its nested arrays
+			rentity, err := loadEntityWithArrays(sess, state, factory, key, v, &warnings)
+			if err != nil {
+				warning := fmt.Sprintf("Failed to load entity '%s': %v", key, err)
+				log.Printf("Warning: %s", warning)
+				warnings = append(warnings, warning)
+				continue
+			}
+			// Push the entity onto the entity stack
+			if err := state.EntityPush(rentity); err != nil {
+				warning := fmt.Sprintf("Failed to push entity '%s': %v", key, err)
+				log.Printf("Warning: %s", warning)
+				warnings = append(warnings, warning)
 			}
 		case []interface{}:
-			// Array of entities (e.g., "clients")
+			// Top-level array of entities (e.g., standalone "clients" array)
 			// Try to determine singular form (e.g., "clients" -> "client")
 			entityName := key
 			if len(key) > 1 && key[len(key)-1] == 's' {
@@ -1123,71 +1177,171 @@ func loadInputData(sess *session.RSession, state *interpreter.DTState, factory *
 			}
 			for i, item := range v {
 				if itemMap, ok := item.(map[string]interface{}); ok {
-					if err := loadEntity(sess, state, factory, entityName, itemMap); err != nil {
-						log.Printf("Warning: Failed to load %s[%d]: %v", key, i, err)
+					rentity, err := loadEntityWithArrays(sess, state, factory, entityName, itemMap, &warnings)
+					if err != nil {
+						warning := fmt.Sprintf("Failed to load %s[%d]: %v", key, i, err)
+						log.Printf("Warning: %s", warning)
+						warnings = append(warnings, warning)
+						continue
+					}
+					if err := state.EntityPush(rentity); err != nil {
+						warning := fmt.Sprintf("Failed to push %s[%d]: %v", key, i, err)
+						log.Printf("Warning: %s", warning)
+						warnings = append(warnings, warning)
 					}
 				}
 			}
 		default:
 			// Skip non-object values at top level
-			log.Printf("Skipping top-level non-object value: %s", key)
+			warning := fmt.Sprintf("Skipping top-level non-object value: %s", key)
+			log.Printf("%s", warning)
+			warnings = append(warnings, warning)
 		}
 	}
-	return nil
+	return warnings, nil
 }
 
-// loadEntity creates a DTRules entity from a map and pushes it onto the entity stack
-func loadEntity(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, entityName string, data map[string]interface{}) error {
+// loadEntityWithArrays creates a DTRules entity from a map, handling nested entity arrays
+// It returns the created entity but does NOT push it to the stack (caller decides)
+func loadEntityWithArrays(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, entityName string, data map[string]interface{}, warnings *[]string) (*entity.REntity, error) {
 	// Get the RName for the entity
 	name := dtrules.GetRName(entityName)
 	if name == nil {
-		return fmt.Errorf("invalid entity name: %s", entityName)
+		return nil, fmt.Errorf("invalid entity name: %s", entityName)
 	}
 
 	// Create an entity instance
 	ent, err := factory.CreateEntity(sess, name)
 	if err != nil {
-		return fmt.Errorf("failed to create entity %s: %w", entityName, err)
+		return nil, fmt.Errorf("failed to create entity %s: %w", entityName, err)
 	}
 	if ent == nil {
-		return fmt.Errorf("entity type not found: %s", entityName)
+		return nil, fmt.Errorf("entity type not found: %s", entityName)
 	}
 
 	// Get as REntity to set values
 	rentity, ok := ent.(*entity.REntity)
 	if !ok {
-		return fmt.Errorf("entity is not an REntity: %s", entityName)
+		return nil, fmt.Errorf("entity is not an REntity: %s", entityName)
 	}
 
 	// Set attribute values
 	for attrKey, attrValue := range data {
 		attrName := dtrules.GetRName(attrKey)
 		if attrName == nil {
-			log.Printf("Warning: Invalid attribute name: %s", attrKey)
+			warning := fmt.Sprintf("Invalid attribute name: %s", attrKey)
+			log.Printf("Warning: %s", warning)
+			*warnings = append(*warnings, warning)
 			continue
 		}
 
-		// Convert Go value to DTRules object
-		dtValue := goValueToDTRules(attrValue)
+		// Check if this is an array of objects (potential entity array)
+		if arr, isArray := attrValue.([]interface{}); isArray && len(arr) > 0 {
+			if _, isObject := arr[0].(map[string]interface{}); isObject {
+				// This is an array of entities - create a DTRules array with entity references
+				dtArray, err := loadEntityArray(sess, state, factory, attrKey, arr, warnings)
+				if err != nil {
+					warning := fmt.Sprintf("Failed to load array %s.%s: %v", entityName, attrKey, err)
+					log.Printf("Warning: %s", warning)
+					*warnings = append(*warnings, warning)
+					continue
+				}
+				if err := rentity.Put(attrName, dtArray); err != nil {
+					warning := fmt.Sprintf("Failed to set array %s.%s: %v", entityName, attrKey, err)
+					log.Printf("Warning: %s", warning)
+					*warnings = append(*warnings, warning)
+				}
+				continue
+			}
+		}
+
+		// Check if this attribute expects a date type
+		var dtValue dtrules.Object
+		entry := rentity.GetEntry(attrName)
+		if entry != nil && entry.Type == dtrules.TypeDate {
+			// Try to parse the value as a date
+			if strVal, ok := attrValue.(string); ok {
+				dateVal, err := dtrules.GetRDate(sess, strVal)
+				if err != nil {
+					warning := fmt.Sprintf("Failed to parse date %s.%s: %v", entityName, attrKey, err)
+					log.Printf("Warning: %s", warning)
+					*warnings = append(*warnings, warning)
+					continue
+				}
+				dtValue = dateVal
+			} else {
+				dtValue = goValueToDTRules(attrValue)
+			}
+		} else {
+			// Convert Go value to DTRules object for simple values
+			dtValue = goValueToDTRules(attrValue)
+		}
 		if dtValue == nil {
 			continue
 		}
 
 		// Set the value on the entity
 		if err := rentity.Put(attrName, dtValue); err != nil {
-			log.Printf("Warning: Failed to set %s.%s: %v", entityName, attrKey, err)
+			warning := fmt.Sprintf("Failed to set %s.%s: %v", entityName, attrKey, err)
+			log.Printf("Warning: %s", warning)
+			*warnings = append(*warnings, warning)
 		}
 	}
 
-	// Push the entity onto the entity stack
-	if err := state.EntityPush(rentity); err != nil {
-		return fmt.Errorf("failed to push entity %s: %w", entityName, err)
+	return rentity, nil
+}
+
+// loadEntityArray creates a DTRules array containing entity references
+// It also pushes each created entity onto the entity stack so they're accessible
+func loadEntityArray(sess *session.RSession, state *interpreter.DTState, factory *entity.Factory, arrayName string, items []interface{}, warnings *[]string) (dtrules.Object, error) {
+	// Determine the entity type name from the array name
+	// e.g., "clients" -> "client", "incomes" -> "income"
+	entityTypeName := arrayName
+	if len(arrayName) > 1 && arrayName[len(arrayName)-1] == 's' {
+		entityTypeName = arrayName[:len(arrayName)-1]
 	}
 
-	return nil
+	// Create a DTRules array to hold the entity references
+	dtArray, err := dtrules.NewArray(sess, true, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create array: %w", err)
+	}
+
+	// Process each item in the array
+	for i, item := range items {
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			warning := fmt.Sprintf("Array item %d is not an object", i)
+			log.Printf("Warning: %s", warning)
+			*warnings = append(*warnings, warning)
+			continue
+		}
+
+		// Create the child entity (with its own nested arrays)
+		childEntity, err := loadEntityWithArrays(sess, state, factory, entityTypeName, itemMap, warnings)
+		if err != nil {
+			warning := fmt.Sprintf("Failed to create %s[%d]: %v", arrayName, i, err)
+			log.Printf("Warning: %s", warning)
+			*warnings = append(*warnings, warning)
+			continue
+		}
+
+		// Add the entity reference to the array
+		dtArray.Add(childEntity)
+
+		// Push the entity onto the entity stack so it's accessible for lookups
+		if err := state.EntityPush(childEntity); err != nil {
+			warning := fmt.Sprintf("Failed to push %s[%d] to stack: %v", arrayName, i, err)
+			log.Printf("Warning: %s", warning)
+			*warnings = append(*warnings, warning)
+		}
+	}
+
+	return dtArray, nil
 }
 
 // goValueToDTRules converts a Go value to a DTRules object
+// Note: For arrays of objects (entities), use loadEntityArray instead
 func goValueToDTRules(value interface{}) dtrules.Object {
 	if value == nil {
 		return dtrules.GetRNull()
@@ -1209,8 +1363,25 @@ func goValueToDTRules(value interface{}) dtrules.Object {
 		return dtrules.GetRIntegerValue(v)
 	case string:
 		return dtrules.GetRString(v)
-	case []interface{}, map[string]interface{}:
-		// For arrays and nested objects, convert to JSON string for now
+	case []interface{}:
+		// Simple arrays (strings, numbers) - not entity arrays
+		// Note: Entity arrays should be handled by loadEntityArray before this point
+		// This handles cases like ["AA", "BB", "CC"]
+		arr, err := dtrules.NewArray(nil, true, false)
+		if err != nil {
+			// Fallback to JSON string
+			jsonBytes, _ := json.Marshal(v)
+			return dtrules.GetRString(string(jsonBytes))
+		}
+		for _, item := range v {
+			dtItem := goValueToDTRules(item)
+			if dtItem != nil {
+				arr.Add(dtItem)
+			}
+		}
+		return arr
+	case map[string]interface{}:
+		// Nested objects that aren't entities - convert to JSON string
 		jsonBytes, err := json.Marshal(v)
 		if err != nil {
 			return dtrules.GetRString(fmt.Sprintf("%v", v))

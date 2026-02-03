@@ -102,7 +102,7 @@ export function PostfixEditor({ value, onChange, height = '200px', className }: 
           [/[a-zA-Z_][a-zA-Z0-9_]*\.[a-zA-Z_][a-zA-Z0-9_]*/, 'variable.field'],
 
           // Operators
-          [/[\+\-\*\/<>=!]+/, 'operator'],
+          [/[+\-*/<>=!]+/, 'operator'],
 
           // Blocks
           [/[{}[\]]/, 'delimiter.bracket'],

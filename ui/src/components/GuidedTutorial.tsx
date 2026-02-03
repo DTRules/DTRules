@@ -123,8 +123,8 @@ const waitForElement = (selector: string, timeout = 500): Promise<boolean> => {
 };
 
 // Steps that should scroll to the bottom of the page (0-indexed)
-// User sees steps 5, 9, 10, 13 but array is 0-indexed so: 4, 8, 9, 12
-const SCROLL_TO_BOTTOM_STEPS = [4, 8, 9, 12];
+// After consolidating redundant steps, these are: 4, 8, 11
+const SCROLL_TO_BOTTOM_STEPS = [4, 8, 11];
 
 /**
  * Scrolls to the bottom of scrollable containers.
@@ -187,7 +187,7 @@ const scrollTooltipIntoView = (stepIndex: number) => {
   }
 };
 
-// Comprehensive tutorial steps - 20 steps exploring all tabs
+// Comprehensive tutorial steps - 18 steps exploring all tabs
 const tutorialSteps: TutorialStep[] = [
   // === INTRODUCTION (2 steps) ===
   {
@@ -266,18 +266,10 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     target: '[data-tutorial="dt-grid"]',
-    content: 'In the grid: "Y" = condition must be true, "N" = must be false, "-" = don\'t care. For actions: "X" = execute this action, "-" = skip it.',
+    content: 'In the grid: "Y" = condition must be true, "N" = must be false, "-" = don\'t care. For actions: "X" = execute this action, "-" = skip it. Try clicking different tables in the list to see how rules vary.',
     placement: 'right',
     disableBeacon: true,
     title: 'Reading the Grid',
-    tab: 'dt',
-  },
-  {
-    target: '[data-tutorial="dt-list"]',
-    content: 'Click any table name to view and edit it. Try selecting different tables to see how conditions and actions vary. Each table focuses on one specific decision.',
-    placement: 'right',
-    disableBeacon: true,
-    title: 'Selecting Tables',
     tab: 'dt',
   },
 
@@ -326,20 +318,11 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     target: '[data-tutorial="tree-visualization"]',
-    content: 'This diagram shows the call hierarchy. For CHIP: "Compute_Eligibility" at the top calls age, income, and citizenship checking tables. Click nodes to navigate to that table.',
+    content: 'This diagram shows the call hierarchy. For CHIP: "Compute_Eligibility" at the top calls age, income, and citizenship checking tables. Click nodes to navigate, and use this view to understand how changes to one table affect others.',
     placement: 'top-start',
     disableBeacon: true,
     disableOverlay: true,
     title: 'Rule Flow Diagram',
-    tab: 'tree',
-  },
-  {
-    target: '[data-tutorial="tree-visualization"]',
-    content: 'Understanding this flow helps you debug complex rule chains and see how changes to one table might affect others in the hierarchy.',
-    placement: 'top-start',
-    disableBeacon: true,
-    disableOverlay: true,
-    title: 'Debugging with Tree View',
     tab: 'tree',
   },
 
@@ -401,7 +384,7 @@ export function GuidedTutorial() {
         case 'Enter':
         case ' ':
         case 'ArrowRight':
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault();
           // Simulate clicking the Next/Finish button
           const nextBtn = document.querySelector('.tutorial-next-btn') as HTMLButtonElement;
@@ -409,8 +392,9 @@ export function GuidedTutorial() {
             nextBtn.click();
           }
           break;
+        }
         case 'ArrowLeft':
-        case 'ArrowUp':
+        case 'ArrowUp': {
           e.preventDefault();
           // Simulate clicking the Back button
           const backBtn = document.querySelector('.tutorial-back-btn') as HTMLButtonElement;
@@ -418,6 +402,7 @@ export function GuidedTutorial() {
             backBtn.click();
           }
           break;
+        }
         case 'Escape':
           e.preventDefault();
           stopTutorial();

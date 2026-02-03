@@ -408,4 +408,12 @@ export interface ExecuteResponse {
   result?: Record<string, unknown>;
   /** Execution trace if tracing was enabled */
   trace?: TraceEntry[];
+  /** Warnings from entity loading or execution (non-fatal issues) */
+  warnings?: string[];
+  /** Additional context when execution fails */
+  context?: {
+    tableName?: string;
+    stackDepth?: number;
+    entityDepth?: number;
+  };
 }

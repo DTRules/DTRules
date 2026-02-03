@@ -52,12 +52,13 @@ function FeatureCard({ icon, title, description, accentColor = 'blue' }: Feature
 }
 
 export function WelcomeScreen() {
-  const { openProject, autoSelectFirstItems } = useProjectStore();
+  const { openProject, autoSelectFirstItems, error: projectError } = useProjectStore();
   const { setShowWelcome, startTutorial } = useOnboardingStore();
   const [customPathDialogOpen, setCustomPathDialogOpen] = useState(false);
   const [customPath, setCustomPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sampleProjects, setSampleProjects] = useState<SampleProject[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Fetch available sample projects from the backend on mount
   useEffect(() => {
@@ -78,10 +79,33 @@ export function WelcomeScreen() {
   const chipProject = sampleProjects.find(p => p.name === 'CHIP');
 
   const handleOpenChipProject = async () => {
-    // If CHIP project was discovered, use its path directly
-    if (chipProject) {
-      setIsLoading(true);
-      const success = await openProject(chipProject.path);
+    setIsLoading(true);
+
+    // Try discovered CHIP path first
+    let chipPath = chipProject?.path;
+
+    // If not discovered yet, try to fetch samples
+    if (!chipPath) {
+      try {
+        const result = await getSampleProjects();
+        if (result.success && result.samples) {
+          const chip = result.samples.find(p => p.name === 'CHIP');
+          if (chip) {
+            chipPath = chip.path;
+          }
+        }
+      } catch {
+        // Ignore fetch error, will use fallback
+      }
+
+      // Use fallback if still not found
+      if (!chipPath) {
+        chipPath = '/home/paul/DTRules/sampleprojects/CHIP/xml';
+      }
+    }
+
+    try {
+      const success = await openProject(chipPath);
       if (success) {
         // Small delay to let React process state updates before auto-selecting
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -89,31 +113,54 @@ export function WelcomeScreen() {
         // Start tutorial BEFORE hiding welcome screen to ensure state is set
         startTutorial();
         setShowWelcome(false);
+      } else {
+        // Show the error from projectStore if available
+        setLoadError(projectError || `Failed to open project at: ${chipPath}`);
+        setCustomPathDialogOpen(true);
       }
-      setIsLoading(false);
-      return;
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : String(err));
+      setCustomPathDialogOpen(true);
     }
-    // If not discovered, open dialog for manual entry
-    setCustomPathDialogOpen(true);
+    setIsLoading(false);
   };
 
   const handleSkipTutorial = async () => {
-    // If CHIP project was discovered, use its path directly
-    if (chipProject) {
-      setIsLoading(true);
-      const success = await openProject(chipProject.path);
-      if (success) {
-        // Small delay to let React process state updates before auto-selecting
-        await new Promise(resolve => setTimeout(resolve, 100));
-        await autoSelectFirstItems();
-        setShowWelcome(false);
-        // Don't start tutorial - user explicitly chose to skip
+    setIsLoading(true);
+
+    // Try discovered CHIP path first
+    let chipPath = chipProject?.path;
+
+    // If not discovered yet, try to fetch or use fallback
+    if (!chipPath) {
+      try {
+        const result = await getSampleProjects();
+        if (result.success && result.samples) {
+          const chip = result.samples.find(p => p.name === 'CHIP');
+          if (chip) {
+            chipPath = chip.path;
+          }
+        }
+      } catch {
+        // Ignore fetch error, will use fallback
       }
-      setIsLoading(false);
-      return;
+
+      if (!chipPath) {
+        chipPath = '/home/paul/DTRules/sampleprojects/CHIP/xml';
+      }
     }
-    // If not discovered, open dialog for manual entry
-    setCustomPathDialogOpen(true);
+
+    const success = await openProject(chipPath);
+    if (success) {
+      // Small delay to let React process state updates before auto-selecting
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await autoSelectFirstItems();
+      setShowWelcome(false);
+      // Don't start tutorial - user explicitly chose to skip
+    } else {
+      setCustomPathDialogOpen(true);
+    }
+    setIsLoading(false);
   };
 
   const handleOpenCustomProject = async () => {
@@ -212,15 +259,23 @@ export function WelcomeScreen() {
       </div>
 
       {/* Custom Path Dialog */}
-      <Dialog open={customPathDialogOpen} onOpenChange={setCustomPathDialogOpen}>
+      <Dialog open={customPathDialogOpen} onOpenChange={(open) => {
+        setCustomPathDialogOpen(open);
+        if (!open) setLoadError(null);
+      }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Open Custom Project</DialogTitle>
+            <DialogTitle>Open Project</DialogTitle>
             <DialogDescription>
               Enter the path to a DTRules project directory containing EDD and DT XML files.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {loadError && (
+              <div className="p-3 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                {loadError}
+              </div>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="customProjectPath">Project Path</Label>
               <Input

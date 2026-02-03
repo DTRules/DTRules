@@ -15,13 +15,17 @@ import { executeRules } from '@/api/client';
 import { Play, CheckCircle2, XCircle } from 'lucide-react';
 import type { TraceEntry } from '@/types/dtrules';
 
+// Sample test data matching CHIP EDD entity definitions
+// See: sampleprojects/CHIP/repository/xml/CHIP_edd.xml
 const SAMPLE_TEST_DATA = `{
   "job": {
+    "id": 1,
     "program": "CHIP",
     "currentdate": "2024-01-15",
     "effectivedate": "2024-02-01"
   },
   "case": {
+    "id": 1,
     "county_cd": "AA"
   },
   "clients": [
@@ -31,7 +35,10 @@ const SAMPLE_TEST_DATA = `{
       "applying": true,
       "validatedCitizenship": true,
       "uninsured": true,
-      "pregnant": false
+      "pregnant": false,
+      "disabled": false,
+      "livesAtResidence": true,
+      "gender": "M"
     }
   ]
 }`;
@@ -45,6 +52,7 @@ export function TestPanel() {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [trace, setTrace] = useState<TraceEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
 
   // Auto-select first table when tables load and nothing is selected
   useEffect(() => {
@@ -60,16 +68,27 @@ export function TestPanel() {
     setError(null);
     setResult(null);
     setTrace([]);
+    setWarnings([]);
 
     try {
       const data = JSON.parse(testData);
       const response = await executeRules(selectedTable, data, enableTrace);
 
+      // Always capture warnings if present
+      if (response.warnings && response.warnings.length > 0) {
+        setWarnings(response.warnings);
+      }
+
       if (response.success) {
         setResult(response.result || null);
         setTrace(response.trace || []);
       } else {
-        setError(response.error || 'Execution failed');
+        // Include context info in error if available
+        let errorMsg = response.error || 'Execution failed';
+        if (response.context) {
+          errorMsg += ` (table: ${response.context.tableName}, stack: ${response.context.stackDepth}, entities: ${response.context.entityDepth})`;
+        }
+        setError(errorMsg);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to execute');
@@ -154,6 +173,17 @@ export function TestPanel() {
                   <span className="font-medium">Error</span>
                 </div>
                 <p className="text-sm text-red-400">{error}</p>
+              </div>
+            )}
+
+            {warnings.length > 0 && (
+              <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30 backdrop-blur">
+                <h4 className="font-medium text-yellow-500 mb-2">Warnings</h4>
+                <ul className="space-y-1">
+                  {warnings.map((w, i) => (
+                    <li key={i} className="text-sm text-yellow-400">{w}</li>
+                  ))}
+                </ul>
               </div>
             )}
 

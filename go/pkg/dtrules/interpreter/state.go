@@ -474,12 +474,10 @@ func (s *DTState) Find(name *dtrules.RName) (dtrules.Object, error) {
 		return nil, nil
 	}
 	// Use attribute-only name for lookup (without entity prefix)
-	attrName := name
-	if name.GetEntityName() != nil {
-		attrName = dtrules.GetRName(name.GetName())
-		if attrName == nil {
-			return nil, dtrules.UndefinedError("GetValue", "invalid attribute name: "+name.GetName())
-		}
+	// Always use GetRName to get the interned executable form
+	attrName := dtrules.GetRName(name.GetName())
+	if attrName == nil {
+		return nil, dtrules.UndefinedError("GetValue", "invalid attribute name: "+name.GetName())
 	}
 	return entity.Get(attrName)
 }
@@ -489,13 +487,11 @@ func (s *DTState) FindEntity(name *dtrules.RName) (dtrules.Entity, error) {
 	entityName := name.GetEntityName()
 
 	// Get the attribute-only name for lookup (without entity prefix)
-	attrName := name
-	if entityName != nil {
-		// Extract just the attribute part for ContainsAttribute lookup
-		attrName = dtrules.GetRName(name.GetName())
-		if attrName == nil {
-			return nil, dtrules.UndefinedError("FindEntity", "invalid attribute name: "+name.GetName())
-		}
+	// IMPORTANT: Always use GetRName to get the interned executable form,
+	// since attributes are stored with executable form RNames
+	attrName := dtrules.GetRName(name.GetName())
+	if attrName == nil {
+		return nil, dtrules.UndefinedError("FindEntity", "invalid attribute name: "+name.GetName())
 	}
 
 	if entityName == nil {
@@ -537,12 +533,10 @@ func (s *DTState) Def(name *dtrules.RName, value dtrules.Object, trace bool) (bo
 	}
 
 	// Use attribute-only name for Put (without entity prefix)
-	attrName := name
-	if name.GetEntityName() != nil {
-		attrName = dtrules.GetRName(name.GetName())
-		if attrName == nil {
-			return false, dtrules.UndefinedError("Def", "invalid attribute name: "+name.GetName())
-		}
+	// Always use GetRName to get the interned executable form
+	attrName := dtrules.GetRName(name.GetName())
+	if attrName == nil {
+		return false, dtrules.UndefinedError("Def", "invalid attribute name: "+name.GetName())
 	}
 
 	err = entity.Put(attrName, value)
