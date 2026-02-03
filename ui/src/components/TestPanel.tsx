@@ -16,7 +16,8 @@ import { Play, CheckCircle2, XCircle } from 'lucide-react';
 import type { TraceEntry } from '@/types/dtrules';
 
 // Sample test data matching CHIP EDD entity definitions
-// See: sampleprojects/CHIP/repository/xml/CHIP_edd.xml
+// See: sampleprojects/CHIP/xml/CHIP_edd.xml
+// Note: 'clients' array is an attribute of 'case' entity, not top-level
 const SAMPLE_TEST_DATA = `{
   "job": {
     "id": 1,
@@ -26,21 +27,22 @@ const SAMPLE_TEST_DATA = `{
   },
   "case": {
     "id": 1,
-    "county_cd": "AA"
-  },
-  "clients": [
-    {
-      "id": 1,
-      "age": 12,
-      "applying": true,
-      "validatedCitizenship": true,
-      "uninsured": true,
-      "pregnant": false,
-      "disabled": false,
-      "livesAtResidence": true,
-      "gender": "M"
-    }
-  ]
+    "county_cd": "AA",
+    "clients": [
+      {
+        "id": 1,
+        "age": 12,
+        "applying": true,
+        "validatedCitizenship": true,
+        "uninsured": true,
+        "pregnant": false,
+        "disabled": false,
+        "livesAtResidence": true,
+        "gender": "M",
+        "lostInsuranceDate": "2023-10-01"
+      }
+    ]
+  }
 }`;
 
 export function TestPanel() {
@@ -60,6 +62,15 @@ export function TestPanel() {
       setSelectedTable(decisionTables[0].name);
     }
   }, [decisionTables, selectedTable]);
+
+  // Clear results when selected table changes
+  const handleTableChange = (tableName: string) => {
+    setSelectedTable(tableName);
+    setResult(null);
+    setTrace([]);
+    setError(null);
+    setWarnings([]);
+  };
 
   const handleExecute = async () => {
     if (!selectedTable) return;
@@ -104,7 +115,7 @@ export function TestPanel() {
         <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
           <div className="grid gap-1 flex-1">
             <Label className="text-xs text-muted-foreground">Decision Table</Label>
-            <Select value={selectedTable} onValueChange={setSelectedTable}>
+            <Select value={selectedTable} onValueChange={handleTableChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a table to execute" />
               </SelectTrigger>
@@ -192,6 +203,7 @@ export function TestPanel() {
                 <div className="flex items-center gap-2 text-green-500">
                   <CheckCircle2 className="h-4 w-4" />
                   <span className="font-medium">Execution Successful</span>
+                  <span className="text-xs text-muted-foreground">({selectedTable})</span>
                 </div>
                 <div className="text-xs text-muted-foreground mb-2">
                   Entity state after execution:
