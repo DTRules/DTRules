@@ -1,0 +1,235 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { FileText, Table2, GitBranch, Zap, Code2, Shield, CheckCircle, ArrowRight } from 'lucide-react';
+---
+
+<BaseLayout title="DTRules - Decision Table Rules Engine">
+  <Hero />
+
+  <!-- Features Section -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          Why <span class="gradient-text">DTRules</span>?
+        </h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Define complex business logic in spreadsheets that both policy experts and developers can understand.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="glass rounded-2xl p-6 hover:border-blue-500/30 transition-all duration-300">
+          <div class="p-3 bg-blue-500/10 rounded-xl w-fit mb-4">
+            <Table2 className="h-6 w-6 text-blue-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Decision Tables</h3>
+          <p class="text-sm text-muted-foreground">
+            Create condition-action matrices in Excel. Each column represents a rule that's easy to read and validate.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass rounded-2xl p-6 hover:border-purple-500/30 transition-all duration-300">
+          <div class="p-3 bg-purple-500/10 rounded-xl w-fit mb-4">
+            <FileText className="h-6 w-6 text-purple-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Entity Data Dictionary</h3>
+          <p class="text-sm text-muted-foreground">
+            Define your data model in Excel with entities, attributes, and relationships. Auto-maps to Java objects.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass rounded-2xl p-6 hover:border-green-500/30 transition-all duration-300">
+          <div class="p-3 bg-green-500/10 rounded-xl w-fit mb-4">
+            <Code2 className="h-6 w-6 text-green-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Domain Specific Language</h3>
+          <p class="text-sm text-muted-foreground">
+            Write conditions and actions in EL (Expression Language) - readable syntax that policy experts can validate.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="glass rounded-2xl p-6 hover:border-blue-500/30 transition-all duration-300">
+          <div class="p-3 bg-blue-500/10 rounded-xl w-fit mb-4">
+            <Zap className="h-6 w-6 text-blue-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">High Performance</h3>
+          <p class="text-sm text-muted-foreground">
+            Go implementation with 130x faster operator lookup and zero-allocation hot paths for production workloads.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="glass rounded-2xl p-6 hover:border-purple-500/30 transition-all duration-300">
+          <div class="p-3 bg-purple-500/10 rounded-xl w-fit mb-4">
+            <GitBranch className="h-6 w-6 text-purple-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Visual Tree View</h3>
+          <p class="text-sm text-muted-foreground">
+            Visualize decision table dependencies and execution flow as interactive tree diagrams.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="glass rounded-2xl p-6 hover:border-green-500/30 transition-all duration-300">
+          <div class="p-3 bg-green-500/10 rounded-xl w-fit mb-4">
+            <Shield className="h-6 w-6 text-green-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Production Proven</h3>
+          <p class="text-sm text-muted-foreground">
+            Used in state welfare systems (Texas TIERS, Ohio OFAST) and insurance eligibility determination.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases Section -->
+  <section class="py-20 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          Built for <span class="gradient-text">Complex Logic</span>
+        </h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          When business rules are too complex for if-else statements and too dynamic for hardcoded logic.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="glass rounded-2xl p-8">
+          <h3 class="text-xl font-semibold mb-4">Eligibility Determination</h3>
+          <ul class="space-y-3 text-muted-foreground">
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Health insurance eligibility (CHIP)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Welfare/assistance programs</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Benefits calculation</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Policy compliance checking</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="glass rounded-2xl p-8">
+          <h3 class="text-xl font-semibold mb-4">Business Logic</h3>
+          <ul class="space-y-3 text-muted-foreground">
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Pricing and discount rules</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Approval workflows</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Risk assessment</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <span>Regulatory compliance</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Implementations Section -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          Two <span class="gradient-text">Implementations</span>
+        </h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Choose the right implementation for your stack. Both share the same XML format.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Java -->
+        <div class="glass rounded-2xl p-8 hover:border-blue-500/30 transition-all duration-300">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm font-medium rounded-full">
+              Java
+            </div>
+            <span class="text-sm text-muted-foreground">Original Implementation</span>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Production-Ready Core</h3>
+          <ul class="space-y-2 text-sm text-muted-foreground mb-6">
+            <li>Excel-to-XML compilers</li>
+            <li>Full IDE and debugging support</li>
+            <li>Comprehensive test harness</li>
+            <li>Java 8+ compatible</li>
+          </ul>
+          <a href="/docs/getting-started/quickstart-java" class="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-2">
+            Get Started with Java
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+
+        <!-- Go -->
+        <div class="glass rounded-2xl p-8 hover:border-purple-500/30 transition-all duration-300">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="px-3 py-1 bg-purple-500/20 text-purple-400 text-sm font-medium rounded-full">
+              Go
+            </div>
+            <span class="text-sm text-muted-foreground">High-Performance Runtime</span>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Optimized Execution</h3>
+          <ul class="space-y-2 text-sm text-muted-foreground mb-6">
+            <li>130x faster operator lookup</li>
+            <li>24x faster arithmetic operations</li>
+            <li>Zero-allocation hot paths</li>
+            <li>REST API for the visual UI</li>
+          </ul>
+          <a href="/docs/getting-started/quickstart-go" class="text-purple-400 hover:text-purple-300 text-sm font-medium flex items-center gap-2">
+            Get Started with Go
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+        Ready to get started?
+      </h2>
+      <p class="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+        Try the interactive demo, read the documentation, or dive into the code on GitHub.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          href="/demo"
+          class="w-full sm:w-auto px-8 py-3 gradient-button text-white font-semibold rounded-lg"
+        >
+          Try the Demo
+        </a>
+        <a
+          href="/docs/getting-started"
+          class="w-full sm:w-auto px-8 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors"
+        >
+          Read the Docs
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

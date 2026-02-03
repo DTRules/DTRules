@@ -1,0 +1,290 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="CHIP Tutorial"
+  description="Walk through the CHIP sample project to understand DTRules concepts."
+  prev={{ title: "Deterministic Rules", href: "/docs/concepts/deterministic" }}
+  next={{ title: "Creating Projects", href: "/docs/guides/creating-projects" }}
+>
+  <p>
+    The CHIP (Children's Health Insurance Program) sample project demonstrates how DTRules
+    handles real-world eligibility determination. This tutorial walks through the key components.
+  </p>
+
+  <h2>Project Overview</h2>
+
+  <p>
+    CHIP is a US federal program that provides health insurance coverage to children in families
+    with incomes too high to qualify for Medicaid but too low to afford private coverage. The
+    sample project implements eligibility rules similar to actual state systems.
+  </p>
+
+  <h3>Project Structure</h3>
+
+  <pre><code>sampleprojects/CHIP/
+├── DecisionTables/
+│   └── ChipEligibility_dt.xls    # Decision tables
+├── edd/
+│   └── ChipEligibility_edd.xls   # Entity definitions
+├── xml/                           # Compiled XML (generated)
+│   ├── ChipEligibility_edd.xml
+│   └── ChipEligibility_dt.xml
+├── testfiles/                     # Test cases
+├── DTRules.xml                    # Configuration
+└── src/main/java/
+    ├── CompileChip.java           # Excel → XML compiler
+    └── TestChip.java              # Test runner</code></pre>
+
+  <h2>Entity Data Dictionary</h2>
+
+  <p>The CHIP EDD defines entities for:</p>
+
+  <h3>Application</h3>
+
+  <p>The main container for an eligibility application:</p>
+
+  <pre><code>Entity: Application
+  - household: Household
+  - application_date: date
+  - status: string
+  - eligible_children: array of Person
+  - benefit_amount: decimal</code></pre>
+
+  <h3>Household</h3>
+
+  <p>Represents a family unit:</p>
+
+  <pre><code>Entity: Household
+  - head: Person
+  - members: array of Person
+  - address: string
+  - state: string
+  - total_income: decimal
+  - household_size: integer</code></pre>
+
+  <h3>Person</h3>
+
+  <p>Individual household members:</p>
+
+  <pre><code>Entity: Person
+  - name: string
+  - birth_date: date
+  - age: integer
+  - ssn: string
+  - citizen: boolean
+  - income: decimal
+  - relationship: string
+  - eligible: boolean
+  - reason_code: string</code></pre>
+
+  <h3>Context</h3>
+
+  <p>Global configuration and thresholds:</p>
+
+  <pre><code>Entity: Context
+  - today: date
+  - federal_poverty_level: decimal
+  - max_income_percentage: decimal  // e.g., 200% of FPL
+  - min_age: integer                // 0
+  - max_age: integer                // 19</code></pre>
+
+  <h2>Decision Tables</h2>
+
+  <p>The CHIP project includes several decision tables:</p>
+
+  <h3>Main Entry Point</h3>
+
+  <pre><code>// Main orchestrates the eligibility determination
+Table: Main
+Type: FIRST
+
+Actions:
+  - perform Calculate_Household_Income
+  - perform Determine_FPL_Percentage
+  - for each member in household.members do
+      perform Check_Child_Eligibility
+    done
+  - perform Summarize_Results</code></pre>
+
+  <h3>Calculate Household Income</h3>
+
+  <pre><code>// Sum all member incomes
+Table: Calculate_Household_Income
+Type: ALL
+
+Action:
+  set household.total_income = 0
+  for each member in household.members do
+    set household.total_income = household.total_income + member.income
+  done</code></pre>
+
+  <h3>Check Child Eligibility</h3>
+
+  <pre><code>// Determine if a specific child qualifies
+Table: Check_Child_Eligibility
+Type: BALANCED
+
+Conditions:
+  1. member.age &gt;= min_age and member.age &lt;= max_age
+  2. member.citizen = true
+  3. fpl_percentage &lt;= max_income_percentage
+
+Condition  R1  R2  R3  R4  R5  R6  R7  R8
+Age OK      Y   Y   Y   Y   N   N   N   N
+Citizen     Y   Y   N   N   Y   Y   N   N
+Income OK   Y   N   Y   N   Y   N   Y   N
+Eligible    X   -   -   -   -   -   -   -
+Age Fail    -   -   -   -   X   X   X   X
+Cit Fail    -   -   X   X   -   -   -   -
+Inc Fail    -   X   -   -   -   -   -   -
+
+Actions:
+  - set member.eligible = true
+  - set member.reason_code = "age_ineligible"
+  - set member.reason_code = "not_citizen"
+  - set member.reason_code = "income_too_high"</code></pre>
+
+  <h3>Summarize Results</h3>
+
+  <pre><code>// Collect eligible children and calculate benefits
+Table: Summarize_Results
+Type: ALL
+
+Actions:
+  for each member in household.members do
+    if member.eligible then
+      add member to application.eligible_children
+    fi
+  done
+  set application.benefit_amount =
+    count of application.eligible_children * monthly_benefit_per_child</code></pre>
+
+  <h2>Running the Example</h2>
+
+  <h3>Using the Visual UI</h3>
+
+  <ol>
+    <li>Start the backend: <code>cd go && go run ./cmd/api</code></li>
+    <li>Start the UI: <code>cd ui && npm run dev</code></li>
+    <li>Open http://localhost:5173</li>
+    <li>Click "Start Tutorial" or "Open Sample Project"</li>
+    <li>Explore the entities in the left panel</li>
+    <li>Click on decision tables to view them</li>
+    <li>Use the Test tab to run test cases</li>
+  </ol>
+
+  <h3>Using the CLI</h3>
+
+  <pre><code>cd go
+
+# Build the CLI
+go build -o dtrules ./cmd/dtrules
+
+# List available decision tables
+./dtrules -rules ../sampleprojects/CHIP/xml -list
+
+# Execute with tracing
+./dtrules -rules ../sampleprojects/CHIP/xml -entry Main -trace</code></pre>
+
+  <h3>Using Java</h3>
+
+  <pre><code>cd sampleprojects/CHIP
+
+# Compile Excel to XML (if needed)
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.CompileChip"
+
+# Run test cases
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"</code></pre>
+
+  <h2>Test Cases</h2>
+
+  <p>The CHIP project includes test cases that verify different scenarios:</p>
+
+  <h3>Test Case 1: Eligible Family</h3>
+
+  <pre><code>// Household with one eligible child
+&#123;
+  "household": &#123;
+    "total_income": 25000,
+    "members": [
+      &#123; "name": "Parent", "age": 35, "citizen": true &#125;,
+      &#123; "name": "Child", "age": 8, "citizen": true &#125;
+    ]
+  &#125;,
+  "federal_poverty_level": 15000,
+  "max_income_percentage": 200
+&#125;
+
+// Expected: Child is eligible (income is 167% of FPL, under 200%)</code></pre>
+
+  <h3>Test Case 2: Income Too High</h3>
+
+  <pre><code>// Household over income limit
+&#123;
+  "household": &#123;
+    "total_income": 45000,
+    "members": [
+      &#123; "name": "Parent", "age": 35, "citizen": true &#125;,
+      &#123; "name": "Child", "age": 8, "citizen": true &#125;
+    ]
+  &#125;,
+  "federal_poverty_level": 15000,
+  "max_income_percentage": 200
+&#125;
+
+// Expected: Child not eligible (income is 300% of FPL, over 200%)</code></pre>
+
+  <h3>Test Case 3: Age Ineligible</h3>
+
+  <pre><code>// Child too old for CHIP
+&#123;
+  "household": &#123;
+    "members": [
+      &#123; "name": "Parent", "age": 45, "citizen": true &#125;,
+      &#123; "name": "Adult Child", "age": 21, "citizen": true &#125;
+    ]
+  &#125;
+&#125;
+
+// Expected: Not eligible (age 21 &gt; max_age 19)</code></pre>
+
+  <h2>Key Concepts Demonstrated</h2>
+
+  <h3>Entity Relationships</h3>
+
+  <p>
+    The CHIP model shows one-to-many relationships (Household → Members) and how to iterate
+    through related entities.
+  </p>
+
+  <h3>BALANCED vs FIRST Tables</h3>
+
+  <p>
+    The eligibility check uses a BALANCED table to ensure every scenario is explicitly handled.
+    The main orchestration uses FIRST/ALL for flow control.
+  </p>
+
+  <h3>Calculated Values</h3>
+
+  <p>
+    Household income and FPL percentage are calculated from input data, showing how DTRules
+    handles derived values.
+  </p>
+
+  <h3>Tracing</h3>
+
+  <p>
+    Running with <code>-trace</code> shows exactly how each decision is made, demonstrating
+    DTRules' auditability.
+  </p>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/guides/creating-projects">Creating Projects</a> - Start your own project</li>
+    <li><a href="/docs/guides/testing">Testing Rules</a> - Write comprehensive tests</li>
+    <li><a href="/docs/reference/operators">Operator Reference</a> - Full operator list</li>
+  </ul>
+</DocsLayout>

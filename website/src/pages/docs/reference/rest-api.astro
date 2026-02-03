@@ -1,0 +1,400 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="REST API"
+  description="REST API reference for the DTRules Go backend."
+  prev={{ title: "Go API", href: "/docs/reference/go-api" }}
+>
+  <p>
+    The DTRules Go backend provides a REST API for the visual UI and external integrations.
+  </p>
+
+  <h2>Starting the Server</h2>
+
+  <pre><code># Default port (8080)
+go run ./cmd/api
+
+# Custom port
+go run ./cmd/api -port 9000
+
+# With verbose logging
+go run ./cmd/api -v</code></pre>
+
+  <h2>Endpoints</h2>
+
+  <h3>Health Check</h3>
+
+  <pre><code>GET /api/health
+
+Response:
+&#123;
+  "status": "ok"
+&#125;</code></pre>
+
+  <h3>Project Management</h3>
+
+  <h4>Open Project</h4>
+
+  <pre><code>POST /api/project/open
+Content-Type: application/json
+
+&#123;
+  "path": "/path/to/project/xml"
+&#125;
+
+Response:
+&#123;
+  "success": true,
+  "project": &#123;
+    "path": "/path/to/project/xml",
+    "name": "MyProject",
+    "entities": [...],
+    "decisionTables": [...]
+  &#125;
+&#125;</code></pre>
+
+  <h4>Save Project</h4>
+
+  <pre><code>POST /api/project/save
+Content-Type: application/json
+
+Response:
+&#123;
+  "success": true
+&#125;</code></pre>
+
+  <h4>List Files</h4>
+
+  <pre><code>GET /api/project/files
+
+Response:
+&#123;
+  "files": [
+    &#123;
+      "name": "MyProject_edd.xml",
+      "type": "edd"
+    &#125;,
+    &#123;
+      "name": "MyProject_dt.xml",
+      "type": "dt"
+    &#125;
+  ]
+&#125;</code></pre>
+
+  <h3>Entity Operations</h3>
+
+  <h4>List Entities</h4>
+
+  <pre><code>GET /api/edd
+
+Response:
+&#123;
+  "entities": [
+    &#123;
+      "name": "Person",
+      "attributes": [
+        &#123; "name": "name", "type": "string" &#125;,
+        &#123; "name": "age", "type": "integer" &#125;
+      ]
+    &#125;
+  ]
+&#125;</code></pre>
+
+  <h4>Get Entity</h4>
+
+  <pre><code>GET /api/edd/entity/Person
+
+Response:
+&#123;
+  "name": "Person",
+  "attributes": [
+    &#123; "name": "name", "type": "string", "default": "" &#125;,
+    &#123; "name": "age", "type": "integer", "default": 0 &#125;,
+    &#123; "name": "citizen", "type": "boolean", "default": false &#125;
+  ]
+&#125;</code></pre>
+
+  <h4>Update Entity</h4>
+
+  <pre><code>PUT /api/edd/entity/Person
+Content-Type: application/json
+
+&#123;
+  "name": "Person",
+  "attributes": [
+    &#123; "name": "name", "type": "string" &#125;,
+    &#123; "name": "age", "type": "integer" &#125;,
+    &#123; "name": "email", "type": "string" &#125;
+  ]
+&#125;
+
+Response:
+&#123;
+  "success": true
+&#125;</code></pre>
+
+  <h4>Create Entity</h4>
+
+  <pre><code>POST /api/edd/entity
+Content-Type: application/json
+
+&#123;
+  "name": "NewEntity",
+  "attributes": [
+    &#123; "name": "field1", "type": "string" &#125;
+  ]
+&#125;
+
+Response:
+&#123;
+  "success": true
+&#125;</code></pre>
+
+  <h4>Delete Entity</h4>
+
+  <pre><code>DELETE /api/edd/entity/NewEntity
+
+Response:
+&#123;
+  "success": true
+&#125;</code></pre>
+
+  <h3>Decision Table Operations</h3>
+
+  <h4>List Decision Tables</h4>
+
+  <pre><code>GET /api/dt
+
+Response:
+&#123;
+  "decisionTables": [
+    &#123;
+      "name": "Main",
+      "type": "FIRST"
+    &#125;,
+    &#123;
+      "name": "Determine_Eligibility",
+      "type": "BALANCED"
+    &#125;
+  ]
+&#125;</code></pre>
+
+  <h4>Get Decision Table</h4>
+
+  <pre><code>GET /api/dt/Determine_Eligibility
+
+Response:
+&#123;
+  "name": "Determine_Eligibility",
+  "type": "BALANCED",
+  "description": "Determines applicant eligibility",
+  "conditions": [
+    &#123;
+      "expression": "age >= 18",
+      "values": ["Y", "Y", "N", "N"]
+    &#125;,
+    &#123;
+      "expression": "income < threshold",
+      "values": ["Y", "N", "Y", "N"]
+    &#125;
+  ],
+  "actions": [
+    &#123;
+      "expression": "set eligible = true",
+      "values": ["X", "-", "X", "-"]
+    &#125;
+  ]
+&#125;</code></pre>
+
+  <h4>Update Decision Table</h4>
+
+  <pre><code>PUT /api/dt/Determine_Eligibility
+Content-Type: application/json
+
+&#123;
+  "name": "Determine_Eligibility",
+  "type": "BALANCED",
+  "conditions": [...],
+  "actions": [...]
+&#125;
+
+Response:
+&#123;
+  "success": true
+&#125;</code></pre>
+
+  <h4>Get Decision Tree</h4>
+
+  <pre><code>GET /api/dt/Main/tree
+
+Response:
+&#123;
+  "root": &#123;
+    "name": "Main",
+    "children": [
+      &#123;
+        "name": "Calculate_Income",
+        "children": []
+      &#125;,
+      &#123;
+        "name": "Determine_Eligibility",
+        "children": [
+          &#123;
+            "name": "Check_Documents",
+            "children": []
+          &#125;
+        ]
+      &#125;
+    ]
+  &#125;
+&#125;</code></pre>
+
+  <h3>Compilation</h3>
+
+  <h4>Validate Expression</h4>
+
+  <pre><code>POST /api/compile/expression
+Content-Type: application/json
+
+&#123;
+  "expression": "age >= 18 and income < threshold"
+&#125;
+
+Response:
+&#123;
+  "valid": true,
+  "postfix": "age 18 >= income threshold < and"
+&#125;</code></pre>
+
+  <h4>Get Operators</h4>
+
+  <pre><code>GET /api/compile/operators
+
+Response:
+&#123;
+  "operators": [
+    &#123; "name": "+", "description": "Addition" &#125;,
+    &#123; "name": "-", "description": "Subtraction" &#125;,
+    ...
+  ]
+&#125;</code></pre>
+
+  <h4>Get Entity Fields</h4>
+
+  <pre><code>GET /api/compile/fields
+
+Response:
+&#123;
+  "fields": [
+    &#123; "entity": "Person", "attribute": "name", "type": "string" &#125;,
+    &#123; "entity": "Person", "attribute": "age", "type": "integer" &#125;,
+    ...
+  ]
+&#125;</code></pre>
+
+  <h3>Execution</h3>
+
+  <h4>Execute Rules</h4>
+
+  <pre><code>POST /api/execute
+Content-Type: application/json
+
+&#123;
+  "entryPoint": "Main",
+  "trace": true,
+  "data": &#123;
+    "application": &#123;
+      "applicant": &#123;
+        "name": "John Doe",
+        "age": 35,
+        "income": 25000
+      &#125;
+    &#125;
+  &#125;
+&#125;
+
+Response:
+&#123;
+  "success": true,
+  "result": &#123;
+    "application": &#123;
+      "eligible": true,
+      "benefit_amount": 250.00
+    &#125;
+  &#125;,
+  "trace": "..."
+&#125;</code></pre>
+
+  <h3>Sample Projects</h3>
+
+  <h4>List Sample Projects</h4>
+
+  <pre><code>GET /api/samples
+
+Response:
+&#123;
+  "samples": [
+    &#123;
+      "name": "CHIP",
+      "path": "/path/to/sampleprojects/CHIP/xml",
+      "description": "Health insurance eligibility"
+    &#125;
+  ]
+&#125;</code></pre>
+
+  <h2>Error Handling</h2>
+
+  <p>Errors return appropriate HTTP status codes with JSON error details:</p>
+
+  <pre><code>&#123;
+  "error": true,
+  "message": "Entity not found: InvalidEntity",
+  "code": "ENTITY_NOT_FOUND"
+&#125;</code></pre>
+
+  <h3>Status Codes</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>200</td>
+        <td>Success</td>
+      </tr>
+      <tr>
+        <td>400</td>
+        <td>Bad request (invalid input)</td>
+      </tr>
+      <tr>
+        <td>404</td>
+        <td>Resource not found</td>
+      </tr>
+      <tr>
+        <td>500</td>
+        <td>Server error</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>CORS</h2>
+
+  <p>
+    The API server enables CORS for local development. In production, configure
+    appropriate CORS headers for your domain.
+  </p>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/getting-started/quickstart-ui">Quick Start (UI)</a> - Use the visual interface</li>
+    <li><a href="/docs/reference/go-api">Go API</a> - Direct Go integration</li>
+    <li><a href="https://github.com/PaulSnow/DTRules">GitHub</a> - Source code</li>
+  </ul>
+</DocsLayout>

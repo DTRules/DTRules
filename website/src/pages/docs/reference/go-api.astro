@@ -1,0 +1,259 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Go API"
+  description="Go API reference for DTRules integration."
+  prev={{ title: "Java API", href: "/docs/reference/java-api" }}
+  next={{ title: "REST API", href: "/docs/reference/rest-api" }}
+>
+  <p>
+    This reference covers the Go packages for integrating DTRules into your applications.
+  </p>
+
+  <h2>Installation</h2>
+
+  <pre><code>go get github.com/PaulSnow/DTRules/go</code></pre>
+
+  <h2>Core Packages</h2>
+
+  <h3>session</h3>
+
+  <p>High-level API for rule execution.</p>
+
+  <pre><code>import "github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+
+// Create a rule set
+rs := session.NewRuleSet("MyRules")
+
+// Load EDD
+eddFile, _ := os.Open("EDD.xml")
+rs.LoadEDD(eddFile)
+eddFile.Close()
+
+// Load decision tables
+dtFile, _ := os.Open("DecisionTables.xml")
+rs.LoadDecisionTables(dtFile)
+dtFile.Close()
+
+// Create session
+sess, _ := rs.NewSession()
+rsess := sess.(*session.RSession)
+
+// Execute
+rsess.Execute("Main")</code></pre>
+
+  <h3>entity</h3>
+
+  <p>Entity data model.</p>
+
+  <pre><code>import "github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+
+// Get entity by name
+person := state.GetEntity("person")
+
+// Get attribute
+name, _ := person.GetAttribute("name")
+age, _ := person.GetAttribute("age")
+
+// Set attribute
+person.SetAttribute("eligible", true)
+person.SetAttribute("benefit_amount", 250.00)
+
+// Work with arrays
+members, _ := household.GetAttribute("members")
+memberList := members.([]interface&#123;&#125;)</code></pre>
+
+  <h3>interpreter</h3>
+
+  <p>Low-level execution engine.</p>
+
+  <pre><code>import "github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
+
+// The interpreter uses a stack-based execution model
+// Most users interact through the session package</code></pre>
+
+  <h2>Loading Rules</h2>
+
+  <h3>From Files</h3>
+
+  <pre><code>rs := session.NewRuleSet("MyRules")
+
+// Load EDD
+eddFile, err := os.Open("/path/to/rules/MyRules_edd.xml")
+if err != nil &#123;
+    return err
+&#125;
+defer eddFile.Close()
+rs.LoadEDD(eddFile)
+
+// Load decision tables
+dtFile, err := os.Open("/path/to/rules/MyRules_dt.xml")
+if err != nil &#123;
+    return err
+&#125;
+defer dtFile.Close()
+rs.LoadDecisionTables(dtFile)</code></pre>
+
+  <h3>From Directory</h3>
+
+  <pre><code>// Load all XML files from a directory
+rs := session.NewRuleSet("MyRules")
+err := rs.LoadFromDirectory("/path/to/rules/xml")
+if err != nil &#123;
+    return err
+&#125;</code></pre>
+
+  <h2>Executing Rules</h2>
+
+  <h3>Basic Execution</h3>
+
+  <pre><code>sess, _ := rs.NewSession()
+rsess := sess.(*session.RSession)
+
+// Execute a decision table
+err := rsess.Execute("Determine_Eligibility")
+if err != nil &#123;
+    log.Printf("Execution error: %v", err)
+&#125;</code></pre>
+
+  <h3>With Tracing</h3>
+
+  <pre><code>rsess.SetTrace(true)
+rsess.Execute("Main")
+trace := rsess.GetTrace()
+fmt.Println(trace)</code></pre>
+
+  <h2>Working with Entities</h2>
+
+  <h3>Getting Values</h3>
+
+  <pre><code>state := rsess.GetState()
+
+// Get entity
+app := state.GetEntity("application")
+
+// Get primitive values
+eligible, _ := app.GetBool("eligible")
+amount, _ := app.GetFloat64("benefit_amount")
+status, _ := app.GetString("status")
+count, _ := app.GetInt("dependent_count")
+
+// Get nested entity
+household, _ := app.GetEntity("household")
+head, _ := household.GetEntity("head")
+headName, _ := head.GetString("name")</code></pre>
+
+  <h3>Setting Values</h3>
+
+  <pre><code>// Set primitive values
+app.SetAttribute("eligible", true)
+app.SetAttribute("benefit_amount", 250.00)
+app.SetAttribute("status", "approved")
+
+// Create new entity
+person := state.CreateEntity("Person")
+person.SetAttribute("name", "John Doe")
+person.SetAttribute("age", 35)
+
+// Add to array
+household.AddToArray("members", person)</code></pre>
+
+  <h2>CLI Tool</h2>
+
+  <pre><code># Build the CLI
+go build -o dtrules ./cmd/dtrules
+
+# List decision tables
+./dtrules -rules /path/to/rules -list
+
+# Validate rules
+./dtrules -rules /path/to/rules -validate
+
+# Execute
+./dtrules -rules /path/to/rules -entry Main
+
+# Execute with trace
+./dtrules -rules /path/to/rules -entry Main -trace</code></pre>
+
+  <h2>Example: Service Integration</h2>
+
+  <pre><code>package eligibility
+
+import (
+    "github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+)
+
+type EligibilityService struct &#123;
+    ruleSet *session.RuleSet
+&#125;
+
+func NewEligibilityService(rulesPath string) (*EligibilityService, error) &#123;
+    rs := session.NewRuleSet("Eligibility")
+    if err := rs.LoadFromDirectory(rulesPath); err != nil &#123;
+        return nil, err
+    &#125;
+    return &EligibilityService&#123;ruleSet: rs&#125;, nil
+&#125;
+
+type Application struct &#123;
+    ApplicantName string
+    ApplicantAge  int
+    Income        float64
+&#125;
+
+type Result struct &#123;
+    Eligible      bool
+    Reason        string
+    BenefitAmount float64
+&#125;
+
+func (s *EligibilityService) Determine(app Application) (*Result, error) &#123;
+    sess, _ := s.ruleSet.NewSession()
+    rsess := sess.(*session.RSession)
+
+    // Set up input data
+    state := rsess.GetState()
+    appEntity := state.GetEntity("application")
+    applicant := state.CreateEntity("Person")
+
+    applicant.SetAttribute("name", app.ApplicantName)
+    applicant.SetAttribute("age", app.ApplicantAge)
+    applicant.SetAttribute("income", app.Income)
+    appEntity.SetAttribute("applicant", applicant)
+
+    // Execute rules
+    if err := rsess.Execute("Determine_Eligibility"); err != nil &#123;
+        return nil, err
+    &#125;
+
+    // Extract results
+    eligible, _ := appEntity.GetBool("eligible")
+    reason, _ := appEntity.GetString("reason_code")
+    amount, _ := appEntity.GetFloat64("benefit_amount")
+
+    return &Result&#123;
+        Eligible:      eligible,
+        Reason:        reason,
+        BenefitAmount: amount,
+    &#125;, nil
+&#125;</code></pre>
+
+  <h2>Performance Tips</h2>
+
+  <ul>
+    <li>Reuse <code>RuleSet</code> instances - they're thread-safe after loading</li>
+    <li>Create new <code>RSession</code> for each execution</li>
+    <li>Use value-based execution for high-throughput scenarios</li>
+    <li>Disable tracing in production unless needed</li>
+  </ul>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/reference/rest-api">REST API</a> - HTTP API reference</li>
+    <li><a href="/docs/getting-started/quickstart-go">Go Quick Start</a> - Getting started guide</li>
+    <li><a href="/docs/guides/testing">Testing Rules</a> - Write Go tests</li>
+  </ul>
+</DocsLayout>

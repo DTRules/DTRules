@@ -1,0 +1,209 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Quick Start (Java)"
+  description="Get started with the DTRules Java implementation."
+  prev={{ title: "Quick Start (Go)", href: "/docs/getting-started/quickstart-go" }}
+  next={{ title: "Decision Tables", href: "/docs/concepts/decision-tables" }}
+>
+  <p>The original Java implementation with full Excel-to-XML compilers and testing framework.</p>
+
+  <h2>Prerequisites</h2>
+
+  <ul>
+    <li><strong>Java 8+</strong></li>
+    <li><strong>Apache Maven 3.x</strong></li>
+  </ul>
+
+  <h2>Step 1: Clone and Build</h2>
+
+  <pre><code>git clone https://github.com/PaulSnow/DTRules.git
+cd DTRules
+mvn clean install</code></pre>
+
+  <p>This builds all modules:</p>
+  <ul>
+    <li><code>dtrules-engine</code> - Core rules engine</li>
+    <li><code>compilerutil</code> - Excel to XML compiler utilities</li>
+    <li><code>dsl</code> - Domain Specific Language implementations (EL, EBL)</li>
+    <li><code>sampleprojects</code> - Example projects</li>
+  </ul>
+
+  <h2>Step 2: Run a Sample Project</h2>
+
+  <p>The easiest way to understand DTRules is to run one of the sample projects.</p>
+
+  <h3>CHIP Example (Health Insurance Eligibility)</h3>
+
+  <pre><code>cd sampleprojects/CHIP
+
+# First, compile the Excel decision tables to XML
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.CompileChip"
+
+# Then run the tests
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"</code></pre>
+
+  <h2>Step 3: Explore the Sample Project Structure</h2>
+
+  <pre><code>sampleprojects/CHIP/
+├── DecisionTables/           # Excel files with business rules
+│   └── ChipEligibility_dt.xls
+├── edd/                      # Entity Definition Documents
+│   └── ChipEligibility_edd.xls
+├── xml/                      # Compiled XML rule files (generated)
+├── repository/               # Packaged rules for deployment
+├── testfiles/                # Test case input files
+├── DTRules.xml               # Project configuration
+└── src/main/java/            # Java code
+    └── CompileChip.java      # Compiles Excel → XML
+    └── TestChip.java         # Runs test cases</code></pre>
+
+  <h2>How It Works</h2>
+
+  <h3>1. Define Your Data Model (EDD)</h3>
+
+  <p>Create an Entity Definition Document in Excel (<code>*_edd.xls</code>) that defines:</p>
+  <ul>
+    <li>Entities (data objects)</li>
+    <li>Attributes and their types</li>
+    <li>Relationships between entities</li>
+  </ul>
+
+  <h3>2. Write Decision Tables</h3>
+
+  <p>Create Decision Tables in Excel (<code>*_dt.xls</code>) with:</p>
+  <ul>
+    <li><strong>Conditions</strong> - Boolean expressions in EL syntax</li>
+    <li><strong>Actions</strong> - Operations to perform when conditions match</li>
+    <li><strong>Columns</strong> - Each column represents a rule</li>
+  </ul>
+
+  <h3>3. Compile to XML</h3>
+
+  <pre><code>Excel2XML compiler = new Excel2XML(path, "DTRules.xml", "RuleSetName");
+compiler.compileRuleSet(path, "DTRules.xml", "RuleSetName", "repository", maps, 5);</code></pre>
+
+  <h3>4. Execute Rules</h3>
+
+  <pre><code>// Load the rules
+RulesDirectory rd = new RulesDirectory(path, "DTRules.xml");
+RuleSet rs = rd.getRuleSet("RuleSetName");
+IRSession session = rs.newSession();
+
+// Load input data
+session.loadXml(inputStream, "mapping");
+
+// Execute a decision table
+session.execute("DecisionTableName");
+
+// Get results
+session.printEntityReport(output, session.getState(), "results", ...);</code></pre>
+
+  <h2>Configuration</h2>
+
+  <p>Each project has a <code>DTRules.xml</code> configuration file:</p>
+
+  <pre><code>&lt;DTRules&gt;
+  &lt;compiler&gt;EL&lt;/compiler&gt;
+
+  &lt;RuleSet name="MyRules" source="file"&gt;
+    &lt;RuleSetFilePath&gt;/xml&lt;/RuleSetFilePath&gt;
+    &lt;WorkingDirectory&gt;/temp&lt;/WorkingDirectory&gt;
+
+    &lt;DTExcelFolder&gt;/DecisionTables/&lt;/DTExcelFolder&gt;
+    &lt;EDDExcelFolder&gt;/edd/&lt;/EDDExcelFolder&gt;
+
+    &lt;Entities        name="MyRules_edd.xml" /&gt;
+    &lt;Decisiontables  name="MyRules_dt.xml"  /&gt;
+    &lt;Map             name="MyRules_map.xml" /&gt;
+  &lt;/RuleSet&gt;
+&lt;/DTRules&gt;</code></pre>
+
+  <h2>Sample Projects</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Project</th>
+        <th>Description</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TestProject</strong></td>
+        <td>Minimal template for new projects</td>
+        <td>Rule Set</td>
+      </tr>
+      <tr>
+        <td><strong>SyntaxTests</strong></td>
+        <td>Comprehensive EL language feature examples</td>
+        <td>Reference</td>
+      </tr>
+      <tr>
+        <td><strong>CHIP</strong></td>
+        <td>Health insurance eligibility determination</td>
+        <td>Rule Set</td>
+      </tr>
+      <tr>
+        <td><strong>KidAid</strong></td>
+        <td>Child assistance program eligibility</td>
+        <td>Rule Set</td>
+      </tr>
+      <tr>
+        <td><strong>ChipApp</strong></td>
+        <td>Multi-threaded CHIP application wrapper</td>
+        <td>Application</td>
+      </tr>
+      <tr>
+        <td><strong>KidAid_Application</strong></td>
+        <td>Simple KidAid integration example</td>
+        <td>Application</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Recommended Learning Path</h3>
+
+  <ol>
+    <li><strong>TestProject</strong> - Understand the minimal project structure</li>
+    <li><strong>SyntaxTests</strong> - Learn EL language features</li>
+    <li><strong>CHIP</strong> - See a real-world eligibility example</li>
+    <li><strong>ChipApp</strong> - Learn application integration patterns</li>
+  </ol>
+
+  <h2>Creating a New Project</h2>
+
+  <ol>
+    <li>Copy <code>sampleprojects/TestProject/</code> as a template</li>
+    <li>Rename and update <code>pom.xml</code> with your project details</li>
+    <li>Create your Entity Definition Document in <code>edd/</code></li>
+    <li>Create your Decision Tables in <code>DecisionTables/</code></li>
+    <li>Update <code>DTRules.xml</code> with your file names</li>
+    <li>Create compile and test Java classes</li>
+  </ol>
+
+  <h2>Running Tests</h2>
+
+  <pre><code># Run all tests
+mvn test
+
+# Run EL compiler tests (128 parameterized tests)
+cd dsl/el
+mvn test
+
+# Run sample project tests
+cd sampleprojects/CHIP
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"</code></pre>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/concepts/decision-tables">Learn about Decision Tables</a></li>
+    <li><a href="/docs/concepts/edd">Entity Data Dictionary</a></li>
+    <li><a href="/docs/concepts/expression-language">Expression Language Reference</a></li>
+    <li><a href="/docs/guides/chip-tutorial">CHIP Tutorial</a></li>
+  </ul>
+</DocsLayout>

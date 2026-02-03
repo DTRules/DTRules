@@ -1,0 +1,380 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Entity Data Dictionary"
+  description="Define your data model with the Entity Data Dictionary (EDD)."
+  prev={{ title: "Decision Tables", href: "/docs/concepts/decision-tables" }}
+  next={{ title: "Expression Language", href: "/docs/concepts/expression-language" }}
+>
+  <p>
+    The Entity Data Dictionary (EDD) defines the data model for your rules. It specifies what
+    entities exist, what attributes they have, and how they relate to each other.
+  </p>
+
+  <h2>What is an Entity?</h2>
+
+  <p>
+    An entity is a data object in your rule system. Think of it like a class in object-oriented
+    programming or a table in a database. Common examples:
+  </p>
+
+  <ul>
+    <li><strong>Person</strong> - name, age, income</li>
+    <li><strong>Application</strong> - status, submitted_date</li>
+    <li><strong>Household</strong> - address, members</li>
+    <li><strong>Benefit</strong> - type, amount</li>
+  </ul>
+
+  <h2>Defining Entities</h2>
+
+  <p>Entities are defined in an Excel spreadsheet (<code>*_edd.xls</code>) with these columns:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Column</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Entity</strong></td>
+        <td>Entity name (starts a new entity definition)</td>
+      </tr>
+      <tr>
+        <td><strong>Attribute</strong></td>
+        <td>Attribute name</td>
+      </tr>
+      <tr>
+        <td><strong>Type</strong></td>
+        <td>Data type (string, integer, decimal, boolean, date, entity, array)</td>
+      </tr>
+      <tr>
+        <td><strong>Subtype</strong></td>
+        <td>For arrays, the element type</td>
+      </tr>
+      <tr>
+        <td><strong>Default</strong></td>
+        <td>Default value</td>
+      </tr>
+      <tr>
+        <td><strong>Input</strong></td>
+        <td>Whether it's input data (Y/N)</td>
+      </tr>
+      <tr>
+        <td><strong>Comment</strong></td>
+        <td>Documentation</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Data Types</h2>
+
+  <h3>Primitive Types</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>string</code></td>
+        <td>Text</td>
+        <td>"John Doe"</td>
+      </tr>
+      <tr>
+        <td><code>integer</code></td>
+        <td>Whole number</td>
+        <td>42</td>
+      </tr>
+      <tr>
+        <td><code>decimal</code></td>
+        <td>Decimal number</td>
+        <td>123.45</td>
+      </tr>
+      <tr>
+        <td><code>boolean</code></td>
+        <td>True/false</td>
+        <td>true</td>
+      </tr>
+      <tr>
+        <td><code>date</code></td>
+        <td>Date value</td>
+        <td>2024-01-15</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Complex Types</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Usage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>entity</code></td>
+        <td>Reference to another entity</td>
+        <td>Type column has entity name</td>
+      </tr>
+      <tr>
+        <td><code>array</code></td>
+        <td>List of values</td>
+        <td>Subtype column has element type</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example EDD</h2>
+
+  <p>Here's an example EDD for a simple eligibility system:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Attribute</th>
+        <th>Type</th>
+        <th>Subtype</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Person</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>name</td>
+        <td>string</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>age</td>
+        <td>integer</td>
+        <td></td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>income</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>citizen</td>
+        <td>boolean</td>
+        <td></td>
+        <td>false</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>birth_date</td>
+        <td>date</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Household</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>address</td>
+        <td>string</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>head</td>
+        <td>Person</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>members</td>
+        <td>array</td>
+        <td>Person</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Application</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>household</td>
+        <td>Household</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>status</td>
+        <td>string</td>
+        <td></td>
+        <td>"pending"</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>eligible</td>
+        <td>boolean</td>
+        <td></td>
+        <td>false</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>benefit_amount</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Entity Relationships</h2>
+
+  <h3>One-to-One</h3>
+
+  <p>An attribute whose type is another entity:</p>
+
+  <pre><code>// Application has one Household
+household: Household
+
+// Accessing in rules:
+application.household.address</code></pre>
+
+  <h3>One-to-Many</h3>
+
+  <p>An array of entities:</p>
+
+  <pre><code>// Household has many Persons
+members: array of Person
+
+// Accessing in rules:
+count of household.members
+for each member in household.members do ...</code></pre>
+
+  <h2>Special Entities</h2>
+
+  <h3>Context Entity</h3>
+
+  <p>
+    The "context" entity is always on the entity stack. It provides global access to shared data
+    and configuration.
+  </p>
+
+  <h3>Mapping Entities</h3>
+
+  <p>
+    Mapping entities define how external data (XML, JSON) maps to your rule entities. This enables
+    automatic data loading.
+  </p>
+
+  <h2>Using Entities in Rules</h2>
+
+  <h3>Attribute Access</h3>
+
+  <pre><code>// Simple attribute
+person.age
+
+// Nested access
+application.household.head.name
+
+// Array access
+household.members[0].name</code></pre>
+
+  <h3>Creating Entities</h3>
+
+  <pre><code>// Create new entity
+new Person
+
+// Create and assign
+set applicant = new Person
+set applicant.name = "John"</code></pre>
+
+  <h3>Working with Arrays</h3>
+
+  <pre><code>// Add to array
+add person to household.members
+
+// Remove from array
+remove person from household.members
+
+// Count
+count of household.members
+
+// Iterate
+for each member in household.members do
+    set member.processed = true
+done
+
+// Filter
+any member in household.members satisfies (member.age >= 18)</code></pre>
+
+  <h2>Best Practices</h2>
+
+  <h3>1. Use Meaningful Names</h3>
+  <p>
+    Entity and attribute names should be descriptive and follow consistent conventions
+    (camelCase or snake_case).
+  </p>
+
+  <h3>2. Set Appropriate Defaults</h3>
+  <p>
+    Default values ensure entities are always in a valid state. Use them for flags
+    (default false), counters (default 0), etc.
+  </p>
+
+  <h3>3. Document with Comments</h3>
+  <p>
+    Use the Comment column to explain the purpose of entities and attributes,
+    especially for business-specific terms.
+  </p>
+
+  <h3>4. Design for Rules</h3>
+  <p>
+    Structure your entities to make rule writing easy. If rules frequently check
+    a calculation, consider making it an attribute.
+  </p>
+
+  <h3>5. Separate Input and Output</h3>
+  <p>
+    Mark input attributes clearly. Output/calculated attributes should be separate
+    to make data flow clear.
+  </p>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/concepts/expression-language">Expression Language</a> - Write rules using your entities</li>
+    <li><a href="/docs/concepts/decision-tables">Decision Tables</a> - Use entities in decision tables</li>
+    <li><a href="/docs/guides/creating-projects">Creating Projects</a> - Set up a new DTRules project</li>
+  </ul>
+</DocsLayout>

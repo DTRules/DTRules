@@ -1,0 +1,243 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Quick Start (Go)"
+  description="Get started with the DTRules Go implementation."
+  prev={{ title: "Quick Start (UI)", href: "/docs/getting-started/quickstart-ui" }}
+  next={{ title: "Quick Start (Java)", href: "/docs/getting-started/quickstart-java" }}
+>
+  <p>A high-performance Go implementation of the DTRules decision table rules engine.</p>
+
+  <h2>Overview</h2>
+
+  <p>The Go implementation provides:</p>
+
+  <ul>
+    <li><strong>Full compatibility</strong> with DTRules XML formats (EDD and Decision Tables)</li>
+    <li><strong>High performance</strong> with zero-allocation hot paths</li>
+    <li><strong>Dual execution modes</strong>: Object-based (compatible) and Value-based (optimized)</li>
+    <li><strong>179+ operators</strong> covering math, boolean, string, array, date, and control flow operations</li>
+  </ul>
+
+  <h2>Performance</h2>
+
+  <p>Key optimizations achieve significant speedups:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operation</th>
+        <th>Baseline</th>
+        <th>Optimized</th>
+        <th>Speedup</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Operator Lookup</td>
+        <td>83 ns</td>
+        <td>0.64 ns</td>
+        <td><strong>130x</strong></td>
+      </tr>
+      <tr>
+        <td>Integer Arithmetic</td>
+        <td>19 ns</td>
+        <td>0.79 ns</td>
+        <td><strong>24x</strong></td>
+      </tr>
+      <tr>
+        <td>String Creation</td>
+        <td>41 ns</td>
+        <td>11 ns</td>
+        <td><strong>3.7x</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Installation</h2>
+
+  <pre><code>go get github.com/PaulSnow/DTRules/go</code></pre>
+
+  <h2>Using the CLI</h2>
+
+  <pre><code># Clone the repository
+git clone https://github.com/PaulSnow/DTRules.git
+cd DTRules/go
+
+# Build the CLI
+go build -o dtrules ./cmd/dtrules
+
+# List decision tables
+./dtrules -rules ../sampleprojects/CHIP/xml -list
+
+# Validate rules
+./dtrules -rules ../sampleprojects/CHIP/xml -validate
+
+# Execute a decision table
+./dtrules -rules ../sampleprojects/CHIP/xml -entry Compute_Eligibility
+
+# Execute with tracing
+./dtrules -rules ../sampleprojects/CHIP/xml -entry Main -trace</code></pre>
+
+  <h2>Using as a Library</h2>
+
+  <pre><code>package main
+
+import (
+    "os"
+    "github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+)
+
+func main() &#123;
+    // Create a rule set
+    rs := session.NewRuleSet("MyRules")
+
+    // Load EDD (Entity Data Dictionary)
+    eddFile, _ := os.Open("EDD.xml")
+    rs.LoadEDD(eddFile)
+    eddFile.Close()
+
+    // Load Decision Tables
+    dtFile, _ := os.Open("DecisionTables.xml")
+    rs.LoadDecisionTables(dtFile)
+    dtFile.Close()
+
+    // Create a session and execute
+    sess, _ := rs.NewSession()
+    rsess := sess.(*session.RSession)
+    rsess.Execute("Compute_Eligibility")
+&#125;</code></pre>
+
+  <h2>Architecture</h2>
+
+  <p>DTRules uses a three-stack interpreter similar to PostScript:</p>
+
+  <ul>
+    <li><strong>Data Stack</strong>: Holds operands and intermediate values</li>
+    <li><strong>Entity Stack</strong>: Provides scoped dictionary lookup (context)</li>
+    <li><strong>Control Stack</strong>: Manages stack frames and local variables</li>
+  </ul>
+
+  <pre><code>┌─────────────────────────────────────────────┐
+│              DTRules Runtime                │
+├─────────────────────────────────────────────┤
+│  Expression → Compiler → Executable Code    │
+│                              │              │
+│              ┌───────────────┼───────────┐  │
+│              ▼               ▼           │  │
+│       ┌───────────┐   ┌───────────┐      │  │
+│       │  Object   │   │   Value   │      │  │
+│       │   Stack   │   │   Stack   │      │  │
+│       └───────────┘   └───────────┘      │  │
+│              │               │           │  │
+│              └───────┬───────┘           │  │
+│                      ▼                   │  │
+│               ┌───────────┐              │  │
+│               │  Entity   │              │  │
+│               │   Stack   │              │  │
+│               └───────────┘              │  │
+└─────────────────────────────────────────────┘</code></pre>
+
+  <h2>Package Structure</h2>
+
+  <pre><code>go/
+├── cmd/
+│   ├── dtrules/          # CLI tool
+│   └── api/              # REST API server for UI
+└── pkg/dtrules/
+    ├── compiler/         # Postfix expression compiler
+    ├── interpreter/      # State and bytecode VM
+    ├── entity/           # Entity system
+    ├── operators/        # 179+ built-in operators
+    ├── session/          # Session and RuleSet management
+    ├── decisiontable/    # Decision table execution
+    ├── loader/           # XML loaders (EDD, DT)
+    ├── mapping/          # Data mapping
+    └── benchmark/        # Performance benchmarks</code></pre>
+
+  <h2>REST API Server</h2>
+
+  <p>The API server provides HTTP endpoints for the DTRules UI:</p>
+
+  <pre><code># Start the API server (default port 8080)
+go run ./cmd/api
+
+# Start on a different port
+go run ./cmd/api -port 9000
+
+# With verbose logging
+go run ./cmd/api -v</code></pre>
+
+  <h3>API Endpoints</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/api/health</code></td>
+        <td>GET</td>
+        <td>Health check</td>
+      </tr>
+      <tr>
+        <td><code>/api/project/open</code></td>
+        <td>POST</td>
+        <td>Open project directory</td>
+      </tr>
+      <tr>
+        <td><code>/api/project/save</code></td>
+        <td>POST</td>
+        <td>Save modified files</td>
+      </tr>
+      <tr>
+        <td><code>/api/edd</code></td>
+        <td>GET</td>
+        <td>Get all entities</td>
+      </tr>
+      <tr>
+        <td><code>/api/dt</code></td>
+        <td>GET/POST</td>
+        <td>List/create decision tables</td>
+      </tr>
+      <tr>
+        <td><code>/api/execute</code></td>
+        <td>POST</td>
+        <td>Execute rules</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Decision Table Types</h2>
+
+  <ul>
+    <li><strong>BALANCED</strong>: All condition branches must be defined</li>
+    <li><strong>FIRST</strong>: Executes only the first matching column</li>
+    <li><strong>ALL</strong>: Executes all matching columns in order</li>
+  </ul>
+
+  <h2>Testing</h2>
+
+  <pre><code># Run all tests
+go test ./...
+
+# Run benchmarks
+go test -bench=. ./pkg/dtrules/benchmark/... -benchmem
+
+# Run specific tests
+go test -v ./pkg/dtrules -run TestValue</code></pre>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/getting-started/quickstart-ui">Set up the Visual UI</a></li>
+    <li><a href="/docs/concepts/decision-tables">Learn about Decision Tables</a></li>
+    <li><a href="/docs/reference/go-api">Go API Reference</a></li>
+  </ul>
+</DocsLayout>

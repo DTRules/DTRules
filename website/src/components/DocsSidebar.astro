@@ -1,0 +1,111 @@
+---
+interface NavItem {
+  title: string;
+  href: string;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const sections: NavSection[] = [
+  {
+    title: 'Getting Started',
+    items: [
+      { title: 'Introduction', href: '/docs/getting-started' },
+      { title: 'Quick Start (UI)', href: '/docs/getting-started/quickstart-ui' },
+      { title: 'Quick Start (Go)', href: '/docs/getting-started/quickstart-go' },
+      { title: 'Quick Start (Java)', href: '/docs/getting-started/quickstart-java' },
+    ],
+  },
+  {
+    title: 'Concepts',
+    items: [
+      { title: 'Decision Tables', href: '/docs/concepts/decision-tables' },
+      { title: 'Entity Data Dictionary', href: '/docs/concepts/edd' },
+      { title: 'Expression Language', href: '/docs/concepts/expression-language' },
+      { title: 'Deterministic Rules', href: '/docs/concepts/deterministic' },
+    ],
+  },
+  {
+    title: 'Guides',
+    items: [
+      { title: 'CHIP Tutorial', href: '/docs/guides/chip-tutorial' },
+      { title: 'Creating Projects', href: '/docs/guides/creating-projects' },
+      { title: 'Testing Rules', href: '/docs/guides/testing' },
+    ],
+  },
+  {
+    title: 'Reference',
+    items: [
+      { title: 'Operators', href: '/docs/reference/operators' },
+      { title: 'Java API', href: '/docs/reference/java-api' },
+      { title: 'Go API', href: '/docs/reference/go-api' },
+      { title: 'REST API', href: '/docs/reference/rest-api' },
+    ],
+  },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<aside class="w-64 shrink-0 hidden lg:block">
+  <nav class="sticky top-24 space-y-6 pr-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+    {sections.map(section => (
+      <div>
+        <h4 class="font-semibold text-sm text-foreground mb-2 px-3">{section.title}</h4>
+        <ul class="space-y-1">
+          {section.items.map(item => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  'block px-3 py-1.5 text-sm rounded-lg transition-colors',
+                  currentPath === item.href || currentPath === item.href + '/'
+                    ? 'text-foreground bg-accent font-medium'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                ]}
+              >
+                {item.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </nav>
+</aside>
+
+<!-- Mobile Docs Navigation -->
+<div class="lg:hidden mb-6">
+  <details class="glass rounded-lg">
+    <summary class="px-4 py-3 font-semibold cursor-pointer">
+      Documentation Menu
+    </summary>
+    <nav class="px-4 pb-4 space-y-4">
+      {sections.map(section => (
+        <div>
+          <h4 class="font-semibold text-sm text-foreground mb-2">{section.title}</h4>
+          <ul class="space-y-1">
+            {section.items.map(item => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={[
+                    'block px-3 py-1.5 text-sm rounded-lg transition-colors',
+                    currentPath === item.href || currentPath === item.href + '/'
+                      ? 'text-foreground bg-accent font-medium'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  ]}
+                >
+                  {item.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  </details>
+</div>

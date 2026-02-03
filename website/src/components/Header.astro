@@ -1,0 +1,105 @@
+---
+import { Table2, Menu, X } from 'lucide-react';
+
+const navLinks = [
+  { href: '/features', label: 'Features' },
+  { href: '/docs/getting-started', label: 'Docs' },
+  { href: '/demo', label: 'Demo' },
+  { href: '/downloads', label: 'Downloads' },
+  { href: '/about', label: 'About' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg shadow-blue-500/20 transition-all group-hover:shadow-blue-500/40">
+          <Table2 className="h-5 w-5 text-white" />
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+          DTRules
+        </span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-1">
+        {navLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+              currentPath.startsWith(link.href)
+                ? 'text-foreground bg-accent'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
+        <a
+          href="https://github.com/PaulSnow/DTRules"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ml-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          GitHub
+        </a>
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-button"
+        class="md:hidden p-2 text-muted-foreground hover:text-foreground"
+        aria-label="Toggle menu"
+      >
+        <Menu className="h-6 w-6" id="menu-icon" />
+        <X className="h-6 w-6 hidden" id="close-icon" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav id="mobile-menu" class="hidden md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 py-4 space-y-1">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            'block px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+            currentPath.startsWith(link.href)
+              ? 'text-foreground bg-accent'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="https://github.com/PaulSnow/DTRules"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >
+        GitHub
+      </a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const menuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+
+  menuButton?.addEventListener('click', () => {
+    const isOpen = mobileMenu?.classList.contains('hidden');
+    mobileMenu?.classList.toggle('hidden', !isOpen);
+    menuIcon?.classList.toggle('hidden', isOpen);
+    closeIcon?.classList.toggle('hidden', !isOpen);
+  });
+</script>

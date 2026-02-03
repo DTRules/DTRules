@@ -1,0 +1,60 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import DocsSidebar from '../components/DocsSidebar.astro';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+interface Props {
+  title: string;
+  description?: string;
+  prev?: { title: string; href: string };
+  next?: { title: string; href: string };
+}
+
+const { title, description, prev, next } = Astro.props;
+---
+
+<BaseLayout title={`${title} - DTRules Documentation`} description={description}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex gap-8">
+      <DocsSidebar />
+
+      <article class="flex-1 min-w-0">
+        <div class="prose max-w-none">
+          <h1 class="!mt-0">{title}</h1>
+          <slot />
+        </div>
+
+        <!-- Prev/Next Navigation -->
+        {(prev || next) && (
+          <nav class="mt-12 pt-8 border-t border-border flex justify-between gap-4">
+            {prev ? (
+              <a
+                href={prev.href}
+                class="group flex items-center gap-2 px-4 py-3 rounded-lg border border-border hover:border-blue-500/30 hover:bg-accent/50 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-blue-400 transition-colors" />
+                <div class="text-left">
+                  <div class="text-xs text-muted-foreground">Previous</div>
+                  <div class="text-sm font-medium">{prev.title}</div>
+                </div>
+              </a>
+            ) : <div />}
+
+            {next ? (
+              <a
+                href={next.href}
+                class="group flex items-center gap-2 px-4 py-3 rounded-lg border border-border hover:border-blue-500/30 hover:bg-accent/50 transition-colors"
+              >
+                <div class="text-right">
+                  <div class="text-xs text-muted-foreground">Next</div>
+                  <div class="text-sm font-medium">{next.title}</div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-blue-400 transition-colors" />
+              </a>
+            ) : <div />}
+          </nav>
+        )}
+      </article>
+    </div>
+  </div>
+</BaseLayout>

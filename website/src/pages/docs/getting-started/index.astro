@@ -1,0 +1,141 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Getting Started"
+  description="Get started with DTRules - a decision table based rules engine."
+  next={{ title: "Quick Start (UI)", href: "/docs/getting-started/quickstart-ui" }}
+>
+  <p>
+    DTRules is a production-ready rules engine that allows business analysts and policy experts to
+    define complex business logic using <strong>Decision Tables</strong> in Excel spreadsheets, combined
+    with a human-readable <strong>Domain Specific Language (DSL)</strong>.
+  </p>
+
+  <h2>Overview</h2>
+
+  <p>
+    Decision Tables provide a tabular representation of business rules that can be understood by both
+    policy experts and developers. The DSL ensures that conditions and actions are written in clear,
+    readable syntax rather than code.
+  </p>
+
+  <h3>Key Features</h3>
+
+  <ul>
+    <li><strong>Excel-based Rule Definition</strong> - Define rules in familiar spreadsheet format</li>
+    <li><strong>Domain Specific Languages</strong> - EL (Expression Language) for readable conditions and actions</li>
+    <li><strong>Entity Data Model</strong> - Define your data structures in Excel</li>
+    <li><strong>Auto-mapping</strong> - Automatic mapping between Java objects and rule entities</li>
+    <li><strong>Test Harness</strong> - Built-in testing framework for validating rules</li>
+    <li><strong>Trace &amp; Debug</strong> - Comprehensive tracing for debugging rule execution</li>
+  </ul>
+
+  <h3>Production Use</h3>
+
+  <p>DTRules has been used in production systems including:</p>
+
+  <ul>
+    <li>State welfare/assistance programs (Texas TIERS, Ohio OFAST)</li>
+    <li>Insurance eligibility determination systems</li>
+    <li>Commercial business logic applications</li>
+  </ul>
+
+  <h2>Implementations</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Implementation</th>
+        <th>Status</th>
+        <th>Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Java</strong></td>
+        <td>Production</td>
+        <td>Original implementation with full tooling</td>
+      </tr>
+      <tr>
+        <td><strong>Go</strong></td>
+        <td>Production</td>
+        <td>High-performance runtime, 130x faster operator lookup</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Java Implementation</h3>
+
+  <p>The original Java implementation provides:</p>
+  <ul>
+    <li>Excel-to-XML compilers for decision tables</li>
+    <li>Full IDE support and debugging</li>
+    <li>Comprehensive test harness</li>
+    <li>Production-proven stability</li>
+  </ul>
+
+  <h3>Go Implementation</h3>
+
+  <p>The Go implementation provides:</p>
+  <ul>
+    <li><strong>Full compatibility</strong> with Java DTRules XML formats</li>
+    <li><strong>High performance</strong>: 130x faster operator lookup, 24x faster arithmetic</li>
+    <li><strong>Zero-allocation</strong> hot paths for reduced GC pressure</li>
+    <li><strong>CLI tool</strong> for rule validation and execution</li>
+  </ul>
+
+  <h2>Requirements</h2>
+
+  <h3>Java</h3>
+  <ul>
+    <li><strong>Java 8+</strong></li>
+    <li><strong>Apache Maven 3.x</strong></li>
+  </ul>
+
+  <h3>Go</h3>
+  <ul>
+    <li><strong>Go 1.21+</strong></li>
+  </ul>
+
+  <h3>Visual UI</h3>
+  <ul>
+    <li><strong>Node.js 18+</strong> (frontend)</li>
+    <li><strong>Go 1.21+</strong> (backend)</li>
+  </ul>
+
+  <h2>Quick Start Options</h2>
+
+  <p>Choose the quick start guide that matches your use case:</p>
+
+  <ul>
+    <li><a href="/docs/getting-started/quickstart-ui">Quick Start (UI)</a> - Visual editing with the React UI</li>
+    <li><a href="/docs/getting-started/quickstart-go">Quick Start (Go)</a> - High-performance CLI and API</li>
+    <li><a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a> - Full tooling with Excel compilers</li>
+  </ul>
+
+  <h2>Project Structure</h2>
+
+  <p>A typical DTRules project has this structure:</p>
+
+  <pre><code>project/
+├── DecisionTables/           # Excel files with business rules
+│   └── MyRules_dt.xls
+├── edd/                      # Entity Definition Documents
+│   └── MyRules_edd.xls
+├── xml/                      # Compiled XML rule files (generated)
+├── testfiles/                # Test case input files
+├── DTRules.xml               # Project configuration
+└── src/main/java/            # Java code (optional)
+    └── CompileRules.java     # Compiles Excel → XML
+    └── TestRules.java        # Runs test cases</code></pre>
+
+  <h2>Links</h2>
+
+  <ul>
+    <li><a href="https://github.com/PaulSnow/DTRules">GitHub Repository</a></li>
+    <li><a href="/features">Features Overview</a></li>
+    <li><a href="/demo">Interactive Demo</a></li>
+  </ul>
+</DocsLayout>

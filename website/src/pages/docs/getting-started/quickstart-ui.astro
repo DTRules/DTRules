@@ -1,0 +1,201 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Quick Start (UI)"
+  description="Get the DTRules visual UI running in under 5 minutes."
+  prev={{ title: "Introduction", href: "/docs/getting-started" }}
+  next={{ title: "Quick Start (Go)", href: "/docs/getting-started/quickstart-go" }}
+>
+  <p>Get the visual UI running in under 5 minutes.</p>
+
+  <h2>Prerequisites</h2>
+
+  <ul>
+    <li><strong>Node.js 18+</strong> - <a href="https://nodejs.org/">Download</a></li>
+    <li><strong>Go 1.21+</strong> - <a href="https://go.dev/dl/">Download</a></li>
+  </ul>
+
+  <p>Verify installation:</p>
+
+  <pre><code>node --version   # Should show v18.x.x or higher
+go version       # Should show go1.21.x or higher</code></pre>
+
+  <h2>Step 1: Clone the Repository</h2>
+
+  <pre><code>git clone https://github.com/PaulSnow/DTRules.git
+cd DTRules</code></pre>
+
+  <h2>Step 2: Start the Backend</h2>
+
+  <p>Open a terminal and run:</p>
+
+  <pre><code>cd go
+go run ./cmd/api</code></pre>
+
+  <p>You should see:</p>
+
+  <pre><code>DTRules API Server starting on :8080</code></pre>
+
+  <p>Leave this terminal running.</p>
+
+  <h2>Step 3: Start the Frontend</h2>
+
+  <p>Open a <strong>new terminal</strong> and run:</p>
+
+  <pre><code>cd ui
+npm install      # First time only - installs dependencies
+npm run dev</code></pre>
+
+  <p>You should see:</p>
+
+  <pre><code>VITE v5.x.x  ready in xxx ms
+
+➜  Local:   http://localhost:5173/</code></pre>
+
+  <h2>Step 4: Open the UI</h2>
+
+  <ol>
+    <li>Open your browser to <strong>http://localhost:5173</strong></li>
+    <li>You'll see the DTRules welcome screen</li>
+  </ol>
+
+  <h2>Step 5: Open a Project</h2>
+
+  <p>Click <strong>"Start Tutorial"</strong> or <strong>"Open Sample Project"</strong> to load the CHIP sample project.</p>
+
+  <p>Alternatively, click <strong>"Open Custom Project"</strong> and enter the path to a DTRules project:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>OS</th>
+        <th>Example Path</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Linux</td>
+        <td><code>/home/username/DTRules/sampleprojects/CHIP/xml</code></td>
+      </tr>
+      <tr>
+        <td>macOS</td>
+        <td><code>/Users/username/DTRules/sampleprojects/CHIP/xml</code></td>
+      </tr>
+      <tr>
+        <td>Windows</td>
+        <td><code>C:\Users\username\DTRules\sampleprojects\CHIP\xml</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <blockquote>
+    <strong>Tip:</strong> Use the absolute path to your cloned DTRules repository.
+  </blockquote>
+
+  <h2>Step 6: Explore</h2>
+
+  <p>Once the project loads, you can:</p>
+
+  <ul>
+    <li><strong>Left Panel</strong> - Browse entities and decision tables</li>
+    <li><strong>Entity Tab</strong> - View/edit entity definitions (EDD)</li>
+    <li><strong>Decision Table Tab</strong> - View/edit decision tables with color-coded cells</li>
+    <li><strong>Test Tab</strong> - Execute rules with test data and see traces</li>
+    <li><strong>Tree Tab</strong> - Visualize decision table call hierarchy</li>
+  </ul>
+
+  <h2>Architecture</h2>
+
+  <pre><code>┌─────────────┐     HTTP      ┌─────────────┐
+│   Browser   │◄────────────►│  Go Backend │
+│  (React UI) │   :5173      │  (API)      │
+│             │              │   :8080     │
+└─────────────┘              └──────┬──────┘
+                                   │
+                                   ▼
+                            ┌─────────────┐
+                            │  XML Files  │
+                            │  (EDD, DT)  │
+                            └─────────────┘</code></pre>
+
+  <h2>Troubleshooting</h2>
+
+  <h3>"Failed to fetch" or "Network Error"</h3>
+
+  <p>The backend isn't running. Make sure you started it:</p>
+
+  <pre><code>cd go
+go run ./cmd/api</code></pre>
+
+  <h3>"npm install" fails</h3>
+
+  <p>Try clearing the cache:</p>
+
+  <pre><code>cd ui
+rm -rf node_modules package-lock.json
+npm install</code></pre>
+
+  <h3>Port already in use</h3>
+
+  <p>Backend (8080):</p>
+  <pre><code># Find and kill the process using port 8080
+lsof -i :8080
+kill &lt;PID&gt;</code></pre>
+
+  <p>Frontend (5173):</p>
+  <pre><code># Vite will automatically try the next port (5174, etc.)
+# Or kill the existing process
+lsof -i :5173
+kill &lt;PID&gt;</code></pre>
+
+  <h3>Project won't open</h3>
+
+  <ul>
+    <li>Verify the path exists and contains <code>*_edd.xml</code> and <code>*_dt.xml</code> files</li>
+    <li>Use an absolute path (starting with <code>/</code> on Linux/Mac or <code>C:\</code> on Windows)</li>
+    <li>Check the backend terminal for error messages</li>
+  </ul>
+
+  <h2>Quick Reference</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Start backend</td>
+        <td><code>cd go &amp;&amp; go run ./cmd/api</code></td>
+      </tr>
+      <tr>
+        <td>Start frontend</td>
+        <td><code>cd ui &amp;&amp; npm run dev</code></td>
+      </tr>
+      <tr>
+        <td>Build frontend</td>
+        <td><code>cd ui &amp;&amp; npm run build</code></td>
+      </tr>
+      <tr>
+        <td>Run Go tests</td>
+        <td><code>cd go &amp;&amp; go test ./...</code></td>
+      </tr>
+      <tr>
+        <td>Type check UI</td>
+        <td><code>cd ui &amp;&amp; npm run typecheck</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li>Explore the <a href="/docs/guides/chip-tutorial">CHIP Tutorial</a> to understand DTRules concepts</li>
+    <li>Read about <a href="/docs/concepts/decision-tables">Decision Tables</a></li>
+    <li>Check the <a href="/docs/reference/operators">Operator Reference</a></li>
+  </ul>
+</DocsLayout>

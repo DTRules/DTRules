@@ -1,0 +1,305 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Table2, FileText, Code2, Zap, GitBranch, TestTube2, Shield, BookOpen, ArrowRight } from 'lucide-react';
+---
+
+<BaseLayout title="Features - DTRules" description="Explore the powerful features of DTRules - the decision table rules engine.">
+  <!-- Hero -->
+  <section class="hero-gradient py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+        Powerful <span class="gradient-text">Features</span>
+      </h1>
+      <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+        Everything you need to define, test, and execute complex business rules in a maintainable way.
+      </p>
+    </div>
+  </section>
+
+  <!-- Decision Tables -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-blue-500/10 rounded-lg">
+              <Table2 className="h-6 w-6 text-blue-400" />
+            </div>
+            <span class="text-sm font-medium text-blue-400">Core Feature</span>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">Decision Tables</h2>
+          <p class="text-muted-foreground mb-6">
+            Decision tables provide a tabular way to represent complex business logic. Each column represents a rule,
+            with conditions at the top and actions at the bottom. This format is intuitive for both policy experts and developers.
+          </p>
+          <ul class="space-y-3 text-muted-foreground mb-6">
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2" />
+              <span><strong>Conditions:</strong> Boolean expressions that determine when a rule fires</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2" />
+              <span><strong>Actions:</strong> Operations executed when conditions match</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2" />
+              <span><strong>Table Types:</strong> BALANCED, FIRST, or ALL execution modes</span>
+            </li>
+          </ul>
+          <a href="/docs/concepts/decision-tables" class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-2">
+            Learn about Decision Tables
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <div class="text-sm font-mono">
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="font-semibold text-muted-foreground">Condition</div>
+              <div class="bg-green-500/20 text-green-400 rounded px-2 py-1">Y</div>
+              <div class="bg-red-500/20 text-red-400 rounded px-2 py-1">N</div>
+              <div class="bg-blue-500/20 text-blue-400 rounded px-2 py-1">*</div>
+            </div>
+            <div class="mt-2 text-xs text-muted-foreground text-center">
+              age &gt;= 18
+            </div>
+            <div class="border-t border-border/50 my-4" />
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="font-semibold text-muted-foreground">Action</div>
+              <div class="bg-purple-500/20 text-purple-400 rounded px-2 py-1">X</div>
+              <div class="bg-muted rounded px-2 py-1">-</div>
+              <div class="bg-purple-500/20 text-purple-400 rounded px-2 py-1">X</div>
+            </div>
+            <div class="mt-2 text-xs text-muted-foreground text-center">
+              set eligible = true
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Entity Data Dictionary -->
+  <section class="py-20 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="order-2 lg:order-1 glass rounded-2xl p-6">
+          <pre class="text-sm text-muted-foreground overflow-x-auto"><code>Entity: Person
+  - name: string
+  - age: integer
+  - income: decimal
+  - dependents: Person[]
+
+Entity: Application
+  - applicant: Person
+  - submitted_date: date
+  - status: string</code></pre>
+        </div>
+        <div class="order-1 lg:order-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-purple-500/10 rounded-lg">
+              <FileText className="h-6 w-6 text-purple-400" />
+            </div>
+            <span class="text-sm font-medium text-purple-400">Data Model</span>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">Entity Data Dictionary</h2>
+          <p class="text-muted-foreground mb-6">
+            Define your data model in Excel using the Entity Data Dictionary (EDD). Specify entities, attributes,
+            their types, and relationships. DTRules automatically maps these to Java objects at runtime.
+          </p>
+          <ul class="space-y-3 text-muted-foreground mb-6">
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2" />
+              <span>Support for primitives, arrays, and entity references</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2" />
+              <span>Automatic Java object mapping</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2" />
+              <span>Default values and validation rules</span>
+            </li>
+          </ul>
+          <a href="/docs/concepts/edd" class="text-purple-400 hover:text-purple-300 font-medium flex items-center gap-2">
+            Learn about EDD
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Expression Language -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-green-500/10 rounded-lg">
+              <Code2 className="h-6 w-6 text-green-400" />
+            </div>
+            <span class="text-sm font-medium text-green-400">DSL</span>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">Expression Language</h2>
+          <p class="text-muted-foreground mb-6">
+            Write conditions and actions in EL (Expression Language) - a readable syntax designed for policy experts.
+            Built with ANTLR 4 for robust parsing and clear error messages.
+          </p>
+          <ul class="space-y-3 text-muted-foreground mb-6">
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-green-400 mt-2" />
+              <span><strong>179+ operators</strong> for math, boolean, string, date, and array operations</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-green-400 mt-2" />
+              <span><strong>Human-readable</strong> syntax that policy experts can validate</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-green-400 mt-2" />
+              <span><strong>Compile-time validation</strong> catches errors before runtime</span>
+            </li>
+          </ul>
+          <a href="/docs/concepts/expression-language" class="text-green-400 hover:text-green-300 font-medium flex items-center gap-2">
+            Learn about EL
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <pre class="text-sm overflow-x-auto"><code class="text-muted-foreground"><span class="text-blue-400">// Conditions</span>
+applicant.age &gt;= 18
+applicant.income &lt; poverty_level * 2
+count of applicant.dependents &gt; 0
+
+<span class="text-blue-400">// Actions</span>
+set application.eligible = true
+add applicant to eligible_list
+perform Calculate_Benefits</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Performance -->
+  <section class="py-20 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="p-2 bg-blue-500/10 rounded-lg">
+            <Zap className="h-6 w-6 text-blue-400" />
+          </div>
+        </div>
+        <h2 class="text-3xl font-bold mb-4">High Performance</h2>
+        <p class="text-muted-foreground max-w-2xl mx-auto">
+          The Go implementation is optimized for production workloads with zero-allocation hot paths.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-4xl font-bold gradient-text mb-2">130x</div>
+          <div class="text-lg font-semibold mb-1">Faster Operator Lookup</div>
+          <div class="text-sm text-muted-foreground">83ns → 0.64ns</div>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-4xl font-bold gradient-text mb-2">24x</div>
+          <div class="text-lg font-semibold mb-1">Faster Arithmetic</div>
+          <div class="text-sm text-muted-foreground">19ns → 0.79ns</div>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-4xl font-bold gradient-text mb-2">3.7x</div>
+          <div class="text-lg font-semibold mb-1">Faster String Ops</div>
+          <div class="text-sm text-muted-foreground">41ns → 11ns</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- More Features -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold mb-4">More Features</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="glass rounded-2xl p-6">
+          <div class="p-2 bg-purple-500/10 rounded-lg w-fit mb-4">
+            <GitBranch className="h-5 w-5 text-purple-400" />
+          </div>
+          <h3 class="font-semibold mb-2">Tree Visualization</h3>
+          <p class="text-sm text-muted-foreground">
+            Visualize decision table call hierarchies as interactive tree diagrams in the UI.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="p-2 bg-green-500/10 rounded-lg w-fit mb-4">
+            <TestTube2 className="h-5 w-5 text-green-400" />
+          </div>
+          <h3 class="font-semibold mb-2">Built-in Testing</h3>
+          <p class="text-sm text-muted-foreground">
+            Comprehensive test harness for validating rules with detailed execution traces.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="p-2 bg-blue-500/10 rounded-lg w-fit mb-4">
+            <Shield className="h-5 w-5 text-blue-400" />
+          </div>
+          <h3 class="font-semibold mb-2">Deterministic</h3>
+          <p class="text-sm text-muted-foreground">
+            Same inputs always produce same outputs. Essential for compliance and auditing.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="p-2 bg-purple-500/10 rounded-lg w-fit mb-4">
+            <BookOpen className="h-5 w-5 text-purple-400" />
+          </div>
+          <h3 class="font-semibold mb-2">Excel Integration</h3>
+          <p class="text-sm text-muted-foreground">
+            Define all rules in familiar Excel spreadsheets. No coding required for rule authors.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="p-2 bg-green-500/10 rounded-lg w-fit mb-4">
+            <Code2 className="h-5 w-5 text-green-400" />
+          </div>
+          <h3 class="font-semibold mb-2">REST API</h3>
+          <p class="text-sm text-muted-foreground">
+            Full REST API for rule execution, making integration easy with any language or platform.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="p-2 bg-blue-500/10 rounded-lg w-fit mb-4">
+            <Table2 className="h-5 w-5 text-blue-400" />
+          </div>
+          <h3 class="font-semibold mb-2">Visual UI</h3>
+          <p class="text-sm text-muted-foreground">
+            Modern React-based UI for editing decision tables, entities, and testing rules.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl font-bold mb-4">Ready to try it?</h2>
+      <p class="text-lg text-muted-foreground mb-8">
+        Get started with DTRules in just a few minutes.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="/docs/getting-started" class="w-full sm:w-auto px-8 py-3 gradient-button text-white font-semibold rounded-lg">
+          Get Started
+        </a>
+        <a href="/demo" class="w-full sm:w-auto px-8 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors">
+          Try the Demo
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

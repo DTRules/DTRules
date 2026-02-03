@@ -1,0 +1,68 @@
+---
+import { Table2, Play, BookOpen, ArrowRight } from 'lucide-react';
+---
+
+<section class="hero-gradient py-20 lg:py-32">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center space-y-8 animate-fade-in">
+      <!-- Logo and Title -->
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <div class="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg shadow-blue-500/25">
+          <Table2 className="h-12 w-12 text-white" />
+        </div>
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+          DTRules
+        </h1>
+      </div>
+
+      <!-- Tagline -->
+      <p class="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto animate-fade-in-delay-1">
+        A powerful Decision Table Rules Engine that lets business analysts and policy experts
+        define complex logic in readable, maintainable spreadsheets.
+      </p>
+
+      <!-- Key Stats -->
+      <div class="flex flex-wrap justify-center gap-8 text-sm text-muted-foreground animate-fade-in-delay-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          Production-ready
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          Java & Go implementations
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+          130x faster operator lookup (Go)
+        </div>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in-delay-3">
+        <a
+          href="/docs/getting-started"
+          class="w-full sm:w-auto px-8 py-3 gradient-button text-white font-semibold rounded-lg flex items-center justify-center gap-2"
+        >
+          <BookOpen className="h-5 w-5" />
+          Get Started
+        </a>
+        <a
+          href="/demo"
+          class="w-full sm:w-auto px-8 py-3 bg-secondary hover:bg-secondary/80 text-foreground font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+        >
+          <Play className="h-5 w-5" />
+          Try the Demo
+        </a>
+        <a
+          href="https://github.com/PaulSnow/DTRules"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-8 py-3 border border-border hover:border-border/80 hover:bg-accent/50 text-foreground font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+        >
+          View on GitHub
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

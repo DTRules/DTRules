@@ -1,0 +1,347 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Decision Tables"
+  description="Learn about Decision Tables - the core concept in DTRules."
+  prev={{ title: "Quick Start (Java)", href: "/docs/getting-started/quickstart-java" }}
+  next={{ title: "Entity Data Dictionary", href: "/docs/concepts/edd" }}
+>
+  <p>
+    Decision Tables are the foundation of DTRules. They provide a tabular way to represent complex
+    business logic that both policy experts and developers can understand.
+  </p>
+
+  <h2>What is a Decision Table?</h2>
+
+  <p>
+    A Decision Table is a matrix where:
+  </p>
+
+  <ul>
+    <li><strong>Rows</strong> represent conditions (tests) and actions (operations)</li>
+    <li><strong>Columns</strong> represent rules</li>
+    <li><strong>Cells</strong> contain condition values or action markers</li>
+  </ul>
+
+  <p>
+    The power of decision tables comes from their ability to represent complex conditional logic
+    in a format that's easy to read, validate, and modify.
+  </p>
+
+  <h2>Anatomy of a Decision Table</h2>
+
+  <p>A typical decision table has three sections:</p>
+
+  <h3>1. Header Section</h3>
+
+  <p>Contains metadata about the table:</p>
+  <ul>
+    <li><strong>Name</strong> - Unique identifier for the table</li>
+    <li><strong>Type</strong> - BALANCED, FIRST, or ALL</li>
+    <li><strong>Description</strong> - What the table does</li>
+  </ul>
+
+  <h3>2. Condition Section</h3>
+
+  <p>Each row is a boolean expression. Cells contain:</p>
+  <ul>
+    <li><strong>Y</strong> - Condition must be true</li>
+    <li><strong>N</strong> - Condition must be false</li>
+    <li><strong>*</strong> or <strong>-</strong> - Condition is ignored (don't care)</li>
+  </ul>
+
+  <h3>3. Action Section</h3>
+
+  <p>Each row is an operation to execute. Cells contain:</p>
+  <ul>
+    <li><strong>X</strong> - Execute this action</li>
+    <li><strong>-</strong> or blank - Skip this action</li>
+  </ul>
+
+  <h2>Example Decision Table</h2>
+
+  <p>Here's an example eligibility determination table:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Rule 1</th>
+        <th>Rule 2</th>
+        <th>Rule 3</th>
+        <th>Rule 4</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Conditions</strong></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>age &gt;= 18</td>
+        <td>Y</td>
+        <td>Y</td>
+        <td>N</td>
+        <td>N</td>
+      </tr>
+      <tr>
+        <td>income &lt; threshold</td>
+        <td>Y</td>
+        <td>N</td>
+        <td>Y</td>
+        <td>N</td>
+      </tr>
+      <tr>
+        <td><strong>Actions</strong></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>set eligible = true</td>
+        <td>X</td>
+        <td>-</td>
+        <td>X</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>set reason = "income"</td>
+        <td>-</td>
+        <td>X</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>set reason = "age"</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>X</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Reading column by column:</p>
+  <ul>
+    <li><strong>Rule 1</strong>: If age &gt;= 18 AND income &lt; threshold, set eligible = true</li>
+    <li><strong>Rule 2</strong>: If age &gt;= 18 AND income &gt;= threshold, set reason = "income"</li>
+    <li><strong>Rule 3</strong>: If age &lt; 18 AND income &lt; threshold, set eligible = true</li>
+    <li><strong>Rule 4</strong>: If age &lt; 18 AND income &gt;= threshold, set reason = "age"</li>
+  </ul>
+
+  <h2>Table Types</h2>
+
+  <h3>BALANCED</h3>
+
+  <p>
+    All possible condition combinations must be explicitly defined. The compiler will error if
+    any combination is missing. This ensures completeness but requires more columns.
+  </p>
+
+  <p>Use when: Every scenario must be explicitly handled (e.g., compliance requirements).</p>
+
+  <h3>FIRST</h3>
+
+  <p>
+    Executes only the <strong>first</strong> matching column from left to right. Once a match is found,
+    no other columns are evaluated.
+  </p>
+
+  <p>Use when: Rules have priority/precedence (most specific rules first).</p>
+
+  <h3>ALL</h3>
+
+  <p>
+    Executes <strong>all</strong> matching columns from left to right. Multiple rules can fire for
+    the same input.
+  </p>
+
+  <p>Use when: Multiple actions may apply (e.g., applying multiple discounts).</p>
+
+  <h2>Writing Conditions</h2>
+
+  <p>Conditions use DTRules Expression Language (EL). Common patterns:</p>
+
+  <pre><code>// Simple comparisons
+age >= 18
+income < poverty_level
+
+// Entity attribute access
+applicant.age >= 65
+application.status = "pending"
+
+// Calculations
+income / household_size < threshold
+
+// Array operations
+count of dependents > 0
+any dependent satisfies (dependent.age < 18)
+
+// Boolean combinations (within a single cell)
+citizen or permanent_resident</code></pre>
+
+  <h2>Writing Actions</h2>
+
+  <p>Actions perform operations when conditions match:</p>
+
+  <pre><code>// Set values
+set eligible = true
+set benefit_amount = income * 0.5
+
+// Add to arrays
+add applicant to eligible_list
+
+// Call other decision tables
+perform Calculate_Benefits
+perform Verify_Documents
+
+// Conditional execution
+if income < 0 then set income = 0
+
+// Loop operations
+for each dependent do
+    perform Check_Dependent_Eligibility
+done</code></pre>
+
+  <h2>Best Practices</h2>
+
+  <h3>1. Keep Tables Focused</h3>
+  <p>
+    Each table should handle one specific decision. Complex logic should be split across
+    multiple tables that call each other.
+  </p>
+
+  <h3>2. Order Conditions Logically</h3>
+  <p>
+    Put the most discriminating conditions first. This makes the table easier to read and
+    can improve performance with FIRST tables.
+  </p>
+
+  <h3>3. Use Meaningful Names</h3>
+  <p>
+    Name your tables descriptively: <code>Determine_Eligibility</code>, <code>Calculate_Benefits</code>,
+    <code>Verify_Income</code>.
+  </p>
+
+  <h3>4. Document Complex Logic</h3>
+  <p>
+    Use the description field to explain the business rule being implemented, especially
+    for regulatory requirements.
+  </p>
+
+  <h3>5. Test Edge Cases</h3>
+  <p>
+    For BALANCED tables, the compiler ensures completeness. For FIRST/ALL tables, manually
+    verify that all important scenarios are covered.
+  </p>
+
+  <h2>Common Patterns</h2>
+
+  <h3>Lookup Table</h3>
+
+  <p>Map input values to output values:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>1</th>
+        <th>2</th>
+        <th>3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>state = "TX"</td>
+        <td>Y</td>
+        <td>N</td>
+        <td>N</td>
+      </tr>
+      <tr>
+        <td>state = "CA"</td>
+        <td>N</td>
+        <td>Y</td>
+        <td>N</td>
+      </tr>
+      <tr>
+        <td>set tax_rate = 0.0625</td>
+        <td>X</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>set tax_rate = 0.0725</td>
+        <td>-</td>
+        <td>X</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>set tax_rate = 0.05</td>
+        <td>-</td>
+        <td>-</td>
+        <td>X</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Cascading Rules</h3>
+
+  <p>Apply rules in order, using FIRST type:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>1</th>
+        <th>2</th>
+        <th>3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>vip_customer</td>
+        <td>Y</td>
+        <td>*</td>
+        <td>*</td>
+      </tr>
+      <tr>
+        <td>order_total > 100</td>
+        <td>*</td>
+        <td>Y</td>
+        <td>*</td>
+      </tr>
+      <tr>
+        <td>set discount = 0.20</td>
+        <td>X</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>set discount = 0.10</td>
+        <td>-</td>
+        <td>X</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>set discount = 0</td>
+        <td>-</td>
+        <td>-</td>
+        <td>X</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/concepts/edd">Entity Data Dictionary</a> - Define your data model</li>
+    <li><a href="/docs/concepts/expression-language">Expression Language</a> - Write conditions and actions</li>
+    <li><a href="/docs/guides/chip-tutorial">CHIP Tutorial</a> - See decision tables in action</li>
+  </ul>
+</DocsLayout>

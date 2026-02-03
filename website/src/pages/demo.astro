@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ExternalLink, Monitor, Terminal, BookOpen } from 'lucide-react';
+---
+
+<BaseLayout title="Interactive Demo - DTRules" description="Try DTRules with an interactive demo of the visual UI.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+          Interactive <span class="gradient-text">Demo</span>
+        </h1>
+        <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Experience DTRules with the visual UI. Edit decision tables, explore entities, and run tests.
+        </p>
+      </div>
+
+      <!-- Demo Options -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <!-- Run Locally -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-blue-500/10 rounded-lg">
+              <Monitor className="h-6 w-6 text-blue-400" />
+            </div>
+            <h2 class="text-xl font-semibold">Run Locally</h2>
+          </div>
+          <p class="text-muted-foreground mb-6">
+            The best way to experience DTRules is to run the UI locally with the Go backend.
+            This gives you full access to edit and test decision tables.
+          </p>
+
+          <div class="space-y-4 mb-6">
+            <div class="glass rounded-lg p-4">
+              <div class="text-sm font-medium mb-2">1. Start the Backend</div>
+              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd go
+go run ./cmd/api</code></pre>
+            </div>
+
+            <div class="glass rounded-lg p-4">
+              <div class="text-sm font-medium mb-2">2. Start the Frontend</div>
+              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd ui
+npm install
+npm run dev</code></pre>
+            </div>
+
+            <div class="glass rounded-lg p-4">
+              <div class="text-sm font-medium mb-2">3. Open Browser</div>
+              <p class="text-xs text-muted-foreground">Navigate to <code class="text-blue-400">http://localhost:5173</code></p>
+            </div>
+          </div>
+
+          <a
+            href="/docs/getting-started/quickstart-ui"
+            class="w-full px-6 py-3 gradient-button text-white font-semibold rounded-lg flex items-center justify-center gap-2"
+          >
+            <BookOpen className="h-5 w-5" />
+            Full Setup Guide
+          </a>
+        </div>
+
+        <!-- CLI Demo -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-purple-500/10 rounded-lg">
+              <Terminal className="h-6 w-6 text-purple-400" />
+            </div>
+            <h2 class="text-xl font-semibold">CLI Demo</h2>
+          </div>
+          <p class="text-muted-foreground mb-6">
+            Use the Go CLI to validate and execute decision tables directly from the command line.
+          </p>
+
+          <div class="space-y-4 mb-6">
+            <div class="glass rounded-lg p-4">
+              <div class="text-sm font-medium mb-2">Build the CLI</div>
+              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd go
+go build -o dtrules ./cmd/dtrules</code></pre>
+            </div>
+
+            <div class="glass rounded-lg p-4">
+              <div class="text-sm font-medium mb-2">List Decision Tables</div>
+              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>./dtrules -rules ../sampleprojects/CHIP/xml -list</code></pre>
+            </div>
+
+            <div class="glass rounded-lg p-4">
+              <div class="text-sm font-medium mb-2">Execute with Trace</div>
+              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>./dtrules -rules ../sampleprojects/CHIP/xml \
+  -entry Compute_Eligibility -trace</code></pre>
+            </div>
+          </div>
+
+          <a
+            href="/docs/getting-started/quickstart-go"
+            class="w-full px-6 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+          >
+            <BookOpen className="h-5 w-5" />
+            Go Quick Start
+          </a>
+        </div>
+      </div>
+
+      <!-- Sample Project Info -->
+      <div class="mt-16 max-w-4xl mx-auto">
+        <div class="glass rounded-2xl p-8">
+          <h2 class="text-2xl font-bold mb-4 text-center">CHIP Sample Project</h2>
+          <p class="text-muted-foreground text-center mb-8">
+            The demo uses the CHIP (Children's Health Insurance Program) sample project,
+            which demonstrates real-world eligibility determination logic.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+              <div class="text-3xl font-bold gradient-text mb-2">15+</div>
+              <div class="text-sm text-muted-foreground">Decision Tables</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold gradient-text mb-2">20+</div>
+              <div class="text-sm text-muted-foreground">Entities</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold gradient-text mb-2">100+</div>
+              <div class="text-sm text-muted-foreground">Business Rules</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GitHub Link -->
+      <div class="mt-12 text-center">
+        <p class="text-muted-foreground mb-4">
+          Want to explore the full source code?
+        </p>
+        <a
+          href="https://github.com/PaulSnow/DTRules"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors"
+        >
+          View on GitHub
+          <ExternalLink className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

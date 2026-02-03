@@ -1,0 +1,304 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Testing Rules"
+  description="Learn how to write tests for your DTRules decision tables."
+  prev={{ title: "Creating Projects", href: "/docs/guides/creating-projects" }}
+  next={{ title: "Operators", href: "/docs/reference/operators" }}
+>
+  <p>
+    Testing is essential for validating that your rules behave correctly. DTRules supports
+    multiple testing approaches, from simple command-line validation to comprehensive test suites.
+  </p>
+
+  <h2>Why Test Rules?</h2>
+
+  <ul>
+    <li><strong>Verify correctness</strong> - Ensure rules produce expected results</li>
+    <li><strong>Catch regressions</strong> - Detect when changes break existing behavior</li>
+    <li><strong>Document behavior</strong> - Tests serve as executable documentation</li>
+    <li><strong>Build confidence</strong> - Deploy with assurance rules work correctly</li>
+  </ul>
+
+  <h2>Testing with the CLI</h2>
+
+  <h3>Validation</h3>
+
+  <p>Check rules compile and are well-formed:</p>
+
+  <pre><code>cd go
+./dtrules -rules ../sampleprojects/CHIP/xml -validate</code></pre>
+
+  <h3>List Tables</h3>
+
+  <p>Verify decision tables are loaded:</p>
+
+  <pre><code>./dtrules -rules ../sampleprojects/CHIP/xml -list</code></pre>
+
+  <h3>Execute with Trace</h3>
+
+  <p>Run rules and see execution details:</p>
+
+  <pre><code>./dtrules -rules ../sampleprojects/CHIP/xml -entry Main -trace</code></pre>
+
+  <h2>Testing with the Visual UI</h2>
+
+  <p>The UI provides interactive testing:</p>
+
+  <ol>
+    <li>Open your project in the UI</li>
+    <li>Navigate to the <strong>Test</strong> tab</li>
+    <li>Select or create test data</li>
+    <li>Click <strong>Run</strong> to execute</li>
+    <li>Review results and trace output</li>
+  </ol>
+
+  <h3>Benefits of UI Testing</h3>
+
+  <ul>
+    <li>Visual inspection of entity state before/after</li>
+    <li>Step-through execution trace</li>
+    <li>Easy modification of test data</li>
+    <li>Quick iteration during development</li>
+  </ul>
+
+  <h2>Testing with Java</h2>
+
+  <h3>Basic Test Runner</h3>
+
+  <pre><code>public class TestRules &#123;
+    public static void main(String[] args) throws Exception &#123;
+        String path = System.getProperty("user.dir");
+
+        // Load rules
+        RulesDirectory rd = new RulesDirectory(path, "DTRules.xml");
+        RuleSet rs = rd.getRuleSet("MyRules");
+
+        // Create session
+        IRSession session = rs.newSession();
+
+        // Load test data
+        FileInputStream input = new FileInputStream("testfiles/test1.xml");
+        session.loadXml(input, "mapping");
+        input.close();
+
+        // Execute
+        session.execute("Main");
+
+        // Output results
+        session.printEntityReport(System.out, session.getState(), "results");
+    &#125;
+&#125;</code></pre>
+
+  <h3>JUnit Integration</h3>
+
+  <pre><code>public class RulesTest &#123;
+
+    private RuleSet ruleSet;
+
+    @BeforeEach
+    void setup() throws Exception &#123;
+        String path = System.getProperty("user.dir");
+        RulesDirectory rd = new RulesDirectory(path, "DTRules.xml");
+        ruleSet = rd.getRuleSet("MyRules");
+    &#125;
+
+    @Test
+    void testEligibleCustomer() throws Exception &#123;
+        IRSession session = ruleSet.newSession();
+        session.loadXml(new FileInputStream("testfiles/eligible.xml"), "mapping");
+        session.execute("Determine_Eligibility");
+
+        // Assert results
+        IREntity result = session.getState().find("application");
+        assertTrue((Boolean) result.get("eligible"));
+    &#125;
+
+    @Test
+    void testIneligibleIncome() throws Exception &#123;
+        IRSession session = ruleSet.newSession();
+        session.loadXml(new FileInputStream("testfiles/high_income.xml"), "mapping");
+        session.execute("Determine_Eligibility");
+
+        IREntity result = session.getState().find("application");
+        assertFalse((Boolean) result.get("eligible"));
+        assertEquals("income_too_high", result.get("reason_code"));
+    &#125;
+&#125;</code></pre>
+
+  <h2>Testing with Go</h2>
+
+  <h3>Go Test File</h3>
+
+  <pre><code>package rules_test
+
+import (
+    "os"
+    "testing"
+
+    "github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+)
+
+func TestEligibility(t *testing.T) &#123;
+    rs := session.NewRuleSet("TestRules")
+
+    eddFile, _ := os.Open("../xml/TestRules_edd.xml")
+    rs.LoadEDD(eddFile)
+    eddFile.Close()
+
+    dtFile, _ := os.Open("../xml/TestRules_dt.xml")
+    rs.LoadDecisionTables(dtFile)
+    dtFile.Close()
+
+    sess, _ := rs.NewSession()
+    rsess := sess.(*session.RSession)
+
+    // Set up test data
+    // ... load or create entities ...
+
+    // Execute
+    rsess.Execute("Main")
+
+    // Assert results
+    // ... verify entity state ...
+&#125;</code></pre>
+
+  <h2>Test Case Design</h2>
+
+  <h3>Boundary Testing</h3>
+
+  <p>Test values at decision boundaries:</p>
+
+  <pre><code>// If threshold is 100:
+test_at_99    // Just below - should fail
+test_at_100   // At boundary - check which way it goes
+test_at_101   // Just above - should pass</code></pre>
+
+  <h3>Equivalence Classes</h3>
+
+  <p>Group inputs that should behave the same:</p>
+
+  <pre><code>// Age eligibility: 0-17 children, 18-64 adults, 65+ seniors
+test_child   (age = 10)
+test_adult   (age = 35)
+test_senior  (age = 70)</code></pre>
+
+  <h3>BALANCED Table Coverage</h3>
+
+  <p>For BALANCED tables, test each column:</p>
+
+  <pre><code>// 3 conditions = 8 columns (2^3)
+test_YYY  // All conditions true
+test_YYN  // First two true, third false
+test_YNY  // First true, second false, third true
+// ... all 8 combinations</code></pre>
+
+  <h3>Edge Cases</h3>
+
+  <ul>
+    <li>Empty arrays</li>
+    <li>Null/missing values</li>
+    <li>Zero amounts</li>
+    <li>Negative numbers</li>
+    <li>Maximum values</li>
+    <li>Date boundaries (leap years, month ends)</li>
+  </ul>
+
+  <h2>Test Data Management</h2>
+
+  <h3>Test Data Files</h3>
+
+  <p>Organize test data in the <code>testfiles/</code> directory:</p>
+
+  <pre><code>testfiles/
+├── eligible/
+│   ├── basic_eligible.xml
+│   ├── with_dependents.xml
+│   └── vip_customer.xml
+├── ineligible/
+│   ├── income_too_high.xml
+│   ├── not_citizen.xml
+│   └── age_invalid.xml
+└── edge_cases/
+    ├── empty_household.xml
+    ├── zero_income.xml
+    └── boundary_values.xml</code></pre>
+
+  <h3>Test Data Naming</h3>
+
+  <p>Use descriptive names that indicate expected outcome:</p>
+
+  <pre><code>test_eligible_basic.xml
+test_ineligible_income_high.xml
+test_edge_empty_dependents.xml
+test_boundary_age_17.xml</code></pre>
+
+  <h2>Regression Testing</h2>
+
+  <h3>Capture Expected Results</h3>
+
+  <pre><code>// For each test case, document expected output:
+// test_eligible_basic.xml
+// Expected:
+//   application.eligible = true
+//   application.benefit_amount = 250.00</code></pre>
+
+  <h3>Automated Comparison</h3>
+
+  <pre><code>// Run all tests and compare to expected
+./run_tests.sh | diff - expected_output.txt</code></pre>
+
+  <h3>Continuous Integration</h3>
+
+  <p>Include rule tests in your CI pipeline:</p>
+
+  <pre><code># .github/workflows/test.yml
+- name: Test Rules
+  run: |
+    cd go
+    go test ./...
+    ./dtrules -rules ../sampleprojects/MyProject/xml -validate</code></pre>
+
+  <h2>Debugging Failed Tests</h2>
+
+  <h3>Use Trace Output</h3>
+
+  <pre><code>./dtrules -rules path/to/rules -entry Main -trace 2>&1 | tee trace.log</code></pre>
+
+  <h3>Check Intermediate Values</h3>
+
+  <p>Add temporary logging in decision tables:</p>
+
+  <pre><code>// In decision table action
+set debug_income = household.total_income
+set debug_threshold = poverty_level * 2</code></pre>
+
+  <h3>Isolate the Problem</h3>
+
+  <ol>
+    <li>Run individual decision tables, not just Main</li>
+    <li>Simplify test data to minimal reproduction</li>
+    <li>Check entity state after each table execution</li>
+  </ol>
+
+  <h2>Best Practices</h2>
+
+  <ul>
+    <li><strong>Test as you develop</strong> - Write tests alongside rules</li>
+    <li><strong>Name tests clearly</strong> - The name should describe what's being tested</li>
+    <li><strong>One assertion per test</strong> - Makes failures easier to diagnose</li>
+    <li><strong>Test negative cases</strong> - Verify rules reject invalid inputs</li>
+    <li><strong>Keep tests independent</strong> - Each test should set up its own data</li>
+    <li><strong>Maintain test data</strong> - Update tests when rules change</li>
+  </ul>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/reference/operators">Operator Reference</a> - Full operator documentation</li>
+    <li><a href="/docs/guides/chip-tutorial">CHIP Tutorial</a> - See tests in the sample project</li>
+    <li><a href="/docs/concepts/deterministic">Deterministic Rules</a> - Why testing works</li>
+  </ul>
+</DocsLayout>
