@@ -14,7 +14,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
   <h2>Installation</h2>
 
-  <pre><code>go get github.com/PaulSnow/DTRules/go</code></pre>
+  <pre><code>go get github.com/dtrules/dtrules/go</code></pre>
 
   <h2>Core Packages</h2>
 
@@ -22,7 +22,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
   <p>High-level API for rule execution.</p>
 
-  <pre><code>import "github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+  <pre><code>import "github.com/dtrules/dtrules/go/pkg/dtrules/session"
 
 // Create a rule set
 rs := session.NewRuleSet("MyRules")
@@ -48,7 +48,7 @@ rsess.Execute("Main")</code></pre>
 
   <p>Entity data model.</p>
 
-  <pre><code>import "github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+  <pre><code>import "github.com/dtrules/dtrules/go/pkg/dtrules/entity"
 
 // Get entity by name
 person := state.GetEntity("person")
@@ -69,7 +69,7 @@ memberList := members.([]interface&#123;&#125;)</code></pre>
 
   <p>Low-level execution engine.</p>
 
-  <pre><code>import "github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
+  <pre><code>import "github.com/dtrules/dtrules/go/pkg/dtrules/interpreter"
 
 // The interpreter uses a stack-based execution model
 // Most users interact through the session package</code></pre>
@@ -182,7 +182,7 @@ go build -o dtrules ./cmd/dtrules
   <pre><code>package eligibility
 
 import (
-    "github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+    "github.com/dtrules/dtrules/go/pkg/dtrules/session"
 )
 
 type EligibilityService struct &#123;
