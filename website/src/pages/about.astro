@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Scale, Users, History, ExternalLink } from 'lucide-react';
+---
+
+<BaseLayout title="About - DTRules" description="Learn about DTRules - its history, license, and community.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+          About <span class="gradient-text">DTRules</span>
+        </h1>
+        <p class="text-xl text-muted-foreground">
+          A production-proven decision table rules engine with two decades of real-world use.
+        </p>
+      </div>
+
+      <!-- History -->
+      <div class="glass rounded-2xl p-8 mb-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-purple-500/10 rounded-lg">
+            <History className="h-6 w-6 text-purple-400" />
+          </div>
+          <h2 class="text-2xl font-bold">History</h2>
+        </div>
+        <div class="prose max-w-none">
+          <p>
+            DTRules was created by Paul Snow to address the challenge of implementing complex business rules
+            in a way that policy experts could understand and validate. Traditional approaches using
+            if-else statements quickly become unmaintainable as business logic grows in complexity.
+          </p>
+          <p>
+            The solution was decision tables - a tabular representation of business rules that's been used
+            in software engineering since the 1960s. DTRules brings this proven approach into the modern era
+            with Excel-based authoring, a human-readable domain-specific language, and high-performance execution.
+          </p>
+          <p>
+            Over the years, DTRules has been used in production systems handling millions of eligibility
+            determinations, including:
+          </p>
+          <ul>
+            <li><strong>Texas TIERS</strong> - Texas Integrated Eligibility Redesign System</li>
+            <li><strong>Ohio OFAST</strong> - Ohio Family Assistance State Tracking</li>
+            <li>Commercial insurance eligibility systems</li>
+            <li>Business logic applications across various industries</li>
+          </ul>
+          <p>
+            In 2024, a high-performance Go implementation was added, providing 130x faster operator lookup
+            and a modern REST API for the new visual UI.
+          </p>
+        </div>
+      </div>
+
+      <!-- License -->
+      <div class="glass rounded-2xl p-8 mb-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-blue-500/10 rounded-lg">
+            <Scale className="h-6 w-6 text-blue-400" />
+          </div>
+          <h2 class="text-2xl font-bold">License</h2>
+        </div>
+        <div class="prose max-w-none">
+          <p>
+            DTRules is released under the <strong>Apache License, Version 2.0</strong>.
+          </p>
+          <p>
+            This permissive license allows you to:
+          </p>
+          <ul>
+            <li>Use DTRules for commercial and non-commercial purposes</li>
+            <li>Modify and distribute the source code</li>
+            <li>Include DTRules in proprietary software</li>
+            <li>Use DTRules without royalty fees</li>
+          </ul>
+          <p>
+            The only requirements are that you include the license notice and disclaimer in any distribution.
+          </p>
+          <a
+            href="https://www.apache.org/licenses/LICENSE-2.0"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300"
+          >
+            Read the full license
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Contributing -->
+      <div class="glass rounded-2xl p-8 mb-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-green-500/10 rounded-lg">
+            <Users className="h-6 w-6 text-green-400" />
+          </div>
+          <h2 class="text-2xl font-bold">Contributing</h2>
+        </div>
+        <div class="prose max-w-none">
+          <p>
+            Contributions to DTRules are welcome. Whether you're fixing bugs, adding features,
+            improving documentation, or reporting issues, your help is appreciated.
+          </p>
+          <h3>How to Contribute</h3>
+          <ol>
+            <li>Fork the repository on GitHub</li>
+            <li>Create a feature branch for your changes</li>
+            <li>Make your changes with appropriate tests</li>
+            <li>Ensure all tests pass (<code>mvn test</code> for Java, <code>go test ./...</code> for Go)</li>
+            <li>Submit a pull request</li>
+          </ol>
+          <h3>Reporting Issues</h3>
+          <p>
+            Found a bug or have a feature request? Please open an issue on GitHub with:
+          </p>
+          <ul>
+            <li>A clear description of the issue or feature</li>
+            <li>Steps to reproduce (for bugs)</li>
+            <li>Expected vs actual behavior</li>
+            <li>Your environment details (OS, Java/Go version)</li>
+          </ul>
+          <a
+            href="https://github.com/dtrules/dtrules/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-green-400 hover:text-green-300"
+          >
+            Open an issue
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="glass rounded-2xl p-8">
+        <h2 class="text-2xl font-bold mb-6">Links</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <a
+            href="https://github.com/dtrules/dtrules"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-3 p-4 rounded-lg border border-border hover:border-blue-500/30 hover:bg-accent/50 transition-colors"
+          >
+            <div class="text-2xl">📦</div>
+            <div>
+              <div class="font-semibold">GitHub Repository</div>
+              <div class="text-sm text-muted-foreground">Source code and issues</div>
+            </div>
+          </a>
+          <a
+            href="/docs/getting-started"
+            class="flex items-center gap-3 p-4 rounded-lg border border-border hover:border-purple-500/30 hover:bg-accent/50 transition-colors"
+          >
+            <div class="text-2xl">📚</div>
+            <div>
+              <div class="font-semibold">Documentation</div>
+              <div class="text-sm text-muted-foreground">Guides and reference</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="mt-12 text-center text-sm text-muted-foreground">
+        <p>Copyright 2004-{new Date().getFullYear()} DTRules.com</p>
+        <p>DTRules is a trademark of DTRules.com</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

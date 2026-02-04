@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Download, Package, Terminal, ExternalLink } from 'lucide-react';
+---
+
+<BaseLayout title="Downloads - DTRules" description="Download DTRules or add it as a dependency to your project.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+          <span class="gradient-text">Downloads</span>
+        </h1>
+        <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Get DTRules for Java or Go. Both implementations use the same XML format.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <!-- Java -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-blue-500/10 rounded-xl">
+              <Package className="h-8 w-8 text-blue-400" />
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold">Java</h2>
+              <p class="text-sm text-muted-foreground">Original Implementation</p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div>
+              <h3 class="font-semibold mb-3">Clone from GitHub</h3>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>git clone https://github.com/dtrules/dtrules.git
+cd DTRules
+mvn clean install</code></pre>
+            </div>
+
+            <div>
+              <h3 class="font-semibold mb-3">Requirements</h3>
+              <ul class="space-y-2 text-sm text-muted-foreground">
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                  Java 8 or later
+                </li>
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                  Apache Maven 3.x
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 class="font-semibold mb-3">Modules</h3>
+              <ul class="space-y-2 text-sm text-muted-foreground">
+                <li><code class="text-blue-400">dtrules-engine</code> - Core rules engine</li>
+                <li><code class="text-blue-400">compilerutil</code> - Excel to XML compilers</li>
+                <li><code class="text-blue-400">dsl</code> - Expression Language parsers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Go -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-purple-500/10 rounded-xl">
+              <Terminal className="h-8 w-8 text-purple-400" />
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold">Go</h2>
+              <p class="text-sm text-muted-foreground">High-Performance Runtime</p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div>
+              <h3 class="font-semibold mb-3">Install via Go</h3>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>go get github.com/dtrules/dtrules/go</code></pre>
+            </div>
+
+            <div>
+              <h3 class="font-semibold mb-3">Build CLI</h3>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>cd go
+go build -o dtrules ./cmd/dtrules</code></pre>
+            </div>
+
+            <div>
+              <h3 class="font-semibold mb-3">Requirements</h3>
+              <ul class="space-y-2 text-sm text-muted-foreground">
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                  Go 1.21 or later
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 class="font-semibold mb-3">Packages</h3>
+              <ul class="space-y-2 text-sm text-muted-foreground">
+                <li><code class="text-purple-400">cmd/dtrules</code> - CLI tool</li>
+                <li><code class="text-purple-400">cmd/api</code> - REST API server</li>
+                <li><code class="text-purple-400">pkg/dtrules</code> - Core library</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual UI -->
+      <div class="mt-12 max-w-4xl mx-auto">
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-green-500/10 rounded-xl">
+              <Download className="h-8 w-8 text-green-400" />
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold">Visual UI</h2>
+              <p class="text-sm text-muted-foreground">React-based Decision Table Editor</p>
+            </div>
+          </div>
+
+          <p class="text-muted-foreground mb-6">
+            The visual UI requires both the Go backend and the React frontend. See the
+            <a href="/docs/getting-started/quickstart-ui" class="text-blue-400 hover:underline">Quick Start Guide</a>
+            for detailed instructions.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="font-semibold mb-3">Backend Requirements</h3>
+              <ul class="space-y-2 text-sm text-muted-foreground">
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  Go 1.21+
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-3">Frontend Requirements</h3>
+              <ul class="space-y-2 text-sm text-muted-foreground">
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  Node.js 18+
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample Projects -->
+      <div class="mt-12 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-6 text-center">Sample Projects</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">CHIP</h3>
+            <p class="text-sm text-muted-foreground">Health insurance eligibility</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">KidAid</h3>
+            <p class="text-sm text-muted-foreground">Child assistance program</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">SyntaxTests</h3>
+            <p class="text-sm text-muted-foreground">EL language examples</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">TestProject</h3>
+            <p class="text-sm text-muted-foreground">Minimal starter template</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">ChipApp</h3>
+            <p class="text-sm text-muted-foreground">CHIP application wrapper</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">KidAid_Application</h3>
+            <p class="text-sm text-muted-foreground">Integration example</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- GitHub Link -->
+      <div class="mt-12 text-center">
+        <a
+          href="https://github.com/dtrules/dtrules"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 gradient-button text-white font-semibold rounded-lg"
+        >
+          View on GitHub
+          <ExternalLink className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

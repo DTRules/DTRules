@@ -16,6 +16,7 @@ Decision Tables provide a tabular representation of business rules that can be u
 - **Auto-mapping** - Automatic mapping between Java objects and rule entities
 - **Test Harness** - Built-in testing framework for validating rules
 - **Trace & Debug** - Comprehensive tracing for debugging rule execution
+- **ANTLR 4 Parsers** - Modern parser infrastructure (migrated from JFlex/CUP)
 
 ### Production Use
 
@@ -73,7 +74,7 @@ mvn clean install
 This builds all modules:
 - `dtrules-engine` - Core rules engine
 - `compilerutil` - Excel to XML compiler utilities
-- `dsl` - Domain Specific Language implementations
+- `dsl` - Domain Specific Language implementations (EL, EBL)
 - `sampleprojects` - Example projects
 
 ### 2. Run a Sample Project
@@ -116,16 +117,19 @@ DTRules/
 ├── dtrules-engine/     # Core Java rules execution engine
 ├── compilerutil/       # Excel-to-XML compiler utilities
 ├── dsl/                # Domain Specific Languages
-│   ├── el/             # Expression Language (EL)
-│   ├── ebl/            # Entity Business Language (EBL)
-│   └── el_antlr/       # ANTLR-based EL parser
+│   ├── el/             # Expression Language (EL) - ANTLR 4
+│   ├── ebl/            # Entity Business Language (EBL) - ANTLR 4
+│   └── sudoku_language/ # Sudoku DSL (JFlex/CUP)
 ├── go/                 # Go implementation
 │   ├── cmd/dtrules/    # CLI tool
+│   ├── cmd/api/        # REST API server for UI
 │   └── pkg/dtrules/    # Core library
+├── ui/                 # React-based visual UI
 ├── sampleprojects/     # Example implementations
 │   ├── CHIP/           # Health insurance eligibility
+│   ├── ChipApp/        # CHIP application wrapper
 │   ├── KidAid/         # Child assistance program
-│   ├── Sudoku/         # Sudoku solver (custom DSL demo)
+│   ├── KidAid_Application/ # KidAid application wrapper
 │   ├── SyntaxTests/    # Language feature examples
 │   └── TestProject/    # Minimal starter template
 ├── docs/               # Documentation
@@ -134,17 +138,14 @@ DTRules/
 
 ## Sample Projects
 
-| Project | Description | DSL | Complexity |
-|---------|-------------|-----|------------|
-| **TestProject** | Minimal template for new projects | EL | Low |
-| **SyntaxTests** | Comprehensive EL language feature examples | EL | Reference |
-| **CHIP** | Health insurance eligibility determination | EL | High |
-| **KidAid** | Child assistance program eligibility | EL | High |
-| **Sudoku** | Sudoku puzzle solver demonstrating custom DSL | Custom | High |
-| **eBook** | Multi-ruleset business logic example | EBL | High |
-| **ChipApp** | Standalone CHIP application wrapper | EL | Medium |
-| **KidAid_Application** | Standalone KidAid wrapper | EL | Low |
-| **eBookApp** | Standalone eBook wrapper | EBL | Medium |
+| Project | Description | Type |
+|---------|-------------|------|
+| **TestProject** | Minimal template for new projects | Rule Set |
+| **SyntaxTests** | Comprehensive EL language feature examples | Reference |
+| **CHIP** | Health insurance eligibility determination | Rule Set |
+| **KidAid** | Child assistance program eligibility | Rule Set |
+| **ChipApp** | Multi-threaded CHIP application wrapper | Application |
+| **KidAid_Application** | Simple KidAid integration example | Application |
 
 ### Recommended Learning Path
 
@@ -152,8 +153,6 @@ DTRules/
 2. **[SyntaxTests](sampleprojects/SyntaxTests/)** - Learn EL language features
 3. **[CHIP](sampleprojects/CHIP/)** - See a real-world eligibility example
 4. **[ChipApp](sampleprojects/ChipApp/)** - Learn application integration patterns
-5. **[eBook](sampleprojects/eBook/)** - Explore multi-ruleset projects
-6. **[Sudoku](sampleprojects/Sudoku/)** - Understand custom DSL creation
 
 ## How It Works
 
@@ -167,7 +166,7 @@ Create an Entity Definition Document in Excel (`*_edd.xls`) that defines:
 ### 2. Write Decision Tables
 
 Create Decision Tables in Excel (`*_dt.xls`) with:
-- **Conditions** - Boolean expressions in EL/EBL syntax
+- **Conditions** - Boolean expressions in EL syntax
 - **Actions** - Operations to perform when conditions match
 - **Columns** - Each column represents a rule
 
@@ -221,6 +220,7 @@ Each project has a `DTRules.xml` configuration file:
 ## Documentation
 
 ### Getting Started
+- [UI Quick Start](QUICKSTART-UI.md) - Get the visual UI running in 5 minutes
 - [Quick Start Guide](docs/QUICKSTART.md) - Step-by-step tutorial (Java)
 - [Building from Source](docs/BUILDING.md) - Detailed build instructions
 
@@ -235,9 +235,12 @@ Each project has a `DTRules.xml` configuration file:
 - [Design Review](go/pkg/dtrules/DESIGN_REVIEW.md) - Architecture and design decisions
 - [Performance Analysis](go/pkg/dtrules/benchmark/PERFORMANCE_ANALYSIS.md) - Detailed benchmarks
 
+### Development
+- [ANTLR Migration Guide](dsl/ANTLR_MIGRATION.md) - Parser modernization details
+- [Changelog](CHANGELOG.md) - Version history
+
 ### Legacy Documentation
 - `dtrules-engine/docs/` - Core engine documentation (PDF/DOC)
-- `dsl/el/docs/` - Expression Language overview (PDF)
 
 ## Creating a New Project
 
@@ -248,11 +251,73 @@ Each project has a `DTRules.xml` configuration file:
 5. Update `DTRules.xml` with your file names
 6. Create compile and test Java classes
 
+## Running Tests
+
+```bash
+# Run all tests
+mvn test
+
+# Run EL compiler tests (128 parameterized tests)
+cd dsl/el
+mvn test
+
+# Run sample project tests
+cd sampleprojects/CHIP
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"
+```
+
 ## License
 
 Apache License, Version 2.0
 
 Copyright 2004-2012 DTRules.com
+
+## Go Implementation & Visual UI
+
+In addition to the Java implementation, DTRules includes:
+
+### Go Rules Engine
+
+A high-performance Go implementation with the same XML format compatibility:
+
+```bash
+cd go
+
+# Run tests
+go test ./...
+
+# Build CLI
+go build -o dtrules ./cmd/dtrules
+
+# Execute rules
+./dtrules -rules ../sampleprojects/CHIP/xml -entry Compute_Eligibility -trace
+```
+
+See [go/README.md](go/README.md) for full documentation.
+
+### Visual UI (React + Go Backend)
+
+A modern web-based UI for editing decision tables, entities, and testing rules:
+
+```bash
+# Terminal 1: Start the Go API backend
+cd go
+go run ./cmd/api
+
+# Terminal 2: Start the React frontend
+cd ui
+npm install
+npm run dev
+```
+
+Then open http://localhost:5173 in your browser.
+
+**Quick Start:**
+1. Click "Open CHIP Sample Project" on the welcome screen
+2. Enter the path: `/path/to/DTRules/sampleprojects/CHIP/xml`
+3. Explore entities, decision tables, and run tests
+
+See [ui/README.md](ui/README.md) for full documentation.
 
 ## Links
 

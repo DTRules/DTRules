@@ -1,0 +1,359 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Expression Language"
+  description="Learn the DTRules Expression Language (EL) for writing conditions and actions."
+  prev={{ title: "Entity Data Dictionary", href: "/docs/concepts/edd" }}
+  next={{ title: "Deterministic Rules", href: "/docs/concepts/deterministic" }}
+>
+  <p>
+    The Expression Language (EL) is DTRules' domain-specific language for writing conditions and actions.
+    It's designed to be readable by policy experts while remaining powerful enough for complex business logic.
+  </p>
+
+  <h2>Design Philosophy</h2>
+
+  <p>EL prioritizes:</p>
+
+  <ul>
+    <li><strong>Readability</strong> - Looks like natural language</li>
+    <li><strong>Validation</strong> - Compile-time error checking</li>
+    <li><strong>Expressiveness</strong> - Handles complex business logic</li>
+    <li><strong>Determinism</strong> - Same inputs always produce same outputs</li>
+  </ul>
+
+  <h2>Basic Syntax</h2>
+
+  <h3>Literals</h3>
+
+  <pre><code>// Numbers
+42          // integer
+3.14        // decimal
+
+// Strings
+"hello"     // string literal
+
+// Booleans
+true
+false
+
+// Dates
+date("2024-01-15")</code></pre>
+
+  <h3>Attribute Access</h3>
+
+  <pre><code>// Simple
+age
+name
+income
+
+// Entity attribute
+person.age
+application.status
+
+// Nested
+application.household.head.name
+
+// Array element
+members[0]
+household.members[2].name</code></pre>
+
+  <h2>Operators</h2>
+
+  <h3>Comparison</h3>
+
+  <pre><code>age = 18          // equals
+age != 18         // not equals
+age > 18          // greater than
+age >= 18         // greater than or equal
+age < 18          // less than
+age <= 18         // less than or equal</code></pre>
+
+  <h3>Arithmetic</h3>
+
+  <pre><code>a + b             // addition
+a - b             // subtraction
+a * b             // multiplication
+a / b             // division
+a % b             // modulo (remainder)</code></pre>
+
+  <h3>Boolean</h3>
+
+  <pre><code>a and b           // logical AND
+a or b            // logical OR
+not a             // logical NOT
+
+// Alternative syntax
+a & b             // AND
+a | b             // OR
+!a                // NOT</code></pre>
+
+  <h3>String</h3>
+
+  <pre><code>a + b                   // concatenation
+length of name          // string length
+substring of name from 0 to 5   // substring
+uppercase of name       // convert to uppercase
+lowercase of name       // convert to lowercase
+trim of name            // remove whitespace</code></pre>
+
+  <h2>Variables and Assignment</h2>
+
+  <pre><code>// Set attribute value
+set age = 25
+set person.name = "John"
+set eligible = true
+
+// Set with calculation
+set total = subtotal * tax_rate
+set monthly_income = annual_income / 12</code></pre>
+
+  <h2>Conditional Logic</h2>
+
+  <h3>If-Then-Else</h3>
+
+  <pre><code>// Simple if
+if age >= 18 then set adult = true
+
+// If-else
+if income < threshold then
+    set eligible = true
+else
+    set eligible = false
+
+// Nested
+if age >= 65 then
+    set category = "senior"
+else if age >= 18 then
+    set category = "adult"
+else
+    set category = "minor"</code></pre>
+
+  <h3>Conditional Expression</h3>
+
+  <pre><code>// Inline conditional (like ternary operator)
+set status = if eligible then "approved" else "denied"</code></pre>
+
+  <h2>Array Operations</h2>
+
+  <h3>Basic Operations</h3>
+
+  <pre><code>// Count elements
+count of dependents
+
+// Check if empty
+is empty dependents
+is not empty dependents
+
+// Add element
+add person to household.members
+
+// Remove element
+remove person from household.members
+
+// Clear array
+clear household.members</code></pre>
+
+  <h3>Iteration</h3>
+
+  <pre><code>// For each loop
+for each member in household.members do
+    set member.processed = true
+done
+
+// With index
+for each member in household.members using index do
+    set member.order = index
+done</code></pre>
+
+  <h3>Predicates</h3>
+
+  <pre><code>// Any (exists)
+any member in members satisfies (member.age >= 18)
+
+// All
+all members in members satisfy (member.citizen = true)
+
+// None
+no member in members satisfies (member.income < 0)
+
+// Count matching
+count of members where (member.age >= 18)</code></pre>
+
+  <h3>Filtering and Mapping</h3>
+
+  <pre><code>// First matching
+first member in members where (member.age >= 18)
+
+// All matching (creates new array)
+all members in members where (member.age >= 18)</code></pre>
+
+  <h2>Date Operations</h2>
+
+  <pre><code>// Create date
+date("2024-01-15")
+
+// Current date
+today
+
+// Date arithmetic
+birth_date + 18 years
+due_date - 30 days
+
+// Date comparison
+birth_date < today
+application_date >= start_of_period
+
+// Date parts
+year of birth_date
+month of birth_date
+day of birth_date</code></pre>
+
+  <h2>Decision Table Calls</h2>
+
+  <pre><code>// Execute another decision table
+perform Calculate_Benefits
+
+// Execute for each item
+for each dependent in dependents do
+    perform Check_Dependent_Eligibility
+done</code></pre>
+
+  <h2>Entity Operations</h2>
+
+  <pre><code>// Create new entity
+new Person
+
+// Create and assign
+set applicant = new Person
+set applicant.name = "John"
+set applicant.age = 30
+
+// Copy entity
+set backup = copy of original
+
+// Check type
+type of person = "Person"</code></pre>
+
+  <h2>Null Handling</h2>
+
+  <pre><code>// Check for null
+value is null
+value is not null
+
+// Null-safe access (returns null if any part is null)
+person?.address?.city
+
+// Default value
+value otherwise default_value</code></pre>
+
+  <h2>Built-in Functions</h2>
+
+  <h3>Math Functions</h3>
+
+  <pre><code>abs of value          // absolute value
+round of value        // round to nearest integer
+floor of value        // round down
+ceiling of value      // round up
+min of (a, b)         // minimum
+max of (a, b)         // maximum</code></pre>
+
+  <h3>String Functions</h3>
+
+  <pre><code>length of text
+uppercase of text
+lowercase of text
+trim of text
+contains text1 text2   // text1 contains text2
+starts with text1 text2
+ends with text1 text2</code></pre>
+
+  <h3>Type Conversion</h3>
+
+  <pre><code>integer of value      // to integer
+decimal of value      // to decimal
+string of value       // to string
+boolean of value      // to boolean</code></pre>
+
+  <h2>Operator Reference</h2>
+
+  <p>DTRules includes 180+ operators. Here are the main categories:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Examples</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Arithmetic</td>
+        <td>+, -, *, /, %, abs, round, floor, ceiling</td>
+      </tr>
+      <tr>
+        <td>Comparison</td>
+        <td>=, !=, &lt;, &lt;=, &gt;, &gt;=</td>
+      </tr>
+      <tr>
+        <td>Boolean</td>
+        <td>and, or, not, xor</td>
+      </tr>
+      <tr>
+        <td>String</td>
+        <td>+, length, substring, uppercase, lowercase, trim, contains</td>
+      </tr>
+      <tr>
+        <td>Array</td>
+        <td>count, add, remove, first, any, all, for each</td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td>date, today, year, month, day, +/- days/months/years</td>
+      </tr>
+      <tr>
+        <td>Control</td>
+        <td>if, perform, for each, while</td>
+      </tr>
+      <tr>
+        <td>Entity</td>
+        <td>new, copy, type</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Best Practices</h2>
+
+  <h3>1. Keep Expressions Simple</h3>
+  <p>
+    Break complex expressions into multiple lines or use intermediate variables.
+    This improves readability and debugging.
+  </p>
+
+  <h3>2. Use Meaningful Names</h3>
+  <p>
+    Entity and attribute names should be self-documenting. Avoid abbreviations
+    unless they're universally understood.
+  </p>
+
+  <h3>3. Handle Edge Cases</h3>
+  <p>
+    Check for null values and empty arrays before operations. Use default values
+    where appropriate.
+  </p>
+
+  <h3>4. Avoid Side Effects in Conditions</h3>
+  <p>
+    Conditions should be pure boolean expressions. Save modifications for actions.
+  </p>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/concepts/deterministic">Deterministic Rules</a> - Understand determinism in DTRules</li>
+    <li><a href="/docs/reference/operators">Operator Reference</a> - Full operator documentation</li>
+    <li><a href="/docs/guides/chip-tutorial">CHIP Tutorial</a> - See EL in real decision tables</li>
+  </ul>
+</DocsLayout>

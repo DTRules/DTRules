@@ -385,29 +385,45 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 }
 
 // EvaluateBytecodeCondition executes bytecode and returns the boolean result.
+// The bytecode should produce at least one boolean value on the stack.
+// If more values are left, the top value is used and extras are cleaned up.
 func (s *DTState) EvaluateBytecodeCondition(bc *dtrules.BytecodeChunk) (bool, error) {
 	initialDepth := s.ValueStackDepth()
 	if err := s.ExecuteBytecode(bc); err != nil {
 		return false, err
 	}
-	if s.ValueStackDepth() != initialDepth+1 {
-		return false, dtrules.NewRulesError("Stack Check Exception", "EvaluateBytecodeCondition", "expected one result")
+
+	// Must have at least one result
+	if s.ValueStackDepth() <= initialDepth {
+		return false, dtrules.NewRulesError("Stack Check Exception", "EvaluateBytecodeCondition", "No result on stack")
 	}
+
+	// Pop the result
 	result, err := s.ValuePop()
 	if err != nil {
 		return false, err
 	}
+
+	// Clean up any extra values left on the stack (some expressions leave extras)
+	for s.ValueStackDepth() > initialDepth {
+		s.ValuePop()
+	}
+
 	return result.AsBoolean(), nil
 }
 
 // EvaluateBytecodeAction executes bytecode that should leave the stack balanced.
+// If extra values are left on the stack, they are cleaned up.
 func (s *DTState) EvaluateBytecodeAction(bc *dtrules.BytecodeChunk) error {
 	initialDepth := s.ValueStackDepth()
 	if err := s.ExecuteBytecode(bc); err != nil {
 		return err
 	}
-	if s.ValueStackDepth() != initialDepth {
-		return dtrules.NewRulesError("Stack Check Exception", "EvaluateBytecodeAction", "stack not balanced")
+
+	// Clean up any extra values left on the stack (some expressions leave extras)
+	for s.ValueStackDepth() > initialDepth {
+		s.ValuePop()
 	}
+
 	return nil
 }

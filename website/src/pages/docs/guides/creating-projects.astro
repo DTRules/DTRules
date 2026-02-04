@@ -1,0 +1,406 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Creating Projects"
+  description="Learn how to create a new DTRules project from scratch."
+  prev={{ title: "CHIP Tutorial", href: "/docs/guides/chip-tutorial" }}
+  next={{ title: "Testing Rules", href: "/docs/guides/testing" }}
+>
+  <p>
+    This guide walks through creating a new DTRules project. We'll build a simple discount
+    calculation system to demonstrate the process.
+  </p>
+
+  <div class="glass rounded-xl p-4 border-l-4 border-blue-500 my-6">
+    <p class="mb-0">
+      <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span>
+      <strong class="ml-2">This guide uses Java for compilation.</strong>
+      Excel compilation requires the Java implementation. See
+      <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a>
+      to understand the full workflow.
+    </p>
+  </div>
+
+  <h2>Project Setup</h2>
+
+  <h3>1. Copy the Template</h3>
+
+  <p>Start with the TestProject template:</p>
+
+  <pre><code>cp -r sampleprojects/TestProject sampleprojects/MyProject
+cd sampleprojects/MyProject</code></pre>
+
+  <h3>2. Update Configuration</h3>
+
+  <p>Edit <code>DTRules.xml</code> with your project details:</p>
+
+  <pre><code>&lt;DTRules&gt;
+  &lt;compiler&gt;EL&lt;/compiler&gt;
+
+  &lt;RuleSet name="MyProject" source="file"&gt;
+    &lt;RuleSetFilePath&gt;/xml&lt;/RuleSetFilePath&gt;
+    &lt;WorkingDirectory&gt;/temp&lt;/WorkingDirectory&gt;
+
+    &lt;DTExcelFolder&gt;/DecisionTables/&lt;/DTExcelFolder&gt;
+    &lt;EDDExcelFolder&gt;/edd/&lt;/EDDExcelFolder&gt;
+
+    &lt;Entities        name="MyProject_edd.xml" /&gt;
+    &lt;Decisiontables  name="MyProject_dt.xml"  /&gt;
+    &lt;Map             name="MyProject_map.xml" /&gt;
+  &lt;/RuleSet&gt;
+&lt;/DTRules&gt;</code></pre>
+
+  <h3>3. Update pom.xml</h3>
+
+  <pre><code>&lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+&lt;artifactId&gt;myproject&lt;/artifactId&gt;
+&lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+&lt;name&gt;MyProject&lt;/name&gt;</code></pre>
+
+  <h2>Define Your Data Model</h2>
+
+  <h3>Create the EDD</h3>
+
+  <p>Create <code>edd/MyProject_edd.xls</code> with your entities:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Attribute</th>
+        <th>Type</th>
+        <th>Subtype</th>
+        <th>Default</th>
+        <th>Comment</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Order</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>Customer order</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>customer</td>
+        <td>Customer</td>
+        <td></td>
+        <td></td>
+        <td>Who placed the order</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>items</td>
+        <td>array</td>
+        <td>LineItem</td>
+        <td></td>
+        <td>Order line items</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>subtotal</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+        <td>Pre-discount total</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>discount</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+        <td>Applied discount</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>total</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+        <td>Final total</td>
+      </tr>
+      <tr>
+        <td>Customer</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>Customer info</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>name</td>
+        <td>string</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>vip</td>
+        <td>boolean</td>
+        <td></td>
+        <td>false</td>
+        <td>VIP status</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>member_since</td>
+        <td>date</td>
+        <td></td>
+        <td></td>
+        <td>Membership date</td>
+      </tr>
+      <tr>
+        <td>LineItem</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>Order line</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>product</td>
+        <td>string</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>quantity</td>
+        <td>integer</td>
+        <td></td>
+        <td>1</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>unit_price</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>line_total</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Context</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>Global config</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>today</td>
+        <td>date</td>
+        <td></td>
+        <td></td>
+        <td>Current date</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>vip_discount</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0.15</td>
+        <td>VIP discount rate</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>bulk_threshold</td>
+        <td>decimal</td>
+        <td></td>
+        <td>100</td>
+        <td>Bulk order threshold</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>bulk_discount</td>
+        <td>decimal</td>
+        <td></td>
+        <td>0.10</td>
+        <td>Bulk discount rate</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Write Decision Tables</h2>
+
+  <h3>Create the Decision Tables</h3>
+
+  <p>Create <code>DecisionTables/MyProject_dt.xls</code>:</p>
+
+  <h4>Table: Main</h4>
+
+  <pre><code>Name: Main
+Type: ALL
+Description: Main entry point for order processing
+
+Actions:
+  - perform Calculate_Line_Totals
+  - perform Calculate_Subtotal
+  - perform Apply_Discounts
+  - perform Calculate_Total</code></pre>
+
+  <h4>Table: Calculate_Line_Totals</h4>
+
+  <pre><code>Name: Calculate_Line_Totals
+Type: ALL
+Description: Calculate each line item total
+
+Actions:
+  for each item in order.items do
+    set item.line_total = item.quantity * item.unit_price
+  done</code></pre>
+
+  <h4>Table: Calculate_Subtotal</h4>
+
+  <pre><code>Name: Calculate_Subtotal
+Type: ALL
+Description: Sum line totals to get subtotal
+
+Actions:
+  set order.subtotal = 0
+  for each item in order.items do
+    set order.subtotal = order.subtotal + item.line_total
+  done</code></pre>
+
+  <h4>Table: Apply_Discounts</h4>
+
+  <pre><code>Name: Apply_Discounts
+Type: FIRST
+Description: Apply the best applicable discount
+
+Conditions:
+  1. customer.vip = true
+  2. order.subtotal >= bulk_threshold
+
+| Condition    | R1 | R2 | R3 | R4 |
+|--------------|----|----|----|----|
+| VIP          | Y  | Y  | N  | N  |
+| Bulk Order   | Y  | N  | Y  | N  |
+|--------------|----|----|----|----|
+| VIP Discount | X  | X  | -  | -  |
+| Bulk Discount| -  | -  | X  | -  |
+| No Discount  | -  | -  | -  | X  |
+
+Actions:
+  - set order.discount = order.subtotal * vip_discount
+  - set order.discount = order.subtotal * bulk_discount
+  - set order.discount = 0</code></pre>
+
+  <h4>Table: Calculate_Total</h4>
+
+  <pre><code>Name: Calculate_Total
+Type: ALL
+Description: Apply discount to get final total
+
+Actions:
+  set order.total = order.subtotal - order.discount</code></pre>
+
+  <h2>Compile the Rules <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h2>
+
+  <h3>Create the Compiler</h3>
+
+  <p>Create <code>src/main/java/com/mycompany/CompileMyProject.java</code>:</p>
+
+  <pre><code>package com.mycompany;
+
+import com.dtrules.compiler.Excel2XML;
+
+public class CompileMyProject &#123;
+    public static void main(String[] args) throws Exception &#123;
+        String path = System.getProperty("user.dir");
+        Excel2XML.compile(path, "DTRules.xml", "MyProject");
+        System.out.println("Compilation complete!");
+    &#125;
+&#125;</code></pre>
+
+  <h3>Run the Compiler</h3>
+
+  <pre><code>mvn exec:java -Dexec.mainClass="com.mycompany.CompileMyProject"</code></pre>
+
+  <p>This generates XML files in the <code>xml/</code> directory.</p>
+
+  <h2>Test the Rules</h2>
+
+  <h3>Create Test Cases</h3>
+
+  <p>Create test XML files in <code>testfiles/</code>:</p>
+
+  <pre><code>&lt;!-- testfiles/test1.xml --&gt;
+&lt;data&gt;
+  &lt;order&gt;
+    &lt;customer&gt;
+      &lt;name&gt;John Doe&lt;/name&gt;
+      &lt;vip&gt;true&lt;/vip&gt;
+    &lt;/customer&gt;
+    &lt;items&gt;
+      &lt;item&gt;
+        &lt;product&gt;Widget&lt;/product&gt;
+        &lt;quantity&gt;5&lt;/quantity&gt;
+        &lt;unit_price&gt;10.00&lt;/unit_price&gt;
+      &lt;/item&gt;
+    &lt;/items&gt;
+  &lt;/order&gt;
+&lt;/data&gt;</code></pre>
+
+  <h3>Run with Go CLI <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></h3>
+
+  <p>Once you have compiled XML files, you can execute them with the Go CLI:</p>
+
+  <pre><code>cd /path/to/DTRules/go
+go build -o dtrules ./cmd/dtrules
+
+./dtrules -rules ../sampleprojects/MyProject/xml -entry Main -trace</code></pre>
+
+  <h3>Run with Java <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h3>
+
+  <p>Create a test runner class and execute with Maven.</p>
+
+  <h2>Using the Visual UI</h2>
+
+  <p>Once your project is compiled to XML, you can use the visual UI:</p>
+
+  <ol>
+    <li>Start the backend: <code>cd go && go run ./cmd/api</code></li>
+    <li>Start the UI: <code>cd ui && npm run dev</code></li>
+    <li>Click "Open Custom Project"</li>
+    <li>Enter the path to your <code>xml/</code> directory</li>
+    <li>Explore and edit your rules visually</li>
+  </ol>
+
+  <h2>Best Practices</h2>
+
+  <ul>
+    <li><strong>Start small</strong> - Begin with a minimal model and expand</li>
+    <li><strong>Test early</strong> - Write tests as you develop rules</li>
+    <li><strong>Use meaningful names</strong> - Entities and tables should be self-documenting</li>
+    <li><strong>Keep tables focused</strong> - One decision per table</li>
+    <li><strong>Document business logic</strong> - Use descriptions to explain the "why"</li>
+  </ul>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/guides/testing">Testing Rules</a> - Write comprehensive tests</li>
+    <li><a href="/docs/reference/operators">Operator Reference</a> - Full operator documentation</li>
+    <li><a href="/docs/guides/chip-tutorial">CHIP Tutorial</a> - See a complete example</li>
+  </ul>
+</DocsLayout>

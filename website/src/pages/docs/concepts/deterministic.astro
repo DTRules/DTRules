@@ -1,0 +1,250 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Deterministic Rules"
+  description="Understanding determinism in DTRules and why it matters."
+  prev={{ title: "Expression Language", href: "/docs/concepts/expression-language" }}
+  next={{ title: "CHIP Tutorial", href: "/docs/guides/chip-tutorial" }}
+>
+  <p>
+    DTRules is designed to be <strong>deterministic</strong>: given the same inputs, the rules
+    will always produce the same outputs. This property is critical for compliance, auditing,
+    and reliable business operations.
+  </p>
+
+  <h2>What is Determinism?</h2>
+
+  <p>A deterministic system has these properties:</p>
+
+  <ul>
+    <li><strong>Repeatability</strong> - Same inputs always produce same outputs</li>
+    <li><strong>Predictability</strong> - Behavior can be analyzed and verified</li>
+    <li><strong>Auditability</strong> - Decisions can be traced and explained</li>
+    <li><strong>Testability</strong> - Rules can be thoroughly tested</li>
+  </ul>
+
+  <h2>Why Determinism Matters</h2>
+
+  <h3>Regulatory Compliance</h3>
+
+  <p>
+    Many business rules implement regulations that require consistent, explainable decisions.
+    Welfare eligibility, insurance coverage, and loan approval must be applied uniformly.
+  </p>
+
+  <h3>Auditing</h3>
+
+  <p>
+    When decisions are questioned, you need to reproduce exactly how a determination was made.
+    Deterministic rules enable complete decision replay.
+  </p>
+
+  <h3>Testing</h3>
+
+  <p>
+    Unit tests and regression tests rely on predictable outputs. Non-deterministic behavior
+    makes testing unreliable.
+  </p>
+
+  <h3>Debugging</h3>
+
+  <p>
+    When something goes wrong, deterministic rules let you reproduce the exact scenario
+    and trace through the logic step by step.
+  </p>
+
+  <h2>How DTRules Ensures Determinism</h2>
+
+  <h3>No Random Operations</h3>
+
+  <p>
+    DTRules does not include random number generators or other non-deterministic operations.
+    Every operation produces a predictable result.
+  </p>
+
+  <h3>Explicit Ordering</h3>
+
+  <p>
+    Decision table columns are evaluated left to right. When multiple rules can fire,
+    the order is well-defined.
+  </p>
+
+  <h3>No External Dependencies</h3>
+
+  <p>
+    Rules operate only on the data provided. They don't access databases, files, or
+    external services during execution.
+  </p>
+
+  <h3>Controlled Time</h3>
+
+  <p>
+    When rules need the current date/time, it's provided as input data. This ensures
+    the same "today" is used consistently and can be controlled in tests.
+  </p>
+
+  <h2>Trace and Debug</h2>
+
+  <p>
+    DTRules provides comprehensive tracing to understand exactly how a decision was made.
+  </p>
+
+  <h3>Execution Trace</h3>
+
+  <p>The trace shows:</p>
+
+  <ul>
+    <li>Which decision tables were executed</li>
+    <li>Which columns matched</li>
+    <li>Which actions were performed</li>
+    <li>How values changed</li>
+  </ul>
+
+  <pre><code># Enable tracing in Go CLI
+./dtrules -rules path/to/rules -entry Main -trace
+
+# Trace output shows:
+# [DT] Entering: Determine_Eligibility
+# [COND] Row 1: age >= 18 → true
+# [COND] Row 2: income < threshold → false
+# [COL] Column 2 matched
+# [ACTION] set eligible = false
+# [ACTION] set reason = "income"
+# [DT] Exiting: Determine_Eligibility</code></pre>
+
+  <h3>Entity Reports</h3>
+
+  <p>
+    After execution, you can generate reports showing the final state of all entities.
+    This documents the complete decision context.
+  </p>
+
+  <h2>Balanced Tables</h2>
+
+  <p>
+    BALANCED decision tables enforce that all condition combinations are explicitly defined.
+    This eliminates ambiguity about what happens in any scenario.
+  </p>
+
+  <pre><code># For two boolean conditions, BALANCED requires 4 columns:
+# (Y,Y), (Y,N), (N,Y), (N,N)
+
+# The compiler will error if any combination is missing.</code></pre>
+
+  <p>
+    Use BALANCED tables when completeness is required, such as regulatory rules where
+    every case must be handled.
+  </p>
+
+  <h2>First vs All Tables</h2>
+
+  <h3>FIRST Tables</h3>
+
+  <p>
+    Execute only the first matching column. The order of columns matters and defines
+    priority.
+  </p>
+
+  <ul>
+    <li>Deterministic: leftmost match always wins</li>
+    <li>Use for: priority-based rules, default/fallback logic</li>
+  </ul>
+
+  <h3>ALL Tables</h3>
+
+  <p>
+    Execute all matching columns from left to right. Multiple rules can fire for the
+    same input.
+  </p>
+
+  <ul>
+    <li>Deterministic: columns always execute in left-to-right order</li>
+    <li>Use for: accumulating values, applying multiple rules</li>
+  </ul>
+
+  <h2>Best Practices for Determinism</h2>
+
+  <h3>1. Control Input Data</h3>
+
+  <p>
+    All data the rules need should be provided as input. Avoid reading from external
+    sources during rule execution.
+  </p>
+
+  <h3>2. Use Balanced Tables for Critical Rules</h3>
+
+  <p>
+    When every scenario must be explicitly handled, use BALANCED tables. The compiler
+    will catch missing cases.
+  </p>
+
+  <h3>3. Define Clear Column Ordering</h3>
+
+  <p>
+    For FIRST and ALL tables, document why columns are in a particular order.
+    This helps maintainers understand the intended priority.
+  </p>
+
+  <h3>4. Include Today as Input</h3>
+
+  <p>
+    If rules depend on the current date, pass it as input data rather than using
+    a built-in "now" function. This enables testing with specific dates.
+  </p>
+
+  <pre><code>// Good: today is input data
+if birth_date + 18 years <= today then ...
+
+// This enables testing:
+// Test case: today = 2024-01-15
+// Test case: today = 2023-12-31</code></pre>
+
+  <h3>5. Enable Tracing in Production</h3>
+
+  <p>
+    For auditable decisions, save the execution trace. This provides a complete
+    record of how each decision was made.
+  </p>
+
+  <h2>Example: Reproducible Decision</h2>
+
+  <pre><code>// Input data
+&#123;
+  "applicant": &#123;
+    "name": "John Doe",
+    "age": 35,
+    "income": 25000,
+    "citizen": true
+  &#125;,
+  "today": "2024-01-15",
+  "poverty_level": 15000
+&#125;
+
+// Decision table: Determine_Eligibility
+// Conditions:
+//   Row 1: age &gt;= 18
+//   Row 2: income &lt; poverty_level * 2
+//   Row 3: citizen = true
+
+// With this input:
+// - Row 1: 35 &gt;= 18 -&gt; true
+// - Row 2: 25000 &lt; 30000 -&gt; true
+// - Row 3: true = true -&gt; true
+// - Column (Y,Y,Y) matches
+// - Actions: set eligible = true
+
+// This decision can be reproduced:
+// - Re-run with same input -&gt; same result
+// - Trace shows exactly why eligible = true
+// - Audit record preserved</code></pre>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/guides/chip-tutorial">CHIP Tutorial</a> - See deterministic rules in action</li>
+    <li><a href="/docs/guides/testing">Testing Rules</a> - Write tests for your rules</li>
+    <li><a href="/docs/concepts/decision-tables">Decision Tables</a> - Learn about table types</li>
+  </ul>
+</DocsLayout>

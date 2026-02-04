@@ -138,6 +138,11 @@ func (r *RArray) Execute(state State) error {
 		r.pair.array = nil
 	}
 
+	// Empty array is a no-op
+	if len(r.code) == 0 {
+		return nil
+	}
+
 	for i, obj := range r.code {
 		err := obj.ArrayExecute(state)
 		if err != nil {

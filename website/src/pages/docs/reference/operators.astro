@@ -1,0 +1,526 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Operators"
+  description="Complete reference for DTRules Expression Language operators."
+  prev={{ title: "Testing Rules", href: "/docs/guides/testing" }}
+  next={{ title: "Java API", href: "/docs/reference/java-api" }}
+>
+  <p>
+    DTRules includes 180+ operators for building conditions and actions. This reference
+    covers the most commonly used operators organized by category.
+  </p>
+
+  <h2>Arithmetic Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>+</code></td>
+        <td>Addition</td>
+        <td><code>a + b</code></td>
+      </tr>
+      <tr>
+        <td><code>-</code></td>
+        <td>Subtraction</td>
+        <td><code>a - b</code></td>
+      </tr>
+      <tr>
+        <td><code>*</code></td>
+        <td>Multiplication</td>
+        <td><code>a * b</code></td>
+      </tr>
+      <tr>
+        <td><code>/</code></td>
+        <td>Division</td>
+        <td><code>a / b</code></td>
+      </tr>
+      <tr>
+        <td><code>%</code></td>
+        <td>Modulo (remainder)</td>
+        <td><code>a % b</code></td>
+      </tr>
+      <tr>
+        <td><code>abs</code></td>
+        <td>Absolute value</td>
+        <td><code>abs of value</code></td>
+      </tr>
+      <tr>
+        <td><code>round</code></td>
+        <td>Round to nearest integer</td>
+        <td><code>round of value</code></td>
+      </tr>
+      <tr>
+        <td><code>floor</code></td>
+        <td>Round down</td>
+        <td><code>floor of value</code></td>
+      </tr>
+      <tr>
+        <td><code>ceiling</code></td>
+        <td>Round up</td>
+        <td><code>ceiling of value</code></td>
+      </tr>
+      <tr>
+        <td><code>min</code></td>
+        <td>Minimum of two values</td>
+        <td><code>min of (a, b)</code></td>
+      </tr>
+      <tr>
+        <td><code>max</code></td>
+        <td>Maximum of two values</td>
+        <td><code>max of (a, b)</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Comparison Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>=</code></td>
+        <td>Equal to</td>
+        <td><code>age = 18</code></td>
+      </tr>
+      <tr>
+        <td><code>!=</code></td>
+        <td>Not equal to</td>
+        <td><code>status != "pending"</code></td>
+      </tr>
+      <tr>
+        <td><code>&lt;</code></td>
+        <td>Less than</td>
+        <td><code>income < threshold</code></td>
+      </tr>
+      <tr>
+        <td><code>&lt;=</code></td>
+        <td>Less than or equal</td>
+        <td><code>age <= 17</code></td>
+      </tr>
+      <tr>
+        <td><code>&gt;</code></td>
+        <td>Greater than</td>
+        <td><code>count > 0</code></td>
+      </tr>
+      <tr>
+        <td><code>&gt;=</code></td>
+        <td>Greater than or equal</td>
+        <td><code>age >= 18</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Boolean Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>and</code></td>
+        <td>Logical AND</td>
+        <td><code>a and b</code></td>
+      </tr>
+      <tr>
+        <td><code>or</code></td>
+        <td>Logical OR</td>
+        <td><code>a or b</code></td>
+      </tr>
+      <tr>
+        <td><code>not</code></td>
+        <td>Logical NOT</td>
+        <td><code>not a</code></td>
+      </tr>
+      <tr>
+        <td><code>xor</code></td>
+        <td>Exclusive OR</td>
+        <td><code>a xor b</code></td>
+      </tr>
+      <tr>
+        <td><code>&amp;</code></td>
+        <td>AND (alternate syntax)</td>
+        <td><code>a & b</code></td>
+      </tr>
+      <tr>
+        <td><code>|</code></td>
+        <td>OR (alternate syntax)</td>
+        <td><code>a | b</code></td>
+      </tr>
+      <tr>
+        <td><code>!</code></td>
+        <td>NOT (alternate syntax)</td>
+        <td><code>!a</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>String Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>+</code></td>
+        <td>Concatenation</td>
+        <td><code>first_name + " " + last_name</code></td>
+      </tr>
+      <tr>
+        <td><code>length</code></td>
+        <td>String length</td>
+        <td><code>length of name</code></td>
+      </tr>
+      <tr>
+        <td><code>substring</code></td>
+        <td>Extract substring</td>
+        <td><code>substring of name from 0 to 5</code></td>
+      </tr>
+      <tr>
+        <td><code>uppercase</code></td>
+        <td>Convert to uppercase</td>
+        <td><code>uppercase of text</code></td>
+      </tr>
+      <tr>
+        <td><code>lowercase</code></td>
+        <td>Convert to lowercase</td>
+        <td><code>lowercase of text</code></td>
+      </tr>
+      <tr>
+        <td><code>trim</code></td>
+        <td>Remove whitespace</td>
+        <td><code>trim of text</code></td>
+      </tr>
+      <tr>
+        <td><code>contains</code></td>
+        <td>Check if contains substring</td>
+        <td><code>text contains "search"</code></td>
+      </tr>
+      <tr>
+        <td><code>starts with</code></td>
+        <td>Check prefix</td>
+        <td><code>text starts with "pre"</code></td>
+      </tr>
+      <tr>
+        <td><code>ends with</code></td>
+        <td>Check suffix</td>
+        <td><code>text ends with "fix"</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Array Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>count</code></td>
+        <td>Number of elements</td>
+        <td><code>count of members</code></td>
+      </tr>
+      <tr>
+        <td><code>is empty</code></td>
+        <td>Check if empty</td>
+        <td><code>is empty items</code></td>
+      </tr>
+      <tr>
+        <td><code>is not empty</code></td>
+        <td>Check if not empty</td>
+        <td><code>is not empty items</code></td>
+      </tr>
+      <tr>
+        <td><code>add</code></td>
+        <td>Add element</td>
+        <td><code>add item to list</code></td>
+      </tr>
+      <tr>
+        <td><code>remove</code></td>
+        <td>Remove element</td>
+        <td><code>remove item from list</code></td>
+      </tr>
+      <tr>
+        <td><code>clear</code></td>
+        <td>Remove all elements</td>
+        <td><code>clear list</code></td>
+      </tr>
+      <tr>
+        <td><code>first</code></td>
+        <td>First element</td>
+        <td><code>first of items</code></td>
+      </tr>
+      <tr>
+        <td><code>last</code></td>
+        <td>Last element</td>
+        <td><code>last of items</code></td>
+      </tr>
+      <tr>
+        <td><code>any...satisfies</code></td>
+        <td>Exists check</td>
+        <td><code>any m in members satisfies (m.age >= 18)</code></td>
+      </tr>
+      <tr>
+        <td><code>all...satisfy</code></td>
+        <td>Universal check</td>
+        <td><code>all m in members satisfy (m.valid)</code></td>
+      </tr>
+      <tr>
+        <td><code>no...satisfies</code></td>
+        <td>None check</td>
+        <td><code>no m in members satisfies (m.rejected)</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Date Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>date</code></td>
+        <td>Create date</td>
+        <td><code>date("2024-01-15")</code></td>
+      </tr>
+      <tr>
+        <td><code>today</code></td>
+        <td>Current date</td>
+        <td><code>today</code></td>
+      </tr>
+      <tr>
+        <td><code>year</code></td>
+        <td>Extract year</td>
+        <td><code>year of birth_date</code></td>
+      </tr>
+      <tr>
+        <td><code>month</code></td>
+        <td>Extract month</td>
+        <td><code>month of birth_date</code></td>
+      </tr>
+      <tr>
+        <td><code>day</code></td>
+        <td>Extract day</td>
+        <td><code>day of birth_date</code></td>
+      </tr>
+      <tr>
+        <td><code>+ days</code></td>
+        <td>Add days</td>
+        <td><code>start_date + 30 days</code></td>
+      </tr>
+      <tr>
+        <td><code>+ months</code></td>
+        <td>Add months</td>
+        <td><code>start_date + 6 months</code></td>
+      </tr>
+      <tr>
+        <td><code>+ years</code></td>
+        <td>Add years</td>
+        <td><code>birth_date + 18 years</code></td>
+      </tr>
+      <tr>
+        <td><code>- days</code></td>
+        <td>Subtract days</td>
+        <td><code>end_date - 7 days</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Control Flow Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>if...then</code></td>
+        <td>Conditional</td>
+        <td><code>if age >= 18 then set adult = true</code></td>
+      </tr>
+      <tr>
+        <td><code>if...then...else</code></td>
+        <td>Conditional with else</td>
+        <td><code>if a then x else y</code></td>
+      </tr>
+      <tr>
+        <td><code>for each...do...done</code></td>
+        <td>Iterate array</td>
+        <td><code>for each m in members do ... done</code></td>
+      </tr>
+      <tr>
+        <td><code>perform</code></td>
+        <td>Call decision table</td>
+        <td><code>perform Calculate_Tax</code></td>
+      </tr>
+      <tr>
+        <td><code>set</code></td>
+        <td>Assignment</td>
+        <td><code>set total = subtotal * tax</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Entity Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>new</code></td>
+        <td>Create entity</td>
+        <td><code>new Person</code></td>
+      </tr>
+      <tr>
+        <td><code>copy</code></td>
+        <td>Copy entity</td>
+        <td><code>copy of original</code></td>
+      </tr>
+      <tr>
+        <td><code>type</code></td>
+        <td>Get entity type</td>
+        <td><code>type of entity</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Null Handling Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>is null</code></td>
+        <td>Check for null</td>
+        <td><code>value is null</code></td>
+      </tr>
+      <tr>
+        <td><code>is not null</code></td>
+        <td>Check for not null</td>
+        <td><code>value is not null</code></td>
+      </tr>
+      <tr>
+        <td><code>otherwise</code></td>
+        <td>Default value</td>
+        <td><code>value otherwise 0</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Type Conversion Operators</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>integer</code></td>
+        <td>Convert to integer</td>
+        <td><code>integer of value</code></td>
+      </tr>
+      <tr>
+        <td><code>decimal</code></td>
+        <td>Convert to decimal</td>
+        <td><code>decimal of value</code></td>
+      </tr>
+      <tr>
+        <td><code>string</code></td>
+        <td>Convert to string</td>
+        <td><code>string of value</code></td>
+      </tr>
+      <tr>
+        <td><code>boolean</code></td>
+        <td>Convert to boolean</td>
+        <td><code>boolean of value</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Operator Precedence</h2>
+
+  <p>From highest to lowest precedence:</p>
+
+  <ol>
+    <li>Parentheses <code>()</code></li>
+    <li>Unary operators <code>not</code>, <code>-</code></li>
+    <li>Multiplication, division <code>*</code>, <code>/</code>, <code>%</code></li>
+    <li>Addition, subtraction <code>+</code>, <code>-</code></li>
+    <li>Comparison <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
+    <li>Boolean AND <code>and</code></li>
+    <li>Boolean OR <code>or</code></li>
+  </ol>
+
+  <p>Use parentheses when precedence is unclear:</p>
+
+  <pre><code>// Clear
+(a + b) * c
+a and (b or c)
+
+// Ambiguous - use parentheses
+a + b * c   // Is this (a + b) * c or a + (b * c)?</code></pre>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/concepts/expression-language">Expression Language</a> - Full syntax guide</li>
+    <li><a href="/docs/reference/java-api">Java API</a> - Java integration</li>
+    <li><a href="/docs/reference/go-api">Go API</a> - Go integration</li>
+  </ul>
+</DocsLayout>

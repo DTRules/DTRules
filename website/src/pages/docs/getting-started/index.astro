@@ -1,0 +1,175 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Getting Started"
+  description="Get started with DTRules - a decision table based rules engine."
+  next={{ title: "Quick Start (UI)", href: "/docs/getting-started/quickstart-ui" }}
+>
+  <p>
+    DTRules is a production-ready rules engine that allows business analysts and policy experts to
+    define complex business logic using <strong>Decision Tables</strong> in Excel spreadsheets, combined
+    with a human-readable <strong>Domain Specific Language (DSL)</strong>.
+  </p>
+
+  <h2>Overview</h2>
+
+  <p>
+    Decision Tables provide a tabular representation of business rules that can be understood by both
+    policy experts and developers. The DSL ensures that conditions and actions are written in clear,
+    readable syntax rather than code.
+  </p>
+
+  <h3>Key Features</h3>
+
+  <ul>
+    <li><strong>Excel-based Rule Definition</strong> - Define rules in familiar spreadsheet format</li>
+    <li><strong>Domain Specific Languages</strong> - EL (Expression Language) for readable conditions and actions</li>
+    <li><strong>Entity Data Model</strong> - Define your data structures in Excel</li>
+    <li><strong>Auto-mapping</strong> <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span> - Automatic mapping between Java objects and rule entities</li>
+    <li><strong>Test Harness</strong> - Built-in testing framework for validating rules</li>
+    <li><strong>Trace &amp; Debug</strong> - Comprehensive tracing for debugging rule execution</li>
+  </ul>
+
+  <h3>Production Use</h3>
+
+  <p>DTRules has been used in production systems including:</p>
+
+  <ul>
+    <li>State welfare/assistance programs (Texas TIERS, Ohio OFAST)</li>
+    <li>Insurance eligibility determination systems</li>
+    <li>Commercial business logic applications</li>
+  </ul>
+
+  <h2>Implementations</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Implementation</th>
+        <th>Status</th>
+        <th>Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Java</strong></td>
+        <td>Production</td>
+        <td>Original implementation with full tooling</td>
+      </tr>
+      <tr>
+        <td><strong>Go</strong></td>
+        <td>Production</td>
+        <td>High-performance runtime, 130x faster operator lookup</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Java Implementation</h3>
+
+  <p>The original Java implementation provides:</p>
+  <ul>
+    <li>Excel-to-XML compilers for decision tables</li>
+    <li>Full IDE support and debugging</li>
+    <li>Comprehensive test harness</li>
+    <li>Production-proven stability</li>
+  </ul>
+
+  <h3>Go Implementation</h3>
+
+  <p>The Go implementation provides:</p>
+  <ul>
+    <li><strong>Full compatibility</strong> with Java DTRules XML formats</li>
+    <li><strong>High performance</strong>: 130x faster operator lookup, 24x faster arithmetic</li>
+    <li><strong>Zero-allocation</strong> hot paths for reduced GC pressure</li>
+    <li><strong>CLI tool</strong> for rule validation and execution</li>
+  </ul>
+
+  <h2>Requirements</h2>
+
+  <h3>Java</h3>
+  <ul>
+    <li><strong>Java 8+</strong></li>
+    <li><strong>Apache Maven 3.x</strong></li>
+  </ul>
+
+  <h3>Go</h3>
+  <ul>
+    <li><strong>Go 1.21+</strong></li>
+  </ul>
+
+  <h3>Visual UI</h3>
+  <ul>
+    <li><strong>Node.js 18+</strong> (frontend)</li>
+    <li><strong>Go 1.21+</strong> (backend)</li>
+  </ul>
+
+  <h2>Quick Start Options</h2>
+
+  <p>Choose the quick start guide that matches your use case:</p>
+
+  <ul>
+    <li>
+      <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a> - Understand the Java/Go workflow
+    </li>
+    <li>
+      <a href="/docs/getting-started/quickstart-ui">Quick Start (UI)</a>
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-1">Go</span>
+      - Visual editing with the React UI
+    </li>
+    <li>
+      <a href="/docs/getting-started/quickstart-go">Quick Start (Go)</a>
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-1">Go</span>
+      - High-performance CLI and API
+    </li>
+    <li>
+      <a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a>
+      <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full ml-1">Java</span>
+      - Full tooling with Excel compilers
+    </li>
+  </ul>
+
+  <h2>Project Structure</h2>
+
+  <h3>Java Project <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h3>
+
+  <p>A Java project includes Excel source files and compiles them to XML:</p>
+
+  <pre><code>project/
+├── DecisionTables/           # Excel files with business rules
+│   └── MyRules_dt.xls
+├── edd/                      # Entity Definition Documents
+│   └── MyRules_edd.xls
+├── xml/                      # Compiled XML rule files (generated)
+├── testfiles/                # Test case input files
+├── DTRules.xml               # Project configuration
+├── pom.xml                   # Maven configuration
+└── src/main/java/
+    └── CompileRules.java     # Compiles Excel → XML
+    └── TestRules.java        # Runs test cases</code></pre>
+
+  <h3>Go Project <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></h3>
+
+  <p>A Go project consumes pre-compiled XML files (compiled by Java):</p>
+
+  <pre><code>project/
+├── xml/                      # Pre-compiled XML files
+│   ├── MyRules_edd.xml       # (from Java compilation)
+│   └── MyRules_dt.xml
+├── testfiles/                # Test case input files
+└── main.go                   # Your Go application (optional)</code></pre>
+
+  <p>
+    <strong>Note:</strong> Go projects require XML files that were compiled using the Java compiler.
+    See <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a> for the full workflow.
+  </p>
+
+  <h2>Links</h2>
+
+  <ul>
+    <li><a href="https://github.com/dtrules/dtrules">GitHub Repository</a></li>
+    <li><a href="/features">Features Overview</a></li>
+    <li><a href="/demo">Interactive Demo</a></li>
+  </ul>
+</DocsLayout>

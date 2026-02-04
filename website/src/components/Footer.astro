@@ -1,0 +1,65 @@
+---
+import { Table2 } from 'lucide-react';
+---
+
+<footer class="border-t border-border/50 bg-background/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- Brand -->
+      <div class="md:col-span-1">
+        <a href="/" class="flex items-center gap-3 mb-4">
+          <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+            <Table2 className="h-5 w-5 text-white" />
+          </div>
+          <span class="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            DTRules
+          </span>
+        </a>
+        <p class="text-sm text-muted-foreground">
+          A Decision Table based Rules Engine for Java and Go. Production-ready and battle-tested.
+        </p>
+      </div>
+
+      <!-- Documentation -->
+      <div>
+        <h4 class="font-semibold mb-4">Documentation</h4>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="/docs/getting-started" class="hover:text-foreground transition-colors">Getting Started</a></li>
+          <li><a href="/docs/concepts/decision-tables" class="hover:text-foreground transition-colors">Decision Tables</a></li>
+          <li><a href="/docs/reference/operators" class="hover:text-foreground transition-colors">Operator Reference</a></li>
+          <li><a href="/docs/guides/chip-tutorial" class="hover:text-foreground transition-colors">CHIP Tutorial</a></li>
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div>
+        <h4 class="font-semibold mb-4">Resources</h4>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="/features" class="hover:text-foreground transition-colors">Features</a></li>
+          <li><a href="/demo" class="hover:text-foreground transition-colors">Interactive Demo</a></li>
+          <li><a href="/downloads" class="hover:text-foreground transition-colors">Downloads</a></li>
+          <li><a href="https://github.com/dtrules/dtrules" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors">GitHub</a></li>
+        </ul>
+      </div>
+
+      <!-- Community -->
+      <div>
+        <h4 class="font-semibold mb-4">Community</h4>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="/about" class="hover:text-foreground transition-colors">About</a></li>
+          <li><a href="https://github.com/dtrules/dtrules/issues" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors">Report Issues</a></li>
+          <li><a href="https://github.com/dtrules/dtrules/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors">License (Apache 2.0)</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-sm text-muted-foreground">
+        &copy; 2004-{new Date().getFullYear()} DTRules.com. All rights reserved.
+      </p>
+      <p class="text-sm text-muted-foreground">
+        Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" class="hover:text-foreground transition-colors">Apache License 2.0</a>
+      </p>
+    </div>
+  </div>
+</footer>

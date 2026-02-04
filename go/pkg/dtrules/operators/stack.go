@@ -80,6 +80,22 @@ func init() {
 
 	// Error handling
 	Register("error", opError)
+
+	// Policy statements (temporary - returns empty array)
+	// TODO: Implement proper policy statement handling
+	Register("policystatements", opPolicyStatements)
+}
+
+// opPolicyStatements: ( -- array ) pushes an empty policy statements array
+// TODO: This should be replaced with proper policy statement handling
+func opPolicyStatements(state dtrules.State) error {
+	// For now, return an empty array
+	// Full implementation should get policy statements from the current decision table context
+	arr, err := dtrules.NewArray(state.GetSession(), true, false)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(arr)
 }
 
 // opPop: ( a -- ) removes top element

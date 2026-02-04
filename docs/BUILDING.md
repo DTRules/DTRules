@@ -43,12 +43,13 @@ mvn clean install
 
 This builds all modules in dependency order:
 1. `dtrules-engine` - Core rules engine
-2. `dsl/el` - Expression Language compiler
-3. `dsl/ebl` - Entity Business Language compiler
-4. `dsl/el_antlr` - ANTLR-based parser (alternative)
-5. `dsl/sudoku_language` - Custom DSL example
-6. `compilerutil` - Excel-to-XML utilities
-7. `sampleprojects/*` - All sample projects
+2. `dsl/el` - Expression Language compiler (JFlex/CUP + ANTLR 4)
+3. `dsl/ebl` - Entity Business Language compiler (JFlex/CUP + ANTLR 4)
+4. `dsl/sudoku_language` - Custom DSL example (JFlex/CUP + ANTLR 4)
+5. `compilerutil` - Excel-to-XML utilities
+6. `sampleprojects/*` - All sample projects
+
+Note: `dsl/el_antlr` contains experimental ANTLR 3 code and is obsolete. The production ANTLR 4 compilers are now in the main DSL modules.
 
 ### Build Specific Modules
 
@@ -112,35 +113,46 @@ Dependencies: `dtrules-engine`, Apache POI (for Excel reading)
 
 ### dsl/el
 
-The Expression Language (EL) compiler using JFlex and CUP.
+The Expression Language (EL) compiler with two implementations:
 
 ```bash
 cd dsl/el
 mvn clean install
 ```
 
-Contains:
-- `scanner.flex` - Lexer definition
-- `parser.cup` - Parser grammar
+**JFlex/CUP Implementation (Legacy):**
+- `flex/scanner.flex` - Lexer definition
+- `cup/parser.cup` - Parser grammar
 - `EL.java` - Main compiler class
+
+**ANTLR 4 Implementation (New):**
+- `src/main/antlr4/com/dtrules/compiler/el/EL.g4` - Combined grammar
+- `ELAntlr.java` - ANTLR-based compiler class
+- `ELCompilerVisitor.java` - Visitor for code generation
+
+Both implementations are drop-in replacements via the `ICompiler` interface.
 
 ### dsl/ebl
 
-Entity Business Language - enhanced version of EL.
+Entity Business Language - enhanced version of EL with FIND/ISWITHIN support.
 
 ```bash
 cd dsl/ebl
 mvn clean install
 ```
 
-### dsl/el_antlr
+Contains both JFlex/CUP (`EBL.java`) and ANTLR 4 (`EBLAntlr.java`) implementations.
 
-Alternative EL parser using ANTLR (experimental).
+### dsl/sudoku_language
+
+Custom DSL for the Sudoku sample project.
 
 ```bash
-cd dsl/el_antlr
+cd dsl/sudoku_language
 mvn clean install
 ```
+
+Contains both JFlex/CUP (`SudokuLanguage.java`) and ANTLR 4 (`SudokuAntlr.java`) implementations.
 
 ### sampleprojects
 
@@ -240,9 +252,26 @@ After running `mvn install`, artifacts are available in your local Maven reposit
 
 ## Regenerating Parsers
 
-The EL and EBL parsers are generated from grammar files. To regenerate:
+The DSL compilers have two parser implementations. Both are automatically regenerated during Maven build.
 
-### Using JFlex (Lexer)
+### ANTLR 4 (Recommended)
+
+ANTLR 4 grammars are compiled automatically by the `antlr4-maven-plugin`:
+
+```bash
+cd dsl/el
+mvn generate-sources
+```
+
+This regenerates `ELLexer.java`, `ELParser.java`, and `ELBaseVisitor.java` from `EL.g4`.
+
+Grammar files are located in `src/main/antlr4/com/dtrules/compiler/*/`.
+
+### JFlex/CUP (Legacy)
+
+For manual regeneration of the legacy parsers:
+
+#### Using JFlex (Lexer)
 
 ```bash
 cd dsl/el
@@ -252,7 +281,7 @@ scanner.bat    # Windows
 
 This regenerates `DTRulesscanner.java` from `scanner.flex`.
 
-### Using CUP (Parser)
+#### Using CUP (Parser)
 
 ```bash
 cd dsl/el

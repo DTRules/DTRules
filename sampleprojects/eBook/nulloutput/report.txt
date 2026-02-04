@@ -1,3 +1,0 @@
-An Error occurred while running the example:
-java.lang.NullPointerException
-<-ERR  

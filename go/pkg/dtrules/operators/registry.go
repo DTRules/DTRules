@@ -431,7 +431,8 @@ func (p *PrimitivesEntity) GetName() *dtrules.RName {
 
 // Get retrieves an operator by name
 func (p *PrimitivesEntity) Get(name *dtrules.RName) (dtrules.Object, error) {
-	op, ok := Get(name)
+	// Use GetByString for a more reliable lookup that doesn't depend on pointer equality
+	op, ok := GetByString(name.StringValue())
 	if ok {
 		return op, nil
 	}
@@ -445,7 +446,8 @@ func (p *PrimitivesEntity) Put(name *dtrules.RName, value dtrules.Object) error 
 
 // ContainsAttribute returns true if the operator exists
 func (p *PrimitivesEntity) ContainsAttribute(name *dtrules.RName) bool {
-	_, ok := Get(name)
+	// Use GetByString for a more reliable lookup that doesn't depend on pointer equality
+	_, ok := GetByString(name.StringValue())
 	return ok
 }
 

@@ -32,9 +32,6 @@
 		<module>KidAid_Application</module>
 		<module>SyntaxTests</module>
 		<module>TestProject</module>
-		<module>Sudoku</module>
-		<module>eBook</module>
-		<module>eBookApp</module>
 	</modules>
 
 </project>

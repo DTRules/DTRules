@@ -28,6 +28,7 @@ func init() {
 	Register("newentity", opNewEntity)
 	Register("entityname", opEntityName)
 	Register("entityid", opEntityID)
+	Register("req", opReq)
 }
 
 // opEntityPush: ( entity -- ) pushes entity onto entity stack
@@ -166,4 +167,37 @@ func opEntityID(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(entity.GetID()))
+}
+
+// opReq: ( entity1 entity2 -- boolean ) reference equality for entities
+// Returns true if both arguments refer to the same entity instance
+func opReq(state dtrules.State) error {
+	obj2, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	obj1, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+
+	// Handle null comparisons
+	if obj1.Type() == dtrules.TypeNull || obj2.Type() == dtrules.TypeNull {
+		// null req null is true, anything else req null is false
+		result := obj1.Type() == dtrules.TypeNull && obj2.Type() == dtrules.TypeNull
+		return state.DataPush(dtrules.GetRBoolean(result))
+	}
+
+	// Both must be entities for reference equality
+	entity1, err1 := obj1.REntityValue()
+	entity2, err2 := obj2.REntityValue()
+
+	if err1 != nil || err2 != nil {
+		// If either isn't an entity, they're not reference-equal
+		return state.DataPush(dtrules.GetRBoolean(false))
+	}
+
+	// Compare by entity ID (unique instance identifier)
+	result := entity1.GetID() == entity2.GetID()
+	return state.DataPush(dtrules.GetRBoolean(result))
 }

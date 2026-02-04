@@ -23,6 +23,7 @@ DTRules has implementations in both **Java** and **Go**. This documentation prim
 | [Expression Language Reference](EL-REFERENCE.md) | Complete EL syntax, operators, and functions |
 | [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
 | [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
+| [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md) | Excel, ODS, and Google Sheets support |
 
 ## Go Implementation
 
@@ -43,7 +44,29 @@ cd go && go build -o dtrules ./cmd/dtrules
 ./dtrules -rules /path/to/xml -entry Main
 ```
 
-### Legacy Documentation
+## Visual UI
+
+A modern React-based UI for editing decision tables and testing rules:
+
+```bash
+# Terminal 1: Start the Go API backend
+cd go && go run ./cmd/api
+
+# Terminal 2: Start the React frontend
+cd ui && npm install && npm run dev
+```
+
+Then open http://localhost:5173 in your browser. See [ui/README.md](../ui/README.md) for details.
+
+## Development Documentation
+
+| Document | Location | Description |
+|----------|----------|-------------|
+| Compiler Utilities | [compilerutil/README.md](../compilerutil/README.md) | Spreadsheet conversion tools |
+| ANTLR 4 Migration | [dsl/ANTLR_MIGRATION.md](../dsl/ANTLR_MIGRATION.md) | Parser modernization guide |
+| Changelog | [CHANGELOG.md](../CHANGELOG.md) | Version history and changes |
+
+## Legacy Documentation
 
 Additional documentation is available in legacy formats:
 
@@ -51,7 +74,7 @@ Additional documentation is available in legacy formats:
 |----------|----------|-------------|
 | DTRules Overview | `dtrules-engine/docs/DTRules.doc` | Core engine documentation |
 | Operator Reference | `dtrules-engine/docs/OperatorList.doc` | List of available operators |
-| EL Overview | `dsl/el/docs/Overview_of_DTRules_and_EL.pdf` | Expression Language overview |
+| EL Overview | `dtrules-engine/docs/Overview_of_DTRules_and_EL.pdf` | Expression Language overview |
 | EL Examples | `sampleprojects/SyntaxTests/EL Documentation-1.odt` | Comprehensive EL syntax examples |
 
 ## Sample Projects
@@ -62,10 +85,10 @@ Additional documentation is available in legacy formats:
 2. **[SyntaxTests](../sampleprojects/SyntaxTests/)** - Learn EL language features
 3. **[CHIP](../sampleprojects/CHIP/)** - See a real-world eligibility example
 4. **[ChipApp](../sampleprojects/ChipApp/)** - Learn application integration patterns
-5. **[eBook](../sampleprojects/eBook/)** - Explore multi-ruleset projects
-6. **[Sudoku](../sampleprojects/Sudoku/)** - Understand custom DSL creation
 
 ### All Sample Projects
+
+#### Rule Set Projects
 
 | Project | Purpose | Complexity |
 |---------|---------|------------|
@@ -73,22 +96,28 @@ Additional documentation is available in legacy formats:
 | [SyntaxTests](../sampleprojects/SyntaxTests/) | EL language feature examples | Reference |
 | [CHIP](../sampleprojects/CHIP/) | Health insurance eligibility | High |
 | [KidAid](../sampleprojects/KidAid/) | Child assistance eligibility | High |
-| [Sudoku](../sampleprojects/Sudoku/) | Puzzle solver with custom DSL | High |
-| [eBook](../sampleprojects/eBook/) | Multi-ruleset business logic (EBL) | High |
-| [ChipApp](../sampleprojects/ChipApp/) | Application integration pattern | Medium |
-| [KidAid_Application](../sampleprojects/KidAid_Application/) | Simple integration example | Low |
-| [eBookApp](../sampleprojects/eBookApp/) | EBL application wrapper | Medium |
+
+#### Application Wrappers
+
+| Project | Purpose | Features |
+|---------|---------|----------|
+| [ChipApp](../sampleprojects/ChipApp/) | CHIP integration example | Multi-threaded, performance testing |
+| [KidAid_Application](../sampleprojects/KidAid_Application/) | KidAid integration example | Simple integration pattern |
 
 See the [Sample Projects Overview](../sampleprojects/README.md) for the complete guide.
 
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Excel Files    ──compile──▶   XML Rules   ──load──▶  Engine  ──▶  Results
-│  (EDD + DT)                    (*_edd.xml,              │
-│                                 *_dt.xml)          Your Application
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Spreadsheets   ──compile──▶   XML Rules   ──load──▶  Engine  ──▶  Results
+│  (EDD + DT)                    (*_edd.xml,                │
+│                                 *_dt.xml)            Your Application
+│  Supported:                                               │
+│  • Excel (.xls, .xlsx, .xlsm)                             │
+│  • OpenDocument (.ods)                                    │
+│  • Google Sheets (URL)                                    │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 For detailed architecture diagrams and component descriptions, see the [Architecture Guide](ARCHITECTURE.md).
@@ -96,10 +125,10 @@ For detailed architecture diagrams and component descriptions, see the [Architec
 ## Key Concepts
 
 ### Entity Definition Document (EDD)
-Defines the data model used by decision tables. Contains entities, attributes, types, and relationships. Created in Excel.
+Defines the data model used by decision tables. Contains entities, attributes, types, and relationships. Created in spreadsheets (Excel, ODS, or Google Sheets). See [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md).
 
 ### Decision Tables
-Tabular representation of business rules. Each column is a rule with conditions to match and actions to execute. Uses EL syntax.
+Tabular representation of business rules. Each column is a rule with conditions to match and actions to execute. Uses EL syntax. Can be authored in Excel, LibreOffice, or Google Sheets.
 
 ### Expression Language (EL)
 Domain-specific language for writing conditions and actions. Designed to be readable by business analysts and policy experts.
@@ -130,13 +159,12 @@ String status = results.get("status").stringValue();
 
 See the [API Guide](API-GUIDE.md) for comprehensive examples.
 
-## DSL Comparison
+## DSL Implementations
 
-| DSL | Description | Sample Projects |
-|-----|-------------|-----------------|
-| **EL** | Expression Language - standard DSL | CHIP, KidAid, SyntaxTests, TestProject |
-| **EBL** | Entity Business Language - enhanced DSL | eBook, eBookApp |
-| **Custom** | Domain-specific languages | Sudoku (SudokuLanguage) |
+| DSL | Description | Parser | Sample Projects |
+|-----|-------------|--------|-----------------|
+| **EL** | Expression Language - standard DSL | ANTLR 4 | CHIP, KidAid, SyntaxTests, TestProject |
+| **EBL** | Entity Business Language - enhanced DSL | ANTLR 4 | (available for advanced use cases) |
 
 ## Contributing
 

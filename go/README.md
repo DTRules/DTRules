@@ -115,7 +115,9 @@ DTRules uses a three-stack interpreter similar to PostScript:
 
 ```
 go/
-├── cmd/dtrules/          # CLI tool
+├── cmd/
+│   ├── dtrules/          # CLI tool
+│   └── api/              # REST API server for UI
 └── pkg/dtrules/
     ├── compiler/         # Postfix expression compiler
     ├── interpreter/      # State and bytecode VM
@@ -127,6 +129,39 @@ go/
     ├── mapping/          # Data mapping
     └── benchmark/        # Performance benchmarks
 ```
+
+## REST API Server
+
+The API server provides HTTP endpoints for the DTRules UI:
+
+```bash
+# Start the API server (default port 8080)
+go run ./cmd/api
+
+# Start on a different port
+go run ./cmd/api -port 9000
+
+# With verbose logging
+go run ./cmd/api -v
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Health check |
+| `/api/project/open` | POST | Open project directory |
+| `/api/project/save` | POST | Save modified files |
+| `/api/project/files` | GET | List project files |
+| `/api/edd` | GET | Get all entities |
+| `/api/edd/entity/{name}` | GET/POST/PUT/DELETE | Entity CRUD |
+| `/api/dt` | GET/POST | List/create decision tables |
+| `/api/dt/{name}` | GET/PUT/DELETE | Decision table CRUD |
+| `/api/dt/{name}/tree` | GET | Get decision tree for visualization |
+| `/api/compile/expression` | POST | Validate postfix expression |
+| `/api/compile/operators` | GET | Get available operators |
+| `/api/compile/fields` | GET | Get entity fields |
+| `/api/execute` | POST | Execute rules |
 
 ## Decision Table Types
 
