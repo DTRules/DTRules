@@ -104,7 +104,7 @@ Entity: Application
           <h2 class="text-3xl font-bold mb-4">Entity Data Dictionary</h2>
           <p class="text-muted-foreground mb-6">
             Define your data model in Excel using the Entity Data Dictionary (EDD). Specify entities, attributes,
-            their types, and relationships. DTRules automatically maps these to Java objects at runtime.
+            their types, and relationships. These are compiled to XML for use by either runtime.
           </p>
           <ul class="space-y-3 text-muted-foreground mb-6">
             <li class="flex items-start gap-3">
@@ -113,7 +113,7 @@ Entity: Application
             </li>
             <li class="flex items-start gap-3">
               <div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2" />
-              <span>Automatic Java object mapping</span>
+              <span>Automatic Java object mapping <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></span>
             </li>
             <li class="flex items-start gap-3">
               <div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2" />
@@ -143,7 +143,7 @@ Entity: Application
           <h2 class="text-3xl font-bold mb-4">Expression Language</h2>
           <p class="text-muted-foreground mb-6">
             Write conditions and actions in EL (Expression Language) - a readable syntax designed for policy experts.
-            Built with ANTLR 4 for robust parsing and clear error messages.
+            Compiled to efficient bytecode with robust parsing and clear error messages.
           </p>
           <ul class="space-y-3 text-muted-foreground mb-6">
             <li class="flex items-start gap-3">
@@ -266,7 +266,7 @@ perform Calculate_Benefits</code></pre>
           <div class="p-2 bg-green-500/10 rounded-lg w-fit mb-4">
             <Code2 className="h-5 w-5 text-green-400" />
           </div>
-          <h3 class="font-semibold mb-2">REST API</h3>
+          <h3 class="font-semibold mb-2">REST API <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></h3>
           <p class="text-sm text-muted-foreground">
             Full REST API for rule execution, making integration easy with any language or platform.
           </p>
@@ -276,7 +276,7 @@ perform Calculate_Benefits</code></pre>
           <div class="p-2 bg-blue-500/10 rounded-lg w-fit mb-4">
             <Table2 className="h-5 w-5 text-blue-400" />
           </div>
-          <h3 class="font-semibold mb-2">Visual UI</h3>
+          <h3 class="font-semibold mb-2">Visual UI <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go Backend</span></h3>
           <p class="text-sm text-muted-foreground">
             Modern React-based UI for editing decision tables, entities, and testing rules.
           </p>
