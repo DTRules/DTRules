@@ -106,15 +106,27 @@ dirs:
 # Testing
 #------------------------------------------------------------------------------
 
+.PHONY: test test-all test-unit test-unit-build test-integration test-comparison
+
 test: test-unit
+
+test-all: test-unit test-comparison
 
 test-unit: $(TARGET)
 	@echo "Running unit tests..."
 	@./$(TEST_DIR)/run_tests.sh
 
+test-unit-build: $(TARGET)
+	@echo "Building unit tests..."
+	@$(MAKE) -C $(TEST_DIR)/unit all
+
 test-integration: $(TARGET)
 	@echo "Running integration tests..."
-	@./$(TEST_DIR)/integration/run_tests.sh
+	@if [ -f $(TEST_DIR)/integration/run_tests.sh ]; then \
+		./$(TEST_DIR)/integration/run_tests.sh; \
+	else \
+		echo "No integration tests found"; \
+	fi
 
 test-comparison: $(TARGET)
 	@echo "Running comparison tests..."
@@ -135,6 +147,8 @@ clean:
 	rm -rf $(BUILD_DIR)
 	rm -f $(TARGET)
 	rm -f $(TEST_TARGET)
+	@if [ -f $(TEST_DIR)/unit/Makefile ]; then $(MAKE) -C $(TEST_DIR)/unit clean; fi
+	rm -rf $(TEST_DIR)/comparison/output
 
 #------------------------------------------------------------------------------
 # Help
@@ -147,7 +161,9 @@ help:
 	@echo "  all              Build the main executable (default)"
 	@echo "  clean            Remove build artifacts"
 	@echo "  test             Run unit tests"
+	@echo "  test-all         Run all tests (unit + comparison)"
 	@echo "  test-unit        Run unit tests"
+	@echo "  test-unit-build  Build unit test executables only"
 	@echo "  test-integration Run integration tests"
 	@echo "  test-comparison  Compare output with Go implementation"
 	@echo "  debug            Build with debug symbols and assertions"
@@ -155,6 +171,10 @@ help:
 	@echo ""
 	@echo "Variables:"
 	@echo "  DEBUG=1          Enable debug build"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  See docs/TESTING.md for testing guide"
+	@echo "  See docs/ARCHITECTURE.md for implementation details"
 
 #------------------------------------------------------------------------------
 # Dependencies
