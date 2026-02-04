@@ -1,0 +1,37 @@
+---
+import { Lightbulb, AlertTriangle, Info, AlertCircle } from 'lucide-react';
+
+interface Props {
+  type?: 'tip' | 'warning' | 'info' | 'danger';
+  title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+const icons = {
+  tip: Lightbulb,
+  warning: AlertTriangle,
+  info: Info,
+  danger: AlertCircle,
+};
+
+const defaultTitles = {
+  tip: 'Tip',
+  warning: 'Warning',
+  info: 'Note',
+  danger: 'Danger',
+};
+
+const Icon = icons[type];
+const displayTitle = title || defaultTitles[type];
+---
+
+<aside class={`callout callout-${type}`}>
+  <Icon className="callout-icon" />
+  <div>
+    <div class="callout-title">{displayTitle}</div>
+    <div class="callout-content">
+      <slot />
+    </div>
+  </div>
+</aside>
