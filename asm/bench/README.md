@@ -5,8 +5,11 @@ Performance comparison between Assembly, Go, and Java implementations.
 ## Quick Start
 
 ```bash
-# Quick benchmark (ASM vs Go)
+# Quick startup benchmark
 ./quick_bench.sh
+
+# Workload benchmark (sustained throughput)
+./workload_bench.sh
 
 # Full benchmark suite
 ./run_benchmarks.sh
@@ -14,6 +17,16 @@ Performance comparison between Assembly, Go, and Java implementations.
 # Visualize results
 python3 plot_results.py results/benchmark_*.csv
 ```
+
+## Latest Results (ASM vs Go)
+
+| Metric | ASM | Go | ASM Advantage |
+|--------|-----|-----|---------------|
+| Startup latency | 0.2ms | 2.9ms | **14x faster** |
+| Sustained throughput | 1260 ops/s | 292 ops/s | **4.3x faster** |
+| p99 latency | 1.05ms | 4.27ms | **4x lower** |
+| Memory usage | 1.5 MB | 4.3 MB | **2.8x less** |
+| Binary size | 185 KB | 3.8 MB | **21x smaller** |
 
 ## Benchmarks
 

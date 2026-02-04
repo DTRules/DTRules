@@ -203,4 +203,5 @@ printf "│ Memory      │ %10d KB  │ %10d KB  │ %7.1fx     │\n" ${asm_me
 printf "│ Binary      │ %10d KB  │ %10d KB  │ %7.1fx     │\n" $asm_size_kb ${go_size_kb:-0} ${size_ratio:-0}
 echo "└─────────────┴────────────────┴────────────────┴─────────────┘"
 echo ""
-echo "Note: ASM tests standalone rules, Go tests CHIP sample (different workloads)"
+echo "Note: This measures startup + simple processing."
+echo "      For sustained workload benchmarks, run: ./workload_bench.sh"
