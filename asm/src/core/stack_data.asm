@@ -34,10 +34,6 @@ stack_data_init:
 ;-----------------------------------------------------------------------------
 global stack_data_push
 stack_data_push:
-    push rbp
-    mov rbp, rsp
-    push rbx
-
     ; Check for overflow
     mov rax, r12
     sub rax, VALUE_SIZE
@@ -48,23 +44,20 @@ stack_data_push:
     sub r12, VALUE_SIZE
     mov [state + State.data_stack], r12
 
-    ; Copy Value onto stack
-    mov rbx, rdi            ; Source
-    mov rdi, r12            ; Destination
-    mov rsi, rbx
-    mov ecx, VALUE_SIZE
-    rep movsb
+    ; Fast 24-byte copy (3x mov instead of rep movsb)
+    mov rax, [rdi]
+    mov rcx, [rdi + 8]
+    mov rdx, [rdi + 16]
+    mov [r12], rax
+    mov [r12 + 8], rcx
+    mov [r12 + 16], rdx
 
     xor eax, eax            ; Success
-    jmp .done
+    ret
 
 .overflow:
     mov dword [state + State.error], ERR_STACK_OVERFLOW
     mov eax, ERR_STACK_OVERFLOW
-
-.done:
-    pop rbx
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -74,12 +67,6 @@ stack_data_push:
 ;-----------------------------------------------------------------------------
 global stack_data_push_integer
 stack_data_push_integer:
-    push rbp
-    mov rbp, rsp
-    push rbx
-
-    mov rbx, rdi            ; Save integer
-
     ; Check for overflow
     mov rax, r12
     sub rax, VALUE_SIZE
@@ -92,19 +79,15 @@ stack_data_push_integer:
 
     ; Create integer value in place
     mov byte [r12 + VALUE_TAG_OFF], VTAG_INTEGER
-    mov qword [r12 + VALUE_NUM_OFF], rbx
+    mov qword [r12 + VALUE_NUM_OFF], rdi
     mov qword [r12 + VALUE_PTR_OFF], 0
 
     xor eax, eax
-    jmp .done
+    ret
 
 .overflow:
     mov dword [state + State.error], ERR_STACK_OVERFLOW
     mov eax, ERR_STACK_OVERFLOW
-
-.done:
-    pop rbx
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -114,9 +97,6 @@ stack_data_push_integer:
 ;-----------------------------------------------------------------------------
 global stack_data_push_boolean
 stack_data_push_boolean:
-    push rbp
-    mov rbp, rsp
-
     ; Normalize boolean
     test rdi, rdi
     setnz dil
@@ -138,14 +118,11 @@ stack_data_push_boolean:
     mov qword [r12 + VALUE_PTR_OFF], 0
 
     xor eax, eax
-    jmp .done
+    ret
 
 .overflow:
     mov dword [state + State.error], ERR_STACK_OVERFLOW
     mov eax, ERR_STACK_OVERFLOW
-
-.done:
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -275,14 +252,23 @@ stack_data_peek_n:
 ;-----------------------------------------------------------------------------
 ; stack_data_depth - Get number of Values on stack
 ; Output: rax = depth
+; NOTE: Uses shift instead of div for performance (VALUE_SIZE=24 = 8*3)
+;       Computes (base - r12) / 24 = (base - r12) * 0xAAAAAAAAAAAAAAAB >> 68
+;       Simplified: just use iterative subtraction for small stacks or
+;       approximate with (base - r12) >> 5 for fast path
 ;-----------------------------------------------------------------------------
 global stack_data_depth
 stack_data_depth:
     mov rax, [state + State.data_stack_base]
     sub rax, r12
-    mov rcx, VALUE_SIZE
-    xor edx, edx
-    div rcx                 ; rax = depth
+    ; Divide by 24 using multiplication by magic number
+    ; 24 = 8 * 3, so we can compute: n/24 = (n/8)/3
+    shr rax, 3              ; Divide by 8
+    ; Now divide by 3: multiply by 0xAAAAAAAAAAAAAAAB and shift right
+    mov rcx, 0xAAAAAAAAAAAAAAAB
+    mul rcx                 ; Result in rdx:rax, we want rdx >> 1
+    shr rdx, 1
+    mov rax, rdx
     ret
 
 ;-----------------------------------------------------------------------------
@@ -291,9 +277,6 @@ stack_data_depth:
 ;-----------------------------------------------------------------------------
 global stack_data_dup
 stack_data_dup:
-    push rbp
-    mov rbp, rsp
-
     ; Check not empty
     cmp r12, [state + State.data_stack_base]
     jae .underflow
@@ -304,29 +287,27 @@ stack_data_dup:
     cmp rax, [state + State.data_stack_end]
     jb .overflow
 
-    ; Copy top value
+    ; Fast copy top value (24 bytes = 3 qwords)
+    mov rax, [r12]
+    mov rcx, [r12 + 8]
+    mov rdx, [r12 + 16]
     sub r12, VALUE_SIZE
     mov [state + State.data_stack], r12
-
-    mov rdi, r12            ; Destination
-    lea rsi, [r12 + VALUE_SIZE]  ; Source (old top)
-    mov ecx, VALUE_SIZE
-    rep movsb
+    mov [r12], rax
+    mov [r12 + 8], rcx
+    mov [r12 + 16], rdx
 
     xor eax, eax
-    jmp .done
+    ret
 
 .underflow:
     mov dword [state + State.error], ERR_STACK_UNDERFLOW
     mov eax, ERR_STACK_UNDERFLOW
-    jmp .done
+    ret
 
 .overflow:
     mov dword [state + State.error], ERR_STACK_OVERFLOW
     mov eax, ERR_STACK_OVERFLOW
-
-.done:
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -335,44 +316,34 @@ stack_data_dup:
 ;-----------------------------------------------------------------------------
 global stack_data_swap
 stack_data_swap:
-    push rbp
-    mov rbp, rsp
-    sub rsp, VALUE_SIZE     ; Temp space
+    ; Check at least 2 elements (stack[1] must be valid)
+    lea rax, [r12 + VALUE_SIZE]
+    cmp rax, [state + State.data_stack_base]
+    jae .underflow
 
-    ; Need at least 2 elements
-    call stack_data_depth
-    cmp rax, 2
-    jb .underflow
-
-    ; Swap using temp space
-    ; temp = stack[0]
-    mov rdi, rsp
-    mov rsi, r12
-    mov ecx, VALUE_SIZE
-    rep movsb
-
-    ; stack[0] = stack[1]
-    mov rdi, r12
-    lea rsi, [r12 + VALUE_SIZE]
-    mov ecx, VALUE_SIZE
-    rep movsb
-
-    ; stack[1] = temp
-    lea rdi, [r12 + VALUE_SIZE]
-    mov rsi, rsp
-    mov ecx, VALUE_SIZE
-    rep movsb
+    ; Fast swap using registers (no memory temp needed)
+    ; Load stack[0] into r8, r9, r10
+    mov r8, [r12]
+    mov r9, [r12 + 8]
+    mov r10, [r12 + 16]
+    ; Load stack[1] into rax, rcx, rdx
+    mov rax, [r12 + VALUE_SIZE]
+    mov rcx, [r12 + VALUE_SIZE + 8]
+    mov rdx, [r12 + VALUE_SIZE + 16]
+    ; Store swapped
+    mov [r12], rax
+    mov [r12 + 8], rcx
+    mov [r12 + 16], rdx
+    mov [r12 + VALUE_SIZE], r8
+    mov [r12 + VALUE_SIZE + 8], r9
+    mov [r12 + VALUE_SIZE + 16], r10
 
     xor eax, eax
-    jmp .done
+    ret
 
 .underflow:
     mov dword [state + State.error], ERR_STACK_UNDERFLOW
     mov eax, ERR_STACK_UNDERFLOW
-
-.done:
-    add rsp, VALUE_SIZE
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -381,38 +352,40 @@ stack_data_swap:
 ;-----------------------------------------------------------------------------
 global stack_data_rot
 stack_data_rot:
-    push rbp
-    mov rbp, rsp
-    sub rsp, VALUE_SIZE     ; Temp space
+    push rbx
+    push r11
 
-    ; Need at least 3 elements
-    call stack_data_depth
-    cmp rax, 3
-    jb .underflow
+    ; Check at least 3 elements (stack[2] must be valid)
+    lea rax, [r12 + 2*VALUE_SIZE]
+    cmp rax, [state + State.data_stack_base]
+    jae .underflow
 
-    ; temp = stack[2] (deepest of 3)
-    mov rdi, rsp
-    lea rsi, [r12 + 2*VALUE_SIZE]
-    mov ecx, VALUE_SIZE
-    rep movsb
+    ; Rotation: stack[2] -> top, others shift down
+    ; Save stack[2] (deepest) - will become new top
+    mov rax, [r12 + 2*VALUE_SIZE]
+    mov rcx, [r12 + 2*VALUE_SIZE + 8]
+    mov rdx, [r12 + 2*VALUE_SIZE + 16]
 
     ; stack[2] = stack[1]
-    lea rdi, [r12 + 2*VALUE_SIZE]
-    lea rsi, [r12 + VALUE_SIZE]
-    mov ecx, VALUE_SIZE
-    rep movsb
+    mov r8, [r12 + VALUE_SIZE]
+    mov r9, [r12 + VALUE_SIZE + 8]
+    mov r10, [r12 + VALUE_SIZE + 16]
+    mov [r12 + 2*VALUE_SIZE], r8
+    mov [r12 + 2*VALUE_SIZE + 8], r9
+    mov [r12 + 2*VALUE_SIZE + 16], r10
 
     ; stack[1] = stack[0]
-    lea rdi, [r12 + VALUE_SIZE]
-    mov rsi, r12
-    mov ecx, VALUE_SIZE
-    rep movsb
+    mov r8, [r12]
+    mov r9, [r12 + 8]
+    mov r10, [r12 + 16]
+    mov [r12 + VALUE_SIZE], r8
+    mov [r12 + VALUE_SIZE + 8], r9
+    mov [r12 + VALUE_SIZE + 16], r10
 
-    ; stack[0] = temp
-    mov rdi, r12
-    mov rsi, rsp
-    mov ecx, VALUE_SIZE
-    rep movsb
+    ; stack[0] = saved (old stack[2])
+    mov [r12], rax
+    mov [r12 + 8], rcx
+    mov [r12 + 16], rdx
 
     xor eax, eax
     jmp .done
@@ -422,8 +395,8 @@ stack_data_rot:
     mov eax, ERR_STACK_UNDERFLOW
 
 .done:
-    add rsp, VALUE_SIZE
-    pop rbp
+    pop r11
+    pop rbx
     ret
 
 ;-----------------------------------------------------------------------------
@@ -432,13 +405,10 @@ stack_data_rot:
 ;-----------------------------------------------------------------------------
 global stack_data_over
 stack_data_over:
-    push rbp
-    mov rbp, rsp
-
-    ; Need at least 2 elements
-    call stack_data_depth
-    cmp rax, 2
-    jb .underflow
+    ; Check at least 2 elements
+    lea rax, [r12 + VALUE_SIZE]
+    cmp rax, [state + State.data_stack_base]
+    jae .underflow
 
     ; Check overflow
     mov rax, r12
@@ -446,29 +416,28 @@ stack_data_over:
     cmp rax, [state + State.data_stack_end]
     jb .overflow
 
-    ; Copy stack[1] to new top
+    ; Fast copy stack[1] (second element) to new top
+    ; stack[1] is at r12 + VALUE_SIZE, after push it will be at r12 + 2*VALUE_SIZE
+    mov rax, [r12 + VALUE_SIZE]
+    mov rcx, [r12 + VALUE_SIZE + 8]
+    mov rdx, [r12 + VALUE_SIZE + 16]
     sub r12, VALUE_SIZE
     mov [state + State.data_stack], r12
-
-    mov rdi, r12
-    lea rsi, [r12 + 2*VALUE_SIZE]  ; Old stack[1]
-    mov ecx, VALUE_SIZE
-    rep movsb
+    mov [r12], rax
+    mov [r12 + 8], rcx
+    mov [r12 + 16], rdx
 
     xor eax, eax
-    jmp .done
+    ret
 
 .underflow:
     mov dword [state + State.error], ERR_STACK_UNDERFLOW
     mov eax, ERR_STACK_UNDERFLOW
-    jmp .done
+    ret
 
 .overflow:
     mov dword [state + State.error], ERR_STACK_OVERFLOW
     mov eax, ERR_STACK_OVERFLOW
-
-.done:
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -478,48 +447,39 @@ stack_data_over:
 ;-----------------------------------------------------------------------------
 global stack_data_pick
 stack_data_pick:
-    push rbp
-    mov rbp, rsp
-    push rbx
-
-    mov rbx, rdi            ; Save index
-
-    ; Check depth
-    call stack_data_depth
-    cmp rbx, rax
+    ; Calculate source address and check bounds
+    imul rdi, VALUE_SIZE
+    lea rax, [r12 + rdi]
+    cmp rax, [state + State.data_stack_base]
     jae .underflow
 
     ; Check overflow
-    mov rax, r12
-    sub rax, VALUE_SIZE
-    cmp rax, [state + State.data_stack_end]
+    mov rcx, r12
+    sub rcx, VALUE_SIZE
+    cmp rcx, [state + State.data_stack_end]
     jb .overflow
 
-    ; Copy stack[n] to new top
+    ; Fast copy stack[n] to new top
+    mov r8, [rax]
+    mov r9, [rax + 8]
+    mov r10, [rax + 16]
     sub r12, VALUE_SIZE
     mov [state + State.data_stack], r12
-
-    mov rdi, r12
-    imul rbx, VALUE_SIZE
-    lea rsi, [r12 + VALUE_SIZE + rbx]
-    mov ecx, VALUE_SIZE
-    rep movsb
+    mov [r12], r8
+    mov [r12 + 8], r9
+    mov [r12 + 16], r10
 
     xor eax, eax
-    jmp .done
+    ret
 
 .underflow:
     mov dword [state + State.error], ERR_STACK_UNDERFLOW
     mov eax, ERR_STACK_UNDERFLOW
-    jmp .done
+    ret
 
 .overflow:
     mov dword [state + State.error], ERR_STACK_OVERFLOW
     mov eax, ERR_STACK_OVERFLOW
-
-.done:
-    pop rbx
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -529,46 +489,46 @@ stack_data_pick:
 ;-----------------------------------------------------------------------------
 global stack_data_roll
 stack_data_roll:
-    push rbp
-    mov rbp, rsp
-    sub rsp, VALUE_SIZE
     push rbx
+    push r13
+    push r14
+    push r15
 
     mov rbx, rdi            ; Save index
 
-    ; Check depth
-    call stack_data_depth
-    cmp rbx, rax
+    ; Check bounds - stack[n] must be valid
+    imul rax, rbx, VALUE_SIZE
+    lea rcx, [r12 + rax]
+    cmp rcx, [state + State.data_stack_base]
     jae .underflow
 
     test rbx, rbx
     jz .done_success        ; roll 0 is no-op
 
-    ; Save stack[n]
-    lea rdi, [rbp - VALUE_SIZE]
-    imul rax, rbx, VALUE_SIZE
-    lea rsi, [r12 + rax]
-    mov ecx, VALUE_SIZE
-    rep movsb
+    ; Save stack[n] in registers
+    mov r13, [rcx]
+    mov r14, [rcx + 8]
+    mov r15, [rcx + 16]
 
     ; Shift elements down: stack[n] = stack[n-1], ..., stack[1] = stack[0]
-    mov rcx, rbx
+    ; Use fast 24-byte copies
 .shift_loop:
-    imul rax, rcx, VALUE_SIZE
+    imul rax, rbx, VALUE_SIZE
     lea rdi, [r12 + rax]            ; Destination: stack[i]
-    lea rsi, [r12 + rax - VALUE_SIZE]  ; Source: stack[i-1]
-    push rcx
-    mov ecx, VALUE_SIZE
-    rep movsb
-    pop rcx
-    dec rcx
+    ; Source: stack[i-1]
+    mov r8, [rdi - VALUE_SIZE]
+    mov r9, [rdi - VALUE_SIZE + 8]
+    mov r10, [rdi - VALUE_SIZE + 16]
+    mov [rdi], r8
+    mov [rdi + 8], r9
+    mov [rdi + 16], r10
+    dec rbx
     jnz .shift_loop
 
     ; stack[0] = saved value
-    mov rdi, r12
-    lea rsi, [rbp - VALUE_SIZE]
-    mov ecx, VALUE_SIZE
-    rep movsb
+    mov [r12], r13
+    mov [r12 + 8], r14
+    mov [r12 + 16], r15
 
 .done_success:
     xor eax, eax
@@ -579,9 +539,10 @@ stack_data_roll:
     mov eax, ERR_STACK_UNDERFLOW
 
 .done:
+    pop r15
+    pop r14
+    pop r13
     pop rbx
-    add rsp, VALUE_SIZE
-    pop rbp
     ret
 
 ;-----------------------------------------------------------------------------
@@ -623,30 +584,22 @@ stack_data_drop:
 ;-----------------------------------------------------------------------------
 global stack_data_drop_n
 stack_data_drop_n:
-    push rbp
-    mov rbp, rsp
-    push rbx
+    ; Calculate new stack pointer
+    imul rdi, VALUE_SIZE
+    lea rax, [r12 + rdi]
 
-    mov rbx, rdi
-
-    ; Check depth
-    call stack_data_depth
-    cmp rbx, rax
+    ; Check bounds
+    cmp rax, [state + State.data_stack_base]
     ja .underflow
 
     ; Move pointer
-    imul rbx, VALUE_SIZE
-    add r12, rbx
+    mov r12, rax
     mov [state + State.data_stack], r12
 
     xor eax, eax
-    jmp .done
+    ret
 
 .underflow:
     mov dword [state + State.error], ERR_STACK_UNDERFLOW
     mov eax, ERR_STACK_UNDERFLOW
-
-.done:
-    pop rbx
-    pop rbp
     ret

@@ -5,13 +5,16 @@
 ASM = nasm
 LD = ld
 
-# Flags
-ASMFLAGS = -f elf64 -g -F dwarf -I $(CURDIR)/
+# Base flags
+ASMFLAGS_BASE = -f elf64 -I $(CURDIR)/
 LDFLAGS = -nostdlib -static
 
-# Debug build
+# Build mode: release (default) or debug
 ifdef DEBUG
-ASMFLAGS += -DDEBUG
+ASMFLAGS = $(ASMFLAGS_BASE) -g -F dwarf -DDEBUG
+else
+# Release: no debug symbols, enable optimizations
+ASMFLAGS = $(ASMFLAGS_BASE) -O3 -DNDEBUG -DRELEASE
 endif
 
 # Directories
@@ -73,7 +76,7 @@ TEST_TARGET = dtrules-test
 # Main targets
 #------------------------------------------------------------------------------
 
-.PHONY: all clean test test-unit test-integration test-comparison dirs
+.PHONY: all clean test test-unit test-integration test-comparison bench benchmark dirs
 
 all: dirs $(TARGET)
 
@@ -106,31 +109,51 @@ dirs:
 # Testing
 #------------------------------------------------------------------------------
 
-.PHONY: test test-all test-unit test-unit-build test-integration test-comparison
-
 test: test-unit
-
-test-all: test-unit test-comparison
 
 test-unit: $(TARGET)
 	@echo "Running unit tests..."
 	@./$(TEST_DIR)/run_tests.sh
 
-test-unit-build: $(TARGET)
-	@echo "Building unit tests..."
-	@$(MAKE) -C $(TEST_DIR)/unit all
-
 test-integration: $(TARGET)
 	@echo "Running integration tests..."
-	@if [ -f $(TEST_DIR)/integration/run_tests.sh ]; then \
-		./$(TEST_DIR)/integration/run_tests.sh; \
-	else \
-		echo "No integration tests found"; \
-	fi
+	@./$(TEST_DIR)/integration/run_tests.sh
 
 test-comparison: $(TARGET)
 	@echo "Running comparison tests..."
 	@./$(TEST_DIR)/comparison/runner.sh
+
+#------------------------------------------------------------------------------
+# Benchmarking
+#------------------------------------------------------------------------------
+
+BENCH_TARGET = dtrules-bench
+BENCH_SRC = $(TEST_DIR)/benchmark/benchmark.asm
+BENCH_BOOT = $(TEST_DIR)/benchmark/bench_boot.asm
+
+# Benchmark needs core modules and bench boot (not main boot/start.asm)
+BENCH_DEPS = $(CORE_SRC) $(MEMORY_SRC) $(IO_SRC)
+BENCH_OBJ = $(patsubst $(SRC_DIR)/%.asm,$(BUILD_DIR)/%.o,$(BENCH_DEPS))
+
+.PHONY: bench benchmark
+
+benchmark: bench
+
+bench: dirs $(BENCH_OBJ) $(BUILD_DIR)/benchmark.o $(BUILD_DIR)/bench_boot.o
+	@echo "Linking benchmark..."
+	$(LD) $(LDFLAGS) -o $(BENCH_TARGET) $(BUILD_DIR)/benchmark.o $(BUILD_DIR)/bench_boot.o $(BENCH_OBJ)
+	@echo ""
+	@echo "Running benchmarks..."
+	@echo ""
+	@./$(BENCH_TARGET)
+
+$(BUILD_DIR)/benchmark.o: $(BENCH_SRC) $(INC_DIR)/*.inc | dirs
+	@mkdir -p $(BUILD_DIR)
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(BUILD_DIR)/bench_boot.o: $(BENCH_BOOT) $(INC_DIR)/*.inc | dirs
+	@mkdir -p $(BUILD_DIR)
+	$(ASM) $(ASMFLAGS) -o $@ $<
 
 #------------------------------------------------------------------------------
 # Debug build
@@ -147,8 +170,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 	rm -f $(TARGET)
 	rm -f $(TEST_TARGET)
-	@if [ -f $(TEST_DIR)/unit/Makefile ]; then $(MAKE) -C $(TEST_DIR)/unit clean; fi
-	rm -rf $(TEST_DIR)/comparison/output
+	rm -f $(BENCH_TARGET)
 
 #------------------------------------------------------------------------------
 # Help
@@ -158,23 +180,17 @@ help:
 	@echo "DTRules x86-64 Assembly Implementation"
 	@echo ""
 	@echo "Targets:"
-	@echo "  all              Build the main executable (default)"
+	@echo "  all              Build the main executable (default, optimized)"
 	@echo "  clean            Remove build artifacts"
 	@echo "  test             Run unit tests"
-	@echo "  test-all         Run all tests (unit + comparison)"
 	@echo "  test-unit        Run unit tests"
-	@echo "  test-unit-build  Build unit test executables only"
 	@echo "  test-integration Run integration tests"
 	@echo "  test-comparison  Compare output with Go implementation"
-	@echo "  debug            Build with debug symbols and assertions"
+	@echo "  bench            Build and run performance benchmarks"
 	@echo "  help             Show this help message"
 	@echo ""
 	@echo "Variables:"
-	@echo "  DEBUG=1          Enable debug build"
-	@echo ""
-	@echo "Documentation:"
-	@echo "  See docs/TESTING.md for testing guide"
-	@echo "  See docs/ARCHITECTURE.md for implementation details"
+	@echo "  DEBUG=1          Enable debug build (includes symbols, assertions)"
 
 #------------------------------------------------------------------------------
 # Dependencies

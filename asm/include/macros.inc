@@ -42,17 +42,43 @@
 %endmacro
 
 ;-----------------------------------------------------------------------------
+; Fast 24-byte Value copy (much faster than rep movsb)
+; %1 = destination, %2 = source
+; Clobbers: rax, rcx, rdx (or r8, r9, r10 if using ALT version)
+;-----------------------------------------------------------------------------
+%macro COPY_VALUE 2
+    mov rax, [%2]
+    mov rcx, [%2 + 8]
+    mov rdx, [%2 + 16]
+    mov [%1], rax
+    mov [%1 + 8], rcx
+    mov [%1 + 16], rdx
+%endmacro
+
+; Alternative that preserves rax, rcx, rdx
+%macro COPY_VALUE_ALT 2
+    mov r8, [%2]
+    mov r9, [%2 + 8]
+    mov r10, [%2 + 16]
+    mov [%1], r8
+    mov [%1 + 8], r9
+    mov [%1 + 16], r10
+%endmacro
+
+;-----------------------------------------------------------------------------
 ; Stack manipulation macros (for data stack using r12)
 ;-----------------------------------------------------------------------------
 
-; Push a 24-byte Value onto data stack
+; Push a 24-byte Value onto data stack (fast version)
 ; Assumes rax points to the Value to push
 %macro DPUSH 0
     sub r12, VALUE_SIZE
-    mov rdi, r12
-    mov rsi, rax
-    mov rcx, VALUE_SIZE
-    rep movsb
+    mov rcx, [rax]
+    mov rdx, [rax + 8]
+    mov r8, [rax + 16]
+    mov [r12], rcx
+    mov [r12 + 8], rdx
+    mov [r12 + 16], r8
 %endmacro
 
 ; Pop a 24-byte Value from data stack
