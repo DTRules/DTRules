@@ -33,15 +33,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
                 <div id="community-cards" class="flex gap-2 justify-center mb-4">
                   <!-- Community cards will be shown here -->
-                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
                 </div>
                 <div id="pot-display" class="px-6 py-3 bg-black/50 rounded-lg inline-block">
-                  <span class="text-gray-300 text-sm">Pot</span>
-                  <span class="text-yellow-400 font-bold text-2xl ml-2">$0</span>
+                  <span class="text-gray-300 text-base">Pot</span>
+                  <span class="text-yellow-400 font-bold text-3xl ml-2">$0</span>
                 </div>
               </div>
 
@@ -49,10 +49,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div id="players-container"></div>
 
               <!-- Game info badges -->
-              <div class="absolute top-3 left-3 px-3 py-2 bg-black/50 rounded text-white text-sm font-medium">
+              <div class="absolute top-4 left-4 px-4 py-2 bg-black/60 rounded-lg text-white text-base font-semibold">
                 Hand #<span id="hand-number">1</span>
               </div>
-              <div class="absolute top-3 right-3 px-3 py-2 bg-black/50 rounded text-white text-sm font-medium">
+              <div class="absolute top-4 right-4 px-4 py-2 bg-black/60 rounded-lg text-white text-base font-semibold">
                 Blinds: $<span id="small-blind">10</span>/$<span id="big-blind">20</span>
               </div>
 
@@ -661,11 +661,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     // Create a card element
     function createCardElement(card, faceDown = false) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'w-12 h-16 sm:w-14 sm:h-20 rounded-md flex items-center justify-center text-sm sm:text-base font-bold shadow-md';
+      cardEl.className = 'w-14 h-20 sm:w-16 sm:h-22 rounded-md flex items-center justify-center text-base sm:text-lg font-bold shadow-md';
 
       if (faceDown || !card) {
         cardEl.className += ' bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-blue-700';
-        cardEl.innerHTML = '<span class="text-blue-400 text-xl">?</span>';
+        cardEl.innerHTML = '<span class="text-blue-400 text-2xl">?</span>';
       } else {
         cardEl.style.backgroundColor = 'white';
         cardEl.style.color = SUIT_COLORS[card.suit];
@@ -1179,8 +1179,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const angle = positions[index];
         const radian = (angle - 90) * (Math.PI / 180);
 
-        const rx = 42;
-        const ry = 38;
+        const rx = 38;
+        const ry = 32;
         const x = 50 + rx * Math.cos(radian);
         const y = 50 + ry * Math.sin(radian);
 
@@ -1203,34 +1203,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             'Calling': 'bg-green-600'
           };
           const archetypeEl = document.createElement('div');
-          archetypeEl.className = `${archetypeColors[player.archetype] || 'bg-gray-600'} text-white text-xs font-bold px-2 py-0.5 rounded mb-1`;
+          archetypeEl.className = `${archetypeColors[player.archetype] || 'bg-gray-600'} text-white text-sm font-bold px-2 py-1 rounded mb-1`;
           archetypeEl.textContent = player.archetype;
           infoBox.appendChild(archetypeEl);
         }
 
         const nameEl = document.createElement('div');
-        nameEl.className = 'text-white text-sm font-semibold flex items-center justify-center gap-1';
-        nameEl.innerHTML = `${player.isDealer ? '<span class="bg-yellow-500 text-black px-1.5 py-0.5 rounded text-xs">D</span>' : ''}${player.name}`;
+        nameEl.className = 'text-white text-base font-semibold flex items-center justify-center gap-1';
+        nameEl.innerHTML = `${player.isDealer ? '<span class="bg-yellow-500 text-black px-1.5 py-0.5 rounded text-sm">D</span>' : ''}${player.name}`;
 
         const chipsEl = document.createElement('div');
-        chipsEl.className = 'text-yellow-400 text-sm font-medium';
+        chipsEl.className = 'text-yellow-400 text-base font-medium';
         chipsEl.textContent = `$${player.chips}`;
 
         if (player.currentBet > 0) {
           const betEl = document.createElement('div');
-          betEl.className = 'text-green-400 text-xs';
+          betEl.className = 'text-green-400 text-sm';
           betEl.textContent = `Bet: $${player.currentBet}`;
           infoBox.appendChild(betEl);
         }
 
         if (player.folded) {
           const foldedEl = document.createElement('div');
-          foldedEl.className = 'text-red-400 text-xs font-semibold';
+          foldedEl.className = 'text-red-400 text-sm font-semibold';
           foldedEl.textContent = 'FOLDED';
           infoBox.appendChild(foldedEl);
         } else if (player.allIn) {
           const allInEl = document.createElement('div');
-          allInEl.className = 'text-purple-400 text-xs font-semibold';
+          allInEl.className = 'text-purple-400 text-sm font-semibold';
           allInEl.textContent = 'ALL-IN';
           infoBox.appendChild(allInEl);
         }
@@ -1255,7 +1255,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         if (gameState.handComplete && player.handName && !player.folded) {
           const handEl = document.createElement('div');
-          handEl.className = 'text-purple-300 text-xs mt-1';
+          handEl.className = 'text-purple-300 text-sm mt-1';
           handEl.textContent = player.handName;
           infoBox.appendChild(handEl);
         }
