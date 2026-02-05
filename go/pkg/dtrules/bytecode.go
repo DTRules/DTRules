@@ -185,8 +185,9 @@ func (bc *BytecodeChunk) EmitPushConstant(v Value) {
 		bc.Emit(OpPushZero)
 	case v.tag == VTagInteger && v.num == 1:
 		bc.Emit(OpPushOne)
-	case v.tag == VTagInteger && v.num >= -64 && v.num < 64:
-		// Small integers as immediate values
+	case v.tag == VTagInteger && v.num >= 0 && v.num < 128:
+		// Small non-negative integers as immediate values
+		// Negative integers go to constant pool due to varint encoding limitations
 		bc.EmitWithArg(OpPushInt, int(v.num))
 	default:
 		// Add to constant pool
