@@ -20,9 +20,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Poker Table -->
         <div class="flex-1">
-          <div id="poker-game" class="glass rounded-2xl p-6 min-h-[600px]">
+          <div id="poker-game" class="glass rounded-2xl p-6 min-h-[700px]">
             <!-- Table will be rendered here -->
-            <div class="relative w-full aspect-[16/10] rounded-[40%] overflow-hidden" style="background: linear-gradient(145deg, #1e5631 0%, #0d3320 50%, #1e5631 100%); box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3); border: 15px solid #5c3d2e;">
+            <div class="relative w-full aspect-[14/10] rounded-[40%] overflow-hidden" style="background: linear-gradient(145deg, #1e5631 0%, #0d3320 50%, #1e5631 100%); box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3); border: 15px solid #5c3d2e;">
               <!-- Table felt texture -->
               <div class="absolute inset-0 opacity-30" style="background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E&quot;);"></div>
 
@@ -1179,8 +1179,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const angle = positions[index];
         const radian = (angle - 90) * (Math.PI / 180);
 
-        const rx = 38;
-        const ry = 32;
+        const rx = 40;
+        const ry = 35;
         const x = 50 + rx * Math.cos(radian);
         const y = 50 + ry * Math.sin(radian);
 
