@@ -1,5 +1,7 @@
 # DTRules Assembly Architecture
 
+> **Note:** A consolidated guide is available at [docs/asm-guide.md](../../docs/asm-guide.md)
+
 ## Overview
 
 Pure x86-64 assembly implementation of the DTRules execution engine. This implementation makes no use of libc - all system interactions are through direct Linux syscalls. The goal is educational: demonstrating how a complete rules engine can be built at the lowest level.
