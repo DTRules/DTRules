@@ -1,0 +1,195 @@
+---
+// DecisionExplainer.astro - Shows WHY the AI made its decision
+interface Props {
+  compact?: boolean;
+  className?: string;
+}
+
+const { compact = false, className = '' } = Astro.props;
+---
+
+<div
+  id="decision-explainer"
+  class:list={[
+    'glass rounded-xl transition-all',
+    compact ? 'p-3' : 'p-4 md:p-5',
+    className
+  ]}
+>
+  {/* Header */}
+  <div class="flex items-center gap-2 mb-3">
+    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+    <h3 class="font-semibold text-white text-sm md:text-base">Decision Explainer</h3>
+  </div>
+
+  {/* Content - populated by JavaScript */}
+  <div id="explainer-content" class="text-sm">
+    <div class="text-gray-500 italic">Waiting for AI decision...</div>
+  </div>
+</div>
+
+<style>
+  #decision-explainer.has-decision {
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+  }
+
+  .decision-path-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  .decision-path-item.passed {
+    color: rgb(34, 197, 94);
+  }
+
+  .decision-path-item.failed {
+    color: rgb(239, 68, 68);
+  }
+
+  .decision-path-item.arrow {
+    color: rgb(168, 85, 247);
+    font-weight: bold;
+  }
+
+  .context-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .context-label {
+    color: rgb(156, 163, 175);
+  }
+
+  .context-value {
+    color: white;
+  }
+
+  .strategy-note {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(168, 85, 247, 0.1);
+    border-left: 3px solid rgb(168, 85, 247);
+    border-radius: 0 0.375rem 0.375rem 0;
+    font-size: 0.75rem;
+    color: rgb(192, 132, 252);
+  }
+</style>
+
+<script>
+  // Global function to update the explainer from game logic
+  interface ExplainerData {
+    playerName: string;
+    archetype: string;
+    action: string;
+    actionAmount?: number;
+    handStrengthPercent: string;
+    holeCardsDisplay: string;
+    handNickname?: string;
+    position: string;
+    positionLabel: string;
+    potOddsPercent: string;
+    pot: number;
+    decisionPath: Array<{
+      text: string;
+      type: 'passed' | 'failed' | 'arrow' | 'info';
+    }>;
+    matchedColumnId: number;
+    strategyNote: string;
+  }
+
+  declare global {
+    interface Window {
+      updateDecisionExplainer: (data: ExplainerData | null) => void;
+      clearDecisionExplainer: () => void;
+    }
+  }
+
+  window.updateDecisionExplainer = function(data: ExplainerData | null) {
+    const container = document.getElementById('decision-explainer');
+    const content = document.getElementById('explainer-content');
+
+    if (!content) return;
+
+    if (!data) {
+      container?.classList.remove('has-decision');
+      content.innerHTML = '<div class="text-gray-500 italic">Waiting for AI decision...</div>';
+      return;
+    }
+
+    container?.classList.add('has-decision');
+
+    const actionColors: Record<string, string> = {
+      'RAISE': 'text-yellow-400',
+      'CALL': 'text-blue-400',
+      'CHECK': 'text-gray-400',
+      'FOLD': 'text-red-400',
+      'BET': 'text-yellow-400',
+      'ALLIN': 'text-purple-400'
+    };
+
+    const actionColor = actionColors[data.action.toUpperCase()] || 'text-white';
+    const amountStr = data.actionAmount ? ` $${data.actionAmount}` : '';
+
+    let html = `
+      <div class="mb-3">
+        <div class="text-lg font-semibold text-white mb-1">
+          ${data.playerName} <span class="text-gray-400 text-sm">(${data.archetype})</span>
+        </div>
+        <div class="text-xl font-bold ${actionColor}">
+          ${data.action.toUpperCase()}${amountStr}
+        </div>
+      </div>
+
+      <div class="mb-3 border-t border-gray-700 pt-3">
+        <div class="text-xs text-gray-400 uppercase tracking-wide mb-2">Decision Path</div>
+        <div class="space-y-1">
+    `;
+
+    for (const item of data.decisionPath) {
+      const typeClass = item.type === 'passed' ? 'passed' :
+                       item.type === 'failed' ? 'failed' :
+                       item.type === 'arrow' ? 'arrow' : '';
+      html += `<div class="decision-path-item ${typeClass}">${item.text}</div>`;
+    }
+
+    html += `
+        </div>
+      </div>
+
+      <div class="border-t border-gray-700 pt-3">
+        <div class="text-xs text-gray-400 uppercase tracking-wide mb-2">Context</div>
+        <div class="context-grid text-xs">
+          <span class="context-label">Hole Cards:</span>
+          <span class="context-value">${data.holeCardsDisplay}${data.handNickname ? ` (${data.handNickname})` : ''}</span>
+
+          <span class="context-label">Hand Strength:</span>
+          <span class="context-value">${data.handStrengthPercent}</span>
+
+          <span class="context-label">Position:</span>
+          <span class="context-value">${data.positionLabel}</span>
+
+          <span class="context-label">Pot Odds:</span>
+          <span class="context-value">${data.potOddsPercent}</span>
+
+          <span class="context-label">Pot:</span>
+          <span class="context-value">$${data.pot}</span>
+        </div>
+      </div>
+
+      <div class="strategy-note">${data.strategyNote}</div>
+    `;
+
+    content.innerHTML = html;
+  };
+
+  window.clearDecisionExplainer = function() {
+    window.updateDecisionExplainer(null);
+  };
+</script>

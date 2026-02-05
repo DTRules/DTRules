@@ -1,0 +1,121 @@
+---
+// DecisionTable.astro - Dynamic decision table rendered from data
+import type { DecisionTableDefinition } from '../../lib/poker/decisionTableData';
+
+interface Props {
+  table: DecisionTableDefinition;
+  highlightedColumn?: number;
+  compact?: boolean;
+  showHeader?: boolean;
+  id?: string;
+  className?: string;
+}
+
+const {
+  table,
+  highlightedColumn,
+  compact = false,
+  showHeader = true,
+  id,
+  className = ''
+} = Astro.props;
+
+const cellClass = compact ? 'py-1 px-1' : 'py-2 px-2';
+const textSize = compact ? 'text-[10px]' : 'text-xs';
+---
+
+<div
+  id={id}
+  class:list={[
+    'glass rounded-xl p-3 md:p-4 transition-all',
+    className
+  ]}
+  data-archetype={table.archetype}
+>
+  {showHeader && (
+    <div class="flex items-center gap-2 mb-3 md:mb-4 flex-wrap">
+      <span class:list={[table.badgeColor, 'px-2 py-1 text-white text-xs font-bold rounded']}>
+        {table.shortName}
+      </span>
+      <h3 class="font-semibold text-white text-sm md:text-base">{table.name}</h3>
+      <span class="text-gray-400 text-xs ml-auto">{table.vpip} VPIP</span>
+    </div>
+  )}
+
+  <div class="overflow-x-auto">
+    <table class:list={['w-full', textSize]}>
+      <thead>
+        <tr class="border-b border-gray-600">
+          <th class:list={['text-left text-gray-400', cellClass]}>Condition</th>
+          {table.columns.map((col) => (
+            <th
+              class:list={[
+                'text-center text-gray-400',
+                cellClass,
+                highlightedColumn === col.id ? 'dt-column-highlight' : ''
+              ]}
+            >
+              {col.id}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {table.conditions.map((condition) => (
+          <tr class="border-b border-gray-700">
+            <td class:list={['text-gray-300', cellClass]}>{condition.label}</td>
+            {table.columns.map((col) => {
+              const value = col.conditions[condition.id];
+              let colorClass = 'text-gray-500';
+              if (value === 'Y') colorClass = 'text-green-400';
+              if (value === 'N') colorClass = 'text-red-400';
+
+              return (
+                <td
+                  class:list={[
+                    'text-center',
+                    colorClass,
+                    cellClass,
+                    highlightedColumn === col.id ? 'dt-column-highlight' : ''
+                  ]}
+                >
+                  {value}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+        {/* Action row */}
+        <tr class="bg-gray-800/50">
+          <td class:list={['text-purple-300 font-semibold', cellClass]}>
+            {compact ? 'Action' : '-> Action'}
+          </td>
+          {table.columns.map((col) => (
+            <td
+              class:list={[
+                'text-center font-bold',
+                col.actionColor,
+                cellClass,
+                highlightedColumn === col.id ? 'dt-column-highlight' : ''
+              ]}
+            >
+              {col.action}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .dt-column-highlight {
+    background-color: rgba(168, 85, 247, 0.3) !important;
+    box-shadow: inset 0 0 5px rgba(168, 85, 247, 0.3);
+  }
+
+  .dt-active {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+    border: 2px solid rgb(168, 85, 247);
+  }
+</style>

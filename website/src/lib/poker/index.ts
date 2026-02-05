@@ -13,6 +13,9 @@ export type {
   DealRequest,
   DealResponse,
   ActionResponse,
+  DecisionContext,
+  DecisionExplanation,
+  ConditionEvaluation,
 } from './types';
 
 // Constants
@@ -70,3 +73,29 @@ export {
   processAllAITurns,
   processAITurnsSync,
 } from './aiDecision';
+
+// Decision table data
+export type {
+  DecisionCondition,
+  DecisionColumn,
+  DecisionTableDefinition,
+} from './decisionTableData';
+export {
+  TAG_TABLE,
+  LAG_TABLE,
+  ROCK_TABLE,
+  CALLING_TABLE,
+  DECISION_TABLES,
+  getDecisionTable,
+  getAllDecisionTables,
+} from './decisionTableData';
+
+// Decision explainer
+export {
+  generateDecisionContext,
+  generateDecisionExplanation,
+  POSITION_LABELS,
+  ARCHETYPE_STRATEGIES,
+  formatCards,
+  formatCard,
+} from './decisionExplainer';

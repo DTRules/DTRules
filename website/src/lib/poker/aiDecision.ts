@@ -254,12 +254,58 @@ export function makeAIDecision(player: PokerPlayer, game: PokerGame, handStrengt
 }
 
 /**
+ * Determine which decision table column was matched based on archetype and action
+ */
+function determineMatchedColumn(archetype: string, actionType: string, handStrength: number, canCheck: boolean, position: string): number {
+  const action = actionType.toLowerCase();
+
+  switch (archetype) {
+    case ARCHETYPE_TAG:
+      if (action === 'raise' || action === 'bet' || action === 'allin') return 1;
+      if (action === 'call') return 2;
+      if (action === 'check' && handStrength >= 0.5) return 3;
+      if (action === 'check') return 4;
+      return 5; // fold
+
+    case ARCHETYPE_LAG:
+      if ((action === 'raise' || action === 'bet' || action === 'allin') && handStrength >= 0.5) return 1;
+      if ((action === 'raise' || action === 'bet') && (position === 'late' || position === 'button')) return 2;
+      if (action === 'check' && (position === 'late' || position === 'button')) return 3;
+      if (action === 'call') return 4;
+      return 5; // fold
+
+    case ARCHETYPE_ROCK:
+      if (action === 'raise' || action === 'bet' || action === 'allin') return 1;
+      if (action === 'call') return 2;
+      if (action === 'check') return 3;
+      return 4; // fold
+
+    case ARCHETYPE_CALLING:
+      if (action === 'call' && handStrength >= 0.2) return 1;
+      if (action === 'call') return 2;
+      if (action === 'check') return 3;
+      return 4; // fold
+
+    default:
+      return 1;
+  }
+}
+
+/**
  * AI action result for callback
  */
 export interface AIActionResult {
   player: PokerPlayer;
   action: PokerAction;
   actionMessage: string;
+  handStrength: number;
+  decisionContext?: {
+    canCheck: boolean;
+    toCall: number;
+    potOdds: number;
+    position: string;
+    matchedColumnId: number;
+  };
 }
 
 /**
@@ -333,12 +379,31 @@ export async function processAllAITurns(
       result = processPokerAction(game, action);
     }
 
+    // Build decision context for explainer
+    const toCall = game.currentBet - currentPlayer.currentBet;
+    const canCheck = toCall === 0;
+    let potOdds = 0.0;
+    if (game.pot + toCall > 0) {
+      potOdds = toCall / (game.pot + toCall);
+    }
+
+    // Determine matched column based on action and archetype
+    let matchedColumnId = determineMatchedColumn(currentPlayer.archetype || '', action.actionType, handStrength, canCheck, currentPlayer.position || '');
+
     // Call callback with action result
     if (onAction && result.message) {
       onAction({
         player: currentPlayer,
         action,
         actionMessage: result.message,
+        handStrength,
+        decisionContext: {
+          canCheck,
+          toCall,
+          potOdds,
+          position: currentPlayer.position || '',
+          matchedColumnId,
+        },
       });
     }
 

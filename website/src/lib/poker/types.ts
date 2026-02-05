@@ -130,3 +130,43 @@ export interface ActionResponse {
   message?: string;
   error?: string;
 }
+
+// Decision Context Types for AI Explainer
+
+export interface ConditionEvaluation {
+  conditionId: string;
+  label: string;
+  actualValue: string | number | boolean;
+  threshold?: number;
+  passed: boolean;
+}
+
+export interface DecisionContext {
+  playerId: string;
+  playerName: string;
+  archetype: string;
+  handStrength: number;
+  handStrengthPercent: string;
+  position: string;
+  positionLabel: string;
+  canCheck: boolean;
+  toCall: number;
+  potOdds: number;
+  potOddsPercent: string;
+  pot: number;
+  holeCards: PokerCard[];
+  holeCardsDisplay: string;
+  communityCards: PokerCard[];
+  matchedColumnId: number;
+  conditionEvaluations: ConditionEvaluation[];
+  action: string;
+  actionAmount?: number;
+  round: string;
+}
+
+export interface DecisionExplanation {
+  summary: string;
+  decisionPath: string[];
+  context: DecisionContext;
+  strategyNote: string;
+}

@@ -1,0 +1,255 @@
+---
+// DecisionTheater.astro - Hero decision table showcase
+import DecisionTable from './DecisionTable.astro';
+import DecisionExplainer from './DecisionExplainer.astro';
+import { getAllDecisionTables } from '../../lib/poker/decisionTableData';
+
+interface Props {
+  className?: string;
+}
+
+const { className = '' } = Astro.props;
+const allTables = getAllDecisionTables();
+---
+
+<div
+  id="decision-theater"
+  class:list={[
+    'flex flex-col gap-4',
+    className
+  ]}
+>
+  {/* Header */}
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+      </svg>
+      <h2 class="text-lg md:text-xl font-bold text-white">Decision Theater</h2>
+    </div>
+    <div id="active-player-badge" class="hidden px-3 py-1 bg-purple-600/80 rounded-full text-sm text-white font-semibold">
+      <span id="active-player-name">-</span> thinking...
+    </div>
+  </div>
+
+  {/* Active Decision Table - Prominently displayed */}
+  <div id="active-decision-table" class="relative min-h-[200px]">
+    {/* Placeholder shown before game starts */}
+    <div id="dt-placeholder" class="glass rounded-xl p-6 text-center">
+      <div class="text-gray-400 mb-2">
+        <svg class="w-12 h-12 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <p class="text-gray-400 text-sm">Start a game to see AI decision tables in action</p>
+      <p class="text-gray-500 text-xs mt-2">Each AI opponent uses a unique decision table strategy</p>
+    </div>
+
+    {/* Dynamic table containers - rendered by JavaScript */}
+    {allTables.map((table) => (
+      <div
+        id={`dt-${table.archetype.toLowerCase()}-wrapper`}
+        class="hidden"
+        data-archetype={table.archetype}
+      >
+        <DecisionTable table={table} id={`dt-${table.archetype.toLowerCase()}-active`} />
+      </div>
+    ))}
+  </div>
+
+  {/* Decision Explainer */}
+  <DecisionExplainer />
+
+  {/* All Tables Overview (collapsible on mobile, grid on desktop) */}
+  <details class="group">
+    <summary class="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-white transition-colors py-2">
+      <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <span class="text-sm">View All AI Decision Tables</span>
+    </summary>
+
+    <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {allTables.map((table) => (
+        <DecisionTable
+          table={table}
+          id={`dt-${table.archetype.toLowerCase()}-overview`}
+          compact={true}
+        />
+      ))}
+    </div>
+  </details>
+</div>
+
+<style>
+  /* Smooth transitions for showing/hiding tables */
+  #active-decision-table > div {
+    transition: opacity 0.2s ease-out;
+  }
+
+  #active-decision-table > div.hidden {
+    display: none;
+  }
+
+  #active-decision-table > div.showing {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Active table highlighting */
+  .dt-theater-active {
+    border: 2px solid rgb(168, 85, 247);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Thinking animation */
+  #active-player-badge.thinking {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Summary marker */
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
+
+<script>
+  // Decision Theater Controller
+  interface TheaterState {
+    activeArchetype: string | null;
+    highlightedColumn: number | null;
+  }
+
+  const state: TheaterState = {
+    activeArchetype: null,
+    highlightedColumn: null
+  };
+
+  function showTable(archetype: string, columnId?: number) {
+    const placeholder = document.getElementById('dt-placeholder');
+    const badge = document.getElementById('active-player-badge');
+    const playerName = document.getElementById('active-player-name');
+
+    // Hide all tables first
+    document.querySelectorAll('#active-decision-table > div').forEach(el => {
+      el.classList.add('hidden');
+      el.classList.remove('showing', 'dt-theater-active');
+    });
+
+    // Show placeholder if no archetype
+    if (!archetype) {
+      if (placeholder) placeholder.classList.remove('hidden');
+      if (badge) badge.classList.add('hidden');
+      state.activeArchetype = null;
+      return;
+    }
+
+    // Hide placeholder
+    if (placeholder) placeholder.classList.add('hidden');
+
+    // Show the selected table
+    const wrapper = document.getElementById(`dt-${archetype.toLowerCase()}-wrapper`);
+    if (wrapper) {
+      wrapper.classList.remove('hidden');
+      wrapper.classList.add('showing', 'dt-theater-active');
+    }
+
+    state.activeArchetype = archetype;
+    state.highlightedColumn = columnId || null;
+
+    // Highlight column if specified
+    if (columnId) {
+      highlightColumn(archetype, columnId);
+    }
+  }
+
+  function highlightColumn(archetype: string, columnId: number) {
+    // Clear previous highlights
+    document.querySelectorAll('.dt-column-highlight').forEach(el => {
+      el.classList.remove('dt-column-highlight');
+    });
+
+    // Find the active table and highlight the column
+    const table = document.getElementById(`dt-${archetype.toLowerCase()}-active`);
+    if (table) {
+      const rows = table.querySelectorAll('tbody tr, thead tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        // Column index is columnId (1-based) so we use it directly since first column is condition name
+        if (cells[columnId]) {
+          cells[columnId].classList.add('dt-column-highlight');
+        }
+      });
+    }
+
+    // Also highlight in overview table
+    const overviewTable = document.getElementById(`dt-${archetype.toLowerCase()}-overview`);
+    if (overviewTable) {
+      const rows = overviewTable.querySelectorAll('tbody tr, thead tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells[columnId]) {
+          cells[columnId].classList.add('dt-column-highlight');
+        }
+      });
+    }
+  }
+
+  function setThinking(playerName: string, archetype: string) {
+    const badge = document.getElementById('active-player-badge');
+    const nameEl = document.getElementById('active-player-name');
+
+    if (badge && nameEl) {
+      nameEl.textContent = playerName;
+      badge.classList.remove('hidden');
+      badge.classList.add('thinking');
+    }
+
+    showTable(archetype);
+  }
+
+  function clearThinking() {
+    const badge = document.getElementById('active-player-badge');
+    if (badge) {
+      badge.classList.remove('thinking');
+      badge.classList.add('hidden');
+    }
+  }
+
+  // Expose functions globally for use by game logic
+  declare global {
+    interface Window {
+      decisionTheater: {
+        showTable: (archetype: string, columnId?: number) => void;
+        highlightColumn: (archetype: string, columnId: number) => void;
+        setThinking: (playerName: string, archetype: string) => void;
+        clearThinking: () => void;
+        reset: () => void;
+      };
+    }
+  }
+
+  window.decisionTheater = {
+    showTable,
+    highlightColumn,
+    setThinking,
+    clearThinking,
+    reset: () => {
+      showTable('');
+      clearThinking();
+      window.clearDecisionExplainer?.();
+    }
+  };
+</script>
