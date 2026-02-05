@@ -21,7 +21,8 @@ CORE_OBJ = \
 	$(BUILD_DIR)/core/value.o \
 	$(BUILD_DIR)/core/stack_data.o \
 	$(BUILD_DIR)/core/stack_entity.o \
-	$(BUILD_DIR)/core/stack_control.o
+	$(BUILD_DIR)/core/stack_control.o \
+	$(BUILD_DIR)/core/stack_return.o
 
 MEMORY_OBJ = \
 	$(BUILD_DIR)/memory/heap.o \
@@ -32,17 +33,27 @@ TYPES_OBJ = \
 	$(BUILD_DIR)/types/double.o \
 	$(BUILD_DIR)/types/string.o \
 	$(BUILD_DIR)/types/array.o \
-	$(BUILD_DIR)/types/entity.o
+	$(BUILD_DIR)/types/entity.o \
+	$(BUILD_DIR)/types/date.o \
+	$(BUILD_DIR)/types/hashtable.o
 
 IO_OBJ = \
 	$(BUILD_DIR)/io/file.o \
 	$(BUILD_DIR)/io/print.o
 
-# Common objects needed by all tests
-COMMON_OBJ = $(CORE_OBJ) $(MEMORY_OBJ) $(TYPES_OBJ) $(IO_OBJ)
+VM_OBJ = \
+	$(BUILD_DIR)/vm/bytecode.o
 
-# Test source files
-TEST_SOURCES = $(wildcard test_*.asm)
+DT_OBJ = \
+	$(BUILD_DIR)/dt/table.o \
+	$(BUILD_DIR)/dt/cnode.o \
+	$(BUILD_DIR)/dt/anode.o
+
+# Common objects needed by all tests
+COMMON_OBJ = $(CORE_OBJ) $(MEMORY_OBJ) $(TYPES_OBJ) $(IO_OBJ) $(VM_OBJ) $(DT_OBJ)
+
+# Test source files (exclude test_harness.asm which is infrastructure)
+TEST_SOURCES = $(filter-out test_harness.asm,$(wildcard test_*.asm))
 TEST_NAMES = $(TEST_SOURCES:.asm=)
 TEST_EXECUTABLES = $(addprefix $(TEST_BUILD_DIR)/,$(TEST_NAMES))
 
@@ -87,6 +98,27 @@ $(TEST_BUILD_DIR)/test_comparison.o: test_comparison.asm | dirs
 $(TEST_BUILD_DIR)/test_boolean.o: test_boolean.asm | dirs
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
+$(TEST_BUILD_DIR)/test_string.o: test_string.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TEST_BUILD_DIR)/test_array.o: test_array.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TEST_BUILD_DIR)/test_control.o: test_control.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TEST_BUILD_DIR)/test_math_ext.o: test_math_ext.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TEST_BUILD_DIR)/test_bytecode_load.o: test_bytecode_load.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TEST_BUILD_DIR)/test_operators.o: test_operators.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TEST_BUILD_DIR)/test_compiled_bytecode.o: test_compiled_bytecode.asm | dirs
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
 #------------------------------------------------------------------------------
 # Link test executables
 #------------------------------------------------------------------------------
@@ -104,6 +136,27 @@ $(TEST_BUILD_DIR)/test_comparison: $(TEST_BUILD_DIR)/test_comparison.o $(TEST_BU
 	$(LD) $(LDFLAGS) -o $@ $^
 
 $(TEST_BUILD_DIR)/test_boolean: $(TEST_BUILD_DIR)/test_boolean.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_string: $(TEST_BUILD_DIR)/test_string.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_array: $(TEST_BUILD_DIR)/test_array.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_control: $(TEST_BUILD_DIR)/test_control.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_math_ext: $(TEST_BUILD_DIR)/test_math_ext.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_bytecode_load: $(TEST_BUILD_DIR)/test_bytecode_load.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_operators: $(TEST_BUILD_DIR)/test_operators.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TEST_BUILD_DIR)/test_compiled_bytecode: $(TEST_BUILD_DIR)/test_compiled_bytecode.o $(TEST_BUILD_DIR)/test_harness.o $(COMMON_OBJ)
 	$(LD) $(LDFLAGS) -o $@ $^
 
 #------------------------------------------------------------------------------

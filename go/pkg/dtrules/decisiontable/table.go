@@ -76,24 +76,27 @@ type RDecisionTable struct {
 	rcontext        dtrules.Object // Compiled context setup code
 
 	// Initial actions (executed before conditions)
-	initialActions        []string
-	initialActionsPostfix []string
-	initialActionsComment []string
-	rinitialActions       []dtrules.Object
+	initialActions         []string
+	initialActionsPostfix  []string
+	initialActionsComment  []string
+	rinitialActions        []dtrules.Object           // Go interpreter
+	binitialActions        []*dtrules.BytecodeChunk   // ASM bytecode
 
 	// Conditions
-	conditionTable    [][]string       // conditionTable[row][col] - "y", "n", "-", "*"
-	conditions        []string         // Condition expressions (formal)
-	conditionsPostfix []string         // Compiled postfix
-	conditionsComment []string         // Comments
-	rconditions       []dtrules.Object // Compiled condition code
+	conditionTable       [][]string                 // conditionTable[row][col] - "y", "n", "-", "*"
+	conditions           []string                   // Condition expressions (formal)
+	conditionsPostfix    []string                   // Compiled postfix
+	conditionsComment    []string                   // Comments
+	rconditions          []dtrules.Object           // Compiled condition code (Go interpreter)
+	bconditions          []*dtrules.BytecodeChunk   // Compiled bytecode (for ASM execution)
 
 	// Actions
-	actionTable    [][]string       // actionTable[row][col] - "x" or ""
-	actions        []string         // Action expressions (formal)
-	actionsPostfix []string         // Compiled postfix
-	actionsComment []string         // Comments
-	ractions       []dtrules.Object // Compiled action code
+	actionTable       [][]string                 // actionTable[row][col] - "x" or ""
+	actions           []string                   // Action expressions (formal)
+	actionsPostfix    []string                   // Compiled postfix
+	actionsComment    []string                   // Comments
+	ractions          []dtrules.Object           // Compiled action code (Go interpreter)
+	bactions          []*dtrules.BytecodeChunk   // Compiled bytecode (for ASM execution)
 
 	// Policy statements
 	policyStatements        []string

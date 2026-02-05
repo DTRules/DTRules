@@ -28,6 +28,11 @@ struc State
     .bytecode:          resq 1  ; Current bytecode pointer
     .bytecode_end:      resq 1  ; End of bytecode
 
+    .constant_pool:     resq 1  ; Pointer to constant pool (array of Values)
+    .constant_count:    resq 1  ; Number of constants in pool
+    .name_pool:         resq 1  ; Pointer to name pool (array of name pointers)
+    .name_count:        resq 1  ; Number of names in pool
+
     .name_table:        resq 1  ; Name interning hash table
 
     .error:             resd 1  ; Last error code
@@ -35,6 +40,10 @@ struc State
 
     .argc:              resq 1  ; Command line argument count
     .argv:              resq 1  ; Command line arguments pointer
+
+    .error_msg:         resq 1  ; Error message pointer
+    .trace:             resb 1  ; Trace flag
+    .debug_level:       resq 1  ; Debug level
 endstruc
 
 %endif ; STATE_INC

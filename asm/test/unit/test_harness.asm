@@ -21,7 +21,6 @@ extern stack_data_init
 extern print_string
 extern print_integer
 extern print_newline
-extern write_stdout
 
 ;-----------------------------------------------------------------------------
 ; Global state
@@ -104,6 +103,9 @@ init_state:
     mov [state + State.heap_base], rax
     lea rax, [heap_mem + HEAP_SIZE]
     mov [state + State.heap_end], rax
+
+    ; Initialize memory pools (required for value allocation!)
+    call pools_init
 
     ; Clear error state
     mov dword [state + State.error], ERR_NONE
@@ -293,36 +295,4 @@ reset_state:
 
     ret
 
-;-----------------------------------------------------------------------------
-; write_stdout - Write to stdout (exported for print.asm)
-;-----------------------------------------------------------------------------
-global write_stdout
-write_stdout:
-    push rbp
-    mov rbp, rsp
-
-    mov rax, SYS_WRITE
-    mov rdx, rsi            ; length
-    mov rsi, rdi            ; buffer
-    mov rdi, STDOUT         ; fd
-    syscall
-
-    pop rbp
-    ret
-
-;-----------------------------------------------------------------------------
-; write_stderr - Write to stderr
-;-----------------------------------------------------------------------------
-global write_stderr
-write_stderr:
-    push rbp
-    mov rbp, rsp
-
-    mov rax, SYS_WRITE
-    mov rdx, rsi            ; length
-    mov rsi, rdi            ; buffer
-    mov rdi, STDERR         ; fd
-    syscall
-
-    pop rbp
-    ret
+; write_stdout and write_stderr are provided by file.o

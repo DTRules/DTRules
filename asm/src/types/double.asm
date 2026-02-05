@@ -376,3 +376,34 @@ double_fmod:
     subsd xmm1, xmm0        ; a - floor(a/b) * b
     movsd xmm0, xmm1
     ret
+
+;-----------------------------------------------------------------------------
+; math_round_to - Round to specified decimal places
+; Input: xmm0 = value, rdi = decimal places
+; Output: xmm0 = rounded value
+;-----------------------------------------------------------------------------
+global math_round_to
+math_round_to:
+    push rbp
+    mov rbp, rsp
+
+    ; Calculate multiplier = 10^places
+    movsd xmm1, [const_one]
+    movsd xmm2, [const_ten]
+
+    test rdi, rdi
+    jz .apply_round
+
+.pow_loop:
+    mulsd xmm1, xmm2        ; multiplier *= 10
+    dec rdi
+    jnz .pow_loop
+
+.apply_round:
+    ; result = round(value * multiplier) / multiplier
+    mulsd xmm0, xmm1        ; value * multiplier
+    roundsd xmm0, xmm0, 0   ; round to nearest
+    divsd xmm0, xmm1        ; / multiplier
+
+    pop rbp
+    ret

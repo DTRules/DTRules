@@ -310,3 +310,272 @@ func (r *BytecodeReader) PC() int {
 func (r *BytecodeReader) SetPC(pc int) {
 	r.pc = pc
 }
+
+// Bytecode file format constants
+const (
+	BytecodeMagic   = "DTBC"
+	BytecodeVersion = 1
+)
+
+// Serialize writes the bytecode chunk to a binary format.
+// Format:
+//   - Magic: 4 bytes "DTBC"
+//   - Version: 1 byte
+//   - Names count: varint
+//   - Names: [length:varint, bytes:utf8]...
+//   - Constants count: varint
+//   - Constants: [type:byte, data:varies]...
+//   - Code length: varint
+//   - Code: bytes
+func (bc *BytecodeChunk) Serialize() []byte {
+	buf := make([]byte, 0, len(bc.code)+256)
+
+	// Magic and version
+	buf = append(buf, []byte(BytecodeMagic)...)
+	buf = append(buf, BytecodeVersion)
+
+	// Names
+	buf = appendVarint(buf, len(bc.names))
+	for _, name := range bc.names {
+		s := name.StringValue()
+		buf = appendVarint(buf, len(s))
+		buf = append(buf, []byte(s)...)
+	}
+
+	// Constants
+	buf = appendVarint(buf, len(bc.constants))
+	for _, c := range bc.constants {
+		buf = serializeValue(buf, c)
+	}
+
+	// Code
+	buf = appendVarint(buf, len(bc.code))
+	buf = append(buf, bc.code...)
+
+	return buf
+}
+
+// serializeValue writes a Value to the buffer.
+func serializeValue(buf []byte, v Value) []byte {
+	buf = append(buf, byte(v.tag))
+	switch v.tag {
+	case VTagNull:
+		// No data needed
+	case VTagBoolean:
+		if v.num != 0 {
+			buf = append(buf, 1)
+		} else {
+			buf = append(buf, 0)
+		}
+	case VTagInteger:
+		buf = appendSvarint(buf, v.num)
+	case VTagDouble:
+		// Write as 8 bytes (IEEE 754)
+		bits := v.num
+		for i := 0; i < 8; i++ {
+			buf = append(buf, byte(bits>>(i*8)))
+		}
+	case VTagString:
+		s := v.AsString()
+		buf = appendVarint(buf, len(s))
+		buf = append(buf, []byte(s)...)
+	case VTagName:
+		n := v.AsName()
+		if n != nil {
+			s := n.StringValue()
+			buf = appendVarint(buf, len(s))
+			buf = append(buf, []byte(s)...)
+		} else {
+			buf = appendVarint(buf, 0)
+		}
+	default:
+		// Unknown type - write as null
+		buf[len(buf)-1] = byte(VTagNull)
+	}
+	return buf
+}
+
+// appendVarint appends a variable-length unsigned integer.
+func appendVarint(buf []byte, v int) []byte {
+	for v >= 0x80 {
+		buf = append(buf, byte(v)|0x80)
+		v >>= 7
+	}
+	buf = append(buf, byte(v))
+	return buf
+}
+
+// appendSvarint appends a signed variable-length integer using zigzag encoding.
+func appendSvarint(buf []byte, v int64) []byte {
+	// Zigzag encode: (v << 1) ^ (v >> 63)
+	uv := uint64((v << 1) ^ (v >> 63))
+	for uv >= 0x80 {
+		buf = append(buf, byte(uv)|0x80)
+		uv >>= 7
+	}
+	buf = append(buf, byte(uv))
+	return buf
+}
+
+// DeserializeBytecode reads a bytecode chunk from its serialized binary format.
+// Returns an error if the data is invalid or corrupted.
+func DeserializeBytecode(data []byte) (*BytecodeChunk, error) {
+	if len(data) < 5 {
+		return nil, errors.New("bytecode too short")
+	}
+
+	// Check magic
+	if string(data[0:4]) != BytecodeMagic {
+		return nil, errors.New("invalid bytecode magic")
+	}
+
+	// Check version
+	if data[4] != BytecodeVersion {
+		return nil, errors.New("unsupported bytecode version")
+	}
+
+	pos := 5
+	bc := NewBytecodeChunk()
+
+	// Read names
+	nameCount, n := readVarintFrom(data[pos:])
+	if n <= 0 {
+		return nil, errors.New("invalid name count")
+	}
+	pos += n
+
+	for i := 0; i < nameCount; i++ {
+		strLen, n := readVarintFrom(data[pos:])
+		if n <= 0 {
+			return nil, errors.New("invalid name length")
+		}
+		pos += n
+
+		if pos+strLen > len(data) {
+			return nil, errors.New("name data truncated")
+		}
+		nameStr := string(data[pos : pos+strLen])
+		pos += strLen
+
+		bc.names = append(bc.names, GetRName(nameStr))
+	}
+
+	// Read constants
+	constCount, n := readVarintFrom(data[pos:])
+	if n <= 0 {
+		return nil, errors.New("invalid constant count")
+	}
+	pos += n
+
+	for i := 0; i < constCount; i++ {
+		if pos >= len(data) {
+			return nil, errors.New("constant data truncated")
+		}
+
+		tag := data[pos]
+		pos++
+
+		var v Value
+		switch tag {
+		case VTagNull:
+			v = ValueNull
+		case VTagBoolean:
+			if pos >= len(data) {
+				return nil, errors.New("boolean data truncated")
+			}
+			v = NewValueBoolean(data[pos] != 0)
+			pos++
+		case VTagInteger:
+			intVal, n := readSvarintFrom(data[pos:])
+			if n <= 0 {
+				return nil, errors.New("invalid integer value")
+			}
+			pos += n
+			v = NewValueInteger(intVal)
+		case VTagDouble:
+			if pos+8 > len(data) {
+				return nil, errors.New("double data truncated")
+			}
+			var bits uint64
+			for j := 0; j < 8; j++ {
+				bits |= uint64(data[pos+j]) << (j * 8)
+			}
+			pos += 8
+			v = Value{tag: VTagDouble, num: int64(bits)}
+		case VTagString:
+			strLen, n := readVarintFrom(data[pos:])
+			if n <= 0 {
+				return nil, errors.New("invalid string length")
+			}
+			pos += n
+			if pos+strLen > len(data) {
+				return nil, errors.New("string data truncated")
+			}
+			v = NewValueString(string(data[pos : pos+strLen]))
+			pos += strLen
+		case VTagName:
+			strLen, n := readVarintFrom(data[pos:])
+			if n <= 0 {
+				return nil, errors.New("invalid name length")
+			}
+			pos += n
+			if strLen > 0 {
+				if pos+strLen > len(data) {
+					return nil, errors.New("name data truncated")
+				}
+				v = NewValueName(GetRName(string(data[pos : pos+strLen])))
+				pos += strLen
+			} else {
+				v = ValueNull
+			}
+		default:
+			// Unknown type - treat as null
+			v = ValueNull
+		}
+		bc.constants = append(bc.constants, v)
+	}
+
+	// Read code
+	codeLen, n := readVarintFrom(data[pos:])
+	if n <= 0 {
+		return nil, errors.New("invalid code length")
+	}
+	pos += n
+
+	if pos+codeLen > len(data) {
+		return nil, errors.New("code data truncated")
+	}
+	bc.code = make([]byte, codeLen)
+	copy(bc.code, data[pos:pos+codeLen])
+
+	return bc, nil
+}
+
+// readVarintFrom reads a varint from a byte slice.
+// Returns the value and number of bytes read, or (0, -1) on error.
+func readVarintFrom(data []byte) (int, int) {
+	v := 0
+	shift := 0
+	for i, b := range data {
+		v |= int(b&0x7f) << shift
+		if b&0x80 == 0 {
+			return v, i + 1
+		}
+		shift += 7
+		if shift >= 63 {
+			return 0, -1
+		}
+	}
+	return 0, -1
+}
+
+// readSvarintFrom reads a signed varint (zigzag encoded) from a byte slice.
+// Returns the value and number of bytes read, or (0, -1) on error.
+func readSvarintFrom(data []byte) (int64, int) {
+	uv, n := readVarintFrom(data)
+	if n <= 0 {
+		return 0, n
+	}
+	// Zigzag decode: (uv >> 1) ^ -(uv & 1)
+	return int64((uint64(uv) >> 1) ^ uint64(-int64(uv&1))), n
+}

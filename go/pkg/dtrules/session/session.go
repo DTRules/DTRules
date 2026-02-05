@@ -178,6 +178,12 @@ func (s *RSession) Compile(expr string) (dtrules.Object, error) {
 	return c.Compile(expr)
 }
 
+// CompileExpressionToBytecode compiles a postfix expression to bytecode.
+func (s *RSession) CompileExpressionToBytecode(expr string) (*dtrules.BytecodeChunk, error) {
+	c := compiler.NewCompiler(s, s.entityFactory)
+	return c.CompileToBytecode(expr)
+}
+
 // DateParser implements the DateParser interface with common date formats.
 type DateParser struct {
 	formats []string

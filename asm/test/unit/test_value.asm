@@ -115,10 +115,10 @@ test_integer_values:
     push rbp
     mov rbp, rsp
     push rbx
-    push r12
+    push r15                    ; Use r15 instead of r12 (r12 is stack pointer!)
 
     TEST_START test_integer_msg
-    xor r12d, r12d              ; Track local failures
+    xor r15d, r15d              ; Track local failures
 
     ; Create integer value 42
     mov rdi, 42
@@ -160,10 +160,10 @@ test_integer_values:
 
 .alloc_fail:
     call test_end_fail
-    inc r12
+    inc r15
 
 .done:
-    pop r12
+    pop r15
     pop rbx
     pop rbp
     ret
@@ -295,7 +295,7 @@ test_equality:
     push rbp
     mov rbp, rsp
     push rbx
-    push r12
+    push r15                    ; Use r15 instead of r12 (r12 is stack pointer!)
 
     TEST_START test_equals_msg
 
@@ -306,20 +306,20 @@ test_equality:
 
     mov rdi, 42
     call value_new_integer
-    mov r12, rax
+    mov r15, rax
 
     mov rdi, rbx
-    mov rsi, r12
+    mov rsi, r15
     call value_equals
     ASSERT_TRUE rax
 
     ; Different integers are not equal
     mov rdi, 100
     call value_new_integer
-    mov r12, rax
+    mov r15, rax
 
     mov rdi, rbx
-    mov rsi, r12
+    mov rsi, r15
     call value_equals
     ASSERT_FALSE rax
 
@@ -328,16 +328,16 @@ test_equality:
     mov rbx, rax
 
     call value_new_null
-    mov r12, rax
+    mov r15, rax
 
     mov rdi, rbx
-    mov rsi, r12
+    mov rsi, r15
     call value_equals
     ASSERT_TRUE rax
 
     call test_end_pass
 
-    pop r12
+    pop r15
     pop rbx
     pop rbp
     ret
