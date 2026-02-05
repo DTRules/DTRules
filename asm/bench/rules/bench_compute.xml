@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="bench_compute">
+    <decision_tables>
+        <decision_table name="heavy_compute">
+            <actions>
+                <action name="fibonacci_style">
+                    <!-- Simulate fibonacci-like computation -->
+                    1 1
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                    dup rot add
+                </action>
+                <action name="factorial_style">
+                    <!-- Simulate factorial-like computation -->
+                    1
+                    2 mul
+                    3 mul
+                    4 mul
+                    5 mul
+                    6 mul
+                    7 mul
+                    8 mul
+                    9 mul
+                    10 mul
+                </action>
+                <action name="prime_check_style">
+                    <!-- Simulate primality check operations -->
+                    97
+                    dup 2 mod 0 eq not
+                    swap dup 3 mod 0 eq not
+                    and
+                    swap dup 5 mod 0 eq not
+                    and
+                    swap dup 7 mod 0 eq not
+                    and
+                </action>
+            </actions>
+            <columns>
+                <column number="1">
+                    <action name="fibonacci_style"/>
+                    <action name="factorial_style"/>
+                    <action name="prime_check_style"/>
+                </column>
+            </columns>
+        </decision_table>
+    </decision_tables>
+</ruleset>

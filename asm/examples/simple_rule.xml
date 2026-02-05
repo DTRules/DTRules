@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simple DTRules Example
+  A basic rule that checks age eligibility
+-->
+<ruleset name="simple_eligibility">
+
+    <!-- Entity Definitions -->
+    <entities>
+        <entity name="Applicant">
+            <attribute name="name" type="string" required="true"/>
+            <attribute name="age" type="integer" required="true"/>
+            <attribute name="eligible" type="boolean" default="false"/>
+        </entity>
+
+        <entity name="Result">
+            <attribute name="message" type="string"/>
+            <attribute name="approved" type="boolean"/>
+        </entity>
+    </entities>
+
+    <!-- Decision Tables -->
+    <decision_tables>
+
+        <!-- Check Age Eligibility -->
+        <decision_table name="check_eligibility">
+            <description>
+                Determines if an applicant is eligible based on age
+            </description>
+
+            <!-- Context: which entities are available -->
+            <context>
+                <entity type="Applicant"/>
+                <entity type="Result"/>
+            </context>
+
+            <!-- Conditions -->
+            <conditions>
+                <condition name="age_check">
+                    <!-- PostScript-like condition expression -->
+                    <!-- Gets Applicant.age and checks if >= 18 -->
+                    Applicant.age 18 ge
+                </condition>
+            </conditions>
+
+            <!-- Actions -->
+            <actions>
+                <action name="set_eligible">
+                    true Applicant.eligible def
+                    "Approved: Age requirement met" Result.message def
+                    true Result.approved def
+                </action>
+
+                <action name="set_ineligible">
+                    false Applicant.eligible def
+                    "Denied: Must be 18 or older" Result.message def
+                    false Result.approved def
+                </action>
+            </actions>
+
+            <!-- Decision columns -->
+            <columns>
+                <!--
+                    Column 1: Age >= 18 -> Eligible
+                    Column 2: Age < 18 -> Not Eligible
+                -->
+                <column number="1">
+                    <condition name="age_check" value="Y"/>
+                    <action name="set_eligible"/>
+                </column>
+
+                <column number="2">
+                    <condition name="age_check" value="N"/>
+                    <action name="set_ineligible"/>
+                </column>
+            </columns>
+        </decision_table>
+
+    </decision_tables>
+
+</ruleset>
