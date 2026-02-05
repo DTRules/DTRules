@@ -20,13 +20,13 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
       <!-- Main Layout: Decision Theater (hero) + Compact Game -->
       <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
-        <!-- Decision Theater - THE HERO (50% on desktop) -->
-        <div class="w-full lg:w-1/2 order-1 lg:order-2">
+        <!-- Decision Theater - THE HERO (60% on desktop) -->
+        <div class="w-full lg:w-3/5 order-1 lg:order-2">
           <DecisionTheater />
         </div>
 
-        <!-- Compact Poker Table + Controls (50% on desktop) -->
-        <div class="w-full lg:w-1/2 order-2 lg:order-1 flex flex-col gap-4">
+        <!-- Compact Poker Table + Controls (40% on desktop) -->
+        <div class="w-full lg:w-2/5 order-2 lg:order-1 flex flex-col gap-4">
           <!-- Game Controls -->
           <div class="glass rounded-xl p-4">
             <button id="btn-play" class="w-full px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg touch-manipulation">
@@ -79,11 +79,10 @@ import BettingControls from '../components/poker/BettingControls.astro';
     const RANK_DISPLAY: Record<number, string> = { 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
 
     // Player positions for table layout
-    // Player positions (% from top-left) - adjusted to fit within table bounds
     const PLAYER_POSITIONS: Record<number, Array<{x: number, y: number}>> = {
-      2: [{ x: 50, y: 80 }, { x: 50, y: 20 }],
-      3: [{ x: 50, y: 80 }, { x: 18, y: 40 }, { x: 82, y: 40 }],
-      4: [{ x: 50, y: 82 }, { x: 12, y: 50 }, { x: 50, y: 18 }, { x: 88, y: 50 }],
+      2: [{ x: 50, y: 85 }, { x: 50, y: 15 }],
+      3: [{ x: 50, y: 85 }, { x: 15, y: 35 }, { x: 85, y: 35 }],
+      4: [{ x: 50, y: 85 }, { x: 15, y: 50 }, { x: 50, y: 15 }, { x: 85, y: 50 }],
     };
 
     // Game state
@@ -104,10 +103,10 @@ import BettingControls from '../components/poker/BettingControls.astro';
       const cardEl = document.createElement('div');
       const sizeClasses: Record<string, string> = {
         tiny: 'w-5 h-7 text-[8px]',
-        small: 'w-6 h-9 text-[10px]',
+        small: 'w-6 h-8 text-[10px]',
         medium: 'w-10 h-14 text-sm',
-        large: 'w-12 h-[4.5rem] text-base',
-        default: 'w-11 h-16 lg:w-12 lg:h-[4.5rem] text-sm lg:text-base'
+        large: 'w-14 h-20 text-lg',
+        default: 'w-10 h-14 lg:w-12 lg:h-[4.5rem] text-sm lg:text-base'
       };
 
       cardEl.className = `${sizeClasses[size] || sizeClasses.default} rounded-md flex items-center justify-center font-bold shadow-md`;
@@ -521,7 +520,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           container.appendChild(createCardElement(gameState.communityCards[i], false, 'default'));
         } else {
           const empty = document.createElement('div');
-          empty.className = 'w-11 h-16 lg:w-12 lg:h-[4.5rem] rounded-md border-2 border-dashed border-green-600/40 bg-green-950/40';
+          empty.className = 'w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40';
           container.appendChild(empty);
         }
       }
@@ -548,7 +547,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           container.appendChild(cardEl);
         } else {
           const empty = document.createElement('div');
-          empty.className = 'w-11 h-16 lg:w-12 lg:h-[4.5rem] rounded-md border-2 border-dashed border-green-600/40 bg-green-950/40';
+          empty.className = 'w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40';
           container.appendChild(empty);
         }
       }
