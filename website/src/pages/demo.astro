@@ -1,146 +1,1628 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { ExternalLink, Monitor, Terminal, BookOpen } from 'lucide-react';
 ---
 
-<BaseLayout title="Interactive Demo - DTRules" description="Try DTRules with an interactive demo of the visual UI.">
-  <section class="py-16 lg:py-24">
+<BaseLayout title="Interactive Demo - DTRules" description="Interactive Texas Hold'em poker game showcasing DTRules decision tables for hand evaluation, betting validation, and game flow.">
+  <section class="py-8 lg:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">
           Interactive <span class="gradient-text">Demo</span>
         </h1>
-        <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Experience DTRules with the visual UI. Edit decision tables, explore entities, and run tests.
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          A Texas Hold'em poker game powered by DTRules decision tables.
+          Watch how complex game logic is handled through declarative rules.
         </p>
       </div>
 
-      <!-- Demo Options -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <!-- Run Locally -->
-        <div class="glass rounded-2xl p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="p-2 bg-blue-500/10 rounded-lg">
-              <Monitor className="h-6 w-6 text-blue-400" />
+      <!-- Main Game Area -->
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Poker Table -->
+        <div class="flex-1">
+          <div id="poker-game" class="glass rounded-2xl p-4 min-h-[500px]">
+            <!-- Table will be rendered here -->
+            <div class="relative w-full aspect-[16/10] rounded-[40%] overflow-hidden" style="background: linear-gradient(145deg, #1e5631 0%, #0d3320 50%, #1e5631 100%); box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3); border: 15px solid #5c3d2e;">
+              <!-- Table felt texture -->
+              <div class="absolute inset-0 opacity-30" style="background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E&quot;);"></div>
+
+              <!-- Inner border -->
+              <div class="absolute inset-4 rounded-[35%] border-2 border-white/20"></div>
+
+              <!-- Center content -->
+              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                <div id="community-cards" class="flex gap-2 justify-center mb-4">
+                  <!-- Community cards will be shown here -->
+                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                </div>
+                <div id="pot-display" class="px-4 py-2 bg-black/50 rounded-lg inline-block">
+                  <span class="text-gray-300 text-xs">Pot</span>
+                  <span class="text-yellow-400 font-bold text-xl ml-2">$0</span>
+                </div>
+              </div>
+
+              <!-- Player positions will be added dynamically -->
+              <div id="players-container"></div>
+
+              <!-- Game info badges -->
+              <div class="absolute top-2 left-2 px-2 py-1 bg-black/50 rounded text-white text-xs">
+                Hand #<span id="hand-number">1</span>
+              </div>
+              <div class="absolute top-2 right-2 px-2 py-1 bg-black/50 rounded text-white text-xs">
+                Blinds: $<span id="small-blind">10</span>/$<span id="big-blind">20</span>
+              </div>
+
+              <!-- Round Transition Banner -->
+              <div id="round-banner" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                <div class="px-8 py-4 bg-black/80 rounded-xl border-2 border-yellow-400 shadow-2xl">
+                  <span id="round-banner-text" class="text-3xl font-bold text-yellow-400 uppercase tracking-wider"></span>
+                </div>
+              </div>
             </div>
-            <h2 class="text-xl font-semibold">Run Locally</h2>
           </div>
-          <p class="text-muted-foreground mb-6">
-            The best way to experience DTRules is to run the UI locally with the Go backend.
-            This gives you full access to edit and test decision tables.
-          </p>
 
-          <div class="space-y-4 mb-6">
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">1. Start the Backend</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd go
-go run ./cmd/api</code></pre>
-            </div>
-
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">2. Start the Frontend</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd ui
-npm install
-npm run dev</code></pre>
-            </div>
-
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">3. Open Browser</div>
-              <p class="text-xs text-muted-foreground">Navigate to <code class="text-blue-400">http://localhost:5173</code></p>
+          <!-- Showdown Results Modal -->
+          <div id="showdown-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+            <div class="glass rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <h2 class="text-2xl font-bold text-white mb-4 text-center">Showdown Results</h2>
+              <div id="showdown-results" class="space-y-4">
+                <!-- Results will be populated dynamically -->
+              </div>
+              <button id="btn-close-showdown" class="mt-6 w-full px-4 py-3 gradient-button text-white font-semibold rounded-lg">
+                Next Hand
+              </button>
             </div>
           </div>
 
-          <a
-            href="/docs/getting-started/quickstart-ui"
-            class="w-full px-6 py-3 gradient-button text-white font-semibold rounded-lg flex items-center justify-center gap-2"
-          >
-            <BookOpen className="h-5 w-5" />
-            Full Setup Guide
-          </a>
+          <!-- Betting Controls -->
+          <div id="betting-controls" class="glass rounded-xl p-4 mt-4">
+            <div class="flex flex-wrap gap-2 justify-center">
+              <button id="btn-fold" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Fold
+              </button>
+              <button id="btn-check" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Check
+              </button>
+              <button id="btn-call" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Call $<span id="call-amount">0</span>
+              </button>
+              <button id="btn-raise" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Raise to $<span id="raise-amount">0</span>
+              </button>
+              <button id="btn-allin" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                All-In
+              </button>
+            </div>
+            <div class="mt-3 flex items-center gap-3 justify-center">
+              <span class="text-gray-400 text-sm">$<span id="min-raise">20</span></span>
+              <input type="range" id="raise-slider" min="20" max="1000" value="40" class="w-48 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+              <span class="text-gray-400 text-sm">$<span id="max-raise">1000</span></span>
+            </div>
+          </div>
         </div>
 
-        <!-- CLI Demo -->
-        <div class="glass rounded-2xl p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="p-2 bg-purple-500/10 rounded-lg">
-              <Terminal className="h-6 w-6 text-purple-400" />
+        <!-- Side Panel -->
+        <div class="w-full lg:w-80 flex flex-col gap-4">
+          <!-- Game Controls -->
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-white mb-3">Game Controls</h3>
+            <div class="space-y-2">
+              <button id="btn-play" class="w-full px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg">
+                Play Game
+              </button>
             </div>
-            <h2 class="text-xl font-semibold">CLI Demo</h2>
+            <div class="mt-3 space-y-2">
+              <label class="flex items-center gap-2 text-sm text-gray-400">
+                <span>Players:</span>
+                <select id="player-count" class="bg-gray-800 rounded px-2 py-1 text-white">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4" selected>4</option>
+                  <option value="6">6</option>
+                  <option value="9">9</option>
+                </select>
+              </label>
+              <label class="flex items-center gap-2 text-sm text-gray-400">
+                <span>Starting Chips:</span>
+                <select id="starting-chips" class="bg-gray-800 rounded px-2 py-1 text-white">
+                  <option value="500">$500</option>
+                  <option value="1000" selected>$1,000</option>
+                  <option value="5000">$5,000</option>
+                  <option value="10000">$10,000</option>
+                </select>
+              </label>
+            </div>
           </div>
-          <p class="text-muted-foreground mb-6">
-            Use the Go CLI to validate and execute decision tables directly from the command line.
-          </p>
 
-          <div class="space-y-4 mb-6">
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">Build the CLI</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd go
-go build -o dtrules ./cmd/dtrules</code></pre>
-            </div>
-
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">List Decision Tables</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>./dtrules -rules ../sampleprojects/CHIP/xml -list</code></pre>
-            </div>
-
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">Execute with Trace</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>./dtrules -rules ../sampleprojects/CHIP/xml \
-  -entry Compute_Eligibility -trace</code></pre>
+          <!-- Action Log -->
+          <div class="glass rounded-xl p-4 flex-1">
+            <h3 class="font-semibold text-white mb-3">Action Log</h3>
+            <div id="action-log" class="space-y-1 max-h-48 overflow-y-auto text-sm">
+              <div class="text-gray-500 text-center py-4">Start a game to see actions</div>
             </div>
           </div>
 
-          <a
-            href="/docs/getting-started/quickstart-go"
-            class="w-full px-6 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
-          >
-            <BookOpen className="h-5 w-5" />
-            Go Quick Start
-          </a>
+          <!-- Decision Tables Display -->
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-white mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+              </svg>
+              Decision Tables
+            </h3>
+
+            <!-- Hand Evaluation Table -->
+            <div class="mb-4">
+              <div class="text-xs font-semibold text-green-400 mb-2 flex items-center gap-1">
+                <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                Hand Evaluation
+              </div>
+              <div id="dt-hand-eval" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+                <div class="text-gray-500">Deal cards to see evaluation...</div>
+              </div>
+            </div>
+
+            <!-- Betting Rules Table -->
+            <div class="mb-4">
+              <div class="text-xs font-semibold text-blue-400 mb-2 flex items-center gap-1">
+                <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                Valid Actions
+              </div>
+              <div id="dt-betting-rules" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+                <div class="text-gray-500">Waiting for game...</div>
+              </div>
+            </div>
+
+            <!-- AI Decision Table -->
+            <div class="mb-4">
+              <div class="text-xs font-semibold text-yellow-400 mb-2 flex items-center gap-1">
+                <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                Last AI Decision
+              </div>
+              <div id="dt-ai-decision" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+                <div class="text-gray-500">No AI actions yet...</div>
+              </div>
+            </div>
+
+            <!-- Round State -->
+            <div>
+              <div class="text-xs font-semibold text-purple-400 mb-2 flex items-center gap-1">
+                <span class="w-2 h-2 bg-purple-400 rounded-full"></span>
+                Game State
+              </div>
+              <div id="dt-game-state" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+                <div class="text-gray-500">No active game...</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Sample Project Info -->
-      <div class="mt-16 max-w-4xl mx-auto">
-        <div class="glass rounded-2xl p-8">
-          <h2 class="text-2xl font-bold mb-4 text-center">CHIP Sample Project</h2>
-          <p class="text-muted-foreground text-center mb-8">
-            The demo uses the CHIP (Children's Health Insurance Program) sample project,
-            which demonstrates real-world eligibility determination logic.
-          </p>
+      <!-- Decision Tables Section -->
+      <div class="mt-6">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
+          <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+          </svg>
+          AI Decision Tables
+        </h2>
+        <p class="text-gray-400 mb-6">Each AI opponent uses a different decision table based on their playing style. Watch the tables highlight as decisions are made.</p>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center">
-              <div class="text-3xl font-bold gradient-text mb-2">7</div>
-              <div class="text-sm text-muted-foreground">Decision Tables</div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- TAG Decision Table -->
+          <div class="glass rounded-xl p-4" id="dt-tag-container">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-1 bg-blue-600 text-white text-xs font-bold rounded">TAG</span>
+              <h3 class="font-semibold text-white">Tight-Aggressive</h3>
+              <span class="text-gray-400 text-xs ml-auto">~18% VPIP</span>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold gradient-text mb-2">7</div>
-              <div class="text-sm text-muted-foreground">Entities</div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs" id="dt-tag-table">
+                <thead>
+                  <tr class="border-b border-gray-600">
+                    <th class="text-left py-2 px-2 text-gray-400">Condition</th>
+                    <th class="text-center py-2 px-1 text-gray-400">1</th>
+                    <th class="text-center py-2 px-1 text-gray-400">2</th>
+                    <th class="text-center py-2 px-1 text-gray-400">3</th>
+                    <th class="text-center py-2 px-1 text-gray-400">4</th>
+                    <th class="text-center py-2 px-1 text-gray-400">5</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 70%</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 50%</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Pot Odds Favorable</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Can Check</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="bg-gray-800/50">
+                    <td class="py-2 px-2 text-purple-300 font-semibold">-> Action</td>
+                    <td class="text-center text-yellow-400 font-bold">RAISE</td>
+                    <td class="text-center text-blue-400 font-bold">CALL</td>
+                    <td class="text-center text-gray-400 font-bold">CHECK</td>
+                    <td class="text-center text-gray-400 font-bold">CHECK</td>
+                    <td class="text-center text-red-400 font-bold">FOLD</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold gradient-text mb-2">40+</div>
-              <div class="text-sm text-muted-foreground">Business Rules</div>
+          </div>
+
+          <!-- LAG Decision Table -->
+          <div class="glass rounded-xl p-4" id="dt-lag-container">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-1 bg-orange-600 text-white text-xs font-bold rounded">LAG</span>
+              <h3 class="font-semibold text-white">Loose-Aggressive</h3>
+              <span class="text-gray-400 text-xs ml-auto">~35% VPIP</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs" id="dt-lag-table">
+                <thead>
+                  <tr class="border-b border-gray-600">
+                    <th class="text-left py-2 px-2 text-gray-400">Condition</th>
+                    <th class="text-center py-2 px-1 text-gray-400">1</th>
+                    <th class="text-center py-2 px-1 text-gray-400">2</th>
+                    <th class="text-center py-2 px-1 text-gray-400">3</th>
+                    <th class="text-center py-2 px-1 text-gray-400">4</th>
+                    <th class="text-center py-2 px-1 text-gray-400">5</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 50%</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Position = Late/Button</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 25%</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Can Check</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                  </tr>
+                  <tr class="bg-gray-800/50">
+                    <td class="py-2 px-2 text-purple-300 font-semibold">-> Action</td>
+                    <td class="text-center text-yellow-400 font-bold">RAISE</td>
+                    <td class="text-center text-yellow-400 font-bold">RAISE</td>
+                    <td class="text-center text-gray-400 font-bold">CHECK</td>
+                    <td class="text-center text-blue-400 font-bold">CALL</td>
+                    <td class="text-center text-red-400 font-bold">FOLD</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Rock Decision Table -->
+          <div class="glass rounded-xl p-4" id="dt-rock-container">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-1 bg-gray-600 text-white text-xs font-bold rounded">Rock</span>
+              <h3 class="font-semibold text-white">Tight-Passive</h3>
+              <span class="text-gray-400 text-xs ml-auto">~12% VPIP</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs" id="dt-rock-table">
+                <thead>
+                  <tr class="border-b border-gray-600">
+                    <th class="text-left py-2 px-2 text-gray-400">Condition</th>
+                    <th class="text-center py-2 px-1 text-gray-400">1</th>
+                    <th class="text-center py-2 px-1 text-gray-400">2</th>
+                    <th class="text-center py-2 px-1 text-gray-400">3</th>
+                    <th class="text-center py-2 px-1 text-gray-400">4</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 85%</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 60%</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Can Check</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="bg-gray-800/50">
+                    <td class="py-2 px-2 text-purple-300 font-semibold">-> Action</td>
+                    <td class="text-center text-yellow-400 font-bold">RAISE</td>
+                    <td class="text-center text-blue-400 font-bold">CALL</td>
+                    <td class="text-center text-gray-400 font-bold">CHECK</td>
+                    <td class="text-center text-red-400 font-bold">FOLD</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Calling Station Decision Table -->
+          <div class="glass rounded-xl p-4" id="dt-calling-container">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-1 bg-green-600 text-white text-xs font-bold rounded">Calling</span>
+              <h3 class="font-semibold text-white">Calling Station</h3>
+              <span class="text-gray-400 text-xs ml-auto">~40% VPIP</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs" id="dt-calling-table">
+                <thead>
+                  <tr class="border-b border-gray-600">
+                    <th class="text-left py-2 px-2 text-gray-400">Condition</th>
+                    <th class="text-center py-2 px-1 text-gray-400">1</th>
+                    <th class="text-center py-2 px-1 text-gray-400">2</th>
+                    <th class="text-center py-2 px-1 text-gray-400">3</th>
+                    <th class="text-center py-2 px-1 text-gray-400">4</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Hand Strength >= 20%</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Bet <= 2x Big Blind</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="border-b border-gray-700">
+                    <td class="py-2 px-2 text-gray-300">Can Check</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-gray-500">-</td>
+                    <td class="text-center text-green-400">Y</td>
+                    <td class="text-center text-red-400">N</td>
+                  </tr>
+                  <tr class="bg-gray-800/50">
+                    <td class="py-2 px-2 text-purple-300 font-semibold">-> Action</td>
+                    <td class="text-center text-blue-400 font-bold">CALL</td>
+                    <td class="text-center text-blue-400 font-bold">CALL</td>
+                    <td class="text-center text-gray-400 font-bold">CHECK</td>
+                    <td class="text-center text-red-400 font-bold">FOLD</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- GitHub Link -->
-      <div class="mt-12 text-center">
-        <p class="text-muted-foreground mb-4">
-          Want to explore the full source code?
-        </p>
-        <a
-          href="https://github.com/dtrules/dtrules"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors"
-        >
-          View on GitHub
-          <ExternalLink className="h-4 w-4" />
-        </a>
+        <!-- Hand Evaluation Decision Table -->
+        <div class="mt-6">
+          <h3 class="text-xl font-bold text-white mb-4">Hand Evaluation Table</h3>
+          <div class="glass rounded-xl p-4 overflow-x-auto">
+            <table class="w-full text-xs" id="dt-hand-eval-table">
+              <thead>
+                <tr class="border-b border-gray-600">
+                  <th class="text-left py-2 px-2 text-gray-400">Condition</th>
+                  <th class="text-center py-2 px-1 text-gray-400">1</th>
+                  <th class="text-center py-2 px-1 text-gray-400">2</th>
+                  <th class="text-center py-2 px-1 text-gray-400">3</th>
+                  <th class="text-center py-2 px-1 text-gray-400">4</th>
+                  <th class="text-center py-2 px-1 text-gray-400">5</th>
+                  <th class="text-center py-2 px-1 text-gray-400">6</th>
+                  <th class="text-center py-2 px-1 text-gray-400">7</th>
+                  <th class="text-center py-2 px-1 text-gray-400">8</th>
+                  <th class="text-center py-2 px-1 text-gray-400">9</th>
+                  <th class="text-center py-2 px-1 text-gray-400">10</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">Is Flush</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">Is Straight</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">High Card = Ace</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">Four of a Kind</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">Three of a Kind</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-red-400">N</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">Pair Count >= 1</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-2 px-2 text-gray-300">Pair Count >= 2</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-gray-500">-</td>
+                  <td class="text-center text-green-400">Y</td>
+                  <td class="text-center text-red-400">N</td>
+                  <td class="text-center text-gray-500">-</td>
+                </tr>
+                <tr class="bg-gray-800/50">
+                  <td class="py-2 px-2 text-purple-300 font-semibold">-> Hand Rank</td>
+                  <td class="text-center text-yellow-400 font-bold text-[10px]">Royal<br/>Flush</td>
+                  <td class="text-center text-yellow-400 font-bold text-[10px]">Str.<br/>Flush</td>
+                  <td class="text-center text-yellow-400 font-bold text-[10px]">Four<br/>Kind</td>
+                  <td class="text-center text-yellow-400 font-bold text-[10px]">Full<br/>House</td>
+                  <td class="text-center text-blue-400 font-bold text-[10px]">Flush</td>
+                  <td class="text-center text-blue-400 font-bold text-[10px]">Straight</td>
+                  <td class="text-center text-green-400 font-bold text-[10px]">Three<br/>Kind</td>
+                  <td class="text-center text-green-400 font-bold text-[10px]">Two<br/>Pair</td>
+                  <td class="text-center text-gray-400 font-bold text-[10px]">One<br/>Pair</td>
+                  <td class="text-center text-gray-500 font-bold text-[10px]">High<br/>Card</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
+  <style>
+    /* Card reveal animations */
+    .card-reveal {
+      animation: flipIn 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes flipIn {
+      0% {
+        transform: rotateY(90deg) scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .card-delayed-1 { animation-delay: 0.15s; }
+    .card-delayed-2 { animation-delay: 0.3s; }
+
+    /* Winner highlight animation */
+    .winner-highlight {
+      animation: winnerPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes winnerPulse {
+      0%, 100% { box-shadow: 0 0 10px 2px rgba(34, 197, 94, 0.5); }
+      50% { box-shadow: 0 0 20px 5px rgba(34, 197, 94, 0.8); }
+    }
+
+    /* Best hand card highlight */
+    .best-hand-card {
+      box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.6);
+      border: 2px solid rgb(168, 85, 247);
+    }
+
+    /* Round banner animation */
+    .round-banner-show {
+      opacity: 1 !important;
+    }
+
+    .round-banner-animate {
+      animation: bannerBounce 0.5s ease-out;
+    }
+
+    @keyframes bannerBounce {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Decision table highlighting */
+    .dt-active {
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+      border: 2px solid rgb(168, 85, 247);
+    }
+
+    .dt-column-highlight {
+      background-color: rgba(168, 85, 247, 0.3) !important;
+    }
+
+    .dt-row-highlight td {
+      background-color: rgba(34, 197, 94, 0.2) !important;
+    }
+  </style>
+
+  <script type="module">
+    // Import poker engine modules
+    import {
+      dealNewPokerHand,
+      processPokerAction,
+      clearPendingReveal,
+      continueRunOut,
+      awardPot,
+      sanitizeGameForHuman,
+      processAllAITurns,
+      processAITurnsSync,
+      secureRandom,
+      CARD_RANK_NAMES,
+      HAND_RANK_NAMES
+    } from '../lib/poker/index';
+
+    // Card display utilities
+    const SUIT_SYMBOLS = { hearts: '\u2665', diamonds: '\u2666', clubs: '\u2663', spades: '\u2660' };
+    const SUIT_COLORS = { hearts: '#e53935', diamonds: '#e53935', clubs: '#1a1a1a', spades: '#1a1a1a' };
+    const RANK_DISPLAY = { 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
+
+    // Player position angles for table layout (for 2-9 players)
+    const PLAYER_POSITIONS = {
+      2: [180, 0],
+      3: [180, 60, 300],
+      4: [180, 90, 0, 270],
+      5: [180, 108, 36, 324, 252],
+      6: [180, 120, 60, 0, 300, 240],
+      7: [180, 128, 77, 26, 334, 283, 231],
+      8: [180, 135, 90, 45, 0, 315, 270, 225],
+      9: [180, 140, 100, 60, 20, 340, 300, 260, 220]
+    };
+
+    // Game state
+    let gameState = null;
+    let isRevealingCards = false;
+    let lastKnownRound = null;
+    let showdownModalShown = false;
+    let savedChips = null; // Track chips across hands
+
+    // Create a card element
+    function createCardElement(card, faceDown = false) {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'w-10 h-14 sm:w-12 sm:h-16 rounded-md flex items-center justify-center text-xs sm:text-sm font-bold shadow-md';
+
+      if (faceDown || !card) {
+        cardEl.className += ' bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-blue-700';
+        cardEl.innerHTML = '<span class="text-blue-400 text-lg">?</span>';
+      } else {
+        cardEl.style.backgroundColor = 'white';
+        cardEl.style.color = SUIT_COLORS[card.suit];
+        cardEl.innerHTML = `<span class="flex flex-col items-center"><span>${RANK_DISPLAY[card.rank] || card.rankName}</span><span>${SUIT_SYMBOLS[card.suit]}</span></span>`;
+      }
+
+      return cardEl;
+    }
+
+    // Show round transition banner
+    function showRoundTransition(roundName) {
+      const banner = document.getElementById('round-banner');
+      const bannerText = document.getElementById('round-banner-text');
+      if (!banner || !bannerText) return;
+
+      bannerText.textContent = roundName.toUpperCase();
+      banner.classList.add('round-banner-show');
+      banner.querySelector('div')?.classList.add('round-banner-animate');
+
+      setTimeout(() => {
+        banner.classList.remove('round-banner-show');
+        banner.querySelector('div')?.classList.remove('round-banner-animate');
+      }, 1500);
+    }
+
+    // Create a card element for showdown display (larger size)
+    function createShowdownCardElement(card, isInBestHand = false) {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'w-10 h-14 rounded-md flex items-center justify-center text-xs font-bold shadow-md';
+
+      if (isInBestHand) {
+        cardEl.className += ' best-hand-card';
+      }
+
+      cardEl.style.backgroundColor = 'white';
+      cardEl.style.color = SUIT_COLORS[card.suit];
+      cardEl.innerHTML = `<span class="flex flex-col items-center"><span>${RANK_DISPLAY[card.rank] || card.rankName}</span><span>${SUIT_SYMBOLS[card.suit]}</span></span>`;
+
+      return cardEl;
+    }
+
+    // Check if a card is in the best hand
+    function isCardInBestHand(card, bestHand) {
+      if (!bestHand || !card) return false;
+      return bestHand.some(bc => bc.rank === card.rank && bc.suit === card.suit);
+    }
+
+    // Show showdown results modal
+    function showShowdownResults(game) {
+      if (!game.showdownResults || game.showdownResults.length === 0) return;
+      if (showdownModalShown) return;
+
+      showdownModalShown = true;
+
+      const modal = document.getElementById('showdown-modal');
+      const resultsContainer = document.getElementById('showdown-results');
+      if (!modal || !resultsContainer) return;
+
+      resultsContainer.innerHTML = '';
+
+      // Sort by rank (1st place first)
+      const sortedResults = [...game.showdownResults].sort((a, b) => a.rank - b.rank);
+
+      sortedResults.forEach((result, index) => {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = `p-4 rounded-xl ${result.won ? 'bg-green-900/50 border border-green-500 winner-highlight' : 'bg-gray-800/50'}`;
+
+        // Rank badge
+        const rankBadge = result.rank <= 3 ?
+          `<span class="px-2 py-1 rounded-full text-xs font-bold ${
+            result.rank === 1 ? 'bg-yellow-500 text-black' :
+            result.rank === 2 ? 'bg-gray-300 text-black' :
+            'bg-orange-600 text-white'
+          }">${result.rank === 1 ? '1st' : result.rank === 2 ? '2nd' : '3rd'}</span>` :
+          `<span class="px-2 py-1 rounded-full text-xs bg-gray-600 text-white">${result.rank}th</span>`;
+
+        playerDiv.innerHTML = `
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              ${rankBadge}
+              <span class="font-semibold text-white text-lg">${result.playerName}</span>
+            </div>
+            ${result.won ? `<span class="text-green-400 font-bold">Won $${result.wonAmount}</span>` : ''}
+          </div>
+          <div class="mb-2">
+            <span class="text-purple-400 font-semibold">${result.handName}</span>
+          </div>
+          <div class="flex gap-1 flex-wrap items-center">
+            <span class="text-gray-400 text-xs mr-2">Hole Cards:</span>
+            <div id="showdown-hole-${index}" class="flex gap-1"></div>
+          </div>
+          <div class="flex gap-1 flex-wrap items-center mt-2">
+            <span class="text-gray-400 text-xs mr-2">Best 5:</span>
+            <div id="showdown-best-${index}" class="flex gap-1"></div>
+          </div>
+        `;
+
+        resultsContainer.appendChild(playerDiv);
+
+        // Add hole cards
+        const holeContainer = document.getElementById(`showdown-hole-${index}`);
+        if (holeContainer && result.holeCards) {
+          result.holeCards.forEach(card => {
+            holeContainer.appendChild(createShowdownCardElement(card, isCardInBestHand(card, result.bestHand)));
+          });
+        }
+
+        // Add best hand cards
+        const bestContainer = document.getElementById(`showdown-best-${index}`);
+        if (bestContainer && result.bestHand) {
+          result.bestHand.forEach(card => {
+            bestContainer.appendChild(createShowdownCardElement(card, true));
+          });
+        }
+      });
+
+      // Check if game is over (one player has all chips)
+      const playersWithChips = game.players.filter(p => p.chips > 0);
+      const closeBtn = document.getElementById('btn-close-showdown');
+      if (closeBtn) {
+        if (playersWithChips.length === 1) {
+          const winner = playersWithChips[0];
+          // Add game winner banner
+          const winnerBanner = document.createElement('div');
+          winnerBanner.className = 'mt-4 p-4 bg-yellow-500/20 border-2 border-yellow-500 rounded-xl text-center';
+          winnerBanner.innerHTML = `
+            <div class="text-2xl font-bold text-yellow-400 mb-2">GAME OVER</div>
+            <div class="text-white text-lg">${winner.name} wins with $${winner.chips}!</div>
+          `;
+          resultsContainer.appendChild(winnerBanner);
+          closeBtn.textContent = 'New Game';
+        } else {
+          closeBtn.textContent = 'Next Hand';
+        }
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    // Hide showdown modal
+    function hideShowdownModal() {
+      const modal = document.getElementById('showdown-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // Handle pending reveal with animation
+    async function handlePendingReveal(game) {
+      if (!game.pendingReveal || isRevealingCards) return;
+
+      isRevealingCards = true;
+
+      // Update gameState and render players/pot first (without new community cards)
+      gameState = game;
+      renderPlayers();
+
+      // Update pot display
+      const potDisplay = document.querySelector('#pot-display span:last-child');
+      if (potDisplay) potDisplay.textContent = `$${game.pot}`;
+
+      // Show round transition banner
+      showRoundTransition(game.pendingReveal);
+      addToLog(`--- ${game.pendingReveal.toUpperCase()} ---`);
+
+      // Wait for banner animation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Update community cards with animation
+      updateCommunityCardsWithAnimation(game);
+
+      // Wait for card animations to complete
+      const numNewCards = game.newCommunityCards?.length || 0;
+      const animationTime = 500 + (numNewCards * 150) + 200;
+
+      await new Promise(resolve => setTimeout(resolve, animationTime));
+
+      // Clear pending reveal
+      clearPendingReveal(game);
+      isRevealingCards = false;
+
+      // If it's showdown, award pot (if not already done) and show results
+      if (game.round === 'showdown') {
+        game.runningOutBoard = false; // Clean up run-out flag
+        if (!game.handComplete) {
+          awardPot(game);
+        }
+        showShowdownResults(game);
+        return;
+      }
+
+      // If running out the board (all-in scenario), continue dealing next street
+      if (game.runningOutBoard) {
+        // Small delay before next street
+        await new Promise(resolve => setTimeout(resolve, 500));
+        continueRunOut(game);
+        // Handle the next reveal (if any)
+        if (game.pendingReveal) {
+          await handlePendingReveal(game);
+        } else if (game.handComplete) {
+          showShowdownResults(game);
+        }
+        return;
+      }
+
+      // Continue AI turns after reveal
+      await runAITurns();
+    }
+
+    // Run AI turns with callbacks
+    async function runAITurns() {
+      if (!gameState || gameState.handComplete) return;
+
+      await processAllAITurns(gameState, (result) => {
+        // Log the action
+        addToLog(result.actionMessage);
+
+        // Update AI decision display
+        const archetypeReasons = {
+          'TAG': 'Tight-Aggressive: Plays premium hands, bets/raises with strength',
+          'LAG': 'Loose-Aggressive: Plays many hands, applies pressure with bets',
+          'Rock': 'Tight-Passive: Only plays very strong hands, rarely raises',
+          'Calling': 'Calling Station: Calls frequently, rarely folds or raises'
+        };
+        const reasoning = archetypeReasons[result.player.archetype] || 'Standard play based on hand strength';
+        updateAIDecisionDisplay(result.player.name, result.action.actionType, reasoning, result.player.archetype);
+
+        // Update display after each action
+        updateGameDisplay();
+      });
+
+      // Check for pending reveal after AI actions
+      if (gameState.pendingReveal) {
+        await handlePendingReveal(gameState);
+      } else if (gameState.handComplete) {
+        // Hand ended without showdown (everyone folded)
+        if (gameState.winners) {
+          const winnerNames = gameState.winners.map(id => {
+            const winner = gameState.players.find(p => p.id === id);
+            return winner?.name || id;
+          }).join(', ');
+          addToLog(`Winner: ${winnerNames} with ${gameState.winningHand || 'best hand'}`);
+
+          if (gameState.showdownResults && gameState.showdownResults.length > 1) {
+            showShowdownResults(gameState);
+          }
+        }
+        updateGameDisplay();
+      } else {
+        updateGameDisplay();
+      }
+    }
+
+    // Handle player action
+    async function handleAction(actionType, amount = 0) {
+      if (!gameState) {
+        alert('No active game. Deal a new hand first.');
+        return;
+      }
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      if (!humanPlayer) return;
+
+      // Adjust amount for raise based on slider
+      if (actionType === 'raise') {
+        const slider = document.getElementById('raise-slider');
+        amount = parseInt(slider?.value || '0');
+      }
+
+      // Process action locally
+      const result = processPokerAction(gameState, {
+        playerId: humanPlayer.id,
+        actionType: actionType,
+        amount: amount
+      });
+
+      if (result.success && result.valid) {
+        // Log the action
+        if (result.message) {
+          addToLog(result.message);
+        }
+
+        // Check for pending reveal (street transition)
+        if (gameState.pendingReveal) {
+          await handlePendingReveal(gameState);
+        } else if (gameState.handComplete) {
+          // Hand ended
+          if (gameState.winners) {
+            const winnerNames = gameState.winners.map(id => {
+              const winner = gameState.players.find(p => p.id === id);
+              return winner?.name || id;
+            }).join(', ');
+            addToLog(`Winner: ${winnerNames} with ${gameState.winningHand || 'best hand'}`);
+
+            if (gameState.showdownResults && gameState.showdownResults.length > 1) {
+              showShowdownResults(gameState);
+            }
+          }
+          updateGameDisplay();
+        } else {
+          updateGameDisplay();
+          // Run AI turns
+          await runAITurns();
+        }
+      } else {
+        addToLog(`Error: ${result.error || 'Action failed'}`);
+      }
+    }
+
+    // Deal new hand
+    async function dealNewHand() {
+      const playerCount = parseInt(document.getElementById('player-count')?.value || '4');
+      const startingChips = parseInt(document.getElementById('starting-chips')?.value || '1000');
+
+      // Clear previous game state
+      hideShowdownModal();
+      showdownModalShown = false;
+      isRevealingCards = false;
+      lastKnownRound = null;
+      savedChips = null;
+
+      // Deal new hand locally
+      gameState = dealNewPokerHand({
+        playerCount,
+        humanPosition: 0,
+        smallBlind: 10,
+        bigBlind: 20,
+        startingChips,
+        dealerPosition: secureRandom(playerCount)
+      });
+
+      addToLog('New hand dealt - Preflop');
+
+      // Log blinds
+      const sbPlayer = gameState.players.find(p => p.isSmallBlind);
+      const bbPlayer = gameState.players.find(p => p.isBigBlind);
+      if (sbPlayer) addToLog(`${sbPlayer.name} posts small blind $${gameState.smallBlind}`);
+      if (bbPlayer) addToLog(`${bbPlayer.name} posts big blind $${gameState.bigBlind}`);
+
+      // Track action count before AI processing
+      const actionCountBefore = gameState.actionHistory.length;
+
+      // Process initial AI actions (sync - no delays for pre-human actions)
+      processAITurnsSync(gameState);
+
+      // Log any AI actions that happened
+      for (let i = actionCountBefore; i < gameState.actionHistory.length; i++) {
+        const action = gameState.actionHistory[i];
+        if (action.action !== 'posts small blind' && action.action !== 'posts big blind') {
+          const player = gameState.players.find(p => p.id === action.playerId);
+          const actionMsg = `${action.playerName} ${action.action}${action.amount ? ` $${action.amount}` : ''}`;
+          addToLog(actionMsg);
+
+          // Update AI decision display for the last AI action
+          if (player && player.archetype) {
+            const archetypeReasons = {
+              'TAG': 'Tight-Aggressive: Plays premium hands',
+              'LAG': 'Loose-Aggressive: Applies pressure',
+              'Rock': 'Tight-Passive: Only premium hands',
+              'Calling': 'Calling Station: Calls frequently'
+            };
+            updateAIDecisionDisplay(player.name, action.action, archetypeReasons[player.archetype] || '', player.archetype);
+          }
+        }
+      }
+
+      // Check for pending reveal
+      if (gameState.pendingReveal) {
+        updateGameDisplay();
+        renderPlayers();
+        await handlePendingReveal(gameState);
+      } else {
+        updateGameDisplay();
+        renderPlayers();
+      }
+    }
+
+    // Check if game is over
+    function checkGameOver() {
+      if (!gameState) return false;
+
+      const playersWithChips = gameState.players.filter(p => p.chips > 0);
+      if (playersWithChips.length === 1) {
+        const winner = playersWithChips[0];
+        addToLog(`${winner.name} WINS THE GAME with $${winner.chips}!`);
+        return true;
+      }
+      return false;
+    }
+
+    // Auto-deal next hand
+    async function autoDealNextHand() {
+      if (checkGameOver()) {
+        savedChips = null;
+        return;
+      }
+
+      addToLog('Next hand starting...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      await dealContinueHand();
+    }
+
+    // Deal continuation hand (keeps chip counts)
+    async function dealContinueHand() {
+      if (!gameState) {
+        dealNewHand();
+        return;
+      }
+
+      // Save chip counts and game settings before new deal
+      const currentChips = gameState.players.map(p => p.chips);
+      const playerCount = gameState.players.length;
+      const handNumber = (gameState.handNumber || 1) + 1;
+      const smallBlind = gameState.smallBlind;
+      const bigBlind = gameState.bigBlind;
+
+      // Clear state
+      hideShowdownModal();
+      showdownModalShown = false;
+      isRevealingCards = false;
+      lastKnownRound = null;
+
+      // Rotate dealer position
+      const newDealerPos = (gameState.dealerPosition + 1) % playerCount;
+
+      // Deal new hand with a dummy starting chips value (we'll restore real chips)
+      gameState = dealNewPokerHand({
+        playerCount,
+        humanPosition: 0,
+        smallBlind,
+        bigBlind,
+        startingChips: 10000, // Dummy value, will be overwritten
+        dealerPosition: newDealerPos
+      });
+
+      // Restore chip counts (adjusting for blinds posted in the new hand)
+      gameState.players.forEach((p, i) => {
+        if (currentChips[i] !== undefined) {
+          // Calculate blind deduction for this player in the new hand
+          let blindDeduction = 0;
+          if (p.isSmallBlind) blindDeduction = smallBlind;
+          if (p.isBigBlind) blindDeduction = bigBlind;
+          p.chips = currentChips[i] - blindDeduction;
+        }
+      });
+
+      // Recalculate pot based on actual blinds
+      gameState.pot = smallBlind + bigBlind;
+
+      gameState.handNumber = handNumber;
+      addToLog(`--- Hand #${handNumber} ---`);
+
+      // Log blinds
+      const sbPlayer = gameState.players.find(p => p.isSmallBlind);
+      const bbPlayer = gameState.players.find(p => p.isBigBlind);
+      if (sbPlayer) addToLog(`${sbPlayer.name} posts small blind $${smallBlind}`);
+      if (bbPlayer) addToLog(`${bbPlayer.name} posts big blind $${bigBlind}`);
+
+      // Track action count before AI processing
+      const actionCountBefore = gameState.actionHistory.length;
+
+      // Process initial AI actions
+      processAITurnsSync(gameState);
+
+      // Log any AI actions that happened
+      for (let i = actionCountBefore; i < gameState.actionHistory.length; i++) {
+        const action = gameState.actionHistory[i];
+        if (action.action !== 'posts small blind' && action.action !== 'posts big blind') {
+          const player = gameState.players.find(p => p.id === action.playerId);
+          const actionMsg = `${action.playerName} ${action.action}${action.amount ? ` $${action.amount}` : ''}`;
+          addToLog(actionMsg);
+
+          if (player && player.archetype) {
+            const archetypeReasons = {
+              'TAG': 'Tight-Aggressive: Plays premium hands',
+              'LAG': 'Loose-Aggressive: Applies pressure',
+              'Rock': 'Tight-Passive: Only premium hands',
+              'Calling': 'Calling Station: Calls frequently'
+            };
+            updateAIDecisionDisplay(player.name, action.action, archetypeReasons[player.archetype] || '', player.archetype);
+          }
+        }
+      }
+
+      if (gameState.pendingReveal) {
+        updateGameDisplay();
+        renderPlayers();
+        await handlePendingReveal(gameState);
+      } else {
+        updateGameDisplay();
+        renderPlayers();
+      }
+    }
+
+    // Render player positions
+    function renderPlayers() {
+      const container = document.getElementById('players-container');
+      if (!container || !gameState) return;
+
+      container.innerHTML = '';
+      const numPlayers = gameState.players.length;
+      const positions = PLAYER_POSITIONS[numPlayers] || PLAYER_POSITIONS[4];
+
+      gameState.players.forEach((player, index) => {
+        const angle = positions[index];
+        const radian = (angle - 90) * (Math.PI / 180);
+
+        const rx = 42;
+        const ry = 38;
+        const x = 50 + rx * Math.cos(radian);
+        const y = 50 + ry * Math.sin(radian);
+
+        const playerEl = document.createElement('div');
+        playerEl.className = 'absolute transform -translate-x-1/2 -translate-y-1/2 text-center';
+        playerEl.style.left = `${x}%`;
+        playerEl.style.top = `${y}%`;
+
+        const infoBox = document.createElement('div');
+        infoBox.className = `p-2 rounded-lg ${player.isHuman ? 'bg-blue-900/80' : 'bg-gray-800/80'} ${player.folded ? 'opacity-50' : ''}`;
+        if (index === gameState.currentPlayerIndex && !gameState.handComplete) {
+          infoBox.className += ' ring-2 ring-yellow-400';
+        }
+
+        if (player.archetype && !player.isHuman) {
+          const archetypeColors = {
+            'TAG': 'bg-blue-600',
+            'LAG': 'bg-orange-600',
+            'Rock': 'bg-gray-600',
+            'Calling': 'bg-green-600'
+          };
+          const archetypeEl = document.createElement('div');
+          archetypeEl.className = `${archetypeColors[player.archetype] || 'bg-gray-600'} text-white text-[8px] font-bold px-1 rounded mb-1`;
+          archetypeEl.textContent = player.archetype;
+          infoBox.appendChild(archetypeEl);
+        }
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'text-white text-xs font-semibold flex items-center justify-center gap-1';
+        nameEl.innerHTML = `${player.isDealer ? '<span class="bg-yellow-500 text-black px-1 rounded text-[10px]">D</span>' : ''}${player.name}`;
+
+        const chipsEl = document.createElement('div');
+        chipsEl.className = 'text-yellow-400 text-xs';
+        chipsEl.textContent = `$${player.chips}`;
+
+        if (player.currentBet > 0) {
+          const betEl = document.createElement('div');
+          betEl.className = 'text-green-400 text-[10px]';
+          betEl.textContent = `Bet: $${player.currentBet}`;
+          infoBox.appendChild(betEl);
+        }
+
+        if (player.folded) {
+          const foldedEl = document.createElement('div');
+          foldedEl.className = 'text-red-400 text-[10px]';
+          foldedEl.textContent = 'FOLDED';
+          infoBox.appendChild(foldedEl);
+        } else if (player.allIn) {
+          const allInEl = document.createElement('div');
+          allInEl.className = 'text-purple-400 text-[10px]';
+          allInEl.textContent = 'ALL-IN';
+          infoBox.appendChild(allInEl);
+        }
+
+        infoBox.appendChild(nameEl);
+        infoBox.appendChild(chipsEl);
+
+        const cardsEl = document.createElement('div');
+        cardsEl.className = 'flex gap-1 mt-1 justify-center';
+
+        if (!player.folded) {
+          if (player.holeCards && player.holeCards.length > 0) {
+            const showCards = player.isHuman || gameState.handComplete;
+            player.holeCards.forEach(card => {
+              cardsEl.appendChild(createCardElement(card, !showCards));
+            });
+          } else {
+            cardsEl.appendChild(createCardElement(null, true));
+            cardsEl.appendChild(createCardElement(null, true));
+          }
+        }
+
+        if (gameState.handComplete && player.handName && !player.folded) {
+          const handEl = document.createElement('div');
+          handEl.className = 'text-purple-300 text-[10px] mt-1';
+          handEl.textContent = player.handName;
+          infoBox.appendChild(handEl);
+        }
+
+        playerEl.appendChild(infoBox);
+        playerEl.appendChild(cardsEl);
+        container.appendChild(playerEl);
+      });
+    }
+
+    // Update community cards (no animation)
+    function updateCommunityCards() {
+      const container = document.getElementById('community-cards');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      for (let i = 0; i < 5; i++) {
+        if (gameState && gameState.communityCards && gameState.communityCards[i]) {
+          container.appendChild(createCardElement(gameState.communityCards[i]));
+        } else {
+          const emptyCard = document.createElement('div');
+          emptyCard.className = 'w-12 h-16 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20';
+          container.appendChild(emptyCard);
+        }
+      }
+    }
+
+    // Update community cards with animation
+    function updateCommunityCardsWithAnimation(game) {
+      const container = document.getElementById('community-cards');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      const newCards = game.newCommunityCards || [];
+      const allCards = game.communityCards || [];
+      const numNewCards = newCards.length;
+      const firstNewCardIndex = allCards.length - numNewCards;
+
+      for (let i = 0; i < 5; i++) {
+        if (allCards[i]) {
+          const cardEl = createCardElement(allCards[i]);
+
+          if (i >= firstNewCardIndex) {
+            const animationDelay = i - firstNewCardIndex;
+            cardEl.classList.add('card-reveal');
+            if (animationDelay === 1) cardEl.classList.add('card-delayed-1');
+            if (animationDelay === 2) cardEl.classList.add('card-delayed-2');
+          }
+
+          container.appendChild(cardEl);
+        } else {
+          const emptyCard = document.createElement('div');
+          emptyCard.className = 'w-12 h-16 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20';
+          container.appendChild(emptyCard);
+        }
+      }
+    }
+
+    // Update game display
+    function updateGameDisplay() {
+      if (!gameState) return;
+
+      const potDisplay = document.querySelector('#pot-display span:last-child');
+      if (potDisplay) potDisplay.textContent = `$${gameState.pot}`;
+
+      const handNum = document.getElementById('hand-number');
+      if (handNum) handNum.textContent = (gameState.handNumber || 1).toString();
+
+      const smallBlind = document.getElementById('small-blind');
+      const bigBlind = document.getElementById('big-blind');
+      if (smallBlind) smallBlind.textContent = gameState.smallBlind.toString();
+      if (bigBlind) bigBlind.textContent = gameState.bigBlind.toString();
+
+      updateCommunityCards();
+      renderPlayers();
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const toCall = gameState.currentBet - (humanPlayer?.currentBet || 0);
+
+      const callAmount = document.getElementById('call-amount');
+      if (callAmount) callAmount.textContent = toCall.toString();
+
+      const slider = document.getElementById('raise-slider');
+      const minRaiseEl = document.getElementById('min-raise');
+      const maxRaiseEl = document.getElementById('max-raise');
+      const raiseAmountEl = document.getElementById('raise-amount');
+
+      if (slider && humanPlayer) {
+        const minRaise = gameState.currentBet + (gameState.minRaise || gameState.bigBlind);
+        const maxRaise = humanPlayer.chips + humanPlayer.currentBet;
+        slider.min = minRaise.toString();
+        slider.max = maxRaise.toString();
+        slider.value = Math.min(minRaise * 2, maxRaise).toString();
+        if (minRaiseEl) minRaiseEl.textContent = minRaise.toString();
+        if (maxRaiseEl) maxRaiseEl.textContent = maxRaise.toString();
+        if (raiseAmountEl) raiseAmountEl.textContent = slider.value;
+      }
+
+      updateBettingControls();
+      updateDecisionTables();
+    }
+
+    function updateBettingControls() {
+      if (!gameState) return;
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const humanIndex = gameState.players.findIndex(p => p.isHuman);
+      const isHumanTurn = gameState.currentPlayerIndex === humanIndex && !gameState.handComplete;
+      const canCheck = gameState.currentBet === (humanPlayer?.currentBet || 0);
+      const isHandComplete = gameState.handComplete;
+      const hasPendingReveal = gameState.pendingReveal && gameState.pendingReveal !== '';
+
+      const btnFold = document.getElementById('btn-fold');
+      const btnCheck = document.getElementById('btn-check');
+      const btnCall = document.getElementById('btn-call');
+      const btnRaise = document.getElementById('btn-raise');
+      const btnAllin = document.getElementById('btn-allin');
+
+      const disableAll = !isHumanTurn || isHandComplete || humanPlayer?.folded || humanPlayer?.allIn || isRevealingCards || hasPendingReveal;
+
+      if (btnFold) btnFold.disabled = disableAll;
+      if (btnCheck) {
+        btnCheck.disabled = disableAll || !canCheck;
+        btnCheck.style.display = canCheck ? 'inline-block' : 'none';
+      }
+      if (btnCall) {
+        btnCall.disabled = disableAll || canCheck;
+        btnCall.style.display = !canCheck ? 'inline-block' : 'none';
+      }
+      if (btnRaise) btnRaise.disabled = disableAll;
+      if (btnAllin) btnAllin.disabled = disableAll;
+    }
+
+    function updateDecisionTables() {
+      if (!gameState) return;
+
+      updateHandEvalDisplay();
+      updateBettingRulesDisplay();
+      updateGameStateDisplay();
+    }
+
+    function updateHandEvalDisplay() {
+      const container = document.getElementById('dt-hand-eval');
+      if (!container || !gameState) return;
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      if (!humanPlayer || !humanPlayer.holeCards || humanPlayer.holeCards.length < 2) {
+        container.innerHTML = '<div class="text-gray-500">Deal cards to see evaluation...</div>';
+        return;
+      }
+
+      const holeCardsStr = humanPlayer.holeCards.map(c =>
+        `${RANK_DISPLAY[c.rank]}${SUIT_SYMBOLS[c.suit]}`
+      ).join(' ');
+
+      let html = `<div class="text-white mb-1">Hole: <span class="text-green-300">${holeCardsStr}</span></div>`;
+
+      if (gameState.communityCards && gameState.communityCards.length > 0) {
+        const communityStr = gameState.communityCards.map(c =>
+          `${RANK_DISPLAY[c.rank]}${SUIT_SYMBOLS[c.suit]}`
+        ).join(' ');
+        html += `<div class="text-white mb-1">Board: <span class="text-blue-300">${communityStr}</span></div>`;
+      }
+
+      if (humanPlayer.handName) {
+        html += `<div class="text-yellow-300 mt-1 font-bold">${humanPlayer.handName}</div>`;
+      } else if (gameState.communityCards && gameState.communityCards.length >= 3) {
+        html += `<div class="text-gray-400 mt-1">Evaluating...</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function updateBettingRulesDisplay() {
+      const container = document.getElementById('dt-betting-rules');
+      if (!container || !gameState) return;
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const humanIndex = gameState.players.findIndex(p => p.isHuman);
+      const isHumanTurn = gameState.currentPlayerIndex === humanIndex && !gameState.handComplete;
+      const toCall = gameState.currentBet - (humanPlayer?.currentBet || 0);
+
+      if (gameState.handComplete) {
+        container.innerHTML = '<div class="text-gray-400">Hand complete</div>';
+        return;
+      }
+
+      if (!isHumanTurn) {
+        const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+        container.innerHTML = `<div class="text-gray-400">Waiting for ${currentPlayer?.name || 'opponent'}...</div>`;
+        return;
+      }
+
+      let html = '<table class="w-full text-left">';
+      html += '<tr class="border-b border-gray-700"><th class="py-1">Action</th><th class="py-1">Rule</th></tr>';
+
+      html += '<tr><td class="text-red-400 py-1">Fold</td><td class="text-gray-400">Always valid</td></tr>';
+
+      if (toCall === 0) {
+        html += '<tr><td class="text-blue-400 py-1">Check</td><td class="text-gray-400">No bet to call</td></tr>';
+      } else {
+        html += `<tr><td class="text-green-400 py-1">Call $${toCall}</td><td class="text-gray-400">Match current bet</td></tr>`;
+      }
+
+      const minRaise = gameState.currentBet + (gameState.minRaise || gameState.bigBlind);
+      html += `<tr><td class="text-yellow-400 py-1">Raise</td><td class="text-gray-400">Min: $${minRaise}</td></tr>`;
+
+      if (humanPlayer) {
+        html += `<tr><td class="text-purple-400 py-1">All-In</td><td class="text-gray-400">$${humanPlayer.chips}</td></tr>`;
+      }
+
+      html += '</table>';
+      container.innerHTML = html;
+    }
+
+    function updateAIDecisionDisplay(playerName, action, reasoning, archetype) {
+      const container = document.getElementById('dt-ai-decision');
+      if (!container) return;
+
+      let html = `<div class="text-white mb-1">${playerName}:</div>`;
+      html += `<div class="text-yellow-300 font-bold">${action.toUpperCase()}</div>`;
+      html += `<div class="text-gray-400 text-[10px] mt-1">${reasoning}</div>`;
+      container.innerHTML = html;
+
+      highlightDecisionTable(archetype, action);
+    }
+
+    function highlightDecisionTable(archetype, action) {
+      document.querySelectorAll('.dt-active').forEach(el => el.classList.remove('dt-active'));
+      document.querySelectorAll('.dt-column-highlight').forEach(el => el.classList.remove('dt-column-highlight'));
+
+      const archetypeMap = {
+        'TAG': 'dt-tag-container',
+        'LAG': 'dt-lag-container',
+        'Rock': 'dt-rock-container',
+        'Calling': 'dt-calling-container'
+      };
+
+      const containerId = archetypeMap[archetype];
+      if (!containerId) return;
+
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      container.classList.add('dt-active');
+
+      const actionLower = action.toLowerCase();
+      let columnIndex = -1;
+
+      if (actionLower.includes('raise') || actionLower.includes('bet')) {
+        columnIndex = 1;
+      } else if (actionLower.includes('call')) {
+        columnIndex = 2;
+      } else if (actionLower.includes('check')) {
+        columnIndex = 3;
+      } else if (actionLower.includes('fold')) {
+        columnIndex = 5;
+      }
+
+      if (columnIndex > 0) {
+        const table = container.querySelector('table');
+        if (table) {
+          const rows = table.querySelectorAll('tr');
+          rows.forEach(row => {
+            const cells = row.querySelectorAll('td, th');
+            if (cells[columnIndex]) {
+              cells[columnIndex].classList.add('dt-column-highlight');
+            }
+          });
+        }
+      }
+
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      setTimeout(() => {
+        container.classList.remove('dt-active');
+        document.querySelectorAll('.dt-column-highlight').forEach(el => el.classList.remove('dt-column-highlight'));
+      }, 3000);
+    }
+
+    function updateGameStateDisplay() {
+      const container = document.getElementById('dt-game-state');
+      if (!container || !gameState) return;
+
+      const roundNames = {
+        'preflop': 'Pre-Flop',
+        'flop': 'Flop',
+        'turn': 'Turn',
+        'river': 'River',
+        'showdown': 'Showdown'
+      };
+
+      let html = '<table class="w-full text-left">';
+      html += `<tr><td class="text-gray-400">Round:</td><td class="text-purple-300">${roundNames[gameState.round] || gameState.round}</td></tr>`;
+      html += `<tr><td class="text-gray-400">Pot:</td><td class="text-yellow-300">$${gameState.pot}</td></tr>`;
+      html += `<tr><td class="text-gray-400">To Act:</td><td class="text-white">${gameState.players[gameState.currentPlayerIndex]?.name || '-'}</td></tr>`;
+      html += `<tr><td class="text-gray-400">Active:</td><td class="text-green-300">${gameState.activePlayerCount} players</td></tr>`;
+      html += '</table>';
+
+      container.innerHTML = html;
+    }
+
+    // Add entry to action log
+    function addToLog(message) {
+      const log = document.getElementById('action-log');
+      if (!log) return;
+
+      if (log.querySelector('.text-center')) {
+        log.innerHTML = '';
+      }
+
+      const entry = document.createElement('div');
+      entry.className = 'text-gray-300';
+      entry.textContent = `> ${message}`;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-play')?.addEventListener('click', dealNewHand);
+
+      document.getElementById('btn-fold')?.addEventListener('click', () => handleAction('fold'));
+      document.getElementById('btn-check')?.addEventListener('click', () => handleAction('check'));
+      document.getElementById('btn-call')?.addEventListener('click', () => handleAction('call'));
+      document.getElementById('btn-raise')?.addEventListener('click', () => handleAction('raise'));
+      document.getElementById('btn-allin')?.addEventListener('click', () => handleAction('allin'));
+
+      document.getElementById('btn-close-showdown')?.addEventListener('click', () => {
+        hideShowdownModal();
+        autoDealNextHand();
+      });
+
+      const slider = document.getElementById('raise-slider');
+      const raiseAmount = document.getElementById('raise-amount');
+      if (slider && raiseAmount) {
+        slider.addEventListener('input', () => {
+          raiseAmount.textContent = slider.value;
+        });
+      }
+    });
+  </script>
 </BaseLayout>
