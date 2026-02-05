@@ -79,8 +79,8 @@ const { className = '' } = Astro.props;
   {/* Desktop Layout - Compact square table */}
   <div
     id="desktop-layout"
-    class="hidden md:block relative rounded-xl overflow-visible min-h-[300px] lg:min-h-[350px]"
-    style="border: 12px solid #5c4033; box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 0 3px #3d2817; background: radial-gradient(ellipse at center, #1a6b35 0%, #145228 40%, #0d3320 100%);"
+    class="hidden md:block relative rounded-xl overflow-visible min-h-[400px] lg:min-h-[500px]"
+    style="border: 14px solid #5c4033; box-shadow: 0 12px 35px rgba(0,0,0,0.5), inset 0 0 0 4px #3d2817; background: radial-gradient(ellipse at center, #1a6b35 0%, #145228 40%, #0d3320 100%);"
   >
     {/* Table felt texture */}
     <div class="absolute inset-0 rounded opacity-15" style="background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E&quot;);"></div>
@@ -90,14 +90,14 @@ const { className = '' } = Astro.props;
 
     {/* Center - Community cards and pot */}
     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-      <div id="community-cards" class="flex gap-1.5 lg:gap-2 justify-center mb-3">
+      <div id="community-cards" class="flex gap-2 lg:gap-3 justify-center mb-4">
         {[...Array(5)].map(() => (
-          <div class="w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40"></div>
+          <div class="w-12 h-[4.5rem] lg:w-14 lg:h-20 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40 shadow-inner"></div>
         ))}
       </div>
-      <div id="pot-display" class="px-4 py-2 md:px-6 md:py-2.5 bg-black/60 rounded-full inline-block border border-yellow-600/30">
-        <span class="text-gray-300 text-sm">Pot:</span>
-        <span class="text-yellow-400 font-bold text-xl lg:text-2xl ml-1">$0</span>
+      <div id="pot-display" class="px-5 py-2.5 md:px-8 md:py-3 bg-black/60 rounded-full inline-block border border-yellow-600/30 shadow-lg">
+        <span class="text-gray-300 text-sm md:text-base">Pot:</span>
+        <span class="text-yellow-400 font-bold text-2xl lg:text-3xl ml-2">$0</span>
       </div>
     </div>
 

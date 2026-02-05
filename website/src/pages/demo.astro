@@ -20,13 +20,13 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
       <!-- Main Layout: Decision Theater (hero) + Compact Game -->
       <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
-        <!-- Decision Theater - THE HERO (60% on desktop) -->
-        <div class="w-full lg:w-3/5 order-1 lg:order-2">
+        <!-- Decision Theater - THE HERO (50% on desktop) -->
+        <div class="w-full lg:w-1/2 order-1 lg:order-2">
           <DecisionTheater />
         </div>
 
-        <!-- Compact Poker Table + Controls (40% on desktop) -->
-        <div class="w-full lg:w-2/5 order-2 lg:order-1 flex flex-col gap-4">
+        <!-- Compact Poker Table + Controls (50% on desktop) -->
+        <div class="w-full lg:w-1/2 order-2 lg:order-1 flex flex-col gap-4">
           <!-- Game Controls -->
           <div class="glass rounded-xl p-4">
             <button id="btn-play" class="w-full px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg touch-manipulation">
@@ -103,10 +103,10 @@ import BettingControls from '../components/poker/BettingControls.astro';
       const cardEl = document.createElement('div');
       const sizeClasses: Record<string, string> = {
         tiny: 'w-5 h-7 text-[8px]',
-        small: 'w-6 h-8 text-[10px]',
-        medium: 'w-10 h-14 text-sm',
+        small: 'w-7 h-10 text-[10px]',
+        medium: 'w-12 h-[4.5rem] text-sm',
         large: 'w-14 h-20 text-lg',
-        default: 'w-10 h-14 lg:w-12 lg:h-[4.5rem] text-sm lg:text-base'
+        default: 'w-12 h-[4.5rem] lg:w-14 lg:h-20 text-sm lg:text-base'
       };
 
       cardEl.className = `${sizeClasses[size] || sizeClasses.default} rounded-md flex items-center justify-center font-bold shadow-md`;
@@ -520,7 +520,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           container.appendChild(createCardElement(gameState.communityCards[i], false, 'default'));
         } else {
           const empty = document.createElement('div');
-          empty.className = 'w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40';
+          empty.className = 'w-12 h-[4.5rem] lg:w-14 lg:h-20 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40';
           container.appendChild(empty);
         }
       }
@@ -547,7 +547,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           container.appendChild(cardEl);
         } else {
           const empty = document.createElement('div');
-          empty.className = 'w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40';
+          empty.className = 'w-12 h-[4.5rem] lg:w-14 lg:h-20 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40';
           container.appendChild(empty);
         }
       }
