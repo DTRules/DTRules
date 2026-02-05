@@ -20,7 +20,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Poker Table -->
         <div class="flex-1">
-          <div id="poker-game" class="glass rounded-2xl p-4 min-h-[500px]">
+          <div id="poker-game" class="glass rounded-2xl p-6 min-h-[600px]">
             <!-- Table will be rendered here -->
             <div class="relative w-full aspect-[16/10] rounded-[40%] overflow-hidden" style="background: linear-gradient(145deg, #1e5631 0%, #0d3320 50%, #1e5631 100%); box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3); border: 15px solid #5c3d2e;">
               <!-- Table felt texture -->
@@ -33,15 +33,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
                 <div id="community-cards" class="flex gap-2 justify-center mb-4">
                   <!-- Community cards will be shown here -->
-                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
-                  <div class="w-14 h-20 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
+                  <div class="w-16 h-24 rounded-lg border-2 border-dashed border-gray-500/50 bg-black/20"></div>
                 </div>
-                <div id="pot-display" class="px-4 py-2 bg-black/50 rounded-lg inline-block">
-                  <span class="text-gray-300 text-xs">Pot</span>
-                  <span class="text-yellow-400 font-bold text-xl ml-2">$0</span>
+                <div id="pot-display" class="px-6 py-3 bg-black/50 rounded-lg inline-block">
+                  <span class="text-gray-300 text-sm">Pot</span>
+                  <span class="text-yellow-400 font-bold text-2xl ml-2">$0</span>
                 </div>
               </div>
 
@@ -49,10 +49,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div id="players-container"></div>
 
               <!-- Game info badges -->
-              <div class="absolute top-2 left-2 px-2 py-1 bg-black/50 rounded text-white text-xs">
+              <div class="absolute top-3 left-3 px-3 py-2 bg-black/50 rounded text-white text-sm font-medium">
                 Hand #<span id="hand-number">1</span>
               </div>
-              <div class="absolute top-2 right-2 px-2 py-1 bg-black/50 rounded text-white text-xs">
+              <div class="absolute top-3 right-3 px-3 py-2 bg-black/50 rounded text-white text-sm font-medium">
                 Blinds: $<span id="small-blind">10</span>/$<span id="big-blind">20</span>
               </div>
 
@@ -79,21 +79,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <!-- Betting Controls -->
-          <div id="betting-controls" class="glass rounded-xl p-4 mt-4">
-            <div class="flex flex-wrap gap-2 justify-center">
-              <button id="btn-fold" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <div id="betting-controls" class="glass rounded-xl p-5 mt-4">
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button id="btn-fold" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Fold
               </button>
-              <button id="btn-check" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button id="btn-check" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Check
               </button>
-              <button id="btn-call" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button id="btn-call" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-lg font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Call $<span id="call-amount">0</span>
               </button>
-              <button id="btn-raise" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button id="btn-raise" class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white text-lg font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Raise to $<span id="raise-amount">0</span>
               </button>
-              <button id="btn-allin" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button id="btn-allin" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white text-lg font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 All-In
               </button>
             </div>
@@ -106,20 +106,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
 
         <!-- Side Panel -->
-        <div class="w-full lg:w-80 flex flex-col gap-4">
+        <div class="w-full lg:w-96 flex flex-col gap-4">
           <!-- Game Controls -->
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold text-white mb-3">Game Controls</h3>
-            <button id="btn-play" class="w-full px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg">
+          <div class="glass rounded-xl p-5">
+            <h3 class="font-semibold text-white text-lg mb-4">Game Controls</h3>
+            <button id="btn-play" class="w-full px-6 py-4 gradient-button text-white font-bold text-xl rounded-lg">
               Play Game
             </button>
-            <p class="text-gray-500 text-xs mt-2 text-center">4 players, $1,000 starting chips</p>
+            <p class="text-gray-400 text-sm mt-3 text-center">4 players, $1,000 starting chips</p>
           </div>
 
           <!-- Decision Tables Display -->
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold text-white mb-3 flex items-center gap-2">
-              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="glass rounded-xl p-5">
+            <h3 class="font-semibold text-white text-lg mb-4 flex items-center gap-2">
+              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
               </svg>
               Decision Tables
@@ -127,44 +127,44 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             <!-- Hand Evaluation Table -->
             <div class="mb-4">
-              <div class="text-xs font-semibold text-green-400 mb-2 flex items-center gap-1">
-                <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+              <div class="text-sm font-semibold text-green-400 mb-2 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-green-400 rounded-full"></span>
                 Hand Evaluation
               </div>
-              <div id="dt-hand-eval" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+              <div id="dt-hand-eval" class="bg-gray-900/50 rounded p-3 text-sm font-mono">
                 <div class="text-gray-500">Deal cards to see evaluation...</div>
               </div>
             </div>
 
             <!-- Betting Rules Table -->
             <div class="mb-4">
-              <div class="text-xs font-semibold text-blue-400 mb-2 flex items-center gap-1">
-                <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+              <div class="text-sm font-semibold text-blue-400 mb-2 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-blue-400 rounded-full"></span>
                 Valid Actions
               </div>
-              <div id="dt-betting-rules" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+              <div id="dt-betting-rules" class="bg-gray-900/50 rounded p-3 text-sm font-mono">
                 <div class="text-gray-500">Waiting for game...</div>
               </div>
             </div>
 
             <!-- AI Decision Table -->
             <div class="mb-4">
-              <div class="text-xs font-semibold text-yellow-400 mb-2 flex items-center gap-1">
-                <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+              <div class="text-sm font-semibold text-yellow-400 mb-2 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-yellow-400 rounded-full"></span>
                 Last AI Decision
               </div>
-              <div id="dt-ai-decision" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+              <div id="dt-ai-decision" class="bg-gray-900/50 rounded p-3 text-sm font-mono">
                 <div class="text-gray-500">No AI actions yet...</div>
               </div>
             </div>
 
             <!-- Round State -->
             <div>
-              <div class="text-xs font-semibold text-purple-400 mb-2 flex items-center gap-1">
-                <span class="w-2 h-2 bg-purple-400 rounded-full"></span>
+              <div class="text-sm font-semibold text-purple-400 mb-2 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-purple-400 rounded-full"></span>
                 Game State
               </div>
-              <div id="dt-game-state" class="bg-gray-900/50 rounded p-2 text-xs font-mono">
+              <div id="dt-game-state" class="bg-gray-900/50 rounded p-3 text-sm font-mono">
                 <div class="text-gray-500">No active game...</div>
               </div>
             </div>
@@ -661,11 +661,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     // Create a card element
     function createCardElement(card, faceDown = false) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'w-10 h-14 sm:w-12 sm:h-16 rounded-md flex items-center justify-center text-xs sm:text-sm font-bold shadow-md';
+      cardEl.className = 'w-12 h-16 sm:w-14 sm:h-20 rounded-md flex items-center justify-center text-sm sm:text-base font-bold shadow-md';
 
       if (faceDown || !card) {
         cardEl.className += ' bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-blue-700';
-        cardEl.innerHTML = '<span class="text-blue-400 text-lg">?</span>';
+        cardEl.innerHTML = '<span class="text-blue-400 text-xl">?</span>';
       } else {
         cardEl.style.backgroundColor = 'white';
         cardEl.style.color = SUIT_COLORS[card.suit];
@@ -694,7 +694,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     // Create a card element for showdown display (larger size)
     function createShowdownCardElement(card, isInBestHand = false) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'w-10 h-14 rounded-md flex items-center justify-center text-xs font-bold shadow-md';
+      cardEl.className = 'w-12 h-16 rounded-md flex items-center justify-center text-sm font-bold shadow-md';
 
       if (isInBestHand) {
         cardEl.className += ' best-hand-card';
@@ -1190,7 +1190,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         playerEl.style.top = `${y}%`;
 
         const infoBox = document.createElement('div');
-        infoBox.className = `p-2 rounded-lg ${player.isHuman ? 'bg-blue-900/80' : 'bg-gray-800/80'} ${player.folded ? 'opacity-50' : ''}`;
+        infoBox.className = `p-3 rounded-lg ${player.isHuman ? 'bg-blue-900/80' : 'bg-gray-800/80'} ${player.folded ? 'opacity-50' : ''}`;
         if (index === gameState.currentPlayerIndex && !gameState.handComplete) {
           infoBox.className += ' ring-2 ring-yellow-400';
         }
@@ -1203,34 +1203,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             'Calling': 'bg-green-600'
           };
           const archetypeEl = document.createElement('div');
-          archetypeEl.className = `${archetypeColors[player.archetype] || 'bg-gray-600'} text-white text-[8px] font-bold px-1 rounded mb-1`;
+          archetypeEl.className = `${archetypeColors[player.archetype] || 'bg-gray-600'} text-white text-xs font-bold px-2 py-0.5 rounded mb-1`;
           archetypeEl.textContent = player.archetype;
           infoBox.appendChild(archetypeEl);
         }
 
         const nameEl = document.createElement('div');
-        nameEl.className = 'text-white text-xs font-semibold flex items-center justify-center gap-1';
-        nameEl.innerHTML = `${player.isDealer ? '<span class="bg-yellow-500 text-black px-1 rounded text-[10px]">D</span>' : ''}${player.name}`;
+        nameEl.className = 'text-white text-sm font-semibold flex items-center justify-center gap-1';
+        nameEl.innerHTML = `${player.isDealer ? '<span class="bg-yellow-500 text-black px-1.5 py-0.5 rounded text-xs">D</span>' : ''}${player.name}`;
 
         const chipsEl = document.createElement('div');
-        chipsEl.className = 'text-yellow-400 text-xs';
+        chipsEl.className = 'text-yellow-400 text-sm font-medium';
         chipsEl.textContent = `$${player.chips}`;
 
         if (player.currentBet > 0) {
           const betEl = document.createElement('div');
-          betEl.className = 'text-green-400 text-[10px]';
+          betEl.className = 'text-green-400 text-xs';
           betEl.textContent = `Bet: $${player.currentBet}`;
           infoBox.appendChild(betEl);
         }
 
         if (player.folded) {
           const foldedEl = document.createElement('div');
-          foldedEl.className = 'text-red-400 text-[10px]';
+          foldedEl.className = 'text-red-400 text-xs font-semibold';
           foldedEl.textContent = 'FOLDED';
           infoBox.appendChild(foldedEl);
         } else if (player.allIn) {
           const allInEl = document.createElement('div');
-          allInEl.className = 'text-purple-400 text-[10px]';
+          allInEl.className = 'text-purple-400 text-xs font-semibold';
           allInEl.textContent = 'ALL-IN';
           infoBox.appendChild(allInEl);
         }
@@ -1255,7 +1255,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         if (gameState.handComplete && player.handName && !player.folded) {
           const handEl = document.createElement('div');
-          handEl.className = 'text-purple-300 text-[10px] mt-1';
+          handEl.className = 'text-purple-300 text-xs mt-1';
           handEl.textContent = player.handName;
           infoBox.appendChild(handEl);
         }
