@@ -116,14 +116,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p class="text-gray-500 text-xs mt-2 text-center">4 players, $1,000 starting chips</p>
           </div>
 
-          <!-- Action Log -->
-          <div class="glass rounded-xl p-4 flex-1">
-            <h3 class="font-semibold text-white mb-3">Action Log</h3>
-            <div id="action-log" class="space-y-1 max-h-48 overflow-y-auto text-sm">
-              <div class="text-gray-500 text-center py-4">Start a game to see actions</div>
-            </div>
-          </div>
-
           <!-- Decision Tables Display -->
           <div class="glass rounded-xl p-4">
             <h3 class="font-semibold text-white mb-3 flex items-center gap-2">
@@ -985,27 +977,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     // Deal new hand
     async function dealNewHand() {
-      const playerCount = 4;
-      const startingChips = 1000;
+      console.log('dealNewHand called');
+      try {
+        const playerCount = 4;
+        const startingChips = 1000;
 
-      // Clear previous game state
-      hideShowdownModal();
-      showdownModalShown = false;
-      isRevealingCards = false;
-      lastKnownRound = null;
-      savedChips = null;
+        // Clear previous game state
+        hideShowdownModal();
+        showdownModalShown = false;
+        isRevealingCards = false;
+        lastKnownRound = null;
+        savedChips = null;
 
-      // Deal new hand locally
-      gameState = dealNewPokerHand({
-        playerCount,
-        humanPosition: 0,
-        smallBlind: 10,
-        bigBlind: 20,
-        startingChips,
-        dealerPosition: secureRandom(playerCount)
-      });
-
-      addToLog('New hand dealt - Preflop');
+        console.log('Calling dealNewPokerHand...');
+        // Deal new hand locally
+        gameState = dealNewPokerHand({
+          playerCount,
+          humanPosition: 0,
+          smallBlind: 10,
+          bigBlind: 20,
+          startingChips,
+          dealerPosition: secureRandom(playerCount)
+        });
+        console.log('Game state created:', gameState);
 
       // Log blinds
       const sbPlayer = gameState.players.find(p => p.isSmallBlind);
@@ -1048,6 +1042,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       } else {
         updateGameDisplay();
         renderPlayers();
+      }
+      } catch (error) {
+        console.error('Error in dealNewHand:', error);
       }
     }
 
