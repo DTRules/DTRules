@@ -10,7 +10,7 @@ const { className = '' } = Astro.props;
 <div
   id="compact-poker-table"
   class:list={[
-    'glass rounded-xl md:rounded-2xl p-3 md:p-4',
+    'glass rounded-xl md:rounded-2xl p-3 md:p-4 flex-1',
     className
   ]}
 >
@@ -76,11 +76,11 @@ const { className = '' } = Astro.props;
     </div>
   </div>
 
-  {/* Desktop Layout - Compact square table */}
+  {/* Desktop Layout - Full poker table */}
   <div
     id="desktop-layout"
-    class="hidden md:block relative rounded-xl overflow-visible min-h-[400px] lg:min-h-[500px]"
-    style="border: 14px solid #5c4033; box-shadow: 0 12px 35px rgba(0,0,0,0.5), inset 0 0 0 4px #3d2817; background: radial-gradient(ellipse at center, #1a6b35 0%, #145228 40%, #0d3320 100%);"
+    class="hidden md:flex md:flex-col relative rounded-2xl overflow-visible h-[500px] lg:h-[600px]"
+    style="border: 16px solid #5c4033; box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 0 0 4px #3d2817; background: radial-gradient(ellipse at center, #1a6b35 0%, #145228 40%, #0d3320 100%);"
   >
     {/* Table felt texture */}
     <div class="absolute inset-0 rounded opacity-15" style="background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E&quot;);"></div>
@@ -90,14 +90,14 @@ const { className = '' } = Astro.props;
 
     {/* Center - Community cards and pot */}
     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-      <div id="community-cards" class="flex gap-2 lg:gap-3 justify-center mb-4">
+      <div id="community-cards" class="flex gap-3 lg:gap-4 justify-center mb-5">
         {[...Array(5)].map(() => (
-          <div class="w-12 h-[4.5rem] lg:w-14 lg:h-20 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40 shadow-inner"></div>
+          <div class="w-14 h-20 lg:w-16 lg:h-24 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40 shadow-inner"></div>
         ))}
       </div>
-      <div id="pot-display" class="px-5 py-2.5 md:px-8 md:py-3 bg-black/60 rounded-full inline-block border border-yellow-600/30 shadow-lg">
-        <span class="text-gray-300 text-sm md:text-base">Pot:</span>
-        <span class="text-yellow-400 font-bold text-2xl lg:text-3xl ml-2">$0</span>
+      <div id="pot-display" class="px-6 py-3 md:px-10 md:py-4 bg-black/60 rounded-full inline-block border border-yellow-600/30 shadow-lg">
+        <span class="text-gray-300 text-base md:text-lg">Pot:</span>
+        <span class="text-yellow-400 font-bold text-3xl lg:text-4xl ml-2">$0</span>
       </div>
     </div>
 
