@@ -39,10 +39,6 @@ export function dealNewPokerHand(req: DealRequest): PokerGame {
   // Create and shuffle deck
   const deck = createShuffledDeck();
 
-  // Shuffle archetypes so each AI gets a different one
-  const shuffledArchetypes = [...ARCHETYPES].sort(() => Math.random() - 0.5);
-  let archetypeIndex = 0;
-
   // Create players
   const players: PokerPlayer[] = [];
   for (let i = 0; i < playerCount; i++) {
@@ -69,10 +65,9 @@ export function dealNewPokerHand(req: DealRequest): PokerGame {
       isHuman: i === humanPosition,
     };
 
-    // Assign unique archetype to each AI
+    // Assign archetype to AI
     if (!player.isHuman) {
-      player.archetype = shuffledArchetypes[archetypeIndex % shuffledArchetypes.length];
-      archetypeIndex++;
+      player.archetype = ARCHETYPES[secureRandom(ARCHETYPES.length)];
     }
 
     players.push(player);
