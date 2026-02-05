@@ -104,10 +104,10 @@ import BettingControls from '../components/poker/BettingControls.astro';
       const cardEl = document.createElement('div');
       const sizeClasses: Record<string, string> = {
         tiny: 'w-5 h-7 text-[8px]',
-        small: 'w-8 h-11 text-xs',
-        medium: 'w-14 h-20 text-base',
-        large: 'w-16 h-24 text-xl',
-        default: 'w-14 h-20 lg:w-16 lg:h-24 text-base lg:text-lg'
+        small: 'w-6 h-9 text-[10px]',
+        medium: 'w-10 h-14 text-sm',
+        large: 'w-12 h-[4.5rem] text-base',
+        default: 'w-11 h-16 lg:w-12 lg:h-[4.5rem] text-sm lg:text-base'
       };
 
       cardEl.className = `${sizeClasses[size] || sizeClasses.default} rounded-md flex items-center justify-center font-bold shadow-md`;
@@ -521,7 +521,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           container.appendChild(createCardElement(gameState.communityCards[i], false, 'default'));
         } else {
           const empty = document.createElement('div');
-          empty.className = 'w-14 h-20 lg:w-16 lg:h-24 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40';
+          empty.className = 'w-11 h-16 lg:w-12 lg:h-[4.5rem] rounded-md border-2 border-dashed border-green-600/40 bg-green-950/40';
           container.appendChild(empty);
         }
       }
@@ -548,7 +548,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           container.appendChild(cardEl);
         } else {
           const empty = document.createElement('div');
-          empty.className = 'w-14 h-20 lg:w-16 lg:h-24 rounded-lg border-2 border-dashed border-green-600/40 bg-green-950/40';
+          empty.className = 'w-11 h-16 lg:w-12 lg:h-[4.5rem] rounded-md border-2 border-dashed border-green-600/40 bg-green-950/40';
           container.appendChild(empty);
         }
       }
