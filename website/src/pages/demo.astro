@@ -853,33 +853,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const PLAYER_POSITIONS_SQUARE = {
       2: [
         { x: 50, y: 85 },   // Bottom center (human)
-        { x: 50, y: 20 }    // Top center
+        { x: 50, y: 15 }    // Top center
       ],
       3: [
         { x: 50, y: 85 },   // Bottom center (human)
-        { x: 18, y: 30 },   // Left
-        { x: 82, y: 30 }    // Right
+        { x: 12, y: 50 },   // Left
+        { x: 88, y: 50 }    // Right
       ],
       4: [
         { x: 50, y: 85 },   // Bottom center (human)
-        { x: 18, y: 30 },   // Left
-        { x: 50, y: 20 },   // Top center
-        { x: 82, y: 30 }    // Right
+        { x: 12, y: 50 },   // Left
+        { x: 50, y: 15 },   // Top center
+        { x: 88, y: 50 }    // Right
       ],
       5: [
         { x: 50, y: 85 },   // Bottom center (human)
-        { x: 18, y: 65 },   // Left lower
-        { x: 18, y: 30 },   // Left upper
-        { x: 82, y: 30 },   // Right upper
-        { x: 82, y: 65 }    // Right lower
+        { x: 12, y: 65 },   // Left lower
+        { x: 12, y: 35 },   // Left upper
+        { x: 88, y: 35 },   // Right upper
+        { x: 88, y: 65 }    // Right lower
       ],
       6: [
         { x: 50, y: 85 },   // Bottom center (human)
-        { x: 18, y: 60 },   // Left lower
-        { x: 18, y: 30 },   // Left upper
-        { x: 50, y: 20 },   // Top center
-        { x: 82, y: 30 },   // Right upper
-        { x: 82, y: 60 }    // Right lower
+        { x: 12, y: 60 },   // Left lower
+        { x: 12, y: 35 },   // Left upper
+        { x: 50, y: 15 },   // Top center
+        { x: 88, y: 35 },   // Right upper
+        { x: 88, y: 60 }    // Right lower
       ]
     };
 
@@ -940,9 +940,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       // Size classes based on context
       const sizeClasses = {
         small: 'w-6 h-8 text-[10px]',
+        player: 'w-10 h-14 text-sm',
         medium: 'w-12 h-[4.5rem] md:w-14 md:h-20 lg:w-16 lg:h-24 text-sm md:text-base lg:text-lg',
         large: 'w-16 h-24 text-lg',
-        default: 'w-14 h-20 md:w-16 md:h-24 text-base md:text-lg'
+        default: 'w-10 h-14 text-sm'
       };
 
       cardEl.className = `${sizeClasses[size] || sizeClasses.default} rounded-md flex items-center justify-center font-bold shadow-md`;
