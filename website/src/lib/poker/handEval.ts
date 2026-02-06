@@ -121,6 +121,9 @@ export function evaluatePokerHand(cards: PokerCard[]): EvaluateResponse {
     if (resp.straightHigh === 14) {
       resp.rank = 10; // Royal Flush
       handName = 'Royal Flush';
+    } else if (isWheel) {
+      resp.rank = 9; // Straight Flush
+      handName = 'Steel Wheel (A-2-3-4-5 suited)';
     } else {
       resp.rank = 9; // Straight Flush
       handName = `Straight Flush, ${CARD_RANK_SINGULAR[resp.straightHigh!]} high`;
@@ -145,7 +148,8 @@ export function evaluatePokerHand(cards: PokerCard[]): EvaluateResponse {
   } else if (resp.isStraight) {
     resp.rank = 5; // Straight
     kickers = [resp.straightHigh!];
-    handName = `Straight, ${CARD_RANK_SINGULAR[resp.straightHigh!]} high`;
+    // Special name for wheel (A-2-3-4-5)
+    handName = isWheel ? 'Wheel (A-2-3-4-5)' : `Straight, ${CARD_RANK_SINGULAR[resp.straightHigh!]} high`;
   } else if (tripleCount >= 1) {
     resp.rank = 4; // Three of a Kind
     kickers = [...tripleRanks, ...singleRanks];

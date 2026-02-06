@@ -9,8 +9,9 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
   next={{ title: "Java API", href: "/docs/reference/java-api" }}
 >
   <p>
-    DTRules includes 180+ operators for building conditions and actions. This reference
-    covers the most commonly used operators organized by category.
+    DTRules includes 75+ operators for building conditions and actions. This reference
+    covers all standard operators organized by category. Many operators have multiple
+    syntax variants (e.g., <code>and</code> / <code>&amp;</code>) for flexibility.
   </p>
 
   <h2>Arithmetic Operators</h2>
@@ -82,6 +83,14 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     </tbody>
   </table>
 
+  <h3>Arithmetic Examples</h3>
+  <pre><code>// Input: price = 100, quantity = 5, discount = 0.15
+set subtotal = price * quantity        // Result: 500
+set discount_amount = subtotal * discount  // Result: 75
+set total = subtotal - discount_amount     // Result: 425
+set rounded = round of (total / 3)         // Result: 142
+set capped = min of (total, 400)           // Result: 400</code></pre>
+
   <h2>Comparison Operators</h2>
 
   <table>
@@ -125,6 +134,13 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       </tr>
     </tbody>
   </table>
+
+  <h3>Comparison Examples</h3>
+  <pre><code>// Input: age = 25, status = "active", score = 85
+age >= 18              // Result: true
+age = 30               // Result: false
+status != "pending"    // Result: true
+score >= 70 and score < 90  // Result: true (used with boolean)</code></pre>
 
   <h2>Boolean Operators</h2>
 
@@ -174,6 +190,14 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       </tr>
     </tbody>
   </table>
+
+  <h3>Boolean Examples</h3>
+  <pre><code>// Input: is_member = true, is_active = true, is_suspended = false
+is_member and is_active          // Result: true
+is_member or is_suspended        // Result: true
+not is_suspended                 // Result: true
+is_member and not is_suspended   // Result: true
+is_member xor is_active          // Result: false (both true)</code></pre>
 
   <h2>String Operators</h2>
 
@@ -233,6 +257,15 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       </tr>
     </tbody>
   </table>
+
+  <h3>String Examples</h3>
+  <pre><code>// Input: first_name = "John", last_name = "Smith", email = "JOHN@EXAMPLE.COM"
+first_name + " " + last_name     // Result: "John Smith"
+length of last_name              // Result: 5
+uppercase of first_name          // Result: "JOHN"
+lowercase of email               // Result: "john@example.com"
+email contains "@"               // Result: true
+email ends with ".com"           // Result: false (case sensitive, ends with ".COM")</code></pre>
 
   <h2>Array Operators</h2>
 
@@ -303,6 +336,16 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     </tbody>
   </table>
 
+  <h3>Array Examples</h3>
+  <pre><code>// Input: items = ["apple", "banana", "cherry"], ages = [15, 22, 17, 30]
+count of items                           // Result: 3
+is empty items                           // Result: false
+first of items                           // Result: "apple"
+last of items                            // Result: "cherry"
+any a in ages satisfies (a >= 21)        // Result: true (22 and 30 qualify)
+all a in ages satisfy (a >= 15)          // Result: true
+no a in ages satisfies (a > 50)          // Result: true</code></pre>
+
   <h2>Date Operators</h2>
 
   <table>
@@ -362,6 +405,14 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     </tbody>
   </table>
 
+  <h3>Date Examples</h3>
+  <pre><code>// Input: birth_date = date("1990-06-15"), today = date("2024-03-20")
+year of birth_date                 // Result: 1990
+month of birth_date                // Result: 6
+birth_date + 18 years              // Result: date("2008-06-15")
+today - 30 days                    // Result: date("2024-02-19")
+birth_date + 18 years < today      // Result: true (person is over 18)</code></pre>
+
   <h2>Control Flow Operators</h2>
 
   <table>
@@ -401,6 +452,19 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     </tbody>
   </table>
 
+  <h3>Control Flow Examples</h3>
+  <pre><code>// Conditional assignment
+if age >= 18 then set category = "adult" else set category = "minor"
+
+// Iterating over arrays
+for each item in cart do
+  set item.total = item.price * item.quantity
+done
+
+// Calling another decision table
+perform Calculate_Shipping
+perform Apply_Discounts</code></pre>
+
   <h2>Entity Operators</h2>
 
   <table>
@@ -430,6 +494,12 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     </tbody>
   </table>
 
+  <h3>Entity Examples</h3>
+  <pre><code>// Creating and copying entities
+set customer = new Customer
+set backup = copy of customer
+set entity_type = type of customer   // Result: "Customer"</code></pre>
+
   <h2>Null Handling Operators</h2>
 
   <table>
@@ -458,6 +528,13 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       </tr>
     </tbody>
   </table>
+
+  <h3>Null Handling Examples</h3>
+  <pre><code>// Input: discount = null, name = "Alice"
+discount is null                  // Result: true
+name is not null                  // Result: true
+discount otherwise 0              // Result: 0 (uses default)
+name otherwise "Guest"            // Result: "Alice" (uses actual value)</code></pre>
 
   <h2>Type Conversion Operators</h2>
 
@@ -492,6 +569,14 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       </tr>
     </tbody>
   </table>
+
+  <h3>Type Conversion Examples</h3>
+  <pre><code>// Input: price_string = "99.50", quantity_string = "5", flag = "true"
+integer of price_string           // Result: 99 (truncated)
+decimal of price_string           // Result: 99.50
+string of 42                      // Result: "42"
+boolean of flag                   // Result: true
+integer of quantity_string * 10   // Result: 50</code></pre>
 
   <h2>Operator Precedence</h2>
 

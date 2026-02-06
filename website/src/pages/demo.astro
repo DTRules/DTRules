@@ -29,11 +29,50 @@ import BettingControls from '../components/poker/BettingControls.astro';
         <div class="w-full lg:w-3/5 order-2 lg:order-1 flex flex-col gap-4">
           <!-- Game Controls -->
           <div class="glass rounded-xl p-4">
-            <button id="btn-play" class="w-full px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg touch-manipulation">
-              Play Game
-            </button>
+            <div class="flex items-center gap-4">
+              <button id="btn-play" class="flex-1 px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg touch-manipulation">
+                Play Game
+              </button>
+              <!-- Stats Toggle -->
+              <button id="stats-toggle" class="p-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-colors" aria-label="Toggle game statistics" title="Game Statistics">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              </button>
+            </div>
             <p class="text-gray-300 text-xs mt-2 text-center">4 players, $1,000 starting chips</p>
+            <!-- Stats Panel (hidden by default) -->
+            <div id="stats-panel" class="hidden mt-3 pt-3 border-t border-gray-700">
+              <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                <div>
+                  <div class="text-gray-400">Hands</div>
+                  <div id="stat-hands" class="text-white font-semibold">0</div>
+                </div>
+                <div>
+                  <div class="text-gray-400">Wins</div>
+                  <div id="stat-wins" class="text-green-400 font-semibold">0</div>
+                </div>
+                <div>
+                  <div class="text-gray-400">Losses</div>
+                  <div id="stat-losses" class="text-red-400 font-semibold">0</div>
+                </div>
+                <div>
+                  <div class="text-gray-400">Best Pot</div>
+                  <div id="stat-best-pot" class="text-yellow-400 font-semibold">$0</div>
+                </div>
+              </div>
+              <button id="reset-stats" class="w-full mt-2 py-1 text-xs text-gray-400 hover:text-white transition-colors">Reset Stats</button>
+            </div>
           </div>
+
+          <!-- Hand History (collapsible) -->
+          <details id="hand-history-panel" class="glass rounded-xl">
+            <summary class="p-3 cursor-pointer flex items-center justify-between list-none">
+              <span class="text-sm font-semibold text-gray-300">Hand History</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 transition-transform details-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div id="hand-history-list" class="px-3 pb-3 space-y-2 max-h-48 overflow-y-auto">
+              <p class="text-xs text-gray-500 text-center py-2">No hands played yet</p>
+            </div>
+          </details>
 
           <!-- Compact Poker Table -->
           <CompactPokerTable />
@@ -45,6 +84,47 @@ import BettingControls from '../components/poker/BettingControls.astro';
     </div>
   </section>
 
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="keyboard-shortcuts-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm" role="dialog" aria-labelledby="keyboard-modal-title" aria-modal="true">
+    <div class="glass rounded-2xl p-6 max-w-sm mx-4 animate-in fade-in zoom-in duration-200">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="keyboard-modal-title" class="text-xl font-bold">Keyboard Shortcuts</h2>
+        <button id="close-keyboard-modal" class="p-1 hover:bg-white/10 rounded-lg transition-colors" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Fold</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">F</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Check / Call</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">C</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Focus raise slider</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">R</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">All-in</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">A</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Confirm raise</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">Enter</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Close modal / Next hand</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">Esc</kbd>
+        </div>
+      </div>
+      <p class="mt-4 text-xs text-muted-foreground text-center">
+        Shortcuts active during your turn
+      </p>
+    </div>
+  </div>
+
   <style>
     html { scroll-behavior: auto !important; }
     .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
@@ -53,6 +133,11 @@ import BettingControls from '../components/poker/BettingControls.astro';
     /* Ensure mobile has space for fixed bottom controls */
     @media (max-width: 767px) {
       section { padding-bottom: 140px; }
+    }
+
+    /* Details chevron rotation */
+    details[open] .details-chevron {
+      transform: rotate(180deg);
     }
   </style>
 
@@ -72,6 +157,125 @@ import BettingControls from '../components/poker/BettingControls.astro';
       ARCHETYPE_STRATEGIES,
     } from '../lib/poker/index';
     import type { PokerGame, PokerPlayer, PokerCard, AIActionResult } from '../lib/poker/index';
+    import { GAME_CONFIG } from '../lib/poker/gameConfig';
+
+    // Game statistics tracking
+    interface GameStats {
+      handsPlayed: number;
+      wins: number;
+      losses: number;
+      biggestPot: number;
+    }
+
+    const STATS_KEY = 'dtrules-poker-stats';
+
+    function loadStats(): GameStats {
+      try {
+        const saved = localStorage.getItem(STATS_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        // localStorage not available or corrupted
+      }
+      return { handsPlayed: 0, wins: 0, losses: 0, biggestPot: 0 };
+    }
+
+    function saveStats(stats: GameStats): void {
+      try {
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      } catch (e) {
+        // localStorage not available
+      }
+    }
+
+    function updateStatsDisplay(stats: GameStats): void {
+      const handsEl = document.getElementById('stat-hands');
+      const winsEl = document.getElementById('stat-wins');
+      const lossesEl = document.getElementById('stat-losses');
+      const bestPotEl = document.getElementById('stat-best-pot');
+
+      if (handsEl) handsEl.textContent = stats.handsPlayed.toString();
+      if (winsEl) winsEl.textContent = stats.wins.toString();
+      if (lossesEl) lossesEl.textContent = stats.losses.toString();
+      if (bestPotEl) bestPotEl.textContent = `$${stats.biggestPot}`;
+    }
+
+    // Hand history tracking
+    interface HandHistoryEntry {
+      handNumber: number;
+      winnerName: string;
+      humanWon: boolean;
+      pot: number;
+      humanCards: string;
+      handType: string;
+    }
+
+    const HISTORY_KEY = 'dtrules-poker-history';
+    const MAX_HISTORY = 10;
+
+    function loadHistory(): HandHistoryEntry[] {
+      try {
+        const saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        // localStorage not available or corrupted
+      }
+      return [];
+    }
+
+    function saveHistory(history: HandHistoryEntry[]): void {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      } catch (e) {
+        // localStorage not available
+      }
+    }
+
+    function addToHistory(entry: HandHistoryEntry): void {
+      const history = loadHistory();
+      history.unshift(entry); // Add to beginning
+      if (history.length > MAX_HISTORY) {
+        history.pop(); // Remove oldest
+      }
+      saveHistory(history);
+      updateHistoryDisplay(history);
+    }
+
+    function updateHistoryDisplay(history: HandHistoryEntry[]): void {
+      const container = document.getElementById('hand-history-list');
+      if (!container) return;
+
+      if (history.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No hands played yet</p>';
+        return;
+      }
+
+      container.innerHTML = history.map(entry => `
+        <div class="flex items-center justify-between text-xs p-2 rounded ${entry.humanWon ? 'bg-green-900/30' : 'bg-gray-800/50'}">
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500">#${entry.handNumber}</span>
+            <span class="text-white font-medium">${entry.humanCards}</span>
+            <span class="text-gray-400">${entry.handType}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="${entry.humanWon ? 'text-green-400' : 'text-gray-400'}">${entry.winnerName}</span>
+            <span class="text-yellow-400">$${entry.pot}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    let handHistory = loadHistory();
+
+    let gameStats = loadStats();
+      if (lossesEl) lossesEl.textContent = stats.losses.toString();
+      if (bestPotEl) bestPotEl.textContent = `$${stats.biggestPot}`;
+    }
+
+    let gameStats = loadStats();
 
     // Card display utilities
     const SUIT_SYMBOLS: Record<string, string> = { hearts: '\u2665', diamonds: '\u2666', clubs: '\u2663', spades: '\u2660' };
@@ -96,7 +300,8 @@ import BettingControls from '../components/poker/BettingControls.astro';
       try {
         return await fn();
       } catch (error) {
-        console.error(`Error in ${context}:`, error);
+        // Error logged for debugging during development
+        if (import.meta.env.DEV) console.error(`Error in ${context}:`, error);
         showGameError(`An error occurred: ${context}. Please try starting a new game.`);
         return null;
       }
@@ -366,7 +571,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
           updateGameDisplay();
         }
       } catch (error) {
-        console.error('Error during AI turns:', error);
+        if (import.meta.env.DEV) console.error('Error during AI turns:', error);
         showGameError('An error occurred during AI turns. Please start a new game.');
       } finally {
         setAIThinking(false);
@@ -405,7 +610,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
         // Validate raise amount
         const validation = validateRaiseAmount(rawAmount, humanPlayer, gameState);
         if (!validation.valid) {
-          console.warn('Invalid raise:', validation.error);
+          if (import.meta.env.DEV) console.warn('Invalid raise:', validation.error);
           return;
         }
         amount = rawAmount;
@@ -443,12 +648,12 @@ import BettingControls from '../components/poker/BettingControls.astro';
       window.decisionTheater?.reset();
 
       gameState = dealNewPokerHand({
-        playerCount: 4,
-        humanPosition: 0,
-        smallBlind: 10,
-        bigBlind: 20,
-        startingChips: 1000,
-        dealerPosition: secureRandom(4)
+        playerCount: GAME_CONFIG.playerCount,
+        humanPosition: GAME_CONFIG.humanPosition,
+        smallBlind: GAME_CONFIG.smallBlind,
+        bigBlind: GAME_CONFIG.bigBlind,
+        startingChips: GAME_CONFIG.startingChips,
+        dealerPosition: secureRandom(GAME_CONFIG.playerCount)
       });
 
       processAITurnsSync(gameState);
@@ -469,7 +674,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
       const currentChips = gameState.players.map(p => p.chips);
       const handNumber = (gameState.handNumber || 1) + 1;
-      const newDealerPos = (gameState.dealerPosition + 1) % 4;
+      const newDealerPos = (gameState.dealerPosition + 1) % GAME_CONFIG.playerCount;
 
       hideShowdownModal();
       showdownModalShown = false;
@@ -477,23 +682,24 @@ import BettingControls from '../components/poker/BettingControls.astro';
       window.decisionTheater?.reset();
 
       gameState = dealNewPokerHand({
-        playerCount: 4,
-        humanPosition: 0,
-        smallBlind: 10,
-        bigBlind: 20,
-        startingChips: 10000,
+        playerCount: GAME_CONFIG.playerCount,
+        humanPosition: GAME_CONFIG.humanPosition,
+        smallBlind: GAME_CONFIG.smallBlind,
+        bigBlind: GAME_CONFIG.bigBlind,
+        startingChips: GAME_CONFIG.startingChips,
         dealerPosition: newDealerPos
       });
 
+      // Preserve chips from previous hand
       gameState.players.forEach((p, i) => {
         if (currentChips[i] !== undefined) {
           let blindDeduction = 0;
-          if (p.isSmallBlind) blindDeduction = 10;
-          if (p.isBigBlind) blindDeduction = 20;
+          if (p.isSmallBlind) blindDeduction = GAME_CONFIG.smallBlind;
+          if (p.isBigBlind) blindDeduction = GAME_CONFIG.bigBlind;
           p.chips = currentChips[i] - blindDeduction;
         }
       });
-      gameState.pot = 30;
+      gameState.pot = GAME_CONFIG.smallBlind + GAME_CONFIG.bigBlind;
       gameState.handNumber = handNumber;
 
       processAITurnsSync(gameState);
@@ -752,6 +958,35 @@ import BettingControls from '../components/poker/BettingControls.astro';
       if (!game.showdownResults?.length || showdownModalShown) return;
       showdownModalShown = true;
 
+      // Track statistics
+      const humanPlayer = game.players.find(p => p.isHuman);
+      const humanResult = game.showdownResults.find(r => r.playerName === humanPlayer?.name);
+      gameStats.handsPlayed++;
+      if (humanResult?.won) {
+        gameStats.wins++;
+        if (humanResult.wonAmount && humanResult.wonAmount > gameStats.biggestPot) {
+          gameStats.biggestPot = humanResult.wonAmount;
+        }
+      } else if (humanPlayer && !humanPlayer.folded) {
+        gameStats.losses++;
+      }
+      saveStats(gameStats);
+      updateStatsDisplay(gameStats);
+
+      // Track hand history
+      const winner = game.showdownResults.find(r => r.won);
+      const humanCards = humanPlayer?.holeCards?.map(c =>
+        `${RANK_DISPLAY[c.rank] || c.rankName}${SUIT_SYMBOLS[c.suit]}`
+      ).join(' ') || '??';
+      addToHistory({
+        handNumber: game.handNumber || gameStats.handsPlayed,
+        winnerName: winner?.playerName || 'Unknown',
+        humanWon: !!humanResult?.won,
+        pot: winner?.wonAmount || game.pot,
+        humanCards,
+        handType: humanResult?.handName || (humanPlayer?.folded ? 'Folded' : 'Unknown')
+      });
+
       const modal = document.getElementById('showdown-modal');
       const resultsContainer = document.getElementById('showdown-results');
       const modalTitle = document.getElementById('showdown-title');
@@ -824,6 +1059,37 @@ import BettingControls from '../components/poker/BettingControls.astro';
       if (!winner) return;
 
       const wonAmount = game.winAmount || game.pot;
+
+      // Track statistics for fold wins
+      const humanPlayer = game.players.find(p => p.isHuman);
+      gameStats.handsPlayed++;
+      if (winner.isHuman) {
+        gameStats.wins++;
+        if (wonAmount > gameStats.biggestPot) {
+          gameStats.biggestPot = wonAmount;
+        }
+      } else {
+        // Human lost (either folded or was out-folded)
+        if (humanPlayer?.folded) {
+          gameStats.losses++;
+        }
+      }
+      saveStats(gameStats);
+      updateStatsDisplay(gameStats);
+
+      // Track hand history
+      const humanCards = humanPlayer?.holeCards?.map(c =>
+        `${RANK_DISPLAY[c.rank] || c.rankName}${SUIT_SYMBOLS[c.suit]}`
+      ).join(' ') || '??';
+      addToHistory({
+        handNumber: game.handNumber || gameStats.handsPlayed,
+        winnerName: winner.isHuman ? 'You' : winner.name,
+        humanWon: winner.isHuman,
+        pot: wonAmount,
+        humanCards,
+        handType: humanPlayer?.folded ? 'Folded' : 'Everyone Folded'
+      });
+
       const message = winner.isHuman
         ? `You win $${wonAmount}! Everyone folded.`
         : `${winner.name} wins $${wonAmount}. Everyone folded.`;
@@ -972,6 +1238,26 @@ import BettingControls from '../components/poker/BettingControls.astro';
       // Add keyboard navigation
       document.addEventListener('keydown', handleKeyboardShortcut);
 
+      // Initialize stats display
+      updateStatsDisplay(gameStats);
+
+      // Initialize hand history display
+      updateHistoryDisplay(handHistory);
+
+      // Stats toggle
+      const statsToggle = document.getElementById('stats-toggle');
+      const statsPanel = document.getElementById('stats-panel');
+      statsToggle?.addEventListener('click', () => {
+        statsPanel?.classList.toggle('hidden');
+      });
+
+      // Reset stats
+      document.getElementById('reset-stats')?.addEventListener('click', () => {
+        gameStats = { handsPlayed: 0, wins: 0, losses: 0, biggestPot: 0 };
+        saveStats(gameStats);
+        updateStatsDisplay(gameStats);
+      });
+
       ['', '-m'].forEach(suffix => {
         document.getElementById(`btn-fold${suffix}`)?.addEventListener('click', () => handleAction('fold'));
         document.getElementById(`btn-check${suffix}`)?.addEventListener('click', () => handleAction('check'));
@@ -1005,11 +1291,54 @@ import BettingControls from '../components/poker/BettingControls.astro';
         }
       });
 
-      window.addEventListener('resize', () => {
+      // Keyboard shortcuts modal
+      const keyboardModal = document.getElementById('keyboard-shortcuts-modal');
+      const keyboardHelpBtn = document.getElementById('keyboard-help-btn');
+      const closeKeyboardModal = document.getElementById('close-keyboard-modal');
+
+      function showKeyboardModal() {
+        keyboardModal?.classList.remove('hidden');
+        keyboardModal?.classList.add('flex');
+        closeKeyboardModal?.focus();
+      }
+
+      function hideKeyboardModal() {
+        keyboardModal?.classList.add('hidden');
+        keyboardModal?.classList.remove('flex');
+      }
+
+      keyboardHelpBtn?.addEventListener('click', showKeyboardModal);
+      closeKeyboardModal?.addEventListener('click', hideKeyboardModal);
+      keyboardModal?.addEventListener('click', (e) => {
+        if (e.target === keyboardModal) hideKeyboardModal();
+      });
+
+      // Close keyboard modal with Escape (only if it's open)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && keyboardModal && !keyboardModal.classList.contains('hidden')) {
+          e.preventDefault();
+          hideKeyboardModal();
+        }
+        // Show keyboard shortcuts with ?
+        if (e.key === '?' && !keyboardModal?.classList.contains('hidden') === false) {
+          e.preventDefault();
+          showKeyboardModal();
+        }
+      });
+
+      // Store resize handler for cleanup
+      const handleResize = () => {
         if (gameState) {
           renderPlayers();
           updateCommunityCards();
         }
+      };
+      window.addEventListener('resize', handleResize);
+
+      // Clean up event listeners on page unload
+      window.addEventListener('beforeunload', () => {
+        window.removeEventListener('resize', handleResize);
+        document.removeEventListener('keydown', handleKeyboardShortcut);
       });
     });
   </script>
