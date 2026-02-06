@@ -269,12 +269,6 @@ import BettingControls from '../components/poker/BettingControls.astro';
     }
 
     let handHistory = loadHistory();
-
-    let gameStats = loadStats();
-      if (lossesEl) lossesEl.textContent = stats.losses.toString();
-      if (bestPotEl) bestPotEl.textContent = `$${stats.biggestPot}`;
-    }
-
     let gameStats = loadStats();
 
     // Card display utilities
