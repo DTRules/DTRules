@@ -37,14 +37,14 @@ const allTables = getAllDecisionTables();
   <div id="active-decision-table" class="relative min-h-[200px]">
     {/* Placeholder shown before game starts */}
     <div id="dt-placeholder" class="glass rounded-xl p-6 text-center">
-      <div class="text-gray-400 mb-2">
+      <div class="text-gray-300 mb-2">
         <svg class="w-12 h-12 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
       </div>
-      <p class="text-gray-400 text-sm">Start a game to see AI decision tables in action</p>
-      <p class="text-gray-500 text-xs mt-2">Each AI opponent uses a unique decision table strategy</p>
+      <p class="text-gray-300 text-sm">Start a game to see AI decision tables in action</p>
+      <p class="text-gray-400 text-xs mt-2">Each AI opponent uses a unique decision table strategy</p>
     </div>
 
     {/* Dynamic table containers - rendered by JavaScript */}
@@ -64,7 +64,7 @@ const allTables = getAllDecisionTables();
 
   {/* All Tables Overview (collapsible on mobile, grid on desktop) */}
   <details class="group">
-    <summary class="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-white transition-colors py-2">
+    <summary class="flex items-center gap-2 cursor-pointer text-gray-300 hover:text-white transition-colors py-2">
       <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>

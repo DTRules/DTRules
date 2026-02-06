@@ -111,6 +111,19 @@ const { compact = false, className = '' } = Astro.props;
     }
   }
 
+  // Sanitize text to prevent XSS - escapes HTML special characters
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Sanitize numbers - ensure they're valid numbers
+  function sanitizeNumber(value: number | undefined): string {
+    if (value === undefined || isNaN(value)) return '0';
+    return String(Math.floor(value));
+  }
+
   window.updateDecisionExplainer = function(data: ExplainerData | null) {
     const container = document.getElementById('decision-explainer');
     const content = document.getElementById('explainer-content');
@@ -128,27 +141,38 @@ const { compact = false, className = '' } = Astro.props;
     const actionColors: Record<string, string> = {
       'RAISE': 'text-yellow-400',
       'CALL': 'text-blue-400',
-      'CHECK': 'text-gray-400',
+      'CHECK': 'text-gray-300',
       'FOLD': 'text-red-400',
       'BET': 'text-yellow-400',
       'ALLIN': 'text-purple-400'
     };
 
-    const actionColor = actionColors[data.action.toUpperCase()] || 'text-white';
-    const amountStr = data.actionAmount ? ` $${data.actionAmount}` : '';
+    // Sanitize all user-facing data
+    const safePlayerName = escapeHtml(data.playerName || 'Unknown');
+    const safeArchetype = escapeHtml(data.archetype || 'Unknown');
+    const safeAction = escapeHtml(data.action || 'unknown').toUpperCase();
+    const actionColor = actionColors[safeAction] || 'text-white';
+    const amountStr = data.actionAmount ? ` $${sanitizeNumber(data.actionAmount)}` : '';
+    const safeHoleCards = escapeHtml(data.holeCardsDisplay || '??');
+    const safeHandNickname = data.handNickname ? escapeHtml(data.handNickname) : '';
+    const safeHandStrength = escapeHtml(data.handStrengthPercent || '0%');
+    const safePositionLabel = escapeHtml(data.positionLabel || 'Unknown');
+    const safePotOdds = escapeHtml(data.potOddsPercent || '0%');
+    const safePot = sanitizeNumber(data.pot);
+    const safeStrategyNote = escapeHtml(data.strategyNote || '');
 
     let html = `
       <div class="mb-3">
         <div class="text-lg font-semibold text-white mb-1">
-          ${data.playerName} <span class="text-gray-400 text-sm">(${data.archetype})</span>
+          ${safePlayerName} <span class="text-gray-300 text-sm">(${safeArchetype})</span>
         </div>
         <div class="text-xl font-bold ${actionColor}">
-          ${data.action.toUpperCase()}${amountStr}
+          ${safeAction}${amountStr}
         </div>
       </div>
 
       <div class="mb-3 border-t border-gray-700 pt-3">
-        <div class="text-xs text-gray-400 uppercase tracking-wide mb-2">Decision Path</div>
+        <div class="text-xs text-gray-300 uppercase tracking-wide mb-2">Decision Path</div>
         <div class="space-y-1">
     `;
 
@@ -156,7 +180,8 @@ const { compact = false, className = '' } = Astro.props;
       const typeClass = item.type === 'passed' ? 'passed' :
                        item.type === 'failed' ? 'failed' :
                        item.type === 'arrow' ? 'arrow' : '';
-      html += `<div class="decision-path-item ${typeClass}">${item.text}</div>`;
+      const safeText = escapeHtml(item.text || '');
+      html += `<div class="decision-path-item ${typeClass}">${safeText}</div>`;
     }
 
     html += `
@@ -164,26 +189,26 @@ const { compact = false, className = '' } = Astro.props;
       </div>
 
       <div class="border-t border-gray-700 pt-3">
-        <div class="text-xs text-gray-400 uppercase tracking-wide mb-2">Context</div>
+        <div class="text-xs text-gray-300 uppercase tracking-wide mb-2">Context</div>
         <div class="context-grid text-xs">
           <span class="context-label">Hole Cards:</span>
-          <span class="context-value">${data.holeCardsDisplay}${data.handNickname ? ` (${data.handNickname})` : ''}</span>
+          <span class="context-value">${safeHoleCards}${safeHandNickname ? ` (${safeHandNickname})` : ''}</span>
 
           <span class="context-label">Hand Strength:</span>
-          <span class="context-value">${data.handStrengthPercent}</span>
+          <span class="context-value">${safeHandStrength}</span>
 
           <span class="context-label">Position:</span>
-          <span class="context-value">${data.positionLabel}</span>
+          <span class="context-value">${safePositionLabel}</span>
 
           <span class="context-label">Pot Odds:</span>
-          <span class="context-value">${data.potOddsPercent}</span>
+          <span class="context-value">${safePotOdds}</span>
 
           <span class="context-label">Pot:</span>
-          <span class="context-value">$${data.pot}</span>
+          <span class="context-value">$${safePot}</span>
         </div>
       </div>
 
-      <div class="strategy-note">${data.strategyNote}</div>
+      <div class="strategy-note">${safeStrategyNote}</div>
     `;
 
     content.innerHTML = html;

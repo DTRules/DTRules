@@ -44,8 +44,8 @@ export const TAG_TABLE: DecisionTableDefinition = {
   columns: [
     { id: 1, conditions: { str70: 'Y', str50: '-', potOdds: '-', canCheck: '-' }, action: 'RAISE', actionColor: 'text-yellow-400' },
     { id: 2, conditions: { str70: 'N', str50: 'Y', potOdds: 'Y', canCheck: '-' }, action: 'CALL', actionColor: 'text-blue-400' },
-    { id: 3, conditions: { str70: 'N', str50: 'Y', potOdds: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-400' },
-    { id: 4, conditions: { str70: 'N', str50: 'N', potOdds: '-', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-400' },
+    { id: 3, conditions: { str70: 'N', str50: 'Y', potOdds: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-300' },
+    { id: 4, conditions: { str70: 'N', str50: 'N', potOdds: '-', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-300' },
     { id: 5, conditions: { str70: 'N', str50: 'N', potOdds: '-', canCheck: 'N' }, action: 'FOLD', actionColor: 'text-red-400' },
   ],
 };
@@ -67,7 +67,7 @@ export const LAG_TABLE: DecisionTableDefinition = {
   columns: [
     { id: 1, conditions: { str50: 'Y', position: '-', str25: '-', canCheck: '-' }, action: 'RAISE', actionColor: 'text-yellow-400' },
     { id: 2, conditions: { str50: 'N', position: 'Y', str25: 'Y', canCheck: '-' }, action: 'RAISE', actionColor: 'text-yellow-400' },
-    { id: 3, conditions: { str50: 'N', position: 'Y', str25: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-400' },
+    { id: 3, conditions: { str50: 'N', position: 'Y', str25: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-300' },
     { id: 4, conditions: { str50: 'N', position: 'N', str25: 'Y', canCheck: '-' }, action: 'CALL', actionColor: 'text-blue-400' },
     { id: 5, conditions: { str50: 'N', position: 'N', str25: 'N', canCheck: '-' }, action: 'FOLD', actionColor: 'text-red-400' },
   ],
@@ -89,7 +89,7 @@ export const ROCK_TABLE: DecisionTableDefinition = {
   columns: [
     { id: 1, conditions: { str85: 'Y', str60: '-', canCheck: '-' }, action: 'RAISE', actionColor: 'text-yellow-400' },
     { id: 2, conditions: { str85: 'N', str60: 'Y', canCheck: '-' }, action: 'CALL', actionColor: 'text-blue-400' },
-    { id: 3, conditions: { str85: 'N', str60: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-400' },
+    { id: 3, conditions: { str85: 'N', str60: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-300' },
     { id: 4, conditions: { str85: 'N', str60: 'N', canCheck: 'N' }, action: 'FOLD', actionColor: 'text-red-400' },
   ],
 };
@@ -110,7 +110,7 @@ export const CALLING_TABLE: DecisionTableDefinition = {
   columns: [
     { id: 1, conditions: { str20: 'Y', smallBet: '-', canCheck: '-' }, action: 'CALL', actionColor: 'text-blue-400' },
     { id: 2, conditions: { str20: 'N', smallBet: 'Y', canCheck: '-' }, action: 'CALL', actionColor: 'text-blue-400' },
-    { id: 3, conditions: { str20: 'N', smallBet: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-400' },
+    { id: 3, conditions: { str20: 'N', smallBet: 'N', canCheck: 'Y' }, action: 'CHECK', actionColor: 'text-gray-300' },
     { id: 4, conditions: { str20: 'N', smallBet: 'N', canCheck: 'N' }, action: 'FOLD', actionColor: 'text-red-400' },
   ],
 };

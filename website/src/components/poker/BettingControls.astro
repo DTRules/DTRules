@@ -15,62 +15,81 @@ const { variant = 'auto', className = '' } = Astro.props;
     className
   ]}
 >
-  {/* Mobile Layout */}
-  <div class:list={[
-    'md:hidden',
-    'fixed bottom-0 left-0 right-0 z-40',
-    'bg-gray-900/95 backdrop-blur-md',
-    'rounded-t-2xl p-4',
-    'border-t-2 border-gray-600/50',
-    'safe-area-bottom shadow-[0_-10px_40px_rgba(0,0,0,0.5)]'
-  ]}>
-    <div class="grid grid-cols-4 gap-2 mb-3">
+  {/* Mobile Layout - Fixed at bottom for easy access on short screens */}
+  <div
+    class:list={[
+      'md:hidden',
+      'fixed bottom-0 left-0 right-0 z-40',
+      'bg-gray-900/98 backdrop-blur-md',
+      'rounded-t-2xl p-3 pb-4',
+      'border-t-2 border-gray-600/50',
+      'safe-area-bottom shadow-[0_-10px_40px_rgba(0,0,0,0.5)]'
+    ]}
+    role="toolbar"
+    aria-label="Betting controls"
+  >
+    <div class="grid grid-cols-4 gap-1.5 mb-2" role="group" aria-label="Action buttons">
       <button
         id="btn-fold-m"
-        class="py-3 bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 active:from-red-600 active:to-red-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
+        class="py-2.5 bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 active:from-red-600 active:to-red-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
         disabled
+        aria-label="Fold your hand"
+        aria-keyshortcuts="f"
       >
         Fold
       </button>
       <button
         id="btn-check-m"
-        class="py-3 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 active:from-blue-600 active:to-blue-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
+        class="py-2.5 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 active:from-blue-600 active:to-blue-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
         disabled
+        aria-label="Check, pass to next player"
+        aria-keyshortcuts="c"
       >
         Check
       </button>
       <button
         id="btn-call-m"
-        class="py-3 bg-gradient-to-b from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 active:from-green-600 active:to-green-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation hidden"
+        class="py-2.5 bg-gradient-to-b from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 active:from-green-600 active:to-green-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation hidden"
         disabled
+        aria-label="Call the current bet"
+        aria-keyshortcuts="c"
       >
         Call
       </button>
       <button
         id="btn-raise-m"
-        class="py-3 bg-gradient-to-b from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 active:from-yellow-600 active:to-yellow-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
+        class="py-2.5 bg-gradient-to-b from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 active:from-yellow-600 active:to-yellow-800 text-white text-sm font-bold rounded-xl shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
         disabled
+        aria-label="Raise the bet"
+        aria-keyshortcuts="r"
       >
         Raise
       </button>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2" role="group" aria-label="Raise amount controls">
+      <label for="raise-slider-m" class="sr-only">Raise amount slider</label>
       <input
         type="range"
         id="raise-slider-m"
         min="20"
         max="1000"
         value="40"
-        class="flex-1 h-3 bg-gray-700 rounded-full appearance-none cursor-pointer touch-manipulation accent-yellow-500"
+        class="flex-1 h-2.5 bg-gray-700 rounded-full appearance-none cursor-pointer touch-manipulation accent-yellow-500"
         disabled
+        aria-label="Select raise amount"
+        aria-valuemin="20"
+        aria-valuemax="1000"
+        aria-valuenow="40"
       />
-      <span class="text-yellow-400 font-bold text-base min-w-[60px] text-right">
+      <span class="text-yellow-400 font-bold text-sm min-w-[50px] text-right" aria-live="polite" aria-atomic="true">
         $<span id="raise-amount-mobile">40</span>
       </span>
       <button
         id="btn-allin-m"
-        class="px-4 py-2 bg-gradient-to-b from-purple-500 to-purple-700 hover:from-purple-400 hover:to-purple-600 text-white text-xs font-bold rounded-lg shadow-lg transition-all disabled:opacity-40 touch-manipulation"
+        class="px-3 py-1.5 bg-gradient-to-b from-purple-500 to-purple-700 hover:from-purple-400 hover:to-purple-600 text-white text-xs font-bold rounded-lg shadow-lg transition-all disabled:opacity-40 touch-manipulation"
         disabled
+        aria-label="Go all-in with all your chips"
+        aria-keyshortcuts="a"
       >
         ALL IN
       </button>
@@ -78,12 +97,14 @@ const { variant = 'auto', className = '' } = Astro.props;
   </div>
 
   {/* Desktop Layout */}
-  <div class="hidden md:block glass rounded-xl p-5 mt-4">
-    <div class="flex gap-3 justify-center mb-3 flex-wrap">
+  <div class="hidden md:block glass rounded-xl p-5 mt-4" role="toolbar" aria-label="Betting controls">
+    <div class="flex gap-3 justify-center mb-3 flex-wrap" role="group" aria-label="Action buttons">
       <button
         id="btn-fold"
         class="px-6 py-3 bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white text-lg font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         disabled
+        aria-label="Fold your hand"
+        aria-keyshortcuts="f"
       >
         Fold
       </button>
@@ -91,6 +112,8 @@ const { variant = 'auto', className = '' } = Astro.props;
         id="btn-check"
         class="px-6 py-3 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white text-lg font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         disabled
+        aria-label="Check, pass to next player"
+        aria-keyshortcuts="c"
       >
         Check
       </button>
@@ -98,6 +121,8 @@ const { variant = 'auto', className = '' } = Astro.props;
         id="btn-call"
         class="px-6 py-3 bg-gradient-to-b from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 text-white text-lg font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hidden"
         disabled
+        aria-label="Call the current bet"
+        aria-keyshortcuts="c"
       >
         Call $<span id="call-amount">0</span>
       </button>
@@ -105,6 +130,8 @@ const { variant = 'auto', className = '' } = Astro.props;
         id="btn-raise"
         class="px-6 py-3 bg-gradient-to-b from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 text-white text-lg font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         disabled
+        aria-label="Raise the bet"
+        aria-keyshortcuts="r"
       >
         Raise to $<span id="raise-amount">0</span>
       </button>
@@ -112,12 +139,15 @@ const { variant = 'auto', className = '' } = Astro.props;
         id="btn-allin"
         class="px-6 py-3 bg-gradient-to-b from-purple-500 to-purple-700 hover:from-purple-400 hover:to-purple-600 text-white text-lg font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         disabled
+        aria-label="Go all-in with all your chips"
+        aria-keyshortcuts="a"
       >
         All-In
       </button>
     </div>
-    <div class="flex items-center gap-3 justify-center">
-      <span class="text-gray-400 text-sm">$<span id="min-raise">20</span></span>
+    <div class="flex items-center gap-3 justify-center" role="group" aria-label="Raise amount controls">
+      <span class="text-gray-400 text-sm" aria-hidden="true">$<span id="min-raise">20</span></span>
+      <label for="raise-slider" class="sr-only">Raise amount slider</label>
       <input
         type="range"
         id="raise-slider"
@@ -126,8 +156,12 @@ const { variant = 'auto', className = '' } = Astro.props;
         value="40"
         class="w-48 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500"
         disabled
+        aria-label="Select raise amount"
+        aria-valuemin="20"
+        aria-valuemax="1000"
+        aria-valuenow="40"
       />
-      <span class="text-gray-400 text-sm">$<span id="max-raise">1000</span></span>
+      <span class="text-gray-400 text-sm" aria-hidden="true">$<span id="max-raise">1000</span></span>
     </div>
   </div>
 </div>
@@ -173,5 +207,22 @@ const { variant = 'auto', className = '' } = Astro.props;
   input[type="range"]:disabled::-moz-range-thumb {
     background: #6b7280;
     cursor: not-allowed;
+  }
+
+  /* Focus indicators for accessibility (WCAG 2.1 AA) */
+  button:focus-visible {
+    outline: 2px solid #facc15;
+    outline-offset: 2px;
+  }
+
+  input[type="range"]:focus-visible {
+    outline: 2px solid #facc15;
+    outline-offset: 4px;
+  }
+
+  /* High contrast focus for disabled buttons */
+  button:focus-visible:disabled {
+    outline: 2px solid #6b7280;
+    outline-offset: 2px;
   }
 </style>

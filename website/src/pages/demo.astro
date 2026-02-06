@@ -32,7 +32,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
             <button id="btn-play" class="w-full px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg touch-manipulation">
               Play Game
             </button>
-            <p class="text-gray-400 text-xs mt-2 text-center">4 players, $1,000 starting chips</p>
+            <p class="text-gray-300 text-xs mt-2 text-center">4 players, $1,000 starting chips</p>
           </div>
 
           <!-- Compact Poker Table -->
@@ -89,6 +89,52 @@ import BettingControls from '../components/poker/BettingControls.astro';
     let gameState: PokerGame | null = null;
     let isRevealingCards = false;
     let showdownModalShown = false;
+    let isAIThinking = false;
+
+    // Error boundary - wrap async operations
+    async function withErrorBoundary<T>(fn: () => Promise<T>, context: string): Promise<T | null> {
+      try {
+        return await fn();
+      } catch (error) {
+        console.error(`Error in ${context}:`, error);
+        showGameError(`An error occurred: ${context}. Please try starting a new game.`);
+        return null;
+      }
+    }
+
+    function showGameError(message: string) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg';
+      errorDiv.textContent = message;
+      errorDiv.setAttribute('role', 'alert');
+      document.body.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    // AI thinking indicator
+    function setAIThinking(thinking: boolean) {
+      isAIThinking = thinking;
+      const badge = document.getElementById('active-player-badge');
+      if (badge) {
+        if (thinking) {
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+    }
+
+    // Screen reader announcement function
+    function announceToScreenReader(message: string) {
+      const announcer = document.getElementById('game-announcer');
+      if (announcer) {
+        // Clear and set new message to ensure it's announced
+        announcer.textContent = '';
+        setTimeout(() => {
+          announcer.textContent = message;
+        }, 50);
+      }
+    }
 
     // Breakpoint detection
     function getBreakpoint(): 'mobile' | 'tablet' | 'desktop' {
@@ -98,7 +144,11 @@ import BettingControls from '../components/poker/BettingControls.astro';
       return 'desktop';
     }
 
-    // Create card element
+    // Suit names for accessibility
+    const SUIT_NAMES: Record<string, string> = { hearts: 'Hearts', diamonds: 'Diamonds', clubs: 'Clubs', spades: 'Spades' };
+    const RANK_NAMES: Record<number, string> = { 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', 11: 'Jack', 12: 'Queen', 13: 'King', 14: 'Ace' };
+
+    // Create card element with ARIA labels
     function createCardElement(card: PokerCard | null, faceDown = false, size = 'default'): HTMLDivElement {
       const cardEl = document.createElement('div');
       const sizeClasses: Record<string, string> = {
@@ -110,14 +160,19 @@ import BettingControls from '../components/poker/BettingControls.astro';
       };
 
       cardEl.className = `${sizeClasses[size] || sizeClasses.default} rounded-md flex items-center justify-center font-bold shadow-md`;
+      cardEl.setAttribute('role', 'img');
 
       if (faceDown || !card) {
         cardEl.className += ' bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-blue-700';
         cardEl.innerHTML = `<span class="text-blue-400">?</span>`;
+        cardEl.setAttribute('aria-label', 'Face-down card');
       } else {
         cardEl.style.backgroundColor = 'white';
         cardEl.style.color = SUIT_COLORS[card.suit];
         cardEl.innerHTML = `<span class="flex flex-col items-center leading-tight"><span>${RANK_DISPLAY[card.rank] || card.rankName}</span><span>${SUIT_SYMBOLS[card.suit]}</span></span>`;
+        const rankName = RANK_NAMES[card.rank] || card.rankName;
+        const suitName = SUIT_NAMES[card.suit] || card.suit;
+        cardEl.setAttribute('aria-label', `${rankName} of ${suitName}`);
       }
       return cardEl;
     }
@@ -137,6 +192,15 @@ import BettingControls from '../components/poker/BettingControls.astro';
           banner.querySelector('div')?.classList.remove('round-banner-animate');
         }, 800);
       }
+
+      // Announce to screen readers
+      const roundNames: Record<string, string> = {
+        'flop': 'Flop dealt: three community cards',
+        'turn': 'Turn dealt: fourth community card',
+        'river': 'River dealt: fifth community card',
+        'showdown': 'Showdown: revealing hands'
+      };
+      announceToScreenReader(roundNames[roundName] || `${roundName} round`);
     }
 
     // Update AI decision display in Decision Theater
@@ -229,6 +293,12 @@ import BettingControls from '../components/poker/BettingControls.astro';
         matchedColumnId: decisionContext.matchedColumnId,
         strategyNote,
       });
+
+      // Announce AI action to screen readers
+      const actionDesc = action.amount && action.amount > 0
+        ? `${player.name} ${action.actionType}s $${action.amount}`
+        : `${player.name} ${action.actionType}s`;
+      announceToScreenReader(actionDesc);
     }
 
     // Handle pending reveal (flop, turn, river, showdown)
@@ -275,21 +345,46 @@ import BettingControls from '../components/poker/BettingControls.astro';
     async function runAITurns() {
       if (!gameState || gameState.handComplete) return;
 
-      await processAllAITurns(gameState, (result) => {
-        updateAIDecisionDisplay(result);
-        updateGameDisplay();
-      }, { min: 300, max: 800 });
+      setAIThinking(true);
+      try {
+        await processAllAITurns(gameState, (result) => {
+          updateAIDecisionDisplay(result);
+          updateGameDisplay();
+        }, { min: 200, max: 500 });
 
-      if (gameState.pendingReveal) {
-        await handlePendingReveal(gameState);
-      } else if (gameState.handComplete && gameState.winners) {
-        if (gameState.showdownResults && gameState.showdownResults.length > 1) {
-          showShowdownResults(gameState);
+        if (gameState.pendingReveal) {
+          await handlePendingReveal(gameState);
+        } else if (gameState.handComplete && gameState.winners) {
+          if (gameState.showdownResults && gameState.showdownResults.length > 1) {
+            showShowdownResults(gameState);
+          }
+          updateGameDisplay();
+        } else {
+          updateGameDisplay();
         }
-        updateGameDisplay();
-      } else {
-        updateGameDisplay();
+      } catch (error) {
+        console.error('Error during AI turns:', error);
+        showGameError('An error occurred during AI turns. Please start a new game.');
+      } finally {
+        setAIThinking(false);
       }
+    }
+
+    // Validate raise amount to prevent corrupt game state
+    function validateRaiseAmount(amount: number, player: PokerPlayer, game: PokerGame): { valid: boolean; error?: string } {
+      if (isNaN(amount) || amount < 0) {
+        return { valid: false, error: 'Invalid raise amount' };
+      }
+      const maxAmount = player.chips + player.currentBet;
+      if (amount > maxAmount) {
+        return { valid: false, error: `Cannot raise more than ${maxAmount}` };
+      }
+      const minRaise = game.currentBet + game.minRaise;
+      // Allow all-in even if less than min raise
+      if (amount < minRaise && amount < maxAmount) {
+        return { valid: false, error: `Minimum raise is ${minRaise}` };
+      }
+      return { valid: true };
     }
 
     // Handle player action
@@ -302,7 +397,15 @@ import BettingControls from '../components/poker/BettingControls.astro';
       if (actionType === 'raise') {
         const isMobile = getBreakpoint() === 'mobile';
         const slider = document.getElementById(isMobile ? 'raise-slider-m' : 'raise-slider') as HTMLInputElement;
-        amount = parseInt(slider?.value || '0');
+        const rawAmount = parseInt(slider?.value || '0', 10);
+
+        // Validate raise amount
+        const validation = validateRaiseAmount(rawAmount, humanPlayer, gameState);
+        if (!validation.valid) {
+          console.warn('Invalid raise:', validation.error);
+          return;
+        }
+        amount = rawAmount;
       }
 
       const result = processPokerAction(gameState, {
@@ -599,6 +702,8 @@ import BettingControls from '../components/poker/BettingControls.astro';
       updateBettingControls();
     }
 
+    let lastAnnouncedTurn = false;
+
     function updateBettingControls() {
       if (!gameState) return;
 
@@ -607,6 +712,17 @@ import BettingControls from '../components/poker/BettingControls.astro';
       const isHumanTurn = gameState.currentPlayerIndex === humanIndex && !gameState.handComplete;
       const canCheck = gameState.currentBet === (humanPlayer?.currentBet || 0);
       const disableAll = !isHumanTurn || gameState.handComplete || humanPlayer?.folded || humanPlayer?.allIn || isRevealingCards || !!gameState.pendingReveal;
+
+      // Announce when it becomes the player's turn
+      if (isHumanTurn && !lastAnnouncedTurn && !disableAll) {
+        const toCall = gameState.currentBet - (humanPlayer?.currentBet || 0);
+        if (canCheck) {
+          announceToScreenReader(`Your turn. You can check, raise, or fold. Pot is $${gameState.pot}.`);
+        } else {
+          announceToScreenReader(`Your turn. You can call $${toCall}, raise, or fold. Pot is $${gameState.pot}.`);
+        }
+      }
+      lastAnnouncedTurn = isHumanTurn && !disableAll;
 
       ['', '-m'].forEach(suffix => {
         const btnFold = document.getElementById(`btn-fold${suffix}`) as HTMLButtonElement;
@@ -688,9 +804,94 @@ import BettingControls from '../components/poker/BettingControls.astro';
       document.getElementById('showdown-modal')?.classList.add('hidden');
     }
 
+    // Keyboard navigation handler
+    function handleKeyboardShortcut(e: KeyboardEvent) {
+      // Don't trigger shortcuts when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Check if it's the human player's turn
+      if (!gameState) return;
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const humanIndex = gameState.players.findIndex(p => p.isHuman);
+      const isHumanTurn = gameState.currentPlayerIndex === humanIndex && !gameState.handComplete;
+
+      // Handle showdown modal escape
+      const modal = document.getElementById('showdown-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+          e.preventDefault();
+          document.getElementById('btn-close-showdown')?.click();
+          return;
+        }
+      }
+
+      // Game keyboard shortcuts (only when it's player's turn)
+      if (isHumanTurn && humanPlayer && !humanPlayer.folded && !humanPlayer.allIn) {
+        const key = e.key.toLowerCase();
+        switch (key) {
+          case 'f':
+            e.preventDefault();
+            handleAction('fold');
+            break;
+          case 'c':
+            e.preventDefault();
+            const canCheck = gameState.currentBet === humanPlayer.currentBet;
+            if (canCheck) {
+              handleAction('check');
+            } else {
+              handleAction('call');
+            }
+            break;
+          case 'r':
+            e.preventDefault();
+            // Focus the raise slider
+            const isMobile = getBreakpoint() === 'mobile';
+            const slider = document.getElementById(isMobile ? 'raise-slider-m' : 'raise-slider') as HTMLInputElement;
+            if (slider && !slider.disabled) {
+              slider.focus();
+            }
+            break;
+          case 'a':
+            e.preventDefault();
+            handleAction('allin');
+            break;
+          case 'enter':
+            // If slider is focused, execute raise
+            if (document.activeElement?.id?.includes('raise-slider')) {
+              e.preventDefault();
+              handleAction('raise');
+            }
+            break;
+        }
+      }
+
+      // Space or Enter to start new game when not in game
+      if (!gameState && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        dealNewHand();
+      }
+    }
+
+    // Start/restart game with confirmation if game in progress
+    function handlePlayButton() {
+      if (gameState && !gameState.handComplete) {
+        // Game in progress - ask for confirmation
+        if (confirm('A game is in progress. Start a new game?')) {
+          dealNewHand();
+        }
+      } else {
+        dealNewHand();
+      }
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btn-play')?.addEventListener('click', dealNewHand);
+      document.getElementById('btn-play')?.addEventListener('click', handlePlayButton);
+
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyboardShortcut);
 
       ['', '-m'].forEach(suffix => {
         document.getElementById(`btn-fold${suffix}`)?.addEventListener('click', () => handleAction('fold'));
@@ -709,6 +910,8 @@ import BettingControls from '../components/poker/BettingControls.astro';
             // Sync other slider
             const otherSlider = document.getElementById(suffix ? 'raise-slider' : 'raise-slider-m') as HTMLInputElement;
             if (otherSlider) otherSlider.value = slider.value;
+            // Update ARIA values
+            slider.setAttribute('aria-valuenow', slider.value);
           });
         }
       });

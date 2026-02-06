@@ -6,6 +6,9 @@ import { secureRandom } from './deck';
 import { selectBestFiveCards } from './handEval';
 import { processPokerAction, advanceToNextPlayer, checkAndAdvanceRound } from './gameLogic';
 
+// Lock to prevent concurrent AI processing (race condition fix)
+let aiProcessingLock = false;
+
 /**
  * Calculate hand strength from hand rank (1-10) to (0.0-1.0)
  */
@@ -318,9 +321,16 @@ export async function processAllAITurns(
   onAction?: (result: AIActionResult) => void,
   delayMs: { min: number; max: number } = { min: 500, max: 1500 }
 ): Promise<void> {
-  const maxIterations = game.players.length * 10; // Safety limit
+  // Prevent concurrent AI processing (race condition fix)
+  if (aiProcessingLock) {
+    return;
+  }
+  aiProcessingLock = true;
 
-  for (let i = 0; i < maxIterations && !game.handComplete; i++) {
+  try {
+    const maxIterations = game.players.length * 10; // Safety limit
+
+    for (let i = 0; i < maxIterations && !game.handComplete; i++) {
     // Check for pending reveal (street transition)
     if (game.pendingReveal) {
       break;
@@ -411,6 +421,9 @@ export async function processAllAITurns(
     if (game.pendingReveal) {
       break;
     }
+  }
+  } finally {
+    aiProcessingLock = false;
   }
 }
 

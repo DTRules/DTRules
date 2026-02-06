@@ -38,7 +38,7 @@ const textSize = compact ? 'text-[10px]' : 'text-xs';
         {table.shortName}
       </span>
       <h3 class="font-semibold text-white text-sm md:text-base">{table.name}</h3>
-      <span class="text-gray-400 text-xs ml-auto">{table.vpip} VPIP</span>
+      <span class="text-gray-300 text-xs ml-auto">{table.vpip} VPIP</span>
     </div>
   )}
 
@@ -46,11 +46,11 @@ const textSize = compact ? 'text-[10px]' : 'text-xs';
     <table class:list={['w-full', textSize]}>
       <thead>
         <tr class="border-b border-gray-600">
-          <th class:list={['text-left text-gray-400', cellClass]}>Condition</th>
+          <th class:list={['text-left text-gray-300', cellClass]}>Condition</th>
           {table.columns.map((col) => (
             <th
               class:list={[
-                'text-center text-gray-400',
+                'text-center text-gray-300',
                 cellClass,
                 highlightedColumn === col.id ? 'dt-column-highlight' : ''
               ]}
