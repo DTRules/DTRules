@@ -257,6 +257,9 @@ type Session interface {
 	// CreateEntity creates a new entity instance by name
 	CreateEntity(name *RName) (Entity, error)
 
+	// GetEntityByID returns an entity by its unique ID, or nil if not found
+	GetEntityByID(id int) Entity
+
 	// Compile compiles a postfix expression string into executable code
 	Compile(expr string) (Object, error)
 }

@@ -81,16 +81,38 @@ func init() {
 	// Error handling
 	Register("error", opError)
 
-	// Policy statements (temporary - returns empty array)
-	// TODO: Implement proper policy statement handling
+	// Policy statements
 	Register("policystatements", opPolicyStatements)
 }
 
-// opPolicyStatements: ( -- array ) pushes an empty policy statements array
-// TODO: This should be replaced with proper policy statement handling
+// policyStatementsProvider is implemented by states that can provide the current decision table
+type policyStatementsProvider interface {
+	GetCurrentTable() interface{}
+}
+
+// policyStatementsSource is implemented by decision tables that have policy statements
+type policyStatementsSource interface {
+	GetRPolicyStatements() []dtrules.Object
+}
+
+// opPolicyStatements: ( -- array ) pushes the policy statements from the current decision table
 func opPolicyStatements(state dtrules.State) error {
-	// For now, return an empty array
-	// Full implementation should get policy statements from the current decision table context
+	// Try to get policy statements from the current decision table context
+	if provider, ok := state.(policyStatementsProvider); ok {
+		if table := provider.GetCurrentTable(); table != nil {
+			if src, ok := table.(policyStatementsSource); ok {
+				stmts := src.GetRPolicyStatements()
+				if stmts != nil {
+					arr, err := dtrules.NewArrayWithElements(state.GetSession(), true, stmts, false)
+					if err != nil {
+						return err
+					}
+					return state.DataPush(arr)
+				}
+			}
+		}
+	}
+	// Fallback: return empty array when no decision table context
 	arr, err := dtrules.NewArray(state.GetSession(), true, false)
 	if err != nil {
 		return err
@@ -579,7 +601,7 @@ func opCreateEntity(state dtrules.State) error {
 	return state.DataPush(entity.(dtrules.Object))
 }
 
-// opFindCreateEntity: ( name id -- entity ) finds or creates entity with id
+// opFindCreateEntity: ( name id -- entity ) finds existing entity by id, or creates a new one
 func opFindCreateEntity(state dtrules.State) error {
 	idObj, err := state.DataPop()
 	if err != nil {
@@ -589,7 +611,7 @@ func opFindCreateEntity(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	_, err = idObj.IntValue()
+	id, err := idObj.IntValue()
 	if err != nil {
 		return err
 	}
@@ -597,7 +619,11 @@ func opFindCreateEntity(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	// For now just create - full implementation would track by id
+	// Look up existing entity by ID
+	if existing := state.GetSession().GetEntityByID(int(id)); existing != nil {
+		return state.DataPush(existing.(dtrules.Object))
+	}
+	// Not found — create a new entity (automatically registered by session)
 	entity, err := state.GetSession().CreateEntity(name)
 	if err != nil {
 		return err

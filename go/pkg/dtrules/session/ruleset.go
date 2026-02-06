@@ -157,6 +157,10 @@ func (s *loadSession) CreateEntity(name *dtrules.RName) (dtrules.Entity, error) 
 	return s.factory.CreateEntity(s, name)
 }
 
+func (s *loadSession) GetEntityByID(id int) dtrules.Entity {
+	return nil
+}
+
 func (s *loadSession) Compile(expr string) (dtrules.Object, error) {
 	c := compiler.NewCompiler(s, s.factory)
 	return c.Compile(expr)

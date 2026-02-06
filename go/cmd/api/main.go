@@ -42,8 +42,11 @@ import (
 )
 
 var (
-	port    = flag.Int("port", 8080, "Port to listen on")
-	verbose = flag.Bool("v", false, "Verbose logging")
+	port        = flag.Int("port", 8080, "Port to listen on")
+	verbose     = flag.Bool("v", false, "Verbose logging")
+	projectRoot = flag.String("project-root", "", "Restrict project access to this directory tree")
+	corsOrigin  = flag.String("cors-origin", "*", "Allowed CORS origin (default: * for development)")
+	maxBodySize = flag.Int64("max-body-size", 10<<20, "Maximum request body size in bytes (default: 10MB)")
 )
 
 // Server holds the API server state
@@ -57,6 +60,8 @@ type Server struct {
 	entities      map[string]*EntityData
 	tables        map[string]*DecisionTableData
 	modified      map[string]bool
+	entitySource  map[string]string // entity name -> source edd file (relative path)
+	tableSource   map[string]string // table name -> source dt file (relative path)
 	entityFactory *entity.Factory
 }
 
@@ -197,10 +202,10 @@ func main() {
 	log.Fatal(http.ListenAndServe(addr, handler))
 }
 
-// CORS middleware for development
+// CORS middleware
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", *corsOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -216,7 +221,10 @@ func corsMiddleware(next http.Handler) http.Handler {
 // JSON response helpers
 func jsonResponse(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("Error encoding JSON response: %v", err)
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+	}
 }
 
 func jsonError(w http.ResponseWriter, message string, code int) {
@@ -226,6 +234,45 @@ func jsonError(w http.ResponseWriter, message string, code int) {
 		"success": false,
 		"error":   message,
 	})
+}
+
+// limitedDecode decodes JSON from a size-limited request body
+func limitedDecode(w http.ResponseWriter, r *http.Request, v interface{}) error {
+	r.Body = http.MaxBytesReader(w, r.Body, *maxBodySize)
+	return json.NewDecoder(r.Body).Decode(v)
+}
+
+// validateProjectPath validates and resolves a project path, checking for traversal attacks
+func validateProjectPath(path string) (string, error) {
+	// Resolve to absolute path and clean it
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", fmt.Errorf("invalid path: %w", err)
+	}
+
+	// Resolve symlinks to prevent symlink-based traversal
+	resolved, err := filepath.EvalSymlinks(absPath)
+	if err != nil {
+		return "", fmt.Errorf("path does not exist: %w", err)
+	}
+
+	// If --project-root is set, verify the path is within it
+	if *projectRoot != "" {
+		root, err := filepath.Abs(*projectRoot)
+		if err != nil {
+			return "", fmt.Errorf("invalid project root: %w", err)
+		}
+		root, err = filepath.EvalSymlinks(root)
+		if err != nil {
+			return "", fmt.Errorf("project root does not exist: %w", err)
+		}
+		// Ensure resolved path is within root (add separator to prevent prefix attacks like /rootExtra)
+		if !strings.HasPrefix(resolved+string(filepath.Separator), root+string(filepath.Separator)) && resolved != root {
+			return "", fmt.Errorf("path %q is outside allowed project root %q", path, *projectRoot)
+		}
+	}
+
+	return resolved, nil
 }
 
 // Health check endpoint
@@ -349,8 +396,15 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Path string `json:"path"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := limitedDecode(w, r, &req); err != nil {
 		jsonError(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate project path (prevents path traversal)
+	validatedPath, err := validateProjectPath(req.Path)
+	if err != nil {
+		jsonError(w, fmt.Sprintf("Invalid project path: %v", err), http.StatusBadRequest)
 		return
 	}
 
@@ -358,15 +412,17 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 	defer s.mu.Unlock()
 
 	// Scan directory for XML files
-	s.projectPath = req.Path
+	s.projectPath = validatedPath
 	s.eddFiles = []string{}
 	s.dtFiles = []string{}
 	s.mapFiles = []string{}
 	s.entities = make(map[string]*EntityData)
 	s.tables = make(map[string]*DecisionTableData)
 	s.modified = make(map[string]bool)
+	s.entitySource = make(map[string]string)
+	s.tableSource = make(map[string]string)
 
-	err := filepath.Walk(req.Path, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(validatedPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
 		}
@@ -374,21 +430,21 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 			return nil
 		}
 
-		relPath, _ := filepath.Rel(req.Path, path)
+		relPath, _ := filepath.Rel(validatedPath, path)
 		name := filepath.Base(path)
 
 		// Categorize by name pattern
 		nameLower := strings.ToLower(name)
 		if strings.Contains(nameLower, "edd") {
 			s.eddFiles = append(s.eddFiles, relPath)
-			s.loadEDDFile(path)
+			s.loadEDDFile(path, relPath)
 		} else if strings.Contains(nameLower, "_dt") || strings.Contains(nameLower, "decisiontable") {
 			// Skip "Uncompiled" files - they have no postfix expressions and would overwrite valid tables
 			if strings.Contains(nameLower, "uncompiled") {
 				log.Printf("Skipping uncompiled DT file: %s", relPath)
 			} else {
 				s.dtFiles = append(s.dtFiles, relPath)
-				s.loadDTFile(path)
+				s.loadDTFile(path, relPath)
 			}
 		} else if strings.Contains(nameLower, "map") {
 			s.mapFiles = append(s.mapFiles, relPath)
@@ -407,30 +463,34 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 
 	// Load EDD files into the rule set for execution
 	for _, eddFile := range s.eddFiles {
-		path := filepath.Join(s.projectPath, eddFile)
-		f, err := os.Open(path)
-		if err != nil {
-			log.Printf("Warning: Failed to open EDD file %s for rule set: %v", eddFile, err)
-			continue
-		}
-		if err := s.ruleSet.LoadEDD(f); err != nil {
-			log.Printf("Warning: Failed to load EDD file %s into rule set: %v", eddFile, err)
-		}
-		f.Close()
+		func() {
+			path := filepath.Join(s.projectPath, eddFile)
+			f, err := os.Open(path)
+			if err != nil {
+				log.Printf("Warning: Failed to open EDD file %s for rule set: %v", eddFile, err)
+				return
+			}
+			defer f.Close()
+			if err := s.ruleSet.LoadEDD(f); err != nil {
+				log.Printf("Warning: Failed to load EDD file %s into rule set: %v", eddFile, err)
+			}
+		}()
 	}
 
 	// Load decision table files into the rule set for execution
 	for _, dtFile := range s.dtFiles {
-		path := filepath.Join(s.projectPath, dtFile)
-		f, err := os.Open(path)
-		if err != nil {
-			log.Printf("Warning: Failed to open DT file %s for rule set: %v", dtFile, err)
-			continue
-		}
-		if err := s.ruleSet.LoadDecisionTables(f); err != nil {
-			log.Printf("Warning: Failed to load DT file %s into rule set: %v", dtFile, err)
-		}
-		f.Close()
+		func() {
+			path := filepath.Join(s.projectPath, dtFile)
+			f, err := os.Open(path)
+			if err != nil {
+				log.Printf("Warning: Failed to open DT file %s for rule set: %v", dtFile, err)
+				return
+			}
+			defer f.Close()
+			if err := s.ruleSet.LoadDecisionTables(f); err != nil {
+				log.Printf("Warning: Failed to load DT file %s into rule set: %v", dtFile, err)
+			}
+		}()
 	}
 
 	jsonResponse(w, map[string]interface{}{
@@ -561,14 +621,16 @@ func (s *Server) handleEntity(w http.ResponseWriter, r *http.Request) {
 
 	case "POST":
 		var entity EntityData
-		if err := json.NewDecoder(r.Body).Decode(&entity); err != nil {
+		if err := limitedDecode(w, r, &entity); err != nil {
 			jsonError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 
 		s.mu.Lock()
 		s.entities[entity.Name] = &entity
+		// Track source file: use first EDD file for new entities
 		if len(s.eddFiles) > 0 {
+			s.entitySource[entity.Name] = s.eddFiles[0]
 			s.modified[s.eddFiles[0]] = true
 		}
 		s.mu.Unlock()
@@ -580,14 +642,17 @@ func (s *Server) handleEntity(w http.ResponseWriter, r *http.Request) {
 
 	case "PUT":
 		var entity EntityData
-		if err := json.NewDecoder(r.Body).Decode(&entity); err != nil {
+		if err := limitedDecode(w, r, &entity); err != nil {
 			jsonError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 
 		s.mu.Lock()
 		s.entities[entityName] = &entity
-		if len(s.eddFiles) > 0 {
+		if srcFile, ok := s.entitySource[entityName]; ok {
+			s.modified[srcFile] = true
+		} else if len(s.eddFiles) > 0 {
+			s.entitySource[entityName] = s.eddFiles[0]
 			s.modified[s.eddFiles[0]] = true
 		}
 		s.mu.Unlock()
@@ -599,10 +664,13 @@ func (s *Server) handleEntity(w http.ResponseWriter, r *http.Request) {
 
 	case "DELETE":
 		s.mu.Lock()
-		delete(s.entities, entityName)
-		if len(s.eddFiles) > 0 {
+		if srcFile, ok := s.entitySource[entityName]; ok {
+			s.modified[srcFile] = true
+		} else if len(s.eddFiles) > 0 {
 			s.modified[s.eddFiles[0]] = true
 		}
+		delete(s.entities, entityName)
+		delete(s.entitySource, entityName)
 		s.mu.Unlock()
 
 		jsonResponse(w, map[string]interface{}{
@@ -620,14 +688,16 @@ func (s *Server) handleDTList(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		// Create new table
 		var table DecisionTableData
-		if err := json.NewDecoder(r.Body).Decode(&table); err != nil {
+		if err := limitedDecode(w, r, &table); err != nil {
 			jsonError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 
 		s.mu.Lock()
 		s.tables[table.TableName] = &table
+		// Track source file: use first DT file for new tables
 		if len(s.dtFiles) > 0 {
+			s.tableSource[table.TableName] = s.dtFiles[0]
 			s.modified[s.dtFiles[0]] = true
 		}
 		s.mu.Unlock()
@@ -701,14 +771,17 @@ func (s *Server) handleDT(w http.ResponseWriter, r *http.Request) {
 
 	case "PUT":
 		var table DecisionTableData
-		if err := json.NewDecoder(r.Body).Decode(&table); err != nil {
+		if err := limitedDecode(w, r, &table); err != nil {
 			jsonError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 
 		s.mu.Lock()
 		s.tables[tableName] = &table
-		if len(s.dtFiles) > 0 {
+		if srcFile, ok := s.tableSource[tableName]; ok {
+			s.modified[srcFile] = true
+		} else if len(s.dtFiles) > 0 {
+			s.tableSource[tableName] = s.dtFiles[0]
 			s.modified[s.dtFiles[0]] = true
 		}
 		s.mu.Unlock()
@@ -720,10 +793,13 @@ func (s *Server) handleDT(w http.ResponseWriter, r *http.Request) {
 
 	case "DELETE":
 		s.mu.Lock()
-		delete(s.tables, tableName)
-		if len(s.dtFiles) > 0 {
+		if srcFile, ok := s.tableSource[tableName]; ok {
+			s.modified[srcFile] = true
+		} else if len(s.dtFiles) > 0 {
 			s.modified[s.dtFiles[0]] = true
 		}
+		delete(s.tables, tableName)
+		delete(s.tableSource, tableName)
 		s.mu.Unlock()
 
 		jsonResponse(w, map[string]interface{}{
@@ -870,7 +946,7 @@ func (s *Server) handleCompileExpression(w http.ResponseWriter, r *http.Request)
 		Expression string `json:"expression"`
 		EntityName string `json:"entityName"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := limitedDecode(w, r, &req); err != nil {
 		jsonError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -1000,7 +1076,7 @@ func (s *Server) handleExecute(w http.ResponseWriter, r *http.Request) {
 		Data      map[string]interface{} `json:"data"`
 		Trace     bool                   `json:"trace"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := limitedDecode(w, r, &req); err != nil {
 		jsonError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -1126,7 +1202,7 @@ func (s *Server) handleValidateExecution(w http.ResponseWriter, r *http.Request)
 		TableName string                 `json:"tableName"`
 		Data      map[string]interface{} `json:"data"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := limitedDecode(w, r, &req); err != nil {
 		jsonError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -1462,7 +1538,7 @@ type FieldXML struct {
 	Comment      string `xml:"comment,attr"`
 }
 
-func (s *Server) loadEDDFile(path string) error {
+func (s *Server) loadEDDFile(path, relPath string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -1477,7 +1553,7 @@ func (s *Server) loadEDDFile(path string) error {
 	var edd EDDXML
 	if err := xml.Unmarshal(data, &edd); err != nil {
 		// Try alternative format
-		return s.loadEDDAlternative(data)
+		return s.loadEDDAlternative(data, relPath)
 	}
 
 	for _, e := range edd.Entities {
@@ -1499,12 +1575,13 @@ func (s *Server) loadEDDFile(path string) error {
 			}
 		}
 		s.entities[entity.Name] = entity
+		s.entitySource[entity.Name] = relPath
 	}
 
 	return nil
 }
 
-func (s *Server) loadEDDAlternative(data []byte) error {
+func (s *Server) loadEDDAlternative(data []byte, relPath string) error {
 	// Try parsing as different EDD format
 	type AltEDD struct {
 		XMLName  xml.Name    `xml:"edd"`
@@ -1535,6 +1612,7 @@ func (s *Server) loadEDDAlternative(data []byte) error {
 			}
 		}
 		s.entities[entity.Name] = entity
+		s.entitySource[entity.Name] = relPath
 	}
 
 	return nil
@@ -1648,7 +1726,7 @@ type PolicyStatementXML struct {
 	Postfix     string `xml:"postfix"`
 }
 
-func (s *Server) loadDTFile(path string) error {
+func (s *Server) loadDTFile(path, relPath string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -1748,6 +1826,7 @@ func (s *Server) loadDTFile(path string) error {
 		table.ColumnCount = maxCol
 		if table.TableName != "" {
 			s.tables[table.TableName] = table
+			s.tableSource[table.TableName] = relPath
 		}
 	}
 
