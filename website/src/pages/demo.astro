@@ -357,6 +357,9 @@ import BettingControls from '../components/poker/BettingControls.astro';
         } else if (gameState.handComplete && gameState.winners) {
           if (gameState.showdownResults && gameState.showdownResults.length > 1) {
             showShowdownResults(gameState);
+          } else {
+            // Everyone folded - show win message
+            showWinMessage(gameState);
           }
           updateGameDisplay();
         } else {
@@ -420,6 +423,9 @@ import BettingControls from '../components/poker/BettingControls.astro';
         } else if (gameState.handComplete) {
           if (gameState.showdownResults?.length && gameState.showdownResults.length > 1) {
             showShowdownResults(gameState);
+          } else if (gameState.winners?.length) {
+            // Everyone folded - show win message
+            showWinMessage(gameState);
           }
           updateGameDisplay();
         } else {
@@ -802,6 +808,33 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
     function hideShowdownModal() {
       document.getElementById('showdown-modal')?.classList.add('hidden');
+    }
+
+    // Show win message when everyone folds (no showdown needed)
+    function showWinMessage(game: PokerGame) {
+      if (!game.winners?.length) return;
+
+      const winnerId = game.winners[0];
+      const winner = game.players.find(p => p.id === winnerId);
+      if (!winner) return;
+
+      const message = winner.isHuman
+        ? `You win $${game.winAmount || game.pot}! Everyone folded.`
+        : `${winner.name} wins $${game.winAmount || game.pot}. Everyone folded.`;
+
+      announceToScreenReader(message);
+
+      // Show a brief toast notification
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-600 text-white px-8 py-4 rounded-xl shadow-2xl text-xl font-bold animate-bounce';
+      toast.textContent = message;
+      toast.setAttribute('role', 'alert');
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+        setTimeout(() => toast.remove(), 500);
+      }, 2000);
     }
 
     // Keyboard navigation handler

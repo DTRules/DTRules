@@ -692,110 +692,46 @@ export function awardPot(game: PokerGame): void {
     });
   }
 
-  // Calculate side pots based on player contributions
-  interface SidePotCalc {
-    amount: number;
-    eligiblePlayerIdxs: number[];
-  }
-
-  // Get unique contribution levels (sorted ascending)
-  const contributions = [...new Set(hands.map(h => h.totalBet))].sort((a, b) => a - b);
-
-  const sidePots: SidePotCalc[] = [];
-  let previousLevel = 0;
-
-  for (const level of contributions) {
-    // Get eligible players (those who contributed at least this level)
-    const eligiblePlayers = hands.filter(h => h.totalBet >= level);
-    if (eligiblePlayers.length === 0) continue;
-
-    // Calculate pot amount for this level
-    const levelContribution = level - previousLevel;
-    // Each player who contributed at this level adds to this pot
-    const potAmount = eligiblePlayers.length * levelContribution;
-
-    if (potAmount > 0) {
-      sidePots.push({
-        amount: potAmount,
-        eligiblePlayerIdxs: eligiblePlayers.map(p => p.idx),
-      });
+  // Find winners - players with the best hand value
+  const bestValue = hands[0].handValue;
+  const winners: number[] = [];
+  for (const h of hands) {
+    if (h.handValue === bestValue) {
+      winners.push(h.idx);
     }
-
-    previousLevel = level;
   }
 
-  // Award each side pot to eligible winners
+  // Split pot among winners
+  const share = Math.floor(game.pot / winners.length);
+  const remainder = game.pot % winners.length;
+
   game.winners = [];
-  const winAmounts: Record<number, number> = {};
-
-  for (const sidePot of sidePots) {
-    // Find best hand among eligible players
-    let bestValue = -1;
-    for (const idx of sidePot.eligiblePlayerIdxs) {
-      const hand = hands.find(h => h.idx === idx);
-      if (hand && hand.handValue > bestValue) {
-        bestValue = hand.handValue;
-      }
+  for (let i = 0; i < winners.length; i++) {
+    const winIdx = winners[i];
+    let winAmount = share;
+    if (i === 0) {
+      winAmount += remainder; // First winner gets remainder
     }
+    game.players[winIdx].chips += winAmount;
+    game.winners.push(game.players[winIdx].id);
 
-    // Find all winners at this level
-    const potWinners: number[] = [];
-    for (const idx of sidePot.eligiblePlayerIdxs) {
-      const hand = hands.find(h => h.idx === idx);
-      if (hand && hand.handValue === bestValue) {
-        potWinners.push(idx);
-      }
-    }
-
-    // Split this pot among winners
-    const share = Math.floor(sidePot.amount / potWinners.length);
-    const remainder = sidePot.amount % potWinners.length;
-
-    for (let i = 0; i < potWinners.length; i++) {
-      const winIdx = potWinners[i];
-      let winAmount = share;
-      if (i === 0) {
-        winAmount += remainder;
-      }
-      game.players[winIdx].chips += winAmount;
-      winAmounts[winIdx] = (winAmounts[winIdx] || 0) + winAmount;
-
-      if (!game.winners.includes(game.players[winIdx].id)) {
-        game.winners.push(game.players[winIdx].id);
+    // Update showdown result
+    for (const sr of game.showdownResults) {
+      if (sr.playerId === game.players[winIdx].id) {
+        sr.won = true;
+        sr.wonAmount = winAmount;
       }
     }
   }
 
-  // Update showdown results with win amounts
-  for (const sr of game.showdownResults) {
-    const playerIdx = game.players.findIndex(p => p.id === sr.playerId);
-    if (winAmounts[playerIdx]) {
-      sr.won = true;
-      sr.wonAmount = winAmounts[playerIdx];
-    }
-  }
-
-  // Store side pots in game state
-  game.sidePots = sidePots.map(sp => ({
-    amount: sp.amount,
-    eligible: sp.eligiblePlayerIdxs.map(idx => game.players[idx].id),
-  }));
-
-  // Calculate total won by main winner for display
-  const mainWinnerIdx = hands[0].idx;
-  game.winAmount = winAmounts[mainWinnerIdx] || 0;
+  game.winAmount = share;
   game.winningHand = hands[0].handName;
 
-  if (game.winners.length === 1) {
-    const totalWon = winAmounts[mainWinnerIdx] || game.pot;
-    game.lastAction = `${game.players[mainWinnerIdx].name} wins $${totalWon} with ${hands[0].handName}`;
+  if (winners.length === 1) {
+    game.lastAction = `${game.players[winners[0]].name} wins $${game.pot} with ${hands[0].handName}`;
   } else {
-    const winnerNames = game.winners.map(id => {
-      const p = game.players.find(pl => pl.id === id);
-      const idx = game.players.findIndex(pl => pl.id === id);
-      return `${p?.name} ($${winAmounts[idx] || 0})`;
-    }).join(', ');
-    game.lastAction = `Winners: ${winnerNames}`;
+    const winnerNames = winners.map(w => game.players[w].name).join(' and ');
+    game.lastAction = `${winnerNames} split $${game.pot} with ${hands[0].handName}`;
   }
 }
 
