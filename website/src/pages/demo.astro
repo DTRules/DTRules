@@ -754,7 +754,11 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
       const modal = document.getElementById('showdown-modal');
       const resultsContainer = document.getElementById('showdown-results');
+      const modalTitle = document.getElementById('showdown-title');
       if (!modal || !resultsContainer) return;
+
+      // Set title for showdown
+      if (modalTitle) modalTitle.textContent = 'Showdown Results';
 
       resultsContainer.innerHTML = '';
       const sorted = [...game.showdownResults].sort((a, b) => a.rank - b.rank);
@@ -810,31 +814,73 @@ import BettingControls from '../components/poker/BettingControls.astro';
       document.getElementById('showdown-modal')?.classList.add('hidden');
     }
 
-    // Show win message when everyone folds (no showdown needed)
+    // Show win message when everyone folds (using showdown modal)
     function showWinMessage(game: PokerGame) {
-      if (!game.winners?.length) return;
+      if (!game.winners?.length || showdownModalShown) return;
+      showdownModalShown = true;
 
       const winnerId = game.winners[0];
       const winner = game.players.find(p => p.id === winnerId);
       if (!winner) return;
 
+      const wonAmount = game.winAmount || game.pot;
       const message = winner.isHuman
-        ? `You win $${game.winAmount || game.pot}! Everyone folded.`
-        : `${winner.name} wins $${game.winAmount || game.pot}. Everyone folded.`;
+        ? `You win $${wonAmount}! Everyone folded.`
+        : `${winner.name} wins $${wonAmount}. Everyone folded.`;
 
       announceToScreenReader(message);
 
-      // Show a brief toast notification
-      const toast = document.createElement('div');
-      toast.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-600 text-white px-8 py-4 rounded-xl shadow-2xl text-xl font-bold animate-bounce';
-      toast.textContent = message;
-      toast.setAttribute('role', 'alert');
-      document.body.appendChild(toast);
+      const modal = document.getElementById('showdown-modal');
+      const resultsContainer = document.getElementById('showdown-results');
+      const modalTitle = document.getElementById('showdown-title');
+      if (!modal || !resultsContainer) return;
 
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-        setTimeout(() => toast.remove(), 500);
-      }, 2000);
+      // Update title for fold win
+      if (modalTitle) modalTitle.textContent = 'Winner';
+
+      resultsContainer.innerHTML = '';
+
+      // Create a result entry for the winner
+      const div = document.createElement('div');
+      div.className = 'p-4 rounded-xl bg-green-900/50 border border-green-500 winner-highlight';
+
+      div.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-500 text-black">Winner</span>
+            <span class="font-semibold text-white text-lg">${winner.isHuman ? 'You' : winner.name}</span>
+          </div>
+          <span class="text-green-400 font-bold text-xl">+$${wonAmount}</span>
+        </div>
+        <div class="text-purple-400 text-sm mb-3">Everyone Folded</div>
+        <div class="flex gap-2 justify-center" id="fold-win-cards"></div>
+      `;
+      resultsContainer.appendChild(div);
+
+      // Show winner's hole cards
+      const cardsContainer = document.getElementById('fold-win-cards');
+      if (cardsContainer && winner.holeCards?.length) {
+        winner.holeCards.forEach(card => {
+          cardsContainer.appendChild(createCardElement(card, false, 'medium'));
+        });
+      }
+
+      // Check if game is over (only one player with chips)
+      const playersWithChips = game.players.filter(p => p.chips > 0);
+      const closeBtn = document.getElementById('btn-close-showdown');
+      if (closeBtn) {
+        if (playersWithChips.length === 1) {
+          const banner = document.createElement('div');
+          banner.className = 'mt-4 p-3 bg-yellow-500/20 border-2 border-yellow-500 rounded-xl text-center';
+          banner.innerHTML = `<div class="text-xl font-bold text-yellow-400">GAME OVER</div><div class="text-white">${playersWithChips[0].name} wins!</div>`;
+          resultsContainer.appendChild(banner);
+          closeBtn.textContent = 'New Game';
+        } else {
+          closeBtn.textContent = 'Next Hand';
+        }
+      }
+
+      modal.classList.remove('hidden');
     }
 
     // Keyboard navigation handler
