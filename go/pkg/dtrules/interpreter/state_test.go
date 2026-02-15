@@ -968,7 +968,8 @@ func TestBytecodeActionEvaluation(t *testing.T) {
 		t.Fatalf("EvaluateBytecodeAction failed: %v", err)
 	}
 
-	// Test action that leaves stack unbalanced
+	// Test action that leaves stack unbalanced — extra values should be
+	// silently cleaned up, consistent with Object-based Evaluate().
 	bc = dtrules.NewBytecodeChunk()
 	bc.EmitPushConstant(dtrules.NewValueInteger(1))
 	// Don't pop - stack is unbalanced
@@ -978,8 +979,11 @@ func TestBytecodeActionEvaluation(t *testing.T) {
 	}
 
 	err = state.EvaluateBytecodeAction(bc)
-	if err == nil {
-		t.Error("Expected error for unbalanced stack")
+	if err != nil {
+		t.Errorf("EvaluateBytecodeAction should silently clean up extras: %v", err)
+	}
+	if state.ValueStackDepth() != 0 {
+		t.Errorf("Expected empty stack after cleanup, got depth %d", state.ValueStackDepth())
 	}
 }
 
