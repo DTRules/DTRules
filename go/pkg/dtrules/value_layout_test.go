@@ -48,8 +48,7 @@ func TestValueMemoryLayout(t *testing.T) {
 	}
 
 	// Field: num (int64) at offset 8
-	// Stores: integer values, float64 bits (via Float64bits), boolean as 0/1,
-	// or type pointer word for VTagObject
+	// Stores: integer values, float64 bits (via Float64bits), boolean as 0/1
 	if got := unsafe.Offsetof(v.num); got != 8 {
 		t.Errorf("offsetof(Value.num) = %d, want 8", got)
 	}
@@ -58,7 +57,7 @@ func TestValueMemoryLayout(t *testing.T) {
 	}
 
 	// Field: ptr (unsafe.Pointer) at offset 16
-	// Stores: pointer to string header, *RName, *RArray, or data pointer
+	// Stores: pointer to string header, *RName, *RArray, or *Object
 	// for VTagObject
 	if got := unsafe.Offsetof(v.ptr); got != 16 {
 		t.Errorf("offsetof(Value.ptr) = %d, want 16", got)

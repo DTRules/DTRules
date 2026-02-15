@@ -48,6 +48,18 @@ go build -o dtrules ./cmd/dtrules
 
 # Execute with tracing
 ./dtrules -rules /path/to/rules -entry Main -trace
+
+# Analyze a trace file
+./dtrules -trace-file trace.xml
+
+# Reconstruct state at a specific trace node
+./dtrules -rules /path/to/rules -trace-file trace.xml -trace-node 428
+
+# Generate coverage report from trace files
+./dtrules -rules /path/to/rules -coverage ./output/
+
+# Run tests from a test directory
+./dtrules -rules /path/to/rules -test ./testfiles/ -test-output ./output/ -entry Main
 ```
 
 ### Using as a Library
@@ -127,7 +139,9 @@ go/
     ├── decisiontable/    # Decision table execution
     ├── loader/           # XML loaders (EDD, DT)
     ├── mapping/          # Data mapping
-    └── benchmark/        # Performance benchmarks
+    ├── benchmark/        # Performance benchmarks
+    ├── trace/            # Trace file analysis and state reconstruction
+    └── testsupport/      # Test harness, coverage analysis, change reports
 ```
 
 ## REST API Server
@@ -162,6 +176,43 @@ go run ./cmd/api -v
 | `/api/compile/operators` | GET | Get available operators |
 | `/api/compile/fields` | GET | Get entity fields |
 | `/api/execute` | POST | Execute rules |
+
+## Trace Analysis
+
+The `trace` package can parse XML trace files generated during rule execution and reconstruct the engine state at any point in the trace. This is useful for debugging and understanding how rules arrived at their results.
+
+```go
+import "github.com/PaulSnow/DTRules/go/pkg/dtrules/trace"
+
+// Load and inspect a trace file
+t := trace.NewTrace()
+root, _ := t.Load("trace.xml")
+
+// Find a specific node
+node := t.Find(428)
+
+// Reconstruct state at that point (requires a loaded RuleSet)
+sess, _ := t.SetState(ruleSet, node)
+
+// Check what changed
+for _, change := range t.GetChanges() {
+    fmt.Printf("Entity %d, attr %s\n", change.EntityID, change.AttributeKey)
+}
+```
+
+## Test Support
+
+The `testsupport` package provides infrastructure for testing rule sets:
+
+- **TestHarness**: Executes test files against a rule set, generates trace and result files, and compares results against reference output.
+- **Coverage**: Analyzes trace files to compute decision table column coverage, identifying which columns were exercised and which test files contribute to coverage.
+- **ChangeReport**: Compares two versions of a rule set (EDD, decision tables, mappings) to identify structural and execution changes.
+
+## Value and DTState Memory Layout
+
+The `Value` type and `DTState` struct have documented memory layouts with field offsets, enabling low-level access from assembly or FFI code. Each type's layout is verified by tests (`value_layout_test.go` and `state_layout_test.go`) that assert field offsets and struct sizes match the documentation.
+
+See the doc comments on `Value` in `pkg/dtrules/value.go` and `DTState` in `pkg/dtrules/interpreter/state.go` for the full offset tables.
 
 ## Decision Table Types
 

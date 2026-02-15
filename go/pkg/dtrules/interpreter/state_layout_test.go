@@ -149,25 +149,28 @@ func TestDTStateValueStackAccess(t *testing.T) {
 	// Simulate ASM access: get pointer to DTState, navigate to valueStk
 	statePtr := unsafe.Pointer(state)
 
-	// valueStk slice header is at offset 72
-	valueStkHeader := (*[3]uintptr)(unsafe.Add(statePtr, 72))
+	// valueStk slice header is at offset 72.
+	// A Go slice header is {Data unsafe.Pointer, Len int, Cap int}.
+	// We read each field individually at its known offset.
+	valueStkBase := unsafe.Add(statePtr, 72)
 
-	// valueStkHeader[0] = data pointer to underlying array
-	// valueStkHeader[1] = length (should be 3)
-	// valueStkHeader[2] = capacity (should be 1000)
-	stkLen := int(valueStkHeader[1])
+	// Data pointer (offset +0 within slice header)
+	dataPtr := *(*unsafe.Pointer)(valueStkBase)
+
+	// Length (offset +8 within slice header)
+	stkLen := *(*int)(unsafe.Add(valueStkBase, 8))
 	if stkLen != 3 {
 		t.Errorf("value stack len via unsafe = %d, want 3", stkLen)
 	}
 
-	stkCap := int(valueStkHeader[2])
+	// Capacity (offset +16 within slice header)
+	stkCap := *(*int)(unsafe.Add(valueStkBase, 16))
 	if stkCap != stackLimit {
 		t.Errorf("value stack cap via unsafe = %d, want %d", stkCap, stackLimit)
 	}
 
 	// Access the last element (top of stack) via pointer arithmetic.
 	// Element stride is 24 bytes (sizeof(Value)).
-	dataPtr := unsafe.Pointer(valueStkHeader[0])
 	topIdx := stkLen - 1
 	topValuePtr := unsafe.Add(dataPtr, uintptr(topIdx)*24)
 

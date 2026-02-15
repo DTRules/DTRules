@@ -30,11 +30,10 @@ import (
 //	------  ----  -----  -----------
 //	 0       1    tag    Type discriminator (VTagNull=0 .. VTagObject=8)
 //	 1       7    _      Padding for 8-byte alignment
-//	 8       8    num    int64: integer value, float64 bits, bool as 0/1,
-//	                     or interface type pointer for VTagObject
+//	 8       8    num    int64: integer value, float64 bits, bool as 0/1
 //	16       8    ptr    unsafe.Pointer: *string header for VTagString,
 //	                     *RName for VTagName, *RArray for VTagArray,
-//	                     or interface data pointer for VTagObject
+//	                     or *Object for VTagObject
 //
 // ASM access pattern for value stack element at index i:
 //
@@ -118,12 +117,13 @@ func NewValueObject(o Object) Value {
 	if o == nil {
 		return ValueNull
 	}
-	// Store the interface as two words (type + data pointer)
-	iface := *(*[2]unsafe.Pointer)(unsafe.Pointer(&o))
+	// Store the Object interface via pointer indirection.
+	// We allocate a copy of the interface and store a pointer to it.
+	// This is the fallback path (VTagObject) so the allocation is acceptable.
+	obj := o
 	return Value{
 		tag: VTagObject,
-		num: int64(uintptr(iface[0])), // type pointer
-		ptr: iface[1],                 // data pointer
+		ptr: unsafe.Pointer(&obj),
 	}
 }
 
@@ -221,24 +221,8 @@ func (v Value) AsObject() Object {
 	case VTagArray:
 		return (*RArray)(v.ptr)
 	case VTagObject:
-		// Reconstruct the interface from its two-word representation.
-		// This is the inverse of NewValueObject which stores the interface
-		// as (type pointer, data pointer). Go interfaces are represented
-		// internally as two words: iface[0] is the type/itab pointer and
-		// iface[1] is the data pointer. This technique is documented in
-		// Go's reflect package and is safe because:
-		// 1. The pointers were originally extracted from a valid interface
-		// 2. The Value type preserves both pointers without modification
-		// 3. The reconstructed interface matches the original type exactly
-		//
-		// Note: go vet may warn about "possible misuse of unsafe.Pointer"
-		// because it cannot verify the invariants above at compile time.
-		// This usage is intentional and tested.
-		var o Object
-		iface := (*[2]unsafe.Pointer)(unsafe.Pointer(&o))
-		iface[0] = unsafe.Pointer(uintptr(v.num)) //nolint:unsafeptr // intentional interface reconstruction
-		iface[1] = v.ptr
-		return o
+		// Dereference the stored Object pointer.
+		return *(*Object)(v.ptr)
 	default:
 		return GetRNull()
 	}
