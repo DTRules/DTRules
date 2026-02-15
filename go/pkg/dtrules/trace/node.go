@@ -14,8 +14,16 @@
 // limitations under the License.
 
 // Package trace provides trace analysis capabilities for DTRules.
-// It can parse trace files generated during rule execution and
-// reconstruct the state of the rules engine at any point in the trace.
+//
+// It can parse XML trace files generated during rule execution and
+// reconstruct the rules engine state at any point in the trace tree.
+// This is useful for debugging rule logic and understanding how the
+// engine arrived at a particular result.
+//
+// The main entry point is [Trace], which provides a high-level API
+// for loading traces, navigating the tree, reconstructing state, and
+// tracking attribute changes. The trace tree is made up of [TraceNode]
+// values, each corresponding to an XML element in the trace file.
 package trace
 
 import (
@@ -147,8 +155,10 @@ func (n *TraceNode) String() string {
 	return fmt.Sprintf("%s (%s) %v", n.Name, n.Body, n.Attributes)
 }
 
-// SearchTree recursively searches for entity creation nodes up to and
-// including the position. Returns true if position was found.
+// SearchTree recursively searches for entity creation ("createentity") nodes
+// matching entityName, collecting their IDs into entityList. The search stops
+// when it reaches the Trace's current position. Returns true if the position
+// was reached during the search.
 func (n *TraceNode) SearchTree(t *Trace, entityName string, entityList *[]int) bool {
 	if n.Name == "createentity" {
 		if strings.EqualFold(n.Attributes["name"], entityName) {

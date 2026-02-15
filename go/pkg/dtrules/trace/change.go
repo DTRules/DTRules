@@ -61,7 +61,9 @@ func (c *Change) String() string {
 		c.EntityID, c.AttributeKey, tableNum)
 }
 
-// ChangeTracker maintains a collection of changes made during trace replay.
+// ChangeTracker maintains a collection of attribute changes made during trace
+// replay. It is keyed by (entityID, attribute) pairs, so recording a second
+// change to the same attribute overwrites the first.
 type ChangeTracker struct {
 	changes map[changeKey]*Change
 }

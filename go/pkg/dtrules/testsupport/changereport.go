@@ -26,7 +26,11 @@ import (
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
 )
 
-// RulesConfig holds configuration for a rule set to be compared.
+// RulesConfig holds the file paths and cached XML trees for a single
+// version of a rule set. It reads a DTRules.xml configuration file to
+// discover the EDD, decision table, and mapping file paths, then
+// lazily loads and caches each XML tree on first access.
+// Used by [ChangeReport] for comparison.
 type RulesConfig struct {
 	RuleSetName    string
 	Path           string
@@ -41,7 +45,9 @@ type RulesConfig struct {
 	mappingRoot    *XMLNode
 }
 
-// NewRulesConfig creates a new rules configuration.
+// NewRulesConfig creates a new rules configuration by loading the
+// DTRules.xml config file at path/configFile to discover the EDD,
+// decision table, and mapping file paths.
 func NewRulesConfig(ruleSetName, description, path, configFile string) (*RulesConfig, error) {
 	rc := &RulesConfig{
 		RuleSetName: ruleSetName,
@@ -211,7 +217,9 @@ func (rc *RulesConfig) loadXML(filename string) (*XMLNode, error) {
 	return ParseXMLTree(file)
 }
 
-// XMLNode represents a node in an XML tree for comparison.
+// XMLNode represents a node in a parsed XML tree. It is used by
+// [ChangeReport] to compare two versions of EDD, decision table,
+// or mapping XML files structurally.
 type XMLNode struct {
 	Name       string
 	Attributes map[string]string
@@ -298,7 +306,9 @@ func (n *XMLNode) findNodesRecursive(tagName string, result *[]*XMLNode) {
 	}
 }
 
-// AbsoluteMatch compares two nodes for exact equality.
+// AbsoluteMatch compares two nodes for exact structural equality,
+// recursively checking name, attributes, body, and children.
+// If ignoreBody is true, the Body text of each node is not compared.
 func (n *XMLNode) AbsoluteMatch(other *XMLNode, ignoreBody bool) bool {
 	if n.Name != other.Name {
 		return false
@@ -325,7 +335,11 @@ func (n *XMLNode) AbsoluteMatch(other *XMLNode, ignoreBody bool) bool {
 	return true
 }
 
-// ChangeReport compares two versions of a rule set.
+// ChangeReport compares two versions of a rule set by examining their
+// decision tables, EDD (Entity Data Dictionary), and mappings. It identifies
+// new, deleted, and modified elements, and distinguishes structural changes
+// (like added/removed conditions) from execution-affecting changes (like
+// modified condition expressions or action columns).
 type ChangeReport struct {
 	Rules1 *RulesConfig // New/development version
 	Rules2 *RulesConfig // Reference/deployed version
@@ -385,7 +399,9 @@ func NewChangeReportFromRuleSets(rs1, rs2 *session.RuleSet, desc1, desc2 string)
 	}
 }
 
-// Compare generates a full comparison report.
+// Compare generates a full XML comparison report covering decision tables,
+// EDD, and mappings. The report identifies new, deleted, and modified
+// elements, and flags which decision table changes affect execution.
 func (cr *ChangeReport) Compare(w io.Writer) error {
 	fmt.Fprintln(w, "<changeReport>")
 	fmt.Fprintln(w, "  <header>")
@@ -409,7 +425,10 @@ func (cr *ChangeReport) Compare(w io.Writer) error {
 	return nil
 }
 
-// CompareDecisionTables compares decision tables between rule sets.
+// CompareDecisionTables compares decision tables between rule sets,
+// reporting new tables, deleted tables, modified tables, and tables
+// whose execution behavior has changed (condition expressions, action
+// columns, etc.).
 func (cr *ChangeReport) CompareDecisionTables(w io.Writer) error {
 	fmt.Fprintln(w, "  <decisionTables>")
 
@@ -549,7 +568,9 @@ func containsString(list []string, s string) bool {
 	return false
 }
 
-// CompareEDD compares Entity Data Dictionaries between rule sets.
+// CompareEDD compares Entity Data Dictionaries between rule sets,
+// reporting new entities, deleted entities, new/deleted attributes,
+// and attributes whose definitions have changed.
 func (cr *ChangeReport) CompareEDD(w io.Writer) error {
 	fmt.Fprintln(w, "  <edd>")
 
@@ -658,7 +679,8 @@ func findFieldByName(fields []*XMLNode, name string) *XMLNode {
 	return nil
 }
 
-// CompareMapping compares mappings between rule sets.
+// CompareMapping compares data mappings between rule sets, reporting
+// new and deleted setattribute mappings.
 func (cr *ChangeReport) CompareMapping(w io.Writer) error {
 	fmt.Fprintln(w, "  <mapping>")
 

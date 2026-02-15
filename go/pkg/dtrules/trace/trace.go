@@ -28,6 +28,14 @@ import (
 // Trace provides analysis capabilities for DTRules trace files.
 // It can load trace files, reconstruct state at any point in the trace,
 // and track changes made during rule execution.
+//
+// Typical workflow:
+//  1. Create a Trace with NewTrace()
+//  2. Load a trace file with Load() or LoadReader()
+//  3. Find a node of interest with Find()
+//  4. Reconstruct state at that point with SetState()
+//  5. Inspect changes with GetChanges() or IsChanged()
+//  6. Query entities with InstancesOf()
 type Trace struct {
 	root         *TraceNode                   // Root of the trace tree
 	entityTable  map[string]dtrules.Entity    // Entities created during replay
@@ -90,8 +98,11 @@ func (t *Trace) Find(n int) *TraceNode {
 	return t.root.Find(n)
 }
 
-// SetState reconstructs the rules engine state at the given position.
-// Returns the session representing that state, or nil on error.
+// SetState reconstructs the rules engine state at the given position by
+// replaying trace events (entity pushes/pops, attribute assignments, array
+// operations) from the root up to the target node. The returned session
+// contains the entity stack, attribute values, and arrays as they existed
+// at that point during the original execution.
 func (t *Trace) SetState(rs *session.RuleSet, position *TraceNode) (dtrules.Session, error) {
 	t.position = position
 	t.ruleSet = rs

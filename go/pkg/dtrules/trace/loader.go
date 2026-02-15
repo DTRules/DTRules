@@ -23,7 +23,10 @@ import (
 	"strings"
 )
 
-// TraceLoader parses trace XML files and builds a TraceNode tree.
+// TraceLoader parses trace XML files and builds a [TraceNode] tree.
+// Each XML element becomes a TraceNode with a sequential number assigned
+// during parsing. Use [LoadFile] or [Load] for convenience; use
+// TraceLoader directly if you need [TraceLoader.GetNodeCount] afterward.
 type TraceLoader struct {
 	number   int          // Sequential node number counter
 	tagStack []*TraceNode // Stack of nodes being built
@@ -139,7 +142,9 @@ func (l *TraceLoader) GetNodeCount() int {
 	return l.number - 1
 }
 
-// LoadAndCount loads a trace file and returns both the root node and count.
+// LoadAndCount loads a trace from the reader and returns both the root
+// node and the total number of nodes parsed. This is a convenience
+// wrapper around [TraceLoader] for callers that need the node count.
 func LoadAndCount(r io.Reader) (*TraceNode, int, error) {
 	loader := NewTraceLoader()
 	root, err := loader.Parse(r)

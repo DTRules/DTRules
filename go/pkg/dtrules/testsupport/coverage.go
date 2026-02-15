@@ -13,8 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package testsupport provides test infrastructure for DTRules including
-// coverage analysis, change reporting, and test execution harnesses.
+// Package testsupport provides test infrastructure for DTRules rule sets.
+//
+// It contains three main components:
+//
+//   - [TestHarness]: Executes XML test files against a loaded rule set,
+//     generates trace and result files, and compares output against
+//     reference results to detect regressions.
+//
+//   - [Coverage]: Analyzes trace files produced during test execution to
+//     compute decision table column coverage. It reports which columns
+//     were exercised and identifies the minimum set of test files needed
+//     to achieve coverage.
+//
+//   - [ChangeReport]: Compares two versions of a rule set (EDD, decision
+//     tables, and mappings) to identify structural and execution-affecting
+//     changes between them.
 package testsupport
 
 import (
@@ -31,18 +45,21 @@ import (
 )
 
 // Stats holds coverage statistics for a single decision table.
+// Each field tracks a different dimension of coverage: how many times
+// each column was hit, how often the table was called, and whether
+// a "no match" (null) column exists.
 type Stats struct {
-	TableName     string // Name of the decision table
-	ColumnCount   int    // Number of columns in the table
-	ColumnHits    []int  // Hit count for each column
-	ConditionCount int   // Number of conditions
-	Conditions    []int  // Hit count for each condition
-	ActionCount   int    // Number of actions
-	Actions       []int  // Hit count for each action
-	NoColumns     int    // Count of times no column was executed
-	CalledCount   int    // Number of times table was called
-	HasNullColumn bool   // Whether table has a "no match" column
-	ColumnsSpec   []bool // Which columns are specified
+	TableName      string // Name of the decision table
+	ColumnCount    int    // Total columns defined in the table
+	ColumnHits     []int  // Hit count per column (0-indexed)
+	ConditionCount int    // Number of condition rows
+	Conditions     []int  // Hit count per condition row
+	ActionCount    int    // Number of action rows
+	Actions        []int  // Hit count per action row
+	NoColumns      int    // Times the table was called but no column matched
+	CalledCount    int    // Total invocations of the table across all traces
+	HasNullColumn  bool   // True if the table has an all-dash (wildcard) column
+	ColumnsSpec    []bool // True for each column index that is specified in the table
 }
 
 // NewStats creates a new Stats instance for a decision table.
@@ -59,7 +76,11 @@ func NewStats(tableName string, columnCount, conditionCount, actionCount int) *S
 	}
 }
 
-// Coverage computes test coverage from trace files.
+// Coverage computes decision table column coverage from trace files.
+//
+// Create a Coverage with [NewCoverage], call [Coverage.Compute] to process
+// the trace files, then use [Coverage.PrintReport] to output an XML report
+// or [Coverage.GetStats] to inspect per-table statistics.
 type Coverage struct {
 	rs                  *session.RuleSet
 	traceFilesPath      string
@@ -158,6 +179,8 @@ func (c *Coverage) initTables() error {
 }
 
 // Compute analyzes trace files and computes coverage statistics.
+// If traceFilesPath points to a file, that single file is analyzed.
+// If it points to a directory, all *_trace.xml files in it are processed.
 func (c *Coverage) Compute() error {
 	fi, err := os.Stat(c.traceFilesPath)
 	if err != nil {

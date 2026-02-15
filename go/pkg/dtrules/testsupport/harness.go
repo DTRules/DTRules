@@ -30,7 +30,17 @@ import (
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
 )
 
-// TestHarness provides test execution and comparison capabilities.
+// TestHarness provides test execution and comparison capabilities for
+// DTRules rule sets. It loads XML test files from a directory, executes
+// them against a loaded rule set, generates trace and result files, and
+// compares results against reference output to detect regressions.
+//
+// Typical workflow:
+//  1. Create a harness with [NewTestHarness]
+//  2. Configure paths with SetPath, SetTestDirectory, SetOutputDirectory
+//  3. Load rules with [TestHarness.LoadRuleSet]
+//  4. Run all tests with [TestHarness.RunTests] (generates trace + results,
+//     computes coverage, and compares against reference output)
 type TestHarness struct {
 	Path               string
 	RuleSetName        string
@@ -176,7 +186,10 @@ func (th *TestHarness) GetFiles() ([]os.FileInfo, error) {
 	return files, nil
 }
 
-// RunTests executes all tests and generates results.
+// RunTests discovers XML test files in the test directory, executes each
+// one against the loaded rule set, generates trace and result files in the
+// output directory, optionally computes coverage, and compares results
+// against reference output. It prints a summary to stdout.
 func (th *TestHarness) RunTests() error {
 	if th.ruleSet == nil {
 		return fmt.Errorf("rule set not loaded")
@@ -374,7 +387,10 @@ func (th *TestHarness) generateCoverage() error {
 	return nil
 }
 
-// CompareTestResults compares output results with reference results.
+// CompareTestResults compares each *_results.xml file in the output
+// directory with a same-named file in the reference results directory.
+// It writes a TestResults.xml report listing matches, mismatches, and
+// missing reference files.
 func (th *TestHarness) CompareTestResults() error {
 	outputDir := th.GetOutputDirectory()
 	resultDir := th.GetResultDirectory()
@@ -491,12 +507,13 @@ func compareNodes(n1, n2 *XMLNode) string {
 	return ""
 }
 
-// TestResult represents the result of running a test.
+// TestResult represents the outcome of running a single test file.
+// It is returned by [TestHarness.RunSingleTest].
 type TestResult struct {
-	Filename string
-	Success  bool
-	Error    string
-	Duration time.Duration
+	Filename string        // Name of the test file that was executed
+	Success  bool          // True if execution completed without error
+	Error    string        // Error message if Success is false
+	Duration time.Duration // Wall-clock time for the test run
 }
 
 // RunSingleTest runs a single test file and returns the result.
@@ -518,7 +535,9 @@ func (th *TestHarness) RunSingleTest(testFile string) (*TestResult, error) {
 	return result, nil
 }
 
-// EntityReport generates a report of all entities in the session.
+// EntityReport writes an XML report of all entities currently on the
+// session's entity stack, including each entity's name, ID, and
+// attribute values.
 func EntityReport(sess dtrules.Session, w io.Writer) error {
 	state := sess.GetState()
 
@@ -634,11 +653,12 @@ func (th *TestHarness) GenerateTestDataReport(w io.Writer) error {
 	return nil
 }
 
-// CaptureOutput captures the output of a test run.
+// CaptureOutput captures the output of a test run into in-memory
+// buffers, used by [TestHarness.RunFileWithCapture].
 type CaptureOutput struct {
-	Results bytes.Buffer
-	Trace   bytes.Buffer
-	Errors  bytes.Buffer
+	Results bytes.Buffer // XML results output
+	Trace   bytes.Buffer // XML trace output (if tracing is enabled)
+	Errors  bytes.Buffer // Error messages from execution
 }
 
 // RunFileWithCapture runs a test file and captures all output.
