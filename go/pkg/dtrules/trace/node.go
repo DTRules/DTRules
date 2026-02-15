@@ -121,22 +121,24 @@ func (n *TraceNode) Print(w io.Writer) {
 func (n *TraceNode) printIndent(w io.Writer, indent int) {
 	prefix := strings.Repeat("  ", indent)
 
-	// Build attribute string
-	attrs := fmt.Sprintf(" t_num=\"%d\"", n.Number)
+	// Build attribute string using a builder to avoid repeated concatenation
+	var attrs strings.Builder
+	fmt.Fprintf(&attrs, " t_num=\"%d\"", n.Number)
 	for k, v := range n.Attributes {
-		attrs += fmt.Sprintf(" %s=\"%s\"", k, escapeXML(v))
+		fmt.Fprintf(&attrs, " %s=\"%s\"", k, escapeXML(v))
 	}
+	attrStr := attrs.String()
 
 	if len(n.Children) > 0 {
-		fmt.Fprintf(w, "%s<%s%s>\n", prefix, n.Name, attrs)
+		fmt.Fprintf(w, "%s<%s%s>\n", prefix, n.Name, attrStr)
 		for _, child := range n.Children {
 			child.printIndent(w, indent+1)
 		}
 		fmt.Fprintf(w, "%s</%s>\n", prefix, n.Name)
 	} else if n.Body != "" {
-		fmt.Fprintf(w, "%s<%s%s>%s</%s>\n", prefix, n.Name, attrs, escapeXML(n.Body), n.Name)
+		fmt.Fprintf(w, "%s<%s%s>%s</%s>\n", prefix, n.Name, attrStr, escapeXML(n.Body), n.Name)
 	} else {
-		fmt.Fprintf(w, "%s<%s%s/>\n", prefix, n.Name, attrs)
+		fmt.Fprintf(w, "%s<%s%s/>\n", prefix, n.Name, attrStr)
 	}
 }
 

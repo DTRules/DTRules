@@ -126,55 +126,32 @@ func (t *Trace) replayNode(node *TraceNode, target *TraceNode) error {
 		return nil
 	}
 
-	state := t.session.GetState()
-
-	// Keep track of execute_table nodes
-	if node.Name == "execute_table" {
+	switch node.Name {
+	case "execute_table":
 		t.executeTable = node
-	}
-
-	// Handle entitypush
-	if node.Name == "entitypush" {
+	case "entitypush":
 		entity, err := t.getOrCreateEntity(node)
 		if err != nil {
 			return err
 		}
-		state.EntityPush(entity)
-	}
-
-	// Handle entitypop
-	if node.Name == "entitypop" {
-		state.EntityPop()
-	}
-
-	// Handle def (attribute assignment)
-	if node.Name == "def" {
+		t.session.GetState().EntityPush(entity)
+	case "entitypop":
+		t.session.GetState().EntityPop()
+	case "def":
 		if err := t.handleDef(node); err != nil {
 			return err
 		}
-	}
-
-	// Handle createentity
-	if node.Name == "createentity" {
+	case "createentity":
 		if _, err := t.getOrCreateEntity(node); err != nil {
 			return err
 		}
-	}
-
-	// Handle newarray
-	if node.Name == "newarray" {
+	case "newarray":
 		t.handleNewArray(node)
-	}
-
-	// Handle addto
-	if node.Name == "addto" {
+	case "addto":
 		if err := t.handleAddTo(node); err != nil {
 			return err
 		}
-	}
-
-	// Handle remove
-	if node.Name == "remove" {
+	case "remove":
 		if err := t.handleRemove(node); err != nil {
 			return err
 		}
@@ -237,25 +214,8 @@ func (t *Trace) handleDef(node *TraceNode) error {
 		}
 	}
 
-	// Parse and execute the body to get the value
-	var value dtrules.Object
-	if body == "" {
-		value = dtrules.GetRNull()
-	} else {
-		// Try to compile and execute the body
-		compiled, err := t.session.Compile(body)
-		if err != nil {
-			// If compilation fails, try to interpret as literal value
-			value = t.parseSimpleValue(body)
-		} else {
-			state := t.session.GetState()
-			if err := compiled.Execute(state); err != nil {
-				value = t.parseSimpleValue(body)
-			} else {
-				value, _ = state.DataPop()
-			}
-		}
-	}
+	// Evaluate the body to get the value
+	value := t.evaluateBody(body)
 
 	// Set the attribute
 	rname := dtrules.GetRName(attrName)
@@ -270,6 +230,24 @@ func (t *Trace) handleDef(node *TraceNode) error {
 	}
 
 	return nil
+}
+
+// evaluateBody compiles and executes a trace body string to produce a value.
+// Falls back to literal parsing if compilation or execution fails.
+func (t *Trace) evaluateBody(body string) dtrules.Object {
+	if body == "" {
+		return dtrules.GetRNull()
+	}
+	compiled, err := t.session.Compile(body)
+	if err != nil {
+		return t.parseSimpleValue(body)
+	}
+	state := t.session.GetState()
+	if err := compiled.Execute(state); err != nil {
+		return t.parseSimpleValue(body)
+	}
+	value, _ := state.DataPop()
+	return value
 }
 
 // parseSimpleValue attempts to parse a simple literal value from the trace body.
@@ -328,26 +306,7 @@ func (t *Trace) handleAddTo(node *TraceNode) error {
 		t.arrayTable[id] = ar
 	}
 
-	// Get the value to add
-	body := node.Body
-	var value dtrules.Object
-	if body == "" {
-		value = dtrules.GetRNull()
-	} else {
-		compiled, err := t.session.Compile(body)
-		if err != nil {
-			value = t.parseSimpleValue(body)
-		} else {
-			state := t.session.GetState()
-			if err := compiled.Execute(state); err != nil {
-				value = t.parseSimpleValue(body)
-			} else {
-				value, _ = state.DataPop()
-			}
-		}
-	}
-
-	ar.Add(value)
+	ar.Add(t.evaluateBody(node.Body))
 	return nil
 }
 
