@@ -130,7 +130,8 @@ func (s *DTState) GetState() dtrules.State {
 // GoRuntimeFactory creates Go runtime instances.
 // =============================================================================
 
-// GoRuntimeFactory creates DTState-based runtimes for Go execution.
+// GoRuntimeFactory creates DTState-based runtimes for Go bytecode execution.
+// Each call to CreateRuntime returns a fresh DTState with its own stacks.
 type GoRuntimeFactory struct{}
 
 // Name returns "go".

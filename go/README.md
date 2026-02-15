@@ -48,6 +48,18 @@ go build -o dtrules ./cmd/dtrules
 
 # Execute with tracing
 ./dtrules -rules /path/to/rules -entry Main -trace
+
+# Analyze a trace file (print tree)
+./dtrules -trace-file trace.xml
+
+# Reconstruct state at a specific trace node
+./dtrules -rules /path/to/rules -trace-file trace.xml -trace-node 428
+
+# Generate coverage report from trace files
+./dtrules -rules /path/to/rules -coverage ./output/
+
+# Run test harness
+./dtrules -rules /path/to/rules -test ./testfiles/ -test-output ./output/ -entry Main
 ```
 
 ### Using as a Library
@@ -111,6 +123,32 @@ DTRules uses a three-stack interpreter similar to PostScript:
 └─────────────────────────────────────────────┘
 ```
 
+## Runtime Architecture
+
+Each runtime owns its own VMState (stacks, frames, session reference). The `Runtime` interface
+combines three concerns:
+
+- **`RuntimeInit`** — push entities, values, and data onto the runtime's stacks before execution.
+- **`RuntimeQuery`** — read entities, values, and data from the stacks after execution.
+- **`Runtime`** — execute bytecode, and bridge back to the `State` interface for existing code.
+
+The Go interpreter's `DTState` implements `Runtime`. Alternative runtimes (e.g. native assembly)
+can implement the same interface. Use `RuntimeFactory` to create runtime instances:
+
+```go
+factory := &interpreter.GoRuntimeFactory{}
+rt, err := factory.CreateRuntime(session)
+
+// Push initial state
+rt.PushEntity(myEntity)
+
+// Execute
+rt.ExecuteBytecode(compiled)
+
+// Read results
+value, _ := rt.PopValue()
+```
+
 ## Package Structure
 
 ```
@@ -120,13 +158,15 @@ go/
 │   └── api/              # REST API server for UI
 └── pkg/dtrules/
     ├── compiler/         # Postfix expression compiler
-    ├── interpreter/      # State and bytecode VM
+    ├── interpreter/      # State, bytecode VM, and Runtime implementation
     ├── entity/           # Entity system
     ├── operators/        # 179+ built-in operators
     ├── session/          # Session and RuleSet management
     ├── decisiontable/    # Decision table execution
     ├── loader/           # XML loaders (EDD, DT)
     ├── mapping/          # Data mapping
+    ├── trace/            # Trace file analysis and state reconstruction
+    ├── testsupport/      # Test harness, coverage, and change reports
     └── benchmark/        # Performance benchmarks
 ```
 
@@ -181,6 +221,36 @@ go test -bench=. ./pkg/dtrules/benchmark/... -benchmem
 # Run specific tests
 go test -v ./pkg/dtrules -run TestValue
 ```
+
+## Trace Analysis
+
+The `trace` package parses XML trace files produced during rule execution and reconstructs
+the engine state at any point. This is useful for debugging which rules fired, what values
+were assigned, and how entities changed over time.
+
+```go
+t := trace.NewTrace()
+root, _ := t.Load("trace.xml")
+
+// Print the trace tree
+t.Print(os.Stdout)
+
+// Reconstruct state at node 428
+sess, _ := t.SetState(ruleSet, t.Find(428))
+
+// Inspect changes
+for _, change := range t.GetChanges() {
+    fmt.Println(change)
+}
+```
+
+## Test Support
+
+The `testsupport` package provides:
+
+- **TestHarness** — runs XML test files against a rule set, producing result and trace output files.
+- **Coverage** — analyzes trace files to compute decision-table column coverage.
+- **ChangeReport** — compares two versions of a rule set (EDD, decision tables, mappings) and reports structural and execution differences.
 
 ## Documentation
 
