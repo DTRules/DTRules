@@ -31,6 +31,7 @@ import (
 type RSession struct {
 	ruleSet         *RuleSet
 	state           *interpreter.DTState
+	runtime         dtrules.Runtime
 	entityFactory   *entity.Factory
 	uniqueID        int
 	entityInstances map[int]dtrules.Entity
@@ -47,8 +48,10 @@ func NewSession(rs *RuleSet) (*RSession, error) {
 		attributes:      make(map[string]interface{}),
 	}
 
-	// Create state
+	// Create state — the DTState is the Go runtime's VMState.
+	// It implements dtrules.Runtime (RuntimeInit + RuntimeQuery + execution).
 	s.state = interpreter.NewDTState(s)
+	s.runtime = s.state
 
 	// Get entity factory
 	s.entityFactory = rs.GetEntityFactory()
@@ -78,6 +81,13 @@ func NewSession(rs *RuleSet) (*RSession, error) {
 // GetState returns the interpreter state.
 func (s *RSession) GetState() dtrules.State {
 	return s.state
+}
+
+// GetRuntime returns the runtime for this session.
+// The runtime owns the VMState and provides init/query interfaces
+// for pushing state before execution and extracting results after.
+func (s *RSession) GetRuntime() dtrules.Runtime {
+	return s.runtime
 }
 
 // GetEntityFactory returns the entity factory.

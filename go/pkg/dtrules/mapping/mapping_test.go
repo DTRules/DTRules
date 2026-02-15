@@ -38,6 +38,7 @@ func newMockSession() *mockSession {
 }
 
 func (m *mockSession) GetState() dtrules.State                 { return m.state }
+func (m *mockSession) GetRuntime() dtrules.Runtime             { return m.state }
 func (m *mockSession) GetEntityFactory() dtrules.EntityFactory { return m.factory }
 func (m *mockSession) GetUniqueID() int                        { m.uniqueID++; return m.uniqueID }
 func (m *mockSession) GetDateParser() dtrules.DateParser       { return nil }

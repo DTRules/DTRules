@@ -135,6 +135,10 @@ func (s *loadSession) GetState() dtrules.State {
 	return nil
 }
 
+func (s *loadSession) GetRuntime() dtrules.Runtime {
+	return nil
+}
+
 func (s *loadSession) GetEntityFactory() dtrules.EntityFactory {
 	return s.factory
 }

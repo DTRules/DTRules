@@ -242,6 +242,13 @@ type Session interface {
 	// GetState returns the interpreter state
 	GetState() State
 
+	// GetRuntime returns the runtime for this session.
+	// The runtime owns its VMState and provides RuntimeInit/RuntimeQuery
+	// interfaces for pushing state before execution and extracting
+	// results after. Returns nil if the session does not have a runtime
+	// (e.g., during loading).
+	GetRuntime() Runtime
+
 	// GetEntityFactory returns the entity factory
 	GetEntityFactory() EntityFactory
 

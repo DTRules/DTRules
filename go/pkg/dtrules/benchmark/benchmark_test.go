@@ -38,6 +38,7 @@ type mockSession struct {
 }
 
 func (m *mockSession) GetState() dtrules.State                                  { return nil }
+func (m *mockSession) GetRuntime() dtrules.Runtime                              { return nil }
 func (m *mockSession) GetEntityFactory() dtrules.EntityFactory                  { return nil }
 func (m *mockSession) GetUniqueID() int                                         { m.uniqueID++; return m.uniqueID }
 func (m *mockSession) GetDateParser() dtrules.DateParser                        { return nil }
