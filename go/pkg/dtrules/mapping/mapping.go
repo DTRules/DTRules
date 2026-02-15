@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package mapping implements the DTRules XML to Entity mapping system.
-// It loads mapping definitions and uses them to parse input data XML
-// into DTRules entities.
+// Package mapping implements the DTRules data-to-entity mapping system.
+// It loads mapping definitions and uses them to parse input data (XML or JSON)
+// into DTRules entities. XML data loading requires mapping definitions; JSON
+// data loading can use the EDD entity definitions directly for type information.
 package mapping
 
 import (
