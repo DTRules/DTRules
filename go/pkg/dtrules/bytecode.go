@@ -116,10 +116,21 @@ const (
 )
 
 // BytecodeChunk holds compiled bytecode and its constant pool.
+//
+// Memory layout (72 bytes on 64-bit, 8-byte aligned):
+//
+//	Offset  Size  Field      Type       Description
+//	------  ----  -----      ----       -----------
+//	 0       24   code       []byte     Bytecode instructions (slice header)
+//	24       24   constants  []Value    Constant pool (slice header, 24-byte elements)
+//	48       24   names      []*RName   Name pool for lookup ops (slice header, 8-byte elements)
+//
+// ASM access: dereference slice headers to get underlying arrays.
+// The layout is verified by TestBytecodeChunkLayout in value_layout_test.go.
 type BytecodeChunk struct {
-	code      []byte   // Bytecode instructions
-	constants []Value  // Constant pool (immediate values, strings, etc.)
-	names     []*RName // Name pool (for lookup operations)
+	code      []byte   // offset 0:  Bytecode instructions
+	constants []Value  // offset 24: Constant pool (immediate values, strings, etc.)
+	names     []*RName // offset 48: Name pool (for lookup operations)
 }
 
 // NewBytecodeChunk creates a new bytecode chunk.

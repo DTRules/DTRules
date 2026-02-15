@@ -39,50 +39,86 @@ const stackLimit = 1000
 // DTState implements the interpreter state with three stacks.
 // The interpreter is a stack-based interpreter similar to PostScript.
 //
-// - Control stack: implements stack frames for decision tables and local variables
-// - Entity stack: defines the context for associating attributes with values (like PostScript's dictionary stack)
-// - Data stack: passes data to operators and returns results
+//   - Control stack: implements stack frames for decision tables and local variables
+//   - Entity stack: defines the context for associating attributes with values (like PostScript's dictionary stack)
+//   - Data stack: passes data to operators and returns results
 //
 // The state also supports an optimized Value-based stack for high-performance execution.
+//
+// Memory layout (304 bytes on 64-bit, 8-byte aligned):
+//
+//	Offset  Size  Field             Type             Description
+//	------  ----  -----             ----             -----------
+//	  0      24   ctrlStk           []Object         Control stack (slice header)
+//	 24      24   dataStk           []Object         Data stack (slice header)
+//	 48      24   entityStk         []Entity         Entity stack (slice header)
+//	 72      24   valueStk          []Value          Value stack for bytecode VM (slice header)
+//	 96      24   frames            []int            Saved frame pointers (slice header)
+//	120       8   currentFrame      int              Active frame index in ctrlStk
+//	128      16   session           Session          Session interface (type+data ptr)
+//	144       8   state             int              Bit flags: DEBUG=1, TRACE=2, ECHO=4, VERBOSE=8
+//	152       8   extendedState     map              Custom operator state
+//	160       8   Seed              int64            Random seed
+//	168       8   Rand              *rand.Rand       RNG instance
+//	176      16   debugOut          io.Writer        Debug output (interface)
+//	192      16   errorOut          io.Writer        Error output (interface)
+//	208      16   traceOut          io.Writer        Trace output (interface)
+//	224      16   currentTable      interface{}      Current decision table
+//	240      16   currentTableSection string         Current section name
+//	256       8   numberInSection   int              Number within section
+//	264      16   anode             interface{}      Current ANode
+//	280      24   operatorTable     []Object         Operator table for bytecode (slice header)
+//
+// Each slice header is 24 bytes: {Data uintptr, Len int, Cap int}.
+// ASM access pattern for the value stack (hot path):
+//
+//	state_ptr      = pointer to DTState
+//	vstk_data_ptr  = QWORD [state_ptr + 72]   // underlying array pointer
+//	vstk_len       = QWORD [state_ptr + 80]   // current stack depth
+//	vstk_cap       = QWORD [state_ptr + 88]   // allocated capacity
+//	top_element    = vstk_data_ptr + (vstk_len - 1) * 24
+//	trace_flags    = QWORD [state_ptr + 144]  // test bit 1 for TRACE
+//
+// The layout is verified by TestDTStateMemoryLayout in state_layout_test.go.
 type DTState struct {
 	// The three stacks (Object-based, for compatibility)
-	ctrlStk   []dtrules.Object
-	dataStk   []dtrules.Object
-	entityStk []dtrules.Entity
+	ctrlStk   []dtrules.Object  // offset 0
+	dataStk   []dtrules.Object  // offset 24
+	entityStk []dtrules.Entity  // offset 48
 
 	// Optimized Value-based stack (for bytecode execution)
-	valueStk []dtrules.Value
+	valueStk []dtrules.Value // offset 72
 
 	// Frame management for control stack
-	frames       []int
-	currentFrame int
+	frames       []int // offset 96
+	currentFrame int   // offset 120
 
 	// Session reference
-	session dtrules.Session
+	session dtrules.Session // offset 128
 
 	// State flags (DEBUG, TRACE, ECHO, VERBOSE)
-	state int
+	state int // offset 144
 
 	// Extended state for custom operators
-	extendedState map[*dtrules.RName]interface{}
+	extendedState map[*dtrules.RName]interface{} // offset 152
 
 	// Random number generator
-	Seed int64
-	Rand *rand.Rand
+	Seed int64      // offset 160
+	Rand *rand.Rand // offset 168
 
 	// Output streams
-	debugOut io.Writer
-	errorOut io.Writer
-	traceOut io.Writer
+	debugOut io.Writer // offset 176
+	errorOut io.Writer // offset 192
+	traceOut io.Writer // offset 208
 
 	// Current decision table context
-	currentTable        interface{} // *RDecisionTable when implemented
-	currentTableSection string
-	numberInSection     int
-	anode               interface{} // *ANode when implemented
+	currentTable        interface{} // offset 224; *RDecisionTable when implemented
+	currentTableSection string      // offset 240
+	numberInSection     int         // offset 256
+	anode               interface{} // offset 264; *ANode when implemented
 
 	// Operator table for bytecode execution (set externally to avoid import cycle)
-	operatorTable []dtrules.Object
+	operatorTable []dtrules.Object // offset 280
 }
 
 // NewDTState creates a new interpreter state for the given session.

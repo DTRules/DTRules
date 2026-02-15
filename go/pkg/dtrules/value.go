@@ -24,11 +24,26 @@ import (
 // It avoids interface boxing and heap allocation for primitive types.
 // This is used internally for high-performance execution paths.
 //
-// Memory layout (24 bytes on 64-bit):
-//   - tag:  1 byte  - type discriminator
-//   - _:    7 bytes - padding
-//   - num:  8 bytes - numeric value (int64 or float64 bits)
-//   - ptr:  8 bytes - pointer to complex types (string, array, entity, etc.)
+// Memory layout (24 bytes on 64-bit, 8-byte aligned):
+//
+//	Offset  Size  Field  Description
+//	------  ----  -----  -----------
+//	 0       1    tag    Type discriminator (VTagNull=0 .. VTagObject=8)
+//	 1       7    _      Padding for 8-byte alignment
+//	 8       8    num    int64: integer value, float64 bits, bool as 0/1,
+//	                     or interface type pointer for VTagObject
+//	16       8    ptr    unsafe.Pointer: *string header for VTagString,
+//	                     *RName for VTagName, *RArray for VTagArray,
+//	                     or interface data pointer for VTagObject
+//
+// ASM access pattern for value stack element at index i:
+//
+//	element_addr = slice_data_ptr + (i * 24)
+//	tag          = BYTE  [element_addr + 0]
+//	num          = QWORD [element_addr + 8]
+//	ptr          = QWORD [element_addr + 16]
+//
+// The layout is verified by TestValueMemoryLayout in value_layout_test.go.
 type Value struct {
 	tag uint8
 	_   [7]byte        // padding for alignment
