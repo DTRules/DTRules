@@ -139,7 +139,8 @@ func (l *TraceLoader) GetNodeCount() int {
 	return l.number - 1
 }
 
-// LoadAndCount loads a trace file and returns both the root node and count.
+// LoadAndCount loads a trace from a reader and returns the root node along
+// with the total number of nodes parsed.
 func LoadAndCount(r io.Reader) (*TraceNode, int, error) {
 	loader := NewTraceLoader()
 	root, err := loader.Parse(r)

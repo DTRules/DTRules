@@ -28,17 +28,17 @@ import (
 
 // RulesConfig holds configuration for a rule set to be compared.
 type RulesConfig struct {
-	RuleSetName    string
-	Path           string
-	ConfigFile     string
-	Description    string
-	XMLPath        string
-	DTSPath        string
-	EDDPath        string
-	MappingPath    string
-	dtsRoot        *XMLNode
-	eddRoot        *XMLNode
-	mappingRoot    *XMLNode
+	RuleSetName string // Name of the rule set to load
+	Path        string // Base directory for rule set files
+	ConfigFile  string // DTRules.xml configuration filename
+	Description string // Human-readable description (e.g. "development" or "deployed")
+	XMLPath     string // Subdirectory within Path containing XML files
+	DTSPath     string // Decision tables filename
+	EDDPath     string // EDD filename
+	MappingPath string // Mapping filename
+	dtsRoot     *XMLNode
+	eddRoot     *XMLNode
+	mappingRoot *XMLNode
 }
 
 // NewRulesConfig creates a new rules configuration.
@@ -213,10 +213,10 @@ func (rc *RulesConfig) loadXML(filename string) (*XMLNode, error) {
 
 // XMLNode represents a node in an XML tree for comparison.
 type XMLNode struct {
-	Name       string
-	Attributes map[string]string
-	Body       string
-	Children   []*XMLNode
+	Name       string            // XML element name
+	Attributes map[string]string // XML element attributes
+	Body       string            // Text content of the element
+	Children   []*XMLNode        // Child elements
 }
 
 // ParseXMLTree parses an XML file into an XMLNode tree.
@@ -325,7 +325,13 @@ func (n *XMLNode) AbsoluteMatch(other *XMLNode, ignoreBody bool) bool {
 	return true
 }
 
-// ChangeReport compares two versions of a rule set.
+// ChangeReport compares two versions of a rule set and reports differences
+// in decision tables, entity definitions, and mappings. It distinguishes
+// between structural changes (added/removed tables, entities, attributes)
+// and execution changes (modifications that affect runtime behavior).
+//
+// Create with [NewChangeReport] or [NewChangeReportFromRuleSets], then call
+// Compare to write the full XML report.
 type ChangeReport struct {
 	Rules1 *RulesConfig // New/development version
 	Rules2 *RulesConfig // Reference/deployed version

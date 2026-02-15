@@ -13,9 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package trace provides trace analysis capabilities for DTRules.
-// It can parse trace files generated during rule execution and
-// reconstruct the state of the rules engine at any point in the trace.
 package trace
 
 import (

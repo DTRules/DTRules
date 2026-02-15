@@ -13,6 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package trace parses DTRules XML trace files and reconstructs engine
+// state at any point in the execution history. A trace file records every
+// entity push/pop, attribute assignment, array mutation, and decision-table
+// invocation that occurred during rule execution. This package replays
+// those events to rebuild the full interpreter state (entity stack,
+// attribute values, arrays) up to a chosen node, enabling post-mortem
+// debugging and analysis.
 package trace
 
 import (
@@ -26,8 +33,16 @@ import (
 )
 
 // Trace provides analysis capabilities for DTRules trace files.
-// It can load trace files, reconstruct state at any point in the trace,
-// and track changes made during rule execution.
+// It loads XML trace files produced during rule execution, reconstructs
+// the engine state at any point in the trace, and tracks attribute changes.
+//
+// Typical usage:
+//
+//	t := trace.NewTrace()
+//	root, _ := t.Load("trace.xml")
+//	t.Print(os.Stdout)                        // print the trace tree
+//	sess, _ := t.SetState(ruleSet, t.Find(n)) // reconstruct state at node n
+//	changes := t.GetChanges()                  // inspect attribute changes
 type Trace struct {
 	root         *TraceNode                   // Root of the trace tree
 	entityTable  map[string]dtrules.Entity    // Entities created during replay

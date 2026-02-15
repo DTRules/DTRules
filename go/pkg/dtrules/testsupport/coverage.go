@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package testsupport provides test infrastructure for DTRules including
-// coverage analysis, change reporting, and test execution harnesses.
 package testsupport
 
 import (
@@ -59,7 +57,12 @@ func NewStats(tableName string, columnCount, conditionCount, actionCount int) *S
 	}
 }
 
-// Coverage computes test coverage from trace files.
+// Coverage computes decision-table column coverage from trace files.
+//
+// Create a Coverage with [NewCoverage], then call Compute to process
+// trace files. The analyzer parses each trace file's XML, tracks which
+// decision-table columns were executed, and computes per-table coverage
+// percentages. Call PrintReport to write an XML coverage report.
 type Coverage struct {
 	rs                  *session.RuleSet
 	traceFilesPath      string

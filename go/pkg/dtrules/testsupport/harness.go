@@ -13,6 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package testsupport provides test execution, coverage analysis, and change
+// reporting for DTRules rule sets.
+//
+// The package contains three main components:
+//
+//   - [TestHarness] runs XML test files against a loaded rule set, producing
+//     result files and optional trace files. It compares new output against
+//     reference results to detect regressions.
+//
+//   - [Coverage] analyzes trace files produced during rule execution and
+//     computes decision-table column coverage statistics, identifying which
+//     columns were exercised and a minimal set of test files for coverage.
+//
+//   - [ChangeReport] compares two versions of a rule set (EDD, decision
+//     tables, and mappings) and reports structural and execution differences.
 package testsupport
 
 import (
@@ -30,20 +45,32 @@ import (
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
 )
 
-// TestHarness provides test execution and comparison capabilities.
+// TestHarness executes XML test files against a rule set and compares results.
+//
+// The typical lifecycle is:
+//
+//  1. Create a harness with [NewTestHarness].
+//  2. Configure paths (SetPath, SetTestDirectory, SetOutputDirectory).
+//  3. Load the rule set with LoadRuleSet.
+//  4. Call RunTests to execute all test files, generate trace/coverage, and
+//     compare output against reference results.
+//
+// Each test file is executed in its own session. When Trace is enabled, trace
+// XML files are written alongside results, and coverage analysis is generated
+// automatically if Coverage is also true.
 type TestHarness struct {
-	Path               string
-	RuleSetName        string
-	DecisionTableName  string
-	RulesDirectoryFile string
-	TestDirectory      string
-	OutputDirectory    string
-	ResultDirectory    string
-	Trace              bool
-	Coverage           bool
-	Verbose            bool
-	Console            bool
-	Numbered           bool
+	Path               string // Base path for the project
+	RuleSetName        string // Name of the rule set
+	DecisionTableName  string // Entry point decision table to execute
+	RulesDirectoryFile string // DTRules.xml configuration filename
+	TestDirectory      string // Directory containing XML test files
+	OutputDirectory    string // Directory for generated output
+	ResultDirectory    string // Directory containing reference results for comparison
+	Trace              bool   // Enable trace output during test execution
+	Coverage           bool   // Enable coverage analysis after test execution
+	Verbose            bool   // Enable verbose trace output
+	Console            bool   // Print progress to console
+	Numbered           bool   // Prefix output files with sequential numbers
 	fileCount          int
 	currentFile        string
 	ruleSet            *session.RuleSet
@@ -518,7 +545,8 @@ func (th *TestHarness) RunSingleTest(testFile string) (*TestResult, error) {
 	return result, nil
 }
 
-// EntityReport generates a report of all entities in the session.
+// EntityReport writes an XML report of all entities on the session's entity
+// stack, including each entity's attributes and their current values.
 func EntityReport(sess dtrules.Session, w io.Writer) error {
 	state := sess.GetState()
 

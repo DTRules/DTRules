@@ -46,7 +46,7 @@ type RuntimeQuery interface {
 	// the entity stack. 0 returns the top entity.
 	EntityByIndex(index int) (Entity, error)
 
-	// EntityDepth returns the current depth of the entity stack.
+	// EntityStackDepth returns the current depth of the entity stack.
 	EntityStackDepth() int
 
 	// PopValue pops and returns a value from the runtime's value stack.
@@ -55,7 +55,7 @@ type RuntimeQuery interface {
 	// PeekValue returns the top value without removing it.
 	PeekValue() (Value, error)
 
-	// ValueStackDepth returns the current depth of the value stack.
+	// ValueStackSize returns the current depth of the value stack.
 	ValueStackSize() int
 
 	// PopData pops and returns an object from the runtime's data stack.
@@ -64,14 +64,14 @@ type RuntimeQuery interface {
 	// PeekData returns the top data stack object without removing it.
 	PeekData() (Object, error)
 
-	// DataStackDepth returns the current depth of the data stack.
+	// DataStackSize returns the current depth of the data stack.
 	DataStackSize() int
 
 	// FindValue looks up a name in the entity stack context and returns
 	// the value as a Value. Returns ValueNull if not found.
 	FindValue(name *RName) (Value, error)
 
-	// FindEntity locates the entity containing the named attribute.
+	// QueryEntity locates the entity containing the named attribute.
 	// Returns nil if no entity on the stack contains the attribute.
 	QueryEntity(name *RName) (Entity, error)
 }
