@@ -137,6 +137,15 @@ func (m *Mapping) LoadData(r io.Reader) error {
 	return loader.Load(r)
 }
 
+// LoadDataJSON loads data from a JSON reader into entities.
+// Unlike LoadData (XML), this does not require mapping definitions.
+// Instead, it uses the EDD entity definitions directly for type information.
+// Top-level JSON keys are entity names; values are objects or arrays of objects.
+func (m *Mapping) LoadDataJSON(r io.Reader) error {
+	loader := newJSONDataLoader(m)
+	return loader.Load(r)
+}
+
 // Initialize creates the initial entities and pushes them onto the entity stack.
 func (m *Mapping) Initialize() error {
 	for _, entityName := range m.entitystack {

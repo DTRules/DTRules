@@ -1,6 +1,6 @@
 # Compiled binaries
-api
-dtrules
+/api
+/dtrules
 *.exe
 
 # Test binaries
