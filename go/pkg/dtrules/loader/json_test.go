@@ -549,6 +549,348 @@ func TestJSONDataLoadError(t *testing.T) {
 	}
 }
 
+// Test goValueToDTRulesObject with array values
+func TestGoValueToDTRulesObjectArray(t *testing.T) {
+	arr := []interface{}{"a", float64(1), true}
+	obj := goValueToDTRulesObject(arr)
+	if obj == nil {
+		t.Fatal("Expected non-nil object for array")
+	}
+	// The result should be an RArray containing 3 items
+	sv := obj.StringValue()
+	if sv == "" {
+		t.Error("Expected non-empty string value for array")
+	}
+}
+
+// Test goValueToDTRulesObject with nested map values
+func TestGoValueToDTRulesObjectMap(t *testing.T) {
+	m := map[string]interface{}{"key": "value", "num": float64(42)}
+	obj := goValueToDTRulesObject(m)
+	if obj == nil {
+		t.Fatal("Expected non-nil object for map")
+	}
+	// Maps are serialized as JSON strings
+	sv := obj.StringValue()
+	if !strings.Contains(sv, "key") || !strings.Contains(sv, "value") {
+		t.Errorf("Expected JSON string containing 'key' and 'value', got: %s", sv)
+	}
+}
+
+// Test goValueToDTRulesObject with false boolean
+func TestGoValueToDTRulesObjectFalse(t *testing.T) {
+	obj := goValueToDTRulesObject(false)
+	v, err := obj.BooleanValue()
+	if err != nil || v {
+		t.Errorf("Expected false boolean, got %v (err: %v)", v, err)
+	}
+}
+
+// Test goValueToDTRulesObject with negative integer
+func TestGoValueToDTRulesObjectNegativeInt(t *testing.T) {
+	obj := goValueToDTRulesObject(float64(-5))
+	v, err := obj.IntValue()
+	if err != nil || v != -5 {
+		t.Errorf("Expected -5, got %d (err: %v)", v, err)
+	}
+}
+
+// Test goValueToDTRulesObject with zero
+func TestGoValueToDTRulesObjectZero(t *testing.T) {
+	obj := goValueToDTRulesObject(float64(0))
+	v, err := obj.IntValue()
+	if err != nil || v != 0 {
+		t.Errorf("Expected 0, got %d (err: %v)", v, err)
+	}
+}
+
+// Test goValueToDTRulesObject with empty string
+func TestGoValueToDTRulesObjectEmptyString(t *testing.T) {
+	obj := goValueToDTRulesObject("")
+	if obj.StringValue() != "" {
+		t.Errorf("Expected empty string, got %q", obj.StringValue())
+	}
+}
+
+// Test goValueToDTRulesObject with empty array
+func TestGoValueToDTRulesObjectEmptyArray(t *testing.T) {
+	arr := []interface{}{}
+	obj := goValueToDTRulesObject(arr)
+	if obj == nil {
+		t.Fatal("Expected non-nil object for empty array")
+	}
+}
+
+// Test goValueToDTRulesObject with empty map
+func TestGoValueToDTRulesObjectEmptyMap(t *testing.T) {
+	m := map[string]interface{}{}
+	obj := goValueToDTRulesObject(m)
+	if obj == nil {
+		t.Fatal("Expected non-nil object for empty map")
+	}
+	sv := obj.StringValue()
+	if sv != "{}" {
+		t.Errorf("Expected '{}', got %q", sv)
+	}
+}
+
+// Test JSONDataLoader size limit
+func TestJSONDataLoaderSizeLimit(t *testing.T) {
+	originalMax := MaxJSONSize
+	defer func() { MaxJSONSize = originalMax }()
+
+	MaxJSONSize = 10
+
+	loader := NewJSONDataLoader(nil, nil)
+
+	// This JSON is definitely larger than 10 bytes
+	jsonData := `{"person": {"name": "John", "age": 30}}`
+	err := loader.Load(strings.NewReader(jsonData))
+	if err == nil {
+		t.Fatal("Expected error for oversized JSON data")
+	}
+	if !strings.Contains(err.Error(), "exceeds maximum size limit") {
+		t.Errorf("Expected size limit error, got: %v", err)
+	}
+}
+
+// Test JSONDataLoader read error
+func TestJSONDataLoaderReadError(t *testing.T) {
+	loader := NewJSONDataLoader(nil, nil)
+	err := loader.Load(&errorReader{})
+	if err == nil {
+		t.Fatal("Expected error from failing reader")
+	}
+	if !strings.Contains(err.Error(), "read") {
+		t.Errorf("Expected read error, got: %v", err)
+	}
+}
+
+// Test JSONDataLoader malformed JSON
+func TestJSONDataLoaderMalformedJSON(t *testing.T) {
+	loader := NewJSONDataLoader(nil, nil)
+	err := loader.Load(strings.NewReader(`{"broken`))
+	if err == nil {
+		t.Fatal("Expected error for malformed JSON")
+	}
+	if !strings.Contains(err.Error(), "parse") {
+		t.Errorf("Expected parse error, got: %v", err)
+	}
+}
+
+// Test JSONDataLoader GetErrors and GetWarnings on fresh loader
+func TestJSONDataLoaderGettersEmpty(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONDataLoader(nil, factory)
+
+	errs := loader.GetErrors()
+	if len(errs) != 0 {
+		t.Errorf("Expected no errors initially, got %d", len(errs))
+	}
+
+	warnings := loader.GetWarnings()
+	if len(warnings) != 0 {
+		t.Errorf("Expected no warnings initially, got %d", len(warnings))
+	}
+}
+
+// Test JSONDataLoadError with warnings
+func TestJSONDataLoadErrorWithWarnings(t *testing.T) {
+	err := &JSONDataLoadError{
+		Errors:   []error{errors.New("err1")},
+		Warnings: []string{"warn1", "warn2"},
+	}
+
+	errMsg := err.Error()
+	if errMsg == "" {
+		t.Error("Expected non-empty error message")
+	}
+}
+
+// Test singularize with additional edge cases
+func TestSingularizeEdgeCases(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"a", "a"},                // Single character
+		{"ss", "ss"},             // Double s (not plural)
+		{"boss", "boss"},         // Ends in ss
+		{"buses", "bus"},         // Ends in ses
+		{"foxes", "fox"},         // Ends in xes
+		{"babies", "baby"},       // Ends in ies
+		{"policies", "policy"},   // Ends in ies
+		{"Categories", "Category"}, // Case preserved
+	}
+
+	for _, tt := range tests {
+		result := singularize(tt.input)
+		if result != tt.expected {
+			t.Errorf("singularize(%q) = %q, want %q", tt.input, result, tt.expected)
+		}
+	}
+}
+
+// Test NewJSONEDDLoader returns valid loader
+func TestNewJSONEDDLoader(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+	if loader == nil {
+		t.Fatal("NewJSONEDDLoader returned nil")
+	}
+}
+
+// Test NewJSONDataLoader returns valid loader
+func TestNewJSONDataLoader(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONDataLoader(nil, factory)
+	if loader == nil {
+		t.Fatal("NewJSONDataLoader returned nil")
+	}
+}
+
+// Test JSON EDD loader with empty entity name
+func TestJSONEDDLoaderEmptyEntityName(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "",
+				"fields": [
+					{"name": "value", "type": "integer", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err == nil {
+		t.Fatal("Expected error for empty entity name")
+	}
+}
+
+// Test JSON EDD loader with whitespace-only entity name
+func TestJSONEDDLoaderWhitespaceEntityName(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "   ",
+				"fields": [
+					{"name": "value", "type": "integer", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err == nil {
+		t.Fatal("Expected error for whitespace-only entity name")
+	}
+}
+
+// Test JSON EDD loader with entity that has no fields
+func TestJSONEDDLoaderEntityNoFields(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "emptyentity",
+				"access": "rw",
+				"fields": []
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("Entity with no fields should load without error: %v", err)
+	}
+
+	ent, _ := factory.GetReferenceEntity(dtrules.GetRName("emptyentity"))
+	if ent == nil {
+		t.Fatal("Expected emptyentity to be created")
+	}
+}
+
+// Test JSON EDD loader with all field types
+func TestJSONEDDLoaderAllFieldTypes(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "alltypes",
+				"access": "rw",
+				"fields": [
+					{"name": "str", "type": "string", "access": "rw"},
+					{"name": "num", "type": "integer", "access": "rw"},
+					{"name": "dbl", "type": "double", "access": "rw"},
+					{"name": "flag", "type": "boolean", "access": "rw"},
+					{"name": "dt", "type": "date", "access": "rw"},
+					{"name": "ent", "type": "entity", "access": "rw"},
+					{"name": "arr", "type": "array", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("Failed to load JSON EDD with all field types: %v", err)
+	}
+
+	ent, _ := factory.GetReferenceEntity(dtrules.GetRName("alltypes"))
+	if ent == nil {
+		t.Fatal("Expected alltypes entity")
+	}
+
+	types := []string{"str", "num", "dbl", "flag", "dt", "ent", "arr"}
+	for _, typ := range types {
+		if !ent.ContainsAttribute(dtrules.GetRName(typ)) {
+			t.Errorf("Expected '%s' attribute", typ)
+		}
+	}
+}
+
+// Test JSON EDD loader with invalid default values
+func TestJSONEDDLoaderInvalidDefaultValues(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	// Invalid integer default should fall through to null
+	jsonData := `{
+		"entities": [
+			{
+				"name": "baddefaults",
+				"access": "rw",
+				"fields": [
+					{"name": "intfield", "type": "integer", "access": "rw", "defaultValue": "notanumber"},
+					{"name": "doublefield", "type": "double", "access": "rw", "defaultValue": "notadouble"},
+					{"name": "boolfield", "type": "boolean", "access": "rw", "defaultValue": "notabool"}
+				]
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("Should load even with bad defaults: %v", err)
+	}
+
+	ent, _ := factory.GetReferenceEntity(dtrules.GetRName("baddefaults"))
+	if ent == nil {
+		t.Fatal("Expected baddefaults entity")
+	}
+}
+
 // Test compatibility: verify JSON EDD produces same entities as XML EDD
 func TestJSONEDDMatchesXMLEDD(t *testing.T) {
 	// Load with XML

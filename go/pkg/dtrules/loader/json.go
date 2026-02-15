@@ -64,7 +64,6 @@ func NewJSONEDDLoader(session dtrules.Session, factory *entity.Factory) *JSONEDD
 	return &JSONEDDLoader{
 		session: session,
 		factory: factory,
-		errors:  make([]error, 0),
 	}
 }
 
@@ -129,7 +128,12 @@ func (l *JSONEDDLoader) Load(r io.Reader) error {
 
 // processEntity processes a single JSON entity definition.
 func (l *JSONEDDLoader) processEntity(ent *JSONEDDEntity) error {
-	entityName := dtrules.GetRName(strings.TrimSpace(ent.Name))
+	trimmedName := strings.TrimSpace(ent.Name)
+	if trimmedName == "" {
+		return fmt.Errorf("entity name must not be empty")
+	}
+
+	entityName := dtrules.GetRName(trimmedName)
 	if entityName == nil {
 		return fmt.Errorf("invalid entity name syntax: %s", ent.Name)
 	}
@@ -224,12 +228,6 @@ func (l *JSONEDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RT
 				return d
 			}
 		}
-	case dtrules.TypeArray:
-		if l.session != nil {
-			if arr, err := dtrules.NewArray(l.session, true, false); err == nil {
-				return arr
-			}
-		}
 	}
 
 	return dtrules.GetRNull()
@@ -271,10 +269,8 @@ type JSONDataLoader struct {
 // NewJSONDataLoader creates a new JSON data loader.
 func NewJSONDataLoader(session dtrules.Session, factory *entity.Factory) *JSONDataLoader {
 	return &JSONDataLoader{
-		session:  session,
-		factory:  factory,
-		errors:   make([]error, 0),
-		warnings: make([]string, 0),
+		session: session,
+		factory: factory,
 	}
 }
 
@@ -318,13 +314,19 @@ func (l *JSONDataLoader) Load(r io.Reader) error {
 
 // processTopLevel handles a top-level key/value pair from the JSON data.
 func (l *JSONDataLoader) processTopLevel(key string, raw json.RawMessage, state dtrules.State) error {
-	// Determine if this is an array or a single object
-	trimmed := strings.TrimSpace(string(raw))
-	if len(trimmed) == 0 {
+	// Determine if this is an array or a single object by finding the first non-whitespace byte
+	firstByte := byte(0)
+	for _, b := range []byte(raw) {
+		if b != ' ' && b != '\t' && b != '\n' && b != '\r' {
+			firstByte = b
+			break
+		}
+	}
+	if firstByte == 0 {
 		return nil
 	}
 
-	switch trimmed[0] {
+	switch firstByte {
 	case '{':
 		// Single entity
 		var obj map[string]interface{}

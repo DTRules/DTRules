@@ -309,3 +309,220 @@ func TestSessionGetRuleSet(t *testing.T) {
 		t.Error("GetRuleSet returned different rule set")
 	}
 }
+
+func TestLoadEDDJSON(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "customer",
+				"access": "rw",
+				"fields": [
+					{"name": "name", "type": "string", "access": "rw"},
+					{"name": "age", "type": "integer", "access": "rw"},
+					{"name": "balance", "type": "double", "access": "rw"},
+					{"name": "active", "type": "boolean", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := rs.LoadEDDJSON(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	// Verify entity was created
+	names := rs.GetEntityNames()
+	found := false
+	for _, name := range names {
+		if name.StringValue() == "customer" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Expected 'customer' entity to be created via JSON")
+	}
+}
+
+func TestLoadEDDJSONMultipleEntities(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "order",
+				"access": "rw",
+				"fields": [
+					{"name": "order_id", "type": "integer", "access": "rw"},
+					{"name": "total", "type": "double", "access": "rw"}
+				]
+			},
+			{
+				"name": "item",
+				"access": "rw",
+				"fields": [
+					{"name": "item_id", "type": "integer", "access": "rw"},
+					{"name": "description", "type": "string", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := rs.LoadEDDJSON(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	names := rs.GetEntityNames()
+	if len(names) < 2 {
+		t.Errorf("Expected at least 2 entities, got %d", len(names))
+	}
+
+	entityNames := make(map[string]bool)
+	for _, name := range names {
+		entityNames[name.StringValue()] = true
+	}
+	if !entityNames["order"] {
+		t.Error("Expected 'order' entity")
+	}
+	if !entityNames["item"] {
+		t.Error("Expected 'item' entity")
+	}
+}
+
+func TestLoadEDDJSONInvalid(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	err := rs.LoadEDDJSON(strings.NewReader(`{invalid json`))
+	if err == nil {
+		t.Fatal("Expected error for invalid JSON")
+	}
+}
+
+func TestLoadEDDJSONEmpty(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	err := rs.LoadEDDJSON(strings.NewReader(`{"entities": []}`))
+	if err != nil {
+		t.Fatalf("Empty JSON EDD should succeed: %v", err)
+	}
+}
+
+func TestLoadEDDJSONThenCreateSession(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "widget",
+				"access": "rw",
+				"fields": [
+					{"name": "label", "type": "string", "access": "rw"},
+					{"name": "count", "type": "integer", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := rs.LoadEDDJSON(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	// Create session and entity from JSON-loaded EDD
+	session, err := rs.NewSession()
+	if err != nil {
+		t.Fatalf("NewSession failed: %v", err)
+	}
+
+	rsession := session.(*RSession)
+	entity, err := rsession.CreateEntity(dtrules.GetRName("widget"))
+	if err != nil {
+		t.Fatalf("CreateEntity failed: %v", err)
+	}
+	if entity == nil {
+		t.Fatal("Entity is nil")
+	}
+
+	// Set and get a value
+	err = entity.Put(dtrules.GetRName("label"), dtrules.NewRString("test-widget"))
+	if err != nil {
+		t.Fatalf("Put failed: %v", err)
+	}
+
+	value, err := entity.Get(dtrules.GetRName("label"))
+	if err != nil {
+		t.Fatalf("Get failed: %v", err)
+	}
+	if value.StringValue() != "test-widget" {
+		t.Errorf("Expected 'test-widget', got %s", value.StringValue())
+	}
+}
+
+func TestLoadEDDJSONMatchesXMLEntities(t *testing.T) {
+	// Load same entity structure via both XML and JSON, compare
+	rsXML := NewRuleSet("xml")
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="person" access="rw" comment="">
+		<field name="name" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="age" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+	</entity>
+</entity_data_dictionary>`
+
+	if err := rsXML.LoadEDD(strings.NewReader(eddXML)); err != nil {
+		t.Fatalf("LoadEDD failed: %v", err)
+	}
+
+	rsJSON := NewRuleSet("json")
+	eddJSON := `{
+		"entities": [
+			{
+				"name": "person",
+				"access": "rw",
+				"fields": [
+					{"name": "name", "type": "string", "access": "rw"},
+					{"name": "age", "type": "integer", "access": "rw", "defaultValue": "0"}
+				]
+			}
+		]
+	}`
+
+	if err := rsJSON.LoadEDDJSON(strings.NewReader(eddJSON)); err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	xmlNames := rsXML.GetEntityNames()
+	jsonNames := rsJSON.GetEntityNames()
+
+	if len(xmlNames) != len(jsonNames) {
+		t.Errorf("Entity count mismatch: XML=%d, JSON=%d", len(xmlNames), len(jsonNames))
+	}
+
+	// Both should have "person"
+	xmlHasPerson := false
+	jsonHasPerson := false
+	for _, name := range xmlNames {
+		if name.StringValue() == "person" {
+			xmlHasPerson = true
+		}
+	}
+	for _, name := range jsonNames {
+		if name.StringValue() == "person" {
+			jsonHasPerson = true
+		}
+	}
+	if !xmlHasPerson || !jsonHasPerson {
+		t.Error("Both XML and JSON should produce a 'person' entity")
+	}
+}
+
+func TestNewRuleSetInvalidName(t *testing.T) {
+	rs := NewRuleSet(".invalid")
+	if rs != nil {
+		t.Error("Expected nil for invalid rule set name")
+	}
+}
