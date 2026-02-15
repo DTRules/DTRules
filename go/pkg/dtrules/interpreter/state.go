@@ -343,7 +343,7 @@ func (s *DTState) EntityDepth() int {
 // EntityFetch returns the nth entity from the top of the entity stack.
 // 0 returns the top element, 1 returns one from top, etc.
 func (s *DTState) EntityFetch(i int) (dtrules.Entity, error) {
-	if i >= len(s.entityStk) {
+	if i < 0 || i >= len(s.entityStk) {
 		return nil, dtrules.NewRulesError("Entity Stack Underflow", "EntityFetch", "Entity Stack underflow")
 	}
 	return s.entityStk[len(s.entityStk)-1-i], nil
