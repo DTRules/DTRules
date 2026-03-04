@@ -1,0 +1,98 @@
+DTRules Go Runtime Benchmark Results
+=====================================
+Date: 2026-03-04
+Go Version: go test -bench=. -benchmem
+
+System Information:
+- OS: linux
+- Arch: amd64
+- CPU: AMD Ryzen 9 9900X 12-Core Processor
+
+================================================================================
+MICRO-BENCHMARKS: Individual Operations
+================================================================================
+
+Name Lookup (Interning):
+  BenchmarkNameLookup-24                  11715294        102.7 ns/op        0 B/op        0 allocs/op
+  BenchmarkNameLookupCached-24           657453608          2.174 ns/op      0 B/op        0 allocs/op
+
+Operator Lookup:
+  BenchmarkOperatorLookup-24              14857308         81.02 ns/op       0 B/op        0 allocs/op
+  BenchmarkOperatorLookupIndexed-24     1000000000          1.017 ns/op      0 B/op        0 allocs/op
+  BenchmarkOperatorDirect-24            1000000000          1.056 ns/op      0 B/op        0 allocs/op
+
+Stack Operations:
+  BenchmarkDataStackPushPop-24           499113932          2.424 ns/op      0 B/op        0 allocs/op
+
+Arithmetic Operations:
+  BenchmarkIntegerArithmetic-24           81133120         15.13 ns/op       8 B/op        1 allocs/op
+  BenchmarkValueArithmetic-24           1000000000          0.6303 ns/op     0 B/op        0 allocs/op
+  BenchmarkValueArithmeticComplex-24      84721834         13.63 ns/op       0 B/op        0 allocs/op
+
+Value Creation:
+  BenchmarkValueCreation-24             1000000000          0.1911 ns/op     0 B/op        0 allocs/op
+  BenchmarkValueToObject-24              171109245          7.156 ns/op      8 B/op        1 allocs/op
+  BenchmarkIntegerCreation-24           1000000000          0.1922 ns/op     0 B/op        0 allocs/op
+  BenchmarkIntegerCreationLarge-24      1000000000          0.1946 ns/op     0 B/op        0 allocs/op
+
+String Operations:
+  BenchmarkStringCreation-24             100000000         10.54 ns/op       0 B/op        0 allocs/op
+  BenchmarkStringCreationCached-24        15590802         77.18 ns/op       0 B/op        0 allocs/op
+  BenchmarkStringCreationUnique-24        24473697         50.00 ns/op     176 B/op        3 allocs/op
+
+Boolean and Comparison:
+  BenchmarkBooleanOperations-24          100000000         10.49 ns/op       0 B/op        0 allocs/op
+  BenchmarkComparison-24                 127063454          9.569 ns/op      0 B/op        0 allocs/op
+  BenchmarkStringConcat-24                32069040         34.66 ns/op      16 B/op        1 allocs/op
+
+================================================================================
+INTEGRATION BENCHMARKS: Full Rule Execution
+================================================================================
+
+  BenchmarkRuleSetLoad-24                      975    1214210 ns/op   1154529 B/op    20063 allocs/op
+  BenchmarkSessionCreate-24                  75804      15845 ns/op     88297 B/op       16 allocs/op
+  BenchmarkDecisionTableExecution-24         68328      17666 ns/op     89264 B/op       30 allocs/op
+
+================================================================================
+MEMORY BENCHMARKS
+================================================================================
+
+  BenchmarkMemoryIntegerAlloc-24        1000000000          0.1916 ns/op     0 B/op        0 allocs/op
+  BenchmarkMemoryStringAlloc-24          100000000         10.69 ns/op       0 B/op        0 allocs/op
+  BenchmarkMemoryNameAlloc-24             29119516         40.93 ns/op      48 B/op        1 allocs/op
+  BenchmarkMemoryStackOps-24             491907898          2.393 ns/op      0 B/op        0 allocs/op
+
+================================================================================
+COMPLEX SCENARIO BENCHMARKS
+================================================================================
+
+  BenchmarkComplexScenario-24             26028864         46.42 ns/op      23 B/op        2 allocs/op
+
+================================================================================
+BYTECODE BENCHMARKS
+================================================================================
+
+  BenchmarkBytecodeEmit-24                10989651        112.6 ns/op      576 B/op        3 allocs/op
+  BenchmarkBytecodeRead-24               185270389          6.258 ns/op      0 B/op        0 allocs/op
+  BenchmarkBytecodeVMExecution-24         25280095         47.45 ns/op       0 B/op        0 allocs/op
+  BenchmarkBytecodeCompile-24               856598       1376 ns/op       2712 B/op       63 allocs/op
+  BenchmarkObjectCompile-24                 967692       1306 ns/op       2440 B/op       63 allocs/op
+  BenchmarkBytecodeFullPath-24            25396275         46.92 ns/op       0 B/op        0 allocs/op
+  BenchmarkObjectFullPath-24              25213918         46.77 ns/op      16 B/op        2 allocs/op
+  BenchmarkBytecodeSize-24              1000000000          0.0000043 ns/op  (1162 bytecode_bytes, 1600 object_array_bytes)
+  BenchmarkManyOperations-24               5210026        230.9 ns/op      432 B/op       18 allocs/op
+
+================================================================================
+SUMMARY
+================================================================================
+
+Key Performance Highlights:
+- Value-based arithmetic: ~0.63 ns/op (zero allocations)
+- Cached name lookup: ~2.17 ns/op (zero allocations)
+- Indexed operator lookup: ~1.02 ns/op (zero allocations)
+- Stack operations: ~2.42 ns/op (zero allocations)
+- Bytecode VM execution: ~47.45 ns/op (zero allocations)
+- Rule set load: ~1.21 ms (CHIP sample project)
+- Decision table execution: ~17.67 us per execution
+
+Total test time: 41.728s

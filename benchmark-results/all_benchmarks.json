@@ -1,0 +1,238 @@
+{
+  "metadata": {
+    "date": "2026-03-04",
+    "description": "DTRules benchmark results across runtimes"
+  },
+  "go": {
+    "system": {
+      "os": "linux",
+      "arch": "amd64",
+      "cpu": "AMD Ryzen 9 9900X 12-Core Processor",
+      "cores": 24
+    },
+    "timestamp": "2026-03-04T00:00:00Z",
+    "total_time_seconds": 41.728,
+    "benchmarks": {
+      "micro": {
+        "name_lookup": {
+          "ns_per_op": 102.7,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 11715294
+        },
+        "name_lookup_cached": {
+          "ns_per_op": 2.174,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 657453608
+        },
+        "operator_lookup": {
+          "ns_per_op": 81.02,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 14857308
+        },
+        "operator_lookup_indexed": {
+          "ns_per_op": 1.017,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "operator_direct": {
+          "ns_per_op": 1.056,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "data_stack_push_pop": {
+          "ns_per_op": 2.424,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 499113932
+        },
+        "integer_arithmetic": {
+          "ns_per_op": 15.13,
+          "bytes_per_op": 8,
+          "allocs_per_op": 1,
+          "iterations": 81133120
+        },
+        "value_arithmetic": {
+          "ns_per_op": 0.6303,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "value_arithmetic_complex": {
+          "ns_per_op": 13.63,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 84721834
+        },
+        "value_creation": {
+          "ns_per_op": 0.1911,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "value_to_object": {
+          "ns_per_op": 7.156,
+          "bytes_per_op": 8,
+          "allocs_per_op": 1,
+          "iterations": 171109245
+        },
+        "integer_creation": {
+          "ns_per_op": 0.1922,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "integer_creation_large": {
+          "ns_per_op": 0.1946,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "string_creation": {
+          "ns_per_op": 10.54,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 100000000
+        },
+        "string_creation_cached": {
+          "ns_per_op": 77.18,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 15590802
+        },
+        "string_creation_unique": {
+          "ns_per_op": 50.0,
+          "bytes_per_op": 176,
+          "allocs_per_op": 3,
+          "iterations": 24473697
+        },
+        "boolean_operations": {
+          "ns_per_op": 10.49,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 100000000
+        },
+        "comparison": {
+          "ns_per_op": 9.569,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 127063454
+        },
+        "string_concat": {
+          "ns_per_op": 34.66,
+          "bytes_per_op": 16,
+          "allocs_per_op": 1,
+          "iterations": 32069040
+        }
+      },
+      "integration": {
+        "ruleset_load": {
+          "ns_per_op": 1214210,
+          "bytes_per_op": 1154529,
+          "allocs_per_op": 20063,
+          "iterations": 975
+        },
+        "session_create": {
+          "ns_per_op": 15845,
+          "bytes_per_op": 88297,
+          "allocs_per_op": 16,
+          "iterations": 75804
+        },
+        "decision_table_execution": {
+          "ns_per_op": 17666,
+          "bytes_per_op": 89264,
+          "allocs_per_op": 30,
+          "iterations": 68328
+        }
+      },
+      "memory": {
+        "integer_alloc": {
+          "ns_per_op": 0.1916,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 1000000000
+        },
+        "string_alloc": {
+          "ns_per_op": 10.69,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 100000000
+        },
+        "name_alloc": {
+          "ns_per_op": 40.93,
+          "bytes_per_op": 48,
+          "allocs_per_op": 1,
+          "iterations": 29119516
+        },
+        "stack_ops": {
+          "ns_per_op": 2.393,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 491907898
+        }
+      },
+      "complex": {
+        "complex_scenario": {
+          "ns_per_op": 46.42,
+          "bytes_per_op": 23,
+          "allocs_per_op": 2,
+          "iterations": 26028864
+        }
+      },
+      "bytecode": {
+        "emit": {
+          "ns_per_op": 112.6,
+          "bytes_per_op": 576,
+          "allocs_per_op": 3,
+          "iterations": 10989651
+        },
+        "read": {
+          "ns_per_op": 6.258,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 185270389
+        },
+        "vm_execution": {
+          "ns_per_op": 47.45,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 25280095
+        },
+        "compile": {
+          "ns_per_op": 1376,
+          "bytes_per_op": 2712,
+          "allocs_per_op": 63,
+          "iterations": 856598
+        },
+        "object_compile": {
+          "ns_per_op": 1306,
+          "bytes_per_op": 2440,
+          "allocs_per_op": 63,
+          "iterations": 967692
+        },
+        "full_path": {
+          "ns_per_op": 46.92,
+          "bytes_per_op": 0,
+          "allocs_per_op": 0,
+          "iterations": 25396275
+        },
+        "object_full_path": {
+          "ns_per_op": 46.77,
+          "bytes_per_op": 16,
+          "allocs_per_op": 2,
+          "iterations": 25213918
+        },
+        "many_operations": {
+          "ns_per_op": 230.9,
+          "bytes_per_op": 432,
+          "allocs_per_op": 18,
+          "iterations": 5210026
+        }
+      }
+    }
+  }
+}
