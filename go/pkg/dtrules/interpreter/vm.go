@@ -376,6 +376,48 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 				return err
 			}
 
+		// Execute top of stack (OpExec)
+		// Pops an executable object and executes it recursively
+		case dtrules.OpExec:
+			execVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+
+			// Check recursion depth limit
+			if s.recursionDepth >= MaxRecursionDepth {
+				return dtrules.NewRulesError("Recursion Limit Exceeded", "OpExec",
+					"maximum recursion depth exceeded")
+			}
+
+			// Handle different executable types
+			if execVal.IsBytecode() {
+				// Execute bytecode chunk recursively
+				bc := execVal.AsBytecode()
+				if bc == nil {
+					return dtrules.ConversionError("OpExec", "nil bytecode chunk")
+				}
+				s.recursionDepth++
+				err := s.ExecuteBytecode(bc)
+				s.recursionDepth--
+				if err != nil {
+					return err
+				}
+			} else {
+				// Fall back to Object-based execution for RArray and other executables
+				obj := execVal.AsObject()
+				if obj == nil {
+					return dtrules.ConversionError("OpExec", "nil executable object")
+				}
+				// Execute the object (for RArray, this will execute its contents)
+				s.recursionDepth++
+				err := obj.Execute(s)
+				s.recursionDepth--
+				if err != nil {
+					return err
+				}
+			}
+
 		default:
 			return dtrules.NewRulesError("Invalid Opcode", "ExecuteBytecode", "unknown opcode")
 		}

@@ -36,6 +36,9 @@ const (
 
 const stackLimit = 1000
 
+// MaxRecursionDepth limits recursive bytecode execution to prevent stack overflow.
+const MaxRecursionDepth = 1000
+
 // DTState implements the interpreter state with three stacks.
 // The interpreter is a stack-based interpreter similar to PostScript.
 //
@@ -83,6 +86,9 @@ type DTState struct {
 
 	// Operator table for bytecode execution (set externally to avoid import cycle)
 	operatorTable []dtrules.Object
+
+	// Recursion depth for bytecode execution (OpExec)
+	recursionDepth int
 }
 
 // NewDTState creates a new interpreter state for the given session.

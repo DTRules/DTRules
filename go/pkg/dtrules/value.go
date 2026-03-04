@@ -38,15 +38,16 @@ type Value struct {
 
 // Value type tags
 const (
-	VTagNull    uint8 = 0
-	VTagInteger uint8 = 1
-	VTagDouble  uint8 = 2
-	VTagBoolean uint8 = 3
-	VTagString  uint8 = 4
-	VTagName    uint8 = 5
-	VTagArray   uint8 = 6
-	VTagEntity  uint8 = 7
-	VTagObject  uint8 = 8 // Fallback to Object interface
+	VTagNull     uint8 = 0
+	VTagInteger  uint8 = 1
+	VTagDouble   uint8 = 2
+	VTagBoolean  uint8 = 3
+	VTagString   uint8 = 4
+	VTagName     uint8 = 5
+	VTagArray    uint8 = 6
+	VTagEntity   uint8 = 7
+	VTagObject   uint8 = 8  // Fallback to Object interface
+	VTagBytecode uint8 = 9  // BytecodeChunk for OpExec
 )
 
 // Null value singleton
@@ -112,6 +113,11 @@ func NewValueObject(o Object) Value {
 	}
 }
 
+// NewValueBytecode creates a bytecode chunk value.
+func NewValueBytecode(bc *BytecodeChunk) Value {
+	return Value{tag: VTagBytecode, ptr: unsafe.Pointer(bc)}
+}
+
 // Tag returns the value's type tag.
 func (v Value) Tag() uint8 {
 	return v.tag
@@ -145,6 +151,11 @@ func (v Value) IsString() bool {
 // IsName returns true if this is a name value.
 func (v Value) IsName() bool {
 	return v.tag == VTagName
+}
+
+// IsBytecode returns true if this is a bytecode chunk value.
+func (v Value) IsBytecode() bool {
+	return v.tag == VTagBytecode
 }
 
 // IsNumeric returns true if this is an integer or double.
@@ -186,6 +197,11 @@ func (v Value) AsName() *RName {
 // AsArray returns the array value.
 func (v Value) AsArray() *RArray {
 	return (*RArray)(v.ptr)
+}
+
+// AsBytecode returns the bytecode chunk value.
+func (v Value) AsBytecode() *BytecodeChunk {
+	return (*BytecodeChunk)(v.ptr)
 }
 
 // AsObject converts the value to an Object interface.
@@ -249,6 +265,8 @@ func (v Value) String() string {
 		return (*RName)(v.ptr).StringValue()
 	case VTagArray:
 		return (*RArray)(v.ptr).String()
+	case VTagBytecode:
+		return "<bytecode>"
 	case VTagObject:
 		return v.AsObject().StringValue()
 	default:

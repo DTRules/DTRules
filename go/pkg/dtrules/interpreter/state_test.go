@@ -1010,3 +1010,162 @@ func TestBytecodeNop(t *testing.T) {
 		t.Errorf("Expected 42, got %d", result.AsInteger())
 	}
 }
+
+// =============================================================================
+// OpExec Tests
+// =============================================================================
+
+func TestOpExecWithBytecodeChunk(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Create an inner bytecode chunk that pushes 42 + 8 = 50
+	innerBC := dtrules.NewBytecodeChunk()
+	innerBC.EmitPushConstant(dtrules.NewValueInteger(42))
+	innerBC.EmitPushConstant(dtrules.NewValueInteger(8))
+	innerBC.Emit(dtrules.OpAdd)
+
+	// Create outer bytecode that:
+	// 1. Pushes the inner bytecode
+	// 2. Executes it via OpExec
+	outerBC := dtrules.NewBytecodeChunk()
+	// Push the inner bytecode as a constant
+	idx := outerBC.AddConstant(dtrules.NewValueBytecode(innerBC))
+	outerBC.EmitWithArg(dtrules.OpConstant, idx)
+	// Execute it
+	outerBC.Emit(dtrules.OpExec)
+
+	// Clear state
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(outerBC)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 1 {
+		t.Errorf("Expected 1 value on stack, got %d", state.ValueStackDepth())
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsInteger() != 50 {
+		t.Errorf("Expected 50, got %d", result.AsInteger())
+	}
+}
+
+func TestOpExecNestedBytecode(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Create innermost bytecode that pushes 10
+	innermost := dtrules.NewBytecodeChunk()
+	innermost.EmitPushConstant(dtrules.NewValueInteger(10))
+
+	// Create middle bytecode that executes innermost and multiplies by 2
+	middle := dtrules.NewBytecodeChunk()
+	idx := middle.AddConstant(dtrules.NewValueBytecode(innermost))
+	middle.EmitWithArg(dtrules.OpConstant, idx)
+	middle.Emit(dtrules.OpExec)
+	middle.EmitPushConstant(dtrules.NewValueInteger(2))
+	middle.Emit(dtrules.OpMul)
+
+	// Create outer bytecode that executes middle and adds 5
+	outer := dtrules.NewBytecodeChunk()
+	idx = outer.AddConstant(dtrules.NewValueBytecode(middle))
+	outer.EmitWithArg(dtrules.OpConstant, idx)
+	outer.Emit(dtrules.OpExec)
+	outer.EmitPushConstant(dtrules.NewValueInteger(5))
+	outer.Emit(dtrules.OpAdd)
+
+	// Clear state
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	// Expected: (10 * 2) + 5 = 25
+	err := state.ExecuteBytecode(outer)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode failed: %v", err)
+	}
+
+	if state.ValueStackDepth() != 1 {
+		t.Errorf("Expected 1 value on stack, got %d", state.ValueStackDepth())
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsInteger() != 25 {
+		t.Errorf("Expected 25, got %d", result.AsInteger())
+	}
+}
+
+func TestOpExecStackUnderflow(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Create bytecode that tries to OpExec with empty stack
+	bc := dtrules.NewBytecodeChunk()
+	bc.Emit(dtrules.OpExec)
+
+	// Clear state
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err := state.ExecuteBytecode(bc)
+	if err == nil {
+		t.Error("Expected stack underflow error")
+	}
+}
+
+func TestOpExecRecursionLimit(t *testing.T) {
+	session := &mockSession{}
+	state := NewDTState(session)
+
+	// Create a self-referencing bytecode that would cause infinite recursion
+	// We can't actually create a true self-reference, but we can test the limit
+	// by creating a deeply nested structure
+
+	// For this test, we'll manually set the recursion depth close to the limit
+	// and verify the error occurs
+
+	// Create a simple bytecode
+	innerBC := dtrules.NewBytecodeChunk()
+	innerBC.EmitPushConstant(dtrules.NewValueInteger(1))
+
+	// Create outer bytecode
+	outerBC := dtrules.NewBytecodeChunk()
+	idx := outerBC.AddConstant(dtrules.NewValueBytecode(innerBC))
+	outerBC.EmitWithArg(dtrules.OpConstant, idx)
+	outerBC.Emit(dtrules.OpExec)
+
+	// Clear state
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	// Manually set recursion depth to max to trigger limit
+	state.recursionDepth = MaxRecursionDepth
+
+	err := state.ExecuteBytecode(outerBC)
+	if err == nil {
+		t.Error("Expected recursion limit error")
+	}
+
+	// Reset and verify normal execution works
+	state.recursionDepth = 0
+	for state.ValueStackDepth() > 0 {
+		state.ValuePop()
+	}
+
+	err = state.ExecuteBytecode(outerBC)
+	if err != nil {
+		t.Fatalf("ExecuteBytecode should succeed with reset depth: %v", err)
+	}
+
+	result, _ := state.ValuePop()
+	if result.AsInteger() != 1 {
+		t.Errorf("Expected 1, got %d", result.AsInteger())
+	}
+}
