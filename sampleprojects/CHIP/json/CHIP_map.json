@@ -1,0 +1,56 @@
+{
+  "setattributes": [
+    {"tag": "id", "rattribute": "id", "enclosure": "job", "type": "integer"},
+    {"tag": "currentdate", "rattribute": "currentdate", "enclosure": "job", "type": "date"},
+    {"tag": "effectivedate", "rattribute": "effectivedate", "enclosure": "job", "type": "date"},
+    {"tag": "program", "rattribute": "program", "enclosure": "job", "type": "string"},
+    {"tag": "id", "rattribute": "id", "enclosure": "case", "type": "integer"},
+    {"tag": "county_cd", "rattribute": "county_cd", "enclosure": "case", "type": "string"},
+    {"tag": "id", "rattribute": "id", "enclosure": "client", "type": "integer"},
+    {"tag": "age", "rattribute": "age", "enclosure": "client", "type": "integer"},
+    {"tag": "gender", "rattribute": "gender", "enclosure": "client", "type": "string"},
+    {"tag": "validatedCitizenship", "rattribute": "validatedCitizenship", "enclosure": "client", "type": "boolean"},
+    {"tag": "validatedImmigrationStatus", "rattribute": "validatedImmigrationStatus", "enclosure": "client", "type": "boolean"},
+    {"tag": "livesAtResidence", "rattribute": "livesAtResidence", "enclosure": "client", "type": "boolean"},
+    {"tag": "pregnant", "rattribute": "pregnant", "enclosure": "client", "type": "boolean"},
+    {"tag": "expectedChildren", "rattribute": "expectedChildren", "enclosure": "client", "type": "integer"},
+    {"tag": "disabled", "rattribute": "disabled", "enclosure": "client", "type": "boolean"},
+    {"tag": "applying", "rattribute": "applying", "enclosure": "client", "type": "boolean"},
+    {"tag": "lostInsuranceDate", "rattribute": "lostInsuranceDate", "enclosure": "client", "type": "date"},
+    {"tag": "uninsured", "rattribute": "uninsured", "enclosure": "client", "type": "boolean"},
+    {"tag": "eligibleForMedicaid", "rattribute": "eligibleForMedicaid", "enclosure": "client", "type": "boolean"},
+    {"tag": "id", "rattribute": "id", "enclosure": "relationship", "type": "integer"},
+    {"tag": "source", "rattribute": "source", "enclosure": "relationship", "type": "entity"},
+    {"tag": "target", "rattribute": "target", "enclosure": "relationship", "type": "entity"},
+    {"tag": "type", "rattribute": "type", "enclosure": "relationship", "type": "string"},
+    {"tag": "id", "rattribute": "id", "enclosure": "income", "type": "integer"},
+    {"tag": "type", "rattribute": "type", "enclosure": "income", "type": "string"},
+    {"tag": "amount", "rattribute": "amount", "enclosure": "income", "type": "integer"},
+    {"tag": "earned", "rattribute": "earned", "enclosure": "income", "type": "boolean"}
+  ],
+  "createentities": [
+    {"entity": "job", "tag": "job", "id": "id"},
+    {"entity": "case", "tag": "case", "id": "id"},
+    {"entity": "client", "tag": "client", "id": "id"},
+    {"entity": "client", "tag": "source", "id": "id"},
+    {"entity": "client", "tag": "target", "id": "id"},
+    {"entity": "relationship", "tag": "relationship", "id": "id"},
+    {"entity": "income", "tag": "income", "id": "id"},
+    {"entity": "constants", "tag": "constants", "id": "id"},
+    {"entity": "result", "tag": "result", "id": "id"}
+  ],
+  "entities": [
+    {"name": "constants", "number": "1"},
+    {"name": "job", "number": "1"},
+    {"name": "case", "number": "1"},
+    {"name": "client", "number": "*"},
+    {"name": "relationship", "number": "*"},
+    {"name": "income", "number": "*"},
+    {"name": "result", "number": "*"}
+  ],
+  "initialentities": [
+    {"entity": "constants"},
+    {"entity": "job"},
+    {"entity": "case"}
+  ]
+}
