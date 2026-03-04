@@ -370,18 +370,6 @@ func TestContainsString(t *testing.T) {
 	}
 }
 
-func TestContains(t *testing.T) {
-	list := []string{"one", "two", "three"}
-
-	if !contains(list, "two") {
-		t.Error("Expected to find 'two'")
-	}
-
-	if contains(list, "four") {
-		t.Error("Should not find 'four'")
-	}
-}
-
 func TestMax(t *testing.T) {
 	if max(5, 3) != 5 {
 		t.Error("max(5, 3) should be 5")

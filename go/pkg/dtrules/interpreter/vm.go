@@ -404,10 +404,8 @@ func (s *DTState) EvaluateBytecodeCondition(bc *dtrules.BytecodeChunk) (bool, er
 		return false, err
 	}
 
-	// Clean up any extra values left on the stack (some expressions leave extras)
-	for s.ValueStackDepth() > initialDepth {
-		s.ValuePop()
-	}
+	// Truncate any extra values left on the stack (some expressions leave extras)
+	s.valueStk = s.valueStk[:initialDepth]
 
 	return result.AsBoolean(), nil
 }
@@ -422,9 +420,7 @@ func (s *DTState) EvaluateBytecodeAction(bc *dtrules.BytecodeChunk) error {
 
 	// Check for unbalanced stack — actions must not leave extra values
 	if s.ValueStackDepth() > initialDepth {
-		for s.ValueStackDepth() > initialDepth {
-			s.ValuePop()
-		}
+		s.valueStk = s.valueStk[:initialDepth]
 		return dtrules.NewRulesError("Stack Check Exception", "EvaluateBytecodeAction",
 			"Action left unbalanced stack")
 	}

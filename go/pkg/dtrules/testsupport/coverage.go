@@ -69,6 +69,7 @@ type Coverage struct {
 	tables              map[string]*Stats
 	traceFilesProcessed []string
 	minFilesNeeded      []string
+	minFilesSet         map[string]bool // O(1) dedup for minFilesNeeded
 	totalColumns        int
 	currentFile         string
 }
@@ -81,6 +82,7 @@ func NewCoverage(rs *session.RuleSet, traceFilesPath string) (*Coverage, error) 
 		tables:              make(map[string]*Stats),
 		traceFilesProcessed: make([]string, 0),
 		minFilesNeeded:      make([]string, 0),
+		minFilesSet:         make(map[string]bool),
 	}
 
 	if err := c.initTables(); err != nil {
@@ -300,9 +302,7 @@ func (p *traceParser) addColumns(columns string) {
 	if columns == "" {
 		// No column executed
 		if stats.NoColumns == 0 {
-			if !contains(p.coverage.minFilesNeeded, p.coverage.currentFile) {
-				p.coverage.minFilesNeeded = append(p.coverage.minFilesNeeded, p.coverage.currentFile)
-			}
+			p.coverage.addMinFile(p.coverage.currentFile)
 		}
 		stats.NoColumns++
 		return
@@ -317,9 +317,7 @@ func (p *traceParser) addColumns(columns string) {
 		index-- // Convert to 0-based index
 		if index >= 0 && index < len(stats.ColumnHits) {
 			if stats.ColumnHits[index] == 0 {
-				if !contains(p.coverage.minFilesNeeded, p.coverage.currentFile) {
-					p.coverage.minFilesNeeded = append(p.coverage.minFilesNeeded, p.coverage.currentFile)
-				}
+				p.coverage.addMinFile(p.coverage.currentFile)
 			}
 			stats.ColumnHits[index]++
 			p.coverage.totalColumns++
@@ -327,13 +325,12 @@ func (p *traceParser) addColumns(columns string) {
 	}
 }
 
-func contains(list []string, item string) bool {
-	for _, s := range list {
-		if s == item {
-			return true
-		}
+// addMinFile adds a file to the minimum files set if not already present.
+func (c *Coverage) addMinFile(file string) {
+	if !c.minFilesSet[file] {
+		c.minFilesSet[file] = true
+		c.minFilesNeeded = append(c.minFilesNeeded, file)
 	}
-	return false
 }
 
 // PrintReport outputs the coverage report as XML.

@@ -290,20 +290,12 @@ func handleCoverage() {
 }
 
 func handleTest() {
-	// Need rules for testing
 	eddPath, dtPath, err := resolveFilePaths()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	rs, err := loadRuleSet(eddPath, dtPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Create test harness
 	harness := testsupport.NewTestHarness()
 	harness.SetTestDirectory(*testDir)
 	if *testOutputDir != "" {
@@ -316,21 +308,15 @@ func handleTest() {
 		harness.DecisionTableName = *entryPoint
 	}
 
-	// Set rule set
-	err = harness.LoadRuleSet(eddPath, dtPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading rules into harness: %v\n", err)
+	if err := harness.LoadRuleSet(eddPath, dtPath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Run tests
 	if err := harness.RunTests(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error running tests: %v\n", err)
 		os.Exit(1)
 	}
-
-	// Suppress unused warning
-	_ = rs
 }
 
 func handleCompare(_ *session.RuleSet) {

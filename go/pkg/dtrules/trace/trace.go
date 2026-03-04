@@ -143,53 +143,32 @@ func (t *Trace) replayNode(node *TraceNode, target *TraceNode) error {
 
 	state := t.session.GetState()
 
-	// Keep track of execute_table nodes
-	if node.Name == "execute_table" {
+	switch node.Name {
+	case "execute_table":
 		t.executeTable = node
-	}
-
-	// Handle entitypush
-	if node.Name == "entitypush" {
+	case "entitypush":
 		entity, err := t.getOrCreateEntity(node)
 		if err != nil {
 			return err
 		}
 		state.EntityPush(entity)
-	}
-
-	// Handle entitypop
-	if node.Name == "entitypop" {
+	case "entitypop":
 		state.EntityPop()
-	}
-
-	// Handle def (attribute assignment)
-	if node.Name == "def" {
+	case "def":
 		if err := t.handleDef(node); err != nil {
 			return err
 		}
-	}
-
-	// Handle createentity
-	if node.Name == "createentity" {
+	case "createentity":
 		if _, err := t.getOrCreateEntity(node); err != nil {
 			return err
 		}
-	}
-
-	// Handle newarray
-	if node.Name == "newarray" {
+	case "newarray":
 		t.handleNewArray(node)
-	}
-
-	// Handle addto
-	if node.Name == "addto" {
+	case "addto":
 		if err := t.handleAddTo(node); err != nil {
 			return err
 		}
-	}
-
-	// Handle remove
-	if node.Name == "remove" {
+	case "remove":
 		if err := t.handleRemove(node); err != nil {
 			return err
 		}
