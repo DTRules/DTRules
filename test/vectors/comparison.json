@@ -1,0 +1,157 @@
+{
+  "name": "Comparison Operations",
+  "description": "Test vectors for comparison operations in the bytecode VM",
+  "version": "1.0.0",
+  "vectors": [
+    {
+      "name": "equal_true",
+      "description": "Equal comparison (true case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 5},
+          {"op": "eq"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "equal_false",
+      "description": "Equal comparison (false case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 10},
+          {"op": "eq"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "not_equal_true",
+      "description": "Not equal comparison (true case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 10},
+          {"op": "ne"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "not_equal_false",
+      "description": "Not equal comparison (false case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 5},
+          {"op": "ne"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "less_than_true",
+      "description": "Less than comparison (true case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 10},
+          {"op": "lt"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "less_than_false",
+      "description": "Less than comparison (false case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "push_int", "value": 5},
+          {"op": "lt"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "less_equal_true_equal",
+      "description": "Less or equal comparison (true, equal case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 5},
+          {"op": "le"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "less_equal_true_less",
+      "description": "Less or equal comparison (true, less case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 5},
+          {"op": "push_int", "value": 10},
+          {"op": "le"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "greater_than_true",
+      "description": "Greater than comparison (true case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "push_int", "value": 5},
+          {"op": "gt"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "greater_equal_true",
+      "description": "Greater or equal comparison (true case)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "push_int", "value": 5},
+          {"op": "ge"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    }
+  ]
+}

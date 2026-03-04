@@ -1,0 +1,126 @@
+{
+  "name": "Arithmetic Operations",
+  "description": "Test vectors for basic arithmetic operations in the bytecode VM",
+  "version": "1.0.0",
+  "vectors": [
+    {
+      "name": "addition_integers",
+      "description": "Add two integers",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "push_int", "value": 20},
+          {"op": "add"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 30
+      }
+    },
+    {
+      "name": "subtraction_integers",
+      "description": "Subtract two integers",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 50},
+          {"op": "push_int", "value": 20},
+          {"op": "sub"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 30
+      }
+    },
+    {
+      "name": "multiplication_integers",
+      "description": "Multiply two integers",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 6},
+          {"op": "push_int", "value": 7},
+          {"op": "mul"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 42
+      }
+    },
+    {
+      "name": "division_integers",
+      "description": "Divide two integers",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 100},
+          {"op": "push_int", "value": 5},
+          {"op": "div"}
+        ]
+      },
+      "expected": {
+        "type": "double",
+        "value": 20.0
+      }
+    },
+    {
+      "name": "negation",
+      "description": "Negate an integer",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 42},
+          {"op": "neg"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": -42
+      }
+    },
+    {
+      "name": "increment",
+      "description": "Increment an integer",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "inc"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 11
+      }
+    },
+    {
+      "name": "decrement",
+      "description": "Decrement an integer",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "dec"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 9
+      }
+    },
+    {
+      "name": "complex_arithmetic",
+      "description": "Complex arithmetic expression: (10 + 20) * 3",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "push_int", "value": 20},
+          {"op": "add"},
+          {"op": "push_int", "value": 3},
+          {"op": "mul"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 90
+      }
+    }
+  ]
+}

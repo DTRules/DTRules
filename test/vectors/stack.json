@@ -1,0 +1,110 @@
+{
+  "name": "Stack Operations",
+  "description": "Test vectors for stack manipulation operations in the bytecode VM",
+  "version": "1.0.0",
+  "vectors": [
+    {
+      "name": "push_constants",
+      "description": "Push various constant types",
+      "bytecode": {
+        "operations": [
+          {"op": "push_zero"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 0
+      }
+    },
+    {
+      "name": "push_one",
+      "description": "Push constant one",
+      "bytecode": {
+        "operations": [
+          {"op": "push_one"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 1
+      }
+    },
+    {
+      "name": "push_null",
+      "description": "Push null value",
+      "bytecode": {
+        "operations": [
+          {"op": "push_null"}
+        ]
+      },
+      "expected": {
+        "type": "null",
+        "value": null
+      }
+    },
+    {
+      "name": "dup_operation",
+      "description": "Duplicate top of stack and add",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 21},
+          {"op": "dup"},
+          {"op": "add"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 42
+      }
+    },
+    {
+      "name": "swap_operation",
+      "description": "Swap top two elements and subtract",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 10},
+          {"op": "push_int", "value": 30},
+          {"op": "swap"},
+          {"op": "sub"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 20
+      }
+    },
+    {
+      "name": "rot_operation",
+      "description": "Rotate top three elements",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 1},
+          {"op": "push_int", "value": 2},
+          {"op": "push_int", "value": 3},
+          {"op": "rot"},
+          {"op": "pop"},
+          {"op": "pop"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 2
+      }
+    },
+    {
+      "name": "pop_operation",
+      "description": "Pop discards top of stack",
+      "bytecode": {
+        "operations": [
+          {"op": "push_int", "value": 42},
+          {"op": "push_int", "value": 99},
+          {"op": "pop"}
+        ]
+      },
+      "expected": {
+        "type": "integer",
+        "value": 42
+      }
+    }
+  ]
+}

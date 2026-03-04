@@ -1,0 +1,155 @@
+{
+  "name": "Boolean Operations",
+  "description": "Test vectors for boolean operations in the bytecode VM",
+  "version": "1.0.0",
+  "vectors": [
+    {
+      "name": "and_true_true",
+      "description": "AND operation (true && true)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "push_true"},
+          {"op": "and"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "and_true_false",
+      "description": "AND operation (true && false)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "push_false"},
+          {"op": "and"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "and_false_false",
+      "description": "AND operation (false && false)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_false"},
+          {"op": "push_false"},
+          {"op": "and"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "or_true_true",
+      "description": "OR operation (true || true)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "push_true"},
+          {"op": "or"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "or_true_false",
+      "description": "OR operation (true || false)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "push_false"},
+          {"op": "or"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "or_false_false",
+      "description": "OR operation (false || false)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_false"},
+          {"op": "push_false"},
+          {"op": "or"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "not_true",
+      "description": "NOT operation (!true)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "not"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "not_false",
+      "description": "NOT operation (!false)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_false"},
+          {"op": "not"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    },
+    {
+      "name": "xor_true_true",
+      "description": "XOR operation (true ^ true)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "push_true"},
+          {"op": "xor"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "xor_true_false",
+      "description": "XOR operation (true ^ false)",
+      "bytecode": {
+        "operations": [
+          {"op": "push_true"},
+          {"op": "push_false"},
+          {"op": "xor"}
+        ]
+      },
+      "expected": {
+        "type": "boolean",
+        "value": true
+      }
+    }
+  ]
+}
