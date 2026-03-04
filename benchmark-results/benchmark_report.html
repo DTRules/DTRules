@@ -8,28 +8,17 @@
         h1 { color: #333; text-align: center; }
         h2 { color: #666; margin-top: 30px; }
         .chart-container {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: white; border-radius: 8px; padding: 20px;
+            margin: 20px auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
         }
         .summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px auto;
-            max-width: 900px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin: 20px auto; max-width: 900px;
         }
         .summary-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
+            background: white; border-radius: 8px; padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
         }
         .summary-card h3 { margin: 0 0 10px 0; color: #333; }
         .summary-card .value { font-size: 28px; font-weight: bold; color: #007bff; }
@@ -39,18 +28,17 @@
         td:first-child, td:nth-child(2) { text-align: left; }
         tr:nth-child(even) { background: #f8f9fa; }
         .fastest { background: #d4edda !important; font-weight: bold; }
-        .notes { max-width: 900px; margin: 20px auto; padding: 20px; background: #fff3cd; border-radius: 8px; }
     </style>
 </head>
 <body>
     <h1>DTRules Runtime Performance Comparison</h1>
-    <p style="text-align:center;color:#666;">Generated: 20260205_135457</p>
+    <p style="text-align:center;color:#666;">Generated: 2026-02-06 09:30:05</p>
 
     <div class="summary">
         <div class="summary-card">
             <h3>Runtimes Tested</h3>
-            <div class="value">4</div>
-            <div style="color:#666;margin-top:5px;">java, go, native-asm, x86-64-asm</div>
+            <div class="value">3</div>
+            <div style="color:#666;margin-top:5px;">go, native-asm, x86-64-asm</div>
         </div>
         <div class="summary-card">
             <h3>Operations Tested</h3>
@@ -63,20 +51,9 @@
         </div>
     </div>
 
-    <div class="notes">
-        <strong>Note:</strong> Java results are estimated based on typical JVM performance characteristics.
-        Run actual Java JMH benchmarks for precise measurements. The x86-64-asm runtime shows higher
-        latency due to CGO call overhead between Go and the native code.
-    </div>
-
     <h2>Arithmetic Operations</h2>
     <div class="chart-container">
         <canvas id="chart_arithmetic"></canvas>
-    </div>
-
-    <h2>Comparison Operations</h2>
-    <div class="chart-container">
-        <canvas id="chart_comparison"></canvas>
     </div>
 
     <h2>Boolean Operations</h2>
@@ -84,9 +61,9 @@
         <canvas id="chart_boolean"></canvas>
     </div>
 
-    <h2>Stack Operations</h2>
+    <h2>Comparison Operations</h2>
     <div class="chart-container">
-        <canvas id="chart_stack"></canvas>
+        <canvas id="chart_comparison"></canvas>
     </div>
 
     <h2>Complex Operations</h2>
@@ -94,12 +71,16 @@
         <canvas id="chart_complex"></canvas>
     </div>
 
+    <h2>Stack Operations</h2>
+    <div class="chart-container">
+        <canvas id="chart_stack"></canvas>
+    </div>
+
     <h2>Detailed Results (nanoseconds per operation)</h2>
     <table>
         <tr>
             <th>Category</th>
             <th>Operation</th>
-            <th>java</th>
             <th>go</th>
             <th>native-asm</th>
             <th>x86-64-asm</th>
@@ -107,7 +88,6 @@
         <tr>
             <td>arithmetic</td>
             <td>add</td>
-            <td>18.2</td>
             <td>36.6</td>
             <td class="fastest">14.2</td>
             <td>193.3</td>
@@ -115,7 +95,6 @@
         <tr>
             <td>arithmetic</td>
             <td>complex</td>
-            <td>78.3</td>
             <td>97.9</td>
             <td class="fastest">26.9</td>
             <td>176.8</td>
@@ -123,7 +102,6 @@
         <tr>
             <td>arithmetic</td>
             <td>div</td>
-            <td>24.5</td>
             <td>40.0</td>
             <td class="fastest">11.8</td>
             <td>191.8</td>
@@ -131,7 +109,6 @@
         <tr>
             <td>arithmetic</td>
             <td>mul</td>
-            <td>19.1</td>
             <td>42.7</td>
             <td class="fastest">12.8</td>
             <td>161.1</td>
@@ -139,7 +116,6 @@
         <tr>
             <td>arithmetic</td>
             <td>sub</td>
-            <td>17.8</td>
             <td>32.6</td>
             <td class="fastest">10.8</td>
             <td>192.6</td>
@@ -147,7 +123,6 @@
         <tr>
             <td>boolean</td>
             <td>and</td>
-            <td>10.5</td>
             <td>26.0</td>
             <td class="fastest">10.3</td>
             <td>159.6</td>
@@ -155,7 +130,6 @@
         <tr>
             <td>boolean</td>
             <td>complex</td>
-            <td>26.7</td>
             <td>33.1</td>
             <td class="fastest">15.6</td>
             <td>170.0</td>
@@ -163,15 +137,13 @@
         <tr>
             <td>boolean</td>
             <td>not</td>
-            <td class="fastest">8.2</td>
             <td>24.0</td>
-            <td>9.3</td>
+            <td class="fastest">9.3</td>
             <td>157.1</td>
         </tr>
         <tr>
             <td>boolean</td>
             <td>or</td>
-            <td>10.3</td>
             <td>26.0</td>
             <td class="fastest">10.0</td>
             <td>158.7</td>
@@ -179,7 +151,6 @@
         <tr>
             <td>comparison</td>
             <td>chain</td>
-            <td>42.2</td>
             <td>59.0</td>
             <td class="fastest">23.9</td>
             <td>173.4</td>
@@ -187,7 +158,6 @@
         <tr>
             <td>comparison</td>
             <td>eq</td>
-            <td>14.8</td>
             <td>38.4</td>
             <td class="fastest">13.2</td>
             <td>160.2</td>
@@ -195,7 +165,6 @@
         <tr>
             <td>comparison</td>
             <td>lt</td>
-            <td>15.4</td>
             <td>39.5</td>
             <td class="fastest">13.1</td>
             <td>159.5</td>
@@ -203,7 +172,6 @@
         <tr>
             <td>complex</td>
             <td>heavy_arithmetic</td>
-            <td>88.2</td>
             <td>97.6</td>
             <td class="fastest">27.2</td>
             <td>179.2</td>
@@ -211,7 +179,6 @@
         <tr>
             <td>complex</td>
             <td>long_expression</td>
-            <td>265.6</td>
             <td>362.3</td>
             <td class="fastest">95.0</td>
             <td>282.8</td>
@@ -219,7 +186,6 @@
         <tr>
             <td>complex</td>
             <td>mixed_ops</td>
-            <td>58.5</td>
             <td>49.3</td>
             <td class="fastest">24.5</td>
             <td>206.8</td>
@@ -227,7 +193,6 @@
         <tr>
             <td>stack</td>
             <td>dup</td>
-            <td>14.2</td>
             <td>27.9</td>
             <td class="fastest">10.1</td>
             <td>161.0</td>
@@ -235,7 +200,6 @@
         <tr>
             <td>stack</td>
             <td>push_pop</td>
-            <td>16.5</td>
             <td>26.3</td>
             <td class="fastest">9.2</td>
             <td>163.9</td>
@@ -243,7 +207,6 @@
         <tr>
             <td>stack</td>
             <td>rot</td>
-            <td>26.4</td>
             <td>35.2</td>
             <td class="fastest">15.6</td>
             <td>161.8</td>
@@ -251,118 +214,39 @@
         <tr>
             <td>stack</td>
             <td>swap</td>
-            <td>20.1</td>
             <td>31.8</td>
             <td class="fastest">11.1</td>
             <td>161.2</td>
         </tr>
     </table>
-
-    <h2>Performance Summary</h2>
-    <div class="chart-container">
-        <p><strong>Key Findings:</strong></p>
-        <ul>
-            <li><strong>native-asm (Plan 9 Assembly)</strong> is the fastest runtime, achieving 9-95 ns/op</li>
-            <li><strong>go</strong> runtime is 2-4x slower than native-asm at 24-362 ns/op</li>
-            <li><strong>java</strong> (estimated) performs between native-asm and go at 8-266 ns/op</li>
-            <li><strong>x86-64-asm (CGO)</strong> has significant overhead from CGO calls at 157-283 ns/op</li>
-        </ul>
-        <p><strong>Recommendations:</strong></p>
-        <ul>
-            <li>Use <code>native-asm</code> for maximum performance on amd64</li>
-            <li>Use <code>go</code> runtime for portability and debugging</li>
-            <li>The <code>x86-64-asm</code> CGO approach is not recommended due to call overhead</li>
-        </ul>
-    </div>
-
     <script>
 
         new Chart(document.getElementById('chart_arithmetic'), {
             type: 'bar',
             data: {
-                labels: ['add', 'sub', 'mul', 'div', 'complex'],
+                labels: ['add', 'complex', 'div', 'mul', 'sub'],
                 datasets: [{
-            label: 'java',
-            data: [18.2, 17.8, 19.1, 24.5, 78.3],
-            backgroundColor: 'rgba(255, 99, 132, 0.8)'
-        }, {
             label: 'go',
-            data: [36.59558, 32.64208, 42.73191, 39.96907, 97.88527],
+            data: [36.59558, 97.88527, 39.96907, 42.73191, 32.64208],
             backgroundColor: 'rgba(54, 162, 235, 0.8)'
         }, {
             label: 'native-asm',
-            data: [14.24611, 10.84415, 12.8205, 11.83724, 26.90952],
+            data: [14.24611, 26.90952, 11.83724, 12.8205, 10.84415],
             backgroundColor: 'rgba(75, 192, 192, 0.8)'
         }, {
             label: 'x86-64-asm',
-            data: [193.33894, 192.60775, 161.13459, 191.80012, 176.84728],
+            data: [193.33894, 176.84728, 191.80012, 161.13459, 192.60775],
             backgroundColor: 'rgba(255, 206, 86, 0.8)'
         }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Arithmetic Operations Performance (lower is better)'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
+                    title: { display: true, text: 'Arithmetic Operations (lower is better)' },
+                    legend: { position: 'top' }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Nanoseconds per operation'
-                        }
-                    }
-                }
-            }
-        });
-
-        new Chart(document.getElementById('chart_comparison'), {
-            type: 'bar',
-            data: {
-                labels: ['lt', 'eq', 'chain'],
-                datasets: [{
-            label: 'java',
-            data: [15.4, 14.8, 42.2],
-            backgroundColor: 'rgba(255, 99, 132, 0.8)'
-        }, {
-            label: 'go',
-            data: [39.53695, 38.42294, 59.0238],
-            backgroundColor: 'rgba(54, 162, 235, 0.8)'
-        }, {
-            label: 'native-asm',
-            data: [13.0791, 13.23069, 23.92045],
-            backgroundColor: 'rgba(75, 192, 192, 0.8)'
-        }, {
-            label: 'x86-64-asm',
-            data: [159.46181, 160.18168, 173.39182],
-            backgroundColor: 'rgba(255, 206, 86, 0.8)'
-        }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Comparison Operations Performance (lower is better)'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Nanoseconds per operation'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'ns/op' } }
                 }
             }
         });
@@ -370,89 +254,59 @@
         new Chart(document.getElementById('chart_boolean'), {
             type: 'bar',
             data: {
-                labels: ['and', 'or', 'not', 'complex'],
+                labels: ['and', 'complex', 'not', 'or'],
                 datasets: [{
-            label: 'java',
-            data: [10.5, 10.3, 8.2, 26.7],
-            backgroundColor: 'rgba(255, 99, 132, 0.8)'
-        }, {
             label: 'go',
-            data: [26.02494, 26.01272, 23.98928, 33.07921],
+            data: [26.02494, 33.07921, 23.98928, 26.01272],
             backgroundColor: 'rgba(54, 162, 235, 0.8)'
         }, {
             label: 'native-asm',
-            data: [10.26907, 9.96229, 9.27508, 15.56822],
+            data: [10.26907, 15.56822, 9.27508, 9.96229],
             backgroundColor: 'rgba(75, 192, 192, 0.8)'
         }, {
             label: 'x86-64-asm',
-            data: [159.56902, 158.74515, 157.10023, 170.00169],
+            data: [159.56902, 170.00169, 157.10023, 158.74515],
             backgroundColor: 'rgba(255, 206, 86, 0.8)'
         }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Boolean Operations Performance (lower is better)'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
+                    title: { display: true, text: 'Boolean Operations (lower is better)' },
+                    legend: { position: 'top' }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Nanoseconds per operation'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'ns/op' } }
                 }
             }
         });
 
-        new Chart(document.getElementById('chart_stack'), {
+        new Chart(document.getElementById('chart_comparison'), {
             type: 'bar',
             data: {
-                labels: ['push_pop', 'dup', 'swap', 'rot'],
+                labels: ['chain', 'eq', 'lt'],
                 datasets: [{
-            label: 'java',
-            data: [16.5, 14.2, 20.1, 26.4],
-            backgroundColor: 'rgba(255, 99, 132, 0.8)'
-        }, {
             label: 'go',
-            data: [26.31989, 27.91853, 31.82063, 35.17318],
+            data: [59.0238, 38.42294, 39.53695],
             backgroundColor: 'rgba(54, 162, 235, 0.8)'
         }, {
             label: 'native-asm',
-            data: [9.23591, 10.06237, 11.09233, 15.55559],
+            data: [23.92045, 13.23069, 13.0791],
             backgroundColor: 'rgba(75, 192, 192, 0.8)'
         }, {
             label: 'x86-64-asm',
-            data: [163.887, 161.01436, 161.22055, 161.81136],
+            data: [173.39182, 160.18168, 159.46181],
             backgroundColor: 'rgba(255, 206, 86, 0.8)'
         }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Stack Operations Performance (lower is better)'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
+                    title: { display: true, text: 'Comparison Operations (lower is better)' },
+                    legend: { position: 'top' }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Nanoseconds per operation'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'ns/op' } }
                 }
             }
         });
@@ -460,44 +314,59 @@
         new Chart(document.getElementById('chart_complex'), {
             type: 'bar',
             data: {
-                labels: ['mixed_ops', 'heavy_arithmetic', 'long_expression'],
+                labels: ['heavy_arithmetic', 'long_expression', 'mixed_ops'],
                 datasets: [{
-            label: 'java',
-            data: [58.5, 88.2, 265.6],
-            backgroundColor: 'rgba(255, 99, 132, 0.8)'
-        }, {
             label: 'go',
-            data: [49.33293, 97.6351, 362.26669],
+            data: [97.6351, 362.26669, 49.33293],
             backgroundColor: 'rgba(54, 162, 235, 0.8)'
         }, {
             label: 'native-asm',
-            data: [24.4748, 27.20768, 95.00261],
+            data: [27.20768, 95.00261, 24.4748],
             backgroundColor: 'rgba(75, 192, 192, 0.8)'
         }, {
             label: 'x86-64-asm',
-            data: [206.83442, 179.21676, 282.81236],
+            data: [179.21676, 282.81236, 206.83442],
             backgroundColor: 'rgba(255, 206, 86, 0.8)'
         }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Complex Operations Performance (lower is better)'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
+                    title: { display: true, text: 'Complex Operations (lower is better)' },
+                    legend: { position: 'top' }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Nanoseconds per operation'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'ns/op' } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('chart_stack'), {
+            type: 'bar',
+            data: {
+                labels: ['dup', 'push_pop', 'rot', 'swap'],
+                datasets: [{
+            label: 'go',
+            data: [27.91853, 26.31989, 35.17318, 31.82063],
+            backgroundColor: 'rgba(54, 162, 235, 0.8)'
+        }, {
+            label: 'native-asm',
+            data: [10.06237, 9.23591, 15.55559, 11.09233],
+            backgroundColor: 'rgba(75, 192, 192, 0.8)'
+        }, {
+            label: 'x86-64-asm',
+            data: [161.01436, 163.887, 161.81136, 161.22055],
+            backgroundColor: 'rgba(255, 206, 86, 0.8)'
+        }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Stack Operations (lower is better)' },
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'ns/op' } }
                 }
             }
         });

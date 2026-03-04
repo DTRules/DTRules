@@ -304,7 +304,7 @@ lib_clear_error:
 
 ;-----------------------------------------------------------------------------
 ; lib_reset - Reset VM state for new execution
-; Clears stacks but keeps heap
+; Clears stacks AND heap for clean execution context
 ; NOTE: For CGO, we reset state directly without using r12/r13/r14 registers
 ;-----------------------------------------------------------------------------
 global lib_reset
@@ -323,6 +323,10 @@ lib_reset:
     ; Reset control stack pointer to base
     mov rax, [state + State.control_stack_base]
     mov [state + State.control_stack], rax
+
+    ; Reset heap pointer to base (reclaim all allocations)
+    mov rax, [state + State.heap_base]
+    mov [state + State.heap_ptr], rax
 
     ; Clear state
     mov dword [state + State.error], ERR_NONE

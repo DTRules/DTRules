@@ -786,8 +786,30 @@ op_add:
     ret
 
 .mixed:
-    ; Convert to double and add
-    ; For now, report type error
+    ; Mixed types: convert integer to double and add
+    ; esi = first operand tag, edi = second operand tag
+    ; rcx = first operand (top of stack), rdx = second operand
+    cmp esi, VTAG_INTEGER
+    je .first_is_int
+    ; First is double, second must be integer (we already checked first is double above)
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    ; First (rcx) is double, second (rdx) is integer - convert rdx to double
+    movsd xmm0, [rcx + VALUE_NUM_OFF]       ; Load first double
+    cvtsi2sd xmm1, qword [rdx + VALUE_NUM_OFF]  ; Convert second int to double
+    addsd xmm0, xmm1
+    call stack_data_push_double
+    ret
+
+.first_is_int:
+    ; First (rcx) is integer, second (rdx) must be double (we checked first is int, second is not int)
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    cvtsi2sd xmm0, qword [rcx + VALUE_NUM_OFF]  ; Convert first int to double
+    addsd xmm0, [rdx + VALUE_NUM_OFF]           ; Add second double
+    call stack_data_push_double
+    ret
+
 .type_error:
     mov dword [state + State.error], ERR_TYPE_MISMATCH
 .error:
@@ -797,12 +819,12 @@ op_sub:
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rcx, rax
+    mov rcx, rax              ; rcx = first operand (subtrahend, what we subtract)
 
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rdx, rax
+    mov rdx, rax              ; rdx = second operand (minuend, what we subtract from)
 
     movzx esi, byte [rcx + VALUE_TAG_OFF]
     movzx edi, byte [rdx + VALUE_TAG_OFF]
@@ -810,7 +832,7 @@ op_sub:
     cmp esi, VTAG_INTEGER
     jne .check_double
     cmp edi, VTAG_INTEGER
-    jne .type_error
+    jne .mixed
 
     mov rdi, [rdx + VALUE_NUM_OFF]
     sub rdi, [rcx + VALUE_NUM_OFF]
@@ -821,10 +843,35 @@ op_sub:
     cmp esi, VTAG_DOUBLE
     jne .type_error
     cmp edi, VTAG_DOUBLE
-    jne .type_error
+    jne .mixed
 
     movsd xmm0, [rdx + VALUE_NUM_OFF]
     subsd xmm0, [rcx + VALUE_NUM_OFF]
+    call stack_data_push_double
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .first_is_int
+    ; First is double, second is integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    movsd xmm0, [rcx + VALUE_NUM_OFF]           ; Load first (subtrahend) as double
+    cvtsi2sd xmm1, qword [rdx + VALUE_NUM_OFF]  ; Convert second (minuend) to double
+    subsd xmm1, xmm0                            ; minuend - subtrahend
+    movsd xmm0, xmm1
+    call stack_data_push_double
+    ret
+
+.first_is_int:
+    ; First is integer, second is double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    cvtsi2sd xmm0, qword [rcx + VALUE_NUM_OFF]  ; Convert first (subtrahend) to double
+    movsd xmm1, [rdx + VALUE_NUM_OFF]           ; Load second (minuend) as double
+    subsd xmm1, xmm0                            ; minuend - subtrahend
+    movsd xmm0, xmm1
     call stack_data_push_double
     ret
 
@@ -850,7 +897,7 @@ op_mul:
     cmp esi, VTAG_INTEGER
     jne .check_double
     cmp edi, VTAG_INTEGER
-    jne .type_error
+    jne .mixed
 
     mov rax, [rdx + VALUE_NUM_OFF]
     imul rax, [rcx + VALUE_NUM_OFF]
@@ -862,10 +909,32 @@ op_mul:
     cmp esi, VTAG_DOUBLE
     jne .type_error
     cmp edi, VTAG_DOUBLE
-    jne .type_error
+    jne .mixed
 
     movsd xmm0, [rdx + VALUE_NUM_OFF]
     mulsd xmm0, [rcx + VALUE_NUM_OFF]
+    call stack_data_push_double
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .first_is_int
+    ; First is double, second is integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    movsd xmm0, [rcx + VALUE_NUM_OFF]           ; Load first as double
+    cvtsi2sd xmm1, qword [rdx + VALUE_NUM_OFF]  ; Convert second to double
+    mulsd xmm0, xmm1
+    call stack_data_push_double
+    ret
+
+.first_is_int:
+    ; First is integer, second is double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    cvtsi2sd xmm0, qword [rcx + VALUE_NUM_OFF]  ; Convert first to double
+    mulsd xmm0, [rdx + VALUE_NUM_OFF]           ; Multiply with second
     call stack_data_push_double
     ret
 
@@ -878,12 +947,12 @@ op_div:
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rcx, rax
+    mov rcx, rax              ; rcx = divisor
 
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rdx, rax
+    mov rdx, rax              ; rdx = dividend
 
     movzx esi, byte [rcx + VALUE_TAG_OFF]
     movzx edi, byte [rdx + VALUE_TAG_OFF]
@@ -891,7 +960,7 @@ op_div:
     cmp esi, VTAG_INTEGER
     jne .check_double
     cmp edi, VTAG_INTEGER
-    jne .type_error
+    jne .mixed
 
     ; Check for division by zero
     mov rax, [rcx + VALUE_NUM_OFF]
@@ -909,10 +978,35 @@ op_div:
     cmp esi, VTAG_DOUBLE
     jne .type_error
     cmp edi, VTAG_DOUBLE
-    jne .type_error
+    jne .mixed
 
     movsd xmm0, [rdx + VALUE_NUM_OFF]
     divsd xmm0, [rcx + VALUE_NUM_OFF]
+    call stack_data_push_double
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .first_is_int
+    ; First (divisor) is double, second (dividend) is integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    movsd xmm0, [rcx + VALUE_NUM_OFF]           ; Load divisor as double
+    cvtsi2sd xmm1, qword [rdx + VALUE_NUM_OFF]  ; Convert dividend to double
+    divsd xmm1, xmm0                            ; dividend / divisor
+    movsd xmm0, xmm1
+    call stack_data_push_double
+    ret
+
+.first_is_int:
+    ; First (divisor) is integer, second (dividend) is double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    cvtsi2sd xmm0, qword [rcx + VALUE_NUM_OFF]  ; Convert divisor to double
+    movsd xmm1, [rdx + VALUE_NUM_OFF]           ; Load dividend as double
+    divsd xmm1, xmm0                            ; dividend / divisor
+    movsd xmm0, xmm1
     call stack_data_push_double
     ret
 
@@ -1037,16 +1131,56 @@ op_min:
     jz .error
     mov rdx, rax
 
-    cmp byte [rcx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
-    cmp byte [rdx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
+    movzx esi, byte [rcx + VALUE_TAG_OFF]
+    movzx edi, byte [rdx + VALUE_TAG_OFF]
 
+    cmp esi, VTAG_INTEGER
+    jne .check_double
+    cmp edi, VTAG_INTEGER
+    jne .mixed
+
+    ; Both integers
     mov rdi, [rcx + VALUE_NUM_OFF]
     mov rax, [rdx + VALUE_NUM_OFF]
     cmp rax, rdi
     cmovl rdi, rax
     call stack_data_push_integer
+    ret
+
+.check_double:
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    cmp edi, VTAG_DOUBLE
+    jne .mixed
+
+    ; Both doubles - use minsd
+    movsd xmm0, [rcx + VALUE_NUM_OFF]
+    minsd xmm0, [rdx + VALUE_NUM_OFF]
+    call stack_data_push_double
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .first_is_int
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    ; First (rcx) is double, second (rdx) is integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    movsd xmm0, [rcx + VALUE_NUM_OFF]
+    cvtsi2sd xmm1, qword [rdx + VALUE_NUM_OFF]
+    minsd xmm0, xmm1
+    call stack_data_push_double
+    ret
+
+.first_is_int:
+    ; First (rcx) is integer, second (rdx) is double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    cvtsi2sd xmm0, qword [rcx + VALUE_NUM_OFF]
+    minsd xmm0, [rdx + VALUE_NUM_OFF]
+    call stack_data_push_double
     ret
 
 .type_error:
@@ -1065,16 +1199,56 @@ op_max:
     jz .error
     mov rdx, rax
 
-    cmp byte [rcx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
-    cmp byte [rdx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
+    movzx esi, byte [rcx + VALUE_TAG_OFF]
+    movzx edi, byte [rdx + VALUE_TAG_OFF]
 
+    cmp esi, VTAG_INTEGER
+    jne .check_double
+    cmp edi, VTAG_INTEGER
+    jne .mixed
+
+    ; Both integers
     mov rdi, [rcx + VALUE_NUM_OFF]
     mov rax, [rdx + VALUE_NUM_OFF]
     cmp rax, rdi
     cmovg rdi, rax
     call stack_data_push_integer
+    ret
+
+.check_double:
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    cmp edi, VTAG_DOUBLE
+    jne .mixed
+
+    ; Both doubles - use maxsd
+    movsd xmm0, [rcx + VALUE_NUM_OFF]
+    maxsd xmm0, [rdx + VALUE_NUM_OFF]
+    call stack_data_push_double
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .first_is_int
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    ; First (rcx) is double, second (rdx) is integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    movsd xmm0, [rcx + VALUE_NUM_OFF]
+    cvtsi2sd xmm1, qword [rdx + VALUE_NUM_OFF]
+    maxsd xmm0, xmm1
+    call stack_data_push_double
+    ret
+
+.first_is_int:
+    ; First (rcx) is integer, second (rdx) is double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    cvtsi2sd xmm0, qword [rcx + VALUE_NUM_OFF]
+    maxsd xmm0, [rdx + VALUE_NUM_OFF]
+    call stack_data_push_double
     ret
 
 .type_error:
@@ -1374,14 +1548,60 @@ op_lt:
     jz .error
     mov rdx, rax            ; Left operand
 
-    cmp byte [rcx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
-    cmp byte [rdx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
+    movzx esi, byte [rcx + VALUE_TAG_OFF]
+    movzx edi, byte [rdx + VALUE_TAG_OFF]
 
+    cmp esi, VTAG_INTEGER
+    jne .check_double
+    cmp edi, VTAG_INTEGER
+    jne .mixed
+
+    ; Both integers
     mov rax, [rdx + VALUE_NUM_OFF]
     cmp rax, [rcx + VALUE_NUM_OFF]
     setl dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.check_double:
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    cmp edi, VTAG_DOUBLE
+    jne .mixed
+
+    ; Both doubles
+    movsd xmm0, [rdx + VALUE_NUM_OFF]  ; Left
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF] ; Compare with right
+    setb dil                            ; Set if below (unsigned for floats)
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .right_is_int
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    ; Right (rcx) is double, left (rdx) must be integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    cvtsi2sd xmm0, qword [rdx + VALUE_NUM_OFF]  ; Convert left to double
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF]         ; Compare
+    setb dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.right_is_int:
+    ; Right (rcx) is integer, left (rdx) must be double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    movsd xmm0, [rdx + VALUE_NUM_OFF]           ; Load left as double
+    cvtsi2sd xmm1, qword [rcx + VALUE_NUM_OFF]  ; Convert right to double
+    ucomisd xmm0, xmm1                          ; Compare
+    setb dil
     movzx edi, dil
     call stack_data_push_boolean
     ret
@@ -1395,21 +1615,67 @@ op_le:
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rcx, rax
+    mov rcx, rax            ; Right operand
 
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rdx, rax
+    mov rdx, rax            ; Left operand
 
-    cmp byte [rcx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
-    cmp byte [rdx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
+    movzx esi, byte [rcx + VALUE_TAG_OFF]
+    movzx edi, byte [rdx + VALUE_TAG_OFF]
 
+    cmp esi, VTAG_INTEGER
+    jne .check_double
+    cmp edi, VTAG_INTEGER
+    jne .mixed
+
+    ; Both integers
     mov rax, [rdx + VALUE_NUM_OFF]
     cmp rax, [rcx + VALUE_NUM_OFF]
     setle dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.check_double:
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    cmp edi, VTAG_DOUBLE
+    jne .mixed
+
+    ; Both doubles
+    movsd xmm0, [rdx + VALUE_NUM_OFF]  ; Left
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF] ; Compare with right
+    setbe dil                           ; Set if below or equal
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .right_is_int
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    ; Right (rcx) is double, left (rdx) must be integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    cvtsi2sd xmm0, qword [rdx + VALUE_NUM_OFF]  ; Convert left to double
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF]         ; Compare
+    setbe dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.right_is_int:
+    ; Right (rcx) is integer, left (rdx) must be double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    movsd xmm0, [rdx + VALUE_NUM_OFF]           ; Load left as double
+    cvtsi2sd xmm1, qword [rcx + VALUE_NUM_OFF]  ; Convert right to double
+    ucomisd xmm0, xmm1                          ; Compare
+    setbe dil
     movzx edi, dil
     call stack_data_push_boolean
     ret
@@ -1423,21 +1689,67 @@ op_gt:
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rcx, rax
+    mov rcx, rax            ; Right operand
 
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rdx, rax
+    mov rdx, rax            ; Left operand
 
-    cmp byte [rcx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
-    cmp byte [rdx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
+    movzx esi, byte [rcx + VALUE_TAG_OFF]
+    movzx edi, byte [rdx + VALUE_TAG_OFF]
 
+    cmp esi, VTAG_INTEGER
+    jne .check_double
+    cmp edi, VTAG_INTEGER
+    jne .mixed
+
+    ; Both integers
     mov rax, [rdx + VALUE_NUM_OFF]
     cmp rax, [rcx + VALUE_NUM_OFF]
     setg dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.check_double:
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    cmp edi, VTAG_DOUBLE
+    jne .mixed
+
+    ; Both doubles
+    movsd xmm0, [rdx + VALUE_NUM_OFF]  ; Left
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF] ; Compare with right
+    seta dil                            ; Set if above
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .right_is_int
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    ; Right (rcx) is double, left (rdx) must be integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    cvtsi2sd xmm0, qword [rdx + VALUE_NUM_OFF]  ; Convert left to double
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF]         ; Compare
+    seta dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.right_is_int:
+    ; Right (rcx) is integer, left (rdx) must be double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    movsd xmm0, [rdx + VALUE_NUM_OFF]           ; Load left as double
+    cvtsi2sd xmm1, qword [rcx + VALUE_NUM_OFF]  ; Convert right to double
+    ucomisd xmm0, xmm1                          ; Compare
+    seta dil
     movzx edi, dil
     call stack_data_push_boolean
     ret
@@ -1451,21 +1763,67 @@ op_ge:
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rcx, rax
+    mov rcx, rax            ; Right operand
 
     call stack_data_pop
     test rax, rax
     jz .error
-    mov rdx, rax
+    mov rdx, rax            ; Left operand
 
-    cmp byte [rcx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
-    cmp byte [rdx + VALUE_TAG_OFF], VTAG_INTEGER
-    jne .type_error
+    movzx esi, byte [rcx + VALUE_TAG_OFF]
+    movzx edi, byte [rdx + VALUE_TAG_OFF]
 
+    cmp esi, VTAG_INTEGER
+    jne .check_double
+    cmp edi, VTAG_INTEGER
+    jne .mixed
+
+    ; Both integers
     mov rax, [rdx + VALUE_NUM_OFF]
     cmp rax, [rcx + VALUE_NUM_OFF]
     setge dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.check_double:
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    cmp edi, VTAG_DOUBLE
+    jne .mixed
+
+    ; Both doubles
+    movsd xmm0, [rdx + VALUE_NUM_OFF]  ; Left
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF] ; Compare with right
+    setae dil                           ; Set if above or equal
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.mixed:
+    ; Mixed types: convert integer to double
+    cmp esi, VTAG_INTEGER
+    je .right_is_int
+    cmp esi, VTAG_DOUBLE
+    jne .type_error
+    ; Right (rcx) is double, left (rdx) must be integer
+    cmp edi, VTAG_INTEGER
+    jne .type_error
+    cvtsi2sd xmm0, qword [rdx + VALUE_NUM_OFF]  ; Convert left to double
+    ucomisd xmm0, [rcx + VALUE_NUM_OFF]         ; Compare
+    setae dil
+    movzx edi, dil
+    call stack_data_push_boolean
+    ret
+
+.right_is_int:
+    ; Right (rcx) is integer, left (rdx) must be double
+    cmp edi, VTAG_DOUBLE
+    jne .type_error
+    movsd xmm0, [rdx + VALUE_NUM_OFF]           ; Load left as double
+    cvtsi2sd xmm1, qword [rcx + VALUE_NUM_OFF]  ; Convert right to double
+    ucomisd xmm0, xmm1                          ; Compare
+    setae dil
     movzx edi, dil
     call stack_data_push_boolean
     ret
@@ -4185,36 +4543,130 @@ op_def:
     ret
 
 ; op_lookup - Lookup name in context (opcode 63)
-; Stack: -- value
-; Reads name index from bytecode, looks up through entity stack
+; Stack: name -- value
+; Pops name from data stack, looks up through entity stack
+; Handles dotted names (entity.attribute) by finding the entity first
+; If found and executable, executes it; otherwise pushes the result
 global op_lookup
 op_lookup:
     push rbp
     mov rbp, rsp
     push rbx
+    push r12
+    push r13
 
-    ; Read name index from bytecode
-    call read_varint
-    mov rbx, rax            ; Name index
-
-    ; Get name from name pool
-    mov rcx, [state + State.name_count]
-    cmp rbx, rcx
-    jae .not_found
-
-    mov rax, [state + State.name_pool]
+    ; Pop name from data stack
+    call stack_data_pop
     test rax, rax
     jz .not_found
 
-    mov rdi, [rax + rbx * 8]  ; Get name pointer
-    test rdi, rdi
+    ; Check if it's a name type
+    mov cl, [rax]               ; Get tag
+    cmp cl, VTAG_NAME
+    jne .not_found              ; Not a name
+
+    ; Get name string pointer from Value.ptr
+    mov r12, [rax + VALUE_PTR_OFF]  ; r12 = name string pointer
+    test r12, r12
     jz .not_found
 
-    ; Lookup through entity stack
+    ; Check if name contains a dot (entity.attribute format)
+    ; Format: [length:8][data...]
+    mov rcx, [r12]              ; Get length
+    test rcx, rcx
+    jz .not_found
+
+    ; Scan for dot
+    lea rsi, [r12 + 8]          ; Point to string data
+    xor rdx, rdx                ; Index = 0
+.scan_dot:
+    cmp rdx, rcx
+    jae .no_dot                 ; No dot found
+    cmp byte [rsi + rdx], '.'
+    je .has_dot
+    inc rdx
+    jmp .scan_dot
+
+.no_dot:
+    ; Simple name - look up in entity stack as attribute
+    mov rdi, r12
     call stack_entity_lookup
     test rax, rax
     jz .not_found
+    jmp .found
 
+.has_dot:
+    ; rdx = position of dot
+    ; Create temporary strings for entity name and attribute name
+    ; Entity name: [rdx bytes from start]
+    ; Attribute name: [rest after dot]
+    mov r13, rdx                ; Save dot position
+
+    ; Allocate space for entity name string
+    lea rdi, [rdx + 9]          ; length (8) + data (rdx) + null
+    call heap_alloc
+    test rax, rax
+    jz .not_found
+    mov rbx, rax                ; rbx = entity name string
+
+    ; Copy entity name
+    mov qword [rbx], r13        ; Set length
+    lea rdi, [rbx + 8]          ; Destination
+    lea rsi, [r12 + 8]          ; Source (original string data)
+    mov rcx, r13                ; Length
+    rep movsb
+
+    ; Now search entity stack for entity with this name
+    call stack_entity_find_by_name
+    test rax, rax
+    jz .not_found
+
+    ; rax = pointer to entity Value
+    ; Get entity structure pointer
+    mov rax, [rax + VALUE_PTR_OFF]
+    test rax, rax
+    jz .not_found
+
+    ; Allocate attribute name string
+    mov rcx, [r12]              ; Original length
+    sub rcx, r13                ; Subtract entity part
+    dec rcx                     ; Subtract the dot
+    test rcx, rcx
+    jz .not_found               ; Empty attribute name
+
+    push rax                    ; Save entity pointer
+    lea rdi, [rcx + 9]          ; length (8) + data (attr_len) + null
+    call heap_alloc
+    test rax, rax
+    jz .not_found_pop
+    mov rbx, rax                ; rbx = attribute name string
+
+    mov rcx, [r12]              ; Original length
+    sub rcx, r13                ; Subtract entity part
+    dec rcx                     ; Subtract the dot
+    mov qword [rbx], rcx        ; Set length
+
+    ; Copy attribute name
+    lea rdi, [rbx + 8]          ; Destination
+    lea rsi, [r12 + 8 + r13 + 1] ; Source (after entity part + dot)
+    rep movsb
+
+    pop rax                     ; Restore entity pointer
+
+    ; Look up attribute in this entity
+    mov rdi, rax                ; Entity structure
+    mov rsi, rbx                ; Attribute name
+    call entity_get_attr
+    test rax, rax
+    jz .not_found
+    ; rax now points to the Value
+    jmp .found
+
+.not_found_pop:
+    pop rax                     ; Clean up stack
+    jmp .not_found
+
+.found:
     ; Push found value to data stack
     mov rdi, rax
     call stack_data_push
@@ -4225,7 +4677,77 @@ op_lookup:
     call stack_data_push_null
 
 .done:
+    pop r13
+    pop r12
     pop rbx
+    pop rbp
+    ret
+
+; stack_entity_find_by_name - Find entity by name
+; Input: rbx = pointer to name string (length-prefixed)
+; Output: rax = pointer to entity Value, or 0 if not found
+stack_entity_find_by_name:
+    push rbp
+    mov rbp, rsp
+    push r12
+    push r13
+    push r14
+
+    mov r12, rbx                ; Save name pointer
+
+    ; Get entity stack depth
+    call stack_entity_depth
+    test rax, rax
+    jz .sef_not_found
+
+    mov r13, rax                ; Number of entities
+    xor r14, r14                ; Current index
+
+.sef_check_entity:
+    ; Get entity at index r14
+    mov rdi, r14
+    call stack_entity_peek_n
+    test rax, rax
+    jz .sef_next
+
+    ; rax = pointer to entity Value
+    push rax                    ; Save entity Value pointer
+    ; Get entity structure pointer
+    mov rax, [rax + VALUE_PTR_OFF]
+    test rax, rax
+    jz .sef_next_pop
+
+    ; Get entity type name pointer
+    ; Entity structure: [type_ptr:8][count:8][cap:8][attrs_ptr:8]
+    mov rdi, [rax]              ; Type name pointer
+    test rdi, rdi
+    jz .sef_next_pop
+
+    ; Compare type name with search name
+    mov rsi, r12
+    call string_compare
+    test eax, eax
+    jnz .sef_next_pop           ; Not equal
+
+    ; Found matching entity
+    pop rax                     ; Restore entity Value pointer
+    jmp .sef_done
+
+.sef_next_pop:
+    pop rax                     ; Clean up stack
+
+.sef_next:
+    inc r14
+    cmp r14, r13
+    jb .sef_check_entity
+
+.sef_not_found:
+    xor eax, eax
+
+.sef_done:
+    pop r14
+    pop r13
+    pop r12
     pop rbp
     ret
 

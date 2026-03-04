@@ -235,6 +235,42 @@ assert_false:
     xor eax, eax
     ret
 
+; assert_double_eq - Assert two doubles are equal (within epsilon)
+; Input: xmm0 = actual, xmm1 = expected
+; Returns: 1 if equal, 0 if not
+; Uses absolute error tolerance of 1e-10
+global assert_double_eq
+assert_double_eq:
+    push rbp
+    mov rbp, rsp
+
+    ; Calculate |actual - expected|
+    movsd xmm2, xmm0
+    subsd xmm2, xmm1
+
+    ; Get absolute value
+    movq rax, xmm2
+    mov rdx, 0x7FFFFFFFFFFFFFFF
+    and rax, rdx
+    movq xmm2, rax
+
+    ; Compare with epsilon (1e-10)
+    mov rax, 0x3DDB7CDFD9D7BDBB   ; 1e-10 in IEEE 754
+    movq xmm3, rax
+    ucomisd xmm2, xmm3
+
+    ja .fail                      ; If diff > epsilon, fail
+    call test_pass
+    mov eax, 1
+    pop rbp
+    ret
+
+.fail:
+    call test_fail
+    xor eax, eax
+    pop rbp
+    ret
+
 ; print_test_summary - Print final test results
 global print_test_summary
 print_test_summary:

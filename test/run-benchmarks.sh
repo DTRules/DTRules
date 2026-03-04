@@ -57,7 +57,7 @@ run_go_benchmarks() {
 # =============================================================================
 
 run_java_benchmarks() {
-    log_info "Running Java benchmarks..."
+    log_info "Checking for Java benchmarks..."
 
     cd "$ROOT_DIR"
 
@@ -67,46 +67,35 @@ run_java_benchmarks() {
     elif [ -f "/tmp/apache-maven-3.9.6/bin/mvn" ]; then
         MVN_CMD="/tmp/apache-maven-3.9.6/bin/mvn"
     else
-        log_warning "Maven not found, downloading..."
-        curl -sL https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz -o /tmp/maven.tar.gz
-        tar -xzf /tmp/maven.tar.gz -C /tmp
-        MVN_CMD="/tmp/apache-maven-3.9.6/bin/mvn"
+        log_warning "Maven not found. Skipping Java benchmarks."
+        log_warning "Install Maven and add JMH benchmarks to get real Java measurements."
+        log_warning "Do NOT use fabricated numbers."
+        return
     fi
 
-    # Run Java benchmarks (if JMH is available)
-    # For now, we'll create a simple timing test
-    log_info "Creating Java benchmark results..."
+    # Check if JMH benchmark class exists
+    JMH_SRC="$ROOT_DIR/sampleprojects/CHIP/src/main/java/com/dtrules/samples/chipeligibility/BenchmarkChip.java"
+    if [ ! -f "$JMH_SRC" ]; then
+        log_warning "No JMH benchmark class found at $JMH_SRC"
+        log_warning "Skipping Java benchmarks. To add real Java benchmarks:"
+        log_warning "  1. Add JMH dependency to pom.xml"
+        log_warning "  2. Create a JMH benchmark class that measures actual operations"
+        log_warning "  3. Output results in JSON format to $OUTPUT_DIR/"
+        return
+    fi
 
-    # Create Java benchmark results (using existing tests as proxy)
-    $MVN_CMD test -pl dtrules-engine -q 2>&1 | tee "$OUTPUT_DIR/java_test_$TIMESTAMP.txt"
+    # Run actual JMH benchmarks and export results
+    log_info "Running Java JMH benchmarks..."
+    $MVN_CMD -pl sampleprojects/CHIP exec:java \
+        -Dexec.mainClass="com.dtrules.samples.chipeligibility.BenchmarkChip" \
+        -Dexec.args="--output $OUTPUT_DIR/java_benchmarks_$TIMESTAMP.json" \
+        2>&1 | tee "$OUTPUT_DIR/java_test_$TIMESTAMP.txt"
 
-    # Generate synthetic benchmark data based on typical Java performance
-    # (In a real scenario, you'd use JMH)
-    cat > "$OUTPUT_DIR/java_benchmarks_$TIMESTAMP.json" << 'JAVABENCH'
-[
-  {"runtime": "java", "category": "arithmetic", "operation": "add", "ns_per_op": 15.2, "ops_per_sec": 65789473.68},
-  {"runtime": "java", "category": "arithmetic", "operation": "sub", "ns_per_op": 14.8, "ops_per_sec": 67567567.57},
-  {"runtime": "java", "category": "arithmetic", "operation": "mul", "ns_per_op": 16.1, "ops_per_sec": 62111801.24},
-  {"runtime": "java", "category": "arithmetic", "operation": "div", "ns_per_op": 22.5, "ops_per_sec": 44444444.44},
-  {"runtime": "java", "category": "arithmetic", "operation": "complex", "ns_per_op": 85.3, "ops_per_sec": 11723329.43},
-  {"runtime": "java", "category": "comparison", "operation": "lt", "ns_per_op": 12.4, "ops_per_sec": 80645161.29},
-  {"runtime": "java", "category": "comparison", "operation": "eq", "ns_per_op": 11.8, "ops_per_sec": 84745762.71},
-  {"runtime": "java", "category": "comparison", "operation": "chain", "ns_per_op": 45.2, "ops_per_sec": 22123893.81},
-  {"runtime": "java", "category": "boolean", "operation": "and", "ns_per_op": 8.5, "ops_per_sec": 117647058.82},
-  {"runtime": "java", "category": "boolean", "operation": "or", "ns_per_op": 8.3, "ops_per_sec": 120481927.71},
-  {"runtime": "java", "category": "boolean", "operation": "not", "ns_per_op": 6.2, "ops_per_sec": 161290322.58},
-  {"runtime": "java", "category": "boolean", "operation": "complex", "ns_per_op": 28.7, "ops_per_sec": 34843205.57},
-  {"runtime": "java", "category": "stack", "operation": "push_pop", "ns_per_op": 18.5, "ops_per_sec": 54054054.05},
-  {"runtime": "java", "category": "stack", "operation": "dup", "ns_per_op": 15.2, "ops_per_sec": 65789473.68},
-  {"runtime": "java", "category": "stack", "operation": "swap", "ns_per_op": 22.1, "ops_per_sec": 45248868.78},
-  {"runtime": "java", "category": "stack", "operation": "rot", "ns_per_op": 28.4, "ops_per_sec": 35211267.61},
-  {"runtime": "java", "category": "complex", "operation": "mixed_ops", "ns_per_op": 62.5, "ops_per_sec": 16000000.00},
-  {"runtime": "java", "category": "complex", "operation": "heavy_arithmetic", "ns_per_op": 95.2, "ops_per_sec": 10504201.68},
-  {"runtime": "java", "category": "complex", "operation": "long_expression", "ns_per_op": 285.6, "ops_per_sec": 3501400.56}
-]
-JAVABENCH
-
-    log_success "Java benchmarks complete"
+    if [ -f "$OUTPUT_DIR/java_benchmarks_$TIMESTAMP.json" ]; then
+        log_success "Java benchmarks complete"
+    else
+        log_warning "Java benchmark output not found. No Java results will be included."
+    fi
 }
 
 # =============================================================================
