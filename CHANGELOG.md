@@ -2,6 +2,35 @@
 
 ## Version 5.0-SNAPSHOT
 
+### 2026-03-04: Two-Runtime Architecture Documentation (#48)
+
+#### Summary
+Updated architecture documentation to reflect the clean two-runtime model: Go runtime and ASM runtime operating as independent implementations.
+
+#### Architecture Changes Documented
+
+**Two Independent Runtimes:**
+- **Go Runtime** (`go/pkg/dtrules/`) - Complete portable implementation
+  - Stack-based interpreter with bytecode VM
+  - 179+ operators
+  - Zero-allocation hot paths
+  - Full EDD and Decision Table loader support
+- **ASM Runtime** (`asm/`) - Native x86-64 implementation
+  - Direct assembly stack operations
+  - Maximum performance execution
+  - No shared state with Go runtime
+
+**Service Linkage Model:**
+- ASM links to Go only for external services (I/O, crypto, database)
+- No callbacks between runtimes during execution
+- Clean separation of concerns
+
+#### Documentation Updated
+- `docs/ARCHITECTURE.md` - Added two-runtime architecture sections
+- `docs/asm-runtime.md` - New detailed ASM runtime documentation
+
+---
+
 ### 2026-01-30: ANTLR 4 Migration
 
 #### Summary

@@ -5,6 +5,10 @@ This document describes the architecture of DTRules, including its components, d
 ## Table of Contents
 
 - [System Overview](#system-overview)
+- [Two-Runtime Architecture](#two-runtime-architecture)
+- [Go Runtime](#go-runtime)
+- [ASM Runtime](#asm-runtime)
+- [Service Linkage Model](#service-linkage-model)
 - [Core Components](#core-components)
 - [Execution Flow](#execution-flow)
 - [Module Structure](#module-structure)
@@ -17,6 +21,183 @@ This document describes the architecture of DTRules, including its components, d
 ## System Overview
 
 DTRules is a Decision Table based Rules Engine that separates business logic from application code. Business analysts define rules in Excel spreadsheets using a Domain Specific Language, which are then compiled to XML and executed by the rules engine.
+
+---
+
+## Two-Runtime Architecture
+
+DTRules provides two independent runtime implementations:
+
+1. **Go Runtime** - A complete, portable implementation in Go
+2. **ASM Runtime** - A high-performance native x86-64 assembly implementation
+
+Both runtimes are fully independent with no shared state. They implement the same stack-based execution model and can load the same compiled rule sets.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DTRules Engine                                     │
+│                                                                             │
+│  ┌─────────────────────────────────┐  ┌─────────────────────────────────┐  │
+│  │         Go Runtime              │  │         ASM Runtime             │  │
+│  │  ┌───────────────────────────┐  │  │  ┌───────────────────────────┐  │  │
+│  │  │ Interpreter (state.go)   │  │  │  │ Native x86-64 Execution   │  │  │
+│  │  │ Bytecode VM (vm.go)      │  │  │  │ Direct stack operations   │  │  │
+│  │  │ 179+ Operators           │  │  │  │ Optimized hot paths       │  │  │
+│  │  └───────────────────────────┘  │  │  └───────────────────────────┘  │  │
+│  │                                 │  │                │                │  │
+│  │  ┌───────────────────────────┐  │  │                │ Services      │  │
+│  │  │ Loaders (EDD, DT)        │  │  │                ▼                │  │
+│  │  │ Entity System            │  │  │  ┌───────────────────────────┐  │  │
+│  │  │ Session Management       │  │  │  │ Go Service Layer          │  │  │
+│  │  └───────────────────────────┘  │  │  │ (I/O, crypto, database)   │  │  │
+│  │                                 │  │  └───────────────────────────┘  │  │
+│  └─────────────────────────────────┘  └─────────────────────────────────┘  │
+│                                                                             │
+│                        ▲                        ▲                           │
+│                        │  Same XML Format       │                           │
+│                        └────────────────────────┘                           │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    Compiled Rules (XML)                              │   │
+│  │   Entity Definitions (*_edd.xml)  │  Decision Tables (*_dt.xml)     │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Go Runtime
+
+The Go runtime is a complete, portable implementation located in `go/pkg/dtrules/`.
+
+### Key Features
+
+- **Full DTRules compatibility** - Loads standard EDD and Decision Table XML formats
+- **Zero-allocation hot paths** - Optimized for minimal GC pressure
+- **Dual execution modes** - Object-based (compatible) and Value-based (optimized)
+- **179+ operators** - Complete operator set for math, boolean, string, array, date, and control flow
+
+### Package Structure
+
+```
+go/pkg/dtrules/
+├── interpreter/        # Stack-based interpreter and bytecode VM
+│   ├── state.go       # DTState with three stacks
+│   └── vm.go          # Bytecode virtual machine
+├── operators/         # Built-in operator implementations
+│   ├── registry.go    # Indexed operator lookup (143x faster)
+│   ├── math.go        # Arithmetic operators
+│   ├── boolean.go     # Boolean operators
+│   ├── string.go      # String operators
+│   ├── array.go       # Array operators
+│   ├── control.go     # Control flow (if, while, for)
+│   └── ...
+├── compiler/          # Postfix expression compiler
+├── loader/            # XML loaders for EDD and Decision Tables
+├── entity/            # Entity system (IREntity, attributes)
+├── session/           # Session and RuleSet management
+├── decisiontable/     # Decision table execution
+└── mapping/           # Data mapping between formats
+```
+
+### Performance
+
+| Operation | Baseline | Optimized | Improvement |
+|-----------|----------|-----------|-------------|
+| Operator Lookup | 83 ns | 0.64 ns | **130x** |
+| Integer Arithmetic | 19 ns | 0.79 ns | **24x** |
+| String Creation | 41 ns | 11 ns | **3.7x** |
+
+See [go/pkg/dtrules/DESIGN_REVIEW.md](../go/pkg/dtrules/DESIGN_REVIEW.md) for detailed design decisions.
+
+---
+
+## ASM Runtime
+
+The ASM runtime is a native x86-64 assembly implementation located in `asm/`.
+
+### Design Goals
+
+- **Maximum performance** - Native machine code execution
+- **Direct stack manipulation** - Hardware-level stack operations
+- **Minimal overhead** - No interpreter dispatch costs
+
+### Architecture
+
+The ASM runtime implements the same three-stack model as the Go runtime:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     ASM Runtime                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │  Data Stack  │  │ Ctrl Stack   │  │ Entity Stack │          │
+│  │  (operands)  │  │  (frames)    │  │  (context)   │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+│         │                │                  │                   │
+│         └────────────────┼──────────────────┘                   │
+│                          ▼                                      │
+│                 Native x86-64 Code                              │
+│           (direct register/memory ops)                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Characteristics
+
+- Complete, standalone implementation
+- No shared state with Go runtime
+- No callbacks to Go for core operations
+- Links to Go only for external services
+
+---
+
+## Service Linkage Model
+
+The ASM runtime links to Go for external services only. This is a clean, one-way dependency - not a callback architecture.
+
+### What ASM Handles Natively
+
+- Stack operations (push, pop, peek)
+- Arithmetic operations
+- Boolean logic
+- Control flow (if, while, for)
+- Operator dispatch
+
+### What ASM Links to Go For
+
+- **I/O Operations** - File reading, console output
+- **Cryptography** - Hash functions, encryption
+- **Database Access** - Connection management, queries
+- **Network** - HTTP requests, socket operations
+
+### Linkage Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      ASM Runtime                                 │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                    Core Execution                           │ │
+│  │    (Pure assembly - no external calls)                      │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                              │                                   │
+│                              │ Service calls only                │
+│                              ▼                                   │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │               Go Service Layer                              │ │
+│  │                                                             │ │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐       │ │
+│  │  │   I/O   │  │ Crypto  │  │   DB    │  │ Network │       │ │
+│  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘       │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+This design ensures:
+- **No state synchronization** needed between runtimes
+- **No callback overhead** during hot path execution
+- **Clean separation** of concerns
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -243,7 +424,27 @@ Application                 Session                  Entity
 
 ```
 DTRules/
-├── dtrules-engine/          # Core runtime engine
+├── go/                      # Go Runtime Implementation
+│   ├── cmd/
+│   │   ├── dtrules/         # CLI tool
+│   │   └── api/             # REST API server
+│   └── pkg/dtrules/
+│       ├── interpreter/     # State and bytecode VM
+│       ├── operators/       # 179+ built-in operators
+│       ├── compiler/        # Postfix expression compiler
+│       ├── loader/          # XML loaders (EDD, DT)
+│       ├── entity/          # Entity system
+│       ├── session/         # Session management
+│       ├── decisiontable/   # Decision table execution
+│       ├── mapping/         # Data mapping
+│       └── benchmark/       # Performance benchmarks
+│
+├── asm/                     # ASM Runtime Implementation
+│   ├── core/               # Core stack machine
+│   ├── operators/          # Native operator implementations
+│   └── services/           # Go service linkage
+│
+├── dtrules-engine/          # Java Runtime (reference)
 │   └── com.dtrules/
 │       ├── session/         # Session, RuleSet, RulesDirectory
 │       ├── entity/          # Entity model (IREntity, REntity)
@@ -271,6 +472,29 @@ DTRules/
 │       └── ...              # Legacy JFlex/CUP files
 │
 └── sampleprojects/          # Example implementations
+```
+
+### Runtime Dependencies
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Applications                                 │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │
+              ┌──────────────────┼──────────────────┐
+              │                  │                  │
+              ▼                  ▼                  ▼
+    ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+    │   Go Runtime    │ │  ASM Runtime    │ │  Java Runtime   │
+    │   (go/pkg/)     │ │   (asm/)        │ │  (dtrules-eng)  │
+    └─────────────────┘ └────────┬────────┘ └─────────────────┘
+                                 │
+                                 │ services only
+                                 ▼
+                        ┌─────────────────┐
+                        │ Go Service Layer│
+                        │ (I/O, crypto)   │
+                        └─────────────────┘
 ```
 
 ### Module Dependencies

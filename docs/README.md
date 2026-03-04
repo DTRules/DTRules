@@ -1,13 +1,14 @@
 # DTRules Documentation
 
-DTRules has implementations in both **Java** and **Go**. This documentation primarily covers the Java implementation. For Go-specific documentation, see the [Go README](../go/README.md).
+DTRules provides multiple runtime implementations. See the [Architecture Guide](ARCHITECTURE.md) for the two-runtime architecture overview.
 
 ## Implementations
 
 | Implementation | Documentation | Best For |
 |----------------|---------------|----------|
 | **Java** | This directory | Full tooling, Excel compilers, IDE integration |
-| **Go** | [go/README.md](../go/README.md) | High-performance runtime, microservices |
+| **Go** | [go/README.md](../go/README.md) | High-performance portable runtime, microservices |
+| **ASM** | [asm-runtime.md](asm-runtime.md) | Maximum performance on x86-64 |
 
 ## Getting Started (Java)
 
@@ -25,7 +26,7 @@ DTRules has implementations in both **Java** and **Go**. This documentation prim
 | [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
 | [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md) | Excel, ODS, and Google Sheets support |
 
-## Go Implementation
+## Go Runtime
 
 | Document | Description |
 |----------|-------------|
@@ -43,6 +44,20 @@ cd go && go build -o dtrules ./cmd/dtrules
 ./dtrules -rules /path/to/xml -list
 ./dtrules -rules /path/to/xml -entry Main
 ```
+
+## ASM Runtime
+
+The ASM runtime provides native x86-64 assembly execution for maximum performance. It operates as a fully independent runtime that links to Go only for external services (I/O, crypto, database).
+
+| Document | Description |
+|----------|-------------|
+| [ASM Runtime](asm-runtime.md) | Architecture, service linkage, performance characteristics |
+
+Key characteristics:
+- **Complete implementation** - All core operations in native assembly
+- **No shared state** - Fully independent from Go runtime
+- **Service linkage only** - Calls Go for I/O, crypto, and database operations
+- **No callbacks** - Core execution never calls back to Go
 
 ## Visual UI
 
