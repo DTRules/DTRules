@@ -2,6 +2,51 @@
 
 ## Version 5.0-SNAPSHOT
 
+### 2026-02-05: ASM Mixed-Type Arithmetic and Double Comparison Support
+
+#### Summary
+Fixed critical gaps in the x86-64 ASM implementation: mixed-type arithmetic (integer + double) operations now correctly convert integers to doubles, and comparison operators now support double and mixed-type comparisons.
+
+#### Changes
+
+**ASM Bytecode Fixes (`asm/src/vm/bytecode.asm`):**
+- **Arithmetic operators** (`op_add`, `op_sub`, `op_mul`, `op_div`): Now handle mixed integer/double operands by converting integers to doubles
+- **Comparison operators** (`op_lt`, `op_le`, `op_gt`, `op_ge`): Added full double and mixed-type support
+- **Min/Max operators** (`op_min`, `op_max`): Added double and mixed-type support using SSE instructions
+
+**Test Harness Enhancement (`asm/test/unit/test_harness.asm`):**
+- Added `assert_double_eq` function for comparing double values with epsilon tolerance
+
+**New Unit Tests:**
+
+| Test File | New Tests | Description |
+|-----------|-----------|-------------|
+| test_arithmetic.asm | 8 | Mixed-type add/sub/mul/div, double arithmetic, double comparison |
+| test_comparison.asm | 6 | Double comparisons (lt, gt, le, ge), mixed-type comparisons |
+
+#### Before/After
+
+**Before (Error):**
+```
+5 + 3.14 → ERR_TYPE_MISMATCH
+3.14 < 5.0 → ERR_TYPE_MISMATCH
+```
+
+**After (Correct):**
+```
+5 + 3.14 → 8.14 (double)
+3.14 < 5.0 → true (boolean)
+```
+
+#### Verification
+- All 13 ASM unit test modules pass
+- 19 new arithmetic tests pass (including 8 mixed-type tests)
+- 18 new comparison tests pass (including 6 double/mixed tests)
+- Go core tests pass
+- NativeASM tests pass
+
+---
+
 ### 2026-02-05: Unified Test Infrastructure
 
 #### Summary
