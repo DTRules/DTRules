@@ -1,6 +1,49 @@
 # DTRules Changelog
 
-## Version 5.0-SNAPSHOT
+## Version 5.0 (Release)
+
+### Summary
+
+DTRules v5.0 is a major release featuring a complete Go runtime implementation, ASM optimization framework, modernized DSL compilers, and comprehensive test infrastructure.
+
+### Key Features
+
+- **Go Runtime**: Complete Go port of the DTRules interpreter
+  - All primitive types (RInteger, RDouble, RBoolean, RString, RDate, RArray, RTable)
+  - Entity Data Dictionary (EDD) loading from XML
+  - Decision Table loading and execution
+  - Mapping file support for data loading
+  - All standard operators implemented (70+)
+
+- **ASM Optimization**: x86-64 assembly runtime for performance-critical paths
+  - Full arithmetic, comparison, boolean, and stack operators
+  - Mixed-type arithmetic support (integer + double)
+  - SSE-based floating point operations
+
+- **ANTLR 4 Migration**: Modernized EL/EBL DSL compilers
+  - Drop-in compatible with legacy JFlex/CUP compilers
+  - Improved error messages and performance
+
+- **Test Infrastructure**: Cross-platform test vectors and CI/CD
+  - 206 shared test vectors across 10 categories
+  - GitHub Actions workflow for Go, Java, and ASM
+
+### Test Results
+
+| Project | Test Cases | Status |
+|---------|------------|--------|
+| CHIP | 13 | Pass |
+| KidAid | 4 | Pass |
+| SyntaxTests | Compile | Pass |
+| TestProject | Compile | Pass |
+
+### Security Updates
+
+- Apache POI updated to 5.2.5
+
+---
+
+## Version 5.0-SNAPSHOT (Development)
 
 ### 2026-02-05: ASM Mixed-Type Arithmetic and Double Comparison Support
 
