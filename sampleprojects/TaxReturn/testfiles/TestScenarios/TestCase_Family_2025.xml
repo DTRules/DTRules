@@ -23,18 +23,18 @@
    <city>Austin</city>
 
    <!-- Expected values for validation -->
-   <!-- Income: $125,000 W2 + ~$113,200 SE + ~$8,100 rental = ~$246,300 -->
-   <!-- AGI: $246,300 - $8,690 (SE tax deduction) = ~$237,610 -->
-   <!-- Deduction: $30,000 standard (higher than itemized) -->
-   <!-- QBI: ~$22,640 (20% of SE income) -->
-   <!-- Taxable: ~$184,970 -->
-   <!-- Tax: ~$30,800 regular + ~$17,380 SE - $6,500 credits = ~$41,680 -->
-   <!-- Payments: $28,000 + $20,000 = $48,000 -->
-   <!-- Refund: ~$6,320 -->
-   <expected_agi>237610</expected_agi>
-   <expected_taxable_income>184970</expected_taxable_income>
-   <expected_total_tax>41680</expected_total_tax>
-   <expected_refund>6320</expected_refund>
+   <!-- Income: $125,000 W2 + $128,200 SE net ($145k - $16.8k vehicle) + $4,200 rental net = $257,400 -->
+   <!-- AGI: $257,400 - $9,057 (SE tax deduction) = $248,343 -->
+   <!-- Deduction: $30,000 standard (higher than itemized $24,500) -->
+   <!-- QBI: $25,640 (20% of SE income) -->
+   <!-- Taxable: $192,703 -->
+   <!-- Tax: $32,501 regular + $18,114 SE - $6,500 credits = $44,115 -->
+   <!-- Payments: $28,000 (W-2 withholding) -->
+   <!-- Amount Owed: $16,115 -->
+   <expected_agi>248343</expected_agi>
+   <expected_taxable_income>192703</expected_taxable_income>
+   <expected_total_tax>44115</expected_total_tax>
+   <expected_refund>0</expected_refund>
 
    <!-- Taxpayers -->
    <taxpayers>

@@ -307,7 +307,7 @@ result.gross_income result.total_adjustments f- /result.agi xdef
 <context_comment>Process each taxpayer</context_comment>
 <context_description>for all taxpayers</context_description>
 <context_postfix>
-job.taxpayers dup forall pop
+{ /Process_W2_Income executetable } job.taxpayers forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -394,10 +394,10 @@ taxpayer.se_gross_income 0 >
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Net SE income meets threshold for SE tax</condition_comment>
-<condition_description>SE net profit greater than or equal to se_threshold</condition_description>
+<condition_comment>SE gross income meets threshold for SE tax</condition_comment>
+<condition_description>SE gross income greater than or equal to se_threshold (check before expenses)</condition_description>
 <condition_postfix>
-taxpayer.se_net_profit se_threshold >=
+taxpayer.se_gross_income se_threshold >=
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -439,24 +439,33 @@ taxpayer.se_net_profit result.total_se_income f+ /result.total_se_income xdef
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate SE tax</action_comment>
+<action_comment>Calculate SE tax if net profit exceeds threshold</action_comment>
 <action_description>Calculate self-employment tax per Schedule SE, IRC 1401</action_description>
 <action_postfix>
-taxpayer.se_net_profit se_income_multiplier f* se_tax_rate f* /taxpayer.se_tax xdef
-taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
-"SCHEDULE SE - Self-Employment Tax" job.audit_trail swap addto
-"  Net SE Earnings x 92.35%: $" taxpayer.se_net_profit se_income_multiplier f* cvs strconcat " (IRC 1402(a)(12))" strconcat job.audit_trail swap addto
-"  SE Tax (15.3%): $" taxpayer.se_tax cvs strconcat " (IRC 1401(a) SS 12.4% + IRC 1401(b) Medicare 2.9%)" strconcat job.audit_trail swap addto
-"  Deductible Portion (50%): $" taxpayer.se_tax_deduction cvs strconcat " (IRC 164(f), Schedule 1 Line 15)" strconcat job.audit_trail swap addto
+{
+  taxpayer.se_net_profit se_income_multiplier f* se_tax_rate f* /taxpayer.se_tax xdef
+  taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
+  "SCHEDULE SE - Self-Employment Tax" job.audit_trail swap addto
+  "  Net SE Earnings x 92.35%: $" taxpayer.se_net_profit se_income_multiplier f* cvs strconcat " (IRC 1402(a)(12))" strconcat job.audit_trail swap addto
+  "  SE Tax (15.3%): $" taxpayer.se_tax cvs strconcat " (IRC 1401(a) SS 12.4% + IRC 1401(b) Medicare 2.9%)" strconcat job.audit_trail swap addto
+  "  Deductible Portion (50%): $" taxpayer.se_tax_deduction cvs strconcat " (IRC 164(f), Schedule 1 Line 15)" strconcat job.audit_trail swap addto
+}
+{
+  "  SE Tax: Not required - net SE income below $400 threshold (IRC 1402(b)(2))" job.audit_trail swap addto
+  0 /taxpayer.se_tax xdef
+  0 /taxpayer.se_tax_deduction xdef
+}
+taxpayer.se_net_profit se_threshold >=
+ifelse
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>No SE tax required - below threshold</action_comment>
-<action_description>Log no SE tax required</action_description>
+<action_description>Log no SE tax required (gross income below threshold)</action_description>
 <action_postfix>
-"  SE Tax: Not required - net SE income below $400 threshold (IRC 1402(b)(2))" job.audit_trail swap addto
+"  SE Tax: Not required - gross SE income below $400 threshold (IRC 1402(b)(2))" job.audit_trail swap addto
 0 /taxpayer.se_tax xdef
 0 /taxpayer.se_tax_deduction xdef
 </action_postfix>
@@ -598,7 +607,7 @@ vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 <context_comment>Process each rental property</context_comment>
 <context_description>for all properties where type equals rental</context_description>
 <context_postfix>
-{ Filter_Rental_Property performaliased } job.properties forall
+{ /Process_Rental_Income executetable } job.properties forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -606,24 +615,22 @@ vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
+<condition_comment>Is rental property</condition_comment>
+<condition_description>property.type equals rental</condition_description>
+<condition_postfix>
+property.type "rental" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
 <condition_comment>Has rental income</condition_comment>
 <condition_description>property.rental_income greater than 0</condition_description>
 <condition_postfix>
 property.rental_income 0 >
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Net rental income is positive</condition_comment>
-<condition_description>rental net income greater than 0</condition_description>
-<condition_postfix>
-property.rental_net_income 0 >
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -636,7 +643,6 @@ property.rental_net_income 0 >
 "  Rental Income: $" property.rental_income cvs strconcat " (Schedule E Line 3, IRC 61(a)(5))" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -655,38 +661,25 @@ property.rental_advertising property.rental_insurance f+ property.mortgage_inter
 "    Total Expenses: $" property.rental_expenses cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate net rental income</action_comment>
-<action_description>Calculate net rental income (Schedule E Line 21)</action_description>
+<action_comment>Calculate net rental income and add to total</action_comment>
+<action_description>Calculate net rental income (Schedule E Line 21) and add to total</action_description>
 <action_postfix>
 property.rental_income property.rental_expenses f- /property.rental_net_income xdef
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>Add net rental income to total</action_comment>
-<action_description>Add net rental income to result</action_description>
-<action_postfix>
-"  Net Rental Income: $" property.rental_net_income cvs strconcat " (Schedule E Line 21)" strconcat job.audit_trail swap addto
+{
+  "  Net Rental Income: $" property.rental_net_income cvs strconcat " (Schedule E Line 21)" strconcat job.audit_trail swap addto
+}
+{
+  "  Net Rental Loss: $" property.rental_net_income cvs strconcat " (Schedule E Line 21)" strconcat job.audit_trail swap addto
+  "  Note: Rental loss may be subject to passive activity limitations per Form 8582, IRC 469" job.audit_trail swap addto
+}
+property.rental_net_income 0 >=
+ifelse
 property.rental_net_income result.total_rental_income f+ /result.total_rental_income xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>5</action_number>
-<action_comment>Handle rental loss</action_comment>
-<action_description>Log rental loss with passive activity note</action_description>
-<action_postfix>
-"  Net Rental Loss: $" property.rental_net_income cvs strconcat " (Schedule E Line 21)" strconcat job.audit_trail swap addto
-"  Note: Rental loss may be subject to passive activity limitations per Form 8582, IRC 469" job.audit_trail swap addto
-property.rental_net_income result.total_rental_income f+ /result.total_rental_income xdef
-</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -695,10 +688,6 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 <policy_statement_postfix>"Rental income calculated per Schedule E Part I, Publication 527, IRC 61(a)(5)"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>Rental loss subject to passive activity rules per Form 8582, IRC 469</policy_description>
-<policy_statement_postfix>"Rental loss subject to passive activity limitations per Form 8582, IRC 469"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
 <policy_description>Property is not a rental property</policy_description>
 <policy_statement_postfix>"Property is not a rental property - Schedule E not required"</policy_statement_postfix>
 </policy_statement>
@@ -723,19 +712,13 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 <context_comment>Process each taxpayer for adjustments</context_comment>
 <context_description>for all taxpayers</context_description>
 <context_postfix>
-job.taxpayers dup forall pop
+0.0 /result.total_adjustments xdef
+"ADJUSTMENTS TO INCOME (Schedule 1 Part II)" job.audit_trail swap addto
+{ /Calculate_AGI_Adjustments executetable } job.taxpayers forall
 </context_postfix>
 </context_details>
 </contexts>
-<initial_actions>
-<initial_action>
-<action_description>Initialize adjustments</action_description>
-<action_postfix>
-0.0 /result.total_adjustments xdef
-"ADJUSTMENTS TO INCOME (Schedule 1 Part II)" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
@@ -1961,7 +1944,7 @@ result.total_ctc result.total_odc f+ result.eitc f+ result.education_credit f+ /
 <context_comment>Process each dependent</context_comment>
 <context_description>for all dependents</context_description>
 <context_postfix>
-job.dependents dup forall pop
+{ /Calculate_Child_Tax_Credit executetable } job.dependents forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -2006,7 +1989,7 @@ dependent.has_ssn true beq
 <action_description>Award $2,000 CTC per IRC 24(a)</action_description>
 <action_postfix>
 true /dependent.qualifies_for_ctc xdef
-ctc_amount /dependent.ctc_amount xdef
+constants.ctc_amount /dependent.ctc_amount xdef
 dependent.ctc_amount result.total_ctc f+ /result.total_ctc xdef
 "  Child Tax Credit for " dependent.name strconcat " (age " strconcat dependent.age cvs strconcat "): $" strconcat dependent.ctc_amount cvs strconcat job.audit_trail swap addto
 "    Qualifying child under age 17 per IRC 24(c)(1), Schedule 8812 Line 4" job.audit_trail swap addto
@@ -2019,7 +2002,7 @@ dependent.ctc_amount result.total_ctc f+ /result.total_ctc xdef
 <action_description>Award $500 ODC for dependent age 17+ per IRC 24(h)(4)</action_description>
 <action_postfix>
 true /dependent.qualifies_for_odc xdef
-odc_amount /dependent.odc_amount xdef
+constants.odc_amount /dependent.odc_amount xdef
 dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 "  Other Dependent Credit for " dependent.name strconcat " (age " strconcat dependent.age cvs strconcat "): $" strconcat dependent.odc_amount cvs strconcat job.audit_trail swap addto
 "    Does not meet under-17 requirement for CTC per IRC 24(c)(1)" job.audit_trail swap addto
@@ -2033,7 +2016,7 @@ dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 <action_description>Award $500 ODC for non-child dependent</action_description>
 <action_postfix>
 true /dependent.qualifies_for_odc xdef
-odc_amount /dependent.odc_amount xdef
+constants.odc_amount /dependent.odc_amount xdef
 dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 "  Other Dependent Credit for " dependent.name strconcat " (" strconcat dependent.relationship strconcat "): $" strconcat dependent.odc_amount cvs strconcat job.audit_trail swap addto
 "    Not a qualifying child - $500 ODC per IRC 24(h)(4)" job.audit_trail swap addto
@@ -3045,6 +3028,7 @@ taxpayer_id taxpayer.id ==
 <action_comment>Process vehicle</action_comment>
 <action_description>Vehicle belongs to taxpayer - continue processing</action_description>
 <action_postfix>
+/Calculate_Vehicle_Deduction executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -3089,6 +3073,7 @@ type "rental" streq
 <action_comment>Process rental</action_comment>
 <action_description>Property is rental - continue processing</action_description>
 <action_postfix>
+/Process_Rental_Income executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>

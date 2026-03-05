@@ -94,7 +94,7 @@
 			<createentity entity='taxpayer' tag='taxpayer' id='id'></createentity>
 			<createentity entity='dependent' tag='dependent' id='id'></createentity>
 			<createentity entity='income' tag='income' id='id'></createentity>
-			<createentity entity='property' tag='property' id='id'></createentity>
+			<createentity entity='property' tag='property' id='id' list='properties'></createentity>
 			<createentity entity='vehicle' tag='vehicle' id='id'></createentity>
 			<createentity entity='deduction' tag='deduction' id='id'></createentity>
 			<createentity entity='credit' tag='credit' id='id'></createentity>
