@@ -18,7 +18,7 @@ package decisiontable
 import (
 	"fmt"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // CNode is a Condition Node that evaluates conditions within a Decision Table.

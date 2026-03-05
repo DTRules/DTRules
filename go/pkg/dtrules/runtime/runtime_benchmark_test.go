@@ -21,11 +21,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/runtime"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/runtime/asmruntime"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/runtime/goruntime"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/runtime/nativeasm"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/runtime"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/runtime/asmruntime"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/runtime/goruntime"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/runtime/nativeasm"
 )
 
 // BenchmarkResult holds benchmark data for JSON export

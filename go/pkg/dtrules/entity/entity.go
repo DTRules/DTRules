@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // MappingKeyName is the attribute name used for mapping keys

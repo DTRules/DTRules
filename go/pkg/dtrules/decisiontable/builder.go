@@ -18,7 +18,7 @@ package decisiontable
 import (
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // Builder provides a fluent interface for constructing decision tables.

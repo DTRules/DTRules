@@ -328,3 +328,11 @@ type RuleSet interface {
 	// NewSession creates a new session for this rule set
 	NewSession() (Session, error)
 }
+
+// RuntimeFactory creates State instances for different runtime implementations.
+type RuntimeFactory interface {
+	// Name returns the runtime name
+	Name() string
+	// CreateState creates a new State for the given session
+	CreateState(session Session) (State, error)
+}

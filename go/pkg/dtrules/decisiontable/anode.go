@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // ANode executes a list of actions.

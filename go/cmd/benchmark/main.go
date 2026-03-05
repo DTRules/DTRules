@@ -26,11 +26,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/asmruntime"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/mapping"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/asmruntime"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/mapping"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 var (

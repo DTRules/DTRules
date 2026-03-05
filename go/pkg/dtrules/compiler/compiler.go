@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/operators"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/operators"
 )
 
 // Compiler compiles postfix expressions into executable code.

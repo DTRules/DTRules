@@ -18,10 +18,10 @@ package session
 import (
 	"io"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/loader"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/loader"
 )
 
 // RuleSet defines a set of artifacts that make up a logical set of rules.

@@ -15,7 +15,7 @@
 package interpreter
 
 import (
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // ExecuteBytecode executes a bytecode chunk on the state's value stack.

@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // DASH represents a "don't care" entry in the condition/action tables
