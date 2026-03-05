@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
 func TestDTLoaderMalformedXML(t *testing.T) {

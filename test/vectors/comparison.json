@@ -1,0 +1,202 @@
+{
+  "name": "Comparison Operations",
+  "description": "Test vectors for comparison operators (==, !=, <, >, <=, >=)",
+  "tests": [
+    {
+      "name": "eq_integers_true",
+      "description": "Equal integers",
+      "operator": "==",
+      "inputs": [42, 42],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "eq_integers_false",
+      "description": "Unequal integers",
+      "operator": "==",
+      "inputs": [42, 43],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "eq_zero",
+      "description": "Zero equals zero",
+      "operator": "==",
+      "inputs": [0, 0],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "eq_negative",
+      "description": "Negative equals negative",
+      "operator": "==",
+      "inputs": [-5, -5],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "ne_integers_true",
+      "description": "Unequal integers",
+      "operator": "!=",
+      "inputs": [42, 43],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "ne_integers_false",
+      "description": "Equal integers",
+      "operator": "!=",
+      "inputs": [42, 42],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "lt_true",
+      "description": "Less than true",
+      "operator": "<",
+      "inputs": [5, 10],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "lt_false_equal",
+      "description": "Less than false (equal)",
+      "operator": "<",
+      "inputs": [10, 10],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "lt_false_greater",
+      "description": "Less than false (greater)",
+      "operator": "<",
+      "inputs": [10, 5],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "lt_negative",
+      "description": "Less than with negatives",
+      "operator": "<",
+      "inputs": [-10, -5],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "gt_true",
+      "description": "Greater than true",
+      "operator": ">",
+      "inputs": [10, 5],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "gt_false_equal",
+      "description": "Greater than false (equal)",
+      "operator": ">",
+      "inputs": [10, 10],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "gt_false_less",
+      "description": "Greater than false (less)",
+      "operator": ">",
+      "inputs": [5, 10],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "gt_negative",
+      "description": "Greater than with negatives",
+      "operator": ">",
+      "inputs": [-5, -10],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "le_true_less",
+      "description": "Less or equal true (less)",
+      "operator": "<=",
+      "inputs": [5, 10],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "le_true_equal",
+      "description": "Less or equal true (equal)",
+      "operator": "<=",
+      "inputs": [10, 10],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "le_false",
+      "description": "Less or equal false",
+      "operator": "<=",
+      "inputs": [10, 5],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "ge_true_greater",
+      "description": "Greater or equal true (greater)",
+      "operator": ">=",
+      "inputs": [10, 5],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "ge_true_equal",
+      "description": "Greater or equal true (equal)",
+      "operator": ">=",
+      "inputs": [10, 10],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "ge_false",
+      "description": "Greater or equal false",
+      "operator": ">=",
+      "inputs": [5, 10],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "eq_doubles_true",
+      "description": "Equal doubles",
+      "operator": "==",
+      "inputs": [3.14, 3.14],
+      "expected": true,
+      "type": "boolean",
+      "input_type": "double"
+    },
+    {
+      "name": "eq_doubles_false",
+      "description": "Unequal doubles",
+      "operator": "==",
+      "inputs": [3.14, 3.15],
+      "expected": false,
+      "type": "boolean",
+      "input_type": "double"
+    },
+    {
+      "name": "lt_doubles",
+      "description": "Less than with doubles",
+      "operator": "<",
+      "inputs": [2.5, 3.5],
+      "expected": true,
+      "type": "boolean",
+      "input_type": "double"
+    },
+    {
+      "name": "gt_doubles",
+      "description": "Greater than with doubles",
+      "operator": ">",
+      "inputs": [3.5, 2.5],
+      "expected": true,
+      "type": "boolean",
+      "input_type": "double"
+    }
+  ]
+}

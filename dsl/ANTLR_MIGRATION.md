@@ -1,5 +1,7 @@
 # ANTLR 4 Migration Documentation
 
+> **Note:** The canonical version of this document is at [docs/antlr-migration.md](../docs/antlr-migration.md)
+
 ## Overview
 
 The DTRules EL and EBL DSL compilers have been migrated from JFlex/CUP to ANTLR 4. This document describes the changes made, how to use the new implementations, and any behavioral differences.

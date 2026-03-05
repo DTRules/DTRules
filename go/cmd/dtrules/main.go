@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 var (
@@ -33,6 +33,7 @@ var (
 	entryPoint = flag.String("entry", "", "Decision table entry point to execute")
 	validate   = flag.Bool("validate", false, "Validate rules without executing")
 	listTables = flag.Bool("list", false, "List all decision tables")
+	compile    = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
 	verbose    = flag.Bool("v", false, "Verbose output")
 	trace      = flag.Bool("trace", false, "Enable trace output during execution")
 	debug      = flag.Bool("debug", false, "Enable debug output during execution")
@@ -77,6 +78,12 @@ func main() {
 	// Handle validate mode
 	if *validate {
 		validateRules(rs)
+		return
+	}
+
+	// Handle compile mode
+	if *compile != "" {
+		compileRules(rs, *compile)
 		return
 	}
 
@@ -229,4 +236,80 @@ func validateRules(rs *session.RuleSet) {
 	}
 
 	fmt.Println("\nRules validated successfully")
+}
+
+func compileRules(rs *session.RuleSet, outFile string) {
+	tables := rs.GetDecisionTableNames()
+
+	if *verbose {
+		fmt.Printf("Compiling %d decision tables...\n", len(tables))
+	}
+
+	// Create a session for compilation
+	sess, err := rs.NewSession()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating session: %v\n", err)
+		os.Exit(1)
+	}
+
+	rsess := sess.(*session.RSession)
+
+	// For now, just compile a simple test expression and dump bytecode
+	// This verifies the opcode alignment with ASM runtime
+	testExpr := "1 2 +"
+	bc, err := rsess.CompileExpressionToBytecode(testExpr)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error compiling expression: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Write bytecode to file
+	data := bc.Serialize()
+	err = os.WriteFile(outFile, data, 0644)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing bytecode: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Wrote %d bytes of bytecode to %s\n", len(data), outFile)
+
+	// Also dump human-readable version
+	fmt.Printf("\nBytecode dump:\n")
+	code := bc.Code()
+	for i := 0; i < len(code); i++ {
+		fmt.Printf("  %3d: 0x%02X", i, code[i])
+		switch code[i] {
+		case 2: // OpPushInt
+			fmt.Print(" (PushInt)")
+		case 20:
+			fmt.Print(" (Add)")
+		case 21:
+			fmt.Print(" (Sub)")
+		case 22:
+			fmt.Print(" (Mul)")
+		case 23:
+			fmt.Print(" (Div)")
+		case 100:
+			fmt.Print(" (PushTrue)")
+		case 101:
+			fmt.Print(" (PushFalse)")
+		case 102:
+			fmt.Print(" (PushNull)")
+		case 103:
+			fmt.Print(" (PushZero)")
+		case 104:
+			fmt.Print(" (PushOne)")
+		}
+		fmt.Println()
+	}
+}
+
+func writeVarint(f *os.File, v int) {
+	buf := make([]byte, 0, 10)
+	for v >= 0x80 {
+		buf = append(buf, byte(v)|0x80)
+		v >>= 7
+	}
+	buf = append(buf, byte(v))
+	f.Write(buf)
 }

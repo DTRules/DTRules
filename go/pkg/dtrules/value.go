@@ -117,6 +117,18 @@ func (v Value) Tag() uint8 {
 	return v.tag
 }
 
+// RawParts returns the raw components of the value for assembly interop.
+// This is used by the native assembly runtime to avoid value copying overhead.
+func (v Value) RawParts() (tag uint8, num int64, ptr unsafe.Pointer) {
+	return v.tag, v.num, v.ptr
+}
+
+// ValueFromRaw constructs a Value from raw parts.
+// This is used by the native assembly runtime to construct values efficiently.
+func ValueFromRaw(tag uint8, num int64, ptr unsafe.Pointer) Value {
+	return Value{tag: tag, num: num, ptr: ptr}
+}
+
 // IsNull returns true if this is a null value.
 func (v Value) IsNull() bool {
 	return v.tag == VTagNull

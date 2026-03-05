@@ -18,7 +18,7 @@ package operators
 import (
 	"math"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func init() {

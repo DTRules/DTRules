@@ -655,6 +655,7 @@ string_to_lower:
     cmp dl, 'Z'
     ja .next
     add dl, 32
+    mov [rdi], dl           ; Store the modified character
 
 .next:
     inc rdi
@@ -746,4 +747,829 @@ string_trim:
     pop r12
     pop rbx
     pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_trim_left - Trim whitespace from start only
+; Input: rdi = string
+; Output: rax = new trimmed string
+;-----------------------------------------------------------------------------
+global string_trim_left
+string_trim_left:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi
+    mov r12, [rbx]          ; Length
+    lea r13, [rbx + 8]      ; Data
+
+    ; Find start (skip leading whitespace)
+    xor ecx, ecx            ; Start index
+
+.ltrim_skip_start:
+    cmp rcx, r12
+    jae .ltrim_empty
+
+    movzx eax, byte [r13 + rcx]
+    cmp al, ' '
+    je .ltrim_next_start
+    cmp al, 9               ; Tab
+    je .ltrim_next_start
+    cmp al, 10              ; Newline
+    je .ltrim_next_start
+    cmp al, 13              ; CR
+    je .ltrim_next_start
+    jmp .ltrim_extract
+
+.ltrim_next_start:
+    inc rcx
+    jmp .ltrim_skip_start
+
+.ltrim_extract:
+    ; Extract substring from rcx to end
+    mov rdx, r12
+    sub rdx, rcx            ; Length = total - start
+    mov rdi, rbx
+    mov rsi, rcx
+    ; rdx already has length
+    call string_substring
+    jmp .ltrim_done
+
+.ltrim_empty:
+    xor edi, edi
+    call string_alloc
+
+.ltrim_done:
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_trim_right - Trim whitespace from end only
+; Input: rdi = string
+; Output: rax = new trimmed string
+;-----------------------------------------------------------------------------
+global string_trim_right
+string_trim_right:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi
+    mov r12, [rbx]          ; Length
+    lea r13, [rbx + 8]      ; Data
+
+    ; Empty string check
+    test r12, r12
+    jz .rtrim_empty
+
+    ; Find end (skip trailing whitespace)
+    mov rdx, r12            ; End index (exclusive)
+
+.rtrim_skip_end:
+    test rdx, rdx
+    jz .rtrim_empty
+
+    movzx eax, byte [r13 + rdx - 1]
+    cmp al, ' '
+    je .rtrim_next_end
+    cmp al, 9
+    je .rtrim_next_end
+    cmp al, 10
+    je .rtrim_next_end
+    cmp al, 13
+    je .rtrim_next_end
+    jmp .rtrim_extract
+
+.rtrim_next_end:
+    dec rdx
+    jmp .rtrim_skip_end
+
+.rtrim_extract:
+    ; Extract substring from 0 to rdx
+    mov rdi, rbx
+    xor esi, esi            ; Start at 0
+    ; rdx already has length
+    call string_substring
+    jmp .rtrim_done
+
+.rtrim_empty:
+    xor edi, edi
+    call string_alloc
+
+.rtrim_done:
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_replace - Replace first occurrence of pattern with replacement
+; Input: rdi = string, rsi = pattern, rdx = replacement
+; Output: rax = new string with replacement
+;-----------------------------------------------------------------------------
+global string_replace
+string_replace:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rbx, rdi            ; Original string
+    mov r12, rsi            ; Pattern
+    mov r13, rdx            ; Replacement
+
+    ; Find pattern in string
+    mov rdi, rbx
+    mov rsi, r12
+    call string_index_of
+    cmp rax, -1
+    je .repl_not_found
+
+    mov r14, rax            ; Found position
+
+    ; Calculate new string length
+    ; new_len = orig_len - pattern_len + replacement_len
+    mov r15, [rbx]          ; Original length
+    sub r15, [r12]          ; - pattern length
+    add r15, [r13]          ; + replacement length
+
+    ; Allocate new string
+    mov rdi, r15
+    call string_alloc
+    test rax, rax
+    jz .repl_done
+
+    push rax                ; Save result
+
+    ; Copy: prefix + replacement + suffix
+    ; 1. Copy prefix (0 to found_pos)
+    lea rdi, [rax + 8]      ; Dest data
+    lea rsi, [rbx + 8]      ; Source data
+    mov rcx, r14            ; Prefix length
+    rep movsb
+
+    ; 2. Copy replacement
+    lea rsi, [r13 + 8]      ; Replacement data
+    mov rcx, [r13]          ; Replacement length
+    rep movsb
+
+    ; 3. Copy suffix (after pattern)
+    lea rsi, [rbx + 8]
+    add rsi, r14            ; Skip prefix
+    add rsi, [r12]          ; Skip pattern
+    mov rcx, [rbx]          ; Original length
+    sub rcx, r14            ; - prefix length
+    sub rcx, [r12]          ; - pattern length
+    rep movsb
+
+    ; Null terminate
+    mov byte [rdi], 0
+
+    pop rax
+    jmp .repl_done
+
+.repl_not_found:
+    ; Return copy of original string
+    mov rdi, rbx
+    call string_copy
+
+.repl_done:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_replace_all - Replace all occurrences of pattern with replacement
+; Input: rdi = string, rsi = pattern, rdx = replacement
+; Output: rax = new string with all replacements
+;-----------------------------------------------------------------------------
+global string_replace_all
+string_replace_all:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16             ; Local storage FIRST: [rbp-8] and [rbp-16]
+    push rbx
+    push r14                ; Only save registers we actually use
+
+    mov rbx, rdi            ; Current string (will be updated)
+
+    ; Store pattern and replacement in local storage
+    mov [rbp - 8], rsi      ; Pattern
+    mov [rbp - 16], rdx     ; Replacement
+
+    ; If pattern is empty, return original
+    cmp qword [rsi], 0
+    je .replall_copy_orig
+
+.replall_loop:
+    ; Find pattern in current string
+    mov rdi, rbx
+    mov rsi, [rbp - 8]      ; Pattern
+    call string_index_of
+    cmp rax, -1
+    je .replall_done        ; No more occurrences
+
+    ; Replace one occurrence
+    mov rdi, rbx
+    mov rsi, [rbp - 8]      ; Pattern
+    mov rdx, [rbp - 16]     ; Replacement
+    call string_replace
+    test rax, rax
+    jz .replall_done        ; Allocation failed
+
+    ; Use new string for next iteration
+    mov rbx, rax
+    jmp .replall_loop
+
+.replall_copy_orig:
+    mov rdi, rbx
+    call string_copy
+    mov rbx, rax
+
+.replall_done:
+    mov rax, rbx
+
+    pop r14
+    pop rbx
+    add rsp, 16
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_split - Split string by delimiter into array
+; Input: rdi = string, rsi = delimiter
+; Output: rax = array header pointer containing string Values
+;-----------------------------------------------------------------------------
+global string_split
+extern array_alloc
+extern array_push
+extern value_new_string
+string_split:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+    sub rsp, 48             ; Local storage
+
+    mov rbx, rdi            ; String
+    mov r12, rsi            ; Delimiter
+    xor r13, r13            ; Current position in string
+    mov r14, [rbx]          ; String length
+    mov r15, [r12]          ; Delimiter length
+
+    ; Create result array
+    xor edi, edi            ; Default capacity
+    call array_alloc
+    test rax, rax
+    jz .split_done
+
+    mov [rbp - 48], rax     ; Save array header
+
+    ; Handle empty delimiter - split each character
+    test r15, r15
+    jz .split_by_char
+
+.split_loop:
+    ; Find next delimiter starting at current position
+    mov rdi, rbx
+    mov rsi, r13
+    mov rdx, r14
+    sub rdx, r13
+    call string_substring
+    test rax, rax
+    jz .split_final
+
+    push rax                ; Save temp substring
+    mov rdi, rax
+    mov rsi, r12            ; Delimiter
+    call string_index_of
+    mov rcx, rax            ; Found position (relative to current pos)
+    pop rax                 ; Restore temp substring
+
+    cmp rcx, -1
+    je .split_last_segment
+
+    ; Extract segment before delimiter
+    push rcx
+    mov rdi, rbx
+    mov rsi, r13            ; Start
+    mov rdx, rcx            ; Length
+    call string_substring
+    test rax, rax
+    jz .split_pop_exit
+
+    ; Create string Value
+    push rax
+    lea rdi, [rax + 8]      ; String data
+    mov rsi, [rax]          ; Length
+    call value_new_string
+    add rsp, 8              ; Discard substring ptr
+    test rax, rax
+    jz .split_pop_exit
+
+    ; Push to array
+    mov rdi, [rbp - 48]     ; Array header
+    mov rsi, rax            ; Value
+    call array_push
+
+    pop rcx                 ; Restore found position
+
+    ; Move past delimiter
+    add r13, rcx
+    add r13, r15            ; Skip delimiter
+    cmp r13, r14
+    jb .split_loop
+    jmp .split_final
+
+.split_last_segment:
+    ; Extract remaining string
+    mov rdi, rbx
+    mov rsi, r13
+    mov rdx, r14
+    sub rdx, r13
+    call string_substring
+    test rax, rax
+    jz .split_final
+
+    ; Create string Value
+    push rax
+    lea rdi, [rax + 8]
+    mov rsi, [rax]
+    call value_new_string
+    add rsp, 8
+    test rax, rax
+    jz .split_final
+
+    ; Push to array
+    mov rdi, [rbp - 48]
+    mov rsi, rax
+    call array_push
+
+.split_final:
+    mov rax, [rbp - 48]
+    jmp .split_done
+
+.split_pop_exit:
+    pop rcx
+    mov rax, [rbp - 48]
+    jmp .split_done
+
+.split_by_char:
+    ; Split into individual characters
+    xor r13, r13
+.split_char_loop:
+    cmp r13, r14
+    jae .split_final
+
+    ; Create single-char string
+    mov rdi, rbx
+    mov rsi, r13
+    mov rdx, 1
+    call string_substring
+    test rax, rax
+    jz .split_final
+
+    ; Create Value
+    push rax
+    lea rdi, [rax + 8]
+    mov rsi, 1
+    call value_new_string
+    add rsp, 8
+    test rax, rax
+    jz .split_final
+
+    ; Push to array
+    mov rdi, [rbp - 48]
+    mov rsi, rax
+    call array_push
+
+    inc r13
+    jmp .split_char_loop
+
+.split_done:
+    add rsp, 48
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_join - Join array of strings with delimiter
+; Input: rdi = array header, rsi = delimiter string
+; Output: rax = joined string
+;-----------------------------------------------------------------------------
+global string_join
+extern array_length
+extern array_get
+string_join:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+    sub rsp, 8
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Delimiter
+
+    ; Get array length
+    mov rdi, rbx
+    call array_length
+    test rax, rax
+    jz .join_empty
+
+    mov r13, rax            ; Array length
+    mov r14, [r12]          ; Delimiter length
+
+    ; Calculate total length
+    xor r15, r15            ; Total length
+    xor ecx, ecx            ; Index
+
+.join_calc_loop:
+    cmp rcx, r13
+    jae .join_calc_done
+
+    push rcx
+    mov rdi, rbx
+    mov rsi, rcx
+    call array_get
+    pop rcx
+    test rax, rax
+    jz .join_calc_next
+
+    ; Get string from Value
+    cmp byte [rax + VALUE_TAG_OFF], VTAG_STRING
+    jne .join_calc_next
+
+    mov rax, [rax + VALUE_PTR_OFF]
+    add r15, [rax]          ; Add string length
+
+.join_calc_next:
+    inc rcx
+    jmp .join_calc_loop
+
+.join_calc_done:
+    ; Add delimiter lengths: (count - 1) * delimiter_len
+    mov rax, r13
+    dec rax
+    imul rax, r14
+    add r15, rax
+
+    ; Allocate result string
+    mov rdi, r15
+    call string_alloc
+    test rax, rax
+    jz .join_done
+
+    mov [rbp - 8], rax      ; Save result
+    lea rdi, [rax + 8]      ; Dest pointer
+
+    ; Build joined string
+    xor ecx, ecx            ; Index
+
+.join_build_loop:
+    cmp rcx, r13
+    jae .join_finish
+
+    ; Add delimiter if not first
+    test rcx, rcx
+    jz .join_no_delim
+
+    push rcx
+    lea rsi, [r12 + 8]      ; Delimiter data
+    mov rcx, r14            ; Delimiter length
+    rep movsb               ; Advances rdi by rcx
+    pop rcx
+
+.join_no_delim:
+    push rcx
+    push rdi
+    mov rdi, rbx
+    mov rsi, rcx
+    call array_get
+    pop rdi
+    pop rcx
+    test rax, rax
+    jz .join_build_next
+
+    cmp byte [rax + VALUE_TAG_OFF], VTAG_STRING
+    jne .join_build_next
+
+    ; Copy string data
+    ; Note: rep movsb advances rdi automatically
+    push rcx
+    mov rax, [rax + VALUE_PTR_OFF]
+    mov rcx, [rax]          ; Length
+    lea rsi, [rax + 8]      ; Data
+    rep movsb               ; Advances rdi by rcx
+    pop rcx                 ; Restore loop counter
+
+.join_build_next:
+    inc rcx
+    jmp .join_build_loop
+
+.join_finish:
+    mov byte [rdi], 0       ; Null terminate
+    mov rax, [rbp - 8]
+    jmp .join_done
+
+.join_empty:
+    xor edi, edi
+    call string_alloc
+
+.join_done:
+    add rsp, 8
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_tokenize - Split string into tokens (like split but handles whitespace)
+; Input: rdi = source string, rsi = delimiter string
+; Output: rax = array of token strings
+;-----------------------------------------------------------------------------
+global string_tokenize
+string_tokenize:
+    ; Use string_split implementation
+    jmp string_split
+
+;-----------------------------------------------------------------------------
+; string_equals_ignore_case - Case-insensitive string comparison
+; Input: rdi = string 1, rsi = string 2
+; Output: rax = 1 if equal (ignoring case), 0 otherwise
+;-----------------------------------------------------------------------------
+global string_equals_ignore_case
+string_equals_ignore_case:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+
+    ; Compare lengths first
+    mov rax, [rdi]
+    cmp rax, [rsi]
+    jne .not_equal_case
+
+    mov r12, rax            ; Length
+    add rdi, 8              ; String 1 data
+    add rsi, 8              ; String 2 data
+
+    test r12, r12
+    jz .equal_case
+
+.compare_loop:
+    movzx eax, byte [rdi]
+    movzx ecx, byte [rsi]
+
+    ; Convert both to lowercase for comparison
+    cmp al, 'A'
+    jb .check_c1
+    cmp al, 'Z'
+    ja .check_c1
+    add al, 32              ; Convert to lowercase
+
+.check_c1:
+    cmp cl, 'A'
+    jb .do_compare
+    cmp cl, 'Z'
+    ja .do_compare
+    add cl, 32              ; Convert to lowercase
+
+.do_compare:
+    cmp al, cl
+    jne .not_equal_case
+
+    inc rdi
+    inc rsi
+    dec r12
+    jnz .compare_loop
+
+.equal_case:
+    mov eax, 1
+    jmp .done_case
+
+.not_equal_case:
+    xor eax, eax
+
+.done_case:
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; string_regex_match - Basic regex pattern matching
+; Input: rdi = string to match, rsi = pattern
+; Output: rax = 1 if match, 0 otherwise
+;
+; Supports only simple patterns:
+; - Literal characters
+; - . matches any character
+; - * matches zero or more of previous
+; - ^ anchors to start
+; - $ anchors to end
+;-----------------------------------------------------------------------------
+global string_regex_match
+string_regex_match:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+
+    ; Get string data pointers
+    mov r12, [rdi]          ; String length
+    add rdi, 8              ; String data
+    mov rbx, rdi            ; String start
+
+    mov r13, [rsi]          ; Pattern length
+    add rsi, 8              ; Pattern data
+    mov r14, rsi            ; Pattern start
+
+    ; Check for ^ anchor
+    cmp byte [r14], '^'
+    jne .try_all_positions
+
+    ; Must match from start
+    inc r14                 ; Skip ^
+    dec r13
+    jmp .match_here
+
+.try_all_positions:
+    ; Try matching at each position
+.try_pos:
+    push rbx
+    push r12
+    push r14
+    push r13
+
+    mov rdi, rbx
+    mov rsi, r14
+    mov rcx, r13
+    call .match_pattern_internal
+
+    pop r13
+    pop r14
+    pop r12
+    pop rbx
+
+    test eax, eax
+    jnz .regex_match_found
+
+    ; Try next position
+    inc rbx
+    dec r12
+    test r12, r12
+    jnz .try_pos
+
+    ; No match found
+    xor eax, eax
+    jmp .regex_done
+
+.match_here:
+    mov rdi, rbx
+    mov rsi, r14
+    mov rcx, r13
+    call .match_pattern_internal
+    jmp .regex_done
+
+.regex_match_found:
+    mov eax, 1
+
+.regex_done:
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+; Internal helper: match pattern at current position
+; rdi = string pointer, rsi = pattern pointer, rcx = pattern length
+; Returns: rax = 1 if match, 0 otherwise
+.match_pattern_internal:
+    push rbx
+    push r12
+
+    mov rbx, rdi            ; String ptr
+    mov r12, rsi            ; Pattern ptr
+
+.pattern_loop:
+    test rcx, rcx
+    jz .pattern_match       ; End of pattern = match
+
+    ; Check for $ at end
+    cmp byte [r12], '$'
+    jne .not_end_anchor
+    cmp rcx, 1
+    jne .not_end_anchor
+    ; $ must match end of string
+    cmp byte [rbx], 0
+    je .pattern_match
+    jmp .pattern_no_match
+
+.not_end_anchor:
+    ; Get pattern char
+    movzx eax, byte [r12]
+
+    ; Check for * (zero or more)
+    cmp rcx, 1
+    jbe .no_star
+    cmp byte [r12 + 1], '*'
+    jne .no_star
+
+    ; Handle X* pattern
+    mov dl, al              ; Char to match (or . for any)
+
+.star_loop:
+    ; Try matching rest of pattern
+    push rbx
+    push r12
+    push rcx
+    push rdx
+
+    add r12, 2              ; Skip X*
+    sub rcx, 2
+    mov rdi, rbx
+    mov rsi, r12
+    call .match_pattern_internal
+
+    pop rdx
+    pop rcx
+    pop r12
+    pop rbx
+
+    test eax, eax
+    jnz .pattern_match
+
+    ; Try consuming one more char
+    cmp byte [rbx], 0
+    je .pattern_no_match
+
+    ; Check if current char matches pattern char
+    cmp dl, '.'
+    je .star_consume
+    cmp dl, [rbx]
+    jne .pattern_no_match
+
+.star_consume:
+    inc rbx
+    jmp .star_loop
+
+.no_star:
+    ; Regular char match
+    cmp byte [rbx], 0
+    je .pattern_no_match    ; String ended but pattern remains
+
+    cmp al, '.'
+    je .any_match
+
+    cmp al, [rbx]
+    jne .pattern_no_match
+
+.any_match:
+    inc rbx
+    inc r12
+    dec rcx
+    jmp .pattern_loop
+
+.pattern_match:
+    mov eax, 1
+    jmp .pattern_done
+
+.pattern_no_match:
+    xor eax, eax
+
+.pattern_done:
+    pop r12
+    pop rbx
     ret

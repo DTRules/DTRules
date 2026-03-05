@@ -22,8 +22,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
 // DefaultMaxXMLSize is the default maximum size for XML input (10 MB).

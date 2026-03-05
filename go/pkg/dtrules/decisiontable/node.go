@@ -16,7 +16,7 @@
 package decisiontable
 
 import (
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // Coordinate represents a position in the decision table (row, column)

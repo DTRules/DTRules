@@ -16,24 +16,50 @@
 package com.dtrules.samples.chipeligibility;
 
 
+import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import com.dtrules.session.IRSession;
+import com.dtrules.session.RuleSet;
 import com.dtrules.testsupport.ATestHarness;
 import com.dtrules.xmlparser.XMLPrinter;
 
 public class TestChip extends ATestHarness {
-    	
+
     public static String path    = System.getProperty("user.dir")+"/";
 	static  Date start = new Date();
-    
+
     public static void main(String[] args) throws Exception {
-    
+
     	TestChip t = new TestChip();		// Create an instance of the test harness.
     	t.load(path+"/xml/testParms.xml");  // Load the settings for this test.
     	t.runTests();						// Run the tests.
         t.writeDecisionTables("Chip", null, true, 10);
+    }
+
+    @Override
+    public File[] getFiles(RuleSet rs) {
+        // Look in subdirectories: TestScenarios and PerformanceTests
+        File testDir = new File(getTestDirectory(rs));
+        ArrayList<File> allFiles = new ArrayList<>();
+
+        String[] subdirs = {"TestScenarios", "PerformanceTests"};
+        for (String subdir : subdirs) {
+            File dir = new File(testDir, subdir);
+            if (dir.exists() && dir.isDirectory()) {
+                File[] files = dir.listFiles((d, name) -> name.endsWith(".xml"));
+                if (files != null) {
+                    allFiles.addAll(Arrays.asList(files));
+                }
+            }
+        }
+
+        // Sort by name
+        allFiles.sort((a, b) -> a.getName().compareTo(b.getName()));
+        return allFiles.toArray(new File[0]);
     }
     
     @Override

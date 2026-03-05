@@ -19,11 +19,11 @@ package session
 import (
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/operators"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/operators"
 )
 
 // RSession implements the Session interface.
@@ -176,6 +176,12 @@ func (s *RSession) ExecuteAt(tableName string, entityName string) error {
 func (s *RSession) Compile(expr string) (dtrules.Object, error) {
 	c := compiler.NewCompiler(s, s.entityFactory)
 	return c.Compile(expr)
+}
+
+// CompileExpressionToBytecode compiles a postfix expression to bytecode.
+func (s *RSession) CompileExpressionToBytecode(expr string) (*dtrules.BytecodeChunk, error) {
+	c := compiler.NewCompiler(s, s.entityFactory)
+	return c.CompileToBytecode(expr)
 }
 
 // DateParser implements the DateParser interface with common date formats.

@@ -603,3 +603,110 @@ stack_data_drop_n:
     mov dword [state + State.error], ERR_STACK_UNDERFLOW
     mov eax, ERR_STACK_UNDERFLOW
     ret
+
+;-----------------------------------------------------------------------------
+; stack_data_count_to_mark - Count elements from top of stack to mark
+; Returns: rax = count of elements above the mark (not including mark)
+;-----------------------------------------------------------------------------
+global stack_data_count_to_mark
+stack_data_count_to_mark:
+    push rbx
+
+    mov rbx, r12            ; Start at top
+    xor eax, eax            ; Count
+
+.count_loop:
+    ; Check if we've reached bottom of stack
+    cmp rbx, [state + State.data_stack_base]
+    jae .no_mark
+
+    ; Check if this is a mark
+    movzx ecx, byte [rbx + VALUE_TAG_OFF]
+    cmp cl, VTAG_MARK
+    je .found_mark
+
+    ; Not a mark, increment count and continue
+    inc eax
+    add rbx, VALUE_SIZE
+    jmp .count_loop
+
+.found_mark:
+    ; Return count (already in rax)
+    pop rbx
+    ret
+
+.no_mark:
+    ; No mark found, return -1
+    mov eax, -1
+    pop rbx
+    ret
+
+;-----------------------------------------------------------------------------
+; stack_data_print - Print the entire data stack
+; For debugging purposes
+;-----------------------------------------------------------------------------
+extern print_value_ln
+extern print_string
+extern print_newline
+extern print_integer
+
+section .data
+    stack_header: db "=== Data Stack ===", 0
+    stack_empty: db "(empty)", 0
+    stack_index_fmt: db "[", 0
+    stack_index_end: db "] ", 0
+
+section .text
+
+global stack_data_print
+stack_data_print:
+    push rbx
+    push r12
+    push r14
+
+    ; Print header
+    lea rdi, [stack_header]
+    call print_string
+    call print_newline
+
+    ; Check if stack is empty
+    mov rbx, r12
+    cmp rbx, [state + State.data_stack_base]
+    jb .has_elements
+
+    ; Empty stack
+    lea rdi, [stack_empty]
+    call print_string
+    call print_newline
+    jmp .print_done
+
+.has_elements:
+    xor r14d, r14d          ; Index counter
+
+.print_loop:
+    ; Check bounds
+    cmp rbx, [state + State.data_stack_base]
+    jae .print_done
+
+    ; Print index
+    lea rdi, [stack_index_fmt]
+    call print_string
+    mov rdi, r14
+    call print_integer
+    lea rdi, [stack_index_end]
+    call print_string
+
+    ; Print value
+    mov rdi, rbx
+    call print_value_ln
+
+    ; Next element
+    add rbx, VALUE_SIZE
+    inc r14
+    jmp .print_loop
+
+.print_done:
+    pop r14
+    pop r12
+    pop rbx
+    ret

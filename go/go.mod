@@ -1,3 +1,3 @@
-module github.com/PaulSnow/DTRules/go
+module github.com/DTRules/DTRules/go
 
 go 1.21

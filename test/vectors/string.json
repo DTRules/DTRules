@@ -1,0 +1,270 @@
+{
+  "name": "String Operations",
+  "description": "Test vectors for string operators (concat, substring, trim, etc.)",
+  "tests": [
+    {
+      "name": "concat_two",
+      "description": "Concatenate two strings",
+      "operator": "concat",
+      "inputs": ["Hello", "World"],
+      "expected": "HelloWorld",
+      "type": "string"
+    },
+    {
+      "name": "concat_space",
+      "description": "Concatenate with space",
+      "operator": "concat",
+      "inputs": ["Hello ", "World"],
+      "expected": "Hello World",
+      "type": "string"
+    },
+    {
+      "name": "concat_empty_first",
+      "description": "Concatenate empty string first",
+      "operator": "concat",
+      "inputs": ["", "World"],
+      "expected": "World",
+      "type": "string"
+    },
+    {
+      "name": "concat_empty_second",
+      "description": "Concatenate empty string second",
+      "operator": "concat",
+      "inputs": ["Hello", ""],
+      "expected": "Hello",
+      "type": "string"
+    },
+    {
+      "name": "concat_both_empty",
+      "description": "Concatenate two empty strings",
+      "operator": "concat",
+      "inputs": ["", ""],
+      "expected": "",
+      "type": "string"
+    },
+    {
+      "name": "substring_basic",
+      "description": "Basic substring extraction",
+      "operator": "substring",
+      "inputs": ["Hello World", 0, 5],
+      "expected": "Hello",
+      "type": "string"
+    },
+    {
+      "name": "substring_middle",
+      "description": "Substring from middle",
+      "operator": "substring",
+      "inputs": ["Hello World", 6, 5],
+      "expected": "World",
+      "type": "string"
+    },
+    {
+      "name": "substring_single",
+      "description": "Single character substring",
+      "operator": "substring",
+      "inputs": ["Hello", 0, 1],
+      "expected": "H",
+      "type": "string"
+    },
+    {
+      "name": "substring_empty",
+      "description": "Empty substring (length 0)",
+      "operator": "substring",
+      "inputs": ["Hello", 0, 0],
+      "expected": "",
+      "type": "string"
+    },
+    {
+      "name": "trim_spaces",
+      "description": "Trim leading and trailing spaces",
+      "operator": "trim",
+      "inputs": ["  Hello World  "],
+      "expected": "Hello World",
+      "type": "string"
+    },
+    {
+      "name": "trim_leading",
+      "description": "Trim leading spaces only",
+      "operator": "trim",
+      "inputs": ["   Hello"],
+      "expected": "Hello",
+      "type": "string"
+    },
+    {
+      "name": "trim_trailing",
+      "description": "Trim trailing spaces only",
+      "operator": "trim",
+      "inputs": ["Hello   "],
+      "expected": "Hello",
+      "type": "string"
+    },
+    {
+      "name": "trim_none",
+      "description": "No spaces to trim",
+      "operator": "trim",
+      "inputs": ["Hello"],
+      "expected": "Hello",
+      "type": "string"
+    },
+    {
+      "name": "trim_tabs",
+      "description": "Trim tabs and spaces",
+      "operator": "trim",
+      "inputs": ["\t Hello \t"],
+      "expected": "Hello",
+      "type": "string"
+    },
+    {
+      "name": "lowercase_mixed",
+      "description": "Convert mixed case to lowercase",
+      "operator": "tolowercase",
+      "inputs": ["Hello World"],
+      "expected": "hello world",
+      "type": "string"
+    },
+    {
+      "name": "lowercase_upper",
+      "description": "Convert uppercase to lowercase",
+      "operator": "tolowercase",
+      "inputs": ["HELLO"],
+      "expected": "hello",
+      "type": "string"
+    },
+    {
+      "name": "lowercase_already",
+      "description": "Already lowercase",
+      "operator": "tolowercase",
+      "inputs": ["hello"],
+      "expected": "hello",
+      "type": "string"
+    },
+    {
+      "name": "uppercase_mixed",
+      "description": "Convert mixed case to uppercase",
+      "operator": "touppercase",
+      "inputs": ["Hello World"],
+      "expected": "HELLO WORLD",
+      "type": "string"
+    },
+    {
+      "name": "uppercase_lower",
+      "description": "Convert lowercase to uppercase",
+      "operator": "touppercase",
+      "inputs": ["hello"],
+      "expected": "HELLO",
+      "type": "string"
+    },
+    {
+      "name": "uppercase_already",
+      "description": "Already uppercase",
+      "operator": "touppercase",
+      "inputs": ["HELLO"],
+      "expected": "HELLO",
+      "type": "string"
+    },
+    {
+      "name": "indexof_found",
+      "description": "Find substring at start",
+      "operator": "indexof",
+      "inputs": ["Hello World", "Hello"],
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "indexof_middle",
+      "description": "Find substring in middle",
+      "operator": "indexof",
+      "inputs": ["Hello World", "World"],
+      "expected": 6,
+      "type": "integer"
+    },
+    {
+      "name": "indexof_not_found",
+      "description": "Substring not found",
+      "operator": "indexof",
+      "inputs": ["Hello World", "Foo"],
+      "expected": -1,
+      "type": "integer"
+    },
+    {
+      "name": "indexof_char",
+      "description": "Find single character",
+      "operator": "indexof",
+      "inputs": ["Hello", "e"],
+      "expected": 1,
+      "type": "integer"
+    },
+    {
+      "name": "startswith_true",
+      "description": "String starts with prefix",
+      "operator": "startswith",
+      "inputs": ["Hello World", "Hello"],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "startswith_false",
+      "description": "String does not start with prefix",
+      "operator": "startswith",
+      "inputs": ["Hello World", "World"],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "endswith_true",
+      "description": "String ends with suffix",
+      "operator": "endswith",
+      "inputs": ["Hello World", "World"],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "endswith_false",
+      "description": "String does not end with suffix",
+      "operator": "endswith",
+      "inputs": ["Hello World", "Hello"],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "contains_true",
+      "description": "String contains substring",
+      "operator": "contains",
+      "inputs": ["Hello World", "lo Wo"],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "contains_false",
+      "description": "String does not contain substring",
+      "operator": "contains",
+      "inputs": ["Hello World", "xyz"],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "stringlength_basic",
+      "description": "Get string length",
+      "operator": "stringlength",
+      "inputs": ["Hello"],
+      "expected": 5,
+      "type": "integer"
+    },
+    {
+      "name": "stringlength_empty",
+      "description": "Empty string length",
+      "operator": "stringlength",
+      "inputs": [""],
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "stringlength_spaces",
+      "description": "String with spaces",
+      "operator": "stringlength",
+      "inputs": ["Hello World"],
+      "expected": 11,
+      "type": "integer"
+    }
+  ]
+}

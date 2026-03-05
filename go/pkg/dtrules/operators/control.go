@@ -18,7 +18,7 @@ package operators
 import (
 	"fmt"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // DefaultMaxIterations is the default maximum iterations for loop operators.

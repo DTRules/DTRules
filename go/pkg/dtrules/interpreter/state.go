@@ -23,7 +23,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // State flags
@@ -35,6 +35,16 @@ const (
 )
 
 const stackLimit = 1000
+
+// MaxStackDepth is the maximum depth for data and entity stacks.
+const MaxStackDepth = stackLimit
+
+// BytecodeExecutor defines the interface for bytecode execution strategies.
+// Different runtime implementations (Go, NativeASM, etc.) implement this interface.
+type BytecodeExecutor interface {
+	Name() string
+	ExecuteBytecode(state *DTState, bc *dtrules.BytecodeChunk) error
+}
 
 // DTState implements the interpreter state with three stacks.
 // The interpreter is a stack-based interpreter similar to PostScript.
@@ -83,6 +93,12 @@ type DTState struct {
 
 	// Operator table for bytecode execution (set externally to avoid import cycle)
 	operatorTable []dtrules.Object
+
+	// Bytecode executor for pluggable runtime implementations
+	bytecodeExecutor BytecodeExecutor
+
+	// Last error from ASM helper functions
+	lastError error
 }
 
 // NewDTState creates a new interpreter state for the given session.
@@ -825,4 +841,30 @@ func (s *DTState) String() string {
 	}
 
 	return sb.String()
+}
+
+// SetBytecodeExecutor sets the bytecode executor for this state.
+// This allows pluggable runtime implementations (Go, NativeASM, etc.).
+func (s *DTState) SetBytecodeExecutor(executor BytecodeExecutor) {
+	s.bytecodeExecutor = executor
+}
+
+// GetBytecodeExecutor returns the current bytecode executor.
+func (s *DTState) GetBytecodeExecutor() BytecodeExecutor {
+	return s.bytecodeExecutor
+}
+
+// DataFetch retrieves an element from the data stack at the given index.
+// Index 0 is the top of the stack.
+func (s *DTState) DataFetch(i int) (dtrules.Object, error) {
+	if i < 0 || i >= len(s.dataStk) {
+		return nil, fmt.Errorf("data stack index out of bounds: %d (depth: %d)", i, len(s.dataStk))
+	}
+	// Index from top: 0 = top, 1 = second from top, etc.
+	return s.dataStk[len(s.dataStk)-1-i], nil
+}
+
+// DataClear removes all elements from the data stack.
+func (s *DTState) DataClear() {
+	s.dataStk = s.dataStk[:0]
 }

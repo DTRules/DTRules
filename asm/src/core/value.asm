@@ -828,3 +828,211 @@ value_type_name:
 .invalid:
     lea rax, [type_null]    ; Return "null" for unknown
     ret
+
+;-----------------------------------------------------------------------------
+; value_print - Print a Value to stdout
+; Input: rdi = pointer to Value
+;-----------------------------------------------------------------------------
+extern print_string
+extern print_integer
+extern print_double
+extern string_data
+
+global value_print
+value_print:
+    push rbp
+    mov rbp, rsp
+    push rbx
+
+    mov rbx, rdi
+
+    movzx eax, byte [rbx + VALUE_TAG_OFF]
+
+    cmp al, VTAG_NULL
+    je .print_null
+    cmp al, VTAG_INTEGER
+    je .print_integer
+    cmp al, VTAG_DOUBLE
+    je .print_double
+    cmp al, VTAG_BOOLEAN
+    je .print_boolean
+    cmp al, VTAG_STRING
+    je .print_string
+    cmp al, VTAG_NAME
+    je .print_name
+    cmp al, VTAG_ARRAY
+    je .print_array
+    cmp al, VTAG_ENTITY
+    je .print_entity
+    cmp al, VTAG_MARK
+    je .print_mark
+    jmp .print_unknown
+
+.print_null:
+    lea rdi, [str_null]
+    call print_string
+    jmp .done
+
+.print_integer:
+    mov rdi, [rbx + VALUE_NUM_OFF]
+    call print_integer
+    jmp .done
+
+.print_double:
+    movsd xmm0, [rbx + VALUE_NUM_OFF]
+    call print_double
+    jmp .done
+
+.print_boolean:
+    mov rax, [rbx + VALUE_NUM_OFF]
+    test rax, rax
+    jz .print_false
+    lea rdi, [str_true]
+    jmp .print_bool_str
+.print_false:
+    lea rdi, [str_false]
+.print_bool_str:
+    call print_string
+    jmp .done
+
+.print_string:
+    mov rdi, [rbx + VALUE_PTR_OFF]
+    call string_data
+    mov rdi, rax
+    call print_string
+    jmp .done
+
+.print_name:
+    ; Names stored same as strings
+    mov rdi, [rbx + VALUE_PTR_OFF]
+    test rdi, rdi
+    jz .print_null
+    call string_data
+    mov rdi, rax
+    call print_string
+    jmp .done
+
+.print_array:
+    lea rdi, [str_array_fmt]
+    call print_string
+    jmp .done
+
+.print_entity:
+    lea rdi, [str_entity_fmt]
+    call print_string
+    jmp .done
+
+.print_mark:
+    lea rdi, [str_mark_fmt]
+    call print_string
+    jmp .done
+
+.print_unknown:
+    lea rdi, [str_unknown_fmt]
+    call print_string
+
+.done:
+    pop rbx
+    pop rbp
+    ret
+
+section .data
+    str_array_fmt: db "[array]", 0
+    str_entity_fmt: db "[entity]", 0
+    str_mark_fmt: db "[mark]", 0
+    str_unknown_fmt: db "[?]", 0
+
+section .text
+
+;-----------------------------------------------------------------------------
+; value_clone - Deep copy a Value
+; Input: rdi = pointer to source Value
+; Output: rax = pointer to new Value (clone), or 0 on error
+;-----------------------------------------------------------------------------
+extern array_copy
+extern string_copy
+extern entity_copy
+
+global value_clone
+value_clone:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+
+    mov rbx, rdi            ; Source value
+
+    ; Allocate new value
+    call value_alloc
+    test rax, rax
+    jz .error
+    mov r12, rax            ; New value
+
+    ; Copy basic fields
+    movzx eax, byte [rbx + VALUE_TAG_OFF]
+    mov byte [r12 + VALUE_TAG_OFF], al
+    mov rcx, [rbx + VALUE_NUM_OFF]
+    mov [r12 + VALUE_NUM_OFF], rcx
+
+    ; Handle pointer types specially
+    cmp al, VTAG_STRING
+    je .clone_string
+    cmp al, VTAG_NAME
+    je .clone_string        ; Names are like strings
+    cmp al, VTAG_ARRAY
+    je .clone_array
+    cmp al, VTAG_ENTITY
+    je .clone_entity
+
+    ; Simple type, just copy pointer field
+    mov rcx, [rbx + VALUE_PTR_OFF]
+    mov [r12 + VALUE_PTR_OFF], rcx
+    mov rax, r12
+    jmp .done
+
+.clone_string:
+    mov rdi, [rbx + VALUE_PTR_OFF]
+    test rdi, rdi
+    jz .null_ptr
+    call string_copy
+    test rax, rax
+    jz .error
+    mov [r12 + VALUE_PTR_OFF], rax
+    mov rax, r12
+    jmp .done
+
+.clone_array:
+    mov rdi, [rbx + VALUE_PTR_OFF]
+    test rdi, rdi
+    jz .null_ptr
+    call array_copy
+    test rax, rax
+    jz .error
+    mov [r12 + VALUE_PTR_OFF], rax
+    mov rax, r12
+    jmp .done
+
+.clone_entity:
+    mov rdi, [rbx + VALUE_PTR_OFF]
+    test rdi, rdi
+    jz .null_ptr
+    call entity_copy
+    test rax, rax
+    jz .error
+    mov [r12 + VALUE_PTR_OFF], rax
+    mov rax, r12
+    jmp .done
+
+.null_ptr:
+    mov qword [r12 + VALUE_PTR_OFF], 0
+    mov rax, r12
+    jmp .done
+
+.error:
+    xor eax, eax
+
+.done:
+    pop r12
+    pop rbx
+    pop rbp
+    ret

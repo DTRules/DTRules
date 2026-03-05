@@ -1,0 +1,230 @@
+{
+  "name": "Arithmetic Operations",
+  "description": "Test vectors for arithmetic operators (+, -, *, /, mod, abs, neg)",
+  "tests": [
+    {
+      "name": "add_integers",
+      "description": "Add two positive integers",
+      "operator": "+",
+      "inputs": [5, 3],
+      "expected": 8,
+      "type": "integer"
+    },
+    {
+      "name": "add_negative",
+      "description": "Add positive and negative integers",
+      "operator": "+",
+      "inputs": [10, -3],
+      "expected": 7,
+      "type": "integer"
+    },
+    {
+      "name": "add_zero",
+      "description": "Add zero",
+      "operator": "+",
+      "inputs": [42, 0],
+      "expected": 42,
+      "type": "integer"
+    },
+    {
+      "name": "add_large",
+      "description": "Add large numbers",
+      "operator": "+",
+      "inputs": [1000000000, 2000000000],
+      "expected": 3000000000,
+      "type": "integer"
+    },
+    {
+      "name": "sub_integers",
+      "description": "Subtract two positive integers",
+      "operator": "-",
+      "inputs": [10, 3],
+      "expected": 7,
+      "type": "integer"
+    },
+    {
+      "name": "sub_negative_result",
+      "description": "Subtract resulting in negative",
+      "operator": "-",
+      "inputs": [3, 10],
+      "expected": -7,
+      "type": "integer"
+    },
+    {
+      "name": "sub_zero",
+      "description": "Subtract zero",
+      "operator": "-",
+      "inputs": [42, 0],
+      "expected": 42,
+      "type": "integer"
+    },
+    {
+      "name": "mul_integers",
+      "description": "Multiply two positive integers",
+      "operator": "*",
+      "inputs": [6, 7],
+      "expected": 42,
+      "type": "integer"
+    },
+    {
+      "name": "mul_by_zero",
+      "description": "Multiply by zero",
+      "operator": "*",
+      "inputs": [1000, 0],
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "mul_negative",
+      "description": "Multiply with negative",
+      "operator": "*",
+      "inputs": [5, -3],
+      "expected": -15,
+      "type": "integer"
+    },
+    {
+      "name": "mul_both_negative",
+      "description": "Multiply two negatives",
+      "operator": "*",
+      "inputs": [-4, -5],
+      "expected": 20,
+      "type": "integer"
+    },
+    {
+      "name": "div_integers",
+      "description": "Divide two integers",
+      "operator": "/",
+      "inputs": [20, 4],
+      "expected": 5,
+      "type": "integer"
+    },
+    {
+      "name": "div_truncate",
+      "description": "Integer division truncates",
+      "operator": "/",
+      "inputs": [17, 5],
+      "expected": 3,
+      "type": "integer"
+    },
+    {
+      "name": "div_negative",
+      "description": "Divide with negative",
+      "operator": "/",
+      "inputs": [-20, 4],
+      "expected": -5,
+      "type": "integer"
+    },
+    {
+      "name": "abs_positive",
+      "description": "Absolute value of positive",
+      "operator": "abs",
+      "inputs": [42],
+      "expected": 42,
+      "type": "integer"
+    },
+    {
+      "name": "abs_negative",
+      "description": "Absolute value of negative",
+      "operator": "abs",
+      "inputs": [-42],
+      "expected": 42,
+      "type": "integer"
+    },
+    {
+      "name": "abs_zero",
+      "description": "Absolute value of zero",
+      "operator": "abs",
+      "inputs": [0],
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "negate_positive",
+      "description": "Negate positive integer",
+      "operator": "negate",
+      "inputs": [42],
+      "expected": -42,
+      "type": "integer"
+    },
+    {
+      "name": "negate_negative",
+      "description": "Negate negative integer",
+      "operator": "negate",
+      "inputs": [-42],
+      "expected": 42,
+      "type": "integer"
+    },
+    {
+      "name": "negate_zero",
+      "description": "Negate zero",
+      "operator": "negate",
+      "inputs": [0],
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "fadd_doubles",
+      "description": "Add two doubles",
+      "operator": "f+",
+      "inputs": [3.5, 2.5],
+      "expected": 6.0,
+      "type": "double"
+    },
+    {
+      "name": "fsub_doubles",
+      "description": "Subtract two doubles",
+      "operator": "f-",
+      "inputs": [5.5, 2.5],
+      "expected": 3.0,
+      "type": "double"
+    },
+    {
+      "name": "fmul_doubles",
+      "description": "Multiply two doubles",
+      "operator": "f*",
+      "inputs": [2.5, 4.0],
+      "expected": 10.0,
+      "type": "double"
+    },
+    {
+      "name": "fdiv_doubles",
+      "description": "Divide two doubles",
+      "operator": "fdiv",
+      "inputs": [10.0, 4.0],
+      "expected": 2.5,
+      "type": "double"
+    },
+    {
+      "name": "fabs_positive",
+      "description": "Absolute value of positive double",
+      "operator": "fabs",
+      "inputs": [3.14],
+      "expected": 3.14,
+      "type": "double"
+    },
+    {
+      "name": "fabs_negative",
+      "description": "Absolute value of negative double",
+      "operator": "fabs",
+      "inputs": [-3.14],
+      "expected": 3.14,
+      "type": "double"
+    },
+    {
+      "name": "fnegate_positive",
+      "description": "Negate positive double",
+      "operator": "fnegate",
+      "inputs": [3.14],
+      "expected": -3.14,
+      "type": "double"
+    },
+    {
+      "name": "fnegate_negative",
+      "description": "Negate negative double",
+      "operator": "fnegate",
+      "inputs": [-3.14],
+      "expected": 3.14,
+      "type": "double"
+    }
+  ]
+}

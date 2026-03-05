@@ -107,7 +107,7 @@ test_push_pop_ops:
     push rbp
     mov rbp, rsp
     push rbx
-    push r12
+    ; NOTE: Do NOT save/restore r12 - it's the VM stack pointer!
 
     lea rdi, [test_push_pop]
     call test_start
@@ -191,7 +191,6 @@ test_push_pop_ops:
     call test_end_fail
 
 .done:
-    pop r12
     pop rbx
     pop rbp
     ret

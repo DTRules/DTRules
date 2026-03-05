@@ -555,3 +555,142 @@ entity_clear:
 
     pop rbp
     ret
+
+;-----------------------------------------------------------------------------
+; entity_get_type_name - Get entity type name
+; Input: rdi = entity pointer
+; Output: rax = pointer to type name string
+;-----------------------------------------------------------------------------
+global entity_get_type_name
+entity_get_type_name:
+    mov rax, [rdi + ENTITY_TYPE_OFF]
+    ret
+
+;-----------------------------------------------------------------------------
+; entity_get_id - Get entity unique ID
+; Input: rdi = entity pointer
+; Output: rax = entity ID (we use the pointer as ID for simplicity)
+;-----------------------------------------------------------------------------
+global entity_get_id
+entity_get_id:
+    mov rax, rdi            ; Use entity address as unique ID
+    ret
+
+;-----------------------------------------------------------------------------
+; Entity registry for tracking all entities by type
+;-----------------------------------------------------------------------------
+section .bss
+    align 8
+    entity_registry:        resq 1024       ; Array of entity pointers
+    entity_registry_count:  resq 1          ; Number of registered entities
+
+section .text
+
+;-----------------------------------------------------------------------------
+; entity_register - Register an entity for type-based lookup
+; Input: rdi = entity Value pointer
+;-----------------------------------------------------------------------------
+global entity_register
+entity_register:
+    push rbx
+
+    mov rbx, [entity_registry_count]
+    cmp rbx, 1024
+    jae .full
+
+    lea rax, [entity_registry]
+    mov [rax + rbx * 8], rdi
+    inc qword [entity_registry_count]
+
+.full:
+    pop rbx
+    ret
+
+;-----------------------------------------------------------------------------
+; entity_get_all_of_type - Get array of all entities of given type
+; Input: rdi = type name pointer
+; Output: rax = pointer to array header of matching entities
+;
+; Note: Returns newly allocated array with entity Value pointers
+;-----------------------------------------------------------------------------
+extern array_alloc
+extern array_push
+extern string_equals
+
+global entity_get_all_of_type
+entity_get_all_of_type:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+
+    mov rbx, rdi            ; Save type name
+
+    ; Allocate result array
+    mov edi, 16
+    call array_alloc
+    test rax, rax
+    jz .alloc_fail
+    mov r12, rax            ; Result array
+
+    ; Iterate through registry
+    mov r13, [entity_registry_count]
+    test r13, r13
+    jz .done_scan
+
+    xor r14, r14            ; Index
+
+.scan_loop:
+    ; Get entity from registry
+    lea rax, [entity_registry]
+    mov rax, [rax + r14 * 8]
+    test rax, rax
+    jz .next_entity_scan
+
+    ; Get entity structure
+    mov rcx, [rax + VALUE_PTR_OFF]
+    test rcx, rcx
+    jz .next_entity_scan
+
+    ; Compare type names
+    push rax
+    mov rdi, [rcx + ENTITY_TYPE_OFF]
+    test rdi, rdi
+    jz .skip_compare
+    mov rsi, rbx
+    call string_equals
+    test eax, eax
+    jnz .type_match
+
+.skip_compare:
+    pop rax
+    jmp .next_entity_scan
+
+.type_match:
+    pop rax
+    ; Add to result array
+    mov rdi, r12
+    mov rsi, rax
+    call array_push
+
+.next_entity_scan:
+    inc r14
+    cmp r14, r13
+    jb .scan_loop
+
+.done_scan:
+    mov rax, r12
+    jmp .done_allof
+
+.alloc_fail:
+    xor eax, eax
+
+.done_allof:
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret

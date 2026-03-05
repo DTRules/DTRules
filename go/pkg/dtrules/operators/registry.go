@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // OperatorFunc is the function signature for operator implementations.
