@@ -88,8 +88,11 @@ func (c *Compiler) tokenize(expr string) []string {
 			current.WriteByte(ch)
 			if ch == stringDelim && (i == 0 || expr[i-1] != '\\') {
 				inString = false
-				tokens = append(tokens, current.String())
-				current.Reset()
+				// Only emit token if not inside a brace block
+				if braceDepth == 0 {
+					tokens = append(tokens, current.String())
+					current.Reset()
+				}
 			}
 			continue
 		}
