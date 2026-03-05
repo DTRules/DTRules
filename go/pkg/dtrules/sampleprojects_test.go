@@ -87,6 +87,34 @@ var sampleProjects = []SampleProject{
 			// Will be discovered when DT loading is fixed
 		},
 	},
+	{
+		Name:       "TaxReturn",
+		EDDFile:    "TaxReturn_edd.xml",
+		DTFile:     "TaxReturn_dt.xml",
+		MapFile:    "TaxReturn_map.xml",
+		EntryTable: "Compute_Tax_Return",
+		ExpectedTables: []string{
+			"Compute_Tax_Return",
+			"Calculate_Gross_Income",
+			"Process_W2_Income",
+			"Process_Self_Employment",
+			"Calculate_Vehicle_Deduction",
+			"Process_Rental_Income",
+			"Calculate_AGI_Adjustments",
+			"Calculate_Deductions",
+			"Calculate_Standard_Deduction",
+			"Calculate_Itemized_Deductions",
+			"Calculate_SALT_Deduction",
+			"Calculate_Mortgage_Interest",
+			"Calculate_Charitable_Deduction",
+			"Calculate_Taxable_Income",
+			"Calculate_Tax_Liability",
+			"Apply_Tax_Brackets",
+			"Calculate_Credits",
+			"Calculate_Child_Tax_Credit",
+			"Calculate_Final_Balance",
+		},
+	},
 }
 
 // findSampleProjectsDir locates the sampleprojects directory

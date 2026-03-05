@@ -1,0 +1,308 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+
+	<!-- ================================================================== -->
+	<!-- JOB - Root processing entity containing tax year and filing info  -->
+	<!-- ================================================================== -->
+	<entity name='job' access='rw' comment='Root entity for tax return processing'>
+		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Job ID'></field>
+		<field name='tax_year' type='integer' subtype='' access='r' input='main' default_value='2025' comment='Tax year being processed'></field>
+		<field name='filing_status' type='string' subtype='' access='r' input='main' default_value='MFJ' comment='Filing status: MFJ, MFS, Single, HOH, QSS'></field>
+		<field name='state' type='string' subtype='' access='r' input='main' default_value='TX' comment='State of residence'></field>
+		<field name='city' type='string' subtype='' access='r' input='main' default_value='' comment='City of residence'></field>
+		<field name='has_state_income_tax' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether state has income tax (computed)'></field>
+		<field name='taxpayers' type='array' subtype='taxpayer' access='r' input='' default_value='' comment='Taxpayers on this return'></field>
+		<field name='dependents' type='array' subtype='dependent' access='r' input='' default_value='' comment='Dependents on this return'></field>
+		<field name='properties' type='array' subtype='property' access='r' input='' default_value='' comment='Properties owned'></field>
+		<field name='vehicles' type='array' subtype='vehicle' access='r' input='' default_value='' comment='Vehicles used for business'></field>
+		<field name='deductions' type='array' subtype='deduction' access='r' input='' default_value='' comment='Itemized deductions'></field>
+		<field name='credits' type='array' subtype='credit' access='r' input='' default_value='' comment='Tax credits'></field>
+		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
+		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- TAXPAYER - Individual taxpayer information                        -->
+	<!-- ================================================================== -->
+	<entity name='taxpayer' access='rw' comment='Individual taxpayer'>
+		<field name='taxpayer' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Taxpayer ID'></field>
+		<field name='name' type='string' subtype='' access='r' input='main' default_value='' comment='Full name'></field>
+		<field name='ssn' type='string' subtype='' access='r' input='main' default_value='' comment='Social Security Number'></field>
+		<field name='date_of_birth' type='date' subtype='' access='r' input='main' default_value='' comment='Date of birth'></field>
+		<field name='occupation' type='string' subtype='' access='r' input='main' default_value='' comment='Occupation or profession'></field>
+		<field name='is_self_employed' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Whether taxpayer is self-employed'></field>
+		<field name='is_primary' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Primary taxpayer on return'></field>
+		<field name='w2_wages' type='double' subtype='' access='rw' input='main' default_value='0' comment='W-2 wage income'></field>
+		<field name='w2_withholding' type='double' subtype='' access='rw' input='main' default_value='0' comment='Federal tax withheld from W-2'></field>
+		<field name='se_gross_income' type='double' subtype='' access='rw' input='main' default_value='0' comment='Self-employment gross receipts'></field>
+		<field name='se_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Schedule C expenses (computed)'></field>
+		<field name='se_net_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Schedule C net profit (computed)'></field>
+		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (computed)'></field>
+		<field name='se_tax_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible portion of SE tax (computed)'></field>
+		<field name='estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='Estimated tax payments made'></field>
+		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Income sources for this taxpayer'></field>
+		<field name='total_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total income (computed)'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes and explanations'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- DEPENDENT - Children and other dependents                         -->
+	<!-- ================================================================== -->
+	<entity name='dependent' access='rw' comment='Dependent (child or qualifying relative)'>
+		<field name='dependent' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Dependent ID'></field>
+		<field name='name' type='string' subtype='' access='r' input='main' default_value='' comment='Full name'></field>
+		<field name='ssn' type='string' subtype='' access='r' input='main' default_value='' comment='Social Security Number'></field>
+		<field name='date_of_birth' type='date' subtype='' access='r' input='main' default_value='' comment='Date of birth'></field>
+		<field name='age' type='integer' subtype='' access='r' input='main' default_value='0' comment='Age at end of tax year'></field>
+		<field name='relationship' type='string' subtype='' access='r' input='main' default_value='child' comment='Relationship: child, parent, relative, other'></field>
+		<field name='months_lived_with' type='integer' subtype='' access='r' input='main' default_value='12' comment='Months lived with taxpayer'></field>
+		<field name='is_student' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Full-time student'></field>
+		<field name='school_type' type='string' subtype='' access='r' input='main' default_value='' comment='Type of school: public, private, homeschool'></field>
+		<field name='tuition_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Tuition paid (not deductible but tracked)'></field>
+		<field name='has_ssn' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Has valid SSN (required for CTC)'></field>
+		<field name='qualifies_for_ctc' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Child Tax Credit (computed)'></field>
+		<field name='qualifies_for_odc' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Other Dependent Credit (computed)'></field>
+		<field name='ctc_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Child Tax Credit amount (computed)'></field>
+		<field name='odc_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Other Dependent Credit amount (computed)'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about dependent eligibility'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- INCOME - Individual income sources                                -->
+	<!-- ================================================================== -->
+	<entity name='income' access='rw' comment='Income source'>
+		<field name='income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Income ID'></field>
+		<field name='taxpayer_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated taxpayer ID'></field>
+		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Type: W2, 1099-NEC, 1099-MISC, rental, interest, dividend, capital_gain'></field>
+		<field name='source' type='string' subtype='' access='r' input='main' default_value='' comment='Source name (employer, payer, property)'></field>
+		<field name='gross_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross income amount'></field>
+		<field name='tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Tax withheld at source'></field>
+		<field name='is_earned' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Earned income (wages, SE) vs unearned (interest, dividends)'></field>
+		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form reference'></field>
+		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- PROPERTY - Real estate (primary residence, rental)                -->
+	<!-- ================================================================== -->
+	<entity name='property' access='rw' comment='Real estate property'>
+		<field name='property' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Property ID'></field>
+		<field name='type' type='string' subtype='' access='r' input='main' default_value='primary_residence' comment='Type: primary_residence, rental, second_home'></field>
+		<field name='address' type='string' subtype='' access='r' input='main' default_value='' comment='Property address'></field>
+		<field name='purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date purchased'></field>
+		<field name='purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price'></field>
+		<field name='current_fmv' type='double' subtype='' access='r' input='main' default_value='0' comment='Current fair market value'></field>
+		<field name='mortgage_balance' type='double' subtype='' access='r' input='main' default_value='0' comment='Outstanding mortgage balance'></field>
+		<field name='mortgage_origination_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date mortgage originated'></field>
+		<field name='mortgage_interest' type='double' subtype='' access='r' input='main' default_value='0' comment='Annual mortgage interest paid (Form 1098)'></field>
+		<field name='property_taxes' type='double' subtype='' access='r' input='main' default_value='0' comment='Annual property taxes paid'></field>
+		<field name='rental_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross rental income (Schedule E)'></field>
+		<field name='rental_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Total rental expenses'></field>
+		<field name='rental_advertising' type='double' subtype='' access='r' input='main' default_value='0' comment='Advertising expense'></field>
+		<field name='rental_insurance' type='double' subtype='' access='r' input='main' default_value='0' comment='Insurance expense'></field>
+		<field name='rental_repairs' type='double' subtype='' access='r' input='main' default_value='0' comment='Repairs and maintenance'></field>
+		<field name='rental_utilities' type='double' subtype='' access='r' input='main' default_value='0' comment='Utilities expense'></field>
+		<field name='rental_management' type='double' subtype='' access='r' input='main' default_value='0' comment='Property management fees'></field>
+		<field name='depreciation' type='double' subtype='' access='rw' input='main' default_value='0' comment='Annual depreciation'></field>
+		<field name='rental_net_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Net rental income (computed)'></field>
+		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
+		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- VEHICLE - Business vehicles (Schedule C)                          -->
+	<!-- ================================================================== -->
+	<entity name='vehicle' access='rw' comment='Business vehicle'>
+		<field name='vehicle' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Vehicle ID'></field>
+		<field name='taxpayer_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated taxpayer ID'></field>
+		<field name='description' type='string' subtype='' access='r' input='main' default_value='' comment='Vehicle description (year, make, model)'></field>
+		<field name='purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date purchased'></field>
+		<field name='purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price'></field>
+		<field name='total_miles' type='integer' subtype='' access='r' input='main' default_value='0' comment='Total miles driven during year'></field>
+		<field name='business_miles' type='integer' subtype='' access='r' input='main' default_value='0' comment='Business miles driven'></field>
+		<field name='business_use_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='Business use percentage (computed)'></field>
+		<field name='method' type='string' subtype='' access='r' input='main' default_value='standard_mileage' comment='Deduction method: standard_mileage, actual_expense'></field>
+		<field name='standard_mileage_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Standard mileage deduction (computed)'></field>
+		<field name='actual_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Actual vehicle expenses if using actual method'></field>
+		<field name='vehicle_depreciation' type='double' subtype='' access='rw' input='main' default_value='0' comment='Vehicle depreciation'></field>
+		<field name='vehicle_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Final vehicle deduction amount (computed)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- DEDUCTION - Itemized deductions                                   -->
+	<!-- ================================================================== -->
+	<entity name='deduction' access='rw' comment='Itemized deduction'>
+		<field name='deduction' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Deduction ID'></field>
+		<field name='category' type='string' subtype='' access='r' input='main' default_value='' comment='Category: medical, taxes, interest, charity, casualty, other'></field>
+		<field name='description' type='string' subtype='' access='r' input='main' default_value='' comment='Description of deduction'></field>
+		<field name='amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Claimed amount'></field>
+		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='Schedule A' comment='IRS form reference'></field>
+		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
+		<field name='irs_publication' type='string' subtype='' access='rw' input='' default_value='' comment='IRS publication reference'></field>
+		<field name='limitation_applies' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether a limitation applies (computed)'></field>
+		<field name='allowed_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Allowed amount after limitations (computed)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- CREDIT - Tax credits                                              -->
+	<!-- ================================================================== -->
+	<entity name='credit' access='rw' comment='Tax credit'>
+		<field name='credit' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Credit ID'></field>
+		<field name='type' type='string' subtype='' access='rw' input='' default_value='' comment='Credit type: CTC, ODC, ACTC, EITC, education, etc.'></field>
+		<field name='description' type='string' subtype='' access='rw' input='' default_value='' comment='Description'></field>
+		<field name='amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit amount (computed)'></field>
+		<field name='is_refundable' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether credit is refundable'></field>
+		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form reference'></field>
+		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
+		<field name='irs_publication' type='string' subtype='' access='rw' input='' default_value='' comment='IRS publication reference'></field>
+		<field name='irc_section' type='string' subtype='' access='rw' input='' default_value='' comment='IRC section reference'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- CONSTANTS - Tax rates, limits, and thresholds for 2025            -->
+	<!-- ================================================================== -->
+	<entity name='constants' access='rw' comment='Tax constants and rates for 2025'>
+		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+
+		<!-- Filing Status Constants -->
+		<field name='MFJ' type='string' subtype='' access='r' input='' default_value='MFJ' comment='Married Filing Jointly'></field>
+		<field name='MFS' type='string' subtype='' access='r' input='' default_value='MFS' comment='Married Filing Separately'></field>
+		<field name='SINGLE' type='string' subtype='' access='r' input='' default_value='Single' comment='Single'></field>
+		<field name='HOH' type='string' subtype='' access='r' input='' default_value='HOH' comment='Head of Household'></field>
+		<field name='QSS' type='string' subtype='' access='r' input='' default_value='QSS' comment='Qualifying Surviving Spouse'></field>
+
+		<!-- Standard Deduction (2025 estimated) -->
+		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='Standard deduction for MFJ/QSS (2025 est.)'></field>
+		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for Single'></field>
+		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Standard deduction for HOH'></field>
+		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for MFS'></field>
+
+		<!-- Child Tax Credit -->
+		<field name='ctc_amount' type='double' subtype='' access='r' input='' default_value='2000' comment='Child Tax Credit per qualifying child (IRC 24(a))'></field>
+		<field name='ctc_refundable_max' type='double' subtype='' access='r' input='' default_value='1700' comment='Max refundable portion (ACTC) per child (2025 est.)'></field>
+		<field name='ctc_phase_out_mfj' type='double' subtype='' access='r' input='' default_value='400000' comment='CTC phase-out threshold MFJ (IRC 24(b)(2))'></field>
+		<field name='ctc_phase_out_single' type='double' subtype='' access='r' input='' default_value='200000' comment='CTC phase-out threshold Single'></field>
+		<field name='ctc_phase_out_rate' type='double' subtype='' access='r' input='' default_value='50' comment='Phase-out rate: $50 per $1,000 over threshold'></field>
+		<field name='ctc_age_limit' type='integer' subtype='' access='r' input='' default_value='17' comment='Age limit for CTC (must be under this age)'></field>
+
+		<!-- Other Dependent Credit -->
+		<field name='odc_amount' type='double' subtype='' access='r' input='' default_value='500' comment='Other Dependent Credit amount (IRC 24(h)(4))'></field>
+
+		<!-- SALT Cap (TCJA) -->
+		<field name='salt_cap' type='double' subtype='' access='r' input='' default_value='10000' comment='SALT deduction cap (IRC 164(b)(6)(B), TCJA 11042)'></field>
+
+		<!-- Mortgage Interest Limits -->
+		<field name='mortgage_limit_pre_tcja' type='double' subtype='' access='r' input='' default_value='1000000' comment='Pre-TCJA mortgage limit (before 12/15/2017)'></field>
+		<field name='mortgage_limit_post_tcja' type='double' subtype='' access='r' input='' default_value='750000' comment='Post-TCJA mortgage limit (IRC 163(h)(3)(F)(i)(I))'></field>
+		<field name='tcja_cutoff_date' type='date' subtype='' access='r' input='' default_value='12/15/2017' comment='TCJA mortgage rule cutoff date'></field>
+
+		<!-- Self-Employment Tax -->
+		<field name='se_tax_rate' type='double' subtype='' access='r' input='' default_value='0.153' comment='SE tax rate: 15.3% (12.4% SS + 2.9% Medicare)'></field>
+		<field name='se_income_multiplier' type='double' subtype='' access='r' input='' default_value='0.9235' comment='92.35% of net SE earnings (IRC 1402(a)(12))'></field>
+		<field name='se_deduction_rate' type='double' subtype='' access='r' input='' default_value='0.5' comment='Deductible portion of SE tax (IRC 164(f))'></field>
+		<field name='ss_wage_base' type='double' subtype='' access='r' input='' default_value='176100' comment='Social Security wage base (2025 est.)'></field>
+		<field name='se_threshold' type='double' subtype='' access='r' input='' default_value='400' comment='Minimum SE income to file SE tax'></field>
+
+		<!-- Standard Mileage Rate -->
+		<field name='mileage_rate' type='double' subtype='' access='r' input='' default_value='0.70' comment='Standard mileage rate (2025 est.) per Pub 463'></field>
+
+		<!-- Tax Brackets MFJ 2025 (estimated) -->
+		<field name='bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.10' comment='10% bracket rate'></field>
+		<field name='bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='23200' comment='10% bracket ceiling MFJ'></field>
+		<field name='bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.12' comment='12% bracket rate'></field>
+		<field name='bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='94300' comment='12% bracket ceiling MFJ'></field>
+		<field name='bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.22' comment='22% bracket rate'></field>
+		<field name='bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='201050' comment='22% bracket ceiling MFJ'></field>
+		<field name='bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.24' comment='24% bracket rate'></field>
+		<field name='bracket_4_mfj' type='double' subtype='' access='r' input='' default_value='383900' comment='24% bracket ceiling MFJ'></field>
+		<field name='bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.32' comment='32% bracket rate'></field>
+		<field name='bracket_5_mfj' type='double' subtype='' access='r' input='' default_value='487450' comment='32% bracket ceiling MFJ'></field>
+		<field name='bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.35' comment='35% bracket rate'></field>
+		<field name='bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='731200' comment='35% bracket ceiling MFJ'></field>
+		<field name='bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.37' comment='37% top bracket rate'></field>
+
+		<!-- Tax Brackets Single 2025 (estimated) -->
+		<field name='bracket_1_single' type='double' subtype='' access='r' input='' default_value='11600' comment='10% bracket ceiling Single'></field>
+		<field name='bracket_2_single' type='double' subtype='' access='r' input='' default_value='47150' comment='12% bracket ceiling Single'></field>
+		<field name='bracket_3_single' type='double' subtype='' access='r' input='' default_value='100525' comment='22% bracket ceiling Single'></field>
+		<field name='bracket_4_single' type='double' subtype='' access='r' input='' default_value='191950' comment='24% bracket ceiling Single'></field>
+		<field name='bracket_5_single' type='double' subtype='' access='r' input='' default_value='243725' comment='32% bracket ceiling Single'></field>
+		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='609350' comment='35% bracket ceiling Single'></field>
+
+		<!-- States without income tax -->
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
+
+		<!-- QBI Deduction (199A) -->
+		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
+
+		<!-- Medical Expense Floor -->
+		<field name='medical_floor_rate' type='double' subtype='' access='r' input='' default_value='0.075' comment='Medical expense floor (7.5% of AGI)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- RESULT - Computed tax return results                              -->
+	<!-- ================================================================== -->
+	<entity name='result' access='rw' comment='Tax calculation results'>
+		<field name='result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='rw' input='main' default_value='' comment='Result ID'></field>
+
+		<!-- Income Summary -->
+		<field name='total_w2_wages' type='double' subtype='' access='rw' input='' default_value='0' comment='Total W-2 wages (Form 1040 Line 1a)'></field>
+		<field name='total_se_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Net self-employment income (Schedule C)'></field>
+		<field name='total_rental_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Net rental income (Schedule E)'></field>
+		<field name='total_other_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Other income'></field>
+		<field name='gross_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total gross income (Form 1040 Line 9)'></field>
+
+		<!-- Adjustments -->
+		<field name='total_adjustments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total adjustments to income (Schedule 1 Part II)'></field>
+		<field name='agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income (Form 1040 Line 11)'></field>
+
+		<!-- Deductions -->
+		<field name='total_itemized' type='double' subtype='' access='rw' input='' default_value='0' comment='Total itemized deductions'></field>
+		<field name='standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Standard deduction amount'></field>
+		<field name='deduction_used' type='string' subtype='' access='rw' input='' default_value='standard' comment='Which deduction used: standard or itemized'></field>
+		<field name='total_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Total deduction (Form 1040 Line 12)'></field>
+		<field name='qbi_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='QBI deduction (Form 1040 Line 13)'></field>
+
+		<!-- Taxable Income -->
+		<field name='taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable income (Form 1040 Line 15)'></field>
+
+		<!-- Tax Calculation -->
+		<field name='regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Regular tax (Form 1040 Line 16)'></field>
+		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (Schedule SE)'></field>
+		<field name='total_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax before credits'></field>
+
+		<!-- Credits -->
+		<field name='total_ctc' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Child Tax Credit'></field>
+		<field name='total_odc' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Other Dependent Credit'></field>
+		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
+		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
+
+		<!-- Final -->
+		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
+		<field name='total_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total payments and credits (Form 1040 Line 33)'></field>
+		<field name='refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='Refund (positive) or amount owed (negative)'></field>
+
+		<!-- Audit Trail -->
+		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed calculation notes'></field>
+	</entity>
+
+</entity_data_dictionary>

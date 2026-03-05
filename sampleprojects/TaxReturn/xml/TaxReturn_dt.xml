@@ -1,0 +1,1756 @@
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 1: Compute_Tax_Return - Entry Point                             -->
+<!-- IRS Reference: Form 1040, Publication 17                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Compute_Tax_Return</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Entry point for tax return calculation. Orchestrates the complete tax calculation process following the structure of Form 1040. Determines filing status and executes calculation tables in proper order per IRS Form 1040 instructions.</COMMENTS>
+<TABLE_NUMBER>1000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize result entity and determine state income tax status</action_description>
+<action_postfix>
+/result createentity entitypush
+result job.results swap addto
+no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
+"Tax Return Calculation Started for Tax Year " job.tax_year cvs strconcat " - Filing Status: " strconcat job.filing_status strconcat job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status equals MFJ</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single filer</condition_comment>
+<condition_description>job.filing_status equals Single</condition_description>
+<condition_postfix>
+job.filing_status SINGLE streq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status equals HOH</condition_description>
+<condition_postfix>
+job.filing_status HOH streq
+</condition_postfix>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Default case</condition_comment>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="4" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Log filing status per Form 1040 Line 1</action_comment>
+<action_description>Log filing status determination</action_description>
+<action_postfix>
+"Filing as Married Filing Jointly per Form 1040 Line 1, Publication 17 Chapter 2, IRC Section 1(a)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Log Single filing status</action_comment>
+<action_description>Log Single filing status</action_description>
+<action_postfix>
+"Filing as Single per Form 1040 Line 1, Publication 17 Chapter 2, IRC Section 1(c)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Log HOH filing status</action_comment>
+<action_description>Log Head of Household filing status</action_description>
+<action_postfix>
+"Filing as Head of Household per Form 1040 Line 1, Publication 17 Chapter 2, IRC Section 1(b)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Log MFS or QSS status</action_comment>
+<action_description>Log other filing status</action_description>
+<action_postfix>
+"Filing as " job.filing_status strconcat " per Form 1040 Line 1, Publication 17 Chapter 2" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate gross income (Form 1040 Lines 1-9)</action_comment>
+<action_description>Calculate_Gross_Income</action_description>
+<action_postfix>
+Calculate_Gross_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Calculate deductions (Form 1040 Line 12)</action_comment>
+<action_description>Calculate_Deductions</action_description>
+<action_postfix>
+Calculate_Deductions
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Calculate taxable income (Form 1040 Line 15)</action_comment>
+<action_description>Calculate_Taxable_Income</action_description>
+<action_postfix>
+Calculate_Taxable_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Calculate tax liability (Form 1040 Lines 16-24)</action_comment>
+<action_description>Calculate_Tax_Liability</action_description>
+<action_postfix>
+Calculate_Tax_Liability
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Calculate credits (Form 1040 Lines 19-21)</action_comment>
+<action_description>Calculate_Credits</action_description>
+<action_postfix>
+Calculate_Credits
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>10</action_number>
+<action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
+<action_description>Calculate_Final_Balance</action_description>
+<action_postfix>
+Calculate_Final_Balance
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Processing tax return for Married Filing Jointly</policy_description>
+<policy_statement_postfix>"Processing tax return for Married Filing Jointly per Form 1040, IRC Section 1(a)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Processing tax return for Single filer</policy_description>
+<policy_statement_postfix>"Processing tax return for Single filer per Form 1040, IRC Section 1(c)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Processing tax return for Head of Household</policy_description>
+<policy_statement_postfix>"Processing tax return for Head of Household per Form 1040, IRC Section 1(b)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Processing tax return</policy_description>
+<policy_statement_postfix>"Processing tax return per Form 1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 2: Calculate_Gross_Income                                       -->
+<!-- IRS Reference: Form 1040 Lines 1-9, Schedule C, Schedule E            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Gross_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates total gross income from all sources including W-2 wages, self-employment income (Schedule C), rental income (Schedule E), and other income sources. References Form 1040 Lines 1-9.</COMMENTS>
+<TABLE_NUMBER>2000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize income totals</action_description>
+<action_postfix>
+0.0 /result.total_w2_wages xdef
+0.0 /result.total_se_income xdef
+0.0 /result.total_rental_income xdef
+0.0 /result.total_other_income xdef
+"INCOME CALCULATION (Form 1040 Lines 1-9)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute</condition_comment>
+<condition_description>perform when called</condition_description>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process W-2 income for all taxpayers</action_comment>
+<action_description>Process_W2_Income</action_description>
+<action_postfix>
+Process_W2_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Process self-employment income (Schedule C)</action_comment>
+<action_description>Process_Self_Employment</action_description>
+<action_postfix>
+Process_Self_Employment
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Process rental income (Schedule E)</action_comment>
+<action_description>Process_Rental_Income</action_description>
+<action_postfix>
+Process_Rental_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate AGI adjustments (Schedule 1 Part II)</action_comment>
+<action_description>Calculate_AGI_Adjustments</action_description>
+<action_postfix>
+Calculate_AGI_Adjustments
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate total gross income</action_comment>
+<action_description>Sum all income sources for gross income (Form 1040 Line 9)</action_description>
+<action_postfix>
+result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ /result.gross_income xdef
+"Line 9 - Total Income: $" result.gross_income cvs strconcat " per Form 1040 Line 9" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Calculate AGI</action_comment>
+<action_description>Calculate AGI (Form 1040 Line 11)</action_description>
+<action_postfix>
+result.gross_income result.total_adjustments f- /result.agi xdef
+"Line 11 - Adjusted Gross Income (AGI): $" result.agi cvs strconcat " per Form 1040 Line 11" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 2a: Process_W2_Income                                           -->
+<!-- IRS Reference: Form 1040 Line 1a, Form W-2, IRC Section 61(a)(1)      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_W2_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Processes W-2 wage income for all taxpayers. Records wages per Form 1040 Line 1a, IRC Section 61(a)(1). Also tracks withholding for payment calculation.</COMMENTS>
+<TABLE_NUMBER>2100</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each taxpayer</context_comment>
+<context_description>for all taxpayers</context_description>
+<context_postfix>
+job.taxpayers dup forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has W-2 wages</condition_comment>
+<condition_description>taxpayer.w2_wages greater than 0</condition_description>
+<condition_postfix>
+taxpayer.w2_wages 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add W-2 wages to total</action_comment>
+<action_description>Add taxpayer W-2 wages to result.total_w2_wages</action_description>
+<action_postfix>
+taxpayer.w2_wages result.total_w2_wages f+ /result.total_w2_wages xdef
+"  W-2 Wages for " taxpayer.name strconcat ": $" strconcat taxpayer.w2_wages cvs strconcat " (Form W-2, IRC 61(a)(1))" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Track withholding for payments</action_comment>
+<action_description>Add withholding to total payments</action_description>
+<action_postfix>
+taxpayer.w2_withholding result.total_payments f+ /result.total_payments xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>W-2 wages recorded per Form 1040 Line 1a, Form W-2, IRC Section 61(a)(1)</policy_description>
+<policy_statement_postfix>"W-2 wages recorded per Form 1040 Line 1a, Form W-2, IRC Section 61(a)(1)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No W-2 wages for this taxpayer</policy_description>
+<policy_statement_postfix>"No W-2 wages for this taxpayer"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 2b: Process_Self_Employment                                     -->
+<!-- IRS Reference: Schedule C, Schedule SE, Publication 334, IRC 162      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_Self_Employment</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Processes self-employment income per Schedule C, calculates vehicle deductions per Publication 463, and computes SE tax per Schedule SE and IRC Section 1401. Supports standard mileage and actual expense methods for vehicle deductions.</COMMENTS>
+<TABLE_NUMBER>2200</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each self-employed taxpayer</context_comment>
+<context_description>for all taxpayers whose is_self_employed equals true</context_description>
+<context_postfix>
+{ dup is_self_employed true beq if } job.taxpayers forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has self-employment income</condition_comment>
+<condition_description>taxpayer.se_gross_income greater than 0</condition_description>
+<condition_postfix>
+taxpayer.se_gross_income 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Net SE income meets threshold for SE tax</condition_comment>
+<condition_description>SE net profit greater than or equal to se_threshold</condition_description>
+<condition_postfix>
+taxpayer.se_net_profit se_threshold >=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Log gross receipts</action_comment>
+<action_description>Record gross receipts per Schedule C Line 1</action_description>
+<action_postfix>
+"SCHEDULE C - " taxpayer.name strconcat " (" strconcat taxpayer.occupation strconcat ")" strconcat job.audit_trail swap addto
+"  Gross Receipts: $" taxpayer.se_gross_income cvs strconcat " (Schedule C Line 1, IRC 61)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate vehicle deduction</action_comment>
+<action_description>Calculate_Vehicle_Deduction for this taxpayer</action_description>
+<action_postfix>
+Calculate_Vehicle_Deduction
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate net profit</action_comment>
+<action_description>Calculate Schedule C net profit (Line 31)</action_description>
+<action_postfix>
+taxpayer.se_gross_income taxpayer.se_expenses f- /taxpayer.se_net_profit xdef
+"  Net Profit: $" taxpayer.se_net_profit cvs strconcat " (Schedule C Line 31)" strconcat job.audit_trail swap addto
+taxpayer.se_net_profit result.total_se_income f+ /result.total_se_income xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate SE tax</action_comment>
+<action_description>Calculate self-employment tax per Schedule SE, IRC 1401</action_description>
+<action_postfix>
+taxpayer.se_net_profit se_income_multiplier f* se_tax_rate f* /taxpayer.se_tax xdef
+taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
+"SCHEDULE SE - Self-Employment Tax" job.audit_trail swap addto
+"  Net SE Earnings x 92.35%: $" taxpayer.se_net_profit se_income_multiplier f* cvs strconcat " (IRC 1402(a)(12))" strconcat job.audit_trail swap addto
+"  SE Tax (15.3%): $" taxpayer.se_tax cvs strconcat " (IRC 1401(a) SS 12.4% + IRC 1401(b) Medicare 2.9%)" strconcat job.audit_trail swap addto
+"  Deductible Portion (50%): $" taxpayer.se_tax_deduction cvs strconcat " (IRC 164(f), Schedule 1 Line 15)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>No SE tax required - below threshold</action_comment>
+<action_description>Log no SE tax required</action_description>
+<action_postfix>
+"  SE Tax: Not required - net SE income below $400 threshold (IRC 1402(b)(2))" job.audit_trail swap addto
+0 /taxpayer.se_tax xdef
+0 /taxpayer.se_tax_deduction xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Self-employment income and SE tax calculated per Schedule C, Schedule SE, IRC 162, 1401</policy_description>
+<policy_statement_postfix>"Self-employment income and SE tax calculated per Schedule C, Schedule SE, IRC 162, 1401"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Self-employment income calculated, SE tax not required (below $400 threshold)</policy_description>
+<policy_statement_postfix>"Self-employment income calculated, SE tax not required per IRC 1402(b)(2)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>No self-employment income</policy_description>
+<policy_statement_postfix>"No self-employment income for this taxpayer"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 2b1: Calculate_Vehicle_Deduction                                -->
+<!-- IRS Reference: Publication 463 Chapter 4, IRC 162, 274(d)             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Vehicle_Deduction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile.</COMMENTS>
+<TABLE_NUMBER>2210</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process vehicles for current taxpayer</context_comment>
+<context_description>for all vehicles where taxpayer_id matches current taxpayer</context_description>
+<context_postfix>
+{ dup taxpayer_id taxpayer.id == if } job.vehicles forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has business miles</condition_comment>
+<condition_description>vehicle.business_miles greater than 0</condition_description>
+<condition_postfix>
+vehicle.business_miles 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Using standard mileage method</condition_comment>
+<condition_description>vehicle.method equals standard_mileage</condition_description>
+<condition_postfix>
+vehicle.method "standard_mileage" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate business use percentage</action_comment>
+<action_description>Calculate business use percentage</action_description>
+<action_postfix>
+business_miles cvr total_miles cvr fdiv /business_use_percentage xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate standard mileage deduction</action_comment>
+<action_description>Calculate standard mileage deduction per Pub 463</action_description>
+<action_postfix>
+vehicle.business_miles cvr mileage_rate f* /vehicle.standard_mileage_deduction xdef
+vehicle.standard_mileage_deduction /vehicle.vehicle_deduction xdef
+vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
+"  Vehicle Expense (" vehicle.description strconcat "): $" strconcat vehicle.vehicle_deduction cvs strconcat job.audit_trail swap addto
+"    Method: Standard Mileage Rate @ $" mileage_rate cvs strconcat "/mile x " strconcat vehicle.business_miles cvs strconcat " business miles" strconcat job.audit_trail swap addto
+"    (Publication 463 Chapter 4, IRS Notice 2025-XX)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate actual expense deduction</action_comment>
+<action_description>Calculate actual expense deduction per Pub 463</action_description>
+<action_postfix>
+vehicle.actual_expenses vehicle.vehicle_depreciation f+ vehicle.business_use_percentage f* /vehicle.vehicle_deduction xdef
+vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
+"  Vehicle Expense (" vehicle.description strconcat "): $" strconcat vehicle.vehicle_deduction cvs strconcat job.audit_trail swap addto
+"    Method: Actual Expenses x " vehicle.business_use_percentage 100 f* cvs strconcat "% business use" strconcat job.audit_trail swap addto
+"    (Publication 463 Chapter 4, IRC 274)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Standard mileage deduction calculated per Publication 463 Chapter 4</policy_description>
+<policy_statement_postfix>"Standard mileage deduction calculated per Publication 463 Chapter 4, IRS Notice 2025-XX"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Actual expense deduction calculated per Publication 463 Chapter 4, IRC 274</policy_description>
+<policy_statement_postfix>"Actual expense deduction calculated per Publication 463 Chapter 4, IRC 274"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>No vehicle expenses claimed</policy_description>
+<policy_statement_postfix>"No vehicle expenses claimed for this vehicle"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 2c: Process_Rental_Income                                       -->
+<!-- IRS Reference: Schedule E Part I, Publication 527, IRC 61(a)(5)       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_Rental_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Processes rental property income and expenses per Schedule E Part I, Publication 527, IRC Section 61(a)(5). Calculates depreciation, mortgage interest, property taxes, and other rental expenses.</COMMENTS>
+<TABLE_NUMBER>2300</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each rental property</context_comment>
+<context_description>for all properties where type equals rental</context_description>
+<context_postfix>
+{ dup type "rental" streq if } job.properties forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has rental income</condition_comment>
+<condition_description>property.rental_income greater than 0</condition_description>
+<condition_postfix>
+property.rental_income 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Net rental income is positive</condition_comment>
+<condition_description>rental net income greater than 0</condition_description>
+<condition_postfix>
+property.rental_net_income 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Log rental property header</action_comment>
+<action_description>Log Schedule E header</action_description>
+<action_postfix>
+"SCHEDULE E Part I - Rental Property: " property.address strconcat job.audit_trail swap addto
+"  Rental Income: $" property.rental_income cvs strconcat " (Schedule E Line 3, IRC 61(a)(5))" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate total rental expenses</action_comment>
+<action_description>Sum rental expenses</action_description>
+<action_postfix>
+property.rental_advertising property.rental_insurance f+ property.mortgage_interest f+ property.property_taxes f+ property.rental_repairs f+ property.rental_utilities f+ property.rental_management f+ property.depreciation f+ /property.rental_expenses xdef
+"  Expenses:" job.audit_trail swap addto
+"    Advertising: $" property.rental_advertising cvs strconcat " (Line 5)" strconcat job.audit_trail swap addto
+"    Insurance: $" property.rental_insurance cvs strconcat " (Line 9)" strconcat job.audit_trail swap addto
+"    Mortgage Interest: $" property.mortgage_interest cvs strconcat " (Line 12, Form 1098)" strconcat job.audit_trail swap addto
+"    Property Taxes: $" property.property_taxes cvs strconcat " (Line 16, IRC 164(a)(1))" strconcat job.audit_trail swap addto
+"    Repairs: $" property.rental_repairs cvs strconcat " (Line 14)" strconcat job.audit_trail swap addto
+"    Utilities: $" property.rental_utilities cvs strconcat " (Line 17)" strconcat job.audit_trail swap addto
+"    Depreciation: $" property.depreciation cvs strconcat " (Line 18, Publication 946, IRC 167/168)" strconcat job.audit_trail swap addto
+"    Total Expenses: $" property.rental_expenses cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate net rental income</action_comment>
+<action_description>Calculate net rental income (Schedule E Line 21)</action_description>
+<action_postfix>
+property.rental_income property.rental_expenses f- /property.rental_net_income xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Add net rental income to total</action_comment>
+<action_description>Add net rental income to result</action_description>
+<action_postfix>
+"  Net Rental Income: $" property.rental_net_income cvs strconcat " (Schedule E Line 21)" strconcat job.audit_trail swap addto
+property.rental_net_income result.total_rental_income f+ /result.total_rental_income xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Handle rental loss</action_comment>
+<action_description>Log rental loss with passive activity note</action_description>
+<action_postfix>
+"  Net Rental Loss: $" property.rental_net_income cvs strconcat " (Schedule E Line 21)" strconcat job.audit_trail swap addto
+"  Note: Rental loss may be subject to passive activity limitations per Form 8582, IRC 469" job.audit_trail swap addto
+property.rental_net_income result.total_rental_income f+ /result.total_rental_income xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Rental income calculated per Schedule E Part I, Publication 527, IRC 61(a)(5)</policy_description>
+<policy_statement_postfix>"Rental income calculated per Schedule E Part I, Publication 527, IRC 61(a)(5)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Rental loss subject to passive activity rules per Form 8582, IRC 469</policy_description>
+<policy_statement_postfix>"Rental loss subject to passive activity limitations per Form 8582, IRC 469"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Property is not a rental property</policy_description>
+<policy_statement_postfix>"Property is not a rental property - Schedule E not required"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 2d: Calculate_AGI_Adjustments                                   -->
+<!-- IRS Reference: Schedule 1 Part II, IRC 62                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AGI_Adjustments</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates above-the-line deductions (adjustments to income) per Schedule 1 Part II, IRC Section 62. Includes SE tax deduction, health insurance for self-employed, and other adjustments.</COMMENTS>
+<TABLE_NUMBER>2400</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each taxpayer for adjustments</context_comment>
+<context_description>for all taxpayers</context_description>
+<context_postfix>
+job.taxpayers dup forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize adjustments</action_description>
+<action_postfix>
+0.0 /result.total_adjustments xdef
+"ADJUSTMENTS TO INCOME (Schedule 1 Part II)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has SE tax to deduct</condition_comment>
+<condition_description>taxpayer.se_tax_deduction greater than 0</condition_description>
+<condition_postfix>
+taxpayer.se_tax_deduction 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add SE tax deduction to adjustments</action_comment>
+<action_description>Add deductible portion of SE tax per IRC 164(f)</action_description>
+<action_postfix>
+taxpayer.se_tax_deduction result.total_adjustments f+ /result.total_adjustments xdef
+"  Line 15 - SE Tax Deduction for " taxpayer.name strconcat ": $" strconcat taxpayer.se_tax_deduction cvs strconcat " (IRC 164(f))" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Log total adjustments</action_comment>
+<action_description>Log total adjustments</action_description>
+<action_postfix>
+"  Line 26 - Total Adjustments: $" result.total_adjustments cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3: Calculate_Deductions                                         -->
+<!-- IRS Reference: Form 1040 Line 12, Schedule A, IRC 63                  -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Deductions</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determines whether to use standard or itemized deduction per Form 1040 Line 12, Schedule A, IRC Section 63. Calculates itemized deductions including SALT (with $10,000 cap per TCJA), mortgage interest, and charitable contributions.</COMMENTS>
+<TABLE_NUMBER>3000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Calculate standard deduction and itemized deductions</action_description>
+<action_postfix>
+"DEDUCTIONS (Form 1040 Line 12)" job.audit_trail swap addto
+Calculate_Standard_Deduction
+Calculate_Itemized_Deductions
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Itemized deductions exceed standard deduction</condition_comment>
+<condition_description>result.total_itemized greater than result.standard_deduction</condition_description>
+<condition_postfix>
+result.total_itemized result.standard_deduction >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Use itemized deductions</action_comment>
+<action_description>Use itemized deductions (Schedule A)</action_description>
+<action_postfix>
+result.total_itemized /result.total_deduction xdef
+"itemized" /result.deduction_used xdef
+"Using ITEMIZED DEDUCTION: $" result.total_deduction cvs strconcat " (Schedule A total exceeds standard deduction)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Use standard deduction</action_comment>
+<action_description>Use standard deduction per IRC 63(c)</action_description>
+<action_postfix>
+result.standard_deduction /result.total_deduction xdef
+"standard" /result.deduction_used xdef
+"Using STANDARD DEDUCTION: $" result.total_deduction cvs strconcat " (exceeds itemized total of $" strconcat result.total_itemized cvs strconcat ")" strconcat job.audit_trail swap addto
+"(Per IRC 63(c), " job.filing_status strconcat " filing status)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Itemized deduction claimed per Schedule A</policy_description>
+<policy_statement_postfix>"Itemized deduction claimed per Schedule A - exceeds standard deduction"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Standard deduction claimed per IRC 63(c)</policy_description>
+<policy_statement_postfix>"Standard deduction claimed per IRC 63(c) - higher than itemized total"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3a: Calculate_Standard_Deduction                                -->
+<!-- IRS Reference: IRC 63(c), Publication 17 Chapter 20                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Standard_Deduction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determines standard deduction amount based on filing status per IRC Section 63(c), Publication 17 Chapter 20. Amounts for 2025 are estimated.</COMMENTS>
+<TABLE_NUMBER>3100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_description>filing_status equals MFJ or QSS</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq job.filing_status QSS streq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>filing_status equals HOH</condition_description>
+<condition_postfix>
+job.filing_status HOH streq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Single or MFS</condition_comment>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="3" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>MFJ/QSS standard deduction</action_comment>
+<action_description>Set MFJ standard deduction</action_description>
+<action_postfix>
+standard_deduction_mfj /result.standard_deduction xdef
+"Standard Deduction (MFJ): $" result.standard_deduction cvs strconcat " per IRC 63(c)(2)(A)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>HOH standard deduction</action_comment>
+<action_description>Set HOH standard deduction</action_description>
+<action_postfix>
+standard_deduction_hoh /result.standard_deduction xdef
+"Standard Deduction (HOH): $" result.standard_deduction cvs strconcat " per IRC 63(c)(2)(B)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Single/MFS standard deduction</action_comment>
+<action_description>Set Single standard deduction</action_description>
+<action_postfix>
+standard_deduction_single /result.standard_deduction xdef
+"Standard Deduction (Single/MFS): $" result.standard_deduction cvs strconcat " per IRC 63(c)(2)(C)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Standard deduction for MFJ/QSS per IRC 63(c)(2)(A)</policy_description>
+<policy_statement_postfix>"Standard deduction for MFJ/QSS per IRC 63(c)(2)(A)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Standard deduction for HOH per IRC 63(c)(2)(B)</policy_description>
+<policy_statement_postfix>"Standard deduction for HOH per IRC 63(c)(2)(B)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Standard deduction for Single/MFS per IRC 63(c)(2)(C)</policy_description>
+<policy_statement_postfix>"Standard deduction for Single/MFS per IRC 63(c)(2)(C)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3b: Calculate_Itemized_Deductions                               -->
+<!-- IRS Reference: Schedule A, IRC 164, 163, 170                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Itemized_Deductions</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates total itemized deductions per Schedule A including SALT (capped at $10,000 per IRC 164(b)(6)(B) as amended by TCJA Section 11042), mortgage interest, and charitable contributions.</COMMENTS>
+<TABLE_NUMBER>3200</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize itemized deduction tracking</action_description>
+<action_postfix>
+0.0 /result.total_itemized xdef
+"SCHEDULE A - Itemized Deductions" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always calculate itemized for comparison</condition_comment>
+<condition_description>perform when called</condition_description>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate SALT deduction</action_comment>
+<action_description>Calculate_SALT_Deduction</action_description>
+<action_postfix>
+Calculate_SALT_Deduction
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate mortgage interest deduction</action_comment>
+<action_description>Calculate_Mortgage_Interest</action_description>
+<action_postfix>
+Calculate_Mortgage_Interest
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate charitable contributions</action_comment>
+<action_description>Calculate_Charitable_Deduction</action_description>
+<action_postfix>
+Calculate_Charitable_Deduction
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Log total itemized</action_comment>
+<action_description>Log total itemized deductions</action_description>
+<action_postfix>
+"  Total Itemized Deductions: $" result.total_itemized cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3b1: Calculate_SALT_Deduction                                   -->
+<!-- IRS Reference: Schedule A Lines 5a-5d, IRC 164, TCJA Section 11042    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SALT_Deduction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates State and Local Tax (SALT) deduction including state income tax, real estate taxes, and personal property taxes. SALT is capped at $10,000 per IRC Section 164(b)(6)(B) as amended by TCJA Section 11042. Texas has no state income tax.</COMMENTS>
+<TABLE_NUMBER>3210</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Calculate property taxes from primary residence</context_comment>
+<context_description>local double property_tax_total = sum of property_taxes from primary residence properties</context_description>
+<context_postfix>
+0.0 { { property_taxes f+ } { pop } dup type "primary_residence" streq ifelse } job.properties forall cve allocate execute deallocate pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>State has income tax</condition_comment>
+<condition_description>job.has_state_income_tax equals true</condition_description>
+<condition_postfix>
+job.has_state_income_tax true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Total SALT exceeds cap</condition_comment>
+<condition_description>total SALT greater than salt_cap</condition_description>
+<condition_postfix>
+0 local@ salt_cap >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply SALT cap with state income tax</action_comment>
+<action_description>Apply $10,000 SALT cap</action_description>
+<action_postfix>
+"  State and Local Taxes (SALT):" job.audit_trail swap addto
+"    State Income Tax: (applicable)" job.audit_trail swap addto
+"    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
+"    Total SALT LIMITED TO $" salt_cap cvs strconcat " per IRC 164(b)(6)(B), TCJA Section 11042" strconcat job.audit_trail swap addto
+salt_cap result.total_itemized f+ /result.total_itemized xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Texas - no state income tax, apply cap if needed</action_comment>
+<action_description>Process SALT for no-income-tax state</action_description>
+<action_postfix>
+"  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
+"    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
+"    Total SALT LIMITED TO $" salt_cap cvs strconcat " per IRC 164(b)(6)(B), TCJA Section 11042" strconcat job.audit_trail swap addto
+salt_cap result.total_itemized f+ /result.total_itemized xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SALT deduction limited to $10,000 per IRC 164(b)(6)(B), TCJA Section 11042</policy_description>
+<policy_statement_postfix>"SALT deduction limited to $10,000 per IRC 164(b)(6)(B) as amended by TCJA Section 11042"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Property taxes only (no state income tax); limited per IRC 164(b)(6)(B)</policy_description>
+<policy_statement_postfix>"Property taxes only (no state income tax in " job.state cvs strconcat "); limited per IRC 164(b)(6)(B)" strconcat</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3b2: Calculate_Mortgage_Interest                                -->
+<!-- IRS Reference: Schedule A Lines 8a-8e, Publication 936, IRC 163(h)    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Mortgage_Interest</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates mortgage interest deduction for qualified residences per Schedule A Lines 8a-8e, Publication 936, IRC Section 163(h). Applies $750,000 debt limit for post-12/15/2017 mortgages per TCJA Section 11043.</COMMENTS>
+<TABLE_NUMBER>3220</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process primary residence properties</context_comment>
+<context_description>for all properties where type equals primary_residence</context_description>
+<context_postfix>
+{ dup type "primary_residence" streq if } job.properties forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has mortgage interest</condition_comment>
+<condition_description>property.mortgage_interest greater than 0</condition_description>
+<condition_postfix>
+property.mortgage_interest 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Mortgage balance within limit</condition_comment>
+<condition_description>mortgage_balance less than or equal to mortgage_limit_post_tcja</condition_description>
+<condition_postfix>
+property.mortgage_balance mortgage_limit_post_tcja &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Full mortgage interest deduction</action_comment>
+<action_description>Allow full mortgage interest deduction</action_description>
+<action_postfix>
+property.mortgage_interest /property.mortgage_interest_deductible xdef
+property.mortgage_interest_deductible result.total_itemized f+ /result.total_itemized xdef
+"  Mortgage Interest (Primary Residence):" job.audit_trail swap addto
+"    Form 1098 Interest: $" property.mortgage_interest cvs strconcat job.audit_trail swap addto
+"    Acquisition Debt: $" property.mortgage_balance cvs strconcat " (under $750,000 limit)" strconcat job.audit_trail swap addto
+"    Full deduction of $" property.mortgage_interest_deductible cvs strconcat " allowed per Schedule A Line 8a, IRC 163(h)(3)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Limited mortgage interest deduction</action_comment>
+<action_description>Prorate mortgage interest for debt over limit</action_description>
+<action_postfix>
+property.mortgage_interest mortgage_limit_post_tcja * property.mortgage_balance / /property.mortgage_interest_deductible xdef
+property.mortgage_interest_deductible result.total_itemized f+ /result.total_itemized xdef
+"  Mortgage Interest (Primary Residence):" job.audit_trail swap addto
+"    Form 1098 Interest: $" property.mortgage_interest cvs strconcat job.audit_trail swap addto
+"    Acquisition Debt: $" property.mortgage_balance cvs strconcat " EXCEEDS $750,000 limit" strconcat job.audit_trail swap addto
+"    Deduction LIMITED to $" property.mortgage_interest_deductible cvs strconcat " per Publication 936 Worksheet, IRC 163(h)(3)(F)(i)(I)" strconcat job.audit_trail swap addto
+"    Calculation: ($750,000 / $" property.mortgage_balance cvs strconcat ") x $" strconcat property.mortgage_interest cvs strconcat " = $" strconcat property.mortgage_interest_deductible cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Full mortgage interest deduction allowed per IRC 163(h)(3)</policy_description>
+<policy_statement_postfix>"Full mortgage interest deduction allowed per IRC 163(h)(3), Publication 936"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Mortgage interest limited due to debt exceeding $750,000 per IRC 163(h)(3)(F)(i)(I)</policy_description>
+<policy_statement_postfix>"Mortgage interest limited due to debt exceeding $750,000 per IRC 163(h)(3)(F)(i)(I), TCJA Section 11043"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>No mortgage interest to deduct</policy_description>
+<policy_statement_postfix>"No mortgage interest to deduct for this property"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3b3: Calculate_Charitable_Deduction                             -->
+<!-- IRS Reference: Schedule A Lines 11-14, Publication 526, IRC 170       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Charitable_Deduction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates charitable contribution deduction per Schedule A Lines 11-14, Publication 526, IRC Section 170. Sums all charity-category deductions.</COMMENTS>
+<TABLE_NUMBER>3230</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process charitable deductions</context_comment>
+<context_description>for all deductions where category equals charity</context_description>
+<context_postfix>
+{ dup category "charity" streq if } job.deductions forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has charitable contribution</condition_comment>
+<condition_description>deduction.amount greater than 0</condition_description>
+<condition_postfix>
+deduction.amount 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add charitable contribution</action_comment>
+<action_description>Add charitable deduction per IRC 170</action_description>
+<action_postfix>
+deduction.amount /deduction.allowed_amount xdef
+deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
+"  Charitable Contribution: $" deduction.amount cvs strconcat " - " strconcat deduction.description strconcat " (Schedule A Line 11, IRC 170)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Charitable contribution allowed per IRC 170, Publication 526</policy_description>
+<policy_statement_postfix>"Charitable contribution allowed per IRC 170, Publication 526"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 4: Calculate_Taxable_Income                                     -->
+<!-- IRS Reference: Form 1040 Line 15, IRC 63                              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Taxable_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates taxable income per Form 1040 Line 15, IRC Section 63. Subtracts deductions and QBI deduction from AGI.</COMMENTS>
+<TABLE_NUMBER>4000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has self-employment income for QBI</condition_comment>
+<condition_description>result.total_se_income greater than 0</condition_description>
+<condition_postfix>
+result.total_se_income 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate QBI deduction</action_comment>
+<action_description>Calculate QBI deduction per IRC 199A (20% of qualified business income)</action_description>
+<action_postfix>
+result.total_se_income qbi_rate f* /result.qbi_deduction xdef
+"TAXABLE INCOME CALCULATION" job.audit_trail swap addto
+"  Line 13 - QBI Deduction (20% of SE income): $" result.qbi_deduction cvs strconcat " (IRC 199A, Form 8995)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No QBI deduction</action_comment>
+<action_description>Set QBI deduction to zero</action_description>
+<action_postfix>
+0.0 /result.qbi_deduction xdef
+"TAXABLE INCOME CALCULATION" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate taxable income</action_comment>
+<action_description>Calculate taxable income (AGI - deductions - QBI)</action_description>
+<action_postfix>
+result.agi result.total_deduction f- result.qbi_deduction f- /result.taxable_income xdef
+{ 0.0 /result.taxable_income xdef } result.taxable_income 0 &lt; if
+"  Line 15 - Taxable Income: $" result.taxable_income cvs strconcat " per Form 1040 Line 15" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Taxable income calculated with QBI deduction per IRC 199A</policy_description>
+<policy_statement_postfix>"Taxable income calculated with QBI deduction per IRC 199A"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Taxable income calculated per Form 1040 Line 15</policy_description>
+<policy_statement_postfix>"Taxable income calculated per Form 1040 Line 15"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 5: Calculate_Tax_Liability                                      -->
+<!-- IRS Reference: Form 1040 Lines 16-24, IRC 1                           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Tax_Liability</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates total tax liability including regular tax (using tax brackets per IRC Section 1) and self-employment tax (Schedule SE, IRC Section 1401). Form 1040 Lines 16-24.</COMMENTS>
+<TABLE_NUMBER>5000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize tax calculation</action_description>
+<action_postfix>
+"TAX CALCULATION (Form 1040 Lines 16-24)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always calculate</condition_comment>
+<condition_description>perform when called</condition_description>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate regular tax using brackets</action_comment>
+<action_description>Apply_Tax_Brackets</action_description>
+<action_postfix>
+Apply_Tax_Brackets
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Add SE tax from all taxpayers</action_comment>
+<action_description>Sum SE tax from all taxpayers</action_description>
+<action_postfix>
+0.0 { se_tax + } job.taxpayers forall /result.se_tax xdef
+"  SE Tax (Schedule SE): $" result.se_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate total tax before credits</action_comment>
+<action_description>Sum regular tax and SE tax</action_description>
+<action_postfix>
+result.regular_tax result.se_tax f+ /result.total_tax_before_credits xdef
+"  Total Tax Before Credits: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 5a: Apply_Tax_Brackets                                          -->
+<!-- IRS Reference: Form 1040 Line 16, IRC 1(a)-(d)                        -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_Tax_Brackets</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies marginal tax brackets to calculate regular tax per Form 1040 Line 16, IRC Section 1. Uses 2025 estimated bracket amounts for MFJ, Single, and other filing statuses.</COMMENTS>
+<TABLE_NUMBER>5100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>filing_status equals MFJ or QSS</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq job.filing_status QSS streq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single or other</condition_comment>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="2" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MFJ tax</action_comment>
+<action_description>Apply MFJ tax brackets per IRC 1(a)</action_description>
+<action_postfix>
+result.taxable_income allocate
+0.0 allocate
+{ 0 local@ bracket_1_rate f* 1 local! }
+{
+  bracket_1_mfj bracket_1_rate f* 1 local!
+  { 0 local@ bracket_1_mfj f- bracket_2_rate f* 1 local@ f+ 1 local! }
+  {
+    bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* 1 local@ f+ 1 local!
+    { 0 local@ bracket_2_mfj f- bracket_3_rate f* 1 local@ f+ 1 local! }
+    {
+      bracket_3_mfj bracket_2_mfj f- bracket_3_rate f* 1 local@ f+ 1 local!
+      { 0 local@ bracket_3_mfj f- bracket_4_rate f* 1 local@ f+ 1 local! }
+      { bracket_4_mfj bracket_3_mfj f- bracket_4_rate f* 1 local@ f+ 1 local!
+        0 local@ bracket_4_mfj f- bracket_5_rate f* 1 local@ f+ 1 local! }
+      0 local@ bracket_4_mfj &lt;= ifelse
+    }
+    0 local@ bracket_3_mfj &lt;= ifelse
+  }
+  0 local@ bracket_2_mfj &lt;= ifelse
+}
+0 local@ bracket_1_mfj &lt;= ifelse
+1 local@ /result.regular_tax xdef
+deallocate pop deallocate pop
+"  Line 16 - Regular Tax (MFJ brackets): $" result.regular_tax cvs strconcat " per IRC 1(a)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Single tax</action_comment>
+<action_description>Apply Single tax brackets per IRC 1(c)</action_description>
+<action_postfix>
+result.taxable_income allocate
+0.0 allocate
+{ 0 local@ bracket_1_rate f* 1 local! }
+{
+  bracket_1_single bracket_1_rate f* 1 local!
+  { 0 local@ bracket_1_single f- bracket_2_rate f* 1 local@ f+ 1 local! }
+  {
+    bracket_2_single bracket_1_single f- bracket_2_rate f* 1 local@ f+ 1 local!
+    { 0 local@ bracket_2_single f- bracket_3_rate f* 1 local@ f+ 1 local! }
+    {
+      bracket_3_single bracket_2_single f- bracket_3_rate f* 1 local@ f+ 1 local!
+      { 0 local@ bracket_3_single f- bracket_4_rate f* 1 local@ f+ 1 local! }
+      { bracket_4_single bracket_3_single f- bracket_4_rate f* 1 local@ f+ 1 local!
+        0 local@ bracket_4_single f- bracket_5_rate f* 1 local@ f+ 1 local! }
+      0 local@ bracket_4_single &lt;= ifelse
+    }
+    0 local@ bracket_3_single &lt;= ifelse
+  }
+  0 local@ bracket_2_single &lt;= ifelse
+}
+0 local@ bracket_1_single &lt;= ifelse
+1 local@ /result.regular_tax xdef
+deallocate pop deallocate pop
+"  Line 16 - Regular Tax (Single brackets): $" result.regular_tax cvs strconcat " per IRC 1(c)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Tax calculated using MFJ brackets per IRC 1(a), Form 1040 Line 16</policy_description>
+<policy_statement_postfix>"Tax calculated using MFJ brackets per IRC 1(a), Form 1040 Line 16"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Tax calculated using Single brackets per IRC 1(c), Form 1040 Line 16</policy_description>
+<policy_statement_postfix>"Tax calculated using Single brackets per IRC 1(c), Form 1040 Line 16"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 6: Calculate_Credits                                            -->
+<!-- IRS Reference: Form 1040 Lines 19-21, Schedule 8812                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Credits</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24.</COMMENTS>
+<TABLE_NUMBER>6000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize credit totals</action_description>
+<action_postfix>
+0.0 /result.total_ctc xdef
+0.0 /result.total_odc xdef
+0.0 /result.total_actc xdef
+0.0 /result.total_credits xdef
+"CREDITS (Form 1040 Lines 19-21)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always process credits</condition_comment>
+<condition_description>perform when called</condition_description>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate child tax credits for all dependents</action_comment>
+<action_description>Calculate_Child_Tax_Credit</action_description>
+<action_postfix>
+Calculate_Child_Tax_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Sum total credits</action_comment>
+<action_description>Calculate total credits</action_description>
+<action_postfix>
+result.total_ctc result.total_odc f+ /result.total_credits xdef
+"  Total Child Tax Credit: $" result.total_ctc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
+"  Total Other Dependent Credit: $" result.total_odc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
+"  Total Credits: $" result.total_credits cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 6a: Calculate_Child_Tax_Credit                                  -->
+<!-- IRS Reference: Schedule 8812, Publication 972, IRC 24                 -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Child_Tax_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Child Tax Credit (CTC) and Other Dependent Credit (ODC) per Schedule 8812, Publication 972, IRC Section 24. CTC requires child under 17 with SSN. ODC is $500 for dependents who dont qualify for CTC.</COMMENTS>
+<TABLE_NUMBER>6100</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each dependent</context_comment>
+<context_description>for all dependents</context_description>
+<context_postfix>
+job.dependents dup forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is a qualifying child (relationship)</condition_comment>
+<condition_description>dependent.relationship equals child</condition_description>
+<condition_postfix>
+dependent.relationship "child" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Under age 17 at end of year</condition_comment>
+<condition_description>dependent.age less than ctc_age_limit</condition_description>
+<condition_postfix>
+dependent.age ctc_age_limit &lt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has valid SSN</condition_comment>
+<condition_description>dependent.has_ssn equals true</condition_description>
+<condition_postfix>
+dependent.has_ssn true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Award Child Tax Credit</action_comment>
+<action_description>Award $2,000 CTC per IRC 24(a)</action_description>
+<action_postfix>
+true /dependent.qualifies_for_ctc xdef
+ctc_amount /dependent.ctc_amount xdef
+dependent.ctc_amount result.total_ctc f+ /result.total_ctc xdef
+"  Child Tax Credit for " dependent.name strconcat " (age " strconcat dependent.age cvs strconcat "): $" strconcat dependent.ctc_amount cvs strconcat job.audit_trail swap addto
+"    Qualifying child under age 17 per IRC 24(c)(1), Schedule 8812 Line 4" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Award Other Dependent Credit (age 17)</action_comment>
+<action_description>Award $500 ODC for dependent age 17+ per IRC 24(h)(4)</action_description>
+<action_postfix>
+true /dependent.qualifies_for_odc xdef
+odc_amount /dependent.odc_amount xdef
+dependent.odc_amount result.total_odc f+ /result.total_odc xdef
+"  Other Dependent Credit for " dependent.name strconcat " (age " strconcat dependent.age cvs strconcat "): $" strconcat dependent.odc_amount cvs strconcat job.audit_trail swap addto
+"    Does not meet under-17 requirement for CTC per IRC 24(c)(1)" job.audit_trail swap addto
+"    $500 ODC allowed per IRC 24(h)(4), Schedule 8812 Part II-A" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Non-child dependent gets ODC</action_comment>
+<action_description>Award $500 ODC for non-child dependent</action_description>
+<action_postfix>
+true /dependent.qualifies_for_odc xdef
+odc_amount /dependent.odc_amount xdef
+dependent.odc_amount result.total_odc f+ /result.total_odc xdef
+"  Other Dependent Credit for " dependent.name strconcat " (" strconcat dependent.relationship strconcat "): $" strconcat dependent.odc_amount cvs strconcat job.audit_trail swap addto
+"    Not a qualifying child - $500 ODC per IRC 24(h)(4)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Child Tax Credit awarded per IRC 24(a), Schedule 8812</policy_description>
+<policy_statement_postfix>"Child Tax Credit of $2,000 awarded per IRC 24(a), qualifying child under age 17"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Other Dependent Credit for child age 17+ per IRC 24(h)(4)</policy_description>
+<policy_statement_postfix>"Other Dependent Credit of $500 per IRC 24(h)(4) - dependent age 17, does not qualify for CTC"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Other Dependent Credit for non-child dependent per IRC 24(h)(4)</policy_description>
+<policy_statement_postfix>"Other Dependent Credit of $500 per IRC 24(h)(4) - non-child dependent"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 7: Calculate_Final_Balance                                      -->
+<!-- IRS Reference: Form 1040 Lines 33-37                                  -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Final_Balance</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates final tax balance - total tax minus credits and payments to determine refund or amount owed per Form 1040 Lines 33-37.</COMMENTS>
+<TABLE_NUMBER>7000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Calculate total tax after credits</action_description>
+<action_postfix>
+"FINAL CALCULATION (Form 1040 Lines 33-37)" job.audit_trail swap addto
+result.total_tax_before_credits result.total_credits f- /result.total_tax xdef
+{ 0.0 /result.total_tax xdef } result.total_tax 0 &lt; if
+"  Line 24 - Total Tax: $" result.total_tax cvs strconcat job.audit_trail swap addto
+"  Line 33 - Total Payments: $" result.total_payments cvs strconcat job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Payments exceed tax (refund)</condition_comment>
+<condition_description>result.total_payments greater than result.total_tax</condition_description>
+<condition_postfix>
+result.total_payments result.total_tax >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate refund</action_comment>
+<action_description>Calculate refund amount (Line 34)</action_description>
+<action_postfix>
+result.total_payments result.total_tax f- /result.refund_or_owed xdef
+"  Line 34 - REFUND: $" result.refund_or_owed cvs strconcat job.audit_trail swap addto
+"Form 1098" result.form_references swap addto
+"Form W-2" result.form_references swap addto
+"Schedule C" result.form_references swap addto
+"Schedule E" result.form_references swap addto
+"Schedule SE" result.form_references swap addto
+"Schedule 8812" result.form_references swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate amount owed</action_comment>
+<action_description>Calculate amount owed (Line 37)</action_description>
+<action_postfix>
+result.total_tax result.total_payments f- fnegate /result.refund_or_owed xdef
+"  Line 37 - AMOUNT OWED: $" result.total_tax result.total_payments f- cvs strconcat job.audit_trail swap addto
+"Form 1098" result.form_references swap addto
+"Form W-2" result.form_references swap addto
+"Schedule C" result.form_references swap addto
+"Schedule E" result.form_references swap addto
+"Schedule SE" result.form_references swap addto
+"Schedule 8812" result.form_references swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Taxpayer due refund per Form 1040 Line 34</policy_description>
+<policy_statement_postfix>"Taxpayer due refund per Form 1040 Line 34"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Taxpayer owes additional tax per Form 1040 Line 37</policy_description>
+<policy_statement_postfix>"Taxpayer owes additional tax per Form 1040 Line 37"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+</decision_tables>
