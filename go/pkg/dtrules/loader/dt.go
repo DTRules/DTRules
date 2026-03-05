@@ -103,15 +103,15 @@ type DTContextDetail struct {
 
 // DTInitialActions represents the initial actions section
 type DTInitialActions struct {
-	Actions []DTInitialAction `xml:"initial_action_details"`
+	Actions []DTInitialAction `xml:"initial_action"`
 }
 
 // DTInitialAction represents a single initial action
 type DTInitialAction struct {
-	Number      int    `xml:"initial_action_number"`
-	Comment     string `xml:"initial_action_comment"`
-	Description string `xml:"initial_action_description"`
-	Postfix     string `xml:"initial_action_postfix"`
+	Number      int    `xml:"action_number"`
+	Comment     string `xml:"action_comment"`
+	Description string `xml:"action_description"`
+	Postfix     string `xml:"action_postfix"`
 }
 
 // DTConditions represents the conditions section
