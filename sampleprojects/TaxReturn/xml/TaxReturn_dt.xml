@@ -375,7 +375,7 @@ taxpayer.w2_withholding result.total_payments f+ /result.total_payments xdef
 <context_comment>Process each self-employed taxpayer</context_comment>
 <context_description>for all taxpayers whose is_self_employed equals true</context_description>
 <context_postfix>
-{ { /Process_Self_Employment executetable } taxpayer.is_self_employed true beq if } job.taxpayers forall
+{ Filter_Self_Employed_Taxpayer performaliased } job.taxpayers forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -497,7 +497,7 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 <context_comment>Process vehicles for current taxpayer</context_comment>
 <context_description>for all vehicles where taxpayer_id matches current taxpayer</context_description>
 <context_postfix>
-{ dup taxpayer_id taxpayer.id == if } job.vehicles forall pop
+{ Filter_Taxpayer_Vehicle performaliased } job.vehicles forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -598,7 +598,7 @@ vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 <context_comment>Process each rental property</context_comment>
 <context_description>for all properties where type equals rental</context_description>
 <context_postfix>
-{ dup type "rental" streq if } job.properties forall pop
+{ Filter_Rental_Property performaliased } job.properties forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -1028,7 +1028,9 @@ Calculate_Charitable_Deduction
 <context_comment>Calculate property taxes from primary residence</context_comment>
 <context_description>local double property_tax_total = sum of property_taxes from primary residence properties</context_description>
 <context_postfix>
-0.0 { { property_taxes f+ } { pop } dup type "primary_residence" streq ifelse } job.properties forall cve allocate execute deallocate pop
+0.0 allocate
+{ Sum_Primary_Residence_Tax performaliased } job.properties forall
+0 local@ cve deallocate pop
 </context_postfix>
 </context_details>
 </contexts>
@@ -1095,6 +1097,54 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 </decision_table>
 
 <!-- ====================================================================== -->
+<!-- TABLE 3b1a: Sum_Primary_Residence_Tax                                  -->
+<!-- Helper for SALT calculation - adds property tax if primary residence   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Sum_Primary_Residence_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table for SALT calculation. Adds property tax to running total if property is primary residence.</COMMENTS>
+<TABLE_NUMBER>3215</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property is primary residence</condition_comment>
+<condition_description>property.type equals primary_residence</condition_description>
+<condition_postfix>
+type "primary_residence" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add property tax to total</action_comment>
+<action_description>Add property_taxes to running total</action_description>
+<action_postfix>
+property_taxes 0 local@ f+ 0 local!
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-primary residence</action_comment>
+<action_description>Not a primary residence - skip</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 3b2: Calculate_Mortgage_Interest                                -->
 <!-- IRS Reference: Schedule A Lines 8a-8e, Publication 936, IRC 163(h)    -->
 <!-- ====================================================================== -->
@@ -1112,7 +1162,7 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <context_comment>Process primary residence properties</context_comment>
 <context_description>for all properties where type equals primary_residence</context_description>
 <context_postfix>
-{ dup type "primary_residence" streq if } job.properties forall pop
+{ Filter_Primary_Residence performaliased } job.properties forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -1188,6 +1238,54 @@ property.mortgage_interest_deductible result.total_itemized f+ /result.total_ite
 </decision_table>
 
 <!-- ====================================================================== -->
+<!-- TABLE 3b2a: Filter_Primary_Residence                                   -->
+<!-- Helper for mortgage interest - processes only primary residences       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Filter_Primary_Residence</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that processes property if it is a primary residence.</COMMENTS>
+<TABLE_NUMBER>3221</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property is primary residence</condition_comment>
+<condition_description>property.type equals primary_residence</condition_description>
+<condition_postfix>
+type "primary_residence" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process primary residence</action_comment>
+<action_description>Continue processing this property</action_description>
+<action_postfix>
+Calculate_Mortgage_Interest_For_Property
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-primary residence</action_comment>
+<action_description>Not a primary residence - skip</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 3b3: Calculate_Charitable_Deduction                             -->
 <!-- IRS Reference: Schedule A Lines 11-14, Publication 526, IRC 170       -->
 <!-- ====================================================================== -->
@@ -1205,7 +1303,7 @@ property.mortgage_interest_deductible result.total_itemized f+ /result.total_ite
 <context_comment>Process charitable deductions</context_comment>
 <context_description>for all deductions where category equals charity</context_description>
 <context_postfix>
-{ dup category "charity" streq if } job.deductions forall pop
+{ Filter_Charity_Deduction performaliased } job.deductions forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -1241,6 +1339,56 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 <policy_statement_postfix>"Charitable contribution allowed per IRC 170, Publication 526"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 3b3a: Filter_Charity_Deduction                                   -->
+<!-- Helper for charitable deduction - processes only charity category      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Filter_Charity_Deduction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that processes deduction if category is charity.</COMMENTS>
+<TABLE_NUMBER>3231</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Deduction is charity category</condition_comment>
+<condition_description>deduction.category equals charity</condition_description>
+<condition_postfix>
+category "charity" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process charity deduction</action_comment>
+<action_description>Add to itemized deductions</action_description>
+<action_postfix>
+amount /deduction.allowed_amount xdef
+deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
+"  Charitable Contribution: $" amount cvs strconcat " - " strconcat description strconcat " (Schedule A Line 11, IRC 170)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-charity deduction</action_comment>
+<action_description>Not a charity deduction - skip</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -1293,11 +1441,10 @@ result.total_se_income qbi_rate f* /result.qbi_deduction xdef
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate taxable income</action_comment>
-<action_description>Calculate taxable income (AGI - deductions - QBI)</action_description>
+<action_comment>Calculate taxable income (floor at zero)</action_comment>
+<action_description>Calculate taxable income (AGI - deductions - QBI), minimum zero</action_description>
 <action_postfix>
-result.agi result.total_deduction f- result.qbi_deduction f- /result.taxable_income xdef
-{ 0.0 /result.taxable_income xdef } result.taxable_income 0 &lt; if
+result.agi result.total_deduction f- result.qbi_deduction f- 0.0 fmax /result.taxable_income xdef
 "  Line 15 - Taxable Income: $" result.taxable_income cvs strconcat " per Form 1040 Line 15" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -1422,29 +1569,7 @@ otherwise
 <action_comment>Calculate MFJ tax</action_comment>
 <action_description>Apply MFJ tax brackets per IRC 1(a)</action_description>
 <action_postfix>
-result.taxable_income allocate
-0.0 allocate
-{ 0 local@ bracket_1_rate f* 1 local! }
-{
-  bracket_1_mfj bracket_1_rate f* 1 local!
-  { 0 local@ bracket_1_mfj f- bracket_2_rate f* 1 local@ f+ 1 local! }
-  {
-    bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* 1 local@ f+ 1 local!
-    { 0 local@ bracket_2_mfj f- bracket_3_rate f* 1 local@ f+ 1 local! }
-    {
-      bracket_3_mfj bracket_2_mfj f- bracket_3_rate f* 1 local@ f+ 1 local!
-      { 0 local@ bracket_3_mfj f- bracket_4_rate f* 1 local@ f+ 1 local! }
-      { bracket_4_mfj bracket_3_mfj f- bracket_4_rate f* 1 local@ f+ 1 local!
-        0 local@ bracket_4_mfj f- bracket_5_rate f* 1 local@ f+ 1 local! }
-      0 local@ bracket_4_mfj &lt;= ifelse
-    }
-    0 local@ bracket_3_mfj &lt;= ifelse
-  }
-  0 local@ bracket_2_mfj &lt;= ifelse
-}
-0 local@ bracket_1_mfj &lt;= ifelse
-1 local@ /result.regular_tax xdef
-deallocate pop deallocate pop
+Apply_Tax_Brackets_MFJ
 "  Line 16 - Regular Tax (MFJ brackets): $" result.regular_tax cvs strconcat " per IRC 1(a)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -1454,29 +1579,7 @@ deallocate pop deallocate pop
 <action_comment>Calculate Single tax</action_comment>
 <action_description>Apply Single tax brackets per IRC 1(c)</action_description>
 <action_postfix>
-result.taxable_income allocate
-0.0 allocate
-{ 0 local@ bracket_1_rate f* 1 local! }
-{
-  bracket_1_single bracket_1_rate f* 1 local!
-  { 0 local@ bracket_1_single f- bracket_2_rate f* 1 local@ f+ 1 local! }
-  {
-    bracket_2_single bracket_1_single f- bracket_2_rate f* 1 local@ f+ 1 local!
-    { 0 local@ bracket_2_single f- bracket_3_rate f* 1 local@ f+ 1 local! }
-    {
-      bracket_3_single bracket_2_single f- bracket_3_rate f* 1 local@ f+ 1 local!
-      { 0 local@ bracket_3_single f- bracket_4_rate f* 1 local@ f+ 1 local! }
-      { bracket_4_single bracket_3_single f- bracket_4_rate f* 1 local@ f+ 1 local!
-        0 local@ bracket_4_single f- bracket_5_rate f* 1 local@ f+ 1 local! }
-      0 local@ bracket_4_single &lt;= ifelse
-    }
-    0 local@ bracket_3_single &lt;= ifelse
-  }
-  0 local@ bracket_2_single &lt;= ifelse
-}
-0 local@ bracket_1_single &lt;= ifelse
-1 local@ /result.regular_tax xdef
-deallocate pop deallocate pop
+Apply_Tax_Brackets_Single
 "  Line 16 - Regular Tax (Single brackets): $" result.regular_tax cvs strconcat " per IRC 1(c)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -1492,6 +1595,270 @@ deallocate pop deallocate pop
 <policy_statement_postfix>"Tax calculated using Single brackets per IRC 1(c), Form 1040 Line 16"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 5a1: Apply_Tax_Brackets_MFJ                                      -->
+<!-- IRS Reference: IRC 1(a) - Married Filing Jointly brackets             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_Tax_Brackets_MFJ</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates regular tax using MFJ brackets. Each column represents a bracket range.</COMMENTS>
+<TABLE_NUMBER>5110</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>In bracket 1 only</condition_comment>
+<condition_description>taxable_income at or below bracket_1_mfj</condition_description>
+<condition_postfix>
+result.taxable_income bracket_1_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>In bracket 2</condition_comment>
+<condition_description>taxable_income at or below bracket_2_mfj</condition_description>
+<condition_postfix>
+result.taxable_income bracket_2_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>In bracket 3</condition_comment>
+<condition_description>taxable_income at or below bracket_3_mfj</condition_description>
+<condition_postfix>
+result.taxable_income bracket_3_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>In bracket 4</condition_comment>
+<condition_description>taxable_income at or below bracket_4_mfj</condition_description>
+<condition_postfix>
+result.taxable_income bracket_4_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 1 tax</action_comment>
+<action_description>Income taxed at bracket_1_rate only</action_description>
+<action_postfix>
+result.taxable_income bracket_1_rate f* /result.regular_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 2 tax</action_comment>
+<action_description>Full bracket 1 + partial bracket 2</action_description>
+<action_postfix>
+bracket_1_mfj bracket_1_rate f*
+result.taxable_income bracket_1_mfj f- bracket_2_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 3 tax</action_comment>
+<action_description>Full brackets 1-2 + partial bracket 3</action_description>
+<action_postfix>
+bracket_1_mfj bracket_1_rate f*
+bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* f+
+result.taxable_income bracket_2_mfj f- bracket_3_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 4 tax</action_comment>
+<action_description>Full brackets 1-3 + partial bracket 4</action_description>
+<action_postfix>
+bracket_1_mfj bracket_1_rate f*
+bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* f+
+bracket_3_mfj bracket_2_mfj f- bracket_3_rate f* f+
+result.taxable_income bracket_3_mfj f- bracket_4_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5 tax</action_comment>
+<action_description>Full brackets 1-4 + partial bracket 5</action_description>
+<action_postfix>
+bracket_1_mfj bracket_1_rate f*
+bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* f+
+bracket_3_mfj bracket_2_mfj f- bracket_3_rate f* f+
+bracket_4_mfj bracket_3_mfj f- bracket_4_rate f* f+
+result.taxable_income bracket_4_mfj f- bracket_5_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 5a2: Apply_Tax_Brackets_Single                                   -->
+<!-- IRS Reference: IRC 1(c) - Single filer brackets                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_Tax_Brackets_Single</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates regular tax using Single brackets. Each column represents a bracket range.</COMMENTS>
+<TABLE_NUMBER>5120</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>In bracket 1 only</condition_comment>
+<condition_description>taxable_income at or below bracket_1_single</condition_description>
+<condition_postfix>
+result.taxable_income bracket_1_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>In bracket 2</condition_comment>
+<condition_description>taxable_income at or below bracket_2_single</condition_description>
+<condition_postfix>
+result.taxable_income bracket_2_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>In bracket 3</condition_comment>
+<condition_description>taxable_income at or below bracket_3_single</condition_description>
+<condition_postfix>
+result.taxable_income bracket_3_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>In bracket 4</condition_comment>
+<condition_description>taxable_income at or below bracket_4_single</condition_description>
+<condition_postfix>
+result.taxable_income bracket_4_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 1 tax</action_comment>
+<action_description>Income taxed at bracket_1_rate only</action_description>
+<action_postfix>
+result.taxable_income bracket_1_rate f* /result.regular_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 2 tax</action_comment>
+<action_description>Full bracket 1 + partial bracket 2</action_description>
+<action_postfix>
+bracket_1_single bracket_1_rate f*
+result.taxable_income bracket_1_single f- bracket_2_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 3 tax</action_comment>
+<action_description>Full brackets 1-2 + partial bracket 3</action_description>
+<action_postfix>
+bracket_1_single bracket_1_rate f*
+bracket_2_single bracket_1_single f- bracket_2_rate f* f+
+result.taxable_income bracket_2_single f- bracket_3_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 4 tax</action_comment>
+<action_description>Full brackets 1-3 + partial bracket 4</action_description>
+<action_postfix>
+bracket_1_single bracket_1_rate f*
+bracket_2_single bracket_1_single f- bracket_2_rate f* f+
+bracket_3_single bracket_2_single f- bracket_3_rate f* f+
+result.taxable_income bracket_3_single f- bracket_4_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5 tax</action_comment>
+<action_description>Full brackets 1-4 + partial bracket 5</action_description>
+<action_postfix>
+bracket_1_single bracket_1_rate f*
+bracket_2_single bracket_1_single f- bracket_2_rate f* f+
+bracket_3_single bracket_2_single f- bracket_3_rate f* f+
+bracket_4_single bracket_3_single f- bracket_4_rate f* f+
+result.taxable_income bracket_4_single f- bracket_5_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -1709,27 +2076,58 @@ dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 <action_postfix>
 "FINAL CALCULATION (Form 1040 Lines 33-37)" job.audit_trail swap addto
 result.total_tax_before_credits result.total_credits f- /result.total_tax xdef
-{ 0.0 /result.total_tax xdef } result.total_tax 0 &lt; if
-"  Line 24 - Total Tax: $" result.total_tax cvs strconcat job.audit_trail swap addto
-"  Line 33 - Total Payments: $" result.total_payments cvs strconcat job.audit_trail swap addto
 </action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
+<condition_comment>Total tax is negative (floor at zero)</condition_comment>
+<condition_description>result.total_tax less than 0</condition_description>
+<condition_postfix>
+result.total_tax 0 &lt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
 <condition_comment>Payments exceed tax (refund)</condition_comment>
 <condition_description>result.total_payments greater than result.total_tax</condition_description>
 <condition_postfix>
 result.total_payments result.total_tax >
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
+<action_comment>Floor total tax at zero</action_comment>
+<action_description>Set total tax to zero when negative (credits exceed tax)</action_description>
+<action_postfix>
+0.0 /result.total_tax xdef
+"  Total Tax floored at $0 (credits exceeded tax liability)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Log total tax and payments</action_comment>
+<action_description>Log tax summary to audit trail</action_description>
+<action_postfix>
+"  Line 24 - Total Tax: $" result.total_tax cvs strconcat job.audit_trail swap addto
+"  Line 33 - Total Payments: $" result.total_payments cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>Calculate refund</action_comment>
 <action_description>Calculate refund amount (Line 34)</action_description>
 <action_postfix>
@@ -1743,14 +2141,15 @@ result.total_payments result.total_tax f- /result.refund_or_owed xdef
 "Schedule 8812" result.form_references swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>2</action_number>
+<action_number>4</action_number>
 <action_comment>Calculate amount owed</action_comment>
 <action_description>Calculate amount owed (Line 37)</action_description>
 <action_postfix>
-result.total_tax result.total_payments f- fnegate /result.refund_or_owed xdef
-"  Line 37 - AMOUNT OWED: $" result.total_tax result.total_payments f- cvs strconcat job.audit_trail swap addto
+result.total_tax result.total_payments f- /result.refund_or_owed xdef
+"  Line 37 - AMOUNT OWED: $" result.refund_or_owed cvs strconcat job.audit_trail swap addto
 "Form 1098" result.form_references swap addto
 "Form W-2" result.form_references swap addto
 "Schedule C" result.form_references swap addto
@@ -1758,15 +2157,19 @@ result.total_tax result.total_payments f- fnegate /result.refund_or_owed xdef
 "Schedule SE" result.form_references swap addto
 "Schedule 8812" result.form_references swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
+<policy_description>Credits exceed tax - total tax floored at zero, refund due</policy_description>
+<policy_statement_postfix>"Credits exceed tax - total tax floored at zero, refund due"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
 <policy_description>Taxpayer due refund per Form 1040 Line 34</policy_description>
 <policy_statement_postfix>"Taxpayer due refund per Form 1040 Line 34"</policy_statement_postfix>
 </policy_statement>
-<policy_statement column="2">
+<policy_statement column="3">
 <policy_description>Taxpayer owes additional tax per Form 1040 Line 37</policy_description>
 <policy_statement_postfix>"Taxpayer owes additional tax per Form 1040 Line 37"</policy_statement_postfix>
 </policy_statement>
@@ -1791,7 +2194,7 @@ result.total_tax result.total_payments f- fnegate /result.refund_or_owed xdef
 <action_description>Count qualifying children for EITC</action_description>
 <action_postfix>
 0 allocate
-{ { 0 local@ 1 + 0 local! } dependent.relationship "child" streq dependent.age 19 &lt; and if } job.dependents forall
+{ Count_EITC_Qualifying_Child performaliased } job.dependents forall
 0 local@ /result.eitc_qualifying_children xdef
 deallocate pop
 </action_postfix>
@@ -1809,123 +2212,239 @@ result.total_w2_wages result.total_se_income f+ 0 &gt;
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="Y"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>AGI within limits</condition_comment>
-<condition_description>AGI less than EITC income limit</condition_description>
-<condition_postfix>
-result.agi eitc_limit_mfj_3 &lt;=
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Number of qualifying children</condition_comment>
-<condition_description>EITC qualifying children count</condition_description>
+<condition_comment>3+ qualifying children</condition_comment>
+<condition_description>EITC qualifying children 3 or more</condition_description>
 <condition_postfix>
 result.eitc_qualifying_children 3 &gt;=
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
 </condition_details>
 <condition_details>
-<condition_number>4</condition_number>
+<condition_number>3</condition_number>
 <condition_comment>2 qualifying children</condition_comment>
 <condition_description>EITC qualifying children equals 2</condition_description>
 <condition_postfix>
 result.eitc_qualifying_children 2 ==
 </condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
 </condition_details>
 <condition_details>
-<condition_number>5</condition_number>
+<condition_number>4</condition_number>
 <condition_comment>1 qualifying child</condition_comment>
 <condition_description>EITC qualifying children equals 1</condition_description>
 <condition_postfix>
 result.eitc_qualifying_children 1 ==
 </condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
 </condition_details>
 <condition_details>
-<condition_number>6</condition_number>
-<condition_comment>No qualifying children</condition_comment>
+<condition_number>5</condition_number>
+<condition_comment>0 qualifying children</condition_comment>
 <condition_description>EITC qualifying children equals 0</condition_description>
 <condition_postfix>
 result.eitc_qualifying_children 0 ==
 </condition_postfix>
-<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>AGI below phase-out threshold (3+ children)</condition_comment>
+<condition_description>AGI at or below threshold for 3+ children</condition_description>
+<condition_postfix>
+result.agi eitc_threshold_mfj_3 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+<condition_column column_number="8" column_value="-"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>AGI below phase-out threshold (2 children)</condition_comment>
+<condition_description>AGI at or below threshold for 2 children</condition_description>
+<condition_postfix>
+result.agi eitc_threshold_mfj_2 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+<condition_column column_number="8" column_value="-"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>AGI below phase-out threshold (1 child)</condition_comment>
+<condition_description>AGI at or below threshold for 1 child</condition_description>
+<condition_postfix>
+result.agi eitc_threshold_mfj_1 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+<condition_column column_number="8" column_value="-"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>9</condition_number>
+<condition_comment>AGI below phase-out threshold (0 children)</condition_comment>
+<condition_description>AGI at or below threshold for 0 children</condition_description>
+<condition_postfix>
+result.agi eitc_threshold_mfj_0 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+<condition_column column_number="9" column_value="-"></condition_column>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate EITC with 3+ children</action_comment>
-<action_description>Calculate EITC for 3+ qualifying children per IRC 32</action_description>
+<action_comment>EITC 3+ children - full amount</action_comment>
+<action_description>Maximum EITC for 3+ qualifying children per IRC 32</action_description>
 <action_postfix>
-result.agi eitc_threshold_mfj_3 &lt;=
-{ eitc_max_3_children }
-{ eitc_max_3_children result.agi eitc_threshold_mfj_3 f- 0.2106 f* f- 0 fmax }
-ifelse
-/result.eitc xdef
-"  EITC (3+ children): $" result.eitc cvs strconcat " per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+eitc_max_3_children /result.eitc xdef
+"  EITC (3+ children): $" result.eitc cvs strconcat " (maximum) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate EITC with 2 children</action_comment>
-<action_description>Calculate EITC for 2 qualifying children per IRC 32</action_description>
+<action_comment>EITC 3+ children - phase-out</action_comment>
+<action_description>EITC for 3+ children with phase-out per IRC 32</action_description>
 <action_postfix>
-result.agi eitc_threshold_mfj_2 &lt;=
-{ eitc_max_2_children }
-{ eitc_max_2_children result.agi eitc_threshold_mfj_2 f- 0.2106 f* f- 0 fmax }
-ifelse
-/result.eitc xdef
-"  EITC (2 children): $" result.eitc cvs strconcat " per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+eitc_max_3_children result.agi eitc_threshold_mfj_3 f- 0.2106 f* f- 0 fmax /result.eitc xdef
+"  EITC (3+ children): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate EITC with 1 child</action_comment>
-<action_description>Calculate EITC for 1 qualifying child per IRC 32</action_description>
+<action_comment>EITC 2 children - full amount</action_comment>
+<action_description>Maximum EITC for 2 qualifying children per IRC 32</action_description>
 <action_postfix>
-result.agi eitc_threshold_mfj_1 &lt;=
-{ eitc_max_1_child }
-{ eitc_max_1_child result.agi eitc_threshold_mfj_1 f- 0.1598 f* f- 0 fmax }
-ifelse
-/result.eitc xdef
-"  EITC (1 child): $" result.eitc cvs strconcat " per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+eitc_max_2_children /result.eitc xdef
+"  EITC (2 children): $" result.eitc cvs strconcat " (maximum) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate EITC with no children</action_comment>
-<action_description>Calculate EITC for 0 qualifying children per IRC 32</action_description>
+<action_comment>EITC 2 children - phase-out</action_comment>
+<action_description>EITC for 2 children with phase-out per IRC 32</action_description>
 <action_postfix>
-result.agi eitc_threshold_mfj_0 &lt;=
-{ eitc_max_0_children }
-{ eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 f* f- 0 fmax }
-ifelse
-/result.eitc xdef
-"  EITC (0 children): $" result.eitc cvs strconcat " per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+eitc_max_2_children result.agi eitc_threshold_mfj_2 f- 0.2106 f* f- 0 fmax /result.eitc xdef
+"  EITC (2 children): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>5</action_number>
+<action_comment>EITC 1 child - full amount</action_comment>
+<action_description>Maximum EITC for 1 qualifying child per IRC 32</action_description>
+<action_postfix>
+eitc_max_1_child /result.eitc xdef
+"  EITC (1 child): $" result.eitc cvs strconcat " (maximum) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>EITC 1 child - phase-out</action_comment>
+<action_description>EITC for 1 child with phase-out per IRC 32</action_description>
+<action_postfix>
+eitc_max_1_child result.agi eitc_threshold_mfj_1 f- 0.1598 f* f- 0 fmax /result.eitc xdef
+"  EITC (1 child): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>EITC 0 children - full amount</action_comment>
+<action_description>Maximum EITC for 0 qualifying children per IRC 32</action_description>
+<action_postfix>
+eitc_max_0_children /result.eitc xdef
+"  EITC (0 children): $" result.eitc cvs strconcat " (maximum) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>EITC 0 children - phase-out</action_comment>
+<action_description>EITC for 0 children with phase-out per IRC 32</action_description>
+<action_postfix>
+eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 f* f- 0 fmax /result.eitc xdef
+"  EITC (0 children): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
 <action_comment>No EITC - no earned income</action_comment>
 <action_description>No EITC due to no earned income</action_description>
 <action_postfix>
 0.0 /result.eitc xdef
 "  EITC: $0 - No earned income" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="5" column_value="X"></action_column>
+<action_column column_number="9" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -1946,29 +2465,10 @@ ifelse
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Calculate education credits for all college students</action_description>
+<action_description>Initialize education credit and process dependents</action_description>
 <action_postfix>
 0.0 /result.education_credit xdef
-{
-  {
-    {
-      dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
-      { dependent.education_credit aotc_phase_out_end_mfj result.agi f- aotc_phase_out_end_mfj aotc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef } result.agi aotc_phase_out_mfj &gt; if
-      dependent.education_credit result.education_credit f+ /result.education_credit xdef
-      "  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
-    }
-    {
-      dependent.qualified_expenses 0.20 f* llc_max fmin /dependent.education_credit xdef
-      { dependent.education_credit llc_phase_out_end_mfj result.agi f- llc_phase_out_end_mfj llc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef } result.agi llc_phase_out_mfj &gt; if
-      dependent.education_credit result.education_credit f+ /result.education_credit xdef
-      "  LLC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " per Form 8863, IRC 25A(c)" strconcat job.audit_trail swap addto
-    }
-    dependent.college_year 1 &gt;= dependent.college_year 4 &lt;= and dependent.aotc_used_years 4 &lt; and result.agi aotc_phase_out_end_mfj &lt; and
-    ifelse
-  }
-  dependent.is_college_student true beq
-  if
-} job.dependents forall
+{ Calculate_Education_Credit_Per_Dependent performaliased } job.dependents forall
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -1995,6 +2495,155 @@ perform when called
 </action_details>
 </actions>
 <policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 6d: Calculate_Education_Credit_Per_Dependent                    -->
+<!-- IRS Reference: Form 8863, Publication 970, IRC 25A                     -->
+<!-- Called by Calculate_Education_Credits for each dependent               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Education_Credit_Per_Dependent</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates education credit for a single dependent. Determines AOTC vs LLC eligibility and applies phase-out. Called by forall loop in Calculate_Education_Credits.</COMMENTS>
+<TABLE_NUMBER>6310</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is college student</condition_comment>
+<condition_description>dependent.is_college_student equals true</condition_description>
+<condition_postfix>
+dependent.is_college_student true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Eligible for AOTC (years 1-4, not exhausted)</condition_comment>
+<condition_description>college_year 1-4 AND aotc_used_years less than 4</condition_description>
+<condition_postfix>
+dependent.college_year 1 &gt;= dependent.college_year 4 &lt;= and dependent.aotc_used_years 4 &lt; and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>AGI in AOTC phase-out range</condition_comment>
+<condition_description>result.agi greater than aotc_phase_out_mfj</condition_description>
+<condition_postfix>
+result.agi aotc_phase_out_mfj &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>AGI in LLC phase-out range</condition_comment>
+<condition_description>result.agi greater than llc_phase_out_mfj</condition_description>
+<condition_postfix>
+result.agi llc_phase_out_mfj &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate AOTC (full amount)</action_comment>
+<action_description>AOTC: 100% of first $2000 + 25% of next $2000</action_description>
+<action_postfix>
+dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
+dependent.education_credit result.education_credit f+ /result.education_credit xdef
+"  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate AOTC with phase-out</action_comment>
+<action_description>AOTC with AGI phase-out reduction</action_description>
+<action_postfix>
+dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
+dependent.education_credit aotc_phase_out_end_mfj result.agi f- aotc_phase_out_end_mfj aotc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef
+dependent.education_credit result.education_credit f+ /result.education_credit xdef
+"  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " (phase-out applied) per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate LLC (full amount)</action_comment>
+<action_description>LLC: 20% of qualified expenses up to $2000</action_description>
+<action_postfix>
+dependent.qualified_expenses 0.20 f* llc_max fmin /dependent.education_credit xdef
+dependent.education_credit result.education_credit f+ /result.education_credit xdef
+"  LLC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " per Form 8863, IRC 25A(c)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate LLC with phase-out</action_comment>
+<action_description>LLC with AGI phase-out reduction</action_description>
+<action_postfix>
+dependent.qualified_expenses 0.20 f* llc_max fmin /dependent.education_credit xdef
+dependent.education_credit llc_phase_out_end_mfj result.agi f- llc_phase_out_end_mfj llc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef
+dependent.education_credit result.education_credit f+ /result.education_credit xdef
+"  LLC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " (phase-out applied) per Form 8863, IRC 25A(c)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Not a college student</action_comment>
+<action_description>Skip - dependent is not a college student</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>AOTC credit (full) per Form 8863, IRC 25A(b)</policy_description>
+<policy_statement_postfix>"AOTC credit (full) per Form 8863, IRC 25A(b)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>AOTC credit with phase-out per Form 8863, IRC 25A(d)</policy_description>
+<policy_statement_postfix>"AOTC credit with phase-out per Form 8863, IRC 25A(d)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>LLC credit (full) per Form 8863, IRC 25A(c)</policy_description>
+<policy_statement_postfix>"LLC credit (full) per Form 8863, IRC 25A(c)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>LLC credit with phase-out per Form 8863, IRC 25A(d)</policy_description>
+<policy_statement_postfix>"LLC credit with phase-out per Form 8863, IRC 25A(d)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>No education credit - not a college student</policy_description>
+<policy_statement_postfix>"No education credit - not a college student"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -2096,28 +2745,13 @@ job.expected_agi null neq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Validate all results</action_comment>
-<action_description>Compare calculated vs expected values</action_description>
+<action_comment>Run all validations</action_comment>
+<action_description>Execute validation sub-tables for each field</action_description>
 <action_postfix>
-result.agi job.expected_agi f- fabs 1.0 &gt;
-{ "  FAIL: AGI mismatch - calculated $" result.agi cvs strconcat " vs expected $" strconcat job.expected_agi cvs strconcat job.audit_trail swap addto false /result.validation_passed xdef }
-{ "  PASS: AGI = $" result.agi cvs strconcat job.audit_trail swap addto }
-ifelse
-
-result.taxable_income job.expected_taxable_income f- fabs 1.0 &gt;
-{ "  FAIL: Taxable income mismatch - calculated $" result.taxable_income cvs strconcat " vs expected $" strconcat job.expected_taxable_income cvs strconcat job.audit_trail swap addto false /result.validation_passed xdef }
-{ "  PASS: Taxable Income = $" result.taxable_income cvs strconcat job.audit_trail swap addto }
-ifelse
-
-result.total_tax job.expected_total_tax f- fabs 1.0 &gt;
-{ "  FAIL: Total tax mismatch - calculated $" result.total_tax cvs strconcat " vs expected $" strconcat job.expected_total_tax cvs strconcat job.audit_trail swap addto false /result.validation_passed xdef }
-{ "  PASS: Total Tax = $" result.total_tax cvs strconcat job.audit_trail swap addto }
-ifelse
-
-result.validation_passed
-{ "VALIDATION: ALL TESTS PASSED" job.audit_trail swap addto }
-{ "VALIDATION: SOME TESTS FAILED - Review audit trail" job.audit_trail swap addto }
-ifelse
+Validate_AGI
+Validate_Taxable_Income
+Validate_Total_Tax
+Validate_Summary
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -2127,6 +2761,435 @@ ifelse
 <action_description>Skip validation - no expected values provided</action_description>
 <action_postfix>
 "  No expected values provided - validation skipped" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8a: Validate_AGI                                                 -->
+<!-- Validation sub-table for AGI                                           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Validate_AGI</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch.</COMMENTS>
+<TABLE_NUMBER>8100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>AGI matches expected (within tolerance)</condition_comment>
+<condition_description>AGI difference less than or equal to 1.0</condition_description>
+<condition_postfix>
+result.agi job.expected_agi f- fabs 1.0 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>AGI validation passed</action_comment>
+<action_description>Log AGI pass</action_description>
+<action_postfix>
+"  PASS: AGI = $" result.agi cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>AGI validation failed</action_comment>
+<action_description>Log AGI mismatch and set validation_passed to false</action_description>
+<action_postfix>
+"  FAIL: AGI mismatch - calculated $" result.agi cvs strconcat " vs expected $" strconcat job.expected_agi cvs strconcat job.audit_trail swap addto
+false /result.validation_passed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8b: Validate_Taxable_Income                                      -->
+<!-- Validation sub-table for Taxable Income                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Validate_Taxable_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Validates taxable income against expected value.</COMMENTS>
+<TABLE_NUMBER>8200</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxable income matches expected</condition_comment>
+<condition_description>Taxable income difference less than or equal to 1.0</condition_description>
+<condition_postfix>
+result.taxable_income job.expected_taxable_income f- fabs 1.0 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Taxable income validation passed</action_comment>
+<action_description>Log taxable income pass</action_description>
+<action_postfix>
+"  PASS: Taxable Income = $" result.taxable_income cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Taxable income validation failed</action_comment>
+<action_description>Log taxable income mismatch</action_description>
+<action_postfix>
+"  FAIL: Taxable income mismatch - calculated $" result.taxable_income cvs strconcat " vs expected $" strconcat job.expected_taxable_income cvs strconcat job.audit_trail swap addto
+false /result.validation_passed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8c: Validate_Total_Tax                                           -->
+<!-- Validation sub-table for Total Tax                                     -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Validate_Total_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Validates total tax against expected value.</COMMENTS>
+<TABLE_NUMBER>8300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Total tax matches expected</condition_comment>
+<condition_description>Total tax difference less than or equal to 1.0</condition_description>
+<condition_postfix>
+result.total_tax job.expected_total_tax f- fabs 1.0 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Total tax validation passed</action_comment>
+<action_description>Log total tax pass</action_description>
+<action_postfix>
+"  PASS: Total Tax = $" result.total_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Total tax validation failed</action_comment>
+<action_description>Log total tax mismatch</action_description>
+<action_postfix>
+"  FAIL: Total tax mismatch - calculated $" result.total_tax cvs strconcat " vs expected $" strconcat job.expected_total_tax cvs strconcat job.audit_trail swap addto
+false /result.validation_passed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8d: Validate_Summary                                             -->
+<!-- Validation summary - log overall pass/fail                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Validate_Summary</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Logs overall validation summary.</COMMENTS>
+<TABLE_NUMBER>8400</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>All validations passed</condition_comment>
+<condition_description>result.validation_passed equals true</condition_description>
+<condition_postfix>
+result.validation_passed true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>All tests passed</action_comment>
+<action_description>Log validation success</action_description>
+<action_postfix>
+"VALIDATION: ALL TESTS PASSED" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Some tests failed</action_comment>
+<action_description>Log validation failure</action_description>
+<action_postfix>
+"VALIDATION: SOME TESTS FAILED - Review audit trail" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- HELPER TABLES FOR FILTERING IN FORALL LOOPS                           -->
+<!-- ====================================================================== -->
+
+<!-- Filter_Self_Employed_Taxpayer: Process taxpayer if self-employed -->
+<decision_table>
+<table_name>Filter_Self_Employed_Taxpayer</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that processes taxpayer if self-employed.</COMMENTS>
+<TABLE_NUMBER>9010</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer is self-employed</condition_comment>
+<condition_description>taxpayer.is_self_employed equals true</condition_description>
+<condition_postfix>
+is_self_employed true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process self-employed taxpayer</action_comment>
+<action_description>Execute self-employment processing</action_description>
+<action_postfix>
+/Process_Self_Employment executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-self-employed</action_comment>
+<action_description>Not self-employed - skip</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Filter_Taxpayer_Vehicle: Process vehicle if belongs to current taxpayer -->
+<decision_table>
+<table_name>Filter_Taxpayer_Vehicle</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that processes vehicle if it belongs to current taxpayer.</COMMENTS>
+<TABLE_NUMBER>9020</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Vehicle belongs to current taxpayer</condition_comment>
+<condition_description>vehicle.taxpayer_id equals taxpayer.id</condition_description>
+<condition_postfix>
+taxpayer_id taxpayer.id ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process vehicle</action_comment>
+<action_description>Vehicle belongs to taxpayer - continue processing</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip vehicle</action_comment>
+<action_description>Vehicle does not belong to taxpayer - skip</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Filter_Rental_Property: Process property if type is rental -->
+<decision_table>
+<table_name>Filter_Rental_Property</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that processes property if it is a rental.</COMMENTS>
+<TABLE_NUMBER>9030</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property is rental</condition_comment>
+<condition_description>property.type equals rental</condition_description>
+<condition_postfix>
+type "rental" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process rental</action_comment>
+<action_description>Property is rental - continue processing</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-rental</action_comment>
+<action_description>Property is not rental - skip</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Count_EITC_Qualifying_Child: Count child if qualifies for EITC -->
+<decision_table>
+<table_name>Count_EITC_Qualifying_Child</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that increments counter if dependent is qualifying child for EITC.</COMMENTS>
+<TABLE_NUMBER>9040</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is qualifying child</condition_comment>
+<condition_description>relationship is child AND age under 19</condition_description>
+<condition_postfix>
+relationship "child" streq age 19 &lt; and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Increment counter</action_comment>
+<action_description>Add 1 to qualifying children count</action_description>
+<action_postfix>
+0 local@ 1 + 0 local!
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-qualifying</action_comment>
+<action_description>No action needed</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Calculate_Mortgage_Interest_For_Property: Called by Filter_Primary_Residence -->
+<decision_table>
+<table_name>Calculate_Mortgage_Interest_For_Property</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Processes mortgage interest for a single property. Called by filter table.</COMMENTS>
+<TABLE_NUMBER>9050</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has mortgage interest</condition_comment>
+<condition_description>property.mortgage_interest greater than 0</condition_description>
+<condition_postfix>
+dup mortgage_interest 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process mortgage interest</action_comment>
+<action_description>Add mortgage interest to itemized deductions</action_description>
+<action_postfix>
+dup mortgage_interest result.total_itemized f+ /result.total_itemized xdef
+"  Mortgage Interest: $" over mortgage_interest cvs strconcat " (Schedule A Line 8a)" strconcat job.audit_trail swap addto
+pop
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No mortgage interest</action_comment>
+<action_description>Pop property from stack</action_description>
+<action_postfix>
+pop
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>

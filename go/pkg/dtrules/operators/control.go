@@ -55,6 +55,7 @@ func init() {
 	Register("local!", opLocalStore)
 	Register("ignore", opIgnore)
 	Alias("ignore", "nop")
+	Alias("ignore", "performaliased")
 	Register("executetable", opExecuteTable)
 }
 

@@ -56,6 +56,10 @@ func init() {
 	Register("fnegate", opFNegate)
 
 	Register("roundto", opRoundTo)
+	Register("fmax", opFMax)
+	Register("fmin", opFMin)
+	Register("max", opMax)
+	Register("min", opMin)
 }
 
 // opAdd adds two integers: ( a b -- a+b )
@@ -347,4 +351,94 @@ func opRoundTo(state dtrules.State) error {
 	}
 
 	return state.DataPush(dtrules.GetRDoubleValue(number))
+}
+
+// opFMax returns the maximum of two doubles: ( a b -- max(a,b) )
+func opFMax(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Max(aVal, bVal)))
+}
+
+// opFMin returns the minimum of two doubles: ( a b -- min(a,b) )
+func opFMin(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Min(aVal, bVal)))
+}
+
+// opMax returns the maximum of two integers: ( a b -- max(a,b) )
+func opMax(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.IntValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.IntValue()
+	if err != nil {
+		return err
+	}
+	if aVal > bVal {
+		return state.DataPush(dtrules.GetRIntegerValueFromInt(aVal))
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(bVal))
+}
+
+// opMin returns the minimum of two integers: ( a b -- min(a,b) )
+func opMin(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.IntValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.IntValue()
+	if err != nil {
+		return err
+	}
+	if aVal < bVal {
+		return state.DataPush(dtrules.GetRIntegerValueFromInt(aVal))
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(bVal))
 }
