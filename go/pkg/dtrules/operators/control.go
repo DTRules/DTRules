@@ -216,6 +216,7 @@ func opForr(state dtrules.State) error {
 }
 
 // opForall: ( body array -- ) executes body for each entity in array
+// Entities are automatically pushed to entity stack before executing body
 func opForall(state dtrules.State) error {
 	arrayObj, err := state.DataPop()
 	if err != nil {
@@ -252,6 +253,7 @@ func opForall(state dtrules.State) error {
 }
 
 // opForallr: ( body array -- ) executes body for each entity in reverse order
+// Entities are automatically pushed to entity stack before executing body
 func opForallr(state dtrules.State) error {
 	arrayObj, err := state.DataPop()
 	if err != nil {
@@ -261,11 +263,12 @@ func opForallr(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	list, err := arrayObj.ArrayValue()
+	arr, err := arrayObj.RArrayValue()
 	if err != nil {
 		return err
 	}
 
+	list := arr.GetIterator()
 	for i := len(list) - 1; i >= 0; i-- {
 		obj := list[i]
 		if obj.Type() == dtrules.TypeNull {

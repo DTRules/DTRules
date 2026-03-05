@@ -7,6 +7,10 @@
 			<setattribute tag='filing_status' RAttribute='filing_status' enclosure='job' type='string'></setattribute>
 			<setattribute tag='state' RAttribute='state' enclosure='job' type='string'></setattribute>
 			<setattribute tag='city' RAttribute='city' enclosure='job' type='string'></setattribute>
+			<setattribute tag='expected_agi' RAttribute='expected_agi' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_taxable_income' RAttribute='expected_taxable_income' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_total_tax' RAttribute='expected_total_tax' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_refund' RAttribute='expected_refund' enclosure='job' type='double'></setattribute>
 
 			<!-- Taxpayer mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='taxpayer' type='integer'></setattribute>
@@ -32,6 +36,10 @@
 			<setattribute tag='is_student' RAttribute='is_student' enclosure='dependent' type='boolean'></setattribute>
 			<setattribute tag='school_type' RAttribute='school_type' enclosure='dependent' type='string'></setattribute>
 			<setattribute tag='tuition_paid' RAttribute='tuition_paid' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='qualified_expenses' RAttribute='qualified_expenses' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='is_college_student' RAttribute='is_college_student' enclosure='dependent' type='boolean'></setattribute>
+			<setattribute tag='college_year' RAttribute='college_year' enclosure='dependent' type='integer'></setattribute>
+			<setattribute tag='aotc_used_years' RAttribute='aotc_used_years' enclosure='dependent' type='integer'></setattribute>
 			<setattribute tag='has_ssn' RAttribute='has_ssn' enclosure='dependent' type='boolean'></setattribute>
 
 			<!-- Income mappings -->

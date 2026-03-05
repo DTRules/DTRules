@@ -20,6 +20,11 @@
 		<field name='credits' type='array' subtype='credit' access='r' input='' default_value='' comment='Tax credits'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
+		<!-- Expected values for validation -->
+		<field name='expected_agi' type='double' subtype='' access='r' input='main' default_value='' comment='Expected AGI for validation'></field>
+		<field name='expected_taxable_income' type='double' subtype='' access='r' input='main' default_value='' comment='Expected taxable income for validation'></field>
+		<field name='expected_total_tax' type='double' subtype='' access='r' input='main' default_value='' comment='Expected total tax for validation'></field>
+		<field name='expected_refund' type='double' subtype='' access='r' input='main' default_value='' comment='Expected refund for validation'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -63,8 +68,13 @@
 		<field name='months_lived_with' type='integer' subtype='' access='r' input='main' default_value='12' comment='Months lived with taxpayer'></field>
 		<field name='is_student' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Full-time student'></field>
 		<field name='school_type' type='string' subtype='' access='r' input='main' default_value='' comment='Type of school: public, private, homeschool'></field>
-		<field name='tuition_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Tuition paid (not deductible but tracked)'></field>
+		<field name='tuition_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Tuition paid (Form 1098-T Box 1)'></field>
+		<field name='qualified_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Qualified education expenses'></field>
+		<field name='is_college_student' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Enrolled in college/university'></field>
+		<field name='college_year' type='integer' subtype='' access='r' input='main' default_value='0' comment='Year of college (1-4 for AOTC, 0 for LLC only)'></field>
+		<field name='aotc_used_years' type='integer' subtype='' access='r' input='main' default_value='0' comment='Years AOTC already claimed (max 4)'></field>
 		<field name='has_ssn' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Has valid SSN (required for CTC)'></field>
+		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credit for this dependent (computed)'></field>
 		<field name='qualifies_for_ctc' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Child Tax Credit (computed)'></field>
 		<field name='qualifies_for_odc' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Other Dependent Credit (computed)'></field>
 		<field name='ctc_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Child Tax Credit amount (computed)'></field>
@@ -253,6 +263,29 @@
 
 		<!-- Medical Expense Floor -->
 		<field name='medical_floor_rate' type='double' subtype='' access='r' input='' default_value='0.075' comment='Medical expense floor (7.5% of AGI)'></field>
+
+		<!-- EITC (Earned Income Tax Credit) - 2025 estimated -->
+		<field name='eitc_max_0_children' type='double' subtype='' access='r' input='' default_value='632' comment='Max EITC with 0 children'></field>
+		<field name='eitc_max_1_child' type='double' subtype='' access='r' input='' default_value='4213' comment='Max EITC with 1 child'></field>
+		<field name='eitc_max_2_children' type='double' subtype='' access='r' input='' default_value='6960' comment='Max EITC with 2 children'></field>
+		<field name='eitc_max_3_children' type='double' subtype='' access='r' input='' default_value='7830' comment='Max EITC with 3+ children'></field>
+		<field name='eitc_threshold_mfj_0' type='double' subtype='' access='r' input='' default_value='17550' comment='EITC phase-out threshold MFJ 0 children'></field>
+		<field name='eitc_threshold_mfj_1' type='double' subtype='' access='r' input='' default_value='28120' comment='EITC phase-out threshold MFJ 1 child'></field>
+		<field name='eitc_threshold_mfj_2' type='double' subtype='' access='r' input='' default_value='28120' comment='EITC phase-out threshold MFJ 2 children'></field>
+		<field name='eitc_threshold_mfj_3' type='double' subtype='' access='r' input='' default_value='28120' comment='EITC phase-out threshold MFJ 3+ children'></field>
+		<field name='eitc_limit_mfj_0' type='double' subtype='' access='r' input='' default_value='25511' comment='EITC income limit MFJ 0 children'></field>
+		<field name='eitc_limit_mfj_1' type='double' subtype='' access='r' input='' default_value='56004' comment='EITC income limit MFJ 1 child'></field>
+		<field name='eitc_limit_mfj_2' type='double' subtype='' access='r' input='' default_value='62688' comment='EITC income limit MFJ 2 children'></field>
+		<field name='eitc_limit_mfj_3' type='double' subtype='' access='r' input='' default_value='66819' comment='EITC income limit MFJ 3+ children'></field>
+		<field name='eitc_investment_income_limit' type='double' subtype='' access='r' input='' default_value='11600' comment='Max investment income for EITC'></field>
+
+		<!-- Education Credits (2025 estimated) -->
+		<field name='aotc_max' type='double' subtype='' access='r' input='' default_value='2500' comment='American Opportunity Tax Credit max (IRC 25A(i))'></field>
+		<field name='aotc_phase_out_mfj' type='double' subtype='' access='r' input='' default_value='160000' comment='AOTC phase-out start MFJ'></field>
+		<field name='aotc_phase_out_end_mfj' type='double' subtype='' access='r' input='' default_value='180000' comment='AOTC phase-out end MFJ'></field>
+		<field name='llc_max' type='double' subtype='' access='r' input='' default_value='2000' comment='Lifetime Learning Credit max (IRC 25A(c))'></field>
+		<field name='llc_phase_out_mfj' type='double' subtype='' access='r' input='' default_value='160000' comment='LLC phase-out start MFJ'></field>
+		<field name='llc_phase_out_end_mfj' type='double' subtype='' access='r' input='' default_value='180000' comment='LLC phase-out end MFJ'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -293,12 +326,20 @@
 		<field name='total_ctc' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Child Tax Credit'></field>
 		<field name='total_odc' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Other Dependent Credit'></field>
 		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
+		<field name='eitc' type='double' subtype='' access='rw' input='' default_value='0' comment='Earned Income Tax Credit'></field>
+		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credits (AOTC/LLC)'></field>
 		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
 		<field name='total_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total payments and credits (Form 1040 Line 33)'></field>
 		<field name='refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='Refund (positive) or amount owed (negative)'></field>
+
+		<!-- EITC -->
+		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
+
+		<!-- Validation -->
+		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
 
 		<!-- Audit Trail -->
 		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>

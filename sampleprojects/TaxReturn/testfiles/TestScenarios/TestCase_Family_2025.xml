@@ -22,6 +22,20 @@
    <state>TX</state>
    <city>Austin</city>
 
+   <!-- Expected values for validation -->
+   <!-- Income: $125,000 W2 + ~$113,200 SE + ~$8,100 rental = ~$246,300 -->
+   <!-- AGI: $246,300 - $8,690 (SE tax deduction) = ~$237,610 -->
+   <!-- Deduction: $30,000 standard (higher than itemized) -->
+   <!-- QBI: ~$22,640 (20% of SE income) -->
+   <!-- Taxable: ~$184,970 -->
+   <!-- Tax: ~$30,800 regular + ~$17,380 SE - $6,500 credits = ~$41,680 -->
+   <!-- Payments: $28,000 + $20,000 = $48,000 -->
+   <!-- Refund: ~$6,320 -->
+   <expected_agi>237610</expected_agi>
+   <expected_taxable_income>184970</expected_taxable_income>
+   <expected_total_tax>41680</expected_total_tax>
+   <expected_refund>6320</expected_refund>
+
    <!-- Taxpayers -->
    <taxpayers>
       <!-- Mom (Sarah) - Real Estate Agent, Self-Employed -->
@@ -67,6 +81,7 @@
          <relationship>child</relationship>
          <months_lived_with>12</months_lived_with>
          <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
          <school_type>private</school_type>
          <tuition_paid>15000</tuition_paid>
          <has_ssn>true</has_ssn>
@@ -82,6 +97,7 @@
          <relationship>child</relationship>
          <months_lived_with>12</months_lived_with>
          <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
          <school_type>private</school_type>
          <tuition_paid>14000</tuition_paid>
          <has_ssn>true</has_ssn>
@@ -97,6 +113,7 @@
          <relationship>child</relationship>
          <months_lived_with>12</months_lived_with>
          <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
          <school_type>private</school_type>
          <tuition_paid>12000</tuition_paid>
          <has_ssn>true</has_ssn>
@@ -112,6 +129,7 @@
          <relationship>child</relationship>
          <months_lived_with>12</months_lived_with>
          <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
          <school_type>private</school_type>
          <tuition_paid>10000</tuition_paid>
          <has_ssn>true</has_ssn>
