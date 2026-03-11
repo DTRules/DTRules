@@ -216,10 +216,10 @@
 		<field name='QSS' type='string' subtype='' access='r' input='' default_value='QSS' comment='Qualifying Surviving Spouse'></field>
 
 		<!-- Standard Deduction (2025 per Rev. Proc. 2024-40) -->
-		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
-		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='Standard deduction for Single (2025)'></field>
-		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='Standard deduction for HOH (2025)'></field>
-		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15750' comment='Standard deduction for MFS (2025)'></field>
+		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
+		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for Single (2025)'></field>
+		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Standard deduction for HOH (2025)'></field>
+		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for MFS (2025)'></field>
 		<field name='additional_std_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='Additional std deduction per senior/blind for Single/HOH (2025 est.)'></field>
 		<field name='additional_std_deduction_married' type='double' subtype='' access='r' input='' default_value='1600' comment='Additional std deduction per senior/blind for MFJ/MFS (2025 est.)'></field>
 
