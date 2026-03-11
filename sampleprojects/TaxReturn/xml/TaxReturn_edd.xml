@@ -297,7 +297,7 @@
 		<field name='eitc_limit_mfj_1' type='double' subtype='' access='r' input='' default_value='56004' comment='EITC income limit MFJ 1 child'></field>
 		<field name='eitc_limit_mfj_2' type='double' subtype='' access='r' input='' default_value='62688' comment='EITC income limit MFJ 2 children'></field>
 		<field name='eitc_limit_mfj_3' type='double' subtype='' access='r' input='' default_value='66819' comment='EITC income limit MFJ 3+ children'></field>
-		<field name='eitc_investment_income_limit' type='double' subtype='' access='r' input='' default_value='11600' comment='Max investment income for EITC'></field>
+		<field name='eitc_investment_income_limit' type='double' subtype='' access='r' input='' default_value='11950' comment='Max investment income for EITC (2025)'></field>
 
 		<!-- Education Credits (2025 estimated) -->
 		<field name='aotc_max' type='double' subtype='' access='r' input='' default_value='2500' comment='American Opportunity Tax Credit max (IRC 25A(i))'></field>
