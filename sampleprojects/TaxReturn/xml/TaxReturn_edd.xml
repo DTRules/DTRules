@@ -8,7 +8,7 @@
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Job ID'></field>
 		<field name='tax_year' type='integer' subtype='' access='r' input='main' default_value='2025' comment='Tax year being processed'></field>
-		<field name='filing_status' type='string' subtype='' access='r' input='main' default_value='MFJ' comment='Filing status: MFJ, MFS, Single, HOH, QSS'></field>
+		<field name='filing_status' type='string' subtype='' access='rw' input='main' default_value='' comment='Filing status: MFJ, MFS, Single, HOH, QSS'></field>
 		<field name='state' type='string' subtype='' access='r' input='main' default_value='TX' comment='State of residence'></field>
 		<field name='city' type='string' subtype='' access='r' input='main' default_value='' comment='City of residence'></field>
 		<field name='has_state_income_tax' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether state has income tax (computed)'></field>
@@ -18,6 +18,7 @@
 		<field name='vehicles' type='array' subtype='vehicle' access='r' input='' default_value='' comment='Vehicles used for business'></field>
 		<field name='deductions' type='array' subtype='deduction' access='r' input='' default_value='' comment='Itemized deductions'></field>
 		<field name='credits' type='array' subtype='credit' access='r' input='' default_value='' comment='Tax credits'></field>
+		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Other income sources (pension, interest, dividends)'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Expected values for validation -->
@@ -51,6 +52,20 @@
 		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Income sources for this taxpayer'></field>
 		<field name='total_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total income (computed)'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes and explanations'></field>
+		<!-- OBBBA 2025 - Trump Tax Provisions -->
+		<field name='tip_income' type='double' subtype='' access='rw' input='main' default_value='0' comment='Tips received in qualifying occupation (OBBBA 2025)'></field>
+		<field name='overtime_income' type='double' subtype='' access='rw' input='main' default_value='0' comment='Overtime pay exceeding regular rate (OBBBA 2025)'></field>
+		<field name='social_security_income' type='double' subtype='' access='rw' input='main' default_value='0' comment='Social Security benefits received (Form SSA-1099)'></field>
+		<field name='is_senior' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Age 65+ at end of tax year'></field>
+		<!-- Retirement Contributions -->
+		<field name='traditional_ira_contribution' type='double' subtype='' access='rw' input='main' default_value='0' comment='Traditional IRA contribution (Form 5498)'></field>
+		<field name='roth_ira_contribution' type='double' subtype='' access='rw' input='main' default_value='0' comment='Roth IRA contribution (not deductible)'></field>
+		<field name='hsa_contribution' type='double' subtype='' access='rw' input='main' default_value='0' comment='HSA contribution (Form 8889)'></field>
+		<field name='hsa_coverage_type' type='string' subtype='' access='rw' input='main' default_value='self' comment='HSA coverage: self or family'></field>
+		<field name='covered_by_employer_plan' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Covered by employer retirement plan (Box 13 W-2)'></field>
+		<field name='age_50_or_over' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Age 50 or over for catchup contributions'></field>
+		<!-- Student Loan Interest -->
+		<field name='student_loan_interest_paid' type='double' subtype='' access='rw' input='main' default_value='0' comment='Student loan interest paid (Form 1098-E)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -97,6 +112,9 @@
 		<field name='is_earned' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Earned income (wages, SE) vs unearned (interest, dividends)'></field>
 		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form reference'></field>
 		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
+		<!-- Capital Gains fields -->
+		<field name='holding_period' type='string' subtype='' access='r' input='main' default_value='' comment='Holding period: short_term or long_term (Schedule D)'></field>
+		<field name='is_qualified_dividend' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Qualifies for LTCG rates (Form 1099-DIV Box 1b)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -197,14 +215,16 @@
 		<field name='HOH' type='string' subtype='' access='r' input='' default_value='HOH' comment='Head of Household'></field>
 		<field name='QSS' type='string' subtype='' access='r' input='' default_value='QSS' comment='Qualifying Surviving Spouse'></field>
 
-		<!-- Standard Deduction (2025 estimated) -->
-		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='Standard deduction for MFJ/QSS (2025 est.)'></field>
-		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for Single'></field>
-		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Standard deduction for HOH'></field>
-		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for MFS'></field>
+		<!-- Standard Deduction (2025 per Rev. Proc. 2024-40) -->
+		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
+		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for Single (2025)'></field>
+		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Standard deduction for HOH (2025)'></field>
+		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for MFS (2025)'></field>
+		<field name='additional_std_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='Additional std deduction per senior/blind for Single/HOH (2025 est.)'></field>
+		<field name='additional_std_deduction_married' type='double' subtype='' access='r' input='' default_value='1600' comment='Additional std deduction per senior/blind for MFJ/MFS (2025 est.)'></field>
 
-		<!-- Child Tax Credit -->
-		<field name='ctc_amount' type='double' subtype='' access='r' input='' default_value='2000' comment='Child Tax Credit per qualifying child (IRC 24(a))'></field>
+		<!-- Child Tax Credit (2025 per OBBB) -->
+		<field name='ctc_amount' type='double' subtype='' access='r' input='' default_value='2200' comment='Child Tax Credit per qualifying child (IRC 24(a), OBBB 2025)'></field>
 		<field name='ctc_refundable_max' type='double' subtype='' access='r' input='' default_value='1700' comment='Max refundable portion (ACTC) per child (2025 est.)'></field>
 		<field name='ctc_phase_out_mfj' type='double' subtype='' access='r' input='' default_value='400000' comment='CTC phase-out threshold MFJ (IRC 24(b)(2))'></field>
 		<field name='ctc_phase_out_single' type='double' subtype='' access='r' input='' default_value='200000' comment='CTC phase-out threshold Single'></field>
@@ -232,28 +252,28 @@
 		<!-- Standard Mileage Rate -->
 		<field name='mileage_rate' type='double' subtype='' access='r' input='' default_value='0.70' comment='Standard mileage rate (2025 est.) per Pub 463'></field>
 
-		<!-- Tax Brackets MFJ 2025 (estimated) -->
+		<!-- Tax Brackets MFJ 2025 (per Rev. Proc. 2024-40) -->
 		<field name='bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.10' comment='10% bracket rate'></field>
-		<field name='bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='23200' comment='10% bracket ceiling MFJ'></field>
+		<field name='bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='23850' comment='10% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.12' comment='12% bracket rate'></field>
-		<field name='bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='94300' comment='12% bracket ceiling MFJ'></field>
+		<field name='bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='96950' comment='12% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.22' comment='22% bracket rate'></field>
-		<field name='bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='201050' comment='22% bracket ceiling MFJ'></field>
+		<field name='bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='206700' comment='22% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.24' comment='24% bracket rate'></field>
-		<field name='bracket_4_mfj' type='double' subtype='' access='r' input='' default_value='383900' comment='24% bracket ceiling MFJ'></field>
+		<field name='bracket_4_mfj' type='double' subtype='' access='r' input='' default_value='394600' comment='24% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.32' comment='32% bracket rate'></field>
-		<field name='bracket_5_mfj' type='double' subtype='' access='r' input='' default_value='487450' comment='32% bracket ceiling MFJ'></field>
+		<field name='bracket_5_mfj' type='double' subtype='' access='r' input='' default_value='501050' comment='32% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.35' comment='35% bracket rate'></field>
-		<field name='bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='731200' comment='35% bracket ceiling MFJ'></field>
+		<field name='bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='751600' comment='35% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.37' comment='37% top bracket rate'></field>
 
-		<!-- Tax Brackets Single 2025 (estimated) -->
-		<field name='bracket_1_single' type='double' subtype='' access='r' input='' default_value='11600' comment='10% bracket ceiling Single'></field>
-		<field name='bracket_2_single' type='double' subtype='' access='r' input='' default_value='47150' comment='12% bracket ceiling Single'></field>
-		<field name='bracket_3_single' type='double' subtype='' access='r' input='' default_value='100525' comment='22% bracket ceiling Single'></field>
-		<field name='bracket_4_single' type='double' subtype='' access='r' input='' default_value='191950' comment='24% bracket ceiling Single'></field>
-		<field name='bracket_5_single' type='double' subtype='' access='r' input='' default_value='243725' comment='32% bracket ceiling Single'></field>
-		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='609350' comment='35% bracket ceiling Single'></field>
+		<!-- Tax Brackets Single 2025 (per Rev. Proc. 2024-40) -->
+		<field name='bracket_1_single' type='double' subtype='' access='r' input='' default_value='11925' comment='10% bracket ceiling Single (2025)'></field>
+		<field name='bracket_2_single' type='double' subtype='' access='r' input='' default_value='48475' comment='12% bracket ceiling Single (2025)'></field>
+		<field name='bracket_3_single' type='double' subtype='' access='r' input='' default_value='103350' comment='22% bracket ceiling Single (2025)'></field>
+		<field name='bracket_4_single' type='double' subtype='' access='r' input='' default_value='197300' comment='24% bracket ceiling Single (2025)'></field>
+		<field name='bracket_5_single' type='double' subtype='' access='r' input='' default_value='250525' comment='32% bracket ceiling Single (2025)'></field>
+		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='626350' comment='35% bracket ceiling Single (2025)'></field>
 
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
@@ -264,11 +284,11 @@
 		<!-- Medical Expense Floor -->
 		<field name='medical_floor_rate' type='double' subtype='' access='r' input='' default_value='0.075' comment='Medical expense floor (7.5% of AGI)'></field>
 
-		<!-- EITC (Earned Income Tax Credit) - 2025 estimated -->
-		<field name='eitc_max_0_children' type='double' subtype='' access='r' input='' default_value='632' comment='Max EITC with 0 children'></field>
-		<field name='eitc_max_1_child' type='double' subtype='' access='r' input='' default_value='4213' comment='Max EITC with 1 child'></field>
-		<field name='eitc_max_2_children' type='double' subtype='' access='r' input='' default_value='6960' comment='Max EITC with 2 children'></field>
-		<field name='eitc_max_3_children' type='double' subtype='' access='r' input='' default_value='7830' comment='Max EITC with 3+ children'></field>
+		<!-- EITC (Earned Income Tax Credit) - 2025 per Rev. Proc. 2024-40 -->
+		<field name='eitc_max_0_children' type='double' subtype='' access='r' input='' default_value='649' comment='Max EITC with 0 children (2025)'></field>
+		<field name='eitc_max_1_child' type='double' subtype='' access='r' input='' default_value='4328' comment='Max EITC with 1 child (2025)'></field>
+		<field name='eitc_max_2_children' type='double' subtype='' access='r' input='' default_value='7152' comment='Max EITC with 2 children (2025)'></field>
+		<field name='eitc_max_3_children' type='double' subtype='' access='r' input='' default_value='8046' comment='Max EITC with 3+ children (2025)'></field>
 		<field name='eitc_threshold_mfj_0' type='double' subtype='' access='r' input='' default_value='17550' comment='EITC phase-out threshold MFJ 0 children'></field>
 		<field name='eitc_threshold_mfj_1' type='double' subtype='' access='r' input='' default_value='28120' comment='EITC phase-out threshold MFJ 1 child'></field>
 		<field name='eitc_threshold_mfj_2' type='double' subtype='' access='r' input='' default_value='28120' comment='EITC phase-out threshold MFJ 2 children'></field>
@@ -277,7 +297,7 @@
 		<field name='eitc_limit_mfj_1' type='double' subtype='' access='r' input='' default_value='56004' comment='EITC income limit MFJ 1 child'></field>
 		<field name='eitc_limit_mfj_2' type='double' subtype='' access='r' input='' default_value='62688' comment='EITC income limit MFJ 2 children'></field>
 		<field name='eitc_limit_mfj_3' type='double' subtype='' access='r' input='' default_value='66819' comment='EITC income limit MFJ 3+ children'></field>
-		<field name='eitc_investment_income_limit' type='double' subtype='' access='r' input='' default_value='11600' comment='Max investment income for EITC'></field>
+		<field name='eitc_investment_income_limit' type='double' subtype='' access='r' input='' default_value='11950' comment='Max investment income for EITC (2025)'></field>
 
 		<!-- Education Credits (2025 estimated) -->
 		<field name='aotc_max' type='double' subtype='' access='r' input='' default_value='2500' comment='American Opportunity Tax Credit max (IRC 25A(i))'></field>
@@ -286,6 +306,67 @@
 		<field name='llc_max' type='double' subtype='' access='r' input='' default_value='2000' comment='Lifetime Learning Credit max (IRC 25A(c))'></field>
 		<field name='llc_phase_out_mfj' type='double' subtype='' access='r' input='' default_value='160000' comment='LLC phase-out start MFJ'></field>
 		<field name='llc_phase_out_end_mfj' type='double' subtype='' access='r' input='' default_value='180000' comment='LLC phase-out end MFJ'></field>
+
+		<!-- OBBBA 2025 - Trump Tax Provisions (One Big Beautiful Bill Act) -->
+		<!-- No Tax on Tips -->
+		<field name='tips_deduction_max' type='double' subtype='' access='r' input='' default_value='25000' comment='Max tips deduction (OBBBA Section)'></field>
+		<field name='tips_phaseout_single' type='double' subtype='' access='r' input='' default_value='150000' comment='Tips deduction phase-out threshold Single'></field>
+		<field name='tips_phaseout_joint' type='double' subtype='' access='r' input='' default_value='300000' comment='Tips deduction phase-out threshold MFJ'></field>
+
+		<!-- No Tax on Overtime -->
+		<field name='overtime_deduction_max_single' type='double' subtype='' access='r' input='' default_value='12500' comment='Max overtime deduction Single'></field>
+		<field name='overtime_deduction_max_joint' type='double' subtype='' access='r' input='' default_value='25000' comment='Max overtime deduction MFJ'></field>
+		<field name='overtime_phaseout_single' type='double' subtype='' access='r' input='' default_value='150000' comment='Overtime deduction phase-out threshold Single'></field>
+		<field name='overtime_phaseout_joint' type='double' subtype='' access='r' input='' default_value='300000' comment='Overtime deduction phase-out threshold MFJ'></field>
+
+		<!-- Senior Additional Deduction -->
+		<field name='senior_deduction_amount' type='double' subtype='' access='r' input='' default_value='6000' comment='Additional deduction per senior ($6,000)'></field>
+		<field name='senior_phaseout_single' type='double' subtype='' access='r' input='' default_value='75000' comment='Senior deduction phase-out threshold Single'></field>
+		<field name='senior_phaseout_joint' type='double' subtype='' access='r' input='' default_value='150000' comment='Senior deduction phase-out threshold MFJ'></field>
+
+		<!-- Social Security Taxability (Publication 915) -->
+		<field name='ss_base_amount_single' type='double' subtype='' access='r' input='' default_value='25000' comment='SS base amount Single/HOH (Pub 915)'></field>
+		<field name='ss_base_amount_mfj' type='double' subtype='' access='r' input='' default_value='32000' comment='SS base amount MFJ (Pub 915)'></field>
+		<field name='ss_additional_amount_single' type='double' subtype='' access='r' input='' default_value='34000' comment='SS additional amount Single/HOH (Pub 915)'></field>
+		<field name='ss_additional_amount_mfj' type='double' subtype='' access='r' input='' default_value='44000' comment='SS additional amount MFJ (Pub 915)'></field>
+
+		<!-- Capital Gains Brackets (2025 per Rev. Proc. 2024-40) -->
+		<field name='cg_0_percent_single' type='double' subtype='' access='r' input='' default_value='48350' comment='0% LTCG bracket ceiling Single (2025)'></field>
+		<field name='cg_0_percent_mfj' type='double' subtype='' access='r' input='' default_value='96700' comment='0% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_15_percent_single' type='double' subtype='' access='r' input='' default_value='533400' comment='15% LTCG bracket ceiling Single (2025)'></field>
+		<field name='cg_15_percent_mfj' type='double' subtype='' access='r' input='' default_value='600050' comment='15% LTCG bracket ceiling MFJ (2025)'></field>
+
+		<!-- Net Investment Income Tax (IRC 1411, Form 8960) -->
+		<field name='niit_rate' type='double' subtype='' access='r' input='' default_value='0.038' comment='3.8% NIIT rate (IRC 1411)'></field>
+		<field name='niit_threshold_single' type='double' subtype='' access='r' input='' default_value='200000' comment='NIIT threshold Single (IRC 1411(b))'></field>
+		<field name='niit_threshold_mfj' type='double' subtype='' access='r' input='' default_value='250000' comment='NIIT threshold MFJ (IRC 1411(b))'></field>
+		<field name='niit_threshold_mfs' type='double' subtype='' access='r' input='' default_value='125000' comment='NIIT threshold MFS (IRC 1411(b))'></field>
+
+		<!-- Additional Medicare Tax (IRC 3101(b)(2), Form 8959) -->
+		<field name='additional_medicare_rate' type='double' subtype='' access='r' input='' default_value='0.009' comment='0.9% Additional Medicare rate'></field>
+		<field name='additional_medicare_threshold_single' type='double' subtype='' access='r' input='' default_value='200000' comment='Add Medicare threshold Single'></field>
+		<field name='additional_medicare_threshold_mfj' type='double' subtype='' access='r' input='' default_value='250000' comment='Add Medicare threshold MFJ'></field>
+		<field name='additional_medicare_threshold_mfs' type='double' subtype='' access='r' input='' default_value='125000' comment='Add Medicare threshold MFS'></field>
+
+		<!-- IRA Contribution Limits (2025 per Pub 590-A) -->
+		<field name='ira_contribution_limit' type='double' subtype='' access='r' input='' default_value='7000' comment='IRA contribution limit (IRC 219(b))'></field>
+		<field name='ira_catchup_limit' type='double' subtype='' access='r' input='' default_value='1000' comment='IRA catchup for age 50+ (IRC 219(b)(5))'></field>
+		<field name='ira_phaseout_start_single' type='double' subtype='' access='r' input='' default_value='79000' comment='IRA phaseout start Single covered by plan (2025)'></field>
+		<field name='ira_phaseout_end_single' type='double' subtype='' access='r' input='' default_value='89000' comment='IRA phaseout end Single covered by plan (2025)'></field>
+		<field name='ira_phaseout_start_mfj' type='double' subtype='' access='r' input='' default_value='126000' comment='IRA phaseout start MFJ covered by plan (2025)'></field>
+		<field name='ira_phaseout_end_mfj' type='double' subtype='' access='r' input='' default_value='146000' comment='IRA phaseout end MFJ covered by plan (2025)'></field>
+
+		<!-- HSA Contribution Limits (2025 per Rev. Proc. 2024-25) -->
+		<field name='hsa_limit_self' type='double' subtype='' access='r' input='' default_value='4300' comment='HSA limit self-only coverage (2025)'></field>
+		<field name='hsa_limit_family' type='double' subtype='' access='r' input='' default_value='8550' comment='HSA limit family coverage (2025)'></field>
+		<field name='hsa_catchup' type='double' subtype='' access='r' input='' default_value='1000' comment='HSA catchup for age 55+'></field>
+
+		<!-- Student Loan Interest Deduction (2025 per Pub 970) -->
+		<field name='student_loan_max_deduction' type='double' subtype='' access='r' input='' default_value='2500' comment='Max student loan interest deduction (IRC 221)'></field>
+		<field name='student_loan_phaseout_start_single' type='double' subtype='' access='r' input='' default_value='85000' comment='Student loan phaseout start Single (2025)'></field>
+		<field name='student_loan_phaseout_end_single' type='double' subtype='' access='r' input='' default_value='100000' comment='Student loan phaseout end Single (2025)'></field>
+		<field name='student_loan_phaseout_start_mfj' type='double' subtype='' access='r' input='' default_value='170000' comment='Student loan phaseout start MFJ (2025)'></field>
+		<field name='student_loan_phaseout_end_mfj' type='double' subtype='' access='r' input='' default_value='200000' comment='Student loan phaseout end MFJ (2025)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -314,6 +395,38 @@
 		<field name='total_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Total deduction (Form 1040 Line 12)'></field>
 		<field name='qbi_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='QBI deduction (Form 1040 Line 13)'></field>
 
+		<!-- OBBBA 2025 Deductions - Trump Tax Provisions -->
+		<field name='total_tip_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tip income across all taxpayers'></field>
+		<field name='total_overtime_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total overtime income across all taxpayers'></field>
+		<field name='senior_count' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of seniors (65+) for deduction'></field>
+		<field name='tips_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='No Tax on Tips deduction (OBBBA 2025, max $25k)'></field>
+		<field name='overtime_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='No Tax on Overtime deduction (OBBBA 2025, max $12.5k/$25k)'></field>
+		<field name='senior_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Senior Additional deduction (OBBBA 2025, $6k per senior)'></field>
+		<field name='total_obbba_deductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total OBBBA deductions (tips + overtime + senior)'></field>
+		<field name='total_social_security' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Social Security income'></field>
+		<field name='taxable_social_security' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable portion of Social Security'></field>
+		<field name='provisional_income' type='double' subtype='' access='rw' input='' default_value='0' comment='AGI + 50% SS + tax-exempt interest (Pub 915)'></field>
+		<field name='ss_taxable_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='0, 0.50, or 0.85 SS taxable rate'></field>
+
+		<!-- Capital Gains -->
+		<field name='total_long_term_gains' type='double' subtype='' access='rw' input='' default_value='0' comment='Total long-term capital gains (Schedule D)'></field>
+		<field name='total_short_term_gains' type='double' subtype='' access='rw' input='' default_value='0' comment='Total short-term capital gains (Schedule D)'></field>
+		<field name='total_qualified_dividends' type='double' subtype='' access='rw' input='' default_value='0' comment='Total qualified dividends (Form 1040 Line 3a)'></field>
+		<field name='capital_gains_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Capital gains tax at preferential rates'></field>
+		<field name='ordinary_income_for_cg' type='double' subtype='' access='rw' input='' default_value='0' comment='Ordinary taxable income for CG bracket calc'></field>
+
+		<!-- Surtaxes -->
+		<field name='net_investment_income' type='double' subtype='' access='rw' input='' default_value='0' comment='NII for NIIT (interest+dividends+CG+rental)'></field>
+		<field name='magi_for_niit' type='double' subtype='' access='rw' input='' default_value='0' comment='MAGI for NIIT calculation'></field>
+		<field name='niit_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Net Investment Income Tax (Form 8960)'></field>
+		<field name='wages_for_additional_medicare' type='double' subtype='' access='rw' input='' default_value='0' comment='Wages subject to Additional Medicare'></field>
+		<field name='additional_medicare_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Medicare Tax (Form 8959)'></field>
+
+		<!-- Retirement Deductions -->
+		<field name='ira_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Traditional IRA deduction (Schedule 1 Line 20)'></field>
+		<field name='hsa_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='HSA deduction (Schedule 1 Line 13)'></field>
+		<field name='student_loan_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Student loan interest deduction (Schedule 1 Line 21)'></field>
+
 		<!-- Taxable Income -->
 		<field name='taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable income (Form 1040 Line 15)'></field>
 
@@ -325,6 +438,11 @@
 		<!-- Credits -->
 		<field name='total_ctc' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Child Tax Credit'></field>
 		<field name='total_odc' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Other Dependent Credit'></field>
+		<field name='ctc_phase_out_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='CTC/ODC phase-out reduction per IRC 24(b)'></field>
+		<field name='ctc_before_phaseout' type='double' subtype='' access='rw' input='' default_value='0' comment='CTC+ODC before phase-out'></field>
+		<field name='ctc_after_phaseout' type='double' subtype='' access='rw' input='' default_value='0' comment='CTC+ODC after phase-out'></field>
+		<field name='ctc_threshold' type='double' subtype='' access='rw' input='' default_value='0' comment='CTC phase-out threshold (working variable)'></field>
+		<field name='agi_over_threshold' type='double' subtype='' access='rw' input='' default_value='0' comment='AGI amount over phase-out threshold (working variable)'></field>
 		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
 		<field name='eitc' type='double' subtype='' access='rw' input='' default_value='0' comment='Earned Income Tax Credit'></field>
 		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credits (AOTC/LLC)'></field>

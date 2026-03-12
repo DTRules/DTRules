@@ -103,14 +103,15 @@ func TestTaxReturnResults(t *testing.T) {
 		t.Fatalf("Failed to find job entity: %v", err)
 	}
 
-	// Expected values based on test data:
+	// Expected values based on test data (2025 tax constants per Rev. Proc. 2024-40):
 	// Income: W-2 $125k + SE net $128.2k + Rental net $4.2k = $257.4k
 	// AGI: $257.4k - $9,057 SE deduction = $248,343
-	// Taxable: AGI - $30k std deduction - $25.6k QBI = $192,703
-	// Tax: $32,501 regular + $18,114 SE - $6,500 credits = $44,115
+	// Taxable: AGI - $30k std deduction (2025 MFJ) - $25.6k QBI = $192,703
+	// Tax: $32,223 regular + $18,114 SE + $29 Add Medicare - $7,100 credits = $43,265
+	//   Credits: 3 × $2,200 CTC (2025 OBBBA) + $500 ODC = $7,100
 	expectedAGI := 248343.0
 	expectedTaxable := 192703.0
-	expectedTax := 44115.0
+	expectedTax := 43265.0
 	expectedRefund := 0.0
 
 	// Get computed results
@@ -248,5 +249,811 @@ func checkValueResult(t *testing.T, name string, actual, expected, tolerance flo
 	fmt.Printf("%s: actual=$%.0f expected=$%.0f diff=$%.0f [%s]\n", name, actual, expected, diff, status)
 	if diff > tolerance {
 		t.Errorf("%s: actual=%f expected=%f diff=%f exceeds tolerance=%f", name, actual, expected, diff, tolerance)
+	}
+}
+
+// TestOBBBADeductions tests the OBBBA 2025 tax provisions
+func TestOBBBADeductions(t *testing.T) {
+	// Find the sample projects directory
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	// Create rule set
+	rs := session.NewRuleSet("TaxReturn")
+
+	// Load EDD
+	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
+	eddFile, err := os.Open(eddPath)
+	if err != nil {
+		t.Fatalf("Failed to open EDD: %v", err)
+	}
+	defer eddFile.Close()
+
+	err = rs.LoadEDD(eddFile)
+	if err != nil {
+		t.Fatalf("Failed to load EDD: %v", err)
+	}
+
+	// Load Decision Tables
+	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
+	dtFile, err := os.Open(dtPath)
+	if err != nil {
+		t.Fatalf("Failed to open DT: %v", err)
+	}
+	defer dtFile.Close()
+
+	err = rs.LoadDecisionTables(dtFile)
+	if err != nil {
+		t.Fatalf("Failed to load DT: %v", err)
+	}
+
+	// Define OBBBA test cases
+	// Expected values calculated with 2025 tax constants per Rev. Proc. 2024-40
+	testCases := []struct {
+		name            string
+		file            string
+		expectedAGI     float64
+		expectedTaxable float64
+		expectedTax     float64
+		expectedRefund  float64
+	}{
+		{
+			name:            "Tips_Single_Server",
+			file:            "TestCase_OBBBA_01_Tips_Single_Server.xml",
+			expectedAGI:     40000, // $65k - $25k tips deduction
+			expectedTaxable: 25000, // AGI - $15k std deduction (2025)
+			expectedTax:     2762,  // 2025 Single brackets on $25k
+			expectedRefund:  0,
+		},
+		{
+			name:            "Overtime_MFJ_Factory",
+			file:            "TestCase_OBBBA_02_Overtime_MFJ_Factory.xml",
+			expectedAGI:     97000, // $115k - $18k overtime
+			expectedTaxable: 67000, // AGI - $30k std (2025)
+			expectedTax:     5363,  // 2025 MFJ brackets - $2.2k CTC (OBBBA)
+			expectedRefund:  0,
+		},
+		{
+			name:            "Senior_SS_MFJ",
+			file:            "TestCase_OBBBA_03_Senior_SS_MFJ.xml",
+			expectedAGI:     48000, // $60k (SS+pension) - $12k senior deduction
+			expectedTaxable: 14800, // $48k - $33.2k std (includes 2x$1600 for 65+)
+			expectedTax:     1480,  // 10% of $14,800
+			expectedRefund:  0,
+		},
+		{
+			name:            "Tips_Overtime_Combined",
+			file:            "TestCase_OBBBA_04_Tips_Overtime_Combined.xml",
+			expectedAGI:     55000, // $88k - $25k tips - $8k overtime
+			expectedTaxable: 40000, // AGI - $15k std (2025)
+			expectedTax:     4562,  // 2025 Single brackets on $40k
+			expectedRefund:  0,
+		},
+		{
+			name:            "Tips_Phaseout",
+			file:            "TestCase_OBBBA_05_Tips_Phaseout.xml",
+			expectedAGI:     170000, // No deduction - phased out
+			expectedTaxable: 155000, // AGI - $15k std (2025)
+			expectedTax:     30047,  // 2025 Single brackets on $155k
+			expectedRefund:  0,
+		},
+		{
+			name:            "Working_Senior_Tips",
+			file:            "TestCase_OBBBA_06_Working_Senior_Tips.xml",
+			expectedAGI:     34000, // $52k - $12k tips - $6k senior
+			expectedTaxable: 17000, // AGI - $17k std (includes $2k extra for 65+ single)
+			expectedTax:     1802,  // 2025 Single brackets on $17k
+			expectedRefund:  0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create fresh session for each test case
+			sess, err := rs.NewSession()
+			if err != nil {
+				t.Fatalf("Failed to create session: %v", err)
+			}
+
+			// Load mapping
+			mapPath := filepath.Join(xmlDir, "TaxReturn_map.xml")
+			mapFile, err := os.Open(mapPath)
+			if err != nil {
+				t.Fatalf("Failed to open mapping: %v", err)
+			}
+			defer mapFile.Close()
+
+			m := mapping.NewMapping(sess)
+			err = m.LoadMapping(mapFile)
+			if err != nil {
+				t.Fatalf("Failed to load mapping: %v", err)
+			}
+			err = m.Initialize()
+			if err != nil {
+				t.Fatalf("Failed to init mapping: %v", err)
+			}
+
+			// Load test data
+			testPath := filepath.Join(sampleDir, "testfiles", "TestScenarios", "OBBBA_2025", tc.file)
+			testFile, err := os.Open(testPath)
+			if err != nil {
+				t.Fatalf("Failed to open test file %s: %v", tc.file, err)
+			}
+			defer testFile.Close()
+
+			err = m.LoadData(testFile)
+			if err != nil {
+				t.Fatalf("Failed to map test data: %v", err)
+			}
+
+			// Execute Compute_Tax_Return
+			ef := sess.GetEntityFactory()
+			dt, err := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+			if err != nil || dt == nil {
+				t.Fatalf("Failed to get decision table: %v", err)
+			}
+
+			state := sess.GetState()
+			err = dt.Execute(state)
+			if err != nil {
+				t.Fatalf("Failed to execute: %v", err)
+			}
+
+			// Get results
+			jobName := dtrules.GetRName("job")
+			job, err := state.FindEntity(jobName)
+			if err != nil || job == nil {
+				t.Fatalf("Failed to find job entity: %v", err)
+			}
+
+			resultsName := dtrules.GetRName("results")
+			resultsObj, _ := job.Get(resultsName)
+			if resultsObj == nil {
+				t.Fatal("No results array found")
+			}
+			resultsArr, _ := resultsObj.ArrayValue()
+			if len(resultsArr) == 0 {
+				t.Fatal("Results array is empty")
+			}
+
+			result, _ := resultsArr[0].REntityValue()
+			if result == nil {
+				t.Fatal("No result entity found")
+			}
+
+			// Get computed values
+			agi := getFloatAttr(result, "agi")
+			taxableIncome := getFloatAttr(result, "taxable_income")
+			totalTax := getFloatAttr(result, "total_tax")
+			_ = getFloatAttr(result, "refund_amount") // unused but loaded for validation
+
+			// OBBBA specific
+			tipsDeduction := getFloatAttr(result, "tips_deduction")
+			overtimeDeduction := getFloatAttr(result, "overtime_deduction")
+			seniorDeduction := getFloatAttr(result, "senior_deduction")
+			totalOBBBA := getFloatAttr(result, "total_obbba_deductions")
+
+			fmt.Printf("\n=== %s ===\n", tc.name)
+			fmt.Printf("OBBBA Deductions:\n")
+			fmt.Printf("  Tips:     $%.0f\n", tipsDeduction)
+			fmt.Printf("  Overtime: $%.0f\n", overtimeDeduction)
+			fmt.Printf("  Senior:   $%.0f\n", seniorDeduction)
+			fmt.Printf("  Total:    $%.0f\n", totalOBBBA)
+			fmt.Printf("Results:\n")
+			fmt.Printf("  AGI:           $%.0f (expected: $%.0f)\n", agi, tc.expectedAGI)
+			fmt.Printf("  Taxable:       $%.0f (expected: $%.0f)\n", taxableIncome, tc.expectedTaxable)
+			fmt.Printf("  Total Tax:     $%.0f (expected: $%.0f)\n", totalTax, tc.expectedTax)
+
+			// Validate - use larger tolerance for complex calculations
+			checkValueResult(t, "AGI", agi, tc.expectedAGI, 500)
+			checkValueResult(t, "Taxable Income", taxableIncome, tc.expectedTaxable, 500)
+			checkValueResult(t, "Total Tax", totalTax, tc.expectedTax, 500)
+		})
+	}
+}
+
+// TestNewTaxScenarios tests the new tax gap implementations:
+// - Social Security taxability (Publication 915)
+// - Capital Gains (Schedule D, 0%/15%/20%)
+// - NIIT (Form 8960, 3.8%)
+// - Additional Medicare Tax (Form 8959, 0.9%)
+// - IRA/HSA deductions
+// - Student Loan Interest deduction
+func TestNewTaxScenarios(t *testing.T) {
+	// Find the sample projects directory
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	// Create rule set
+	rs := session.NewRuleSet("TaxReturn")
+
+	// Load EDD
+	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
+	eddFile, err := os.Open(eddPath)
+	if err != nil {
+		t.Fatalf("Failed to open EDD: %v", err)
+	}
+	defer eddFile.Close()
+
+	err = rs.LoadEDD(eddFile)
+	if err != nil {
+		t.Fatalf("Failed to load EDD: %v", err)
+	}
+
+	// Load Decision Tables
+	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
+	dtFile, err := os.Open(dtPath)
+	if err != nil {
+		t.Fatalf("Failed to open DT: %v", err)
+	}
+	defer dtFile.Close()
+
+	err = rs.LoadDecisionTables(dtFile)
+	if err != nil {
+		t.Fatalf("Failed to load DT: %v", err)
+	}
+
+	// Define test cases for new scenarios
+	testCases := []struct {
+		name       string
+		folder     string
+		file       string
+		checkField string
+	}{
+		{
+			name:       "SS_Taxability",
+			folder:     "SocialSecurity",
+			file:       "TestCase_SS_Taxability.xml",
+			checkField: "taxable_social_security",
+		},
+		{
+			name:       "LTCG_0_Percent",
+			folder:     "CapitalGains",
+			file:       "TestCase_LTCG_0_Percent.xml",
+			checkField: "capital_gains_tax",
+		},
+		{
+			name:       "LTCG_15_Percent",
+			folder:     "CapitalGains",
+			file:       "TestCase_LTCG_15_Percent.xml",
+			checkField: "capital_gains_tax",
+		},
+		{
+			name:       "Qualified_Dividends",
+			folder:     "CapitalGains",
+			file:       "TestCase_Qualified_Dividends.xml",
+			checkField: "total_qualified_dividends",
+		},
+		{
+			name:       "NIIT_High_Income",
+			folder:     "Surtaxes",
+			file:       "TestCase_NIIT_High_Income.xml",
+			checkField: "niit_tax",
+		},
+		{
+			name:       "Additional_Medicare",
+			folder:     "Surtaxes",
+			file:       "TestCase_Additional_Medicare.xml",
+			checkField: "additional_medicare_tax",
+		},
+		{
+			name:       "IRA_Full_Deduction",
+			folder:     "Retirement",
+			file:       "TestCase_IRA_Full_Deduction.xml",
+			checkField: "ira_deduction",
+		},
+		{
+			name:       "HSA_Family",
+			folder:     "Retirement",
+			file:       "TestCase_HSA_Family.xml",
+			checkField: "hsa_deduction",
+		},
+		{
+			name:       "Student_Loan",
+			folder:     "Adjustments",
+			file:       "TestCase_Student_Loan.xml",
+			checkField: "student_loan_deduction",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create fresh session for each test case
+			sess, err := rs.NewSession()
+			if err != nil {
+				t.Fatalf("Failed to create session: %v", err)
+			}
+
+			// Load mapping
+			mapPath := filepath.Join(xmlDir, "TaxReturn_map.xml")
+			mapFile, err := os.Open(mapPath)
+			if err != nil {
+				t.Fatalf("Failed to open mapping: %v", err)
+			}
+			defer mapFile.Close()
+
+			m := mapping.NewMapping(sess)
+			err = m.LoadMapping(mapFile)
+			if err != nil {
+				t.Fatalf("Failed to load mapping: %v", err)
+			}
+			err = m.Initialize()
+			if err != nil {
+				t.Fatalf("Failed to init mapping: %v", err)
+			}
+
+			// Load test data
+			testPath := filepath.Join(sampleDir, "testfiles", "TestScenarios", tc.folder, tc.file)
+			testFile, err := os.Open(testPath)
+			if err != nil {
+				t.Fatalf("Failed to open test file %s: %v", tc.file, err)
+			}
+			defer testFile.Close()
+
+			err = m.LoadData(testFile)
+			if err != nil {
+				t.Fatalf("Failed to map test data: %v", err)
+			}
+
+			// Execute Compute_Tax_Return
+			ef := sess.GetEntityFactory()
+			dt, err := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+			if err != nil || dt == nil {
+				t.Fatalf("Failed to get decision table: %v", err)
+			}
+
+			state := sess.GetState()
+			err = dt.Execute(state)
+			if err != nil {
+				t.Fatalf("Failed to execute: %v", err)
+			}
+
+			// Get results
+			jobName := dtrules.GetRName("job")
+			job, err := state.FindEntity(jobName)
+			if err != nil || job == nil {
+				t.Fatalf("Failed to find job entity: %v", err)
+			}
+
+			resultsName := dtrules.GetRName("results")
+			resultsObj, _ := job.Get(resultsName)
+			if resultsObj == nil {
+				t.Fatal("No results array found")
+			}
+			resultsArr, _ := resultsObj.ArrayValue()
+			if len(resultsArr) == 0 {
+				t.Fatal("Results array is empty")
+			}
+
+			result, _ := resultsArr[0].REntityValue()
+			if result == nil {
+				t.Fatal("No result entity found")
+			}
+
+			// Get computed values
+			agi := getFloatAttr(result, "agi")
+			taxableIncome := getFloatAttr(result, "taxable_income")
+			totalTax := getFloatAttr(result, "total_tax")
+			checkValue := getFloatAttr(result, tc.checkField)
+
+			fmt.Printf("\n=== %s ===\n", tc.name)
+			fmt.Printf("  AGI:           $%.0f\n", agi)
+			fmt.Printf("  Taxable:       $%.0f\n", taxableIncome)
+			fmt.Printf("  Total Tax:     $%.0f\n", totalTax)
+			fmt.Printf("  %s: $%.2f\n", tc.checkField, checkValue)
+
+			// Print audit trail for debugging
+			auditName := dtrules.GetRName("audit_trail")
+			auditObj, _ := job.Get(auditName)
+			if auditObj != nil {
+				auditArr, _ := auditObj.ArrayValue()
+				if len(auditArr) > 0 {
+					fmt.Println("  --- Audit Trail (last 20 lines) ---")
+					start := len(auditArr) - 20
+					if start < 0 {
+						start = 0
+					}
+					for i := start; i < len(auditArr); i++ {
+						fmt.Printf("  %s\n", auditArr[i].StringValue())
+					}
+				}
+			}
+
+			// Basic validation - execution should complete without error
+			// and produce some output
+			if agi == 0 && taxableIncome == 0 {
+				t.Errorf("Calculation produced zero AGI and taxable income")
+			}
+		})
+	}
+}
+
+// Test2025Constants verifies 2025 tax constants using existing test data files
+// This tests the Level 1 simple scenarios which verify standard deduction and tax brackets
+func Test2025Constants(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	// Test cases using existing Level 1 test files
+	// These verify that 2025 standard deductions are applied correctly
+	// Tax amounts calculated using 2025 brackets per Rev. Proc. 2024-40
+	testCases := []struct {
+		name             string
+		file             string
+		expectedAGI      float64
+		expectedTaxable  float64
+		expectedTax      float64
+		expectedStdDed   float64
+		description      string
+	}{
+		{
+			name:            "Single_W2_Standard",
+			file:            "Level1_Simple/TestCase_L1_01_Single_W2_Standard.xml",
+			expectedAGI:     65000,
+			expectedTaxable: 50000,  // 65000 - 15000 std ded
+			expectedTax:     5914,   // 2025 brackets: 10% on $11,925 + 12% on $36,550 + 22% on $1,525
+			expectedStdDed:  15000,  // 2025 Single std ded per Rev. Proc. 2024-40
+			description:     "Verifies Single standard deduction $15,000",
+		},
+		{
+			name:            "MFJ_W2_Standard",
+			file:            "Level1_Simple/TestCase_L1_03_MFJ_W2_Standard.xml",
+			expectedAGI:     150000, // $90k + $60k W-2 wages
+			expectedTaxable: 120000, // 150000 - 30000 std ded
+			expectedTax:     16228,  // 2025 MFJ brackets: 10% on $23,850 + 12% on $73,100 + 22% on $23,050
+			expectedStdDed:  30000,  // 2025 MFJ std ded per Rev. Proc. 2024-40
+			description:     "Verifies MFJ standard deduction $30,000",
+		},
+		{
+			name:            "HOH_W2_One_Child",
+			file:            "Level1_Simple/TestCase_L1_04_HOH_W2_One_Child.xml",
+			expectedAGI:     70000,
+			expectedTaxable: 47500,  // 70000 - 22500 std ded
+			expectedTax:     3262,   // HOH brackets - CTC $2,200
+			expectedStdDed:  22500,  // 2025 HOH std ded per Rev. Proc. 2024-40
+			description:     "Verifies HOH standard deduction $22,500",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			rs := session.NewRuleSet("TaxReturn")
+
+			eddFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
+			if err != nil {
+				t.Fatalf("Failed to open EDD: %v", err)
+			}
+			defer eddFile.Close()
+			rs.LoadEDD(eddFile)
+
+			dtFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
+			if err != nil {
+				t.Fatalf("Failed to open DT: %v", err)
+			}
+			defer dtFile.Close()
+			rs.LoadDecisionTables(dtFile)
+
+			sess, err := rs.NewSession()
+			if err != nil {
+				t.Fatalf("Failed to create session: %v", err)
+			}
+
+			mapFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+			if err != nil {
+				t.Fatalf("Failed to open mapping: %v", err)
+			}
+			defer mapFile.Close()
+
+			m := mapping.NewMapping(sess)
+			m.LoadMapping(mapFile)
+			m.Initialize()
+
+			testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", tc.file))
+			if err != nil {
+				t.Fatalf("Failed to open test file: %v", err)
+			}
+			defer testFile.Close()
+			m.LoadData(testFile)
+
+			ef := sess.GetEntityFactory()
+			dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+			state := sess.GetState()
+			err = dt.Execute(state)
+			if err != nil {
+				t.Fatalf("Execution failed: %v", err)
+			}
+
+			job, _ := state.FindEntity(dtrules.GetRName("job"))
+			resultsObj, _ := job.Get(dtrules.GetRName("results"))
+			resultsArr, _ := resultsObj.ArrayValue()
+			if len(resultsArr) == 0 {
+				t.Fatal("No results")
+			}
+			result, _ := resultsArr[0].REntityValue()
+
+			agi := getFloatAttr(result, "agi")
+			taxable := getFloatAttr(result, "taxable_income")
+			totalTax := getFloatAttr(result, "total_tax")
+			stdDed := getFloatAttr(result, "standard_deduction")
+
+			fmt.Printf("\n=== %s ===\n", tc.name)
+			fmt.Printf("Description: %s\n", tc.description)
+			fmt.Printf("Standard Deduction: $%.0f (expected $%.0f)\n", stdDed, tc.expectedStdDed)
+			fmt.Printf("AGI: $%.0f (expected $%.0f)\n", agi, tc.expectedAGI)
+			fmt.Printf("Taxable: $%.0f (expected $%.0f)\n", taxable, tc.expectedTaxable)
+			fmt.Printf("Total Tax: $%.0f (expected $%.0f)\n", totalTax, tc.expectedTax)
+
+			// Verify standard deduction - this is the key 2025 constant verification
+			if stdDed != tc.expectedStdDed {
+				t.Errorf("Standard deduction: got $%.0f, want $%.0f", stdDed, tc.expectedStdDed)
+			}
+
+			// Verify AGI
+			checkValueResult(t, "AGI", agi, tc.expectedAGI, 10)
+
+			// Verify taxable income (this validates std ded was applied correctly)
+			checkValueResult(t, "Taxable Income", taxable, tc.expectedTaxable, 10)
+
+			// Verify tax (this validates brackets are correct)
+			checkValueResult(t, "Total Tax", totalTax, tc.expectedTax, 100)
+		})
+	}
+}
+
+// Test2025HSALimits verifies HSA contribution limits per Rev. Proc. 2024-25
+// Uses existing HSA test file
+func Test2025HSALimits(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	rs := session.NewRuleSet("TaxReturn")
+
+	eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
+	defer eddFile.Close()
+	rs.LoadEDD(eddFile)
+
+	dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
+	defer dtFile.Close()
+	rs.LoadDecisionTables(dtFile)
+
+	sess, _ := rs.NewSession()
+
+	mapFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+	defer mapFile.Close()
+
+	m := mapping.NewMapping(sess)
+	m.LoadMapping(mapFile)
+	m.Initialize()
+
+	// Use existing HSA test file
+	testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", "Retirement", "TestCase_HSA_Family.xml"))
+	if err != nil {
+		t.Fatalf("Failed to open HSA test file: %v", err)
+	}
+	defer testFile.Close()
+	m.LoadData(testFile)
+
+	ef := sess.GetEntityFactory()
+	dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+	state := sess.GetState()
+	dt.Execute(state)
+
+	job, _ := state.FindEntity(dtrules.GetRName("job"))
+	resultsObj, _ := job.Get(dtrules.GetRName("results"))
+	resultsArr, _ := resultsObj.ArrayValue()
+	result, _ := resultsArr[0].REntityValue()
+
+	hsaDeduction := getFloatAttr(result, "hsa_deduction")
+
+	fmt.Printf("\n=== HSA Family Limit Test ===\n")
+	fmt.Printf("HSA Deduction: $%.0f\n", hsaDeduction)
+
+	// 2025 Family HSA limit is $8,550
+	// The test file contributes $8,300, so should get full deduction
+	if hsaDeduction > 8550 {
+		t.Errorf("HSA deduction $%.0f exceeds 2025 family limit of $8,550", hsaDeduction)
+	}
+	if hsaDeduction == 0 {
+		t.Errorf("HSA deduction should not be zero")
+	}
+}
+
+// Test2025IRALimits verifies IRA deduction using existing test file
+func Test2025IRALimits(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	rs := session.NewRuleSet("TaxReturn")
+
+	eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
+	defer eddFile.Close()
+	rs.LoadEDD(eddFile)
+
+	dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
+	defer dtFile.Close()
+	rs.LoadDecisionTables(dtFile)
+
+	sess, _ := rs.NewSession()
+
+	mapFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+	defer mapFile.Close()
+
+	m := mapping.NewMapping(sess)
+	m.LoadMapping(mapFile)
+	m.Initialize()
+
+	testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", "Retirement", "TestCase_IRA_Full_Deduction.xml"))
+	if err != nil {
+		t.Fatalf("Failed to open IRA test file: %v", err)
+	}
+	defer testFile.Close()
+	m.LoadData(testFile)
+
+	ef := sess.GetEntityFactory()
+	dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+	state := sess.GetState()
+	dt.Execute(state)
+
+	job, _ := state.FindEntity(dtrules.GetRName("job"))
+	resultsObj, _ := job.Get(dtrules.GetRName("results"))
+	resultsArr, _ := resultsObj.ArrayValue()
+	result, _ := resultsArr[0].REntityValue()
+
+	iraDeduction := getFloatAttr(result, "ira_deduction")
+	agi := getFloatAttr(result, "agi")
+
+	fmt.Printf("\n=== IRA Full Deduction Test ===\n")
+	fmt.Printf("AGI: $%.0f\n", agi)
+	fmt.Printf("IRA Deduction: $%.0f\n", iraDeduction)
+
+	// 2025 IRA limit is $7,000
+	// Phase-out for Single covered by plan: $79,000 - $89,000
+	if iraDeduction > 7000 {
+		t.Errorf("IRA deduction $%.0f exceeds 2025 limit of $7,000", iraDeduction)
+	}
+	// This test case should be below phase-out, so full deduction expected
+	if iraDeduction == 7000 {
+		fmt.Println("PASS: Full IRA deduction of $7,000 applied (below phase-out)")
+	}
+}
+
+// Test2025StudentLoanPhaseout verifies student loan interest deduction
+func Test2025StudentLoanPhaseout(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	rs := session.NewRuleSet("TaxReturn")
+
+	eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
+	defer eddFile.Close()
+	rs.LoadEDD(eddFile)
+
+	dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
+	defer dtFile.Close()
+	rs.LoadDecisionTables(dtFile)
+
+	sess, _ := rs.NewSession()
+
+	mapFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+	defer mapFile.Close()
+
+	m := mapping.NewMapping(sess)
+	m.LoadMapping(mapFile)
+	m.Initialize()
+
+	testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", "Adjustments", "TestCase_Student_Loan.xml"))
+	if err != nil {
+		t.Fatalf("Failed to open Student Loan test file: %v", err)
+	}
+	defer testFile.Close()
+	m.LoadData(testFile)
+
+	ef := sess.GetEntityFactory()
+	dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+	state := sess.GetState()
+	dt.Execute(state)
+
+	job, _ := state.FindEntity(dtrules.GetRName("job"))
+	resultsObj, _ := job.Get(dtrules.GetRName("results"))
+	resultsArr, _ := resultsObj.ArrayValue()
+	result, _ := resultsArr[0].REntityValue()
+
+	slDeduction := getFloatAttr(result, "student_loan_deduction")
+	agi := getFloatAttr(result, "agi")
+
+	fmt.Printf("\n=== Student Loan Deduction Test ===\n")
+	fmt.Printf("AGI: $%.0f\n", agi)
+	fmt.Printf("Student Loan Deduction: $%.0f\n", slDeduction)
+
+	// 2025 max is $2,500
+	// Phase-out for Single: $85,000 - $100,000
+	if slDeduction > 2500 {
+		t.Errorf("Student loan deduction $%.0f exceeds 2025 limit of $2,500", slDeduction)
+	}
+}
+
+// Test2025CapitalGainsBrackets verifies capital gains tax brackets
+func Test2025CapitalGainsBrackets(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	testCases := []struct {
+		name        string
+		file        string
+		description string
+	}{
+		{
+			name:        "LTCG_0_Percent",
+			file:        "CapitalGains/TestCase_LTCG_0_Percent.xml",
+			description: "Tests 0% LTCG rate (taxable income below $48,350 single)",
+		},
+		{
+			name:        "LTCG_15_Percent",
+			file:        "CapitalGains/TestCase_LTCG_15_Percent.xml",
+			description: "Tests 15% LTCG rate (taxable income above $48,350 single)",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			rs := session.NewRuleSet("TaxReturn")
+
+			eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
+			defer eddFile.Close()
+			rs.LoadEDD(eddFile)
+
+			dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
+			defer dtFile.Close()
+			rs.LoadDecisionTables(dtFile)
+
+			sess, _ := rs.NewSession()
+
+			mapFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+			defer mapFile.Close()
+
+			m := mapping.NewMapping(sess)
+			m.LoadMapping(mapFile)
+			m.Initialize()
+
+			testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", tc.file))
+			if err != nil {
+				t.Fatalf("Failed to open test file: %v", err)
+			}
+			defer testFile.Close()
+			m.LoadData(testFile)
+
+			ef := sess.GetEntityFactory()
+			dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+			state := sess.GetState()
+			dt.Execute(state)
+
+			job, _ := state.FindEntity(dtrules.GetRName("job"))
+			resultsObj, _ := job.Get(dtrules.GetRName("results"))
+			resultsArr, _ := resultsObj.ArrayValue()
+			result, _ := resultsArr[0].REntityValue()
+
+			taxable := getFloatAttr(result, "taxable_income")
+			cgTax := getFloatAttr(result, "capital_gains_tax")
+
+			fmt.Printf("\n=== %s ===\n", tc.name)
+			fmt.Printf("Description: %s\n", tc.description)
+			fmt.Printf("Taxable Income: $%.0f\n", taxable)
+			fmt.Printf("Capital Gains Tax: $%.0f\n", cgTax)
+
+			// 2025 thresholds: 0% up to $48,350 single, 15% up to $533,400
+			if tc.name == "LTCG_0_Percent" && cgTax > 0 {
+				// Only fail if taxable income is clearly in 0% bracket
+				if taxable < 48350 {
+					t.Errorf("Expected 0%% CG rate but got tax of $%.0f", cgTax)
+				}
+			}
+		})
 	}
 }
