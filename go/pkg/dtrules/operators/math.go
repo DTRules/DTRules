@@ -56,6 +56,9 @@ func init() {
 	Register("fnegate", opFNegate)
 
 	Register("roundto", opRoundTo)
+	Register("ceiling", opCeiling)
+	Alias("ceiling", "ceil")
+	Register("floor", opFloor)
 	Register("fmax", opFMax)
 	Register("fmin", opFMin)
 	Register("max", opMax)
@@ -289,6 +292,32 @@ func opFNegate(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(dtrules.GetRDoubleValue(-aVal))
+}
+
+// opCeiling rounds up to nearest integer: ( a -- ceil(a) )
+func opCeiling(state dtrules.State) error {
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Ceil(aVal)))
+}
+
+// opFloor rounds down to nearest integer: ( a -- floor(a) )
+func opFloor(state dtrules.State) error {
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Floor(aVal)))
 }
 
 // opRoundTo rounds a number: ( number #places boundary -- number2 )

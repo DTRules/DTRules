@@ -113,6 +113,11 @@ var sampleProjects = []SampleProject{
 			"Calculate_Credits",
 			"Calculate_Child_Tax_Credit",
 			"Calculate_Final_Balance",
+			"Calculate_OBBBA_Deductions",
+			"Calculate_Tips_Deduction",
+			"Calculate_Overtime_Deduction",
+			"Calculate_Senior_Deduction",
+			"Process_Other_Income",
 		},
 	},
 }

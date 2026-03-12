@@ -19,8 +19,18 @@
 		<field name='deductions' type='array' subtype='deduction' access='r' input='' default_value='' comment='Itemized deductions'></field>
 		<field name='credits' type='array' subtype='credit' access='r' input='' default_value='' comment='Tax credits'></field>
 		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Other income sources (pension, interest, dividends)'></field>
+		<field name='energy_improvements' type='array' subtype='energy_improvement' access='r' input='' default_value='' comment='Energy improvements for Form 5695'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
+		<!-- Healthcare / Premium Tax Credit -->
+		<field name='has_marketplace_coverage' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Had marketplace health insurance'></field>
+		<field name='annual_premium' type='double' subtype='' access='r' input='main' default_value='0' comment='Annual health insurance premium (Form 1095-A)'></field>
+		<field name='slcsp_premium' type='double' subtype='' access='r' input='main' default_value='0' comment='Second lowest cost silver plan premium (Form 1095-A)'></field>
+		<field name='advance_ptc_received' type='double' subtype='' access='r' input='main' default_value='0' comment='Advance PTC received (Form 1095-A)'></field>
+		<field name='household_size' type='integer' subtype='' access='r' input='main' default_value='1' comment='Household size for FPL calculation'></field>
+		<!-- Passive Activity -->
+		<field name='is_real_estate_professional' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Qualifies as real estate professional (IRC 469(c)(7))'></field>
+		<field name='actively_participates_rental' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Actively participates in rental activities'></field>
 		<!-- Expected values for validation -->
 		<field name='expected_agi' type='double' subtype='' access='r' input='main' default_value='' comment='Expected AGI for validation'></field>
 		<field name='expected_taxable_income' type='double' subtype='' access='r' input='main' default_value='' comment='Expected taxable income for validation'></field>
@@ -66,6 +76,14 @@
 		<field name='age_50_or_over' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Age 50 or over for catchup contributions'></field>
 		<!-- Student Loan Interest -->
 		<field name='student_loan_interest_paid' type='double' subtype='' access='rw' input='main' default_value='0' comment='Student loan interest paid (Form 1098-E)'></field>
+		<!-- Child and Dependent Care (Form 2441) -->
+		<field name='childcare_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Child/dependent care expenses paid'></field>
+		<field name='dependent_care_fsa' type='double' subtype='' access='rw' input='main' default_value='0' comment='Dependent Care FSA (Box 10 W-2)'></field>
+		<!-- Educator Expenses -->
+		<field name='is_educator' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='K-12 teacher, instructor, counselor, principal, or aide'></field>
+		<field name='educator_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unreimbursed educator expenses'></field>
+		<!-- Medical Expenses -->
+		<field name='medical_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unreimbursed medical expenses (Schedule A)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -94,6 +112,10 @@
 		<field name='qualifies_for_odc' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Other Dependent Credit (computed)'></field>
 		<field name='ctc_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Child Tax Credit amount (computed)'></field>
 		<field name='odc_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Other Dependent Credit amount (computed)'></field>
+		<!-- Childcare eligibility -->
+		<field name='qualifies_for_cdcc' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Child/Dependent Care Credit (computed)'></field>
+		<field name='is_disabled' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Physically or mentally incapable of self-care'></field>
+		<field name='care_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Care expenses for this dependent'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about dependent eligibility'></field>
 	</entity>
 
@@ -144,6 +166,7 @@
 		<field name='rental_net_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Net rental income (computed)'></field>
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
+		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -165,6 +188,21 @@
 		<field name='actual_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Actual vehicle expenses if using actual method'></field>
 		<field name='vehicle_depreciation' type='double' subtype='' access='rw' input='main' default_value='0' comment='Vehicle depreciation'></field>
 		<field name='vehicle_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Final vehicle deduction amount (computed)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- ENERGY_IMPROVEMENT - Residential energy improvements (Form 5695)  -->
+	<!-- ================================================================== -->
+	<entity name='energy_improvement' access='rw' comment='Residential energy improvement'>
+		<field name='energy_improvement' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Improvement ID'></field>
+		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Type: solar, wind, geothermal, battery, heat_pump, insulation, windows, doors, water_heater, hvac, audit'></field>
+		<field name='category' type='string' subtype='' access='r' input='main' default_value='' comment='Category: clean_energy (25D) or efficiency (25C)'></field>
+		<field name='description' type='string' subtype='' access='r' input='main' default_value='' comment='Description of improvement'></field>
+		<field name='cost' type='double' subtype='' access='r' input='main' default_value='0' comment='Total cost of improvement'></field>
+		<field name='installation_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date installed'></field>
+		<field name='credit_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Computed credit amount'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -367,6 +405,72 @@
 		<field name='student_loan_phaseout_end_single' type='double' subtype='' access='r' input='' default_value='100000' comment='Student loan phaseout end Single (2025)'></field>
 		<field name='student_loan_phaseout_start_mfj' type='double' subtype='' access='r' input='' default_value='170000' comment='Student loan phaseout start MFJ (2025)'></field>
 		<field name='student_loan_phaseout_end_mfj' type='double' subtype='' access='r' input='' default_value='200000' comment='Student loan phaseout end MFJ (2025)'></field>
+
+		<!-- Child and Dependent Care Credit (Form 2441, IRC 21) -->
+		<field name='cdcc_expense_limit_1' type='double' subtype='' access='r' input='' default_value='3000' comment='Max care expenses for 1 qualifying person'></field>
+		<field name='cdcc_expense_limit_2' type='double' subtype='' access='r' input='' default_value='6000' comment='Max care expenses for 2+ qualifying persons'></field>
+		<field name='cdcc_max_rate' type='double' subtype='' access='r' input='' default_value='0.35' comment='Max credit rate (35%) for AGI up to $15,000'></field>
+		<field name='cdcc_min_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='Min credit rate (20%) for AGI over $43,000'></field>
+		<field name='cdcc_rate_reduction_start' type='double' subtype='' access='r' input='' default_value='15000' comment='AGI where rate reduction begins'></field>
+		<field name='cdcc_rate_reduction_increment' type='double' subtype='' access='r' input='' default_value='2000' comment='AGI increment for 1% rate reduction'></field>
+
+		<!-- Saver's Credit (Form 8880, IRC 25B) -->
+		<field name='savers_credit_max_contribution' type='double' subtype='' access='r' input='' default_value='2000' comment='Max eligible contribution per person'></field>
+		<field name='savers_50_percent_single' type='double' subtype='' access='r' input='' default_value='23000' comment='50% rate AGI limit Single (2025)'></field>
+		<field name='savers_50_percent_mfj' type='double' subtype='' access='r' input='' default_value='46000' comment='50% rate AGI limit MFJ (2025)'></field>
+		<field name='savers_50_percent_hoh' type='double' subtype='' access='r' input='' default_value='34500' comment='50% rate AGI limit HOH (2025)'></field>
+		<field name='savers_20_percent_single' type='double' subtype='' access='r' input='' default_value='25000' comment='20% rate AGI limit Single (2025)'></field>
+		<field name='savers_20_percent_mfj' type='double' subtype='' access='r' input='' default_value='50000' comment='20% rate AGI limit MFJ (2025)'></field>
+		<field name='savers_20_percent_hoh' type='double' subtype='' access='r' input='' default_value='37500' comment='20% rate AGI limit HOH (2025)'></field>
+		<field name='savers_10_percent_single' type='double' subtype='' access='r' input='' default_value='38250' comment='10% rate AGI limit Single (2025)'></field>
+		<field name='savers_10_percent_mfj' type='double' subtype='' access='r' input='' default_value='76500' comment='10% rate AGI limit MFJ (2025)'></field>
+		<field name='savers_10_percent_hoh' type='double' subtype='' access='r' input='' default_value='57375' comment='10% rate AGI limit HOH (2025)'></field>
+
+		<!-- Alternative Minimum Tax (Form 6251, IRC 55-59) -->
+		<field name='amt_exemption_single' type='double' subtype='' access='r' input='' default_value='88100' comment='AMT exemption Single (2025)'></field>
+		<field name='amt_exemption_mfj' type='double' subtype='' access='r' input='' default_value='137000' comment='AMT exemption MFJ (2025)'></field>
+		<field name='amt_exemption_mfs' type='double' subtype='' access='r' input='' default_value='68500' comment='AMT exemption MFS (2025)'></field>
+		<field name='amt_phaseout_single' type='double' subtype='' access='r' input='' default_value='609350' comment='AMT exemption phaseout start Single (2025)'></field>
+		<field name='amt_phaseout_mfj' type='double' subtype='' access='r' input='' default_value='1218700' comment='AMT exemption phaseout start MFJ (2025)'></field>
+		<field name='amt_phaseout_mfs' type='double' subtype='' access='r' input='' default_value='609350' comment='AMT exemption phaseout start MFS (2025)'></field>
+		<field name='amt_rate_low' type='double' subtype='' access='r' input='' default_value='0.26' comment='AMT 26% rate'></field>
+		<field name='amt_rate_high' type='double' subtype='' access='r' input='' default_value='0.28' comment='AMT 28% rate'></field>
+		<field name='amt_28_percent_threshold' type='double' subtype='' access='r' input='' default_value='232600' comment='AMTI threshold for 28% rate (2025)'></field>
+
+		<!-- Residential Energy Credits (Form 5695, IRC 25C/25D) -->
+		<field name='energy_efficiency_rate' type='double' subtype='' access='r' input='' default_value='0.30' comment='Energy Efficient Home Improvement Credit rate (30%)'></field>
+		<field name='energy_efficiency_annual_limit' type='double' subtype='' access='r' input='' default_value='1200' comment='Annual limit for efficiency improvements'></field>
+		<field name='energy_efficiency_door_limit' type='double' subtype='' access='r' input='' default_value='250' comment='Per door limit ($250)'></field>
+		<field name='energy_efficiency_door_total_limit' type='double' subtype='' access='r' input='' default_value='500' comment='Total door limit ($500)'></field>
+		<field name='energy_efficiency_windows_limit' type='double' subtype='' access='r' input='' default_value='600' comment='Windows/skylights limit ($600)'></field>
+		<field name='energy_efficiency_audit_limit' type='double' subtype='' access='r' input='' default_value='150' comment='Home energy audit limit ($150)'></field>
+		<field name='clean_energy_rate' type='double' subtype='' access='r' input='' default_value='0.30' comment='Residential Clean Energy Credit rate (30%)'></field>
+		<field name='heat_pump_limit' type='double' subtype='' access='r' input='' default_value='2000' comment='Heat pump/biomass limit ($2,000)'></field>
+
+		<!-- Passive Activity Loss Rules (Form 8582, IRC 469) -->
+		<field name='rental_loss_allowance' type='double' subtype='' access='r' input='' default_value='25000' comment='Max rental loss allowance for active participants'></field>
+		<field name='rental_loss_phaseout_start' type='double' subtype='' access='r' input='' default_value='100000' comment='AGI where rental loss allowance phases out'></field>
+		<field name='rental_loss_phaseout_end' type='double' subtype='' access='r' input='' default_value='150000' comment='AGI where rental loss allowance fully phases out'></field>
+		<field name='rental_loss_phaseout_rate' type='double' subtype='' access='r' input='' default_value='0.50' comment='$1 reduction per $2 over threshold (50%)'></field>
+
+		<!-- Medical Expense Deduction (Schedule A, IRC 213) -->
+		<field name='medical_floor_percentage' type='double' subtype='' access='r' input='' default_value='0.075' comment='Medical expense floor (7.5% of AGI)'></field>
+
+		<!-- Educator Expense Deduction (Schedule 1, IRC 62(a)(2)(D)) -->
+		<field name='educator_expense_limit' type='double' subtype='' access='r' input='' default_value='300' comment='Educator expense deduction limit (2025)'></field>
+
+		<!-- Premium Tax Credit (Form 8962, IRC 36B) -->
+		<field name='ptc_fpl_floor' type='double' subtype='' access='r' input='' default_value='100' comment='Min FPL percentage for PTC (100%)'></field>
+		<field name='ptc_fpl_ceiling' type='double' subtype='' access='r' input='' default_value='400' comment='Max FPL percentage for PTC (400%)'></field>
+		<field name='fpl_1_person' type='double' subtype='' access='r' input='' default_value='15060' comment='2025 FPL for 1 person (48 states)'></field>
+		<field name='fpl_2_person' type='double' subtype='' access='r' input='' default_value='20440' comment='2025 FPL for 2 persons'></field>
+		<field name='fpl_3_person' type='double' subtype='' access='r' input='' default_value='25820' comment='2025 FPL for 3 persons'></field>
+		<field name='fpl_4_person' type='double' subtype='' access='r' input='' default_value='31200' comment='2025 FPL for 4 persons'></field>
+		<field name='fpl_5_person' type='double' subtype='' access='r' input='' default_value='36580' comment='2025 FPL for 5 persons'></field>
+		<field name='fpl_6_person' type='double' subtype='' access='r' input='' default_value='41960' comment='2025 FPL for 6 persons'></field>
+		<field name='fpl_7_person' type='double' subtype='' access='r' input='' default_value='47340' comment='2025 FPL for 7 persons'></field>
+		<field name='fpl_8_person' type='double' subtype='' access='r' input='' default_value='52720' comment='2025 FPL for 8 persons'></field>
+		<field name='fpl_additional_person' type='double' subtype='' access='r' input='' default_value='5380' comment='Additional amount per person over 8'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -390,6 +494,7 @@
 
 		<!-- Deductions -->
 		<field name='total_itemized' type='double' subtype='' access='rw' input='' default_value='0' comment='Total itemized deductions'></field>
+		<field name='salt_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='SALT deduction amount (for AMT add-back)'></field>
 		<field name='standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Standard deduction amount'></field>
 		<field name='deduction_used' type='string' subtype='' access='rw' input='' default_value='standard' comment='Which deduction used: standard or itemized'></field>
 		<field name='total_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Total deduction (Form 1040 Line 12)'></field>
@@ -426,6 +531,35 @@
 		<field name='ira_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Traditional IRA deduction (Schedule 1 Line 20)'></field>
 		<field name='hsa_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='HSA deduction (Schedule 1 Line 13)'></field>
 		<field name='student_loan_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Student loan interest deduction (Schedule 1 Line 21)'></field>
+		<field name='educator_expense_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Educator expense deduction (Schedule 1 Line 11)'></field>
+
+		<!-- Passive Activity / Rental Loss -->
+		<field name='total_rental_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Total rental losses before PAL limits'></field>
+		<field name='rental_loss_allowed' type='double' subtype='' access='rw' input='' default_value='0' comment='Rental loss allowed after PAL rules (Form 8582)'></field>
+		<field name='pal_phaseout_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='PAL phaseout reduction amount'></field>
+		<field name='pal_reduced_allowance' type='double' subtype='' access='rw' input='' default_value='0' comment='PAL allowance after phaseout'></field>
+		<field name='suspended_passive_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Suspended passive loss carryforward'></field>
+
+		<!-- Medical Expense (Itemized) -->
+		<field name='total_medical_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total unreimbursed medical expenses'></field>
+		<field name='medical_expense_floor' type='double' subtype='' access='rw' input='' default_value='0' comment='7.5% AGI floor amount'></field>
+		<field name='medical_expense_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible medical expenses (Schedule A Line 4)'></field>
+
+		<!-- Child and Dependent Care -->
+		<field name='qualifying_care_persons' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying persons for CDCC'></field>
+		<field name='total_care_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total childcare expenses claimed'></field>
+		<field name='cdcc_rate' type='double' subtype='' access='rw' input='' default_value='0' comment='CDCC credit rate based on AGI'></field>
+		<field name='cdcc_expense_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='CDCC expense limit based on qualifying persons'></field>
+		<field name='cdcc_allowed_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='CDCC allowed expenses (lesser of actual or limit)'></field>
+		<field name='cdcc_rate_reductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Number of rate reduction steps for CDCC'></field>
+
+		<!-- Premium Tax Credit -->
+		<field name='fpl_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Federal Poverty Level for household'></field>
+		<field name='fpl_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='Household income as % of FPL'></field>
+		<field name='applicable_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='PTC applicable percentage'></field>
+		<field name='annual_contribution' type='double' subtype='' access='rw' input='' default_value='0' comment='Expected annual contribution'></field>
+		<field name='max_ptc' type='double' subtype='' access='rw' input='' default_value='0' comment='Maximum PTC available'></field>
+		<field name='net_ptc' type='double' subtype='' access='rw' input='' default_value='0' comment='Net PTC (max PTC minus advance received)'></field>
 
 		<!-- Taxable Income -->
 		<field name='taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable income (Form 1040 Line 15)'></field>
@@ -433,6 +567,13 @@
 		<!-- Tax Calculation -->
 		<field name='regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Regular tax (Form 1040 Line 16)'></field>
 		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (Schedule SE)'></field>
+		<!-- Alternative Minimum Tax (Form 6251) -->
+		<field name='amti' type='double' subtype='' access='rw' input='' default_value='0' comment='Alternative Minimum Taxable Income'></field>
+		<field name='amt_exemption' type='double' subtype='' access='rw' input='' default_value='0' comment='AMT exemption amount'></field>
+		<field name='amt_exemption_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='AMT exemption reduction due to phase-out'></field>
+		<field name='amt_base' type='double' subtype='' access='rw' input='' default_value='0' comment='AMT base (AMTI minus exemption)'></field>
+		<field name='amt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Tentative minimum tax'></field>
+		<field name='amt_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='AMT owed (excess over regular tax)'></field>
 		<field name='total_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax before credits'></field>
 
 		<!-- Credits -->
@@ -446,6 +587,14 @@
 		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
 		<field name='eitc' type='double' subtype='' access='rw' input='' default_value='0' comment='Earned Income Tax Credit'></field>
 		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credits (AOTC/LLC)'></field>
+		<field name='cdcc_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Child and Dependent Care Credit (Form 2441)'></field>
+		<field name='savers_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit (Form 8880)'></field>
+		<field name='savers_credit_rate' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit rate (0.50, 0.20, 0.10, or 0)'></field>
+		<field name='total_savers_contribution' type='double' subtype='' access='rw' input='' default_value='0' comment='Total eligible retirement contributions for Saver Credit'></field>
+		<field name='energy_efficiency_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Energy Efficient Home Improvement Credit (Form 5695 Part II)'></field>
+		<field name='clean_energy_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Residential Clean Energy Credit (Form 5695 Part I)'></field>
+		<field name='premium_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Premium Tax Credit (Form 8962)'></field>
+		<field name='ptc_repayment' type='double' subtype='' access='rw' input='' default_value='0' comment='Excess APTC repayment'></field>
 		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
 
 		<!-- Final -->
