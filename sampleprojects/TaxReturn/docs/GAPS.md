@@ -280,15 +280,31 @@ Credit Limit = US Tax × (Foreign Source Taxable Income / Total Taxable Income)
 
 ---
 
-## Implementation Priority
+## Implementation Status
 
-| Form | Priority | Complexity | Users Affected |
-|------|----------|------------|----------------|
-| Schedule K-1 | High | High | Business owners, investors |
-| Form 1116 | Medium | Medium | International investors |
-| Form 8606 | Medium | Medium | IRA holders |
-| Form 4797 | Low | High | Business property sellers |
-| Schedule F | Low | Medium | Farmers |
+All 5 gaps have been implemented in the TaxReturn decision tables.
+
+| Form | Status | Decision Tables |
+|------|--------|----------------|
+| Schedule K-1 | **IMPLEMENTED** | Process_K1_Income, Calculate_K1_SE_Tax |
+| Form 1116 | **IMPLEMENTED** | Process_Foreign_Income, Calculate_Foreign_Tax_Credit |
+| Form 8606 | **IMPLEMENTED** | Process_IRA_Accounts, Calculate_Roth_Conversion_Tax |
+| Form 4797 | **IMPLEMENTED** | Process_Property_Sales, Calculate_Section_1231 |
+| Schedule F | **IMPLEMENTED** | Process_Farm_Income, Calculate_Farm_SE_Tax |
+
+### Entities Added
+- `k1_income` - Schedule K-1 income from partnerships, S-corps, trusts
+- `ira_account` - IRA accounts for Form 8606 basis tracking
+- `farm_income` - Schedule F farm income and expenses
+- `property_sale` - Form 4797 business property sales
+- `foreign_income` - Form 1116 foreign income sources
+
+### Result Fields Added
+- K-1: total_k1_ordinary_income, total_k1_rental_income, total_k1_se_earnings, etc.
+- Form 8606: total_ira_basis, total_roth_conversions, taxable_conversions
+- Schedule F: total_farm_gross_income, total_farm_expenses, net_farm_profit
+- Form 4797: total_1231_gains, total_depreciation_recapture, total_unrecaptured_1250
+- Form 1116: total_foreign_income, total_foreign_taxes_paid, foreign_tax_credit
 
 ## Testing Strategy
 

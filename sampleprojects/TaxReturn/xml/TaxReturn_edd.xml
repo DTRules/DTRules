@@ -20,6 +20,11 @@
 		<field name='credits' type='array' subtype='credit' access='r' input='' default_value='' comment='Tax credits'></field>
 		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Other income sources (pension, interest, dividends)'></field>
 		<field name='energy_improvements' type='array' subtype='energy_improvement' access='r' input='' default_value='' comment='Energy improvements for Form 5695'></field>
+		<field name='k1_incomes' type='array' subtype='k1_income' access='r' input='' default_value='' comment='Schedule K-1 income (partnerships, S-corps, trusts)'></field>
+		<field name='ira_accounts' type='array' subtype='ira_account' access='r' input='' default_value='' comment='IRA accounts for Form 8606'></field>
+		<field name='farm_incomes' type='array' subtype='farm_income' access='r' input='' default_value='' comment='Farm income for Schedule F'></field>
+		<field name='property_sales' type='array' subtype='property_sale' access='r' input='' default_value='' comment='Business property sales for Form 4797'></field>
+		<field name='foreign_incomes' type='array' subtype='foreign_income' access='r' input='' default_value='' comment='Foreign income for Form 1116'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Healthcare / Premium Tax Credit -->
@@ -203,6 +208,183 @@
 		<field name='cost' type='double' subtype='' access='r' input='main' default_value='0' comment='Total cost of improvement'></field>
 		<field name='installation_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date installed'></field>
 		<field name='credit_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Computed credit amount'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- K1_INCOME - Schedule K-1 income (Form 1065, 1120-S, 1041)         -->
+	<!-- ================================================================== -->
+	<entity name='k1_income' access='rw' comment='Schedule K-1 income from partnerships, S-corps, trusts'>
+		<field name='k1_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='K-1 ID'></field>
+		<field name='source_type' type='string' subtype='' access='r' input='main' default_value='' comment='Source: partnership, s_corp, trust'></field>
+		<field name='ein' type='string' subtype='' access='r' input='main' default_value='' comment='Entity EIN'></field>
+		<field name='entity_name' type='string' subtype='' access='r' input='main' default_value='' comment='Partnership/S-corp/Trust name'></field>
+		<!-- Box 1-3: Income/Loss -->
+		<field name='ordinary_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 1: Ordinary business income/loss'></field>
+		<field name='rental_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 2: Net rental real estate income/loss'></field>
+		<field name='other_rental_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 3: Other net rental income/loss'></field>
+		<!-- Box 4: Guaranteed Payments -->
+		<field name='guaranteed_payments_services' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 4a: Guaranteed payments for services'></field>
+		<field name='guaranteed_payments_capital' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 4b: Guaranteed payments for capital'></field>
+		<!-- Box 5-7: Investment Income -->
+		<field name='interest_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 5: Interest income'></field>
+		<field name='ordinary_dividends' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 6a: Ordinary dividends'></field>
+		<field name='qualified_dividends' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 6b: Qualified dividends'></field>
+		<field name='royalties' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 7: Royalties'></field>
+		<!-- Box 8-10: Capital Gains -->
+		<field name='short_term_gain' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 8: Net short-term capital gain/loss'></field>
+		<field name='long_term_gain' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 9a: Net long-term capital gain/loss'></field>
+		<field name='unrecaptured_1250' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 9b: Unrecaptured Section 1250 gain'></field>
+		<field name='section_1231_gain' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 10: Net Section 1231 gain/loss'></field>
+		<!-- Box 11-14: Other Items -->
+		<field name='other_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 11: Other income'></field>
+		<field name='section_179' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 12: Section 179 deduction'></field>
+		<field name='other_deductions' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 13: Other deductions'></field>
+		<field name='se_earnings' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 14: Self-employment earnings'></field>
+		<!-- Box 15-16: Foreign Items -->
+		<field name='foreign_taxes_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 16: Foreign taxes paid'></field>
+		<field name='foreign_source_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 16: Foreign source income'></field>
+		<!-- Box 20: Section 199A QBI -->
+		<field name='qbi_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 20 Code Z: QBI for Section 199A'></field>
+		<field name='w2_wages_qbi' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 20: W-2 wages for QBI limitation'></field>
+		<field name='ubia' type='double' subtype='' access='r' input='main' default_value='0' comment='Box 20: UBIA of qualified property'></field>
+		<field name='sstb' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Box 20: Specified Service Trade or Business'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- IRA_ACCOUNT - IRA accounts for Form 8606                          -->
+	<!-- ================================================================== -->
+	<entity name='ira_account' access='rw' comment='IRA account for basis tracking and conversions'>
+		<field name='ira_account' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Account ID'></field>
+		<field name='account_type' type='string' subtype='' access='r' input='main' default_value='traditional' comment='Type: traditional, roth, sep, simple'></field>
+		<field name='institution' type='string' subtype='' access='r' input='main' default_value='' comment='Financial institution'></field>
+		<field name='account_number' type='string' subtype='' access='r' input='main' default_value='' comment='Account number (last 4)'></field>
+		<!-- Balances -->
+		<field name='year_end_balance' type='double' subtype='' access='r' input='main' default_value='0' comment='Balance as of 12/31'></field>
+		<field name='prior_year_basis' type='double' subtype='' access='r' input='main' default_value='0' comment='Cumulative non-deductible basis from prior years'></field>
+		<!-- Current Year Activity -->
+		<field name='contribution_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Current year contribution'></field>
+		<field name='contribution_deductible' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether contribution is deductible (computed)'></field>
+		<field name='conversion_to_roth' type='double' subtype='' access='r' input='main' default_value='0' comment='Amount converted to Roth IRA'></field>
+		<field name='distribution_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Non-conversion distributions taken'></field>
+		<!-- Computed Values -->
+		<field name='total_basis' type='double' subtype='' access='rw' input='' default_value='0' comment='Total non-deductible basis (computed)'></field>
+		<field name='taxable_conversion' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable portion of conversion (computed)'></field>
+		<field name='taxable_distribution' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable portion of distribution (computed)'></field>
+		<field name='nontaxable_portion' type='double' subtype='' access='rw' input='' default_value='0' comment='Non-taxable portion (basis recovery)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- FARM_INCOME - Schedule F farm income                              -->
+	<!-- ================================================================== -->
+	<entity name='farm_income' access='rw' comment='Schedule F farm income and expenses'>
+		<field name='farm_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Farm ID'></field>
+		<field name='farm_name' type='string' subtype='' access='r' input='main' default_value='' comment='Farm or business name'></field>
+		<field name='accounting_method' type='string' subtype='' access='r' input='main' default_value='cash' comment='Method: cash or accrual'></field>
+		<!-- Income (Schedule F Part I) -->
+		<field name='sales_livestock_raised' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 2: Sales of livestock raised'></field>
+		<field name='sales_livestock_bought' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 3: Cost of livestock bought for resale'></field>
+		<field name='sales_crops' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 4: Sales of crops'></field>
+		<field name='coop_distributions' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 5a: Cooperative distributions'></field>
+		<field name='agricultural_payments' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 6: Agricultural program payments'></field>
+		<field name='ccc_loans' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 7a: CCC loans reported'></field>
+		<field name='crop_insurance' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 8a: Crop insurance proceeds'></field>
+		<field name='custom_hire' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 9: Custom hire income'></field>
+		<field name='other_farm_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 10: Other farm income'></field>
+		<!-- Expenses (Schedule F Part II) -->
+		<field name='car_truck_expense' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 12: Car and truck expenses'></field>
+		<field name='chemicals' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 13: Chemicals'></field>
+		<field name='conservation' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 14: Conservation expenses'></field>
+		<field name='custom_hire_expense' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 15: Custom hire expense'></field>
+		<field name='depreciation' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 16: Depreciation'></field>
+		<field name='employee_benefits' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 17: Employee benefit programs'></field>
+		<field name='feed' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 18: Feed'></field>
+		<field name='fertilizers' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 19: Fertilizers and lime'></field>
+		<field name='freight' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 20: Freight and trucking'></field>
+		<field name='fuel' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 21: Gasoline, fuel, oil'></field>
+		<field name='insurance' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 22: Insurance (other than health)'></field>
+		<field name='interest_mortgage' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 23a: Mortgage interest'></field>
+		<field name='interest_other' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 23b: Other interest'></field>
+		<field name='labor_hired' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 24: Labor hired'></field>
+		<field name='pension_profit_sharing' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 25: Pension and profit-sharing'></field>
+		<field name='rent_lease_vehicles' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 26a: Rent - vehicles, machinery'></field>
+		<field name='rent_lease_land' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 26b: Rent - land, animals'></field>
+		<field name='repairs' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 27: Repairs and maintenance'></field>
+		<field name='seeds_plants' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 28: Seeds and plants'></field>
+		<field name='storage' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 29: Storage and warehousing'></field>
+		<field name='supplies' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 30: Supplies'></field>
+		<field name='taxes' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 31: Taxes'></field>
+		<field name='utilities' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 32: Utilities'></field>
+		<field name='veterinary' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 33: Veterinary, breeding, medicine'></field>
+		<field name='other_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Line 34: Other expenses'></field>
+		<!-- Computed Values -->
+		<field name='gross_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total farm gross income (computed)'></field>
+		<field name='total_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total farm expenses (computed)'></field>
+		<field name='net_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Net farm profit/loss (computed)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- PROPERTY_SALE - Form 4797 business property sales                 -->
+	<!-- ================================================================== -->
+	<entity name='property_sale' access='rw' comment='Sale of business property (Form 4797)'>
+		<field name='property_sale' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Sale ID'></field>
+		<field name='description' type='string' subtype='' access='r' input='main' default_value='' comment='Property description'></field>
+		<field name='property_type' type='string' subtype='' access='r' input='main' default_value='1231' comment='Type: 1231, 1245, 1250'></field>
+		<field name='is_real_property' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Is real property (building, land)'></field>
+		<!-- Dates -->
+		<field name='date_acquired' type='date' subtype='' access='r' input='main' default_value='' comment='Date acquired'></field>
+		<field name='date_sold' type='date' subtype='' access='r' input='main' default_value='' comment='Date sold'></field>
+		<!-- Amounts -->
+		<field name='sales_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross sales price'></field>
+		<field name='selling_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Cost of sale (commissions, etc.)'></field>
+		<field name='cost_basis' type='double' subtype='' access='r' input='main' default_value='0' comment='Original cost basis'></field>
+		<field name='improvements' type='double' subtype='' access='r' input='main' default_value='0' comment='Cost of improvements'></field>
+		<field name='depreciation_allowed' type='double' subtype='' access='r' input='main' default_value='0' comment='Total depreciation taken'></field>
+		<!-- Computed Values -->
+		<field name='adjusted_basis' type='double' subtype='' access='rw' input='' default_value='0' comment='Adjusted basis (cost + improvements - depreciation)'></field>
+		<field name='amount_realized' type='double' subtype='' access='rw' input='' default_value='0' comment='Amount realized (sales price - expenses)'></field>
+		<field name='total_gain_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Total gain or loss'></field>
+		<field name='ordinary_income_recapture' type='double' subtype='' access='rw' input='' default_value='0' comment='Section 1245/1250 recapture (ordinary income)'></field>
+		<field name='section_1231_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Section 1231 gain/loss portion'></field>
+		<field name='unrecaptured_1250_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Unrecaptured Section 1250 gain (25% rate)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- FOREIGN_INCOME - Form 1116 foreign income                         -->
+	<!-- ================================================================== -->
+	<entity name='foreign_income' access='rw' comment='Foreign income for Form 1116'>
+		<field name='foreign_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Foreign income ID'></field>
+		<field name='country' type='string' subtype='' access='r' input='main' default_value='' comment='Country name'></field>
+		<field name='country_code' type='string' subtype='' access='r' input='main' default_value='' comment='Country code (2-letter)'></field>
+		<field name='income_category' type='string' subtype='' access='r' input='main' default_value='passive' comment='Category: passive, general, section_901j'></field>
+		<!-- Income -->
+		<field name='gross_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross foreign income'></field>
+		<field name='wages' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign wages'></field>
+		<field name='interest' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign interest'></field>
+		<field name='dividends' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign dividends'></field>
+		<field name='rental_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign rental income'></field>
+		<field name='capital_gains' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign capital gains'></field>
+		<field name='other_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Other foreign income'></field>
+		<!-- Deductions -->
+		<field name='directly_allocable_deductions' type='double' subtype='' access='r' input='main' default_value='0' comment='Deductions directly allocable to foreign income'></field>
+		<field name='pro_rata_share_deductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Pro-rata share of other deductions (computed)'></field>
+		<!-- Foreign Taxes -->
+		<field name='foreign_taxes_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign taxes paid (cash basis)'></field>
+		<field name='foreign_taxes_accrued' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign taxes accrued'></field>
+		<field name='foreign_taxes_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign taxes withheld at source'></field>
+		<!-- Computed Values -->
+		<field name='foreign_source_taxable' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign source taxable income (computed)'></field>
+		<field name='credit_limitation' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit limitation for this source (computed)'></field>
+		<field name='credit_allowed' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit allowed (lesser of paid or limit)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -596,6 +778,46 @@
 		<field name='premium_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Premium Tax Credit (Form 8962)'></field>
 		<field name='ptc_repayment' type='double' subtype='' access='rw' input='' default_value='0' comment='Excess APTC repayment'></field>
 		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
+
+		<!-- Schedule K-1 Income (Schedule E Part II) -->
+		<field name='total_k1_ordinary_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 ordinary business income'></field>
+		<field name='total_k1_rental_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 rental income'></field>
+		<field name='total_k1_interest' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 interest income'></field>
+		<field name='total_k1_dividends' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 ordinary dividends'></field>
+		<field name='total_k1_qualified_dividends' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 qualified dividends'></field>
+		<field name='total_k1_short_term_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 short-term capital gains'></field>
+		<field name='total_k1_long_term_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 long-term capital gains'></field>
+		<field name='total_k1_1231_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 Section 1231 gain'></field>
+		<field name='total_k1_se_earnings' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 self-employment earnings (Box 14)'></field>
+		<field name='total_k1_foreign_taxes' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 foreign taxes paid'></field>
+		<field name='total_k1_qbi' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 QBI (Section 199A)'></field>
+
+		<!-- Form 8606 - IRA Basis and Conversions -->
+		<field name='total_ira_basis' type='double' subtype='' access='rw' input='' default_value='0' comment='Total non-deductible IRA basis'></field>
+		<field name='total_ira_balance' type='double' subtype='' access='rw' input='' default_value='0' comment='Total traditional IRA balance for pro-rata'></field>
+		<field name='total_roth_conversions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total converted to Roth IRA'></field>
+		<field name='taxable_conversions' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable portion of Roth conversions'></field>
+		<field name='total_ira_distributions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IRA distributions'></field>
+		<field name='taxable_distributions' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable portion of IRA distributions'></field>
+
+		<!-- Schedule F - Farm Income -->
+		<field name='total_farm_gross_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total farm gross income'></field>
+		<field name='total_farm_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total farm expenses'></field>
+		<field name='net_farm_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Net farm profit/loss (Schedule F Line 34)'></field>
+		<field name='farm_se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Farm self-employment tax'></field>
+
+		<!-- Form 4797 - Business Property Sales -->
+		<field name='total_1231_gains' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Section 1231 gains'></field>
+		<field name='total_1231_losses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Section 1231 losses'></field>
+		<field name='net_1231_gain_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Net Section 1231 gain/loss'></field>
+		<field name='total_depreciation_recapture' type='double' subtype='' access='rw' input='' default_value='0' comment='Total depreciation recapture (ordinary income)'></field>
+		<field name='total_unrecaptured_1250' type='double' subtype='' access='rw' input='' default_value='0' comment='Total unrecaptured Section 1250 gain (25% rate)'></field>
+
+		<!-- Form 1116 - Foreign Tax Credit -->
+		<field name='total_foreign_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total foreign source income'></field>
+		<field name='total_foreign_taxes_paid' type='double' subtype='' access='rw' input='' default_value='0' comment='Total foreign taxes paid or accrued'></field>
+		<field name='foreign_tax_credit_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='FTC limitation (US tax × foreign/total income)'></field>
+		<field name='foreign_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign Tax Credit allowed (Form 1116)'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>

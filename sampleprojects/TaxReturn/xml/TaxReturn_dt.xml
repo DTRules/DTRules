@@ -289,10 +289,59 @@ Process_Capital_Gains
 </action_details>
 <action_details>
 <action_number>6</action_number>
+<action_comment>Process Schedule K-1 income (partnerships, S-corps, trusts)</action_comment>
+<action_description>Process_K1_Income</action_description>
+<action_postfix>
+Process_K1_Income
+Calculate_K1_SE_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Process IRA accounts (Form 8606)</action_comment>
+<action_description>Process_IRA_Accounts</action_description>
+<action_postfix>
+Process_IRA_Accounts
+Calculate_Roth_Conversion_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Process Schedule F farm income</action_comment>
+<action_description>Process_Farm_Income</action_description>
+<action_postfix>
+Process_Farm_Income
+Calculate_Farm_SE_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Process Form 4797 business property sales</action_comment>
+<action_description>Process_Property_Sales</action_description>
+<action_postfix>
+Process_Property_Sales
+Calculate_Section_1231
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>10</action_number>
+<action_comment>Process Form 1116 foreign income</action_comment>
+<action_description>Process_Foreign_Income</action_description>
+<action_postfix>
+Process_Foreign_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
 <action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
 <action_description>Sum all income sources for gross income (Form 1040 Line 9)</action_description>
 <action_postfix>
-result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.total_tip_income f+ result.total_overtime_income f+ result.total_social_security f+ result.total_long_term_gains f+ result.total_short_term_gains f+ /result.gross_income xdef
+result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.total_tip_income f+ result.total_overtime_income f+ result.total_social_security f+ result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_k1_ordinary_income f+ result.total_k1_rental_income f+ result.net_farm_profit f+ result.total_depreciation_recapture f+ result.total_foreign_income f+ /result.gross_income xdef
 "Line 9 - Total Income: $" result.gross_income cvs strconcat " per Form 1040 Line 9" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -2238,12 +2287,21 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 </action_details>
 <action_details>
 <action_number>9</action_number>
+<action_comment>Calculate Foreign Tax Credit (Form 1116)</action_comment>
+<action_description>Calculate_Foreign_Tax_Credit</action_description>
+<action_postfix>
+Calculate_Foreign_Tax_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>10</action_number>
 <action_comment>Sum total credits</action_comment>
 <action_description>Calculate total credits</action_description>
 <action_postfix>
 result.total_ctc result.total_odc f+ result.eitc f+ result.education_credit f+
 result.cdcc_credit f+ result.savers_credit f+ result.energy_efficiency_credit f+ result.clean_energy_credit f+
-result.premium_tax_credit f+ /result.total_credits xdef
+result.premium_tax_credit f+ result.foreign_tax_credit f+ /result.total_credits xdef
 "  Total Child Tax Credit: $" result.total_ctc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total Other Dependent Credit: $" result.total_odc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total EITC: $" result.eitc cvs strconcat " (Schedule EIC)" strconcat job.audit_trail swap addto
@@ -2253,6 +2311,7 @@ result.premium_tax_credit f+ /result.total_credits xdef
 "  Energy Efficiency Credit: $" result.energy_efficiency_credit cvs strconcat " (Form 5695)" strconcat job.audit_trail swap addto
 "  Clean Energy Credit: $" result.clean_energy_credit cvs strconcat " (Form 5695)" strconcat job.audit_trail swap addto
 "  Premium Tax Credit: $" result.premium_tax_credit cvs strconcat " (Form 8962)" strconcat job.audit_trail swap addto
+"  Foreign Tax Credit: $" result.foreign_tax_credit cvs strconcat " (Form 1116)" strconcat job.audit_trail swap addto
 "  Total Credits: $" result.total_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -6634,6 +6693,669 @@ job.advance_ptc_received /result.ptc_repayment xdef
 <policy_statement_postfix>"Not eligible for PTC - household income outside 100-400% FPL range"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 19000: Process_K1_Income - Schedule K-1 Processing              -->
+<!-- IRS Reference: Schedule K-1 (1065, 1120-S, 1041), Schedule E Part II  -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_K1_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process Schedule K-1 income from partnerships, S-corps, and trusts. Categorizes income by type and flows to appropriate forms (Schedule E, B, D).</COMMENTS>
+<TABLE_NUMBER>19000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_name>k1</context_name>
+<context_comment>Current K-1 being processed</context_comment>
+<context_postfix>job.k1_incomes</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log K-1 processing start</action_description>
+<action_postfix>
+"Processing Schedule K-1 Income (Schedule E Part II)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has K-1 to process</condition_comment>
+<condition_description>K-1 entity exists in context</condition_description>
+<condition_postfix>k1 isnull not</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Accumulate K-1 income by category</action_description>
+<action_postfix>
+"  K-1 from: " k1.entity_name strconcat " (" strconcat k1.source_type strconcat ")" strconcat job.audit_trail swap addto
+k1.ordinary_income result.total_k1_ordinary_income f+ /result.total_k1_ordinary_income xdef
+k1.rental_income k1.other_rental_income f+ result.total_k1_rental_income f+ /result.total_k1_rental_income xdef
+k1.interest_income result.total_k1_interest f+ /result.total_k1_interest xdef
+k1.ordinary_dividends result.total_k1_dividends f+ /result.total_k1_dividends xdef
+k1.qualified_dividends result.total_k1_qualified_dividends f+ /result.total_k1_qualified_dividends xdef
+k1.short_term_gain result.total_k1_short_term_gain f+ /result.total_k1_short_term_gain xdef
+k1.long_term_gain result.total_k1_long_term_gain f+ /result.total_k1_long_term_gain xdef
+k1.section_1231_gain result.total_k1_1231_gain f+ /result.total_k1_1231_gain xdef
+k1.se_earnings k1.guaranteed_payments_services f+ result.total_k1_se_earnings f+ /result.total_k1_se_earnings xdef
+k1.foreign_taxes_paid result.total_k1_foreign_taxes f+ /result.total_k1_foreign_taxes xdef
+k1.qbi_income result.total_k1_qbi f+ /result.total_k1_qbi xdef
+"    Ordinary income: $" k1.ordinary_income cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 19100: Calculate_K1_SE_Tax - SE Tax on K-1 Earnings             -->
+<!-- IRS Reference: Schedule SE, IRC Section 1402                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_K1_SE_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate self-employment tax on K-1 SE earnings (Box 14 and guaranteed payments for services). General partners and LLC members pay SE tax on distributive share.</COMMENTS>
+<TABLE_NUMBER>19100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log K-1 SE tax calculation</action_description>
+<action_postfix>
+"Calculating K-1 Self-Employment Tax (Schedule SE)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has K-1 SE earnings</condition_comment>
+<condition_description>Total K-1 SE earnings greater than threshold</condition_description>
+<condition_postfix>result.total_k1_se_earnings se_threshold ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate SE tax on K-1 earnings</action_description>
+<action_postfix>
+result.total_k1_se_earnings se_income_multiplier f* /k1_se_base xdef
+k1_se_base se_tax_rate f* /k1_se_tax xdef
+k1_se_tax result.se_tax f+ /result.se_tax xdef
+k1_se_tax se_deduction_rate f* result.total_adjustments f+ /result.total_adjustments xdef
+"  K-1 SE earnings: $" result.total_k1_se_earnings cvs strconcat job.audit_trail swap addto
+"  K-1 SE tax: $" k1_se_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>No K-1 SE tax required</action_description>
+<action_postfix>
+"  No K-1 SE earnings or below threshold" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 20000: Process_IRA_Accounts - Form 8606 Processing              -->
+<!-- IRS Reference: Form 8606, IRC Section 408                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_IRA_Accounts</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process IRA accounts for Form 8606. Tracks non-deductible contributions (basis), calculates taxable portion of distributions and Roth conversions using the pro-rata rule.</COMMENTS>
+<TABLE_NUMBER>20000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_name>ira</context_name>
+<context_comment>Current IRA account being processed</context_comment>
+<context_postfix>job.ira_accounts</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log IRA processing start</action_description>
+<action_postfix>
+"Processing IRA Accounts (Form 8606)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has IRA account to process</condition_comment>
+<condition_description>IRA account exists in context</condition_description>
+<condition_postfix>ira isnull not</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Is traditional IRA</condition_comment>
+<condition_description>Account type is traditional</condition_description>
+<condition_postfix>ira.account_type traditional streq</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Process traditional IRA for basis tracking</action_description>
+<action_postfix>
+"  Traditional IRA at: " ira.institution strconcat job.audit_trail swap addto
+ira.year_end_balance result.total_ira_balance f+ /result.total_ira_balance xdef
+ira.prior_year_basis result.total_ira_basis f+ /result.total_ira_basis xdef
+ira.contribution_deductible not { ira.contribution_amount result.total_ira_basis f+ /result.total_ira_basis xdef } if
+ira.conversion_to_roth result.total_roth_conversions f+ /result.total_roth_conversions xdef
+ira.distribution_amount result.total_ira_distributions f+ /result.total_ira_distributions xdef
+"    Year-end balance: $" ira.year_end_balance cvs strconcat job.audit_trail swap addto
+"    Basis: $" ira.prior_year_basis cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 20100: Calculate_Roth_Conversion_Tax - Pro-Rata Rule            -->
+<!-- IRS Reference: Form 8606 Part II, IRC Section 408(d)(2)               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Roth_Conversion_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate taxable portion of Roth conversions using the pro-rata rule. When traditional IRA has both deductible and non-deductible contributions, conversions are taxed proportionally.</COMMENTS>
+<TABLE_NUMBER>20100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log Roth conversion calculation</action_description>
+<action_postfix>
+"Calculating Roth Conversion Tax (Form 8606 Part II)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Roth conversions</condition_comment>
+<condition_description>Total Roth conversions greater than zero</condition_description>
+<condition_postfix>result.total_roth_conversions 0 ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has basis to recover</condition_comment>
+<condition_description>Total IRA basis greater than zero</condition_description>
+<condition_postfix>result.total_ira_basis 0 ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Apply pro-rata rule to conversion</action_description>
+<action_postfix>
+result.total_ira_balance result.total_ira_basis f- result.total_ira_balance f/ /taxable_pct xdef
+result.total_roth_conversions taxable_pct f* /result.taxable_conversions xdef
+result.taxable_conversions result.total_other_income f+ /result.total_other_income xdef
+"  Total IRA balance: $" result.total_ira_balance cvs strconcat job.audit_trail swap addto
+"  Non-deductible basis: $" result.total_ira_basis cvs strconcat job.audit_trail swap addto
+"  Conversion amount: $" result.total_roth_conversions cvs strconcat job.audit_trail swap addto
+"  Taxable percentage: " taxable_pct 100 f* cvs strconcat "%" strconcat job.audit_trail swap addto
+"  Taxable conversion: $" result.taxable_conversions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>No Roth conversions to process</action_description>
+<action_postfix>
+"  No Roth conversions this year" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 21000: Process_Farm_Income - Schedule F Processing              -->
+<!-- IRS Reference: Schedule F, IRC Section 61(a), Publication 225         -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_Farm_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process Schedule F farm income and expenses. Calculates net farm profit/loss for inclusion in gross income and self-employment tax.</COMMENTS>
+<TABLE_NUMBER>21000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_name>farm</context_name>
+<context_comment>Current farm being processed</context_comment>
+<context_postfix>job.farm_incomes</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log farm income processing start</action_description>
+<action_postfix>
+"Processing Schedule F Farm Income (Publication 225)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has farm to process</condition_comment>
+<condition_description>Farm entity exists in context</condition_description>
+<condition_postfix>farm isnull not</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate farm income and expenses</action_description>
+<action_postfix>
+"  Farm: " farm.farm_name strconcat job.audit_trail swap addto
+farm.sales_livestock_raised farm.sales_crops f+ farm.coop_distributions f+ farm.agricultural_payments f+ farm.ccc_loans f+ farm.crop_insurance f+ farm.custom_hire f+ farm.other_farm_income f+ farm.sales_livestock_bought f- /farm.gross_income xdef
+farm.car_truck_expense farm.chemicals f+ farm.conservation f+ farm.custom_hire_expense f+ farm.depreciation f+ farm.employee_benefits f+ farm.feed f+ farm.fertilizers f+ farm.freight f+ farm.fuel f+ farm.insurance f+ farm.interest_mortgage f+ farm.interest_other f+ farm.labor_hired f+ farm.pension_profit_sharing f+ farm.rent_lease_vehicles f+ farm.rent_lease_land f+ farm.repairs f+ farm.seeds_plants f+ farm.storage f+ farm.supplies f+ farm.taxes f+ farm.utilities f+ farm.veterinary f+ farm.other_expenses f+ /farm.total_expenses xdef
+farm.gross_income farm.total_expenses f- /farm.net_profit xdef
+farm.gross_income result.total_farm_gross_income f+ /result.total_farm_gross_income xdef
+farm.total_expenses result.total_farm_expenses f+ /result.total_farm_expenses xdef
+farm.net_profit result.net_farm_profit f+ /result.net_farm_profit xdef
+"    Gross income: $" farm.gross_income cvs strconcat job.audit_trail swap addto
+"    Total expenses: $" farm.total_expenses cvs strconcat job.audit_trail swap addto
+"    Net profit/loss: $" farm.net_profit cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 21100: Calculate_Farm_SE_Tax - Farm Self-Employment Tax         -->
+<!-- IRS Reference: Schedule SE, IRC Section 1402(a)                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Farm_SE_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate self-employment tax on farm income. Farm net profit is subject to SE tax with optional farm methods available.</COMMENTS>
+<TABLE_NUMBER>21100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log farm SE tax calculation</action_description>
+<action_postfix>
+"Calculating Farm Self-Employment Tax (Schedule SE)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has farm profit subject to SE tax</condition_comment>
+<condition_description>Net farm profit greater than threshold</condition_description>
+<condition_postfix>result.net_farm_profit se_threshold ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate SE tax on farm profit</action_description>
+<action_postfix>
+result.net_farm_profit se_income_multiplier f* /farm_se_base xdef
+farm_se_base se_tax_rate f* /result.farm_se_tax xdef
+result.farm_se_tax result.se_tax f+ /result.se_tax xdef
+result.farm_se_tax se_deduction_rate f* result.total_adjustments f+ /result.total_adjustments xdef
+"  Farm net profit: $" result.net_farm_profit cvs strconcat job.audit_trail swap addto
+"  Farm SE tax: $" result.farm_se_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>No farm SE tax required</action_description>
+<action_postfix>
+"  No farm profit or below SE threshold" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 22000: Process_Property_Sales - Form 4797 Processing            -->
+<!-- IRS Reference: Form 4797, IRC Sections 1231, 1245, 1250               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_Property_Sales</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process Form 4797 sales of business property. Calculates gain/loss, depreciation recapture (Section 1245/1250), and Section 1231 treatment.</COMMENTS>
+<TABLE_NUMBER>22000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_name>sale</context_name>
+<context_comment>Current property sale being processed</context_comment>
+<context_postfix>job.property_sales</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log property sale processing start</action_description>
+<action_postfix>
+"Processing Form 4797 Business Property Sales" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has property sale to process</condition_comment>
+<condition_description>Property sale exists in context</condition_description>
+<condition_postfix>sale isnull not</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Is Section 1245 property (personal property)</condition_comment>
+<condition_description>Property type is 1245</condition_description>
+<condition_postfix>sale.property_type 1245 streq</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Is Section 1250 property (real property)</condition_comment>
+<condition_description>Property type is 1250 or is real property</condition_description>
+<condition_postfix>sale.property_type 1250 streq sale.is_real_property or</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate basis and gain/loss</action_description>
+<action_postfix>
+"  Property: " sale.description strconcat job.audit_trail swap addto
+sale.cost_basis sale.improvements f+ sale.depreciation_allowed f- /sale.adjusted_basis xdef
+sale.sales_price sale.selling_expenses f- /sale.amount_realized xdef
+sale.amount_realized sale.adjusted_basis f- /sale.total_gain_loss xdef
+"    Adjusted basis: $" sale.adjusted_basis cvs strconcat job.audit_trail swap addto
+"    Amount realized: $" sale.amount_realized cvs strconcat job.audit_trail swap addto
+"    Total gain/loss: $" sale.total_gain_loss cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>Section 1245 recapture - all depreciation as ordinary</action_description>
+<action_postfix>
+sale.total_gain_loss 0 > { sale.depreciation_allowed sale.total_gain_loss fmin /sale.ordinary_income_recapture xdef } if
+sale.total_gain_loss sale.ordinary_income_recapture f- /sale.section_1231_gain xdef
+sale.ordinary_income_recapture result.total_depreciation_recapture f+ /result.total_depreciation_recapture xdef
+"    Section 1245 recapture (ordinary): $" sale.ordinary_income_recapture cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_description>Section 1250 - depreciation taxed at 25% max</action_description>
+<action_postfix>
+sale.total_gain_loss 0 > { sale.depreciation_allowed sale.total_gain_loss fmin /sale.unrecaptured_1250_gain xdef } if
+sale.total_gain_loss sale.unrecaptured_1250_gain f- /sale.section_1231_gain xdef
+sale.unrecaptured_1250_gain result.total_unrecaptured_1250 f+ /result.total_unrecaptured_1250 xdef
+"    Unrecaptured Section 1250 (25% rate): $" sale.unrecaptured_1250_gain cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_description>Section 1231 gain/loss (no recapture)</action_description>
+<action_postfix>
+sale.total_gain_loss /sale.section_1231_gain xdef
+"    Section 1231 gain/loss: $" sale.section_1231_gain cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_description>Accumulate Section 1231 totals</action_description>
+<action_postfix>
+sale.section_1231_gain 0 > { sale.section_1231_gain result.total_1231_gains f+ /result.total_1231_gains xdef } if
+sale.section_1231_gain 0 &lt; { sale.section_1231_gain fnegate result.total_1231_losses f+ /result.total_1231_losses xdef } if
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 22100: Calculate_Section_1231 - Net 1231 Gain/Loss Treatment    -->
+<!-- IRS Reference: IRC Section 1231, Form 4797 Part I                     -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Section_1231</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine treatment of net Section 1231 gain or loss. Net gains are treated as long-term capital gains; net losses are treated as ordinary losses (fully deductible).</COMMENTS>
+<TABLE_NUMBER>22100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Calculate net Section 1231</action_description>
+<action_postfix>
+"Calculating Net Section 1231 Treatment (IRC 1231)" job.audit_trail swap addto
+result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has net Section 1231 gain</condition_comment>
+<condition_description>Net 1231 gain greater than zero</condition_description>
+<condition_postfix>result.net_1231_gain_loss 0 ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has net Section 1231 loss</condition_comment>
+<condition_description>Net 1231 loss (negative)</condition_description>
+<condition_postfix>result.net_1231_gain_loss 0 &lt;</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Treat net gain as long-term capital gain</action_description>
+<action_postfix>
+result.net_1231_gain_loss result.total_long_term_gains f+ /result.total_long_term_gains xdef
+"  Net Section 1231 gain: $" result.net_1231_gain_loss cvs strconcat job.audit_trail swap addto
+"  Treated as long-term capital gain per IRC 1231(a)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>Treat net loss as ordinary loss</action_description>
+<action_postfix>
+result.net_1231_gain_loss result.total_other_income f+ /result.total_other_income xdef
+"  Net Section 1231 loss: $" result.net_1231_gain_loss cvs strconcat job.audit_trail swap addto
+"  Treated as ordinary loss (fully deductible) per IRC 1231(a)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_description>No Section 1231 transactions</action_description>
+<action_postfix>
+"  No Section 1231 gains or losses" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 23000: Process_Foreign_Income - Form 1116 Processing            -->
+<!-- IRS Reference: Form 1116, IRC Sections 901, 904                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_Foreign_Income</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process foreign income for Form 1116 Foreign Tax Credit. Categorizes income by type (passive, general) and tracks foreign taxes paid.</COMMENTS>
+<TABLE_NUMBER>23000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_name>foreign</context_name>
+<context_comment>Current foreign income source being processed</context_comment>
+<context_postfix>job.foreign_incomes</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log foreign income processing start</action_description>
+<action_postfix>
+"Processing Form 1116 Foreign Income (IRC 901)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has foreign income to process</condition_comment>
+<condition_description>Foreign income entity exists in context</condition_description>
+<condition_postfix>foreign isnull not</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Accumulate foreign income and taxes</action_description>
+<action_postfix>
+"  Country: " foreign.country strconcat " (" strconcat foreign.income_category strconcat ")" strconcat job.audit_trail swap addto
+foreign.gross_income foreign.directly_allocable_deductions f- /foreign.foreign_source_taxable xdef
+foreign.foreign_source_taxable result.total_foreign_income f+ /result.total_foreign_income xdef
+foreign.foreign_taxes_paid foreign.foreign_taxes_withheld f+ result.total_foreign_taxes_paid f+ /result.total_foreign_taxes_paid xdef
+"    Gross income: $" foreign.gross_income cvs strconcat job.audit_trail swap addto
+"    Foreign source taxable: $" foreign.foreign_source_taxable cvs strconcat job.audit_trail swap addto
+"    Foreign taxes paid: $" foreign.foreign_taxes_paid cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 23100: Calculate_Foreign_Tax_Credit - FTC Limitation            -->
+<!-- IRS Reference: Form 1116, IRC Section 904                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Foreign_Tax_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Foreign Tax Credit with IRC 904 limitation. Credit cannot exceed US tax attributable to foreign source income (foreign income / total income x US tax).</COMMENTS>
+<TABLE_NUMBER>23100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log FTC calculation</action_description>
+<action_postfix>
+"Calculating Foreign Tax Credit (Form 1116, IRC 904)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has foreign taxes paid</condition_comment>
+<condition_description>Total foreign taxes paid greater than zero</condition_description>
+<condition_postfix>result.total_foreign_taxes_paid 0 ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has taxable income</condition_comment>
+<condition_description>Taxable income greater than zero</condition_description>
+<condition_postfix>result.taxable_income 0 ></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate FTC with limitation</action_description>
+<action_postfix>
+result.total_foreign_income result.taxable_income f/ result.regular_tax f* /result.foreign_tax_credit_limit xdef
+result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.foreign_tax_credit xdef
+"  Total foreign income: $" result.total_foreign_income cvs strconcat job.audit_trail swap addto
+"  Total foreign taxes paid: $" result.total_foreign_taxes_paid cvs strconcat job.audit_trail swap addto
+"  FTC limitation: $" result.foreign_tax_credit_limit cvs strconcat job.audit_trail swap addto
+"  Foreign Tax Credit allowed: $" result.foreign_tax_credit cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>No foreign taxes paid</action_description>
+<action_postfix>
+"  No foreign taxes paid - FTC not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 </decision_table>
 
 </decision_tables>
