@@ -11,6 +11,15 @@
 			<setattribute tag='expected_taxable_income' RAttribute='expected_taxable_income' enclosure='job' type='double'></setattribute>
 			<setattribute tag='expected_total_tax' RAttribute='expected_total_tax' enclosure='job' type='double'></setattribute>
 			<setattribute tag='expected_refund' RAttribute='expected_refund' enclosure='job' type='double'></setattribute>
+			<!-- Healthcare / Premium Tax Credit -->
+			<setattribute tag='has_marketplace_coverage' RAttribute='has_marketplace_coverage' enclosure='job' type='boolean'></setattribute>
+			<setattribute tag='annual_premium' RAttribute='annual_premium' enclosure='job' type='double'></setattribute>
+			<setattribute tag='slcsp_premium' RAttribute='slcsp_premium' enclosure='job' type='double'></setattribute>
+			<setattribute tag='advance_ptc_received' RAttribute='advance_ptc_received' enclosure='job' type='double'></setattribute>
+			<setattribute tag='household_size' RAttribute='household_size' enclosure='job' type='integer'></setattribute>
+			<!-- Passive Activity -->
+			<setattribute tag='is_real_estate_professional' RAttribute='is_real_estate_professional' enclosure='job' type='boolean'></setattribute>
+			<setattribute tag='actively_participates_rental' RAttribute='actively_participates_rental' enclosure='job' type='boolean'></setattribute>
 
 			<!-- Taxpayer mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='taxpayer' type='integer'></setattribute>
@@ -24,6 +33,27 @@
 			<setattribute tag='w2_withholding' RAttribute='w2_withholding' enclosure='taxpayer' type='double'></setattribute>
 			<setattribute tag='se_gross_income' RAttribute='se_gross_income' enclosure='taxpayer' type='double'></setattribute>
 			<setattribute tag='estimated_payments' RAttribute='estimated_payments' enclosure='taxpayer' type='double'></setattribute>
+			<!-- OBBBA 2025 - Trump Tax Provisions -->
+			<setattribute tag='tip_income' RAttribute='tip_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='overtime_income' RAttribute='overtime_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='social_security_income' RAttribute='social_security_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='is_senior' RAttribute='is_senior' enclosure='taxpayer' type='boolean'></setattribute>
+			<!-- Retirement Contributions -->
+			<setattribute tag='traditional_ira_contribution' RAttribute='traditional_ira_contribution' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='roth_ira_contribution' RAttribute='roth_ira_contribution' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='hsa_contribution' RAttribute='hsa_contribution' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='hsa_coverage_type' RAttribute='hsa_coverage_type' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='covered_by_employer_plan' RAttribute='covered_by_employer_plan' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='age_50_or_over' RAttribute='age_50_or_over' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='student_loan_interest_paid' RAttribute='student_loan_interest_paid' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Child and Dependent Care -->
+			<setattribute tag='childcare_expenses' RAttribute='childcare_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='dependent_care_fsa' RAttribute='dependent_care_fsa' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Educator Expenses -->
+			<setattribute tag='is_educator' RAttribute='is_educator' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='educator_expenses' RAttribute='educator_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Medical Expenses -->
+			<setattribute tag='medical_expenses' RAttribute='medical_expenses' enclosure='taxpayer' type='double'></setattribute>
 
 			<!-- Dependent mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='dependent' type='integer'></setattribute>
@@ -41,6 +71,9 @@
 			<setattribute tag='college_year' RAttribute='college_year' enclosure='dependent' type='integer'></setattribute>
 			<setattribute tag='aotc_used_years' RAttribute='aotc_used_years' enclosure='dependent' type='integer'></setattribute>
 			<setattribute tag='has_ssn' RAttribute='has_ssn' enclosure='dependent' type='boolean'></setattribute>
+			<!-- Childcare eligibility -->
+			<setattribute tag='is_disabled' RAttribute='is_disabled' enclosure='dependent' type='boolean'></setattribute>
+			<setattribute tag='care_expenses' RAttribute='care_expenses' enclosure='dependent' type='double'></setattribute>
 
 			<!-- Income mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='income' type='integer'></setattribute>
@@ -50,6 +83,9 @@
 			<setattribute tag='gross_amount' RAttribute='gross_amount' enclosure='income' type='double'></setattribute>
 			<setattribute tag='tax_withheld' RAttribute='tax_withheld' enclosure='income' type='double'></setattribute>
 			<setattribute tag='is_earned' RAttribute='is_earned' enclosure='income' type='boolean'></setattribute>
+			<!-- Capital Gains -->
+			<setattribute tag='holding_period' RAttribute='holding_period' enclosure='income' type='string'></setattribute>
+			<setattribute tag='is_qualified_dividend' RAttribute='is_qualified_dividend' enclosure='income' type='boolean'></setattribute>
 
 			<!-- Property mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='property' type='integer'></setattribute>
@@ -89,14 +125,23 @@
 			<setattribute tag='description' RAttribute='description' enclosure='deduction' type='string'></setattribute>
 			<setattribute tag='amount' RAttribute='amount' enclosure='deduction' type='double'></setattribute>
 
+			<!-- Energy Improvement mappings (Form 5695) -->
+			<setattribute tag='id' RAttribute='id' enclosure='energy_improvement' type='integer'></setattribute>
+			<setattribute tag='type' RAttribute='type' enclosure='energy_improvement' type='string'></setattribute>
+			<setattribute tag='category' RAttribute='category' enclosure='energy_improvement' type='string'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='energy_improvement' type='string'></setattribute>
+			<setattribute tag='cost' RAttribute='cost' enclosure='energy_improvement' type='double'></setattribute>
+			<setattribute tag='installation_date' RAttribute='installation_date' enclosure='energy_improvement' type='date'></setattribute>
+
 			<!-- Create entities from XML tags -->
-			<createentity entity='job' tag='job' id='id'></createentity>
+			<!-- Note: job is an initialentity, not created from XML -->
 			<createentity entity='taxpayer' tag='taxpayer' id='id'></createentity>
 			<createentity entity='dependent' tag='dependent' id='id'></createentity>
-			<createentity entity='income' tag='income' id='id'></createentity>
+			<createentity entity='income' tag='income' id='id' list='incomes'></createentity>
 			<createentity entity='property' tag='property' id='id' list='properties'></createentity>
 			<createentity entity='vehicle' tag='vehicle' id='id'></createentity>
 			<createentity entity='deduction' tag='deduction' id='id'></createentity>
+			<createentity entity='energy_improvement' tag='energy_improvement' id='id'></createentity>
 			<createentity entity='credit' tag='credit' id='id'></createentity>
 			<createentity entity='constants' tag='constants' id='id'></createentity>
 			<createentity entity='result' tag='result' id='id'></createentity>
@@ -115,10 +160,12 @@
 			<entity name='property' number='*'></entity>
 			<entity name='vehicle' number='*'></entity>
 			<entity name='deduction' number='*'></entity>
+			<entity name='energy_improvement' number='*'></entity>
 			<entity name='credit' number='*'></entity>
 		</entities>
 
 		<initialization>
+			<initialentity entity='result' epush='true'></initialentity>
 			<initialentity entity='constants' epush='true'></initialentity>
 			<initialentity entity='job' epush='true'></initialentity>
 		</initialization>

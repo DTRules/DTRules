@@ -18,6 +18,7 @@ package loader
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
 	"io"
 	"strings"
 
@@ -198,6 +199,9 @@ func (l *DTLoader) Load(r io.Reader) error {
 	}
 
 	if len(l.errors) > 0 {
+		for i, err := range l.errors {
+			log.Printf("DT Load Error %d: %v", i+1, err)
+		}
 		return fmt.Errorf("decision table loading completed with %d errors", len(l.errors))
 	}
 	return nil
