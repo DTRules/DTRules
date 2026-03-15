@@ -101,39 +101,39 @@ func (e *Exporter) ExportEDD(filename string) error {
 	sheet := "EDD"
 	f.SetSheetName("Sheet1", sheet)
 
-	// Create header style
-	headerStyle, err := f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Bold: true, Size: 12, Color: "1F4E79"},
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"D9E2F3"}},
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border: []excelize.Border{
-			{Type: "left", Color: "000000", Style: 1},
-			{Type: "top", Color: "000000", Style: 1},
-			{Type: "bottom", Color: "000000", Style: 1},
-			{Type: "right", Color: "000000", Style: 1},
-		},
-	})
+	// Create styles
+	eddStyles, err := e.createEDDStyles(f)
 	if err != nil {
 		return err
 	}
 
 	// Set column widths
-	f.SetColWidth(sheet, "A", "A", 15)
-	f.SetColWidth(sheet, "B", "B", 20)
+	f.SetColWidth(sheet, "A", "A", 18)
+	f.SetColWidth(sheet, "B", "B", 25)
 	f.SetColWidth(sheet, "C", "C", 10)
-	f.SetColWidth(sheet, "D", "D", 15)
-	f.SetColWidth(sheet, "E", "E", 20)
-	f.SetColWidth(sheet, "F", "F", 10)
-	f.SetColWidth(sheet, "G", "G", 10)
-	f.SetColWidth(sheet, "H", "H", 50)
+	f.SetColWidth(sheet, "D", "D", 12)
+	f.SetColWidth(sheet, "E", "E", 18)
+	f.SetColWidth(sheet, "F", "F", 8)
+	f.SetColWidth(sheet, "G", "G", 8)
+	f.SetColWidth(sheet, "H", "H", 55)
 
 	// Write headers
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default Value", "Input", "Access", "comment"}
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
 		f.SetCellValue(sheet, cell, header)
-		f.SetCellStyle(sheet, cell, cell, headerStyle)
+		f.SetCellStyle(sheet, cell, cell, eddStyles.header)
 	}
+
+	// Freeze the header row
+	f.SetPanes(sheet, &excelize.Panes{
+		Freeze:      true,
+		Split:       false,
+		XSplit:      0,
+		YSplit:      1,
+		TopLeftCell: "A2",
+		ActivePane:  "bottomLeft",
+	})
 
 	// Get all entities and sort them
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
@@ -151,6 +151,30 @@ func (e *Exporter) ExportEDD(filename string) error {
 			return attrNames[i].StringValue() < attrNames[j].StringValue()
 		})
 
+		// Count valid attributes
+		attrCount := 0
+		for _, attrName := range attrNames {
+			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
+				if ent.GetEntry(attrName) != nil {
+					attrCount++
+				}
+			}
+		}
+
+		if attrCount == 0 {
+			continue
+		}
+
+		// Write entity header row
+		f.SetCellValue(sheet, cellName(1, row), entityName)
+		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
+		for col := 1; col <= 8; col++ {
+			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), eddStyles.entityHeader)
+		}
+		row++
+
+		// Write attributes
+		attrRow := 0
 		for _, attrName := range attrNames {
 			// Skip self-reference and mapping key
 			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
@@ -171,21 +195,235 @@ func (e *Exporter) ExportEDD(filename string) error {
 				access += "w"
 			}
 
-			f.SetCellValue(sheet, cellName(1, row), entityName)
+			// Determine row style (alternating)
+			rowStyle := eddStyles.rowEven
+			if attrRow%2 == 1 {
+				rowStyle = eddStyles.rowOdd
+			}
+
+			// Entity column is blank (merged visual)
+			f.SetCellValue(sheet, cellName(1, row), "")
+			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), rowStyle)
+
 			f.SetCellValue(sheet, cellName(2, row), attrName.StringValue())
+			f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), eddStyles.attribute)
+
+			// Type with color coding
+			typeStyle := e.getTypeStyle(eddStyles, entry.Type.String())
 			f.SetCellValue(sheet, cellName(3, row), entry.Type.String())
+			f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), typeStyle)
+
 			f.SetCellValue(sheet, cellName(4, row), entry.SubType)
+			f.SetCellStyle(sheet, cellName(4, row), cellName(4, row), rowStyle)
+
 			f.SetCellValue(sheet, cellName(5, row), entry.DefaultTxt)
+			f.SetCellStyle(sheet, cellName(5, row), cellName(5, row), rowStyle)
+
+			// Input field styling
+			inputStyle := rowStyle
+			if entry.Input != "" {
+				inputStyle = eddStyles.input
+			}
 			f.SetCellValue(sheet, cellName(6, row), entry.Input)
+			f.SetCellStyle(sheet, cellName(6, row), cellName(6, row), inputStyle)
+
 			f.SetCellValue(sheet, cellName(7, row), access)
+			f.SetCellStyle(sheet, cellName(7, row), cellName(7, row), rowStyle)
+
 			f.SetCellValue(sheet, cellName(8, row), entry.Comment)
+			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), eddStyles.comment)
+
 			row++
+			attrRow++
 		}
-		// Blank row between entities
-		row++
 	}
 
 	return f.SaveAs(filename)
+}
+
+// eddStyles holds styles for EDD export
+type eddStyles struct {
+	header       int
+	entityHeader int
+	rowEven      int
+	rowOdd       int
+	attribute    int
+	typeString   int
+	typeDouble   int
+	typeInteger  int
+	typeBoolean  int
+	typeDate     int
+	typeArray    int
+	typeDefault  int
+	input        int
+	comment      int
+}
+
+func (e *Exporter) createEDDStyles(f *excelize.File) (*eddStyles, error) {
+	s := &eddStyles{}
+	var err error
+
+	thinBorder := []excelize.Border{
+		{Type: "left", Color: "CCCCCC", Style: 1},
+		{Type: "top", Color: "CCCCCC", Style: 1},
+		{Type: "bottom", Color: "CCCCCC", Style: 1},
+		{Type: "right", Color: "CCCCCC", Style: 1},
+	}
+
+	// Header style - dark blue
+	s.header, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true, Size: 11, Color: "FFFFFF"},
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"1F4E79"}},
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Entity header style - medium blue
+	s.entityHeader, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true, Size: 10, Color: "1F4E79"},
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"BDD7EE"}},
+		Alignment: &excelize.Alignment{Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Even row style - white
+	s.rowEven, err = f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Odd row style - light gray
+	s.rowOdd, err = f.NewStyle(&excelize.Style{
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"F2F2F2"}},
+		Alignment: &excelize.Alignment{Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Attribute name style - bold
+	s.attribute, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true},
+		Alignment: &excelize.Alignment{Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Type styles with color coding
+	s.typeString, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Color: "0070C0"}, // Blue
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.typeDouble, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Color: "00B050"}, // Green
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.typeInteger, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Color: "00B050"}, // Green
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.typeBoolean, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Color: "ED7D31"}, // Orange
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.typeDate, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Color: "7030A0"}, // Purple
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.typeArray, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Color: "C00000", Italic: true}, // Red italic
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.typeDefault, err = f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Input field style - light yellow
+	s.input, err = f.NewStyle(&excelize.Style{
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"FFFFC0"}},
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Comment style - wrapped text
+	s.comment, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Size: 9, Color: "666666"},
+		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
+		Border:    thinBorder,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+func (e *Exporter) getTypeStyle(s *eddStyles, typeName string) int {
+	switch strings.ToLower(typeName) {
+	case "string":
+		return s.typeString
+	case "double":
+		return s.typeDouble
+	case "integer":
+		return s.typeInteger
+	case "boolean":
+		return s.typeBoolean
+	case "date":
+		return s.typeDate
+	case "array":
+		return s.typeArray
+	default:
+		return s.typeDefault
+	}
 }
 
 // styles holds the cell styles for Excel export
