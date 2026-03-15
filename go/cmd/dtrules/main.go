@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/DTRules/DTRules/go/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
@@ -34,6 +35,7 @@ var (
 	validate   = flag.Bool("validate", false, "Validate rules without executing")
 	listTables = flag.Bool("list", false, "List all decision tables")
 	compile    = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
+	exportXLS  = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix)")
 	verbose    = flag.Bool("v", false, "Verbose output")
 	trace      = flag.Bool("trace", false, "Enable trace output during execution")
 	debug      = flag.Bool("debug", false, "Enable debug output during execution")
@@ -51,6 +53,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -entry Compute_Eligibility\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -entry Main -trace\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -edd ./EDD.xml -dt ./DecisionTables.xml -entry Main\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "  %s -edd ./EDD.xml -dt ./DecisionTables.xml -export ./output\n", os.Args[0])
 	}
 
 	flag.Parse()
@@ -84,6 +87,12 @@ func main() {
 	// Handle compile mode
 	if *compile != "" {
 		compileRules(rs, *compile)
+		return
+	}
+
+	// Handle export mode
+	if *exportXLS != "" {
+		exportToExcel(rs, *exportXLS)
 		return
 	}
 
@@ -312,4 +321,30 @@ func writeVarint(f *os.File, v int) {
 	}
 	buf = append(buf, byte(v))
 	f.Write(buf)
+}
+
+func exportToExcel(rs *session.RuleSet, prefix string) {
+	exporter := excel.NewExporter(rs)
+
+	// Export decision tables
+	dtFile := prefix + "_dt.xlsx"
+	if *verbose {
+		fmt.Printf("Exporting decision tables to: %s\n", dtFile)
+	}
+	if err := exporter.ExportDecisionTables(dtFile); err != nil {
+		fmt.Fprintf(os.Stderr, "Error exporting decision tables: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Created %s with %d decision tables\n", dtFile, len(rs.GetDecisionTableNames()))
+
+	// Export EDD
+	eddFile := prefix + "_edd.xlsx"
+	if *verbose {
+		fmt.Printf("Exporting EDD to: %s\n", eddFile)
+	}
+	if err := exporter.ExportEDD(eddFile); err != nil {
+		fmt.Fprintf(os.Stderr, "Error exporting EDD: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Created %s with %d entities\n", eddFile, len(rs.GetEntityNames()))
 }
