@@ -63,6 +63,7 @@ type EDDEntity struct {
 	Name    string     `xml:"name,attr"`
 	Access  string     `xml:"access,attr"`
 	Comment string     `xml:"comment,attr"`
+	XlsFile string     `xml:"xls_file,attr"`
 	Fields  []EDDField `xml:"field"`
 }
 
@@ -145,6 +146,14 @@ func (l *EDDLoader) processEntity(ent *EDDEntity) error {
 	refEntity, err := l.factory.FindCreateRefEntity(false, entityName)
 	if err != nil {
 		return fmt.Errorf("failed to create entity %s: %w", ent.Name, err)
+	}
+
+	// Set entity comment and xls_file for export grouping
+	if ent.Comment != "" {
+		refEntity.SetComment(ent.Comment)
+	}
+	if ent.XlsFile != "" {
+		refEntity.SetXlsFile(ent.XlsFile)
 	}
 
 	// Process each field

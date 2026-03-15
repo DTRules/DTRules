@@ -17,6 +17,7 @@ package excel
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 
@@ -24,6 +25,7 @@ import (
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/decisiontable"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
@@ -44,7 +46,7 @@ func NewExporter(rs *session.RuleSet) *Exporter {
 	return &Exporter{ruleSet: rs}
 }
 
-// ExportDecisionTables exports all decision tables to an Excel file.
+// ExportDecisionTables exports all decision tables to a single Excel file.
 func (e *Exporter) ExportDecisionTables(filename string) error {
 	f := excelize.NewFile()
 	defer f.Close()
@@ -90,6 +92,153 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 	}
 
 	return f.SaveAs(filename)
+}
+
+// ExportDecisionTablesToDir exports decision tables grouped by xls_file to a directory.
+// Creates multiple xlsx files and an index.md for navigation.
+func (e *Exporter) ExportDecisionTablesToDir(dir string) error {
+	// Group tables by xls_file
+	groups := make(map[string][]*decisiontable.RDecisionTable)
+	tableNames := e.ruleSet.GetDecisionTableNames()
+
+	for _, rname := range tableNames {
+		dtObj := e.ruleSet.GetEntityFactory().FindDecisionTable(rname)
+		if dtObj == nil {
+			continue
+		}
+		dt, ok := dtObj.(*decisiontable.RDecisionTable)
+		if !ok {
+			continue
+		}
+
+		xlsFile := dt.GetFilename()
+		if xlsFile == "" {
+			xlsFile = "Other.xlsx"
+		}
+		// Normalize to .xlsx extension
+		xlsFile = strings.TrimSuffix(xlsFile, ".xls")
+		xlsFile = strings.TrimSuffix(xlsFile, ".xlsx")
+		xlsFile = xlsFile + ".xlsx"
+
+		groups[xlsFile] = append(groups[xlsFile], dt)
+	}
+
+	// Sort tables within each group by name
+	for _, tables := range groups {
+		sort.Slice(tables, func(i, j int) bool {
+			return tables[i].GetName() < tables[j].GetName()
+		})
+	}
+
+	// Write each group to a separate file
+	for xlsFile, tables := range groups {
+		if err := e.writeDecisionTableGroup(dir, xlsFile, tables); err != nil {
+			return err
+		}
+	}
+
+	// Write index.md
+	return e.writeDecisionTableIndex(dir, groups)
+}
+
+func (e *Exporter) writeDecisionTableGroup(dir, xlsFile string, tables []*decisiontable.RDecisionTable) error {
+	f := excelize.NewFile()
+	defer f.Close()
+
+	defaultSheet := f.GetSheetName(0)
+
+	styles, err := e.createStyles(f)
+	if err != nil {
+		return fmt.Errorf("failed to create styles: %w", err)
+	}
+
+	for _, dt := range tables {
+		if err := e.writeDecisionTable(f, dt, styles); err != nil {
+			return fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
+		}
+	}
+
+	sheetList := f.GetSheetList()
+	if len(sheetList) > 1 {
+		f.DeleteSheet(defaultSheet)
+	}
+
+	filepath := dir + "/" + xlsFile
+	return f.SaveAs(filepath)
+}
+
+func (e *Exporter) writeDecisionTableIndex(dir string, groups map[string][]*decisiontable.RDecisionTable) error {
+	var sb strings.Builder
+
+	sb.WriteString("# Decision Tables Index\n\n")
+	sb.WriteString("This folder contains decision tables organized by functional area.\n\n")
+
+	// Sort group names
+	groupNames := make([]string, 0, len(groups))
+	for name := range groups {
+		groupNames = append(groupNames, name)
+	}
+	sort.Strings(groupNames)
+
+	// Summary table
+	sb.WriteString("## Summary\n\n")
+	sb.WriteString("| File | Tables | Description |\n")
+	sb.WriteString("|------|--------|-------------|\n")
+
+	totalTables := 0
+	for _, name := range groupNames {
+		tables := groups[name]
+		totalTables += len(tables)
+		desc := getGroupDescription(name)
+		sb.WriteString(fmt.Sprintf("| [%s](%s) | %d | %s |\n", name, name, len(tables), desc))
+	}
+	sb.WriteString(fmt.Sprintf("| **Total** | **%d** | |\n\n", totalTables))
+
+	// Detailed listing
+	sb.WriteString("## Tables by File\n\n")
+
+	for _, name := range groupNames {
+		tables := groups[name]
+		sb.WriteString(fmt.Sprintf("### %s\n\n", name))
+		sb.WriteString("| Table | Description |\n")
+		sb.WriteString("|-------|-------------|\n")
+
+		for _, dt := range tables {
+			fields := dt.GetFields()
+			comment := fields["COMMENTS"]
+			if len(comment) > 80 {
+				comment = comment[:80] + "..."
+			}
+			sb.WriteString(fmt.Sprintf("| %s | %s |\n", dt.GetName(), comment))
+		}
+		sb.WriteString("\n")
+	}
+
+	filepath := dir + "/index.md"
+	return writeFile(filepath, sb.String())
+}
+
+func getGroupDescription(filename string) string {
+	name := strings.TrimSuffix(filename, ".xlsx")
+	descriptions := map[string]string{
+		"MainFlow":       "Entry point and main tax calculation flow",
+		"Income":         "Income processing tables",
+		"Deductions":     "Deduction calculations",
+		"TaxCalculation": "Tax brackets and liability calculation",
+		"Credits":        "Tax credit calculations",
+		"SpecialForms":   "Special IRS forms (K-1, foreign, etc.)",
+		"Validation":     "Test validation tables",
+		"Helpers":        "Helper and utility tables",
+		"Other":          "Uncategorized tables",
+	}
+	if desc, ok := descriptions[name]; ok {
+		return desc
+	}
+	return ""
+}
+
+func writeFile(filepath, content string) error {
+	return os.WriteFile(filepath, []byte(content), 0644)
 }
 
 // ExportEDD exports the Entity Data Dictionary to an Excel file.
@@ -239,6 +388,235 @@ func (e *Exporter) ExportEDD(filename string) error {
 	}
 
 	return f.SaveAs(filename)
+}
+
+// ExportEDDToDir exports entities grouped by xls_file to a directory.
+// Creates multiple xlsx files and an index.md for navigation.
+func (e *Exporter) ExportEDDToDir(dir string) error {
+	// Group entities by xls_file
+	groups := make(map[string][]*entity.REntity)
+	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
+
+	for _, ent := range entities {
+		xlsFile := ent.GetXlsFile()
+		if xlsFile == "" {
+			xlsFile = "Other.xlsx"
+		}
+		// Normalize to .xlsx extension
+		xlsFile = strings.TrimSuffix(xlsFile, ".xls")
+		xlsFile = strings.TrimSuffix(xlsFile, ".xlsx")
+		xlsFile = xlsFile + ".xlsx"
+
+		groups[xlsFile] = append(groups[xlsFile], ent)
+	}
+
+	// Sort entities within each group by name
+	for _, ents := range groups {
+		sort.Slice(ents, func(i, j int) bool {
+			return ents[i].GetName().StringValue() < ents[j].GetName().StringValue()
+		})
+	}
+
+	// Write each group to a separate file
+	for xlsFile, ents := range groups {
+		if err := e.writeEDDGroup(dir, xlsFile, ents); err != nil {
+			return err
+		}
+	}
+
+	// Write index.md
+	return e.writeEDDIndex(dir, groups)
+}
+
+func (e *Exporter) writeEDDGroup(dir, xlsFile string, entities []*entity.REntity) error {
+	f := excelize.NewFile()
+	defer f.Close()
+
+	sheet := "EDD"
+	f.SetSheetName("Sheet1", sheet)
+
+	eddStyles, err := e.createEDDStyles(f)
+	if err != nil {
+		return err
+	}
+
+	// Set column widths
+	f.SetColWidth(sheet, "A", "A", 18)
+	f.SetColWidth(sheet, "B", "B", 25)
+	f.SetColWidth(sheet, "C", "C", 10)
+	f.SetColWidth(sheet, "D", "D", 12)
+	f.SetColWidth(sheet, "E", "E", 18)
+	f.SetColWidth(sheet, "F", "F", 8)
+	f.SetColWidth(sheet, "G", "G", 8)
+	f.SetColWidth(sheet, "H", "H", 55)
+
+	// Write headers
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
+	for col, header := range headers {
+		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
+		f.SetCellValue(sheet, cell, header)
+		f.SetCellStyle(sheet, cell, cell, eddStyles.header)
+	}
+
+	// Freeze header row
+	f.SetPanes(sheet, &excelize.Panes{
+		Freeze:      true,
+		Split:       false,
+		XSplit:      0,
+		YSplit:      1,
+		TopLeftCell: "A2",
+		ActivePane:  "bottomLeft",
+	})
+
+	row := 2
+	for _, ent := range entities {
+		entityName := ent.GetName().StringValue()
+		attrNames := ent.GetAttributeNames()
+
+		sort.Slice(attrNames, func(i, j int) bool {
+			return attrNames[i].StringValue() < attrNames[j].StringValue()
+		})
+
+		// Count valid attributes
+		attrCount := 0
+		for _, attrName := range attrNames {
+			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
+				if ent.GetEntry(attrName) != nil {
+					attrCount++
+				}
+			}
+		}
+
+		if attrCount == 0 {
+			continue
+		}
+
+		// Write entity header row
+		f.SetCellValue(sheet, cellName(1, row), entityName)
+		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
+		for col := 1; col <= 8; col++ {
+			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), eddStyles.entityHeader)
+		}
+		row++
+
+		// Write attributes
+		attrRow := 0
+		for _, attrName := range attrNames {
+			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
+				continue
+			}
+
+			entry := ent.GetEntry(attrName)
+			if entry == nil {
+				continue
+			}
+
+			access := ""
+			if entry.Readable {
+				access += "r"
+			}
+			if entry.Writable {
+				access += "w"
+			}
+
+			rowStyle := eddStyles.rowEven
+			if attrRow%2 == 1 {
+				rowStyle = eddStyles.rowOdd
+			}
+
+			f.SetCellValue(sheet, cellName(1, row), "")
+			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), rowStyle)
+
+			f.SetCellValue(sheet, cellName(2, row), attrName.StringValue())
+			f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), eddStyles.attribute)
+
+			typeStyle := e.getTypeStyle(eddStyles, entry.Type.String())
+			f.SetCellValue(sheet, cellName(3, row), entry.Type.String())
+			f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), typeStyle)
+
+			f.SetCellValue(sheet, cellName(4, row), entry.SubType)
+			f.SetCellStyle(sheet, cellName(4, row), cellName(4, row), rowStyle)
+
+			f.SetCellValue(sheet, cellName(5, row), entry.DefaultTxt)
+			f.SetCellStyle(sheet, cellName(5, row), cellName(5, row), rowStyle)
+
+			inputStyle := rowStyle
+			if entry.Input != "" {
+				inputStyle = eddStyles.input
+			}
+			f.SetCellValue(sheet, cellName(6, row), entry.Input)
+			f.SetCellStyle(sheet, cellName(6, row), cellName(6, row), inputStyle)
+
+			f.SetCellValue(sheet, cellName(7, row), access)
+			f.SetCellStyle(sheet, cellName(7, row), cellName(7, row), rowStyle)
+
+			f.SetCellValue(sheet, cellName(8, row), entry.Comment)
+			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), eddStyles.comment)
+
+			row++
+			attrRow++
+		}
+	}
+
+	filepath := dir + "/" + xlsFile
+	return f.SaveAs(filepath)
+}
+
+func (e *Exporter) writeEDDIndex(dir string, groups map[string][]*entity.REntity) error {
+	var sb strings.Builder
+
+	sb.WriteString("# Entity Data Dictionary Index\n\n")
+	sb.WriteString("This folder contains entity definitions organized by functional area.\n\n")
+
+	// Sort group names
+	groupNames := make([]string, 0, len(groups))
+	for name := range groups {
+		groupNames = append(groupNames, name)
+	}
+	sort.Strings(groupNames)
+
+	// Summary table
+	sb.WriteString("## Summary\n\n")
+	sb.WriteString("| File | Entities | Attributes |\n")
+	sb.WriteString("|------|----------|------------|\n")
+
+	totalEntities := 0
+	totalAttrs := 0
+	for _, name := range groupNames {
+		entities := groups[name]
+		entCount := len(entities)
+		attrCount := 0
+		for _, ent := range entities {
+			attrCount += len(ent.GetAttributeNames()) - 2 // exclude self-ref and mapping key
+		}
+		totalEntities += entCount
+		totalAttrs += attrCount
+		sb.WriteString(fmt.Sprintf("| [%s](%s) | %d | %d |\n", name, name, entCount, attrCount))
+	}
+	sb.WriteString(fmt.Sprintf("| **Total** | **%d** | **%d** |\n\n", totalEntities, totalAttrs))
+
+	// Detailed listing
+	sb.WriteString("## Entities by File\n\n")
+
+	for _, name := range groupNames {
+		entities := groups[name]
+		sb.WriteString(fmt.Sprintf("### %s\n\n", name))
+		sb.WriteString("| Entity | Attributes | Description |\n")
+		sb.WriteString("|--------|------------|-------------|\n")
+
+		for _, ent := range entities {
+			attrCount := len(ent.GetAttributeNames()) - 2
+			comment := ent.GetComment()
+			if len(comment) > 60 {
+				comment = comment[:60] + "..."
+			}
+			sb.WriteString(fmt.Sprintf("| %s | %d | %s |\n", ent.GetName().StringValue(), attrCount, comment))
+		}
+		sb.WriteString("\n")
+	}
+
+	filepath := dir + "/index.md"
+	return writeFile(filepath, sb.String())
 }
 
 // eddStyles holds styles for EDD export

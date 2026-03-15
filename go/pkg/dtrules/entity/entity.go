@@ -36,6 +36,7 @@ type REntity struct {
 	attributes map[*dtrules.RName]*EntityEntry
 	values     []dtrules.Object
 	comment    string
+	xlsFile    string // Export grouping for EDD spreadsheets
 }
 
 // NewREntity creates a new reference entity (id=0 for references).
@@ -208,6 +209,16 @@ func (e *REntity) GetComment() string {
 // SetComment sets the entity comment.
 func (e *REntity) SetComment(comment string) {
 	e.comment = comment
+}
+
+// GetXlsFile returns the export grouping file for EDD spreadsheets.
+func (e *REntity) GetXlsFile() string {
+	return e.xlsFile
+}
+
+// SetXlsFile sets the export grouping file for EDD spreadsheets.
+func (e *REntity) SetXlsFile(xlsFile string) {
+	e.xlsFile = xlsFile
 }
 
 // ContainsAttribute checks if entity has an attribute.
