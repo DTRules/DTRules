@@ -35,7 +35,9 @@ var (
 	validate   = flag.Bool("validate", false, "Validate rules without executing")
 	listTables = flag.Bool("list", false, "List all decision tables")
 	compile    = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
-	exportXLS  = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix)")
+	exportXLS  = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix, deprecated)")
+	exportDT   = flag.String("export-dt", "", "Export decision tables to Excel file (.xlsx)")
+	exportEDD  = flag.String("export-edd", "", "Export EDD to Excel file (.xlsx)")
 	verbose    = flag.Bool("v", false, "Verbose output")
 	trace      = flag.Bool("trace", false, "Enable trace output during execution")
 	debug      = flag.Bool("debug", false, "Enable debug output during execution")
@@ -90,9 +92,15 @@ func main() {
 		return
 	}
 
-	// Handle export mode
+	// Handle export mode (legacy prefix-based)
 	if *exportXLS != "" {
 		exportToExcel(rs, *exportXLS)
+		return
+	}
+
+	// Handle separate export modes
+	if *exportDT != "" || *exportEDD != "" {
+		exportSeparate(rs, *exportDT, *exportEDD)
 		return
 	}
 
@@ -347,4 +355,32 @@ func exportToExcel(rs *session.RuleSet, prefix string) {
 		os.Exit(1)
 	}
 	fmt.Printf("Created %s with %d entities\n", eddFile, len(rs.GetEntityNames()))
+}
+
+func exportSeparate(rs *session.RuleSet, dtPath, eddPath string) {
+	exporter := excel.NewExporter(rs)
+
+	// Export decision tables if path provided
+	if dtPath != "" {
+		if *verbose {
+			fmt.Printf("Exporting decision tables to: %s\n", dtPath)
+		}
+		if err := exporter.ExportDecisionTables(dtPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error exporting decision tables: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Created %s with %d decision tables\n", dtPath, len(rs.GetDecisionTableNames()))
+	}
+
+	// Export EDD if path provided
+	if eddPath != "" {
+		if *verbose {
+			fmt.Printf("Exporting EDD to: %s\n", eddPath)
+		}
+		if err := exporter.ExportEDD(eddPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error exporting EDD: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Created %s with %d entities\n", eddPath, len(rs.GetEntityNames()))
+	}
 }
