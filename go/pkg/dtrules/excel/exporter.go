@@ -30,7 +30,7 @@ import (
 const (
 	maxCol          = 16
 	defaultColWidth = 12.0
-	narrowColWidth  = 3.0
+	narrowColWidth  = 5.0  // Decision columns (Y/N/X values)
 	wideColWidth    = 40.0
 )
 
@@ -199,6 +199,7 @@ type styles struct {
 	table     int
 	typeStyle int
 	number    int
+	policy    int
 }
 
 func (e *Exporter) createStyles(f *excelize.File) (*styles, error) {
@@ -285,6 +286,16 @@ func (e *Exporter) createStyles(f *excelize.File) (*styles, error) {
 	s.number, err = f.NewStyle(&excelize.Style{
 		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
 		Border:    border,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.policy, err = f.NewStyle(&excelize.Style{
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"E2EFDA"}}, // Light green
+		Alignment: &excelize.Alignment{Vertical: "top", WrapText: true},
+		Border:    border,
+		Font:      &excelize.Font{Size: 9, Italic: true},
 	})
 	if err != nil {
 		return nil, err
@@ -606,10 +617,27 @@ func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontabl
 }
 
 func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
+	policyStatements := dt.GetPolicyStatements()
+
+	// Check if there are any policy statements
+	hasStatements := false
+	for i := 1; i < len(policyStatements); i++ {
+		if policyStatements[i] != "" {
+			hasStatements = true
+			break
+		}
+	}
+	if !hasStatements {
+		return row
+	}
+
 	// Header row
-	f.MergeCell(sheet, cellName(1, row), cellName(3, row))
-	f.SetCellValue(sheet, cellName(1, row), "Policy Statements:")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(3, row), styles.header)
+	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
+	f.SetCellValue(sheet, cellName(1, row), "Policy:")
+	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
+
+	f.SetCellValue(sheet, cellName(3, row), "Policy Statements")
+	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.header)
 
 	// Column numbers
 	for i := 0; i < numCols; i++ {
@@ -619,24 +647,31 @@ func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *dec
 	}
 	row++
 
-	policyStatements := dt.GetPolicyStatements()
+	// Policy statement row - each statement in its column
+	f.SetCellValue(sheet, cellName(1, row), "")
+	f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
 
-	for i := 1; i < len(policyStatements); i++ {
-		stmt := policyStatements[i]
-		if stmt == "" {
-			continue
+	f.SetCellValue(sheet, cellName(2, row), "Column Policy")
+	f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+
+	f.SetCellValue(sheet, cellName(3, row), "")
+	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.formal)
+
+	// Put each policy statement in its respective column
+	for i := 0; i < numCols; i++ {
+		stmt := ""
+		colIdx := i + 1 // Policy statements are 1-indexed by column
+		if colIdx < len(policyStatements) {
+			stmt = policyStatements[colIdx]
 		}
-
-		// Number
-		f.SetCellValue(sheet, cellName(1, row), i)
-		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
-
-		// Statement (merged)
-		f.MergeCell(sheet, cellName(2, row), cellName(3+numCols, row))
-		f.SetCellValue(sheet, cellName(2, row), stmt)
-		f.SetCellStyle(sheet, cellName(2, row), cellName(3+numCols, row), styles.formal)
-		row++
+		cell := cellName(4+i, row)
+		f.SetCellValue(sheet, cell, stmt)
+		f.SetCellStyle(sheet, cell, cell, styles.policy)
 	}
+
+	// Set row height to accommodate wrapped text
+	f.SetRowHeight(sheet, row, 45)
+	row++
 
 	return row
 }
