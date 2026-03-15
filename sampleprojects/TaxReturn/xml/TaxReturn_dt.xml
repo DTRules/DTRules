@@ -6,7 +6,7 @@
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Compute_Tax_Return</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Entry point for tax return calculation. Orchestrates the complete tax calculation process following the structure of Form 1040. Determines filing status and executes calculation tables in proper order per IRS Form 1040 instructions.</COMMENTS>
@@ -210,7 +210,7 @@ Calculate_Final_Balance
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Gross_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates total gross income from all sources including W-2 wages, self-employment income (Schedule C), rental income (Schedule E), and other income sources. References Form 1040 Lines 1-9.</COMMENTS>
@@ -384,7 +384,7 @@ Calculate_SS_Taxability
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_W2_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes W-2 wage income for all taxpayers. Records wages per Form 1040 Line 1a, IRC Section 61(a)(1). Also tracks withholding for payment calculation.</COMMENTS>
@@ -499,7 +499,7 @@ result.senior_count 1 + /result.senior_count xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Self_Employment</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes self-employment income per Schedule C, calculates vehicle deductions per Publication 463. Calls Calculate_SE_Tax after computing net profit.</COMMENTS>
@@ -585,7 +585,7 @@ Calculate_SE_Tax
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_SE_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates self-employment tax per Schedule SE and IRC 1401. Called after net profit is computed so threshold checks work correctly.</COMMENTS>
@@ -648,7 +648,7 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Vehicle_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile.</COMMENTS>
@@ -749,7 +749,7 @@ vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Rental_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes rental property income and expenses per Schedule E Part I, Publication 527, IRC Section 61(a)(5). Calculates depreciation, mortgage interest, property taxes, and other rental expenses.</COMMENTS>
@@ -877,7 +877,7 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Other_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes other income sources (pension, interest, dividends, etc.) from income entities. Sums gross_amount into total_other_income and tracks withholding.</COMMENTS>
@@ -941,7 +941,7 @@ income.tax_withheld result.total_payments f+ /result.total_payments xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_AGI_Adjustments</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates above-the-line deductions (adjustments to income) per Schedule 1 Part II, IRC Section 62. Includes SE tax deduction, health insurance for self-employed, and other adjustments.</COMMENTS>
@@ -1009,7 +1009,7 @@ taxpayer.se_tax_deduction result.total_adjustments f+ /result.total_adjustments 
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Deductions</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determines whether to use standard or itemized deduction per Form 1040 Line 12, Schedule A, IRC Section 63. Calculates itemized deductions including SALT (with $10,000 cap per TCJA), mortgage interest, and charitable contributions.</COMMENTS>
@@ -1081,7 +1081,7 @@ result.standard_deduction /result.total_deduction xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Standard_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determines standard deduction amount based on filing status per IRC Section 63(c), Publication 17 Chapter 20. Amounts for 2025 are estimated.</COMMENTS>
@@ -1223,7 +1223,7 @@ result.senior_count 1.0 f* constants.additional_std_deduction_single f* result.s
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Itemized_Deductions</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates total itemized deductions per Schedule A including SALT (capped at $10,000 per IRC 164(b)(6)(B) as amended by TCJA Section 11042), mortgage interest, and charitable contributions.</COMMENTS>
@@ -1316,7 +1316,7 @@ Calculate_Charitable_Deduction
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_SALT_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates State and Local Tax (SALT) deduction including state income tax, real estate taxes, and personal property taxes. SALT is capped at $10,000 per IRC Section 164(b)(6)(B) as amended by TCJA Section 11042. Texas has no state income tax.</COMMENTS>
@@ -1433,7 +1433,7 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Sum_Primary_Residence_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table for SALT calculation. Adds property tax to running total if property is primary residence.</COMMENTS>
@@ -1481,7 +1481,7 @@ property_taxes 0 local@ f+ 0 local!
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Sum_SALT_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table for SALT calculation. Adds state and local tax deductions to running total.</COMMENTS>
@@ -1529,7 +1529,7 @@ amount 0 local@ f+ 0 local!
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates mortgage interest deduction for qualified residences per Schedule A Lines 8a-8e, Publication 936, IRC Section 163(h). Applies $750,000 debt limit for post-12/15/2017 mortgages per TCJA Section 11043.</COMMENTS>
@@ -1622,7 +1622,7 @@ property.mortgage_interest_deductible result.total_itemized f+ /result.total_ite
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Filter_Primary_Residence</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes property if it is a primary residence.</COMMENTS>
@@ -1670,7 +1670,7 @@ Calculate_Mortgage_Interest_For_Property
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Charitable_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates charitable contribution deduction per Schedule A Lines 11-14, Publication 526, IRC Section 170. Sums all charity-category deductions.</COMMENTS>
@@ -1726,7 +1726,7 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Filter_Charity_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes deduction if category is charity.</COMMENTS>
@@ -1776,7 +1776,7 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Noncash_Charitable</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates noncash charitable contribution deductions per Form 8283, Publication 526, IRC Section 170. Handles Section A (under $5,000) and Section B (over $5,000 requiring appraisal). Applies AGI limitations (30% or 50%).</COMMENTS>
@@ -1842,7 +1842,7 @@ result.total_noncash_charitable result.total_itemized f+ /result.total_itemized 
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Noncash_Contribution</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Processes individual noncash charitable contribution. Applies appropriate valuation rules and AGI limitations based on property type and holding period.</COMMENTS>
@@ -1935,7 +1935,7 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Taxable_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxableIncome.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates taxable income per Form 1040 Line 15, IRC Section 63. Subtracts deductions and QBI deduction from AGI.</COMMENTS>
@@ -2009,7 +2009,7 @@ result.agi result.total_deduction f- result.qbi_deduction f- 0.0 fmax /result.ta
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Tax_Liability</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates total tax liability including regular tax (using tax brackets per IRC Section 1) and self-employment tax (Schedule SE, IRC Section 1401). Form 1040 Lines 16-24.</COMMENTS>
@@ -2102,7 +2102,7 @@ result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax 
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Apply_Tax_Brackets</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies marginal tax brackets to calculate regular tax per Form 1040 Line 16, IRC Section 1. Uses 2025 estimated bracket amounts for MFJ, Single, and other filing statuses.</COMMENTS>
@@ -2170,7 +2170,7 @@ Apply_Tax_Brackets_Single
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Apply_Tax_Brackets_MFJ</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates regular tax using MFJ brackets. Each column represents a bracket range.</COMMENTS>
@@ -2302,7 +2302,7 @@ result.taxable_income bracket_4_mfj f- bracket_5_rate f* f+
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Apply_Tax_Brackets_Single</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates regular tax using Single brackets. Each column represents a bracket range.</COMMENTS>
@@ -2434,7 +2434,7 @@ result.taxable_income bracket_4_single f- bracket_5_rate f* f+
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Credits</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24.</COMMENTS>
@@ -2579,7 +2579,7 @@ result.premium_tax_credit f+ result.foreign_tax_credit f+ /result.total_credits 
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_CTC_Phase_Out</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies CTC phase-out based on filing status and AGI. Phase-out threshold is $400,000 for MFJ/QSS and $200,000 for others per IRC 24(b). Reduction is $50 per $1,000 over threshold.</COMMENTS>
@@ -2758,7 +2758,7 @@ result.ctc_before_phaseout /result.ctc_after_phaseout xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Child_Tax_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates Child Tax Credit (CTC) and Other Dependent Credit (ODC) per Schedule 8812, Publication 972, IRC Section 24. CTC requires child under 17 with SSN. ODC is $500 for dependents who dont qualify for CTC.</COMMENTS>
@@ -2863,7 +2863,7 @@ dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Final_Balance</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>FinalBalance.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates final tax balance - total tax minus credits and payments to determine refund or amount owed per Form 1040 Lines 33-37.</COMMENTS>
@@ -2994,7 +2994,7 @@ result.total_tax result.total_payments f- /result.refund_or_owed xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_EITC</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Earned Income Tax Credit per Schedule EIC, Publication 596, IRC 32. EITC is a refundable credit for low-to-moderate income workers.</COMMENTS>
@@ -3268,7 +3268,7 @@ eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 f* f- 0 fmax /resu
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Education_Credits</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates education credits (AOTC and LLC) per Form 8863, Publication 970, IRC 25A. AOTC is up to $2,500 for first 4 years of college (40% refundable). LLC is up to $2,000 for any post-secondary education.</COMMENTS>
@@ -3316,7 +3316,7 @@ perform when called
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Education_Credit_Per_Dependent</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates education credit for a single dependent. Determines AOTC vs LLC eligibility and applies phase-out. Called by forall loop in Calculate_Education_Credits.</COMMENTS>
@@ -3464,7 +3464,7 @@ dependent.education_credit result.education_credit f+ /result.education_credit x
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_QBI_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxableIncome.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Qualified Business Income deduction per Form 8995/8995-A, Publication 535, IRC 199A. The QBI deduction allows eligible self-employed and small business owners to deduct up to 20% of their qualified business income.</COMMENTS>
@@ -3526,7 +3526,7 @@ result.agi result.total_deduction f- result.qbi_deduction f- 0.20 f* result.qbi_
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Validate_Results</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Validates calculated results against expected values from test case. Logs any discrepancies for review.</COMMENTS>
@@ -3586,7 +3586,7 @@ Validate_Summary
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Validate_AGI</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch.</COMMENTS>
@@ -3636,7 +3636,7 @@ false /result.validation_passed xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Validate_Taxable_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Validates taxable income against expected value.</COMMENTS>
@@ -3686,7 +3686,7 @@ false /result.validation_passed xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Validate_Total_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Validates total tax against expected value.</COMMENTS>
@@ -3736,7 +3736,7 @@ false /result.validation_passed xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Validate_Summary</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Logs overall validation summary.</COMMENTS>
@@ -3786,7 +3786,7 @@ result.validation_passed true beq
 <!-- Filter_Self_Employed_Taxpayer: Process taxpayer if self-employed -->
 <decision_table>
 <table_name>Filter_Self_Employed_Taxpayer</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Helpers.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes taxpayer if self-employed.</COMMENTS>
@@ -3831,7 +3831,7 @@ is_self_employed true beq
 <!-- Filter_Taxpayer_Vehicle: Process vehicle if belongs to current taxpayer -->
 <decision_table>
 <table_name>Filter_Taxpayer_Vehicle</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Helpers.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes vehicle if it belongs to current taxpayer.</COMMENTS>
@@ -3876,7 +3876,7 @@ taxpayer_id taxpayer.id ==
 <!-- Filter_Rental_Property: Process property if type is rental -->
 <decision_table>
 <table_name>Filter_Rental_Property</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Helpers.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes property if it is a rental.</COMMENTS>
@@ -3921,7 +3921,7 @@ type "rental" streq
 <!-- Count_EITC_Qualifying_Child: Count child if qualifies for EITC -->
 <decision_table>
 <table_name>Count_EITC_Qualifying_Child</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Helpers.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that increments counter if dependent is qualifying child for EITC.</COMMENTS>
@@ -3966,7 +3966,7 @@ relationship "child" streq age 19 &lt; and
 <!-- Calculate_Mortgage_Interest_For_Property: Called by Filter_Primary_Residence -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest_For_Property</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>Helpers.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Processes mortgage interest for a single property. Called by filter table.</COMMENTS>
@@ -4017,7 +4017,7 @@ pop
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_OBBBA_Deductions</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates OBBBA 2025 deductions: No Tax on Tips, No Tax on Overtime, and Senior Additional Deduction. These are above-the-line deductions that reduce AGI.</COMMENTS>
@@ -4096,7 +4096,7 @@ result.tips_deduction result.overtime_deduction f+ result.senior_deduction f+ /r
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Tips_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>No Tax on Tips deduction per OBBBA 2025. Maximum deduction is $25,000. Phases out above $150,000 MAGI (Single) or $300,000 (MFJ). Uses gross income as proxy for MAGI since this is calculated before AGI.</COMMENTS>
@@ -4223,7 +4223,7 @@ result.total_tip_income constants.tips_deduction_max fmin /result.tips_deduction
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Overtime_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>No Tax on Overtime deduction per OBBBA 2025. Maximum $12,500 (Single/HOH) or $25,000 (MFJ). Phases out above $150,000 MAGI (Single) or $300,000 (MFJ).</COMMENTS>
@@ -4359,7 +4359,7 @@ result.total_overtime_income constants.overtime_deduction_max_single fmin /resul
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Senior_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Senior Additional Deduction per OBBBA 2025. $6,000 per senior (age 65+). Phases out above $75,000 MAGI (Single) or $150,000 (MFJ).</COMMENTS>
@@ -4484,7 +4484,7 @@ result.senior_count 1.0 f* constants.senior_deduction_amount f* /result.senior_d
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_SS_Taxability</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates taxable portion of Social Security benefits per Publication 915. Uses provisional income (AGI + 50% SS + tax-exempt interest) to determine if 0%, 50%, or 85% of SS is taxable.</COMMENTS>
@@ -4693,7 +4693,7 @@ result.total_social_security 0.85 f* /result.taxable_social_security xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Capital_Gains</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes capital gains and qualified dividends from income entities. Categorizes by holding period and sums totals for LTCG tax calculation.</COMMENTS>
@@ -4805,7 +4805,7 @@ income.gross_amount result.total_qualified_dividends f+ /result.total_qualified_
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Capital_Gains_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates capital gains tax using preferential rates (0%/15%/20%) per Schedule D Tax Worksheet, IRC 1(h). Applies different brackets based on filing status.</COMMENTS>
@@ -4879,7 +4879,7 @@ Apply_CG_Brackets_Single
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Apply_CG_Brackets_MFJ</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies MFJ capital gains brackets (0%/15%/20%) based on taxable income level.</COMMENTS>
@@ -4957,7 +4957,7 @@ deallocate pop
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Apply_CG_Brackets_Single</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies Single capital gains brackets (0%/15%/20%) based on taxable income level.</COMMENTS>
@@ -5035,7 +5035,7 @@ deallocate pop
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_NIIT</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Net Investment Income Tax (3.8%) per Form 8960, IRC 1411. NIIT applies to lesser of NII or MAGI over threshold.</COMMENTS>
@@ -5241,7 +5241,7 @@ result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin 
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Additional_Medicare_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Additional Medicare Tax (0.9%) per Form 8959, IRC 3101(b)(2). Applies to wages and SE income over threshold.</COMMENTS>
@@ -5411,7 +5411,7 @@ result.wages_for_additional_medicare additional_medicare_threshold_single f- add
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_IRA_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates Traditional IRA deduction per Publication 590-A, IRC 219. Applies phase-out if covered by employer plan.</COMMENTS>
@@ -5612,7 +5612,7 @@ deallocate pop deallocate pop
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_HSA_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates HSA deduction per Form 8889, Publication 969, IRC 223. Limits based on coverage type.</COMMENTS>
@@ -5752,7 +5752,7 @@ taxpayer.hsa_contribution hsa_limit_self fmin result.hsa_deduction f+ /result.hs
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Student_Loan_Deduction</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates student loan interest deduction per Publication 970, IRC 221. Maximum $2,500 with AGI phase-out.</COMMENTS>
@@ -5988,7 +5988,7 @@ result.total_medical_expenses result.medical_expense_floor f- 0 fmax /result.med
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_CDCC</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Child and Dependent Care Credit per Form 2441, IRC 21</COMMENTS>
@@ -6096,7 +6096,7 @@ result.cdcc_credit result.total_credits f+ /result.total_credits xdef
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Count_CDCC_Qualifying_Person</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Count qualifying persons and care expenses for CDCC per IRC 21</COMMENTS>
@@ -6163,7 +6163,7 @@ false /dependent.qualifies_for_cdcc xdef
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Savers_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Saver's Credit (Form 8880, IRC 25B) - Retirement Savings Contributions Credit. Rate tiers: 50%, 20%, 10%, 0% based on AGI and filing status.</COMMENTS>
@@ -6444,7 +6444,7 @@ result.savers_credit result.total_credits f+ /result.total_credits xdef
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Sum_Savers_Contribution</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Sum eligible retirement contributions for Saver's Credit per IRC 25B</COMMENTS>
@@ -6485,7 +6485,7 @@ taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ constant
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Energy_Credits</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Residential Energy Credits per Form 5695, IRC 25C/25D</COMMENTS>
@@ -6556,7 +6556,7 @@ result.clean_energy_credit result.energy_efficiency_credit f+ result.total_credi
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Energy_Credit_Per_Improvement</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate credit for individual energy improvement per IRC 25C/25D</COMMENTS>
@@ -6611,7 +6611,7 @@ energy_improvement.cost constants.energy_efficiency_rate f* result.energy_effici
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Passive_Activity_Loss</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Passive Activity Loss Rules per Form 8582, IRC 469</COMMENTS>
@@ -6689,7 +6689,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Sum_Rental_Loss</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Sum rental losses for PAL calculation per IRC 469</COMMENTS>
@@ -6731,7 +6731,7 @@ property.rental_net_income fnegate result.total_rental_loss f+ /result.total_ren
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_AMT</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Alternative Minimum Tax per Form 6251, IRC 55-59. AMTI = taxable income + preference items. Tax rates: 26% up to $232,600, 28% above. Exemption phased out at 25% of AMTI over threshold.</COMMENTS>
@@ -6838,7 +6838,7 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Premium_Tax_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Premium Tax Credit per Form 8962, IRC 36B</COMMENTS>
@@ -6966,7 +6966,7 @@ job.advance_ptc_received /result.ptc_repayment xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_K1_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Schedule K-1 income from partnerships, S-corps, and trusts. Categorizes income by type and flows to appropriate forms (Schedule E, B, D).</COMMENTS>
@@ -7026,7 +7026,7 @@ k1.qbi_income result.total_k1_qbi f+ /result.total_k1_qbi xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_K1_SE_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate self-employment tax on K-1 SE earnings (Box 14 and guaranteed payments for services). General partners and LLC members pay SE tax on distributive share.</COMMENTS>
@@ -7082,7 +7082,7 @@ k1_se_tax se_deduction_rate f* result.total_adjustments f+ /result.total_adjustm
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_IRA_Accounts</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process IRA accounts for Form 8606. Tracks non-deductible contributions (basis), calculates taxable portion of distributions and Roth conversions using the pro-rata rule.</COMMENTS>
@@ -7144,7 +7144,7 @@ ira.distribution_amount result.total_ira_distributions f+ /result.total_ira_dist
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Roth_Conversion_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate taxable portion of Roth conversions using the pro-rata rule. When traditional IRA has both deductible and non-deductible contributions, conversions are taxed proportionally.</COMMENTS>
@@ -7209,7 +7209,7 @@ result.taxable_conversions result.total_other_income f+ /result.total_other_inco
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Farm_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Schedule F farm income and expenses. Calculates net farm profit/loss for inclusion in gross income and self-employment tax.</COMMENTS>
@@ -7266,7 +7266,7 @@ farm.net_profit result.net_farm_profit f+ /result.net_farm_profit xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Farm_SE_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate self-employment tax on farm income. Farm net profit is subject to SE tax with optional farm methods available.</COMMENTS>
@@ -7322,7 +7322,7 @@ result.farm_se_tax se_deduction_rate f* result.total_adjustments f+ /result.tota
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Property_Sales</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 4797 sales of business property. Calculates gain/loss, depreciation recapture (Section 1245/1250), and Section 1231 treatment.</COMMENTS>
@@ -7439,7 +7439,7 @@ sale.section_1231_gain 0 &lt; { sale.section_1231_gain fnegate result.total_1231
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Section_1231</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine treatment of net Section 1231 gain or loss. Net gains are treated as long-term capital gains; net losses are treated as ordinary losses (fully deductible).</COMMENTS>
@@ -7512,7 +7512,7 @@ result.net_1231_gain_loss result.total_other_income f+ /result.total_other_incom
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Foreign_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process foreign income for Form 1116 Foreign Tax Credit. Categorizes income by type (passive, general) and tracks foreign taxes paid.</COMMENTS>
@@ -7566,7 +7566,7 @@ foreign.foreign_taxes_paid foreign.foreign_taxes_withheld f+ result.total_foreig
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Foreign_Tax_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Foreign Tax Credit with IRC 904 limitation. Credit cannot exceed US tax attributable to foreign source income (foreign income / total income x US tax).</COMMENTS>
@@ -7629,7 +7629,7 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Foreign_Earned_Income</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 2555 Foreign Earned Income Exclusion. Allows US citizens/residents abroad to exclude up to $126,500 of foreign earned income per IRC 911.</COMMENTS>
@@ -7695,7 +7695,7 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Installment_Sales</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 6252 Installment Sale Income. Allows gain recognition to be spread over payment period per IRC 453.</COMMENTS>
@@ -7750,7 +7750,7 @@ installment_sale.interest_received result.total_installment_interest f+ /result.
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Like_Kind_Exchanges</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8824 Like-Kind Exchanges (Section 1031). Allows deferral of gain on exchange of like-kind real property.</COMMENTS>
@@ -7808,7 +7808,7 @@ like_kind_exchange.deferred_gain result.total_like_kind_deferred f+ /result.tota
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Early_Distributions</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 5329 Early Distribution penalties. 10% penalty on early withdrawals from retirement accounts per IRC 72(t).</COMMENTS>
@@ -7873,7 +7873,7 @@ false /early_distribution.subject_to_penalty xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Kiddie_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8615 Kiddie Tax. Child unearned income over threshold taxed at parent rate per IRC 1(g).</COMMENTS>
@@ -7941,7 +7941,7 @@ false /child_unearned_income.subject_to_kiddie_tax xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Elderly_Disabled_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Schedule R Credit for Elderly or Disabled per IRC 22. 15% credit on base amount reduced by nontaxable income and excess AGI.</COMMENTS>
@@ -8006,7 +8006,7 @@ false /elderly_disabled.qualifies xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Estimated_Tax_Penalty</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Form 2210 underpayment penalty for estimated taxes per IRC 6654. Checks safe harbor exceptions.</COMMENTS>
@@ -8057,7 +8057,7 @@ estimated_payment.required_payment estimated_payment.payment_amount f- 0 fmax /e
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Casualty_Losses</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 4684 Casualty and Theft Losses per IRC 165. Personal casualty losses only deductible for federally declared disasters after TCJA.</COMMENTS>
@@ -8121,7 +8121,7 @@ casualty_loss.deductible_loss result.total_casualty_loss f+ /result.total_casual
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Clean_Vehicle_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8936 Clean Vehicle Credit per IRC 30D. Up to $7,500 for new EVs meeting assembly and component requirements.</COMMENTS>
@@ -8189,7 +8189,7 @@ false /clean_vehicle.qualifies xdef
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Adoption_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8839 Adoption Credit per IRC 23. Up to $16,810 per child for qualified adoption expenses.</COMMENTS>
@@ -8242,7 +8242,7 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_Household_Employment</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Schedule H Household Employment Taxes. FICA and FUTA taxes for household employees.</COMMENTS>
@@ -8304,7 +8304,7 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Process_NOL_Carryover</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Net Operating Loss carryovers per IRC 172. NOLs limited to 80% of taxable income for post-2017 losses.</COMMENTS>
@@ -8356,7 +8356,7 @@ nol_carryover.remaining_carryover result.nol_carryforward_remaining f+ /result.n
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Mortgage Interest Credit for first-time homebuyers with Mortgage Credit Certificates per Form 8396 and IRC 25.</COMMENTS>
@@ -8424,7 +8424,7 @@ mortgage_credit_certificate.current_year_credit result.mortgage_interest_credit 
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Prior_Year_AMT_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Prior Year Minimum Tax Credit per Form 8801 and IRC 53. Credits carryforward from years when AMT was paid on timing differences.</COMMENTS>
@@ -8487,7 +8487,7 @@ prior_year_amt.carryforward_remaining result.amt_credit_carryforward f+ /result.
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Partnership_Audit_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Partner's Additional Reporting Year Tax per Form 8978 and IRC 6226. For BBA partnership audit adjustments pushed out to partners.</COMMENTS>
@@ -8546,7 +8546,7 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_Unreported_Tips_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Social Security and Medicare Tax on Unreported Tip Income per Form 4137 and IRC 3121(q).</COMMENTS>
@@ -8608,7 +8608,7 @@ unreported_tips.total_fica_on_tips result.unreported_tips_tax f+ /result.unrepor
 <!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_LIHTC_Recapture</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Recapture of Low-Income Housing Credit per Form 8611 and IRC 42(j). Recapture occurs when property ceases to be qualified low-income housing.</COMMENTS>

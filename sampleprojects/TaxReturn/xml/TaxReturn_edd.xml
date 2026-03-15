@@ -3,7 +3,7 @@
 	<!-- ================================================================== -->
 	<!-- JOB - Root processing entity containing tax year and filing info  -->
 	<!-- ================================================================== -->
-	<entity name='job' access='rw' comment='Root entity for tax return processing'>
+	<entity name='job' xls_file='Core.xls' access='rw' comment='Root entity for tax return processing'>
 		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Job ID'></field>
@@ -66,7 +66,7 @@
 	<!-- ================================================================== -->
 	<!-- TAXPAYER - Individual taxpayer information                        -->
 	<!-- ================================================================== -->
-	<entity name='taxpayer' access='rw' comment='Individual taxpayer'>
+	<entity name='taxpayer' xls_file='Core.xls' access='rw' comment='Individual taxpayer'>
 		<field name='taxpayer' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Taxpayer ID'></field>
@@ -114,7 +114,7 @@
 	<!-- ================================================================== -->
 	<!-- DEPENDENT - Children and other dependents                         -->
 	<!-- ================================================================== -->
-	<entity name='dependent' access='rw' comment='Dependent (child or qualifying relative)'>
+	<entity name='dependent' xls_file='Core.xls' access='rw' comment='Dependent (child or qualifying relative)'>
 		<field name='dependent' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Dependent ID'></field>
@@ -147,7 +147,7 @@
 	<!-- ================================================================== -->
 	<!-- INCOME - Individual income sources                                -->
 	<!-- ================================================================== -->
-	<entity name='income' access='rw' comment='Income source'>
+	<entity name='income' xls_file='Income.xls' access='rw' comment='Income source'>
 		<field name='income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Income ID'></field>
@@ -167,7 +167,7 @@
 	<!-- ================================================================== -->
 	<!-- PROPERTY - Real estate (primary residence, rental)                -->
 	<!-- ================================================================== -->
-	<entity name='property' access='rw' comment='Real estate property'>
+	<entity name='property' xls_file='Property.xls' access='rw' comment='Real estate property'>
 		<field name='property' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Property ID'></field>
@@ -197,7 +197,7 @@
 	<!-- ================================================================== -->
 	<!-- VEHICLE - Business vehicles (Schedule C)                          -->
 	<!-- ================================================================== -->
-	<entity name='vehicle' access='rw' comment='Business vehicle'>
+	<entity name='vehicle' xls_file='Property.xls' access='rw' comment='Business vehicle'>
 		<field name='vehicle' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Vehicle ID'></field>
@@ -218,7 +218,7 @@
 	<!-- ================================================================== -->
 	<!-- ENERGY_IMPROVEMENT - Residential energy improvements (Form 5695)  -->
 	<!-- ================================================================== -->
-	<entity name='energy_improvement' access='rw' comment='Residential energy improvement'>
+	<entity name='energy_improvement' xls_file='Credits.xls' access='rw' comment='Residential energy improvement'>
 		<field name='energy_improvement' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Improvement ID'></field>
@@ -233,7 +233,7 @@
 	<!-- ================================================================== -->
 	<!-- K1_INCOME - Schedule K-1 income (Form 1065, 1120-S, 1041)         -->
 	<!-- ================================================================== -->
-	<entity name='k1_income' access='rw' comment='Schedule K-1 income from partnerships, S-corps, trusts'>
+	<entity name='k1_income' xls_file='Income.xls' access='rw' comment='Schedule K-1 income from partnerships, S-corps, trusts'>
 		<field name='k1_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='K-1 ID'></field>
@@ -275,7 +275,7 @@
 	<!-- ================================================================== -->
 	<!-- IRA_ACCOUNT - IRA accounts for Form 8606                          -->
 	<!-- ================================================================== -->
-	<entity name='ira_account' access='rw' comment='IRA account for basis tracking and conversions'>
+	<entity name='ira_account' xls_file='Forms.xls' access='rw' comment='IRA account for basis tracking and conversions'>
 		<field name='ira_account' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Account ID'></field>
@@ -300,7 +300,7 @@
 	<!-- ================================================================== -->
 	<!-- FARM_INCOME - Schedule F farm income                              -->
 	<!-- ================================================================== -->
-	<entity name='farm_income' access='rw' comment='Schedule F farm income and expenses'>
+	<entity name='farm_income' xls_file='Income.xls' access='rw' comment='Schedule F farm income and expenses'>
 		<field name='farm_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Farm ID'></field>
@@ -351,7 +351,7 @@
 	<!-- ================================================================== -->
 	<!-- PROPERTY_SALE - Form 4797 business property sales                 -->
 	<!-- ================================================================== -->
-	<entity name='property_sale' access='rw' comment='Sale of business property (Form 4797)'>
+	<entity name='property_sale' xls_file='Property.xls' access='rw' comment='Sale of business property (Form 4797)'>
 		<field name='property_sale' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Sale ID'></field>
@@ -379,7 +379,7 @@
 	<!-- ================================================================== -->
 	<!-- FOREIGN_INCOME - Form 1116 foreign income                         -->
 	<!-- ================================================================== -->
-	<entity name='foreign_income' access='rw' comment='Foreign income for Form 1116'>
+	<entity name='foreign_income' xls_file='Income.xls' access='rw' comment='Foreign income for Form 1116'>
 		<field name='foreign_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Foreign income ID'></field>
@@ -410,7 +410,7 @@
 	<!-- ================================================================== -->
 	<!-- FOREIGN_EARNED_INCOME - Form 2555 Foreign Earned Income Exclusion -->
 	<!-- ================================================================== -->
-	<entity name='foreign_earned_income' access='rw' comment='Form 2555 Foreign Earned Income Exclusion'>
+	<entity name='foreign_earned_income' xls_file='Income.xls' access='rw' comment='Form 2555 Foreign Earned Income Exclusion'>
 		<field name='foreign_earned_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
@@ -436,7 +436,7 @@
 	<!-- ================================================================== -->
 	<!-- INSTALLMENT_SALE - Form 6252 Installment Sale Income              -->
 	<!-- ================================================================== -->
-	<entity name='installment_sale' access='rw' comment='Form 6252 Installment Sale'>
+	<entity name='installment_sale' xls_file='Property.xls' access='rw' comment='Form 6252 Installment Sale'>
 		<field name='installment_sale' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Sale ID'></field>
@@ -462,7 +462,7 @@
 	<!-- ================================================================== -->
 	<!-- LIKE_KIND_EXCHANGE - Form 8824 Section 1031 Exchange              -->
 	<!-- ================================================================== -->
-	<entity name='like_kind_exchange' access='rw' comment='Form 8824 Like-Kind Exchange'>
+	<entity name='like_kind_exchange' xls_file='Property.xls' access='rw' comment='Form 8824 Like-Kind Exchange'>
 		<field name='like_kind_exchange' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Exchange ID'></field>
@@ -492,7 +492,7 @@
 	<!-- ================================================================== -->
 	<!-- EARLY_DISTRIBUTION - Form 5329 Early Withdrawal Penalties         -->
 	<!-- ================================================================== -->
-	<entity name='early_distribution' access='rw' comment='Form 5329 Early Distribution from Retirement Account'>
+	<entity name='early_distribution' xls_file='Forms.xls' access='rw' comment='Form 5329 Early Distribution from Retirement Account'>
 		<field name='early_distribution' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Distribution ID'></field>
@@ -514,7 +514,7 @@
 	<!-- ================================================================== -->
 	<!-- CHILD_UNEARNED_INCOME - Form 8615 Kiddie Tax                      -->
 	<!-- ================================================================== -->
-	<entity name='child_unearned_income' access='rw' comment='Form 8615 Kiddie Tax'>
+	<entity name='child_unearned_income' xls_file='Forms.xls' access='rw' comment='Form 8615 Kiddie Tax'>
 		<field name='child_unearned_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
@@ -537,7 +537,7 @@
 	<!-- ================================================================== -->
 	<!-- ELDERLY_DISABLED - Schedule R Credit for Elderly/Disabled         -->
 	<!-- ================================================================== -->
-	<entity name='elderly_disabled' access='rw' comment='Schedule R Credit for Elderly or Disabled'>
+	<entity name='elderly_disabled' xls_file='Credits.xls' access='rw' comment='Schedule R Credit for Elderly or Disabled'>
 		<field name='elderly_disabled' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
@@ -561,7 +561,7 @@
 	<!-- ================================================================== -->
 	<!-- ESTIMATED_PAYMENT - Form 2210 Estimated Tax Penalty               -->
 	<!-- ================================================================== -->
-	<entity name='estimated_payment' access='rw' comment='Estimated Tax Payment for Form 2210'>
+	<entity name='estimated_payment' xls_file='Forms.xls' access='rw' comment='Estimated Tax Payment for Form 2210'>
 		<field name='estimated_payment' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Payment ID'></field>
@@ -579,7 +579,7 @@
 	<!-- ================================================================== -->
 	<!-- CASUALTY_LOSS - Form 4684 Casualties and Thefts                   -->
 	<!-- ================================================================== -->
-	<entity name='casualty_loss' access='rw' comment='Form 4684 Casualty or Theft Loss'>
+	<entity name='casualty_loss' xls_file='Property.xls' access='rw' comment='Form 4684 Casualty or Theft Loss'>
 		<field name='casualty_loss' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Loss ID'></field>
@@ -603,7 +603,7 @@
 	<!-- ================================================================== -->
 	<!-- CLEAN_VEHICLE - Form 8936 Clean Vehicle Credits                   -->
 	<!-- ================================================================== -->
-	<entity name='clean_vehicle' access='rw' comment='Form 8936 Clean Vehicle Credit'>
+	<entity name='clean_vehicle' xls_file='Credits.xls' access='rw' comment='Form 8936 Clean Vehicle Credit'>
 		<field name='clean_vehicle' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Vehicle ID'></field>
@@ -628,7 +628,7 @@
 	<!-- ================================================================== -->
 	<!-- ADOPTION - Form 8839 Adoption Credit                              -->
 	<!-- ================================================================== -->
-	<entity name='adoption' access='rw' comment='Form 8839 Qualified Adoption Expenses'>
+	<entity name='adoption' xls_file='Credits.xls' access='rw' comment='Form 8839 Qualified Adoption Expenses'>
 		<field name='adoption' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Adoption ID'></field>
@@ -652,7 +652,7 @@
 	<!-- ================================================================== -->
 	<!-- HOUSEHOLD_EMPLOYEE - Schedule H Household Employment Taxes        -->
 	<!-- ================================================================== -->
-	<entity name='household_employee' access='rw' comment='Schedule H Household Employment'>
+	<entity name='household_employee' xls_file='Forms.xls' access='rw' comment='Schedule H Household Employment'>
 		<field name='household_employee' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Employee ID'></field>
@@ -676,7 +676,7 @@
 	<!-- ================================================================== -->
 	<!-- NOL_CARRYOVER - Net Operating Loss                                -->
 	<!-- ================================================================== -->
-	<entity name='nol_carryover' access='rw' comment='Net Operating Loss Carryover'>
+	<entity name='nol_carryover' xls_file='Forms.xls' access='rw' comment='Net Operating Loss Carryover'>
 		<field name='nol_carryover' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='NOL ID'></field>
@@ -694,7 +694,7 @@
 	<!-- ================================================================== -->
 	<!-- NONCASH_CONTRIBUTION - Form 8283 Noncash Charitable Contributions -->
 	<!-- ================================================================== -->
-	<entity name='noncash_contribution' access='rw' comment='Form 8283 Noncash Charitable Contribution'>
+	<entity name='noncash_contribution' xls_file='Deductions.xls' access='rw' comment='Form 8283 Noncash Charitable Contribution'>
 		<field name='noncash_contribution' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Contribution ID'></field>
@@ -732,7 +732,7 @@
 	<!-- ================================================================== -->
 	<!-- MORTGAGE_CREDIT_CERTIFICATE - Form 8396 Mortgage Interest Credit  -->
 	<!-- ================================================================== -->
-	<entity name='mortgage_credit_certificate' access='rw' comment='Form 8396 Mortgage Credit Certificate for first-time homebuyers'>
+	<entity name='mortgage_credit_certificate' xls_file='Credits.xls' access='rw' comment='Form 8396 Mortgage Credit Certificate for first-time homebuyers'>
 		<field name='mortgage_credit_certificate' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='MCC ID'></field>
@@ -754,7 +754,7 @@
 	<!-- ================================================================== -->
 	<!-- PRIOR_YEAR_AMT - Form 8801 Prior Year Minimum Tax Credit          -->
 	<!-- ================================================================== -->
-	<entity name='prior_year_amt' access='rw' comment='Form 8801 Prior Year Minimum Tax Credit carryforward'>
+	<entity name='prior_year_amt' xls_file='Credits.xls' access='rw' comment='Form 8801 Prior Year Minimum Tax Credit carryforward'>
 		<field name='prior_year_amt' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='AMT credit ID'></field>
@@ -773,7 +773,7 @@
 	<!-- ================================================================== -->
 	<!-- PARTNERSHIP_AUDIT - Form 8978 Partner's Additional Tax            -->
 	<!-- ================================================================== -->
-	<entity name='partnership_audit' access='rw' comment='Form 8978 Partners Additional Reporting Year Tax (BBA audits)'>
+	<entity name='partnership_audit' xls_file='Forms.xls' access='rw' comment='Form 8978 Partners Additional Reporting Year Tax (BBA audits)'>
 		<field name='partnership_audit' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Audit ID'></field>
@@ -800,7 +800,7 @@
 	<!-- ================================================================== -->
 	<!-- UNREPORTED_TIPS - Form 4137 Unreported Tip Income                 -->
 	<!-- ================================================================== -->
-	<entity name='unreported_tips' access='rw' comment='Form 4137 Social Security and Medicare Tax on Unreported Tip Income'>
+	<entity name='unreported_tips' xls_file='Income.xls' access='rw' comment='Form 4137 Social Security and Medicare Tax on Unreported Tip Income'>
 		<field name='unreported_tips' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
@@ -824,7 +824,7 @@
 	<!-- ================================================================== -->
 	<!-- LIHTC_RECAPTURE - Form 8611 Low-Income Housing Credit Recapture   -->
 	<!-- ================================================================== -->
-	<entity name='lihtc_recapture' access='rw' comment='Form 8611 Recapture of Low-Income Housing Credit'>
+	<entity name='lihtc_recapture' xls_file='Credits.xls' access='rw' comment='Form 8611 Recapture of Low-Income Housing Credit'>
 		<field name='lihtc_recapture' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
@@ -846,7 +846,7 @@
 	<!-- ================================================================== -->
 	<!-- DEDUCTION - Itemized deductions                                   -->
 	<!-- ================================================================== -->
-	<entity name='deduction' access='rw' comment='Itemized deduction'>
+	<entity name='deduction' xls_file='Deductions.xls' access='rw' comment='Itemized deduction'>
 		<field name='deduction' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Deduction ID'></field>
@@ -863,7 +863,7 @@
 	<!-- ================================================================== -->
 	<!-- CREDIT - Tax credits                                              -->
 	<!-- ================================================================== -->
-	<entity name='credit' access='rw' comment='Tax credit'>
+	<entity name='credit' xls_file='Credits.xls' access='rw' comment='Tax credit'>
 		<field name='credit' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Credit ID'></field>
@@ -880,7 +880,7 @@
 	<!-- ================================================================== -->
 	<!-- CONSTANTS - Tax rates, limits, and thresholds for 2025            -->
 	<!-- ================================================================== -->
-	<entity name='constants' access='rw' comment='Tax constants and rates for 2025'>
+	<entity name='constants' xls_file='Core.xls' access='rw' comment='Tax constants and rates for 2025'>
 		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 
@@ -1171,7 +1171,7 @@
 	<!-- ================================================================== -->
 	<!-- RESULT - Computed tax return results                              -->
 	<!-- ================================================================== -->
-	<entity name='result' access='rw' comment='Tax calculation results'>
+	<entity name='result' xls_file='Core.xls' access='rw' comment='Tax calculation results'>
 		<field name='result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='rw' input='main' default_value='' comment='Result ID'></field>

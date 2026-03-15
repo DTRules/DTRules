@@ -223,7 +223,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Set metadata fields
 	builder.SetField("TABLE_NUMBER", table.AttributeFields.TableNumber)
 	builder.SetField("COMMENTS", table.AttributeFields.Comments)
-	builder.SetFilename(table.AttributeFields.FileName)
+	builder.SetFilename(table.XlsFile)
 
 	// Process contexts - use postfix if available
 	contexts := make([]string, len(table.Contexts.Contexts))
