@@ -36,6 +36,8 @@ func init() {
 	Alias("/", "div")
 	Alias("/", "ldiv")
 
+	Register("mod", opMod)
+
 	Register("abs", opAbs)
 	Register("negate", opNegate)
 
@@ -66,6 +68,7 @@ func init() {
 }
 
 // opAdd adds two integers: ( a b -- a+b )
+// Returns error on overflow.
 func opAdd(state dtrules.State) error {
 	b, err := state.DataPop()
 	if err != nil {
@@ -83,10 +86,16 @@ func opAdd(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(aVal + bVal))
+	result := aVal + bVal
+	// Check for overflow: if signs of inputs are same but result sign differs
+	if (aVal > 0 && bVal > 0 && result < 0) || (aVal < 0 && bVal < 0 && result > 0) {
+		return dtrules.NewRulesError("Math Exception", "+", "integer overflow")
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(result))
 }
 
 // opSub subtracts two integers: ( a b -- a-b )
+// Returns error on overflow.
 func opSub(state dtrules.State) error {
 	b, err := state.DataPop()
 	if err != nil {
@@ -104,10 +113,16 @@ func opSub(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(aVal - bVal))
+	result := aVal - bVal
+	// Check for overflow: subtracting negative is like adding positive, and vice versa
+	if (bVal < 0 && aVal > 0 && result < 0) || (bVal > 0 && aVal < 0 && result > 0) {
+		return dtrules.NewRulesError("Math Exception", "-", "integer overflow")
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(result))
 }
 
 // opMul multiplies two integers: ( a b -- a*b )
+// Returns error on overflow.
 func opMul(state dtrules.State) error {
 	b, err := state.DataPop()
 	if err != nil {
@@ -125,7 +140,12 @@ func opMul(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(aVal * bVal))
+	result := aVal * bVal
+	// Check for overflow: if b != 0 and result/b != a, overflow occurred
+	if bVal != 0 && result/bVal != aVal {
+		return dtrules.NewRulesError("Math Exception", "*", "integer overflow")
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(result))
 }
 
 // opDiv divides two integers: ( a b -- a/b )
@@ -150,6 +170,33 @@ func opDiv(state dtrules.State) error {
 		return dtrules.NewRulesError("Math Exception", "/", "Division by zero")
 	}
 	return state.DataPush(dtrules.GetRIntegerValue(aVal / bVal))
+}
+
+// opMod computes modulo of two integers: ( a b -- a%b )
+func opMod(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+
+	bVal, err := b.LongValue()
+	if err != nil {
+		return err
+	}
+	if bVal == 0 {
+		return dtrules.NewRulesError("Division By Zero", "mod", "cannot mod by zero")
+	}
+
+	aVal, err := a.LongValue()
+	if err != nil {
+		return err
+	}
+
+	return state.DataPush(dtrules.GetRIntegerValue(aVal % bVal))
 }
 
 // opAbs returns absolute value of integer: ( a -- |a| )

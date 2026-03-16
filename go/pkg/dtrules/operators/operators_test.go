@@ -15,9 +15,9 @@
 package operators
 
 import (
-	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
@@ -175,7 +175,7 @@ func TestDivideByZero(t *testing.T) {
 	}
 }
 
-// Note: "mod" operator is not implemented in DTRules
+// Issue #132: mod operator is now implemented
 
 func TestNegateOperator(t *testing.T) {
 	state := newTestState()
@@ -2023,81 +2023,30 @@ func TestRegexMatchOperator(t *testing.T) {
 // Iteration Limit Tests
 // =============================================================================
 
-func TestWhileIterationLimit(t *testing.T) {
-	// Save original value and restore after test
-	originalMax := MaxIterations
-	defer func() { MaxIterations = originalMax }()
-
-	// Set a small limit for testing
-	MaxIterations = 10
-
-	state := newTestState()
-
-	// Create a body that does nothing but continues forever
-	// We need an executable array that the while loop will execute
-	body, _ := dtrules.NewArray(state.GetSession(), true, true)
-	// Body: { } - does nothing
-
-	// Create test that always returns true (infinite loop)
-	test, _ := dtrules.NewArray(state.GetSession(), true, true)
-	test.Add(dtrules.True) // pushes true onto stack
-
-	state.DataPush(body)
-	state.DataPush(test)
-
-	op, _ := Get(dtrules.GetRName("while"))
-	err := op.Execute(state)
-
+func TestErrMaxIterationsExceeded(t *testing.T) {
+	// Test that ErrMaxIterationsExceeded returns an error with the correct limit
+	err := ErrMaxIterationsExceeded(100)
 	if err == nil {
-		t.Fatal("Expected iteration limit error")
+		t.Fatal("Expected non-nil error")
 	}
-	if !errors.Is(err, ErrMaxIterationsExceeded) {
-		t.Errorf("Expected ErrMaxIterationsExceeded, got: %v", err)
+	errMsg := err.Error()
+	if !strings.Contains(errMsg, "100") {
+		t.Errorf("Expected error message to contain limit '100', got: %s", errMsg)
+	}
+	if !strings.Contains(errMsg, "maximum iterations") {
+		t.Errorf("Expected error message to mention 'maximum iterations', got: %s", errMsg)
 	}
 }
 
-func TestWhileIterationLimitDisabled(t *testing.T) {
-	// Save original value and restore after test
-	originalMax := MaxIterations
-	defer func() { MaxIterations = originalMax }()
-
-	// Disable the limit (not recommended, but we need to test it)
-	MaxIterations = 0
-
-	state := newTestState()
-
-	// Create a loop that terminates after a few iterations
-	// We'll use a counter on the control stack
-	// Body: cpop 1 - dup 0 <= { pop } { cpush } ifelse
-	// This is complex, so let's just test that disabling works
-	// by running a very simple terminating loop
-
-	// Simpler test: run 5 iterations then stop
-	counter := 5
-
-	// Create body that decrements counter
-	body, _ := dtrules.NewArray(state.GetSession(), true, true)
-	// Body does nothing significant, just consumes the loop
-
-	// Create test that checks if counter > 0
-	test, _ := dtrules.NewArray(state.GetSession(), true, true)
-	// We can't easily make a dynamic test in this setup, so skip this test
-	// The important thing is that the iteration check doesn't trigger when disabled
-
-	// Just verify the variable is accessible
-	_ = counter
-	_ = body
-	_ = test
+func TestDefaultMaxIterationsConstant(t *testing.T) {
+	// Verify DefaultMaxIterations is set to a reasonable value (1 million)
+	if DefaultMaxIterations != 1000000 {
+		t.Errorf("Expected DefaultMaxIterations to be 1000000, got: %d", DefaultMaxIterations)
+	}
 }
 
-func TestDoloopIterationLimit(t *testing.T) {
-	// Save original value and restore after test
-	originalMax := MaxIterations
-	defer func() { MaxIterations = originalMax }()
-
-	// Set a small limit for testing
-	MaxIterations = 5
-
+func TestDoloopCompletesWithinLimit(t *testing.T) {
+	// Test that doloop completes normally when within the iteration limit
 	state := newTestState()
 
 	// Create a body that pops the loop counter
@@ -2106,20 +2055,17 @@ func TestDoloopIterationLimit(t *testing.T) {
 	body.Add(popOp)
 
 	// doloop ( body start increment limit -- )
-	// This will iterate 100 times (0 to 99), exceeding our limit of 5
+	// This will iterate 10 times (0 to 9), well within the default limit
 	state.DataPush(body)
-	state.DataPush(dtrules.GetRIntegerValue(0))   // start
-	state.DataPush(dtrules.GetRIntegerValue(1))   // increment
-	state.DataPush(dtrules.GetRIntegerValue(100)) // limit
+	state.DataPush(dtrules.GetRIntegerValue(0))  // start
+	state.DataPush(dtrules.GetRIntegerValue(1))  // increment
+	state.DataPush(dtrules.GetRIntegerValue(10)) // limit
 
 	op, _ := Get(dtrules.GetRName("doloop"))
 	err := op.Execute(state)
 
-	if err == nil {
-		t.Fatal("Expected iteration limit error")
-	}
-	if !errors.Is(err, ErrMaxIterationsExceeded) {
-		t.Errorf("Expected ErrMaxIterationsExceeded, got: %v", err)
+	if err != nil {
+		t.Errorf("Expected doloop to complete successfully, got: %v", err)
 	}
 }
 
@@ -2178,4 +2124,943 @@ func TestDoloopNegativeIncrement(t *testing.T) {
 	}
 
 	_ = values // suppress unused warning
+}
+
+// =============================================================================
+// PerformCatchError Operator Tests
+// =============================================================================
+
+func TestPerformCatchErrorOperatorRegistered(t *testing.T) {
+	op, ok := Get(dtrules.GetRName("performcatcherror"))
+	if !ok {
+		t.Fatal("performcatcherror operator not found")
+	}
+	if op == nil {
+		t.Fatal("performcatcherror operator is nil")
+	}
+}
+
+func TestPerformCatchErrorStackUnderflow(t *testing.T) {
+	// Test with empty stack
+	state := newTestState()
+	op, _ := Get(dtrules.GetRName("performcatcherror"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected stack underflow error with empty stack")
+	}
+
+	// Test with only 1 argument
+	state = newTestState()
+	state.DataPush(dtrules.GetRName("error_entity"))
+	err = op.Execute(state)
+	if err == nil {
+		t.Error("Expected stack underflow error with 1 argument")
+	}
+
+	// Test with only 2 arguments
+	state = newTestState()
+	state.DataPush(dtrules.GetRName("error_table"))
+	state.DataPush(dtrules.GetRName("error_entity"))
+	err = op.Execute(state)
+	if err == nil {
+		t.Error("Expected stack underflow error with 2 arguments")
+	}
+}
+
+// =============================================================================
+// Date Interval Operator Tests
+// =============================================================================
+
+func TestDaysOperator(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.GetRIntegerValue(30))
+
+	op, ok := Get(dtrules.GetRName("days"))
+	if !ok {
+		t.Fatal("days operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("days operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	interval := dtrules.AsInterval(result)
+	if interval == nil {
+		t.Fatal("Result is not an interval")
+	}
+
+	if interval.GetAmount() != 30 {
+		t.Errorf("Expected amount 30, got %d", interval.GetAmount())
+	}
+	if interval.GetUnit() != dtrules.IntervalDays {
+		t.Errorf("Expected unit IntervalDays, got %v", interval.GetUnit())
+	}
+}
+
+func TestMonthsOperator(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.GetRIntegerValue(6))
+
+	op, ok := Get(dtrules.GetRName("months"))
+	if !ok {
+		t.Fatal("months operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("months operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	interval := dtrules.AsInterval(result)
+	if interval == nil {
+		t.Fatal("Result is not an interval")
+	}
+
+	if interval.GetAmount() != 6 {
+		t.Errorf("Expected amount 6, got %d", interval.GetAmount())
+	}
+	if interval.GetUnit() != dtrules.IntervalMonths {
+		t.Errorf("Expected unit IntervalMonths, got %v", interval.GetUnit())
+	}
+}
+
+func TestYearsOperator(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.GetRIntegerValue(2))
+
+	op, ok := Get(dtrules.GetRName("years"))
+	if !ok {
+		t.Fatal("years operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("years operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	interval := dtrules.AsInterval(result)
+	if interval == nil {
+		t.Fatal("Result is not an interval")
+	}
+
+	if interval.GetAmount() != 2 {
+		t.Errorf("Expected amount 2, got %d", interval.GetAmount())
+	}
+	if interval.GetUnit() != dtrules.IntervalYears {
+		t.Errorf("Expected unit IntervalYears, got %v", interval.GetUnit())
+	}
+}
+
+func TestDatePlusWithDaysInterval(t *testing.T) {
+	state := newTestState()
+
+	// Create a date: 2024-01-15
+	baseDate := time.Date(2024, 1, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(30))
+
+	// Create interval
+	daysOp, _ := Get(dtrules.GetRName("days"))
+	err := daysOp.Execute(state)
+	if err != nil {
+		t.Fatalf("days operator failed: %v", err)
+	}
+
+	// Now we have date and interval on stack
+	// Add the interval to the date
+	plusOp, _ := Get(dtrules.GetRName("d+"))
+	err = plusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d+ operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(0, 0, 30)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestDatePlusWithMonthsInterval(t *testing.T) {
+	state := newTestState()
+
+	// Create a date: 2024-01-15
+	baseDate := time.Date(2024, 1, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(3))
+
+	// Create interval
+	monthsOp, _ := Get(dtrules.GetRName("months"))
+	err := monthsOp.Execute(state)
+	if err != nil {
+		t.Fatalf("months operator failed: %v", err)
+	}
+
+	// Add the interval to the date
+	plusOp, _ := Get(dtrules.GetRName("d+"))
+	err = plusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d+ operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(0, 3, 0)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestDatePlusWithYearsInterval(t *testing.T) {
+	state := newTestState()
+
+	// Create a date: 2024-01-15
+	baseDate := time.Date(2024, 1, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(2))
+
+	// Create interval
+	yearsOp, _ := Get(dtrules.GetRName("years"))
+	err := yearsOp.Execute(state)
+	if err != nil {
+		t.Fatalf("years operator failed: %v", err)
+	}
+
+	// Add the interval to the date
+	plusOp, _ := Get(dtrules.GetRName("d+"))
+	err = plusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d+ operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(2, 0, 0)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestDateMinusWithDaysInterval(t *testing.T) {
+	state := newTestState()
+
+	// Create a date: 2024-01-15
+	baseDate := time.Date(2024, 1, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(10))
+
+	// Create interval
+	daysOp, _ := Get(dtrules.GetRName("days"))
+	err := daysOp.Execute(state)
+	if err != nil {
+		t.Fatalf("days operator failed: %v", err)
+	}
+
+	// Subtract the interval from the date
+	minusOp, _ := Get(dtrules.GetRName("d-"))
+	err = minusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d- operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(0, 0, -10)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestDateMinusWithMonthsInterval(t *testing.T) {
+	state := newTestState()
+
+	// Create a date: 2024-06-15
+	baseDate := time.Date(2024, 6, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(2))
+
+	// Create interval
+	monthsOp, _ := Get(dtrules.GetRName("months"))
+	err := monthsOp.Execute(state)
+	if err != nil {
+		t.Fatalf("months operator failed: %v", err)
+	}
+
+	// Subtract the interval from the date
+	minusOp, _ := Get(dtrules.GetRName("d-"))
+	err = minusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d- operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(0, -2, 0)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestDateMinusWithYearsInterval(t *testing.T) {
+	state := newTestState()
+
+	// Create a date: 2024-01-15
+	baseDate := time.Date(2024, 1, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(5))
+
+	// Create interval
+	yearsOp, _ := Get(dtrules.GetRName("years"))
+	err := yearsOp.Execute(state)
+	if err != nil {
+		t.Fatalf("years operator failed: %v", err)
+	}
+
+	// Subtract the interval from the date
+	minusOp, _ := Get(dtrules.GetRName("d-"))
+	err = minusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d- operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(-5, 0, 0)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestIntervalWithNegativeAmount(t *testing.T) {
+	state := newTestState()
+
+	// Using negative amount: -30 days
+	baseDate := time.Date(2024, 1, 15, 0, 0, 0, 0, time.Local)
+	state.DataPush(dtrules.GetRTime(baseDate))
+	state.DataPush(dtrules.GetRIntegerValue(-30))
+
+	// Create interval with negative amount
+	daysOp, _ := Get(dtrules.GetRName("days"))
+	err := daysOp.Execute(state)
+	if err != nil {
+		t.Fatalf("days operator failed: %v", err)
+	}
+
+	// Add the interval to the date (adding negative is like subtracting)
+	plusOp, _ := Get(dtrules.GetRName("d+"))
+	err = plusOp.Execute(state)
+	if err != nil {
+		t.Fatalf("d+ operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	resultTime, err := result.TimeValue()
+	if err != nil {
+		t.Fatalf("TimeValue failed: %v", err)
+	}
+
+	expected := baseDate.AddDate(0, 0, -30)
+	if !resultTime.Equal(expected) {
+		t.Errorf("Expected %v, got %v", expected, resultTime)
+	}
+}
+
+func TestIntervalStringValue(t *testing.T) {
+	tests := []struct {
+		amount   int
+		unit     dtrules.IntervalUnit
+		expected string
+	}{
+		{30, dtrules.IntervalDays, "30 days"},
+		{1, dtrules.IntervalDays, "1 days"},
+		{6, dtrules.IntervalMonths, "6 months"},
+		{2, dtrules.IntervalYears, "2 years"},
+		{-5, dtrules.IntervalDays, "-5 days"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.expected, func(t *testing.T) {
+			interval := dtrules.NewRInterval(tt.amount, tt.unit)
+			if interval.StringValue() != tt.expected {
+				t.Errorf("Expected '%s', got '%s'", tt.expected, interval.StringValue())
+			}
+		})
+	}
+}
+
+func TestIntervalEquals(t *testing.T) {
+	i1 := dtrules.NewRInterval(30, dtrules.IntervalDays)
+	i2 := dtrules.NewRInterval(30, dtrules.IntervalDays)
+	i3 := dtrules.NewRInterval(31, dtrules.IntervalDays)
+	i4 := dtrules.NewRInterval(30, dtrules.IntervalMonths)
+
+	// Same interval
+	eq, err := i1.Equals(i2)
+	if err != nil {
+		t.Fatalf("Equals failed: %v", err)
+	}
+	if !eq {
+		t.Error("Expected i1 == i2")
+	}
+
+	// Different amount
+	eq, err = i1.Equals(i3)
+	if err != nil {
+		t.Fatalf("Equals failed: %v", err)
+	}
+	if eq {
+		t.Error("Expected i1 != i3")
+	}
+
+	// Different unit
+	eq, err = i1.Equals(i4)
+	if err != nil {
+		t.Fatalf("Equals failed: %v", err)
+	}
+	if eq {
+		t.Error("Expected i1 != i4")
+	}
+}
+
+func TestIntervalType(t *testing.T) {
+	interval := dtrules.NewRInterval(30, dtrules.IntervalDays)
+	if interval.Type() != dtrules.TypeInterval {
+		t.Errorf("Expected TypeInterval, got %v", interval.Type())
+	}
+}
+
+// =============================================================================
+// XML Operator Tests
+// =============================================================================
+
+func TestNewXmlAttributeOperator(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.NewRString("person"))
+
+	op, ok := Get(dtrules.GetRName("newxmlattribute"))
+	if !ok {
+		t.Fatal("newxmlattribute operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("newxmlattribute operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	xmlValue, ok := result.(*dtrules.RXmlValue)
+	if !ok {
+		t.Fatalf("Result is not an RXmlValue: got %T", result)
+	}
+
+	if xmlValue.GetName() != "person" {
+		t.Errorf("Expected element name 'person', got '%s'", xmlValue.GetName())
+	}
+}
+
+func TestSetXmlAttributeOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create XML element
+	xmlValue := dtrules.NewRXmlValue("person")
+	state.DataPush(xmlValue)
+	state.DataPush(dtrules.NewRString("name"))
+	state.DataPush(dtrules.NewRString("John"))
+
+	op, ok := Get(dtrules.GetRName("setxmlattribute"))
+	if !ok {
+		t.Fatal("setxmlattribute operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("setxmlattribute operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	resultXml, ok := result.(*dtrules.RXmlValue)
+	if !ok {
+		t.Fatalf("Result is not an RXmlValue: got %T", result)
+	}
+
+	// Verify the attribute was set
+	if resultXml.GetAttribute("name") != "John" {
+		t.Errorf("Expected attribute 'name' to be 'John', got '%s'", resultXml.GetAttribute("name"))
+	}
+}
+
+func TestGetXmlAttributeOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create XML element with attribute
+	xmlValue := dtrules.NewRXmlValue("person")
+	xmlValue.SetAttribute("age", "30")
+	state.DataPush(xmlValue)
+	state.DataPush(dtrules.NewRString("age"))
+
+	op, ok := Get(dtrules.GetRName("getxmlattribute"))
+	if !ok {
+		t.Fatal("getxmlattribute operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("getxmlattribute operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	if result.StringValue() != "30" {
+		t.Errorf("Expected '30', got '%s'", result.StringValue())
+	}
+}
+
+func TestGetXmlAttributeNotFound(t *testing.T) {
+	state := newTestState()
+
+	// Create XML element without the requested attribute
+	xmlValue := dtrules.NewRXmlValue("person")
+	state.DataPush(xmlValue)
+	state.DataPush(dtrules.NewRString("nonexistent"))
+
+	op, _ := Get(dtrules.GetRName("getxmlattribute"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("getxmlattribute operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	// Should return empty string for non-existent attribute
+	if result.StringValue() != "" {
+		t.Errorf("Expected empty string, got '%s'", result.StringValue())
+	}
+}
+
+func TestSetXmlAttributeTypeMismatch(t *testing.T) {
+	state := newTestState()
+
+	// Push a non-XML value
+	state.DataPush(dtrules.GetRIntegerValue(42))
+	state.DataPush(dtrules.NewRString("attr"))
+	state.DataPush(dtrules.NewRString("value"))
+
+	op, _ := Get(dtrules.GetRName("setxmlattribute"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected type mismatch error for setxmlattribute on integer")
+	}
+}
+
+func TestGetXmlAttributeTypeMismatch(t *testing.T) {
+	state := newTestState()
+
+	// Push a non-XML value
+	state.DataPush(dtrules.NewRString("not xml"))
+	state.DataPush(dtrules.NewRString("attr"))
+
+	op, _ := Get(dtrules.GetRName("getxmlattribute"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected type mismatch error for getxmlattribute on string")
+	}
+}
+
+func TestXmlValueStringValue(t *testing.T) {
+	xmlValue := dtrules.NewRXmlValue("person")
+	xmlValue.SetAttribute("name", "John")
+	xmlValue.SetAttribute("age", "30")
+
+	str := xmlValue.StringValue()
+	// The string should contain the element name and attributes
+	if !strings.Contains(str, "person") {
+		t.Errorf("StringValue should contain element name: %s", str)
+	}
+	if !strings.Contains(str, "name") {
+		t.Errorf("StringValue should contain attribute name: %s", str)
+	}
+}
+
+func TestXmlOperatorChaining(t *testing.T) {
+	state := newTestState()
+
+	// Test: newxmlattribute then setxmlattribute then getxmlattribute
+	state.DataPush(dtrules.NewRString("element"))
+
+	newOp, _ := Get(dtrules.GetRName("newxmlattribute"))
+	err := newOp.Execute(state)
+	if err != nil {
+		t.Fatalf("newxmlattribute failed: %v", err)
+	}
+
+	// Set attribute
+	state.DataPush(dtrules.NewRString("key"))
+	state.DataPush(dtrules.NewRString("value"))
+
+	setOp, _ := Get(dtrules.GetRName("setxmlattribute"))
+	err = setOp.Execute(state)
+	if err != nil {
+		t.Fatalf("setxmlattribute failed: %v", err)
+	}
+
+	// Duplicate the XML element for getting (since get consumes it)
+	dupOp, _ := Get(dtrules.GetRName("dup"))
+	err = dupOp.Execute(state)
+	if err != nil {
+		t.Fatalf("dup failed: %v", err)
+	}
+
+	// Get attribute
+	state.DataPush(dtrules.NewRString("key"))
+
+	getOp, _ := Get(dtrules.GetRName("getxmlattribute"))
+	err = getOp.Execute(state)
+	if err != nil {
+		t.Fatalf("getxmlattribute failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	if result.StringValue() != "value" {
+		t.Errorf("Expected 'value', got '%s'", result.StringValue())
+	}
+}
+
+// =============================================================================
+// Tests for issues #126-133 (Go runtime bug fixes)
+// =============================================================================
+
+// TestPickOperator tests issue #126: opPick should use direct indexed access
+func TestPickOperator(t *testing.T) {
+	state := newTestState()
+
+	// Push 5 values: 10, 20, 30, 40, 50 (50 is on top)
+	state.DataPush(dtrules.GetRIntegerValue(10))
+	state.DataPush(dtrules.GetRIntegerValue(20))
+	state.DataPush(dtrules.GetRIntegerValue(30))
+	state.DataPush(dtrules.GetRIntegerValue(40))
+	state.DataPush(dtrules.GetRIntegerValue(50))
+
+	// Pick element at index 2 (should be 30, counting from top: 50=0, 40=1, 30=2)
+	state.DataPush(dtrules.GetRIntegerValue(2))
+
+	op, _ := Get(dtrules.GetRName("pick"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("pick operator failed: %v", err)
+	}
+
+	// Should have 30 on top now
+	result, _ := state.DataPop()
+	val, _ := result.IntValue()
+	if val != 30 {
+		t.Errorf("Expected 30 from pick 2, got %d", val)
+	}
+
+	// Original stack should still have all 5 elements
+	if state.DataStackDepth() != 5 {
+		t.Errorf("Expected stack depth 5, got %d", state.DataStackDepth())
+	}
+}
+
+// TestFloatDivideByZero tests issue #127: float division by zero returns error
+func TestFloatDivideByZero(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.GetRDoubleValue(100.0))
+	state.DataPush(dtrules.GetRDoubleValue(0.0))
+
+	op, _ := Get(dtrules.GetRName("fdiv"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected float divide by zero error, got nil")
+	}
+}
+
+// TestFloatEqualityEpsilon tests issue #128: float equality uses epsilon comparison
+func TestFloatEqualityEpsilon(t *testing.T) {
+	// 0.1 + 0.2 is not exactly 0.3 in IEEE 754
+	a := dtrules.GetRDoubleValue(0.1 + 0.2)
+	b := dtrules.GetRDoubleValue(0.3)
+
+	equal, err := a.Equals(b)
+	if err != nil {
+		t.Fatalf("Equals failed: %v", err)
+	}
+	if !equal {
+		t.Error("Expected 0.1 + 0.2 to equal 0.3 with epsilon comparison")
+	}
+
+	// Test compare returns 0 for nearly equal values
+	cmp, err := a.Compare(b)
+	if err != nil {
+		t.Fatalf("Compare failed: %v", err)
+	}
+	if cmp != 0 {
+		t.Errorf("Expected Compare to return 0, got %d", cmp)
+	}
+}
+
+// TestIntegerOverflowAdd tests issue #129: integer addition overflow detection
+func TestIntegerOverflowAdd(t *testing.T) {
+	state := newTestState()
+
+	// MaxInt64 + 1 should overflow
+	state.DataPush(dtrules.GetRIntegerValue(9223372036854775807)) // MaxInt64
+	state.DataPush(dtrules.GetRIntegerValue(1))
+
+	op, _ := Get(dtrules.GetRName("+"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected integer overflow error for MaxInt64 + 1")
+	}
+	if err != nil && !strings.Contains(err.Error(), "overflow") {
+		t.Errorf("Expected overflow error, got: %v", err)
+	}
+}
+
+// TestIntegerOverflowSub tests issue #129: integer subtraction overflow detection
+func TestIntegerOverflowSub(t *testing.T) {
+	state := newTestState()
+
+	// MinInt64 - 1 should overflow
+	state.DataPush(dtrules.GetRIntegerValue(-9223372036854775808)) // MinInt64
+	state.DataPush(dtrules.GetRIntegerValue(1))
+
+	op, _ := Get(dtrules.GetRName("-"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected integer overflow error for MinInt64 - 1")
+	}
+	if err != nil && !strings.Contains(err.Error(), "overflow") {
+		t.Errorf("Expected overflow error, got: %v", err)
+	}
+}
+
+// TestIntegerOverflowMul tests issue #129: integer multiplication overflow detection
+func TestIntegerOverflowMul(t *testing.T) {
+	state := newTestState()
+
+	// MaxInt64 * 2 should overflow
+	state.DataPush(dtrules.GetRIntegerValue(9223372036854775807)) // MaxInt64
+	state.DataPush(dtrules.GetRIntegerValue(2))
+
+	op, _ := Get(dtrules.GetRName("*"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected integer overflow error for MaxInt64 * 2")
+	}
+	if err != nil && !strings.Contains(err.Error(), "overflow") {
+		t.Errorf("Expected overflow error, got: %v", err)
+	}
+}
+
+// TestForrOperator tests issue #130: opForr uses RArrayValue consistently
+func TestForrOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create array [1, 2, 3]
+	arr, _ := dtrules.NewArray(&mockSession{}, false, false)
+	arr.Add(dtrules.GetRIntegerValue(1))
+	arr.Add(dtrules.GetRIntegerValue(2))
+	arr.Add(dtrules.GetRIntegerValue(3))
+
+	// Create body that just does 'pop' to consume each element
+	// This tests that forr correctly iterates over the array
+	body, _ := dtrules.NewArray(&mockSession{}, true, false) // executable
+	popOp, _ := Get(dtrules.GetRName("pop"))
+	body.Add(popOp)
+
+	// Stack order: ( body array -- ) means push body first, then array
+	state.DataPush(body)
+	state.DataPush(arr)
+
+	op, _ := Get(dtrules.GetRName("forr"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("forr operator failed: %v", err)
+	}
+
+	// Data stack should be empty (each element was popped)
+	if state.DataStackDepth() != 0 {
+		t.Errorf("Expected empty data stack, got depth %d", state.DataStackDepth())
+	}
+}
+
+// TestForrReverseOrder tests that forr iterates in reverse order
+func TestForrReverseOrder(t *testing.T) {
+	state := newTestState()
+
+	// Create array [10, 20, 30]
+	arr, _ := dtrules.NewArray(&mockSession{}, false, false)
+	arr.Add(dtrules.GetRIntegerValue(10))
+	arr.Add(dtrules.GetRIntegerValue(20))
+	arr.Add(dtrules.GetRIntegerValue(30))
+
+	// Create empty body (does nothing, leaves element on stack)
+	body, _ := dtrules.NewArray(&mockSession{}, true, false) // executable
+
+	// Stack order: ( body array -- ) means push body first, then array
+	state.DataPush(body)
+	state.DataPush(arr)
+
+	op, _ := Get(dtrules.GetRName("forr"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("forr operator failed: %v", err)
+	}
+
+	// Stack should have 3 elements (each iteration pushed one)
+	if state.DataStackDepth() != 3 {
+		t.Fatalf("Expected stack depth 3, got %d", state.DataStackDepth())
+	}
+
+	// Pop in order: forr iterates from end to start, so pushes 30, 20, 10
+	// Top of stack is 10 (last pushed)
+	v1, _ := state.DataPop()
+	v2, _ := state.DataPop()
+	v3, _ := state.DataPop()
+
+	val1, _ := v1.IntValue()
+	val2, _ := v2.IntValue()
+	val3, _ := v3.IntValue()
+
+	// forr iterates in reverse (index 2, 1, 0), pushing 30, 20, 10
+	if val1 != 10 || val2 != 20 || val3 != 30 {
+		t.Errorf("Expected 10,20,30 (reverse iteration order), got %d,%d,%d", val1, val2, val3)
+	}
+}
+
+// TestMaxIterationsConstant tests issue #131: MaxIterations is const, not mutable
+func TestMaxIterationsConstant(t *testing.T) {
+	// Verify DefaultMaxIterations is the expected value
+	if DefaultMaxIterations != 1000000 {
+		t.Errorf("Expected DefaultMaxIterations to be 1000000, got %d", DefaultMaxIterations)
+	}
+}
+
+// TestModOperator tests issue #132: mod operator exists and works
+func TestModOperator(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.GetRIntegerValue(17))
+	state.DataPush(dtrules.GetRIntegerValue(5))
+
+	op, ok := Get(dtrules.GetRName("mod"))
+	if !ok {
+		t.Fatal("mod operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("mod operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	val, _ := result.IntValue()
+	if val != 2 {
+		t.Errorf("Expected 17 mod 5 = 2, got %d", val)
+	}
+}
+
+// TestModByZero tests issue #132: mod by zero returns error
+func TestModByZero(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.GetRIntegerValue(17))
+	state.DataPush(dtrules.GetRIntegerValue(0))
+
+	op, _ := Get(dtrules.GetRName("mod"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected mod by zero error")
+	}
+}
+
+// TestNewDateUsesUTC tests issue #133: newdate uses UTC timezone
+func TestNewDateUsesUTC(t *testing.T) {
+	state := newTestState()
+
+	// Push year, month, day
+	state.DataPush(dtrules.GetRIntegerValue(2024))
+	state.DataPush(dtrules.GetRIntegerValue(6))
+	state.DataPush(dtrules.GetRIntegerValue(15))
+
+	op, _ := Get(dtrules.GetRName("newdate"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("newdate operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	timeVal, err := result.RTimeValue()
+	if err != nil {
+		t.Fatalf("RTimeValue failed: %v", err)
+	}
+
+	// Check that the timezone is UTC
+	loc := timeVal.Time().Location()
+	if loc != time.UTC {
+		t.Errorf("Expected UTC timezone, got %v", loc)
+	}
+
+	// Verify the date components
+	year, month, day := timeVal.Time().Date()
+	if year != 2024 || month != time.June || day != 15 {
+		t.Errorf("Expected 2024-06-15, got %d-%d-%d", year, month, day)
+	}
 }

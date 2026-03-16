@@ -165,7 +165,12 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 					return err
 				}
 			} else {
-				if err := s.ValuePush(a.Div(b)); err != nil {
+				// Use TryDiv to check for division by zero (returns error instead of Inf/NaN)
+				result, divErr := a.TryDiv(b)
+				if divErr != nil {
+					return dtrules.NewRulesError("Division By Zero", "OpDiv", "cannot divide by zero")
+				}
+				if err := s.ValuePush(result); err != nil {
 					return err
 				}
 			}
