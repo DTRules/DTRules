@@ -20,10 +20,10 @@
     <standard_deduction_hoh>14260</standard_deduction_hoh>
     <exemption_amount>700</exemption_amount>
     <brackets_single>
-      <bracket><floor>0</floor><ceiling>14679</ceiling><rate_bps>350</rate_bps><base_tax>0</base_tax></bracket>
-      <bracket><floor>14679</floor><ceiling>29369</ceiling><rate_bps>440</rate_bps><base_tax>513</base_tax></bracket>
-      <bracket><floor>29369</floor><ceiling>323289</ceiling><rate_bps>530</rate_bps><base_tax>1159</base_tax></bracket>
-      <bracket><floor>323289</floor><ceiling>999999999</ceiling><rate_bps>765</rate_bps><base_tax>16736</base_tax></bracket>
+      <bracket_s><floor>0</floor><ceiling>14679</ceiling><rate_bps>350</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>14679</floor><ceiling>29369</ceiling><rate_bps>440</rate_bps><base_tax>513</base_tax></bracket_s>
+      <bracket_s><floor>29369</floor><ceiling>323289</ceiling><rate_bps>530</rate_bps><base_tax>1159</base_tax></bracket_s>
+      <bracket_s><floor>323289</floor><ceiling>999999999</ceiling><rate_bps>765</rate_bps><base_tax>16736</base_tax></bracket_s>
     </brackets_single>
     <brackets_mfj></brackets_mfj>
     <brackets_hoh></brackets_hoh>

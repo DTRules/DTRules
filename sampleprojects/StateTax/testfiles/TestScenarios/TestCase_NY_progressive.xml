@@ -42,15 +42,15 @@
     <standard_deduction_hoh>11200</standard_deduction_hoh>
     <exemption_amount>0</exemption_amount>
     <brackets_single>
-      <bracket><floor>0</floor><ceiling>8500</ceiling><rate_bps>400</rate_bps><base_tax>0</base_tax></bracket>
-      <bracket><floor>8500</floor><ceiling>11700</ceiling><rate_bps>450</rate_bps><base_tax>340</base_tax></bracket>
-      <bracket><floor>11700</floor><ceiling>13900</ceiling><rate_bps>525</rate_bps><base_tax>484</base_tax></bracket>
-      <bracket><floor>13900</floor><ceiling>80650</ceiling><rate_bps>550</rate_bps><base_tax>599</base_tax></bracket>
-      <bracket><floor>80650</floor><ceiling>215400</ceiling><rate_bps>600</rate_bps><base_tax>4270</base_tax></bracket>
-      <bracket><floor>215400</floor><ceiling>1077550</ceiling><rate_bps>685</rate_bps><base_tax>12355</base_tax></bracket>
-      <bracket><floor>1077550</floor><ceiling>5000000</ceiling><rate_bps>965</rate_bps><base_tax>71412</base_tax></bracket>
-      <bracket><floor>5000000</floor><ceiling>25000000</ceiling><rate_bps>1030</rate_bps><base_tax>449928</base_tax></bracket>
-      <bracket><floor>25000000</floor><ceiling>999999999</ceiling><rate_bps>1090</rate_bps><base_tax>2509928</base_tax></bracket>
+      <bracket_s><floor>0</floor><ceiling>8500</ceiling><rate_bps>400</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>8500</floor><ceiling>11700</ceiling><rate_bps>450</rate_bps><base_tax>340</base_tax></bracket_s>
+      <bracket_s><floor>11700</floor><ceiling>13900</ceiling><rate_bps>525</rate_bps><base_tax>484</base_tax></bracket_s>
+      <bracket_s><floor>13900</floor><ceiling>80650</ceiling><rate_bps>550</rate_bps><base_tax>599</base_tax></bracket_s>
+      <bracket_s><floor>80650</floor><ceiling>215400</ceiling><rate_bps>600</rate_bps><base_tax>4270</base_tax></bracket_s>
+      <bracket_s><floor>215400</floor><ceiling>1077550</ceiling><rate_bps>685</rate_bps><base_tax>12355</base_tax></bracket_s>
+      <bracket_s><floor>1077550</floor><ceiling>5000000</ceiling><rate_bps>965</rate_bps><base_tax>71412</base_tax></bracket_s>
+      <bracket_s><floor>5000000</floor><ceiling>25000000</ceiling><rate_bps>1030</rate_bps><base_tax>449928</base_tax></bracket_s>
+      <bracket_s><floor>25000000</floor><ceiling>999999999</ceiling><rate_bps>1090</rate_bps><base_tax>2509928</base_tax></bracket_s>
     </brackets_single>
     <brackets_mfj></brackets_mfj>
     <brackets_hoh></brackets_hoh>

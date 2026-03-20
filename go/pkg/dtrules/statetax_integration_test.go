@@ -146,6 +146,7 @@ func TestStateTaxIntegration(t *testing.T) {
 	t.Log("Mapping initialized successfully")
 
 	// Load test data (Illinois flat tax test case)
+	// Use LoadDataAndPush to create entities from XML and push them onto the entity stack
 	testDataPath := filepath.Join(stateTaxDir, "testfiles/TestScenarios/TestCase_IL_flat.xml")
 	testDataFile, err := os.Open(testDataPath)
 	if err != nil {
@@ -153,7 +154,7 @@ func TestStateTaxIntegration(t *testing.T) {
 	}
 	defer testDataFile.Close()
 
-	err = m.LoadData(testDataFile)
+	err = m.LoadDataAndPush(testDataFile, []string{"state_config", "job", "taxpayer"})
 	if err != nil {
 		t.Fatalf("Failed to load test data: %v", err)
 	}

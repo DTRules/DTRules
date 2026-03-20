@@ -45,18 +45,18 @@
     <standard_deduction_hoh>6424</standard_deduction_hoh>
     <exemption_amount>1144</exemption_amount>
     <brackets_single>
-      <bracket><floor>0</floor><ceiling>9600</ceiling><rate_bps>140</rate_bps><base_tax>0</base_tax></bracket>
-      <bracket><floor>9600</floor><ceiling>14400</ceiling><rate_bps>320</rate_bps><base_tax>134</base_tax></bracket>
-      <bracket><floor>14400</floor><ceiling>19200</ceiling><rate_bps>550</rate_bps><base_tax>287</base_tax></bracket>
-      <bracket><floor>19200</floor><ceiling>24000</ceiling><rate_bps>640</rate_bps><base_tax>551</base_tax></bracket>
-      <bracket><floor>24000</floor><ceiling>36000</ceiling><rate_bps>680</rate_bps><base_tax>858</base_tax></bracket>
-      <bracket><floor>36000</floor><ceiling>48000</ceiling><rate_bps>720</rate_bps><base_tax>1674</base_tax></bracket>
-      <bracket><floor>48000</floor><ceiling>125000</ceiling><rate_bps>760</rate_bps><base_tax>2538</base_tax></bracket>
-      <bracket><floor>125000</floor><ceiling>175000</ceiling><rate_bps>790</rate_bps><base_tax>8390</base_tax></bracket>
-      <bracket><floor>175000</floor><ceiling>225000</ceiling><rate_bps>825</rate_bps><base_tax>12340</base_tax></bracket>
-      <bracket><floor>225000</floor><ceiling>275000</ceiling><rate_bps>900</rate_bps><base_tax>16465</base_tax></bracket>
-      <bracket><floor>275000</floor><ceiling>325000</ceiling><rate_bps>1000</rate_bps><base_tax>20965</base_tax></bracket>
-      <bracket><floor>325000</floor><ceiling>999999999</ceiling><rate_bps>1100</rate_bps><base_tax>25965</base_tax></bracket>
+      <bracket_s><floor>0</floor><ceiling>9600</ceiling><rate_bps>140</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>9600</floor><ceiling>14400</ceiling><rate_bps>320</rate_bps><base_tax>134</base_tax></bracket_s>
+      <bracket_s><floor>14400</floor><ceiling>19200</ceiling><rate_bps>550</rate_bps><base_tax>287</base_tax></bracket_s>
+      <bracket_s><floor>19200</floor><ceiling>24000</ceiling><rate_bps>640</rate_bps><base_tax>551</base_tax></bracket_s>
+      <bracket_s><floor>24000</floor><ceiling>36000</ceiling><rate_bps>680</rate_bps><base_tax>858</base_tax></bracket_s>
+      <bracket_s><floor>36000</floor><ceiling>48000</ceiling><rate_bps>720</rate_bps><base_tax>1674</base_tax></bracket_s>
+      <bracket_s><floor>48000</floor><ceiling>125000</ceiling><rate_bps>760</rate_bps><base_tax>2538</base_tax></bracket_s>
+      <bracket_s><floor>125000</floor><ceiling>175000</ceiling><rate_bps>790</rate_bps><base_tax>8390</base_tax></bracket_s>
+      <bracket_s><floor>175000</floor><ceiling>225000</ceiling><rate_bps>825</rate_bps><base_tax>12340</base_tax></bracket_s>
+      <bracket_s><floor>225000</floor><ceiling>275000</ceiling><rate_bps>900</rate_bps><base_tax>16465</base_tax></bracket_s>
+      <bracket_s><floor>275000</floor><ceiling>325000</ceiling><rate_bps>1000</rate_bps><base_tax>20965</base_tax></bracket_s>
+      <bracket_s><floor>325000</floor><ceiling>999999999</ceiling><rate_bps>1100</rate_bps><base_tax>25965</base_tax></bracket_s>
     </brackets_single>
     <brackets_mfj></brackets_mfj>
     <brackets_hoh></brackets_hoh>

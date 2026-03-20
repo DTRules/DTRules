@@ -33,7 +33,9 @@
 			<createentity entity='income' 		tag='income' 		id='id'></createentity>
 			<createentity entity='adjustment' 	tag='adjustment' 	id='id'></createentity>
 			<createentity entity='state_config' tag='state_config' 	id='id'></createentity>
-			<createentity entity='bracket' 		tag='bracket' 		id='id'></createentity>
+			<createentity entity='bracket' 		tag='bracket_s' 	id='id' list='brackets_single'></createentity>
+			<createentity entity='bracket' 		tag='bracket_m' 	id='id' list='brackets_mfj'></createentity>
+			<createentity entity='bracket' 		tag='bracket_h' 	id='id' list='brackets_hoh'></createentity>
 			<createentity entity='result' 		tag='result' 		id='id'></createentity>
         </map>
 		<entities>
@@ -48,9 +50,6 @@
         </entities>
 
 		<initialization>
-			<initialentity entity='state_config' 	epush='true'></initialentity>
-			<initialentity entity='job' 			epush='true'></initialentity>
-			<initialentity entity='taxpayer' 		epush='true'></initialentity>
         </initialization>
     </XMLtoEDD>
 </mapping>

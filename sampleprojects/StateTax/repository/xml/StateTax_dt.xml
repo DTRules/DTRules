@@ -343,7 +343,7 @@ taxpayer.num_dependents 2 + /taxpayer.exemptions xdef
 <condition_requirement></condition_requirement>
 <condition_description>AGI - deduction - (exemptions * exemption_amount) &gt; 0</condition_description>
 <condition_postfix>
-taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amount * - 0 &gt;
+taxpayer.agi cvi taxpayer.deduction cvi - taxpayer.exemptions cvi state_config.exemption_amount cvi * - 0 &gt;
 </condition_postfix>
 <condition_column column_value="Y" column_number="1"></condition_column>
 <condition_column column_value="N" column_number="2"></condition_column></condition_details></conditions>
@@ -354,7 +354,7 @@ taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amo
 <action_requirement></action_requirement>
 <action_description>taxableIncome = AGI - deduction - (exemptions * exemption_amount)</action_description>
 <action_postfix>
-taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amount * - /taxpayer.taxableIncome xdef
+taxpayer.agi cvi taxpayer.deduction cvi - taxpayer.exemptions cvi state_config.exemption_amount cvi * - /taxpayer.taxableIncome xdef
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>
@@ -399,7 +399,7 @@ perform when called
 <action_requirement></action_requirement>
 <action_description>taxOwed = taxableIncome * flat_rate / 10000</action_description>
 <action_postfix>
-taxpayer.taxableIncome state_config.flat_rate_bps * 10000 / /taxpayer.taxOwed xdef
+taxpayer.taxableIncome cvi state_config.flat_rate_bps cvi 10000.0 fdiv fmul cvi /taxpayer.taxOwed xdef
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details></actions>
 <policy_statements></policy_statements></decision_table>
@@ -519,7 +519,7 @@ taxpayer.bracket_applied false beq
 <condition_requirement></condition_requirement>
 <condition_description>taxpayer.taxableIncome &lt;= bracket.ceiling</condition_description>
 <condition_postfix>
-taxpayer.taxableIncome bracket.ceiling &lt;=
+taxpayer.taxableIncome cvi bracket.ceiling cvi &lt;=
 </condition_postfix>
 <condition_column column_value="Y" column_number="1"></condition_column></condition_details></conditions>
 <actions>
@@ -529,7 +529,7 @@ taxpayer.taxableIncome bracket.ceiling &lt;=
 <action_requirement></action_requirement>
 <action_description>taxOwed = base_tax + marginal tax for this bracket</action_description>
 <action_postfix>
-bracket.base_tax taxpayer.taxableIncome bracket.floor - bracket.rate_bps * 10000 / + /taxpayer.taxOwed xdef
+bracket.base_tax cvi taxpayer.taxableIncome cvi bracket.floor cvi - bracket.rate_bps cvi 10000.0 fdiv fmul cvi + /taxpayer.taxOwed xdef
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column></action_details>
 <action_details>

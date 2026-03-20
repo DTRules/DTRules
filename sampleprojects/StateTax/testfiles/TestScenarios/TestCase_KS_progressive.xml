@@ -19,8 +19,8 @@
     <standard_deduction_hoh>6180</standard_deduction_hoh>
     <exemption_amount>9160</exemption_amount>
     <brackets_single>
-      <bracket><floor>0</floor><ceiling>23000</ceiling><rate_bps>520</rate_bps><base_tax>0</base_tax></bracket>
-      <bracket><floor>23000</floor><ceiling>999999999</ceiling><rate_bps>558</rate_bps><base_tax>1196</base_tax></bracket>
+      <bracket_s><floor>0</floor><ceiling>23000</ceiling><rate_bps>520</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>23000</floor><ceiling>999999999</ceiling><rate_bps>558</rate_bps><base_tax>1196</base_tax></bracket_s>
     </brackets_single>
     <brackets_mfj></brackets_mfj>
     <brackets_hoh></brackets_hoh>
