@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: North Carolina - Flat Tax MFJ (4.25%)
+  State: NC, tax_type: flat, flat_rate_bps: 425
+  std_ded: 12750/25500/19125, exemption: 0
+  Taxpayer: $140,000 wages, MFJ, 2 dependents
+  Computation:
+    totalIncome    = 140000
+    stdDeduction   = 25500 (MFJ)
+    exemptions     = (2 + 2) * 0 = 0
+    taxableIncome  = 140000 - 25500 - 0 = 114500
+    tax = 114500 * 425 / 10000 = 48662500 / 10000 = 4866 (integer division)
+  Expected: taxOwed = 4866
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>NC</state>
+  <state_config>
+    <state_code>NC</state_code>
+    <state_name>North Carolina</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>425</flat_rate_bps>
+    <standard_deduction_single>12750</standard_deduction_single>
+    <standard_deduction_mfj>25500</standard_deduction_mfj>
+    <standard_deduction_hoh>19125</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>NC01</taxpayer_ID>
+    <filing_status>MFJ</filing_status>
+    <num_dependents>2</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>140000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

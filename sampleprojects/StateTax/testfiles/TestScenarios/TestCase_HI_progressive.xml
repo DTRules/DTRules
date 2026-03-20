@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Hawaii - Progressive Tax (12 brackets, high rate)
+  State: HI, tax_type: progressive
+  std_ded: 4400/8800/6424, exemption: 1144
+  Taxpayer: $95,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 95000
+    stdDeduction   = 4400
+    exemptions     = (1 + 0) * 1144 = 1144
+    taxableIncome  = 95000 - 4400 - 1144 = 89456
+
+  Bracket base_tax computation (integer arithmetic):
+    B1:  [0, 9600]          rate=140  base=0     width=9600  tax=9600*140/10000=134
+    B2:  [9600, 14400]      rate=320  base=134   width=4800  tax=4800*320/10000=153
+    B3:  [14400, 19200]     rate=550  base=287   width=4800  tax=4800*550/10000=264
+    B4:  [19200, 24000]     rate=640  base=551   width=4800  tax=4800*640/10000=307
+    B5:  [24000, 36000]     rate=680  base=858   width=12000 tax=12000*680/10000=816
+    B6:  [36000, 48000]     rate=720  base=1674  width=12000 tax=12000*720/10000=864
+    B7:  [48000, 125000]    rate=760  base=2538  width=77000 tax=77000*760/10000=5852
+    B8:  [125000, 175000]   rate=790  base=8390  width=50000 tax=50000*790/10000=3950
+    B9:  [175000, 225000]   rate=825  base=12340 width=50000 tax=50000*825/10000=4125
+    B10: [225000, 275000]   rate=900  base=16465 width=50000 tax=50000*900/10000=4500
+    B11: [275000, 325000]   rate=1000 base=20965 width=50000 tax=50000*1000/10000=5000
+    B12: [325000, 999999999] rate=1100 base=25965
+
+  taxableIncome=89456 falls in B7 [48000, 125000, 760, 2538]:
+    tax = 2538 + (89456 - 48000) * 760 / 10000
+        = 2538 + 41456 * 760 / 10000
+        = 2538 + 31506560 / 10000
+        = 2538 + 3150
+        = 5688
+  Expected: taxOwed = 5688
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>HI</state>
+  <state_config>
+    <state_code>HI</state_code>
+    <state_name>Hawaii</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>4400</standard_deduction_single>
+    <standard_deduction_mfj>8800</standard_deduction_mfj>
+    <standard_deduction_hoh>6424</standard_deduction_hoh>
+    <exemption_amount>1144</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>9600</ceiling><rate_bps>140</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>9600</floor><ceiling>14400</ceiling><rate_bps>320</rate_bps><base_tax>134</base_tax></bracket>
+      <bracket><floor>14400</floor><ceiling>19200</ceiling><rate_bps>550</rate_bps><base_tax>287</base_tax></bracket>
+      <bracket><floor>19200</floor><ceiling>24000</ceiling><rate_bps>640</rate_bps><base_tax>551</base_tax></bracket>
+      <bracket><floor>24000</floor><ceiling>36000</ceiling><rate_bps>680</rate_bps><base_tax>858</base_tax></bracket>
+      <bracket><floor>36000</floor><ceiling>48000</ceiling><rate_bps>720</rate_bps><base_tax>1674</base_tax></bracket>
+      <bracket><floor>48000</floor><ceiling>125000</ceiling><rate_bps>760</rate_bps><base_tax>2538</base_tax></bracket>
+      <bracket><floor>125000</floor><ceiling>175000</ceiling><rate_bps>790</rate_bps><base_tax>8390</base_tax></bracket>
+      <bracket><floor>175000</floor><ceiling>225000</ceiling><rate_bps>825</rate_bps><base_tax>12340</base_tax></bracket>
+      <bracket><floor>225000</floor><ceiling>275000</ceiling><rate_bps>900</rate_bps><base_tax>16465</base_tax></bracket>
+      <bracket><floor>275000</floor><ceiling>325000</ceiling><rate_bps>1000</rate_bps><base_tax>20965</base_tax></bracket>
+      <bracket><floor>325000</floor><ceiling>999999999</ceiling><rate_bps>1100</rate_bps><base_tax>25965</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>HI01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>95000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

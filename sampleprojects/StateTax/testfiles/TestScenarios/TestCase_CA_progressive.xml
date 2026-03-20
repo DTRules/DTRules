@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: California - Progressive Tax (10 brackets)
+  State: CA, tax_type: progressive
+  std_ded: 5706/11412/11412, exemption: 0
+  Taxpayer: $85,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 85000
+    stdDeduction   = 5706
+    exemptions     = (1 + 0) * 0 = 0
+    taxableIncome  = 85000 - 5706 - 0 = 79294
+
+  Bracket base_tax computation (integer arithmetic):
+    B1:  [0, 10756]       rate=100  base=0     width=10756  tax=10756*100/10000=107
+    B2:  [10756, 25499]   rate=200  base=107   width=14743  tax=14743*200/10000=294
+    B3:  [25499, 40245]   rate=400  base=401   width=14746  tax=14746*400/10000=589
+    B4:  [40245, 55866]   rate=600  base=990   width=15621  tax=15621*600/10000=937
+    B5:  [55866, 70606]   rate=800  base=1927  width=14740  tax=14740*800/10000=1179
+    B6:  [70606, 360659]  rate=930  base=3106  width=290053 tax=290053*930/10000=26974
+    B7:  [360659, 432787] rate=1030 base=30080 width=72128  tax=72128*1030/10000=7429
+    B8:  [432787, 721314] rate=1130 base=37509 width=288527 tax=288527*1130/10000=32603
+    B9:  [721314, 1000000] rate=1230 base=70112 width=278686 tax=278686*1230/10000=34278
+    B10: [1000000, 999999999] rate=1330 base=104390
+
+  taxableIncome=79294 falls in B6 [70606, 360659, 930, 3106]:
+    tax = 3106 + (79294 - 70606) * 930 / 10000
+        = 3106 + 8688 * 930 / 10000
+        = 3106 + 8079840 / 10000
+        = 3106 + 807
+        = 3913
+  Expected: taxOwed = 3913
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>CA</state>
+  <state_config>
+    <state_code>CA</state_code>
+    <state_name>California</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>5706</standard_deduction_single>
+    <standard_deduction_mfj>11412</standard_deduction_mfj>
+    <standard_deduction_hoh>11412</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>10756</ceiling><rate_bps>100</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>10756</floor><ceiling>25499</ceiling><rate_bps>200</rate_bps><base_tax>107</base_tax></bracket>
+      <bracket><floor>25499</floor><ceiling>40245</ceiling><rate_bps>400</rate_bps><base_tax>401</base_tax></bracket>
+      <bracket><floor>40245</floor><ceiling>55866</ceiling><rate_bps>600</rate_bps><base_tax>990</base_tax></bracket>
+      <bracket><floor>55866</floor><ceiling>70606</ceiling><rate_bps>800</rate_bps><base_tax>1927</base_tax></bracket>
+      <bracket><floor>70606</floor><ceiling>360659</ceiling><rate_bps>930</rate_bps><base_tax>3106</base_tax></bracket>
+      <bracket><floor>360659</floor><ceiling>432787</ceiling><rate_bps>1030</rate_bps><base_tax>30080</base_tax></bracket>
+      <bracket><floor>432787</floor><ceiling>721314</ceiling><rate_bps>1130</rate_bps><base_tax>37509</base_tax></bracket>
+      <bracket><floor>721314</floor><ceiling>1000000</ceiling><rate_bps>1230</rate_bps><base_tax>70112</base_tax></bracket>
+      <bracket><floor>1000000</floor><ceiling>999999999</ceiling><rate_bps>1330</rate_bps><base_tax>104390</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>CA01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>85000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

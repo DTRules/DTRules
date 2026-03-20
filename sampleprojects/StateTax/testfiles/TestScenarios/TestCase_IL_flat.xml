@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Illinois - Flat Tax (4.95%)
+  State: IL, tax_type: flat, flat_rate_bps: 495
+  std_ded: 0/0/0, exemption: 2850
+  Taxpayer: $75,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 75000
+    stdDeduction   = 0
+    exemptions     = (1 + 0) * 2850 = 2850
+    taxableIncome  = 75000 - 0 - 2850 = 72150
+    tax = 72150 * 495 / 10000 = 35714250 / 10000 = 3571 (integer division)
+  Expected: taxOwed = 3571
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>IL</state>
+  <state_config>
+    <state_code>IL</state_code>
+    <state_name>Illinois</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>495</flat_rate_bps>
+    <standard_deduction_single>0</standard_deduction_single>
+    <standard_deduction_mfj>0</standard_deduction_mfj>
+    <standard_deduction_hoh>0</standard_deduction_hoh>
+    <exemption_amount>2850</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>IL01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>75000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

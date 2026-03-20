@@ -49,6 +49,7 @@ public class TestStateTax extends ATestHarness {
         for (int i = 0; i < results.size(); i++) {
             IREntity result = results.get(i).rEntityValue();
 
+            String stateCode     = result.get("state_code").stringValue();
             String taxpayerId    = result.get("taxpayer_ID").stringValue();
             String filingStatus  = result.get("filing_status").stringValue();
             int    grossIncome   = result.get("grossIncome").intValue();
@@ -58,12 +59,13 @@ public class TestStateTax extends ATestHarness {
             int    taxableIncome = result.get("taxableIncome").intValue();
             int    taxOwed       = result.get("taxOwed").intValue();
 
+            out.println("State:           " + stateCode);
             out.println("Taxpayer:        " + taxpayerId);
             out.println("Filing Status:   " + filingStatus);
             out.println("Gross Income:    $" + String.format("%,d", grossIncome));
             out.println("AGI:             $" + String.format("%,d", agi));
             out.println("Deduction:       $" + String.format("%,d", deduction));
-            out.println("Exemptions:      " + exemptions + " x $4,350 = $" + String.format("%,d", exemptions * 4350));
+            out.println("Exemptions:      " + exemptions);
             out.println("Taxable Income:  $" + String.format("%,d", taxableIncome));
             out.println("Tax Owed:        $" + String.format("%,d", taxOwed));
 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Oklahoma - Progressive Tax (6 brackets)
+  State: OK, tax_type: progressive
+  std_ded: 6350/12700/9350, exemption: 1000
+  Taxpayer: $77,000 total ($75,000 wages + $2,000 interest), SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 75000 + 2000 = 77000
+    stdDeduction   = 6350
+    exemptions     = (1 + 0) * 1000 = 1000
+    taxableIncome  = 77000 - 6350 - 1000 = 69650
+
+  Bracket base_tax computation (integer arithmetic):
+    B1: [0, 1000]          rate=25  base=0   width=1000  tax=1000*25/10000=2
+    B2: [1000, 2500]       rate=75  base=2   width=1500  tax=1500*75/10000=11
+    B3: [2500, 3750]       rate=175 base=13  width=1250  tax=1250*175/10000=21
+    B4: [3750, 4900]       rate=275 base=34  width=1150  tax=1150*275/10000=31
+    B5: [4900, 7200]       rate=375 base=65  width=2300  tax=2300*375/10000=86
+    B6: [7200, 999999999]  rate=475 base=151
+
+  taxableIncome=69650 falls in B6 [7200, 999999999, 475, 151]:
+    tax = 151 + (69650 - 7200) * 475 / 10000
+        = 151 + 62450 * 475 / 10000
+        = 151 + 29663750 / 10000
+        = 151 + 2966
+        = 3117
+  Expected: taxOwed = 3117
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>OK</state>
+  <state_config>
+    <state_code>OK</state_code>
+    <state_name>Oklahoma</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>6350</standard_deduction_single>
+    <standard_deduction_mfj>12700</standard_deduction_mfj>
+    <standard_deduction_hoh>9350</standard_deduction_hoh>
+    <exemption_amount>1000</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>1000</ceiling><rate_bps>25</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>1000</floor><ceiling>2500</ceiling><rate_bps>75</rate_bps><base_tax>2</base_tax></bracket>
+      <bracket><floor>2500</floor><ceiling>3750</ceiling><rate_bps>175</rate_bps><base_tax>13</base_tax></bracket>
+      <bracket><floor>3750</floor><ceiling>4900</ceiling><rate_bps>275</rate_bps><base_tax>34</base_tax></bracket>
+      <bracket><floor>4900</floor><ceiling>7200</ceiling><rate_bps>375</rate_bps><base_tax>65</base_tax></bracket>
+      <bracket><floor>7200</floor><ceiling>999999999</ceiling><rate_bps>475</rate_bps><base_tax>151</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>OK01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>75000</amount></income>
+      <income><type>IN</type><amount>2000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

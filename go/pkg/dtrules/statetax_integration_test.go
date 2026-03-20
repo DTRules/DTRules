@@ -24,7 +24,7 @@ import (
 	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
 )
 
-// TestStateTaxIntegration tests the full pipeline with the StateTax sample project
+// TestStateTaxIntegration tests the full pipeline with a flat-tax state (Illinois)
 func TestStateTaxIntegration(t *testing.T) {
 	stateTaxDir := findStateTaxDir(t)
 	if stateTaxDir == "" {
@@ -57,7 +57,7 @@ func TestStateTaxIntegration(t *testing.T) {
 		t.Logf("  - %s", name.StringValue())
 	}
 
-	expectedEntities := []string{"adjustment", "constants", "income", "job", "result", "taxpayer"}
+	expectedEntities := []string{"adjustment", "bracket", "income", "job", "result", "state_config", "taxpayer"}
 	for _, expected := range expectedEntities {
 		found := false
 		for _, name := range entityNames {
@@ -98,7 +98,9 @@ func TestStateTaxIntegration(t *testing.T) {
 		"Apply_Adjustments",
 		"Determine_Filing_Details",
 		"Calculate_Taxable_Income",
-		"Apply_Tax_Brackets",
+		"Apply_Flat_Tax",
+		"Select_And_Apply_Brackets",
+		"Apply_Bracket_Iteration",
 		"Evaluate_Results",
 	}
 	for _, expected := range expectedTables {
@@ -143,8 +145,8 @@ func TestStateTaxIntegration(t *testing.T) {
 	}
 	t.Log("Mapping initialized successfully")
 
-	// Load test data (TestCase_001: Single, $77k income, expected tax ~$2,978)
-	testDataPath := filepath.Join(stateTaxDir, "testfiles/TestScenarios/TestCase_001.xml")
+	// Load test data (Illinois flat tax test case)
+	testDataPath := filepath.Join(stateTaxDir, "testfiles/TestScenarios/TestCase_IL_flat.xml")
 	testDataFile, err := os.Open(testDataPath)
 	if err != nil {
 		t.Fatalf("Failed to open test data file: %v", err)
@@ -177,14 +179,13 @@ func TestStateTaxIntegration(t *testing.T) {
 		t.Log("Decision table executed successfully")
 	}
 
-	// Check results on the job entity
+	// Check results
 	jobEntity, err := state.EntityFetch(0)
 	if err != nil {
 		t.Logf("Could not fetch job entity: %v", err)
 	} else {
-		t.Logf("Job entity: %s", jobEntity.GetName().StringValue())
+		t.Logf("Entity: %s", jobEntity.GetName().StringValue())
 
-		// Try to get the results array
 		results, err := jobEntity.Get(dtrules.GetRName("results"))
 		if err == nil && results != nil {
 			t.Logf("Results: %s", results.StringValue())
@@ -192,7 +193,7 @@ func TestStateTaxIntegration(t *testing.T) {
 	}
 }
 
-// TestStateTaxEDDLoad tests just the EDD loading for StateTax
+// TestStateTaxEDDLoad tests EDD loading for the new state-aware schema
 func TestStateTaxEDDLoad(t *testing.T) {
 	stateTaxDir := findStateTaxDir(t)
 	if stateTaxDir == "" {
@@ -213,40 +214,54 @@ func TestStateTaxEDDLoad(t *testing.T) {
 		t.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	// Verify entity structure
 	factory := rs.GetEntityFactory()
 
-	// Check taxpayer entity has expected attributes
+	// Check state_config entity
+	stateConfigRef, err := factory.GetReferenceEntity(dtrules.GetRName("state_config"))
+	if err != nil {
+		t.Fatalf("Failed to get state_config entity: %v", err)
+	}
+
+	scAttrs := []string{"state_code", "tax_type", "flat_rate_bps", "standard_deduction_single", "exemption_amount", "brackets_single", "brackets_mfj", "brackets_hoh"}
+	for _, attr := range scAttrs {
+		if !stateConfigRef.ContainsAttribute(dtrules.GetRName(attr)) {
+			t.Errorf("state_config missing attribute: %s", attr)
+		}
+	}
+
+	// Check bracket entity
+	bracketRef, err := factory.GetReferenceEntity(dtrules.GetRName("bracket"))
+	if err != nil {
+		t.Fatalf("Failed to get bracket entity: %v", err)
+	}
+
+	brAttrs := []string{"floor", "ceiling", "rate_bps", "base_tax"}
+	for _, attr := range brAttrs {
+		if !bracketRef.ContainsAttribute(dtrules.GetRName(attr)) {
+			t.Errorf("bracket missing attribute: %s", attr)
+		}
+	}
+
+	// Check taxpayer has new fields
 	taxpayerRef, err := factory.GetReferenceEntity(dtrules.GetRName("taxpayer"))
 	if err != nil {
 		t.Fatalf("Failed to get taxpayer entity: %v", err)
 	}
 
-	expectedAttrs := []string{"filing_status", "grossIncome", "agi", "deduction", "exemptions", "taxableIncome", "taxOwed", "incomes", "adjustments", "num_dependents"}
-	for _, attr := range expectedAttrs {
+	tpAttrs := []string{"active_brackets", "bracket_applied", "filing_status", "grossIncome", "taxOwed"}
+	for _, attr := range tpAttrs {
 		if !taxpayerRef.ContainsAttribute(dtrules.GetRName(attr)) {
-			t.Errorf("Taxpayer entity missing attribute: %s", attr)
+			t.Errorf("taxpayer missing attribute: %s", attr)
 		}
 	}
 
-	// Check constants entity has tax bracket values
-	constantsRef, err := factory.GetReferenceEntity(dtrules.GetRName("constants"))
-	if err != nil {
-		t.Fatalf("Failed to get constants entity: %v", err)
-	}
-
-	bracketAttrs := []string{"Bracket1_Limit", "Bracket2_Limit", "StandardDeduction_Single", "StandardDeduction_MFJ", "ExemptionAmount"}
-	for _, attr := range bracketAttrs {
-		if !constantsRef.ContainsAttribute(dtrules.GetRName(attr)) {
-			t.Errorf("Constants entity missing attribute: %s", attr)
-		}
-	}
-
-	t.Logf("Taxpayer entity has %d attributes", len(taxpayerRef.GetAttributeNames()))
-	t.Logf("Constants entity has %d attributes", len(constantsRef.GetAttributeNames()))
+	t.Logf("state_config: %d attrs, bracket: %d attrs, taxpayer: %d attrs",
+		len(stateConfigRef.GetAttributeNames()),
+		len(bracketRef.GetAttributeNames()),
+		len(taxpayerRef.GetAttributeNames()))
 }
 
-// TestStateTaxDTLoad tests decision table loading for StateTax
+// TestStateTaxDTLoad tests decision table loading for the new schema
 func TestStateTaxDTLoad(t *testing.T) {
 	stateTaxDir := findStateTaxDir(t)
 	if stateTaxDir == "" {
@@ -280,14 +295,16 @@ func TestStateTaxDTLoad(t *testing.T) {
 		t.Fatalf("Failed to load decision tables: %v", err)
 	}
 
-	// Verify all 7 decision tables exist
+	// Verify all 9 decision tables exist
 	expectedTables := []string{
 		"Compute_Tax",
 		"Calculate_Gross_Income",
 		"Apply_Adjustments",
 		"Determine_Filing_Details",
 		"Calculate_Taxable_Income",
-		"Apply_Tax_Brackets",
+		"Apply_Flat_Tax",
+		"Select_And_Apply_Brackets",
+		"Apply_Bracket_Iteration",
 		"Evaluate_Results",
 	}
 
@@ -310,7 +327,6 @@ func TestStateTaxDTLoad(t *testing.T) {
 
 // findStateTaxDir locates the StateTax sample project directory
 func findStateTaxDir(t *testing.T) string {
-	// Try relative paths from the test location
 	paths := []string{
 		"../../../../sampleprojects/StateTax",
 		"../../../sampleprojects/StateTax",
@@ -319,7 +335,6 @@ func findStateTaxDir(t *testing.T) string {
 		"sampleprojects/StateTax",
 	}
 
-	// Get current working directory
 	cwd, _ := os.Getwd()
 	t.Logf("Current working directory: %s", cwd)
 
@@ -333,7 +348,6 @@ func findStateTaxDir(t *testing.T) string {
 		}
 	}
 
-	// Try from known locations
 	home, _ := os.UserHomeDir()
 	knownPaths := []string{
 		filepath.Join(home, "DTRules/sampleprojects/StateTax"),

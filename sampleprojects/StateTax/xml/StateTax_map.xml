@@ -14,27 +14,43 @@
 			<setattribute tag='type' RAttribute='type' enclosure='adjustment' type='string'></setattribute>
 			<setattribute tag='amount' RAttribute='amount' enclosure='adjustment' type='integer'></setattribute>
 
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='state_config' type='string'></setattribute>
+			<setattribute tag='state_name' RAttribute='state_name' enclosure='state_config' type='string'></setattribute>
+			<setattribute tag='tax_type' RAttribute='tax_type' enclosure='state_config' type='string'></setattribute>
+			<setattribute tag='flat_rate_bps' RAttribute='flat_rate_bps' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='standard_deduction_single' RAttribute='standard_deduction_single' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='standard_deduction_mfj' RAttribute='standard_deduction_mfj' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='standard_deduction_hoh' RAttribute='standard_deduction_hoh' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='exemption_amount' RAttribute='exemption_amount' enclosure='state_config' type='integer'></setattribute>
+
+			<setattribute tag='floor' RAttribute='floor' enclosure='bracket' type='integer'></setattribute>
+			<setattribute tag='ceiling' RAttribute='ceiling' enclosure='bracket' type='integer'></setattribute>
+			<setattribute tag='rate_bps' RAttribute='rate_bps' enclosure='bracket' type='integer'></setattribute>
+			<setattribute tag='base_tax' RAttribute='base_tax' enclosure='bracket' type='integer'></setattribute>
+
 			<createentity entity='job' 			tag='job' 			id='id'></createentity>
 			<createentity entity='taxpayer' 	tag='taxpayer' 		id='id'></createentity>
 			<createentity entity='income' 		tag='income' 		id='id'></createentity>
 			<createentity entity='adjustment' 	tag='adjustment' 	id='id'></createentity>
-			<createentity entity='constants' 	tag='constants' 	id='id'></createentity>
+			<createentity entity='state_config' tag='state_config' 	id='id'></createentity>
+			<createentity entity='bracket' 		tag='bracket' 		id='id'></createentity>
 			<createentity entity='result' 		tag='result' 		id='id'></createentity>
         </map>
 		<entities>
-			<entity name='constants' 	number='1'></entity>
+			<entity name='state_config' number='1'></entity>
 			<entity name='job'		 	number='1'></entity>
 			<entity name='taxpayer' 	number='1'></entity>
 
 			<entity name='income' 		number='*'></entity>
 			<entity name='adjustment' 	number='*'></entity>
+			<entity name='bracket' 		number='*'></entity>
 			<entity name='result' 		number='*'></entity>
         </entities>
 
 		<initialization>
-			<initialentity entity='constants' 	epush='true'></initialentity>
-			<initialentity entity='job' 		epush='true'></initialentity>
-			<initialentity entity='taxpayer' 	epush='true'></initialentity>
+			<initialentity entity='state_config' 	epush='true'></initialentity>
+			<initialentity entity='job' 			epush='true'></initialentity>
+			<initialentity entity='taxpayer' 		epush='true'></initialentity>
         </initialization>
     </XMLtoEDD>
 </mapping>
