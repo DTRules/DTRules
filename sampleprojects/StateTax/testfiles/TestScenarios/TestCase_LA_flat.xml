@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Louisiana - Flat tax 3.00%
+     Single, $66,000 wages, 0 dependents
+     Taxable = 66000 - 12500 - 0 = 53500
+     Tax = 53500 * 300 / 10000 = 1605  (integer arithmetic)
+     Expected: taxOwed = $1,605
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>LA</state>
+  <state_config>
+    <state_code>LA</state_code>
+    <state_name>Louisiana</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>300</flat_rate_bps>
+    <standard_deduction_single>12500</standard_deduction_single>
+    <standard_deduction_mfj>25000</standard_deduction_mfj>
+    <standard_deduction_hoh>25000</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>LA01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>66000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

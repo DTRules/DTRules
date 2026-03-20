@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vermont - Progressive brackets
+     Single, $77,000 wages, 0 dependents
+     Taxable = 77000 - 7650 - (1 * 5100) = 64250
+     Falls in bracket [47900, 116000, 660, 1604]
+     Tax = 1604 + (64250 - 47900) * 660 / 10000 = 1604 + 16350 * 660 / 10000 = 1604 + 1079 = 2683
+     (16350 * 660 = 10791000 / 10000 = 1079)
+     Expected: taxOwed = $2,683
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>VT</state>
+  <state_config>
+    <state_code>VT</state_code>
+    <state_name>Vermont</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>7650</standard_deduction_single>
+    <standard_deduction_mfj>15300</standard_deduction_mfj>
+    <standard_deduction_hoh>11450</standard_deduction_hoh>
+    <exemption_amount>5100</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>47900</ceiling><rate_bps>335</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>47900</floor><ceiling>116000</ceiling><rate_bps>660</rate_bps><base_tax>1604</base_tax></bracket>
+      <bracket><floor>116000</floor><ceiling>242000</ceiling><rate_bps>760</rate_bps><base_tax>6098</base_tax></bracket>
+      <bracket><floor>242000</floor><ceiling>999999999</ceiling><rate_bps>875</rate_bps><base_tax>15674</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>VT01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>77000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

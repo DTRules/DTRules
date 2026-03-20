@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maine - Progressive brackets
+     Single, $75,000 wages, 0 dependents
+     Taxable = 75000 - 15000 - (1*5150) = 54850
+     Bracket [26800, 63450, 675, 1554]: tax = 1554 + (54850-26800)*675/10000 = 1554 + 28050*675/10000 = 1554 + 1893 = 3447
+     (28050*675=18933750, /10000=1893)
+     Expected: taxOwed = $3,447
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>ME</state>
+  <state_config>
+    <state_code>ME</state_code>
+    <state_name>Maine</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>5150</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>26800</ceiling><rate_bps>580</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>26800</floor><ceiling>63450</ceiling><rate_bps>675</rate_bps><base_tax>1554</base_tax></bracket>
+      <bracket><floor>63450</floor><ceiling>999999999</ceiling><rate_bps>715</rate_bps><base_tax>4027</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>ME01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>75000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Kansas - Progressive brackets
+     Single, $70,000 wages, 0 dependents
+     Taxable = 70000 - 3605 - (1*9160) = 57235
+     Bracket [23000, 999999999, 558, 1196]: tax = 1196 + (57235-23000)*558/10000 = 1196 + 34235*558/10000 = 1196 + 1910 = 3106
+     (34235*558=19103130, /10000=1910)
+     Expected: taxOwed = $3,106
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>KS</state>
+  <state_config>
+    <state_code>KS</state_code>
+    <state_name>Kansas</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>3605</standard_deduction_single>
+    <standard_deduction_mfj>8240</standard_deduction_mfj>
+    <standard_deduction_hoh>6180</standard_deduction_hoh>
+    <exemption_amount>9160</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>23000</ceiling><rate_bps>520</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>23000</floor><ceiling>999999999</ceiling><rate_bps>558</rate_bps><base_tax>1196</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>KS01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>70000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Iowa - Flat tax 3.80%
+     Single, $82,000 wages, 0 dependents
+     Taxable = 82000 - 0 - 0 = 82000
+     Tax = 82000 * 380 / 10000 = 3116  (integer arithmetic)
+     Expected: taxOwed = $3,116
+     Note: Iowa uses tax credit not exemption deduction.
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>IA</state>
+  <state_config>
+    <state_code>IA</state_code>
+    <state_name>Iowa</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>380</flat_rate_bps>
+    <standard_deduction_single>0</standard_deduction_single>
+    <standard_deduction_mfj>0</standard_deduction_mfj>
+    <standard_deduction_hoh>0</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>IA01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>82000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

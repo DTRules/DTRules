@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Kentucky - Flat tax 4.00%
+     Single, $73,000 wages, 0 dependents
+     Taxable = 73000 - 3270 - 0 = 69730
+     Tax = 69730 * 400 / 10000 = 2789  (integer arithmetic: 69730*400=27892000, /10000=2789)
+     Expected: taxOwed = $2,789
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>KY</state>
+  <state_config>
+    <state_code>KY</state_code>
+    <state_name>Kentucky</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>400</flat_rate_bps>
+    <standard_deduction_single>3270</standard_deduction_single>
+    <standard_deduction_mfj>6540</standard_deduction_mfj>
+    <standard_deduction_hoh>3270</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>KY01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>73000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

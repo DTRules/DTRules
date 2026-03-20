@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- District of Columbia - Progressive brackets
+     Single, $95,000 wages, 0 dependents
+     Taxable = 95000 - 15000 - 0 = 80000
+     Bracket [60000, 250000, 850, 3500]: tax = 3500 + (80000-60000)*850/10000 = 3500 + 20000*850/10000 = 3500 + 1700 = 5200
+     Expected: taxOwed = $5,200
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>DC</state>
+  <state_config>
+    <state_code>DC</state_code>
+    <state_name>District of Columbia</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>10000</ceiling><rate_bps>400</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>10000</floor><ceiling>40000</ceiling><rate_bps>600</rate_bps><base_tax>400</base_tax></bracket>
+      <bracket><floor>40000</floor><ceiling>60000</ceiling><rate_bps>650</rate_bps><base_tax>2200</base_tax></bracket>
+      <bracket><floor>60000</floor><ceiling>250000</ceiling><rate_bps>850</rate_bps><base_tax>3500</base_tax></bracket>
+      <bracket><floor>250000</floor><ceiling>500000</ceiling><rate_bps>925</rate_bps><base_tax>19650</base_tax></bracket>
+      <bracket><floor>500000</floor><ceiling>1000000</ceiling><rate_bps>975</rate_bps><base_tax>42775</base_tax></bracket>
+      <bracket><floor>1000000</floor><ceiling>999999999</ceiling><rate_bps>1075</rate_bps><base_tax>91525</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>DC01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>95000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

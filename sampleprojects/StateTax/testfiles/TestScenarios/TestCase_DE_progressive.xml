@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Delaware - Progressive brackets
+     Single, $62,000 wages, 0 dependents
+     Taxable = 62000 - 3250 - 0 = 58750
+     Bracket [25000, 60000, 555, 1001]: tax = 1001 + (58750-25000)*555/10000 = 1001 + 33750*555/10000 = 1001 + 1873 = 2874
+     (33750*555=18731250, /10000=1873)
+     Expected: taxOwed = $2,874
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>DE</state>
+  <state_config>
+    <state_code>DE</state_code>
+    <state_name>Delaware</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>3250</standard_deduction_single>
+    <standard_deduction_mfj>6500</standard_deduction_mfj>
+    <standard_deduction_hoh>3250</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>2000</ceiling><rate_bps>0</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>2000</floor><ceiling>5000</ceiling><rate_bps>220</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>5000</floor><ceiling>10000</ceiling><rate_bps>390</rate_bps><base_tax>66</base_tax></bracket>
+      <bracket><floor>10000</floor><ceiling>20000</ceiling><rate_bps>480</rate_bps><base_tax>261</base_tax></bracket>
+      <bracket><floor>20000</floor><ceiling>25000</ceiling><rate_bps>520</rate_bps><base_tax>741</base_tax></bracket>
+      <bracket><floor>25000</floor><ceiling>60000</ceiling><rate_bps>555</rate_bps><base_tax>1001</base_tax></bracket>
+      <bracket><floor>60000</floor><ceiling>999999999</ceiling><rate_bps>660</rate_bps><base_tax>2943</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>DE01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>62000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

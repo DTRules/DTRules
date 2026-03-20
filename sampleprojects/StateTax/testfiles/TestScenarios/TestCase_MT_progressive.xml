@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Montana - Progressive brackets
+     Single, $71,000 wages, 0 dependents
+     Taxable = 71000 - 15000 - 0 = 56000
+     Bracket [21100, 999999999, 590, 991]: tax = 991 + (56000-21100)*590/10000 = 991 + 34900*590/10000 = 991 + 2059 = 3050
+     (34900*590=20591000, /10000=2059)
+     Expected: taxOwed = $3,050
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>MT</state>
+  <state_config>
+    <state_code>MT</state_code>
+    <state_name>Montana</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket><floor>0</floor><ceiling>21100</ceiling><rate_bps>470</rate_bps><base_tax>0</base_tax></bracket>
+      <bracket><floor>21100</floor><ceiling>999999999</ceiling><rate_bps>590</rate_bps><base_tax>991</base_tax></bracket>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>MT01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>71000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>
