@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Single filer, $75,000 wages + $2,000 interest, no adjustments, 0 dependents
+     Expected:
+       Gross Income:    $77,000
+       AGI:             $77,000
+       Deduction:       $6,350  (Single)
+       Exemptions:      1 x $4,350 = $4,350
+       Taxable Income:  $66,300
+       Tax Owed:        $1,400 + ($66,300 - $40,000) * 6% = $1,400 + $1,578 = $2,978
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>GENERIC</state>
+
+  <taxpayer>
+    <taxpayer_ID>T001</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+
+    <incomes>
+      <income>
+        <type>WA</type>
+        <amount>75000</amount>
+      </income>
+      <income>
+        <type>INT</type>
+        <amount>2000</amount>
+      </income>
+    </incomes>
+
+    <adjustments>
+    </adjustments>
+  </taxpayer>
+</job>

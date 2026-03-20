@@ -1,0 +1,40 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='tax_year' RAttribute='tax_year' enclosure='job' type='string'></setattribute>
+			<setattribute tag='state' RAttribute='state' enclosure='job' type='string'></setattribute>
+
+			<setattribute tag='taxpayer_ID' RAttribute='taxpayer_ID' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='filing_status' RAttribute='filing_status' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='num_dependents' RAttribute='num_dependents' enclosure='taxpayer' type='integer'></setattribute>
+
+			<setattribute tag='type' RAttribute='type' enclosure='income' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='income' type='integer'></setattribute>
+
+			<setattribute tag='type' RAttribute='type' enclosure='adjustment' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='adjustment' type='integer'></setattribute>
+
+			<createentity entity='job' 			tag='job' 			id='id'></createentity>
+			<createentity entity='taxpayer' 	tag='taxpayer' 		id='id'></createentity>
+			<createentity entity='income' 		tag='income' 		id='id'></createentity>
+			<createentity entity='adjustment' 	tag='adjustment' 	id='id'></createentity>
+			<createentity entity='constants' 	tag='constants' 	id='id'></createentity>
+			<createentity entity='result' 		tag='result' 		id='id'></createentity>
+        </map>
+		<entities>
+			<entity name='constants' 	number='1'></entity>
+			<entity name='job'		 	number='1'></entity>
+			<entity name='taxpayer' 	number='1'></entity>
+
+			<entity name='income' 		number='*'></entity>
+			<entity name='adjustment' 	number='*'></entity>
+			<entity name='result' 		number='*'></entity>
+        </entities>
+
+		<initialization>
+			<initialentity entity='constants' 	epush='true'></initialentity>
+			<initialentity entity='job' 		epush='true'></initialentity>
+			<initialentity entity='taxpayer' 	epush='true'></initialentity>
+        </initialization>
+    </XMLtoEDD>
+</mapping>

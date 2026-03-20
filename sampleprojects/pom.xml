@@ -30,6 +30,7 @@
 		<module>ChipApp</module>
 		<module>KidAid</module>
 		<module>KidAid_Application</module>
+		<module>StateTax</module>
 		<module>SyntaxTests</module>
 		<module>TestProject</module>
 	</modules>

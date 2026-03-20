@@ -1,0 +1,73 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<entity name='adjustment' access='rw' comment='Above-the-line adjustment to income'>
+		<field name='adjustment' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='amount' type='integer' subtype='' access='r' input='main' default_value='0' comment='Annual adjustment amount in dollars'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Adjustment type: SLI (Student Loan Interest), IRA, HSA'></field>
+	</entity>
+	<entity name='constants' access='rw' comment='Tax constants and reference data for 2025'>
+		<field name='Bracket1_Limit' type='integer' subtype='' access='r' input='' default_value='10000' comment='Top of 2% bracket'></field>
+		<field name='Bracket2_BaseTax' type='integer' subtype='' access='r' input='' default_value='200' comment='Cumulative tax at start of 4% bracket'></field>
+		<field name='Bracket2_Limit' type='integer' subtype='' access='r' input='' default_value='40000' comment='Top of 4% bracket'></field>
+		<field name='Bracket3_BaseTax' type='integer' subtype='' access='r' input='' default_value='1400' comment='Cumulative tax at start of 6% bracket'></field>
+		<field name='Bracket3_Limit' type='integer' subtype='' access='r' input='' default_value='80000' comment='Top of 6% bracket'></field>
+		<field name='Bracket4_BaseTax' type='integer' subtype='' access='r' input='' default_value='3800' comment='Cumulative tax at start of 8% bracket'></field>
+		<field name='Bracket4_Limit' type='integer' subtype='' access='r' input='' default_value='150000' comment='Top of 8% bracket'></field>
+		<field name='Bracket5_BaseTax' type='integer' subtype='' access='r' input='' default_value='9400' comment='Cumulative tax at start of 9% bracket'></field>
+		<field name='Bracket5_Limit' type='integer' subtype='' access='r' input='' default_value='300000' comment='Top of 9% bracket'></field>
+		<field name='Bracket6_BaseTax' type='integer' subtype='' access='r' input='' default_value='22900' comment='Cumulative tax at start of 10% bracket'></field>
+		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='ExemptionAmount' type='integer' subtype='' access='r' input='' default_value='4350' comment='Personal exemption amount per exemption'></field>
+		<field name='GENERIC' type='string' subtype='' access='r' input='' default_value='GENERIC' comment='Generic state identifier'></field>
+		<field name='HOH' type='string' subtype='' access='r' input='' default_value='HOH' comment='Filing Status: Head of Household'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='MFJ' type='string' subtype='' access='r' input='' default_value='MFJ' comment='Filing Status: Married Filing Jointly'></field>
+		<field name='SINGLE' type='string' subtype='' access='r' input='' default_value='SINGLE' comment='Filing Status: Single'></field>
+		<field name='StandardDeduction_HOH' type='integer' subtype='' access='r' input='' default_value='9350' comment='Standard deduction for Head of Household'></field>
+		<field name='StandardDeduction_MFJ' type='integer' subtype='' access='r' input='' default_value='12700' comment='Standard deduction for Married Filing Jointly'></field>
+		<field name='StandardDeduction_Single' type='integer' subtype='' access='r' input='' default_value='6350' comment='Standard deduction for Single filers'></field>
+	</entity>
+	<entity name='income' access='rw' comment='A source of income'>
+		<field name='amount' type='integer' subtype='' access='r' input='main' default_value='0' comment='Annual income amount in dollars'></field>
+		<field name='income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Income type: WA (Wages), INT (Interest), DIV (Dividends), CG (Capital Gains), OTH (Other)'></field>
+	</entity>
+	<entity name='job' access='rw' comment='Tax processing job'>
+		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Tax computation results'></field>
+		<field name='state' type='string' subtype='' access='r' input='main' default_value='GENERIC' comment='State for which tax is computed'></field>
+		<field name='tax_year' type='string' subtype='' access='r' input='main' default_value='2025' comment='Tax year'></field>
+	</entity>
+	<entity name='result' access='rw' comment='Tax computation result'>
+		<field name='agi' type='integer' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income'></field>
+		<field name='deduction' type='integer' subtype='' access='rw' input='' default_value='0' comment='Standard deduction applied'></field>
+		<field name='exemptions' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of exemptions'></field>
+		<field name='filing_status' type='string' subtype='' access='rw' input='' default_value='' comment='Filing status used'></field>
+		<field name='grossIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total gross income'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Processing notes and audit trail'></field>
+		<field name='result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='taxableIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Taxable income after deductions and exemptions'></field>
+		<field name='taxpayer' type='entity' subtype='' access='rw' input='' default_value='' comment='Reference to taxpayer entity'></field>
+		<field name='taxpayer_ID' type='string' subtype='' access='rw' input='' default_value='' comment='Taxpayer identifier'></field>
+		<field name='taxOwed' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total state income tax owed'></field>
+	</entity>
+	<entity name='taxpayer' access='rw' comment='Individual taxpayer'>
+		<field name='adjustments' type='array' subtype='adjustment' access='r' input='main' default_value='' comment='Above-the-line adjustments'></field>
+		<field name='agi' type='integer' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income'></field>
+		<field name='deduction' type='integer' subtype='' access='rw' input='' default_value='0' comment='Standard deduction amount'></field>
+		<field name='exemptions' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of exemptions claimed'></field>
+		<field name='filing_status' type='string' subtype='' access='r' input='main' default_value='SINGLE' comment='Filing status: SINGLE, MFJ, HOH'></field>
+		<field name='grossIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total gross income from all sources'></field>
+		<field name='incomes' type='array' subtype='income' access='r' input='main' default_value='' comment='Income sources'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Processing notes'></field>
+		<field name='num_dependents' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of dependents claimed'></field>
+		<field name='taxableIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Taxable income after deductions and exemptions'></field>
+		<field name='taxOwed' type='integer' subtype='' access='rw' input='' default_value='0' comment='Computed state income tax'></field>
+		<field name='taxpayer' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='taxpayer_ID' type='string' subtype='' access='r' input='main' default_value='' comment='Taxpayer identifier'></field>
+	</entity>
+</entity_data_dictionary>
