@@ -14,7 +14,7 @@
 %define OP_ROT      6       ; Rotate top three (a b c -- b c a)
 %define OP_ROLL     7       ; Roll n items
 %define OP_INDEX    8       ; Copy nth item to top (pick)
-%define OP_CLEAR    9       ; Clear stack to mark
+%define OP_CLEAR    9       ; Clear entire stack
 %define OP_MARK     10      ; Push mark
 
 ; Arithmetic

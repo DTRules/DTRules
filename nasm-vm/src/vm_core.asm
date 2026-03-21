@@ -8,7 +8,7 @@
 ; Register conventions:
 ;   rdi - bytecode pointer (instruction pointer)
 ;   rsi - bytecode end pointer
-;   r12 - data stack pointer (grows downward)
+;   r12 - data stack pointer (grows upward)
 ;   r13 - data stack base (limit for underflow check)
 ;   r14 - data stack end (limit for overflow check)
 ;   r15 - trace buffer pointer (optional)
