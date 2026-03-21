@@ -1160,6 +1160,6 @@ op_name:
 ; OP_HALT (255) - Stop execution
 op_halt:
     ; Normal termination
-    mov [r12 + VMContext.data_sp], r14
+    ; NOTE: Don't save r14 - handlers update VMContext.data_sp directly
     xor eax, eax
     jmp vm_exit_success
