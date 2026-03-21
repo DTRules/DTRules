@@ -161,6 +161,37 @@ Results: 45/45 tests passed
 | No CGO-style per-operation calls | ✓ No external calls during execution |
 | System V ABI compliance | ✓ Callee-saved registers preserved |
 
+## Specification Cross-Check
+
+The specification in `docs-dev/specifications/issue-163-spec.md` has been verified against the implementation:
+
+| Spec Section | Implementation | Match? |
+|--------------|----------------|--------|
+| Value size (16 bytes) | vm_core.asm uses 16-byte values | ✓ |
+| VTAG_* type tags | Defined in opcodes.inc, used correctly | ✓ |
+| Register conventions | r12=TOS, r13=base, r14=limit as specified | ✓ |
+| OP_NOP semantics | Correctly jumps to dispatch | ✓ |
+| OP_PUSH_INT varint | Implements continuation bit decoding | ✓ |
+| OP_POP/DROP underflow | Returns ERR_STACK_UNDERFLOW correctly | ✓ |
+| OP_DUP semantics | Copies 16 bytes, checks overflow | ✓ |
+| OP_SWAP semantics | Swaps 32 bytes correctly | ✓ |
+| OP_ROT semantics | (a b c -- b c a) verified | ✓ |
+| OP_ROLL | Marked as placeholder in both | ⚠ |
+| OP_INDEX/PICK | (n+1)*16 offset calculation correct | ✓ |
+| OP_CLEAR | Resets r12 to r13 | ✓ |
+| OP_MARK | Pushes VTAG_MARK with value=0 | ✓ |
+| OP_OVER | Copies second element correctly | ✓ |
+| Error codes | All 5 error codes defined and used | ✓ |
+
+## Research Findings Verification
+
+The research document in `docs-dev/research/issue-163-research.md` correctly identifies:
+
+1. **Stack semantics**: Matches Forth/PostScript conventions
+2. **Register allocation**: Follows System V AMD64 ABI
+3. **Jump table dispatch**: Implemented as described
+4. **Known limitations**: ROLL placeholder, no signed varint, CLEAR behavior documented
+
 ## Conclusion
 
 The NASM VM stack operations implementation is **VALID** and ready for use. All 45 tests pass, demonstrating correct behavior for:
