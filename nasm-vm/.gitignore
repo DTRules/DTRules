@@ -1,0 +1,7 @@
+# Build artifacts
+build/
+*.o
+
+# Editor backups
+*~
+*.swp
