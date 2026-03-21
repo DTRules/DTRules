@@ -1163,3 +1163,8 @@ op_halt:
     ; NOTE: Don't save r14 - handlers update VMContext.data_sp directly
     xor eax, eax
     jmp vm_exit_success
+
+; ============================================================================
+; Mark stack as non-executable (modern security requirement)
+; ============================================================================
+section .note.GNU-stack noalloc noexec nowrite progbits

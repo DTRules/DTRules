@@ -424,3 +424,8 @@ global vm_get_error
 vm_get_error:
     mov eax, [rdi + VMContext.error_code]
     ret
+
+; ============================================================================
+; Mark stack as non-executable (modern security requirement)
+; ============================================================================
+section .note.GNU-stack noalloc noexec nowrite progbits

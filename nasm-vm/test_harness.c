@@ -502,9 +502,7 @@ static void test_abs(void) {
     TestContext tc;
     init_test_context(&tc);
 
-    /* Test negative -> positive */
-    uint8_t code1[] = {OP_PUSH_INT, 0x100 | (-42 & 0x7F), (-42 >> 7) & 0x7F, OP_NEG, OP_ABS, OP_HALT};
-    /* Actually, let's use a simpler approach: push 42, negate, then abs */
+    /* Push 42, negate, then abs to get back to 42 */
     uint8_t code[] = {OP_PUSH_INT, 42, OP_NEG, OP_ABS, OP_HALT};
     vm_load_bytecode(&tc.ctx, code, sizeof(code));
 
