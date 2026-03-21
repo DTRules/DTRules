@@ -1,0 +1,9 @@
+# Build artifacts
+build/
+*.o
+*.a
+
+# Editor files
+*~
+*.swp
+.vscode/
