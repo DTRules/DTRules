@@ -968,6 +968,9 @@
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+
+		<!-- Iowa State Tax Constants (2025) - Flat Tax with Federal Standard Deduction -->
+		<field name='ia_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0380' comment='Iowa flat tax rate (3.8%)'></field>
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1439,6 +1442,12 @@
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
 
+
+		<!-- Iowa State Tax Results -->
+		<field name='ia_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa AGI (federal AGI + adjustments)'></field>
+		<field name='ia_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa standard deduction (uses federal)'></field>
+		<field name='ia_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa taxable income'></field>
+		<field name='ia_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa state income tax'></field>
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
 
