@@ -8712,6 +8712,18 @@ job.state IL streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Massachusetts state</condition_comment>
+<condition_description>job.state is equal to "MA"</condition_description>
+<condition_postfix>
+job.state MA streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8726,12 +8738,21 @@ Calculate_IL_Tax
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_comment>Calculate Massachusetts state tax</action_comment>
+<action_description>Calculate_MA_Tax</action_description>
+<action_postfix>
+Calculate_MA_Tax
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
 "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8740,6 +8761,10 @@ Calculate_IL_Tax
 <policy_statement_postfix>"Calculate Illinois state income tax per Form IL-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
+<policy_description>Calculate Massachusetts state income tax</policy_description>
+<policy_statement_postfix>"Calculate Massachusetts state income tax per Form 1"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
@@ -8831,4 +8856,91 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 </policy_statements>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 42100: Calculate_MA_Tax - Massachusetts State Income Tax       -->
+<!-- Reference: Massachusetts Form 1 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MA_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Massachusetts state income tax per Form 1. MA has 5% tax on Part A income (regular income), 8.5% on Part B income (short-term capital gains), and 4% surtax on income exceeding $1,083,150. Personal exemptions vary by filing status with additional exemptions for dependents, age 65+, and blindness.</COMMENTS>
+<TABLE_NUMBER>42100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize MA tax calculation</action_description>
+<action_postfix>
+"MASSACHUSETTS FORM 1 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ma_agi xdef
+0 local@ base_exemption >
+0 local@ total_exemption >
+0 local@ stcg_amount >
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Determine base exemption by filing status</condition_comment>
+<condition_description>Calculate base exemption based on filing status</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq if
+  ma_exemption_married local@ base_exemption >
+else job.filing_status HOH streq if
+  ma_exemption_hoh local@ base_exemption >
+else
+  ma_exemption_single local@ base_exemption >
+endif endif
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MA tax with all components</action_comment>
+<action_description>Calculate Part A, Part B, exemptions, and surtax</action_description>
+<action_postfix>
+"  Starting Massachusetts AGI: $" result.ma_agi cvs strconcat " (Form 1 Line 3)" strconcat job.audit_trail swap addto
+base_exemption /total_exemption xdef
+"  Base Exemption (" job.filing_status strconcat "): $" strconcat base_exemption cvs strconcat job.audit_trail swap addto
+job.dependents arraysize 0 > if
+  job.dependents arraysize ma_exemption_dependent f* total_exemption f+ /total_exemption xdef
+  "  Dependent Exemptions: " job.dependents arraysize cvs strconcat " × $" strconcat ma_exemption_dependent cvs strconcat " = $" strconcat job.dependents arraysize ma_exemption_dependent f* cvs strconcat job.audit_trail swap addto
+endif
+{ dup type taxpayer > taxpayer age 65 >= if ma_exemption_age65 total_exemption f+ /total_exemption xdef "  Age 65+ Exemption: $" ma_exemption_age65 cvs strconcat job.audit_trail swap addto endif } job.taxpayers forall
+"  Total Exemptions: $" total_exemption cvs strconcat job.audit_trail swap addto
+{ dup type income > income income_type short_term_capital_gain streq if income gross_amount stcg_amount f+ local@ stcg_amount > endif } job.incomes forall
+stcg_amount 0 fmax /result.ma_taxable_income_part_b xdef
+result.ma_agi stcg_amount f- total_exemption f- 0 fmax /result.ma_taxable_income_part_a xdef
+"  Part A Taxable Income (regular): $" result.ma_taxable_income_part_a cvs strconcat job.audit_trail swap addto
+"  Part B Taxable Income (STCG): $" result.ma_taxable_income_part_b cvs strconcat job.audit_trail swap addto
+result.ma_taxable_income_part_a ma_tax_rate_part_a f* /result.ma_tax_part_a xdef
+result.ma_taxable_income_part_b ma_tax_rate_part_b f* /result.ma_tax_part_b xdef
+"  Part A Tax (5%): $" result.ma_tax_part_a cvs strconcat job.audit_trail swap addto
+"  Part B Tax (8.5%): $" result.ma_tax_part_b cvs strconcat job.audit_trail swap addto
+result.ma_agi ma_surtax_threshold f> if
+  result.ma_agi ma_surtax_threshold f- ma_surtax_rate f* /result.ma_surtax xdef
+  "  Surtax (4% on income over $1,083,150): $" result.ma_surtax cvs strconcat job.audit_trail swap addto
+else
+  0 /result.ma_surtax xdef
+endif
+result.ma_tax_part_a result.ma_tax_part_b f+ result.ma_surtax f+ /result.ma_total_tax xdef
+"  Total Massachusetts Tax: $" result.ma_total_tax cvs strconcat " (Form 1 Line 28)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Massachusetts progressive tax with Part A (5%), Part B (8.5% STCG), 4% surtax</policy_description>
+<policy_statement_postfix>"Massachusetts progressive tax: 5% Part A, 8.5% Part B (STCG), 4% surtax on income over $1M per Form 1"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>

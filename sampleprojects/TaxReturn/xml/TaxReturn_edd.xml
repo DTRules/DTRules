@@ -959,6 +959,18 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- Massachusetts State Tax Constants (2025) -->
+		<field name='ma_tax_rate_part_a' type='double' subtype='' access='r' input='' default_value='0.05' comment='MA Part A tax rate - regular income (5%)'></field>
+		<field name='ma_tax_rate_part_b' type='double' subtype='' access='r' input='' default_value='0.085' comment='MA Part B tax rate - short-term capital gains (8.5%)'></field>
+		<field name='ma_surtax_rate' type='double' subtype='' access='r' input='' default_value='0.04' comment='MA surtax rate on income over $1M (4%)'></field>
+		<field name='ma_surtax_threshold' type='double' subtype='' access='r' input='' default_value='1083150' comment='MA surtax threshold (2025)'></field>
+		<field name='ma_exemption_single' type='double' subtype='' access='r' input='' default_value='4400' comment='MA personal exemption - single (2025)'></field>
+		<field name='ma_exemption_married' type='double' subtype='' access='r' input='' default_value='8800' comment='MA personal exemption - married filing jointly (2025)'></field>
+		<field name='ma_exemption_hoh' type='double' subtype='' access='r' input='' default_value='6800' comment='MA personal exemption - head of household (2025)'></field>
+		<field name='ma_exemption_dependent' type='double' subtype='' access='r' input='' default_value='1000' comment='MA exemption per dependent (2025)'></field>
+		<field name='ma_exemption_age65' type='double' subtype='' access='r' input='' default_value='700' comment='MA exemption for age 65+ per person (2025)'></field>
+		<field name='ma_exemption_blind' type='double' subtype='' access='r' input='' default_value='2200' comment='MA exemption for blind per person (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1420,6 +1432,14 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+		<field name='ma_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Massachusetts AGI'></field>
+		<field name='ma_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total MA personal exemptions'></field>
+		<field name='ma_taxable_income_part_a' type='double' subtype='' access='rw' input='' default_value='0' comment='MA Part A taxable income (regular income)'></field>
+		<field name='ma_taxable_income_part_b' type='double' subtype='' access='rw' input='' default_value='0' comment='MA Part B taxable income (STCG)'></field>
+		<field name='ma_tax_part_a' type='double' subtype='' access='rw' input='' default_value='0' comment='MA Part A tax (5%)'></field>
+		<field name='ma_tax_part_b' type='double' subtype='' access='rw' input='' default_value='0' comment='MA Part B tax (8.5%)'></field>
+		<field name='ma_surtax' type='double' subtype='' access='rw' input='' default_value='0' comment='MA surtax (4% on income over $1M)'></field>
+		<field name='ma_total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total MA state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
