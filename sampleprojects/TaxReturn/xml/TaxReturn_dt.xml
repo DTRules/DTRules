@@ -173,6 +173,18 @@ Calculate_Credits
 </action_details>
 <action_details>
 <action_number>11</action_number>
+<action_comment>Calculate state income tax (if applicable)</action_comment>
+<action_description>Calculate_State_Tax</action_description>
+<action_postfix>
+job.has_state_income_tax { Calculate_State_Tax } if
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>12</action_number>
 <action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
 <action_description>Calculate_Final_Balance</action_description>
 <action_postfix>
@@ -8666,4 +8678,193 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 </actions>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 40000: Calculate_State_Tax - State Tax Dispatcher              -->
+<!-- Reference: State tax forms (varies by state)                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_State_Tax</table_name>
+<xls_file>StateTax.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Dispatcher table that routes to state-specific tax calculation based on job.state. Only processes states with income tax (job.has_state_income_tax == true).</COMMENTS>
+<TABLE_NUMBER>40000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log state tax calculation start</action_description>
+<action_postfix>
+"State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Colorado</condition_comment>
+<condition_description>job.state is equal to "CO"</condition_description>
+<condition_postfix>
+job.state CO streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>No state income tax</condition_comment>
+<condition_description>job.has_state_income_tax is false</condition_description>
+<condition_postfix>
+job.has_state_income_tax false beq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Other states (not yet implemented)</condition_comment>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="3" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Colorado state tax</action_comment>
+<action_description>Calculate_CO_Tax</action_description>
+<action_postfix>
+Calculate_CO_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Log no state income tax</action_comment>
+<action_description>add "No state income tax" to job.audit_trail</action_description>
+<action_postfix>
+"  State has no income tax" job.audit_trail swap addto
+0 /result.state_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Log state not implemented</action_comment>
+<action_description>add "State tax calculation not yet implemented" to job.audit_trail</action_description>
+<action_postfix>
+"  State tax calculation not yet implemented for state: " job.state strconcat job.audit_trail swap addto
+0 /result.state_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Colorado state income tax per Form 104</policy_description>
+<policy_statement_postfix>"Calculate Colorado state income tax per Form 104"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>State has no income tax</policy_description>
+<policy_statement_postfix>"State has no income tax"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>State tax calculation not implemented</policy_description>
+<policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 41000: Calculate_CO_Tax - Colorado State Income Tax            -->
+<!-- Reference: Colorado Form 104 (2025)                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CO_Tax</table_name>
+<xls_file>StateTax.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Colorado state income tax per Form 104. Starts with federal taxable income, applies state-specific additions (state refunds) and subtractions (capital gains deduction), then applies flat 4.40% rate.</COMMENTS>
+<TABLE_NUMBER>41000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log Colorado tax calculation start</action_description>
+<action_postfix>
+"Colorado Form 104 - State Income Tax Calculation" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has long-term capital gains</condition_comment>
+<condition_description>result.total_long_term_gains &gt; 0</condition_description>
+<condition_postfix>
+result.total_long_term_gains 0 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Start with federal taxable income</action_comment>
+<action_description>set result.co_federal_taxable_income to result.taxable_income</action_description>
+<action_postfix>
+result.taxable_income /result.co_federal_taxable_income xdef
+"  Starting Federal Taxable Income: $" result.co_federal_taxable_income cvs strconcat " (Form 1040 Line 15)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate capital gains subtraction (39% of LTCG)</action_comment>
+<action_description>multiply result.total_long_term_gains by co_capital_gains_deduction_rate</action_description>
+<action_postfix>
+result.total_long_term_gains co_capital_gains_deduction_rate * /result.co_capital_gains_subtraction xdef
+"  Capital Gains Subtraction: $" result.co_capital_gains_subtraction cvs strconcat " (39% of $" strconcat result.total_long_term_gains cvs strconcat " LTCG)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate Colorado taxable income</action_comment>
+<action_description>calculate state taxable income with additions and subtractions</action_description>
+<action_postfix>
+result.co_federal_taxable_income result.co_state_refund_addition + result.co_capital_gains_subtraction - /result.state_taxable_income xdef
+result.state_taxable_income 0 max /result.state_taxable_income xdef
+"  Colorado Taxable Income: $" result.state_taxable_income cvs strconcat " (Form 104 Line 6)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Apply 4.40% Colorado tax rate</action_comment>
+<action_description>multiply result.state_taxable_income by co_tax_rate</action_description>
+<action_postfix>
+result.state_taxable_income co_tax_rate * /result.state_tax xdef
+result.state_tax 0 max /result.state_tax xdef
+"  Colorado Tax (4.40%): $" result.state_tax cvs strconcat " (Form 104 Line 7)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Colorado tax with capital gains deduction</policy_description>
+<policy_statement_postfix>"Colorado state tax calculated with 39% capital gains subtraction per Form 104"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Colorado tax without capital gains</policy_description>
+<policy_statement_postfix>"Colorado state tax calculated at 4.40% flat rate per Form 104"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>

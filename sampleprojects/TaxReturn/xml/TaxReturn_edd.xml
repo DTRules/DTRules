@@ -954,6 +954,10 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
+
+		<!-- Colorado State Tax Constants (2025) -->
+		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='Colorado flat income tax rate 4.40% (2025)'></field>
+		<field name='co_capital_gains_deduction_rate' type='double' subtype='' access='r' input='' default_value='0.39' comment='Colorado capital gains deduction 39% (2025)'></field>
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1406,6 +1410,13 @@
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
 		<field name='total_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total payments and credits (Form 1040 Line 33)'></field>
 		<field name='refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='Refund (positive) or amount owed (negative)'></field>
+
+		<!-- State Tax -->
+		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income'></field>
+		<field name='state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='State income tax liability'></field>
+		<field name='co_federal_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Colorado starting federal taxable income'></field>
+		<field name='co_state_refund_addition' type='double' subtype='' access='rw' input='' default_value='0' comment='Colorado state refund addition'></field>
+		<field name='co_capital_gains_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='Colorado capital gains subtraction (39% of LTCG)'></field>
 
 		<!-- EITC -->
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
