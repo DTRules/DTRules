@@ -183,6 +183,20 @@ Calculate_Final_Balance
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+<action_details>
+<action_number>12</action_number>
+<action_comment>Calculate state income tax if applicable</action_comment>
+<action_description>Dispatch_State_Tax</action_description>
+<action_postfix>
+job.has_state_income_tax if
+  Dispatch_State_Tax
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
@@ -8664,6 +8678,155 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
+</decision_table>
+
+
+<!-- ====================================================================== -->
+<!-- TABLE 40000: Dispatch_State_Tax - State Tax Dispatcher               -->
+<!-- Reference: State-specific income tax forms                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Dispatch_State_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Dispatches to state-specific tax calculation based on job.state. Only calculates if job.has_state_income_tax is true.</COMMENTS>
+<TABLE_NUMBER>40000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log state tax calculation start</action_description>
+<action_postfix>
+"State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Pennsylvania state</condition_comment>
+<condition_description>job.state is equal to "PA"</condition_description>
+<condition_postfix>
+job.state PA streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Pennsylvania state tax</action_comment>
+<action_description>Calculate_PA_Tax</action_description>
+<action_postfix>
+Calculate_PA_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>State tax calculation not implemented</action_comment>
+<action_description>log "State tax calculation not implemented for this state"</action_description>
+<action_postfix>
+"  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Pennsylvania state income tax</policy_description>
+<policy_statement_postfix>"Calculate Pennsylvania state income tax per Form PA-40"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>State tax not implemented</policy_description>
+<policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 41500: Calculate_PA_Tax - Pennsylvania State Income Tax         -->
+<!-- Reference: Pennsylvania Form PA-40 (2025)                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_PA_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Pennsylvania state income tax per Form PA-40. PA uses a flat tax rate of 3.07% (2025) applied to 8 income classes. Unlike most states, PA does not start with federal AGI. PA fully excludes retirement income (pension, IRA distributions, Social Security). No deductions or exemptions.</COMMENTS>
+<TABLE_NUMBER>41500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize PA tax calculation</action_description>
+<action_postfix>
+"PENNSYLVANIA FORM PA-40 - State Income Tax Calculation" job.audit_trail swap addto
+"  PA applies 3.07% flat tax to 8 income classes" job.audit_trail swap addto
+0 /result.pa_total_income xdef
+0 /result.pa_retirement_exclusion xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute</condition_comment>
+<condition_description>Perform PA tax calculation</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate PA tax on 8 income classes</action_comment>
+<action_description>Calculate PA taxable income from 8 classes, exclude retirement, apply 3.07%</action_description>
+<action_postfix>
+0 /result.pa_taxable_compensation xdef
+0 /result.pa_taxable_interest xdef
+0 /result.pa_taxable_dividends xdef
+0 /result.pa_taxable_net_profits xdef
+0 /result.pa_taxable_net_gains xdef
+0 /result.pa_taxable_rents xdef
+0 /result.pa_taxable_royalties xdef
+0 /result.pa_taxable_estates xdef
+{ dup type income_type > income_type "wages" streq income_type "w2" streq or if dup gross_amount result.pa_taxable_compensation f+ /result.pa_taxable_compensation xdef endif } job.incomes forall
+{ dup type income_type > income_type "interest" streq if dup gross_amount result.pa_taxable_interest f+ /result.pa_taxable_interest xdef endif } job.incomes forall
+{ dup type income_type > income_type "dividend" streq income_type "qualified_dividend" streq or if dup gross_amount result.pa_taxable_dividends f+ /result.pa_taxable_dividends xdef endif } job.incomes forall
+result.total_se_income 0 fmax /result.pa_taxable_net_profits xdef
+result.total_long_term_gains result.total_short_term_gains f+ 0 fmax /result.pa_taxable_net_gains xdef
+result.total_rental_income 0 fmax /result.pa_taxable_rents xdef
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if dup gross_amount result.pa_retirement_exclusion f+ /result.pa_retirement_exclusion xdef endif } job.incomes forall
+result.pa_retirement_exclusion 0 f> if
+  "  PA Retirement Income Exclusion: -$" result.pa_retirement_exclusion cvs strconcat " (pension, IRA, SS fully excluded)" strconcat job.audit_trail swap addto
+endif
+"  Class 1 - Compensation (wages, salaries, tips): $" result.pa_taxable_compensation cvs strconcat job.audit_trail swap addto
+"  Class 2 - Interest: $" result.pa_taxable_interest cvs strconcat job.audit_trail swap addto
+"  Class 3 - Dividends: $" result.pa_taxable_dividends cvs strconcat job.audit_trail swap addto
+"  Class 4 - Net Profits (business income): $" result.pa_taxable_net_profits cvs strconcat job.audit_trail swap addto
+"  Class 5 - Net Gains (capital gains): $" result.pa_taxable_net_gains cvs strconcat job.audit_trail swap addto
+"  Class 6 - Rents: $" result.pa_taxable_rents cvs strconcat job.audit_trail swap addto
+"  Class 7 - Royalties: $" result.pa_taxable_royalties cvs strconcat job.audit_trail swap addto
+"  Class 8 - Estates and Trusts: $" result.pa_taxable_estates cvs strconcat job.audit_trail swap addto
+result.pa_taxable_compensation result.pa_taxable_interest f+ result.pa_taxable_dividends f+ result.pa_taxable_net_profits f+ result.pa_taxable_net_gains f+ result.pa_taxable_rents f+ result.pa_taxable_royalties f+ result.pa_taxable_estates f+ /result.pa_total_income xdef
+"  Total PA Taxable Income (8 classes): $" result.pa_total_income cvs strconcat " (Form PA-40 Line 8)" strconcat job.audit_trail swap addto
+result.pa_total_income pa_tax_rate f* /result.pa_tax xdef
+"  Pennsylvania Tax (3.07%): $" result.pa_tax cvs strconcat " (Form PA-40 Line 17)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Pennsylvania flat tax 3.07% on 8 income classes</policy_description>
+<policy_statement_postfix>"Pennsylvania flat tax 3.07% on 8 income classes per Form PA-40, excludes retirement income"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 </decision_tables>
