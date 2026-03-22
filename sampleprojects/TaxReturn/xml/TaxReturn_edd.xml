@@ -953,11 +953,20 @@
 		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='626350' comment='35% bracket ceiling Single (2025)'></field>
 
 		<!-- States without income tax -->
-		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
 
 		<!-- Illinois State Tax Constants (2025) -->
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
+
+		<!-- New Hampshire State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='nh_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NH standard deduction Single (2025)'></field>
+		<field name='nh_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16000' comment='NH standard deduction MFJ (2025)'></field>
+		<field name='nh_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0300' comment='NH tax rate bracket 1 (3.0%)'></field>
+		<field name='nh_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0500' comment='NH tax rate bracket 2 (5.0%)'></field>
+		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
+		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
+		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
@@ -1420,6 +1429,15 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- New Hampshire State Tax Results -->
+		<field name='nh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire AGI (federal AGI + adjustments)'></field>
+		<field name='nh_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NH standard deduction amount'></field>
+		<field name='nh_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire taxable income'></field>
+		<field name='nh_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 1 tax (3%)'></field>
+		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
+		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
+		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
