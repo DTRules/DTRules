@@ -1166,6 +1166,19 @@
 
 		<!-- Net Operating Loss -->
 		<field name='nol_limitation_rate' type='double' subtype='' access='r' input='' default_value='0.80' comment='NOL limited to 80% of taxable income'></field>
+
+		<!-- Virginia State Tax (2025) -->
+		<field name='va_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.02' comment='Virginia 2% tax rate'></field>
+		<field name='va_bracket_1_ceiling' type='double' subtype='' access='r' input='' default_value='3000' comment='Virginia 2% bracket ceiling'></field>
+		<field name='va_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.03' comment='Virginia 3% tax rate'></field>
+		<field name='va_bracket_2_ceiling' type='double' subtype='' access='r' input='' default_value='5000' comment='Virginia 3% bracket ceiling'></field>
+		<field name='va_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.05' comment='Virginia 5% tax rate'></field>
+		<field name='va_bracket_3_ceiling' type='double' subtype='' access='r' input='' default_value='17000' comment='Virginia 5% bracket ceiling'></field>
+		<field name='va_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0575' comment='Virginia 5.75% tax rate'></field>
+		<field name='va_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8750' comment='Virginia standard deduction Single (2025)'></field>
+		<field name='va_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='17500' comment='Virginia standard deduction MFJ (2025)'></field>
+		<field name='va_personal_exemption' type='double' subtype='' access='r' input='' default_value='930' comment='Virginia personal exemption (2025)'></field>
+		<field name='va_personal_exemption_senior' type='double' subtype='' access='r' input='' default_value='800' comment='Virginia additional exemption for age 65+ or blind (2025)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -1406,6 +1419,12 @@
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
 		<field name='total_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total payments and credits (Form 1040 Line 33)'></field>
 		<field name='refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='Refund (positive) or amount owed (negative)'></field>
+
+		<!-- State Tax -->
+		<field name='va_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia state income tax (TABLE 45200)'></field>
+		<field name='va_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia taxable income after deductions and exemptions'></field>
+		<field name='va_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia standard deduction or itemized deduction'></field>
+		<field name='va_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Virginia personal exemptions'></field>
 
 		<!-- EITC -->
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>

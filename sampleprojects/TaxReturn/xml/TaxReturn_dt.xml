@@ -173,6 +173,18 @@ Calculate_Credits
 </action_details>
 <action_details>
 <action_number>11</action_number>
+<action_comment>Calculate state tax (Virginia)</action_comment>
+<action_description>Calculate_VA_Tax</action_description>
+<action_postfix>
+Calculate_VA_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>12</action_number>
 <action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
 <action_description>Calculate_Final_Balance</action_description>
 <action_postfix>
@@ -2888,6 +2900,7 @@ result.total_actc result.total_payments f+ /result.total_payments xdef
 "  Line 19 - CTC (non-refundable): $" result.ctc_used cvs strconcat job.audit_trail swap addto
 "  Line 27 - EITC: $" result.eitc cvs strconcat job.audit_trail swap addto
 "  Line 28 - ACTC (refundable): $" result.total_actc cvs strconcat job.audit_trail swap addto
+Calculate_VA_Tax
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -8664,6 +8677,195 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 45200: Calculate_VA_Tax - Virginia State Income Tax             -->
+<!-- Reference: Virginia Tax Code, 2025 Tax Brackets                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_VA_Tax</table_name>
+<xls_file>Other.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Virginia state income tax using progressive brackets (2%, 3%, 5%, 5.75%). Virginia taxable income = Federal AGI - Virginia standard deduction - Virginia personal exemptions. Virginia requires itemized deductions if used federally.</COMMENTS>
+<TABLE_NUMBER>45200</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Virginia tax calculation</action_description>
+<action_postfix>
+0.0 /result.va_state_tax xdef
+0.0 /result.va_taxable_income xdef
+0.0 /result.va_deduction xdef
+0.0 /result.va_exemptions xdef
+"Virginia State Tax Calculation (TABLE 45200)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Not a Virginia resident</condition_comment>
+<condition_description>job.state is not "VA"</condition_description>
+<condition_postfix>
+job.state "VA" streq not
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Virginia taxable income at or below $3,000</condition_comment>
+<condition_description>va_taxable_income &lt;= 3000</condition_description>
+<condition_postfix>
+result.va_taxable_income va_bracket_1_ceiling &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Virginia taxable income at or below $5,000</condition_comment>
+<condition_description>va_taxable_income &lt;= 5000</condition_description>
+<condition_postfix>
+result.va_taxable_income va_bracket_2_ceiling &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Virginia taxable income at or below $17,000</condition_comment>
+<condition_description>va_taxable_income &lt;= 17000</condition_description>
+<condition_postfix>
+result.va_taxable_income va_bracket_3_ceiling &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No Virginia tax (not a VA resident)</action_comment>
+<action_description>set result.va_state_tax = 0</action_description>
+<action_postfix>
+0.0 /result.va_state_tax xdef
+"  Not a Virginia resident - no VA state tax" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate VA deductions and exemptions</action_comment>
+<action_description>Calculate Virginia deduction and exemptions based on filing status</action_description>
+<action_postfix>
+job.filing_status MFJ streq job.filing_status QSS streq or {
+  va_standard_deduction_mfj /result.va_deduction xdef
+} {
+  va_standard_deduction_single /result.va_deduction xdef
+} ifelse
+result.deduction_used "itemized" streq {
+  result.total_itemized /result.va_deduction xdef
+} if
+va_personal_exemption job.taxpayers length i* /result.va_exemptions xdef
+result.agi result.va_deduction f- result.va_exemptions f- 0 fmax /result.va_taxable_income xdef
+"  Virginia AGI (same as Federal AGI): $" result.agi cvs strconcat job.audit_trail swap addto
+"  Virginia Deduction: $" result.va_deduction cvs strconcat job.audit_trail swap addto
+"  Virginia Personal Exemptions: $" result.va_exemptions cvs strconcat job.audit_trail swap addto
+"  Virginia Taxable Income: $" result.va_taxable_income cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 1: 2% on income up to $3,000</action_comment>
+<action_description>set result.va_state_tax = va_taxable_income * 0.02</action_description>
+<action_postfix>
+result.va_taxable_income va_bracket_1_rate f* /result.va_state_tax xdef
+"  VA Tax (2% on $" result.va_taxable_income cvs strconcat "): $" strconcat result.va_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 2: 2% on $3,000 + 3% on excess to $5,000</action_comment>
+<action_description>set result.va_state_tax = (3000 * 0.02) + ((va_taxable_income - 3000) * 0.03)</action_description>
+<action_postfix>
+va_bracket_1_ceiling va_bracket_1_rate f*
+result.va_taxable_income va_bracket_1_ceiling f- va_bracket_2_rate f* f+
+/result.va_state_tax xdef
+"  VA Tax (2% on $3,000 + 3% on $" result.va_taxable_income va_bracket_1_ceiling f- cvs strconcat "): $" strconcat result.va_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 3: 2% + 3% + 5% on excess to $17,000</action_comment>
+<action_description>set result.va_state_tax = $60 + $60 + ((va_taxable_income - 5000) * 0.05)</action_description>
+<action_postfix>
+va_bracket_1_ceiling va_bracket_1_rate f*
+va_bracket_2_ceiling va_bracket_1_ceiling f- va_bracket_2_rate f* f+
+result.va_taxable_income va_bracket_2_ceiling f- va_bracket_3_rate f* f+
+/result.va_state_tax xdef
+"  VA Tax (2% + 3% + 5% on $" result.va_taxable_income va_bracket_2_ceiling f- cvs strconcat "): $" strconcat result.va_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 4: Full progressive calculation with 5.75% on excess over $17,000</action_comment>
+<action_description>set result.va_state_tax = $60 + $60 + $600 + ((va_taxable_income - 17000) * 0.0575)</action_description>
+<action_postfix>
+va_bracket_1_ceiling va_bracket_1_rate f*
+va_bracket_2_ceiling va_bracket_1_ceiling f- va_bracket_2_rate f* f+
+va_bracket_3_ceiling va_bracket_2_ceiling f- va_bracket_3_rate f* f+
+result.va_taxable_income va_bracket_3_ceiling f- va_bracket_4_rate f* f+
+/result.va_state_tax xdef
+"  VA Tax (2% + 3% + 5% + 5.75% on $" result.va_taxable_income va_bracket_3_ceiling f- cvs strconcat "): $" strconcat result.va_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Not a Virginia resident - no state income tax</policy_description>
+<policy_statement_postfix>"Not a Virginia resident - no state income tax"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Virginia tax calculated - 2% bracket</policy_description>
+<policy_statement_postfix>"Virginia tax calculated using 2% bracket (TABLE 45200)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Virginia tax calculated - up to 3% bracket</policy_description>
+<policy_statement_postfix>"Virginia tax calculated using 2% and 3% brackets (TABLE 45200)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Virginia tax calculated - up to 5% bracket</policy_description>
+<policy_statement_postfix>"Virginia tax calculated using 2%, 3%, and 5% brackets (TABLE 45200)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Virginia tax calculated - all brackets including 5.75%</policy_description>
+<policy_statement_postfix>"Virginia tax calculated using all progressive brackets up to 5.75% (TABLE 45200)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 </decision_tables>
