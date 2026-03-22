@@ -959,6 +959,21 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- Vermont State Tax Constants (2025) -->
+		<field name='vt_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.0335' comment='Vermont tax rate bracket 1 (3.35%)'></field>
+		<field name='vt_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.0660' comment='Vermont tax rate bracket 2 (6.60%)'></field>
+		<field name='vt_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.0760' comment='Vermont tax rate bracket 3 (7.60%)'></field>
+		<field name='vt_tax_rate_4' type='double' subtype='' access='r' input='' default_value='0.0875' comment='Vermont tax rate bracket 4 (8.75%)'></field>
+		<field name='vt_bracket_1_single' type='double' subtype='' access='r' input='' default_value='45400' comment='VT bracket 1 ceiling Single (2025)'></field>
+		<field name='vt_bracket_2_single' type='double' subtype='' access='r' input='' default_value='110050' comment='VT bracket 2 ceiling Single (2025)'></field>
+		<field name='vt_bracket_3_single' type='double' subtype='' access='r' input='' default_value='229450' comment='VT bracket 3 ceiling Single (2025)'></field>
+		<field name='vt_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='75850' comment='VT bracket 1 ceiling MFJ (2025)'></field>
+		<field name='vt_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='183400' comment='VT bracket 2 ceiling MFJ (2025)'></field>
+		<field name='vt_bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='279450' comment='VT bracket 3 ceiling MFJ (2025)'></field>
+		<field name='vt_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='7100' comment='VT standard deduction Single (2025)'></field>
+		<field name='vt_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='14200' comment='VT standard deduction MFJ (2025)'></field>
+		<field name='vt_personal_exemption' type='double' subtype='' access='r' input='' default_value='5000' comment='Vermont personal exemption per person (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1420,6 +1435,13 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- Vermont State Tax -->
+		<field name='vt_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Vermont AGI (federal AGI + adjustments)'></field>
+		<field name='vt_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Vermont standard deduction'></field>
+		<field name='vt_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total VT personal exemptions'></field>
+		<field name='vt_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Vermont taxable income'></field>
+		<field name='vt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Vermont state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
