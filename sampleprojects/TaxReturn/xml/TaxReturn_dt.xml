@@ -8713,6 +8713,7 @@ job.state IL streq
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -8724,6 +8725,19 @@ job.state NH streq
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Georgia state</condition_comment>
+<condition_description>job.state is equal to "GA"</condition_description>
+<condition_postfix>
+job.state GA streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8747,12 +8761,21 @@ Calculate_NH_Tax
 </action_details>
 <action_details>
 <action_number>3</action_number>
+<action_comment>Calculate Georgia state tax</action_comment>
+<action_description>Calculate_GA_Tax</action_description>
+<action_postfix>
+Calculate_GA_Tax
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
 "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8765,6 +8788,10 @@ Calculate_NH_Tax
 <policy_statement_postfix>"Calculate New Hampshire state income tax per Form NH-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
+<policy_description>Calculate Georgia state income tax</policy_description>
+<policy_statement_postfix>"Calculate Georgia state income tax per Form 500"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
@@ -8969,6 +8996,84 @@ result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /r
 <policy_statement column="2">
 <policy_description>NH progressive tax Single with standard deduction</policy_description>
 <policy_statement_postfix>"New Hampshire progressive tax for Single per Form NH-1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 45000: Calculate_GA_Tax - Georgia State Income Tax             -->
+<!-- Reference: Georgia Form 500 (2025)                                    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_GA_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Georgia state income tax per Form 500. Georgia uses a flat tax rate of 5.19% (2025) with standard deductions of $12,000 (Single) or $24,000 (MFJ). Starting with federal AGI, applies standard deduction based on filing status, and calculates tax at flat rate.</COMMENTS>
+<TABLE_NUMBER>45000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize GA tax calculation</action_description>
+<action_postfix>
+"GEORGIA FORM 500 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ga_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>Filing status is MFJ</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate GA tax for MFJ</action_comment>
+<action_description>Apply MFJ standard deduction ($24,000) and calculate tax at 5.19%</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.ga_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ga_standard_deduction_mfj /result.ga_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.ga_standard_deduction cvs strconcat " (Form 500 Line 9)" strconcat job.audit_trail swap addto
+result.ga_agi result.ga_standard_deduction f- 0 fmax /result.ga_taxable_income xdef
+"  Georgia Taxable Income: $" result.ga_taxable_income cvs strconcat " (AGI - Standard Deduction)" strconcat job.audit_trail swap addto
+result.ga_taxable_income ga_tax_rate f* /result.ga_tax xdef
+"  Georgia Tax (5.19%): $" result.ga_tax cvs strconcat " (Form 500 Line 16)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate GA tax for Single/HOH</action_comment>
+<action_description>Apply Single/HOH standard deduction ($12,000) and calculate tax at 5.19%</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.ga_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ga_standard_deduction_single /result.ga_standard_deduction xdef
+"  Standard Deduction (Single/HOH): $" result.ga_standard_deduction cvs strconcat " (Form 500 Line 9)" strconcat job.audit_trail swap addto
+result.ga_agi result.ga_standard_deduction f- 0 fmax /result.ga_taxable_income xdef
+"  Georgia Taxable Income: $" result.ga_taxable_income cvs strconcat " (AGI - Standard Deduction)" strconcat job.audit_trail swap addto
+result.ga_taxable_income ga_tax_rate f* /result.ga_tax xdef
+"  Georgia Tax (5.19%): $" result.ga_tax cvs strconcat " (Form 500 Line 16)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Georgia flat tax 5.19% for MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"Georgia flat tax 5.19% for Married Filing Jointly per Form 500"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Georgia flat tax 5.19% for Single/HOH with standard deduction</policy_description>
+<policy_statement_postfix>"Georgia flat tax 5.19% for Single or Head of Household per Form 500"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

@@ -968,6 +968,12 @@
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+		<!-- Georgia State Tax Constants (2025) -->
+		<field name='ga_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0519' comment='Georgia flat tax rate (5.19%)'></field>
+		<field name='ga_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='12000' comment='GA standard deduction Single (2025)'></field>
+		<field name='ga_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='24000' comment='GA standard deduction MFJ (2025)'></field>
+		<field name='ga_dependent_exemption' type='double' subtype='' access='r' input='' default_value='4000' comment='GA dependent exemption per dependent (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1438,6 +1444,13 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- Georgia State Tax Results -->
+		<field name='ga_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia AGI (federal AGI + adjustments)'></field>
+		<field name='ga_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='GA standard deduction amount'></field>
+		<field name='ga_dependent_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='GA total dependent exemptions'></field>
+		<field name='ga_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia taxable income'></field>
+		<field name='ga_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
