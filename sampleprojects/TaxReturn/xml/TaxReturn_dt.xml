@@ -160,9 +160,20 @@ Calculate_AMT
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
+<action_number>9a</action_number>
+<action_comment>Calculate state income tax if WV</action_comment>
+<action_description>Calculate_WV_Tax if job.state = "WV"</action_description>
+<action_postfix>
+"WV" job.state cv beq { Calculate_WV_Tax } if
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
 <action_number>10</action_number>
 <action_comment>Calculate credits (Form 1040 Lines 19-21)</action_comment>
-<action_description>Calculate_Credits</action_description>
 <action_postfix>
 Calculate_Credits
 </action_postfix>
@@ -1331,7 +1342,7 @@ Calculate_Charitable_Deduction
 0.0 allocate
 { Sum_Primary_Residence_Tax performaliased } job.properties forall
 { Sum_SALT_Deduction performaliased } job.deductions forall
-0 local@ cve deallocate pop
+wv_taxable_income cve deallocate pop
 </context_postfix>
 </context_details>
 </contexts>
@@ -1354,7 +1365,7 @@ job.has_state_income_tax true beq
 <condition_comment>Total SALT exceeds cap</condition_comment>
 <condition_description>salt_total &gt; salt_cap</condition_description>
 <condition_postfix>
-0 local@ salt_cap >
+wv_taxable_income salt_cap >
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -1370,7 +1381,7 @@ job.has_state_income_tax true beq
 <action_postfix>
 "  State and Local Taxes (SALT):" job.audit_trail swap addto
 "    State Income Tax: (applicable)" job.audit_trail swap addto
-"    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
+"    Real Estate Taxes: $" wv_taxable_income cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
 "    Total SALT LIMITED TO $" salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
 salt_cap /result.salt_deduction xdef
 salt_cap result.total_itemized f+ /result.total_itemized xdef
@@ -1383,7 +1394,7 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <action_description>set result.salt_deduction = salt_cap</action_description>
 <action_postfix>
 "  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
-"    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
+"    Real Estate Taxes: $" wv_taxable_income cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
 "    Total SALT LIMITED TO $" salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
 salt_cap /result.salt_deduction xdef
 salt_cap result.total_itemized f+ /result.total_itemized xdef
@@ -1396,9 +1407,9 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <action_description>set result.salt_deduction = salt_total</action_description>
 <action_postfix>
 "  State and Local Taxes (SALT):" job.audit_trail swap addto
-"    Total SALT: $" 0 local@ cvs strconcat " (under $" strconcat salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
-0 local@ /result.salt_deduction xdef
-0 local@ result.total_itemized f+ /result.total_itemized xdef
+"    Total SALT: $" wv_taxable_income cvs strconcat " (under $" strconcat salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
+wv_taxable_income /result.salt_deduction xdef
+wv_taxable_income result.total_itemized f+ /result.total_itemized xdef
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -1408,9 +1419,9 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <action_description>set result.salt_deduction = property_tax_total</action_description>
 <action_postfix>
 "  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
-"    Property Taxes: $" 0 local@ cvs strconcat " (under $" strconcat salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
-0 local@ /result.salt_deduction xdef
-0 local@ result.total_itemized f+ /result.total_itemized xdef
+"    Property Taxes: $" wv_taxable_income cvs strconcat " (under $" strconcat salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
+wv_taxable_income /result.salt_deduction xdef
+wv_taxable_income result.total_itemized f+ /result.total_itemized xdef
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
@@ -1459,7 +1470,7 @@ type "primary_residence" streq
 <action_comment>Add property tax to total</action_comment>
 <action_description>add property.property_taxes to salt_total</action_description>
 <action_postfix>
-property_taxes 0 local@ f+ 0 local!
+property_taxes wv_taxable_income f+ 0 local!
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -1507,7 +1518,7 @@ category "state_income_tax" streq category "local_tax" streq or
 <action_comment>Add SALT deduction to total</action_comment>
 <action_description>add taxpayer.state_tax_paid to salt_total</action_description>
 <action_postfix>
-amount 0 local@ f+ 0 local!
+amount wv_taxable_income f+ 0 local!
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -3007,7 +3018,7 @@ result.total_tax result.total_payments f- /result.refund_or_owed xdef
 <action_postfix>
 0 allocate
 { Count_EITC_Qualifying_Child performaliased } job.dependents forall
-0 local@ /result.eitc_qualifying_children xdef
+wv_taxable_income /result.eitc_qualifying_children xdef
 deallocate pop
 </action_postfix>
 </initial_action>
@@ -3947,7 +3958,7 @@ relationship "child" streq age 19 &lt; and
 <action_comment>Increment counter</action_comment>
 <action_description>increment qualifying children count</action_description>
 <action_postfix>
-0 local@ 1 + 0 local!
+wv_taxable_income 1 + 0 local!
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -4817,9 +4828,9 @@ income.gross_amount result.total_qualified_dividends f+ /result.total_qualified_
 <action_description>set result.preferential_rate_income = result.total_long_term_gains + result.qualified_dividends</action_description>
 <action_postfix>
 result.total_long_term_gains result.total_qualified_dividends f+ allocate
-result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
+result.taxable_income wv_taxable_income f- /result.ordinary_income_for_cg xdef
 "CAPITAL GAINS TAX (Schedule D Tax Worksheet)" job.audit_trail swap addto
-"  Preferential Income (LTCG + QD): $" 0 local@ cvs strconcat job.audit_trail swap addto
+"  Preferential Income (LTCG + QD): $" wv_taxable_income cvs strconcat job.audit_trail swap addto
 "  Ordinary Income for CG Brackets: $" result.ordinary_income_for_cg cvs strconcat job.audit_trail swap addto
 </action_postfix>
 </initial_action>
@@ -5520,7 +5531,7 @@ taxpayer.traditional_ira_contribution ira_contribution_limit fmin result.ira_ded
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit ira_catchup_limit f+ fmin /ira_max allocate
 result.agi ira_phaseout_start_mfj f- ira_phaseout_end_mfj ira_phaseout_start_mfj f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
-ira_max 0 local@ 1 phaseout_pct 0 local@ f- f* result.ira_deduction f+ /result.ira_deduction xdef
+ira_max wv_taxable_income 1 phaseout_pct wv_taxable_income f- f* result.ira_deduction f+ /result.ira_deduction xdef
 "  IRA Deduction for " taxpayer.name strconcat ": $" strconcat result.ira_deduction cvs strconcat " (MFJ phase-out with catchup)" strconcat job.audit_trail swap addto
 deallocate pop deallocate pop
 </action_postfix>
@@ -5533,7 +5544,7 @@ deallocate pop deallocate pop
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit fmin /ira_max allocate
 result.agi ira_phaseout_start_mfj f- ira_phaseout_end_mfj ira_phaseout_start_mfj f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
-ira_max 0 local@ 1 phaseout_pct 0 local@ f- f* result.ira_deduction f+ /result.ira_deduction xdef
+ira_max wv_taxable_income 1 phaseout_pct wv_taxable_income f- f* result.ira_deduction f+ /result.ira_deduction xdef
 "  IRA Deduction for " taxpayer.name strconcat ": $" strconcat result.ira_deduction cvs strconcat " (MFJ phase-out)" strconcat job.audit_trail swap addto
 deallocate pop deallocate pop
 </action_postfix>
@@ -5546,7 +5557,7 @@ deallocate pop deallocate pop
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit ira_catchup_limit f+ fmin /ira_max allocate
 result.agi ira_phaseout_start_single f- ira_phaseout_end_single ira_phaseout_start_single f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
-ira_max 0 local@ 1 phaseout_pct 0 local@ f- f* result.ira_deduction f+ /result.ira_deduction xdef
+ira_max wv_taxable_income 1 phaseout_pct wv_taxable_income f- f* result.ira_deduction f+ /result.ira_deduction xdef
 "  IRA Deduction for " taxpayer.name strconcat ": $" strconcat result.ira_deduction cvs strconcat " (Single phase-out with catchup)" strconcat job.audit_trail swap addto
 deallocate pop deallocate pop
 </action_postfix>
@@ -5559,7 +5570,7 @@ deallocate pop deallocate pop
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit fmin /ira_max allocate
 result.agi ira_phaseout_start_single f- ira_phaseout_end_single ira_phaseout_start_single f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
-ira_max 0 local@ 1 phaseout_pct 0 local@ f- f* result.ira_deduction f+ /result.ira_deduction xdef
+ira_max wv_taxable_income 1 phaseout_pct wv_taxable_income f- f* result.ira_deduction f+ /result.ira_deduction xdef
 "  IRA Deduction for " taxpayer.name strconcat ": $" strconcat result.ira_deduction cvs strconcat " (Single phase-out)" strconcat job.audit_trail swap addto
 deallocate pop deallocate pop
 </action_postfix>
@@ -5844,7 +5855,7 @@ taxpayer.student_loan_interest_paid student_loan_max_deduction fmin result.stude
 <action_postfix>
 taxpayer.student_loan_interest_paid student_loan_max_deduction fmin /sl_max allocate
 result.agi student_loan_phaseout_start_mfj f- student_loan_phaseout_end_mfj student_loan_phaseout_start_mfj f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
-sl_max 0 local@ 1 phaseout_pct 0 local@ f- f* result.student_loan_deduction f+ /result.student_loan_deduction xdef
+sl_max wv_taxable_income 1 phaseout_pct wv_taxable_income f- f* result.student_loan_deduction f+ /result.student_loan_deduction xdef
 "  Student Loan Interest for " taxpayer.name strconcat ": $" strconcat result.student_loan_deduction cvs strconcat " (MFJ phase-out applied)" strconcat job.audit_trail swap addto
 deallocate pop deallocate pop
 </action_postfix>
@@ -5857,7 +5868,7 @@ deallocate pop deallocate pop
 <action_postfix>
 taxpayer.student_loan_interest_paid student_loan_max_deduction fmin /sl_max allocate
 result.agi student_loan_phaseout_start_single f- student_loan_phaseout_end_single student_loan_phaseout_start_single f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
-sl_max 0 local@ 1 phaseout_pct 0 local@ f- f* result.student_loan_deduction f+ /result.student_loan_deduction xdef
+sl_max wv_taxable_income 1 phaseout_pct wv_taxable_income f- f* result.student_loan_deduction f+ /result.student_loan_deduction xdef
 "  Student Loan Interest for " taxpayer.name strconcat ": $" strconcat result.student_loan_deduction cvs strconcat " (Single phase-out applied)" strconcat job.audit_trail swap addto
 deallocate pop deallocate pop
 </action_postfix>
@@ -8666,4 +8677,148 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 </actions>
 </decision_table>
 
+<decision_table>
+<table_name>Calculate_WV_Tax</table_name>
+<xls_file>StateTaxes.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates West Virginia state income tax using 2025 progressive brackets (2.22%-4.82%). Uses personal exemptions ($2,000 per person + dependents + seniors 65+). Rates effective January 1, 2025 per SB 2033.</COMMENTS>
+<TABLE_NUMBER>45300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Calculate WV taxable income: Federal AGI - personal exemptions</action_description>
+<action_postfix>
+job.primary_taxpayer.age 65 &gt;= { 1 } { 0 } ifelse
+job.spouse_present { job.spouse.age 65 &gt;= { 1 } { 0 } ifelse } { 0 } ifelse
+add
+/wv_senior_count local xdef
+job.spouse_present { 2 } { 1 } ifelse
+job.num_dependents add
+wv_senior_count add
+wv_personal_exemption f*
+/wv_total_exemptions local xdef
+result.agi wv_total_exemptions f- 0 max
+/wv_taxable_income local xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>In bracket 1 only ($0-$10,000 @ 2.22%)</condition_comment>
+<condition_description>wv_taxable_income at or below wv_bracket_1</condition_description>
+<condition_postfix>
+wv_taxable_income wv_bracket_1 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>In bracket 2 ($10,001-$25,000 @ 2.96%)</condition_comment>
+<condition_description>wv_taxable_income at or below wv_bracket_2</condition_description>
+<condition_postfix>
+wv_taxable_income wv_bracket_2 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>In bracket 3 ($25,001-$40,000 @ 3.33%)</condition_comment>
+<condition_description>wv_taxable_income at or below wv_bracket_3</condition_description>
+<condition_postfix>
+wv_taxable_income wv_bracket_3 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>In bracket 4 ($40,001-$60,000 @ 4.44%)</condition_comment>
+<condition_description>wv_taxable_income at or below wv_bracket_4</condition_description>
+<condition_postfix>
+wv_taxable_income wv_bracket_4 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 1 tax: income × 2.22%</action_comment>
+<action_description>set result.wv_state_tax = wv_taxable_income × wv_rate_1</action_description>
+<action_postfix>
+wv_taxable_income wv_rate_1 f* /result.wv_state_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 2 tax</action_comment>
+<action_description>set result.wv_state_tax = $222 + (excess over $10,000) × 2.96%</action_description>
+<action_postfix>
+wv_bracket_1 wv_rate_1 f*
+wv_taxable_income wv_bracket_1 f- wv_rate_2 f* f+
+/result.wv_state_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 3 tax</action_comment>
+<action_description>set result.wv_state_tax = $666.40 + (excess over $25,000) × 3.33%</action_description>
+<action_postfix>
+wv_bracket_1 wv_rate_1 f*
+wv_bracket_2 wv_bracket_1 f- wv_rate_2 f* f+
+wv_taxable_income wv_bracket_2 f- wv_rate_3 f* f+
+/result.wv_state_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 4 tax</action_comment>
+<action_description>set result.wv_state_tax = $1,165.90 + (excess over $40,000) × 4.44%</action_description>
+<action_postfix>
+wv_bracket_1 wv_rate_1 f*
+wv_bracket_2 wv_bracket_1 f- wv_rate_2 f* f+
+wv_bracket_3 wv_bracket_2 f- wv_rate_3 f* f+
+wv_taxable_income wv_bracket_3 f- wv_rate_4 f* f+
+/result.wv_state_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5 tax (top bracket)</action_comment>
+<action_description>set result.wv_state_tax = $2,054.10 + (excess over $60,000) × 4.82%</action_description>
+<action_postfix>
+wv_bracket_1 wv_rate_1 f*
+wv_bracket_2 wv_bracket_1 f- wv_rate_2 f* f+
+wv_bracket_3 wv_bracket_2 f- wv_rate_3 f* f+
+wv_bracket_4 wv_bracket_3 f- wv_rate_4 f* f+
+wv_taxable_income wv_bracket_4 f- wv_rate_5 f* f+
+/result.wv_state_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
 </decision_tables>
