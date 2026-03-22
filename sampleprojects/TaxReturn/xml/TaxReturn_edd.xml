@@ -1445,6 +1445,12 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+		<field name='or_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Oregon AGI (federal AGI)'></field>
+		<field name='or_std_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Oregon standard deduction'></field>
+		<field name='or_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Oregon taxable income'></field>
+		<field name='or_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Oregon tax before credits'></field>
+		<field name='or_exemption_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Oregon personal exemption credits'></field>
+		<field name='or_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Oregon state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
