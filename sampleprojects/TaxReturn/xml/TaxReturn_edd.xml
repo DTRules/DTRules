@@ -954,6 +954,15 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
+		<!-- South Carolina State Tax Constants (2025) -->
+		<field name='sc_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='SC standard deduction Single (2025)'></field>
+		<field name='sc_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='SC standard deduction MFJ (2025)'></field>
+		<field name='sc_bracket_1' type='double' subtype='' access='r' input='' default_value='3560' comment='SC 0% bracket ceiling (2025)'></field>
+		<field name='sc_bracket_2' type='double' subtype='' access='r' input='' default_value='17830' comment='SC 3% bracket ceiling (2025)'></field>
+		<field name='sc_rate_1' type='double' subtype='' access='r' input='' default_value='0.00' comment='SC rate for income up to $3,560 (0%)'></field>
+		<field name='sc_rate_2' type='double' subtype='' access='r' input='' default_value='0.03' comment='SC rate for income $3,561-$17,830 (3%)'></field>
+		<field name='sc_rate_3' type='double' subtype='' access='r' input='' default_value='0.06' comment='SC rate for income above $17,830 (6%)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1265,6 +1274,8 @@
 		<!-- Tax Calculation -->
 		<field name='regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Regular tax (Form 1040 Line 16)'></field>
 		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (Schedule SE)'></field>
+		<field name='sc_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='South Carolina state income tax'></field>
+		<field name='sc_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='South Carolina taxable income'></field>
 		<!-- Alternative Minimum Tax (Form 6251) -->
 		<field name='amti' type='double' subtype='' access='rw' input='' default_value='0' comment='Alternative Minimum Taxable Income'></field>
 		<field name='amt_exemption' type='double' subtype='' access='rw' input='' default_value='0' comment='AMT exemption amount'></field>
