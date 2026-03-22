@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- ND Test Case 3: Single High-Income with all three brackets -->
+   <id>ND-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>ND</state>
+   <city>Grand Forks</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $300,000 -->
+   <!-- ND AGI: $300,000 -->
+   <!-- ND Standard Deduction: $15,750 (Single) -->
+   <!-- ND Taxable Income: $284,250 -->
+   <!-- Bracket 1 (0% on $0-$48,475): $0 -->
+   <!-- Bracket 2 (1.95% on $48,475-$244,825): ($244,825 - $48,475) × 1.95% = $3,828.83 -->
+   <!-- Bracket 3 (2.5% on $244,825-$284,250): ($284,250 - $244,825) × 2.5% = $985.63 -->
+   <!-- ND Tax: $0 + $3,828.83 + $985.63 = $4,814.46 -->
+   <expected_agi>300000</expected_agi>
+   <expected_nd_agi>300000</expected_nd_agi>
+   <expected_nd_taxable_income>284250</expected_nd_taxable_income>
+   <expected_nd_tax>4814.46</expected_nd_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Williams</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>2/14/1980</date_of_birth>
+         <occupation>CEO</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>300000</w2_wages>
+         <w2_withholding>65000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>300000</gross_amount>
+         <withholding>65000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
