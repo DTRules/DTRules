@@ -8712,6 +8712,18 @@ job.state IL streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Connecticut state</condition_comment>
+<condition_description>job.state is equal to "CT"</condition_description>
+<condition_postfix>
+job.state CT streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8726,12 +8738,21 @@ Calculate_IL_Tax
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_comment>Calculate Connecticut state tax</action_comment>
+<action_description>Calculate_CT_Tax</action_description>
+<action_postfix>
+Calculate_CT_Tax
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
 "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8740,6 +8761,10 @@ Calculate_IL_Tax
 <policy_statement_postfix>"Calculate Illinois state income tax per Form IL-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
+<policy_description>Calculate Connecticut state income tax</policy_description>
+<policy_statement_postfix>"Calculate Connecticut state income tax per Form CT-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
@@ -8827,6 +8852,590 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <policy_statement column="2">
 <policy_description>Illinois tax without exemptions</policy_description>
 <policy_statement_postfix>"Illinois tax calculated without exemptions"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42200: Calculate_CT_Tax - Connecticut State Income Tax         -->
+<!-- Reference: Connecticut Form CT-1040 (2025)                           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CT_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Connecticut state income tax per Form CT-1040. Connecticut uses progressive tax brackets ranging from 2% to 6.99% (2025) with personal tax credits. Starting with federal AGI, applies Connecticut-specific modifications, subtracts personal credit amounts, and calculates tax using bracket-specific tables based on filing status.</COMMENTS>
+<TABLE_NUMBER>42200</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize CT tax calculation</action_description>
+<action_postfix>
+"CONNECTICUT FORM CT-1040 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ct_agi xdef
+0 /result.ct_taxable_income xdef
+0 /result.ct_tax_before_credits xdef
+0 /result.ct_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Single filer</condition_comment>
+<condition_description>Filing status is Single</condition_description>
+<condition_postfix>
+job.filing_status Single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>Filing status is Married Filing Jointly</condition_description>
+<condition_postfix>
+job.filing_status MarriedFilingJointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate CT tax for Single filer</action_comment>
+<action_description>Calculate_CT_Tax_Single</action_description>
+<action_postfix>
+result.ct_agi ct_personal_credit_single - 0 max /result.ct_taxable_income xdef
+Calculate_CT_Tax_Single
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate CT tax for MFJ</action_comment>
+<action_description>Calculate_CT_Tax_MFJ</action_description>
+<action_postfix>
+result.ct_agi ct_personal_credit_mfj - 0 max /result.ct_taxable_income xdef
+Calculate_CT_Tax_MFJ
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Filing status not supported</action_comment>
+<action_description>log "Filing status not supported for CT"</action_description>
+<action_postfix>
+"  Connecticut tax calculation: Filing status not supported - " job.filing_status strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Connecticut tax for Single filer</policy_description>
+<policy_statement_postfix>"Connecticut progressive tax (2%-6.99%) with personal credit for Single filer per Form CT-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Calculate Connecticut tax for MFJ</policy_description>
+<policy_statement_postfix>"Connecticut progressive tax (2%-6.99%) with personal credit for MFJ per Form CT-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Filing status not supported</policy_description>
+<policy_statement_postfix>"Filing status not supported for Connecticut state tax"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42210: Calculate_CT_Tax_Single - CT Tax for Single Filers      -->
+<!-- Reference: Connecticut Form CT-1040 Tax Tables (2025)                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CT_Tax_Single</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Connecticut state income tax for Single filers using progressive brackets. Seven brackets: 2% (0-10k), 4.5% (10k-50k), 5.5% (50k-100k), 6% (100k-200k), 6.5% (200k-250k), 6.9% (250k-500k), 6.99% (over 500k).</COMMENTS>
+<TABLE_NUMBER>42210</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Bracket 1: $0-$10,000</condition_comment>
+<condition_description>Taxable income &lt;= $10,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_1_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Bracket 2: $10,001-$50,000</condition_comment>
+<condition_description>Taxable income &lt;= $50,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_2_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Bracket 3: $50,001-$100,000</condition_comment>
+<condition_description>Taxable income &lt;= $100,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_3_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Bracket 4: $100,001-$200,000</condition_comment>
+<condition_description>Taxable income &lt;= $200,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_4_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Bracket 5: $200,001-$250,000</condition_comment>
+<condition_description>Taxable income &lt;= $250,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_5_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Bracket 6: $250,001-$500,000</condition_comment>
+<condition_description>Taxable income &lt;= $500,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_6_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Tax for bracket 1 (2% rate)</action_comment>
+<action_description>Calculate tax at 2% rate</action_description>
+<action_postfix>
+result.ct_taxable_income ct_rate_1 * /result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 1): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Tax for bracket 2 (4.5% marginal)</action_comment>
+<action_description>Calculate tax at 2% and 4.5% rates</action_description>
+<action_postfix>
+ct_bracket_1_single ct_rate_1 *
+result.ct_taxable_income ct_bracket_1_single - ct_rate_2 *
++ /result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 2): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Tax for bracket 3 (5.5% marginal)</action_comment>
+<action_description>Calculate tax through bracket 3</action_description>
+<action_postfix>
+ct_bracket_1_single ct_rate_1 *
+ct_bracket_2_single ct_bracket_1_single - ct_rate_2 * +
+result.ct_taxable_income ct_bracket_2_single - ct_rate_3 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 3): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Tax for bracket 4 (6% marginal)</action_comment>
+<action_description>Calculate tax through bracket 4</action_description>
+<action_postfix>
+ct_bracket_1_single ct_rate_1 *
+ct_bracket_2_single ct_bracket_1_single - ct_rate_2 * +
+ct_bracket_3_single ct_bracket_2_single - ct_rate_3 * +
+result.ct_taxable_income ct_bracket_3_single - ct_rate_4 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 4): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Tax for bracket 5 (6.5% marginal)</action_comment>
+<action_description>Calculate tax through bracket 5</action_description>
+<action_postfix>
+ct_bracket_1_single ct_rate_1 *
+ct_bracket_2_single ct_bracket_1_single - ct_rate_2 * +
+ct_bracket_3_single ct_bracket_2_single - ct_rate_3 * +
+ct_bracket_4_single ct_bracket_3_single - ct_rate_4 * +
+result.ct_taxable_income ct_bracket_4_single - ct_rate_5 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 5): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Tax for bracket 6 (6.9% marginal)</action_comment>
+<action_description>Calculate tax through bracket 6</action_description>
+<action_postfix>
+ct_bracket_1_single ct_rate_1 *
+ct_bracket_2_single ct_bracket_1_single - ct_rate_2 * +
+ct_bracket_3_single ct_bracket_2_single - ct_rate_3 * +
+ct_bracket_4_single ct_bracket_3_single - ct_rate_4 * +
+ct_bracket_5_single ct_bracket_4_single - ct_rate_5 * +
+result.ct_taxable_income ct_bracket_5_single - ct_rate_6 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 6): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Tax for bracket 7 (6.99% marginal)</action_comment>
+<action_description>Calculate tax through bracket 7</action_description>
+<action_postfix>
+ct_bracket_1_single ct_rate_1 *
+ct_bracket_2_single ct_bracket_1_single - ct_rate_2 * +
+ct_bracket_3_single ct_bracket_2_single - ct_rate_3 * +
+ct_bracket_4_single ct_bracket_3_single - ct_rate_4 * +
+ct_bracket_5_single ct_bracket_4_single - ct_rate_5 * +
+ct_bracket_6_single ct_bracket_5_single - ct_rate_6 * +
+result.ct_taxable_income ct_bracket_6_single - ct_rate_7 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (Single, Bracket 7): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Connecticut Single bracket 1</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 2% bracket ($0-$10,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Connecticut Single bracket 2</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 4.5% marginal bracket ($10,001-$50,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Connecticut Single bracket 3</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 5.5% marginal bracket ($50,001-$100,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Connecticut Single bracket 4</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 6% marginal bracket ($100,001-$200,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Connecticut Single bracket 5</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 6.5% marginal bracket ($200,001-$250,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>Connecticut Single bracket 6</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 6.9% marginal bracket ($250,001-$500,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>Connecticut Single bracket 7</policy_description>
+<policy_statement_postfix>"Connecticut Single filer 6.99% marginal bracket (over $500,000)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42220: Calculate_CT_Tax_MFJ - CT Tax for MFJ Filers            -->
+<!-- Reference: Connecticut Form CT-1040 Tax Tables (2025)                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CT_Tax_MFJ</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Connecticut state income tax for Married Filing Jointly using progressive brackets. Seven brackets: 2% (0-20k), 4.5% (20k-100k), 5.5% (100k-200k), 6% (200k-400k), 6.5% (400k-500k), 6.9% (500k-1M), 6.99% (over 1M).</COMMENTS>
+<TABLE_NUMBER>42220</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Bracket 1: $0-$20,000</condition_comment>
+<condition_description>Taxable income &lt;= $20,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_1_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Bracket 2: $20,001-$100,000</condition_comment>
+<condition_description>Taxable income &lt;= $100,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_2_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Bracket 3: $100,001-$200,000</condition_comment>
+<condition_description>Taxable income &lt;= $200,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_3_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Bracket 4: $200,001-$400,000</condition_comment>
+<condition_description>Taxable income &lt;= $400,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_4_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Bracket 5: $400,001-$500,000</condition_comment>
+<condition_description>Taxable income &lt;= $500,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_5_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Bracket 6: $500,001-$1,000,000</condition_comment>
+<condition_description>Taxable income &lt;= $1,000,000</condition_description>
+<condition_postfix>
+result.ct_taxable_income ct_bracket_6_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Tax for bracket 1 (2% rate)</action_comment>
+<action_description>Calculate tax at 2% rate</action_description>
+<action_postfix>
+result.ct_taxable_income ct_rate_1 * /result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 1): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Tax for bracket 2 (4.5% marginal)</action_comment>
+<action_description>Calculate tax at 2% and 4.5% rates</action_description>
+<action_postfix>
+ct_bracket_1_mfj ct_rate_1 *
+result.ct_taxable_income ct_bracket_1_mfj - ct_rate_2 *
++ /result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 2): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Tax for bracket 3 (5.5% marginal)</action_comment>
+<action_description>Calculate tax through bracket 3</action_description>
+<action_postfix>
+ct_bracket_1_mfj ct_rate_1 *
+ct_bracket_2_mfj ct_bracket_1_mfj - ct_rate_2 * +
+result.ct_taxable_income ct_bracket_2_mfj - ct_rate_3 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 3): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Tax for bracket 4 (6% marginal)</action_comment>
+<action_description>Calculate tax through bracket 4</action_description>
+<action_postfix>
+ct_bracket_1_mfj ct_rate_1 *
+ct_bracket_2_mfj ct_bracket_1_mfj - ct_rate_2 * +
+ct_bracket_3_mfj ct_bracket_2_mfj - ct_rate_3 * +
+result.ct_taxable_income ct_bracket_3_mfj - ct_rate_4 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 4): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Tax for bracket 5 (6.5% marginal)</action_comment>
+<action_description>Calculate tax through bracket 5</action_description>
+<action_postfix>
+ct_bracket_1_mfj ct_rate_1 *
+ct_bracket_2_mfj ct_bracket_1_mfj - ct_rate_2 * +
+ct_bracket_3_mfj ct_bracket_2_mfj - ct_rate_3 * +
+ct_bracket_4_mfj ct_bracket_3_mfj - ct_rate_4 * +
+result.ct_taxable_income ct_bracket_4_mfj - ct_rate_5 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 5): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Tax for bracket 6 (6.9% marginal)</action_comment>
+<action_description>Calculate tax through bracket 6</action_description>
+<action_postfix>
+ct_bracket_1_mfj ct_rate_1 *
+ct_bracket_2_mfj ct_bracket_1_mfj - ct_rate_2 * +
+ct_bracket_3_mfj ct_bracket_2_mfj - ct_rate_3 * +
+ct_bracket_4_mfj ct_bracket_3_mfj - ct_rate_4 * +
+ct_bracket_5_mfj ct_bracket_4_mfj - ct_rate_5 * +
+result.ct_taxable_income ct_bracket_5_mfj - ct_rate_6 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 6): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Tax for bracket 7 (6.99% marginal)</action_comment>
+<action_description>Calculate tax through bracket 7</action_description>
+<action_postfix>
+ct_bracket_1_mfj ct_rate_1 *
+ct_bracket_2_mfj ct_bracket_1_mfj - ct_rate_2 * +
+ct_bracket_3_mfj ct_bracket_2_mfj - ct_rate_3 * +
+ct_bracket_4_mfj ct_bracket_3_mfj - ct_rate_4 * +
+ct_bracket_5_mfj ct_bracket_4_mfj - ct_rate_5 * +
+ct_bracket_6_mfj ct_bracket_5_mfj - ct_rate_6 * +
+result.ct_taxable_income ct_bracket_6_mfj - ct_rate_7 * +
+/result.ct_tax xdef
+result.ct_tax /result.ct_tax_before_credits xdef
+"  CT Tax (MFJ, Bracket 7): $" result.ct_tax tostring strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Connecticut MFJ bracket 1</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 2% bracket ($0-$20,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Connecticut MFJ bracket 2</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 4.5% marginal bracket ($20,001-$100,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Connecticut MFJ bracket 3</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 5.5% marginal bracket ($100,001-$200,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Connecticut MFJ bracket 4</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 6% marginal bracket ($200,001-$400,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Connecticut MFJ bracket 5</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 6.5% marginal bracket ($400,001-$500,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>Connecticut MFJ bracket 6</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 6.9% marginal bracket ($500,001-$1,000,000)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>Connecticut MFJ bracket 7</policy_description>
+<policy_statement_postfix>"Connecticut MFJ filer 6.99% marginal bracket (over $1,000,000)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
