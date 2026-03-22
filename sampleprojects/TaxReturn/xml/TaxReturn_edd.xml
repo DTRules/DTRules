@@ -968,6 +968,11 @@
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+		<!-- Kentucky State Tax Constants (2025) -->
+		<field name='ky_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='Kentucky flat tax rate (4.0%)'></field>
+		<field name='ky_standard_deduction' type='double' subtype='' access='r' input='' default_value='3270' comment='Kentucky standard deduction (2025)'></field>
+		<field name='ky_pension_exclusion' type='double' subtype='' access='r' input='' default_value='31110' comment='Kentucky pension exclusion limit (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1438,6 +1443,13 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- Kentucky State Tax Results -->
+		<field name='ky_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Kentucky AGI (federal AGI + adjustments)'></field>
+		<field name='ky_pension_exclusion_applied' type='double' subtype='' access='rw' input='' default_value='0' comment='Kentucky pension exclusion applied'></field>
+		<field name='ky_standard_deduction_applied' type='double' subtype='' access='rw' input='' default_value='0' comment='Kentucky standard deduction applied'></field>
+		<field name='ky_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Kentucky taxable income'></field>
+		<field name='ky_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Kentucky state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
