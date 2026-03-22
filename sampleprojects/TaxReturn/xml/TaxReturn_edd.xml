@@ -1166,6 +1166,13 @@
 
 		<!-- Net Operating Loss -->
 		<field name='nol_limitation_rate' type='double' subtype='' access='r' input='' default_value='0.80' comment='NOL limited to 80% of taxable income'></field>
+
+		<!-- North Carolina State Tax (Form D-400, 2025) -->
+		<field name='nc_tax_rate' type='double' subtype='' access='r' input='' default_value='0.045' comment='NC flat tax rate (4.50% for 2025)'></field>
+		<field name='nc_std_deduction_single' type='double' subtype='' access='r' input='' default_value='2750' comment='NC standard deduction Single (Form D-400)'></field>
+		<field name='nc_std_deduction_mfj' type='double' subtype='' access='r' input='' default_value='5500' comment='NC standard deduction MFJ (Form D-400)'></field>
+		<field name='nc_std_deduction_mfs' type='double' subtype='' access='r' input='' default_value='2750' comment='NC standard deduction MFS (Form D-400)'></field>
+		<field name='nc_std_deduction_hoh' type='double' subtype='' access='r' input='' default_value='4125' comment='NC standard deduction HOH (Form D-400)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -1401,6 +1408,11 @@
 		<!-- Net Operating Loss -->
 		<field name='nol_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL deduction used this year'></field>
 		<field name='nol_carryforward_remaining' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL carryforward to future years'></field>
+
+		<!-- State Tax Results - North Carolina -->
+		<field name='nc_std_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NC standard deduction'></field>
+		<field name='nc_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='NC taxable income after deductions'></field>
+		<field name='nc_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NC state income tax (Form D-400)'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
