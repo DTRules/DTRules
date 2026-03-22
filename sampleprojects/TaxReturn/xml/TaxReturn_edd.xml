@@ -959,6 +959,31 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- Oregon State Tax Constants (2025) -->
+		<!-- Tax Rates -->
+		<field name='or_rate_1' type='double' subtype='' access='r' input='' default_value='0.0475' comment='Oregon tax rate bracket 1 (4.75%)'></field>
+		<field name='or_rate_2' type='double' subtype='' access='r' input='' default_value='0.0675' comment='Oregon tax rate bracket 2 (6.75%)'></field>
+		<field name='or_rate_3' type='double' subtype='' access='r' input='' default_value='0.0875' comment='Oregon tax rate bracket 3 (8.75%)'></field>
+		<field name='or_rate_4' type='double' subtype='' access='r' input='' default_value='0.099' comment='Oregon tax rate bracket 4 (9.9%)'></field>
+
+		<!-- Single Filer Brackets -->
+		<field name='or_bracket_1_single' type='double' subtype='' access='r' input='' default_value='4400' comment='Oregon bracket 1 ceiling Single (2025)'></field>
+		<field name='or_bracket_2_single' type='double' subtype='' access='r' input='' default_value='11100' comment='Oregon bracket 2 ceiling Single (2025)'></field>
+		<field name='or_bracket_3_single' type='double' subtype='' access='r' input='' default_value='125000' comment='Oregon bracket 3 ceiling Single (2025)'></field>
+
+		<!-- Married Filing Jointly Brackets -->
+		<field name='or_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='8800' comment='Oregon bracket 1 ceiling MFJ (2025)'></field>
+		<field name='or_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='22200' comment='Oregon bracket 2 ceiling MFJ (2025)'></field>
+		<field name='or_bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='250000' comment='Oregon bracket 3 ceiling MFJ (2025)'></field>
+
+		<!-- Standard Deductions -->
+		<field name='or_std_deduction_single' type='double' subtype='' access='r' input='' default_value='2835' comment='Oregon standard deduction Single (2025)'></field>
+		<field name='or_std_deduction_mfj' type='double' subtype='' access='r' input='' default_value='5670' comment='Oregon standard deduction MFJ (2025)'></field>
+		<field name='or_std_deduction_hoh' type='double' subtype='' access='r' input='' default_value='4560' comment='Oregon standard deduction Head of Household (2025)'></field>
+
+		<!-- Personal Exemption Credit -->
+		<field name='or_exemption_credit' type='double' subtype='' access='r' input='' default_value='256' comment='Oregon personal exemption credit per person (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 

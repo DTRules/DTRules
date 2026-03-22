@@ -8712,6 +8712,18 @@ job.state IL streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Oregon state</condition_comment>
+<condition_description>job.state is equal to "OR"</condition_description>
+<condition_postfix>
+job.state OR streq
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8726,12 +8738,21 @@ Calculate_IL_Tax
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_comment>Calculate Oregon state tax</action_comment>
+<action_description>Calculate_OR_Tax</action_description>
+<action_postfix>
+Calculate_OR_Tax
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
 "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8740,6 +8761,10 @@ Calculate_IL_Tax
 <policy_statement_postfix>"Calculate Illinois state income tax per Form IL-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
+<policy_description>Calculate Oregon state income tax</policy_description>
+<policy_statement_postfix>"Calculate Oregon state income tax per Form OR-40"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
@@ -8827,6 +8852,354 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <policy_statement column="2">
 <policy_description>Illinois tax without exemptions</policy_description>
 <policy_statement_postfix>"Illinois tax calculated without exemptions"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 43100: Calculate_OR_Tax - Oregon State Income Tax              -->
+<!-- Reference: Oregon Form OR-40 (2025)                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_OR_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Oregon state income tax per Form OR-40. Oregon uses progressive tax brackets with rates of 4.75%, 6.75%, 8.75%, and 9.9% (2025). Starting with federal AGI, applies Oregon standard deduction, calculates progressive tax using brackets, and applies personal exemption credit of $256 per person.</COMMENTS>
+<TABLE_NUMBER>43100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize OR tax calculation</action_description>
+<action_postfix>
+"OREGON FORM OR-40 - State Income Tax Calculation" job.audit_trail swap addto
+0 local@ num_people >
+result.agi /result.or_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Check filing status and set deduction</condition_comment>
+<condition_description>Determine if Single filer</condition_description>
+<condition_postfix>
+job.filing_status "Single" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Determine if MFJ filer</condition_comment>
+<condition_description>Check Married Filing Jointly</condition_description>
+<condition_postfix>
+job.filing_status "Married_Filing_Jointly" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Check taxable income in bracket 1</condition_comment>
+<condition_description>Is taxable income in first bracket?</condition_description>
+<condition_postfix>
+result.or_taxable_income or_bracket_1_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Check taxable income in bracket 1 (MFJ)</condition_comment>
+<condition_description>Is taxable income in first bracket?</condition_description>
+<condition_postfix>
+result.or_taxable_income or_bracket_1_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Check taxable income in bracket 2</condition_comment>
+<condition_description>Is taxable income in second bracket?</condition_description>
+<condition_postfix>
+result.or_taxable_income or_bracket_2_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Check taxable income in bracket 2 (MFJ)</condition_comment>
+<condition_description>Is taxable income in second bracket?</condition_description>
+<condition_postfix>
+result.or_taxable_income or_bracket_2_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Check taxable income in bracket 3</condition_comment>
+<condition_description>Is taxable income in third bracket?</condition_description>
+<condition_postfix>
+result.or_taxable_income or_bracket_3_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Check taxable income in bracket 3 (MFJ)</condition_comment>
+<condition_description>Is taxable income in third bracket?</condition_description>
+<condition_postfix>
+result.or_taxable_income or_bracket_3_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate OR tax for Single - Bracket 1</action_comment>
+<action_description>Apply Single standard deduction and calculate tax in bracket 1</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_single /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (Single): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+result.or_taxable_income or_rate_1 f* /result.or_tax_before_credits xdef
+"  Oregon Tax (Bracket 1 - 4.75%): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate OR tax for MFJ - Bracket 1</action_comment>
+<action_description>Apply MFJ standard deduction and calculate tax in bracket 1</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_mfj /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (MFJ): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+result.or_taxable_income or_rate_1 f* /result.or_tax_before_credits xdef
+"  Oregon Tax (Bracket 1 - 4.75%): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate OR tax for Single - Bracket 2</action_comment>
+<action_description>Apply Single deduction and calculate progressive tax in bracket 2</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_single /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (Single): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+or_bracket_1_single or_rate_1 f*
+result.or_taxable_income or_bracket_1_single f- or_rate_2 f* f+
+/result.or_tax_before_credits xdef
+"  Oregon Tax (Progressive to Bracket 2): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate OR tax for MFJ - Bracket 2</action_comment>
+<action_description>Apply MFJ deduction and calculate progressive tax in bracket 2</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_mfj /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (MFJ): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+or_bracket_1_mfj or_rate_1 f*
+result.or_taxable_income or_bracket_1_mfj f- or_rate_2 f* f+
+/result.or_tax_before_credits xdef
+"  Oregon Tax (Progressive to Bracket 2): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate OR tax for Single - Bracket 3</action_comment>
+<action_description>Apply Single deduction and calculate progressive tax in bracket 3</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_single /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (Single): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+or_bracket_1_single or_rate_1 f*
+or_bracket_2_single or_bracket_1_single f- or_rate_2 f* f+
+result.or_taxable_income or_bracket_2_single f- or_rate_3 f* f+
+/result.or_tax_before_credits xdef
+"  Oregon Tax (Progressive to Bracket 3): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Calculate OR tax for MFJ - Bracket 3</action_comment>
+<action_description>Apply MFJ deduction and calculate progressive tax in bracket 3</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_mfj /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (MFJ): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+or_bracket_1_mfj or_rate_1 f*
+or_bracket_2_mfj or_bracket_1_mfj f- or_rate_2 f* f+
+result.or_taxable_income or_bracket_2_mfj f- or_rate_3 f* f+
+/result.or_tax_before_credits xdef
+"  Oregon Tax (Progressive to Bracket 3): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Calculate OR tax for Single - Bracket 4</action_comment>
+<action_description>Apply Single deduction and calculate progressive tax in top bracket</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_single /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (Single): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+or_bracket_1_single or_rate_1 f*
+or_bracket_2_single or_bracket_1_single f- or_rate_2 f* f+
+or_bracket_3_single or_bracket_2_single f- or_rate_3 f* f+
+result.or_taxable_income or_bracket_3_single f- or_rate_4 f* f+
+/result.or_tax_before_credits xdef
+"  Oregon Tax (Progressive to Bracket 4 - Top): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Calculate OR tax for MFJ - Bracket 4</action_comment>
+<action_description>Apply MFJ deduction and calculate progressive tax in top bracket</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_mfj /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (MFJ): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+or_bracket_1_mfj or_rate_1 f*
+or_bracket_2_mfj or_bracket_1_mfj f- or_rate_2 f* f+
+or_bracket_3_mfj or_bracket_2_mfj f- or_rate_3 f* f+
+result.or_taxable_income or_bracket_3_mfj f- or_rate_4 f* f+
+/result.or_tax_before_credits xdef
+"  Oregon Tax (Progressive to Bracket 4 - Top): $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Calculate OR tax for Head of Household</action_comment>
+<action_description>Apply HOH standard deduction - use Single brackets for now</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+or_std_deduction_hoh /result.or_std_deduction xdef
+result.or_agi result.or_std_deduction f- 0 fmax /result.or_taxable_income xdef
+"  Oregon Standard Deduction (HOH): $" result.or_std_deduction cvs strconcat job.audit_trail swap addto
+"  Oregon Taxable Income: $" result.or_taxable_income cvs strconcat job.audit_trail swap addto
+result.or_taxable_income or_bracket_3_single &lt;= if
+  result.or_taxable_income or_bracket_2_single &lt;= if
+    result.or_taxable_income or_bracket_1_single &lt;= if
+      result.or_taxable_income or_rate_1 f*
+    else
+      or_bracket_1_single or_rate_1 f*
+      result.or_taxable_income or_bracket_1_single f- or_rate_2 f* f+
+    endif
+  else
+    or_bracket_1_single or_rate_1 f*
+    or_bracket_2_single or_bracket_1_single f- or_rate_2 f* f+
+    result.or_taxable_income or_bracket_2_single f- or_rate_3 f* f+
+  endif
+else
+  or_bracket_1_single or_rate_1 f*
+  or_bracket_2_single or_bracket_1_single f- or_rate_2 f* f+
+  or_bracket_3_single or_bracket_2_single f- or_rate_3 f* f+
+  result.or_taxable_income or_bracket_3_single f- or_rate_4 f* f+
+endif
+/result.or_tax_before_credits xdef
+"  Oregon Tax: $" result.or_tax_before_credits cvs strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+num_people or_exemption_credit f* /result.or_exemption_credits xdef
+"  Oregon Personal Exemption Credits: " num_people cvs strconcat " × $" strconcat or_exemption_credit cvs strconcat " = $" strconcat result.or_exemption_credits cvs strconcat strconcat job.audit_trail swap addto
+result.or_tax_before_credits result.or_exemption_credits f- 0 fmax /result.or_tax xdef
+"  Oregon Tax After Credits: $" result.or_tax cvs strconcat " (Form OR-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Oregon Single Filer Progressive Tax Calculation</policy_description>
+<policy_statement_postfix>"Oregon progressive tax for Single filers using 4-bracket system with standard deduction and personal exemption credits per Form OR-40"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Oregon MFJ Progressive Tax Calculation</policy_description>
+<policy_statement_postfix>"Oregon progressive tax for Married Filing Jointly using 4-bracket system with standard deduction and personal exemption credits per Form OR-40"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Oregon Head of Household Progressive Tax Calculation</policy_description>
+<policy_statement_postfix>"Oregon progressive tax for Head of Household using Single brackets with HOH standard deduction and personal exemption credits per Form OR-40"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
