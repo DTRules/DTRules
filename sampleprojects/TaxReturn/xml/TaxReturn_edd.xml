@@ -44,6 +44,7 @@
 		<field name='unreported_tips_records' type='array' subtype='unreported_tips' access='r' input='' default_value='' comment='Form 4137 Unreported Tip Income'></field>
 		<field name='lihtc_recaptures' type='array' subtype='lihtc_recapture' access='r' input='' default_value='' comment='Form 8611 LIHTC Recaptures'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
+		<field name='state_tax_results' type='array' subtype='state_tax_result' access='r' input='' default_value='' comment='State tax calculation results'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Healthcare / Premium Tax Credit -->
 		<field name='has_marketplace_coverage' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Had marketplace health insurance'></field>
@@ -1416,6 +1417,22 @@
 		<!-- Audit Trail -->
 		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed calculation notes'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- STATE_TAX_RESULT - State tax calculation results                  -->
+	<!-- ================================================================== -->
+	<entity name='state_tax_result' xls_file='Core.xls' access='rw' comment='State tax calculation results'>
+		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='state_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='State adjusted gross income'></field>
+		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income after deductions'></field>
+		<field name='state_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax before credits'></field>
+		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total state tax credits'></field>
+		<field name='state_tax_liability' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax liability after credits'></field>
+		<field name='state_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax withheld'></field>
+		<field name='state_refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='State refund (positive) or amount owed (negative)'></field>
 	</entity>
 
 </entity_data_dictionary>
