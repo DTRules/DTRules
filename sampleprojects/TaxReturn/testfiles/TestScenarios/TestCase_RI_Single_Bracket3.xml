@@ -1,0 +1,84 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Rhode Island Tax Test Case 3: Single filer, Bracket 3 (over $181,650) -->
+   <id>RI003</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>RI</state>
+   <city>Newport</city>
+
+   <!-- Expected values:
+        Federal AGI: $250,000
+        RI AGI: $250,000
+        RI Personal Exemption: $5,100
+        RI Standard Deduction: $10,900
+        RI Taxable Income: $250,000 - $5,100 - $10,900 = $234,000
+        RI Tax:
+          Bracket 1: $79,900 × 3.75% = $2,996.25
+          Bracket 2: ($181,650 - $79,900) × 4.75% = $101,750 × 4.75% = $4,833.13
+          Bracket 3: ($234,000 - $181,650) × 5.99% = $52,350 × 5.99% = $3,135.77
+          Total: $10,965.15
+   -->
+   <expected_agi>250000</expected_agi>
+   <expected_taxable_income>234000</expected_taxable_income>
+
+   <!-- Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah Williams</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>11/8/1978</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>200000</w2_wages>
+         <w2_withholding>45000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Income -->
+   <incomes>
+      <!-- Additional investment income -->
+      <income id="1">
+         <id>1</id>
+         <income_type>dividends</income_type>
+         <gross_amount>30000</gross_amount>
+         <qualified_amount>25000</qualified_amount>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <income_type>interest</income_type>
+         <gross_amount>20000</gross_amount>
+      </income>
+   </incomes>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No additional deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,94 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Rhode Island Tax Test Case 2: MFJ filers, Bracket 2 ($79,900-$181,650) -->
+   <id>RI002</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>RI</state>
+   <city>Warwick</city>
+
+   <!-- Expected values:
+        Federal AGI: $140,000
+        RI AGI: $140,000
+        RI Personal Exemption: $5,100
+        RI Standard Deduction (MFJ): $21,800
+        RI Taxable Income: $140,000 - $5,100 - $21,800 = $113,100
+        RI Tax:
+          Bracket 1: $79,900 × 3.75% = $2,996.25
+          Bracket 2: ($113,100 - $79,900) × 4.75% = $33,200 × 4.75% = $1,577
+          Total: $4,573.25
+   -->
+   <expected_agi>140000</expected_agi>
+   <expected_taxable_income>113100</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jane Johnson</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>6/20/1985</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>10000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Robert Johnson</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>8/10/1983</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>8500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Johnson</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>9/5/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No additional deductions -->
+   <deductions></deductions>
+</job>
