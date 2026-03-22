@@ -959,6 +959,35 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- New Jersey State Tax Constants (2025) -->
+		<field name='nj_personal_exemption' type='double' subtype='' access='r' input='' default_value='1000' comment='NJ personal exemption per taxpayer (2025)'></field>
+		<field name='nj_dependent_exemption' type='double' subtype='' access='r' input='' default_value='1500' comment='NJ dependent exemption per dependent (2025)'></field>
+		<!-- NJ Tax Brackets - Single Filers -->
+		<field name='nj_bracket_1_single' type='double' subtype='' access='r' input='' default_value='20000' comment='NJ 1.4% bracket ceiling Single'></field>
+		<field name='nj_bracket_2_single' type='double' subtype='' access='r' input='' default_value='35000' comment='NJ 1.75% bracket ceiling Single'></field>
+		<field name='nj_bracket_3_single' type='double' subtype='' access='r' input='' default_value='40000' comment='NJ 3.5% bracket ceiling Single'></field>
+		<field name='nj_bracket_4_single' type='double' subtype='' access='r' input='' default_value='75000' comment='NJ 5.525% bracket ceiling Single'></field>
+		<field name='nj_bracket_5_single' type='double' subtype='' access='r' input='' default_value='500000' comment='NJ 6.37% bracket ceiling Single'></field>
+		<field name='nj_bracket_6_single' type='double' subtype='' access='r' input='' default_value='1000000' comment='NJ 8.97% bracket ceiling Single'></field>
+		<!-- NJ Tax Brackets - Married Filing Jointly -->
+		<field name='nj_bracket_1_joint' type='double' subtype='' access='r' input='' default_value='20000' comment='NJ 1.4% bracket ceiling MFJ'></field>
+		<field name='nj_bracket_2_joint' type='double' subtype='' access='r' input='' default_value='50000' comment='NJ 1.75% bracket ceiling MFJ'></field>
+		<field name='nj_bracket_3_joint' type='double' subtype='' access='r' input='' default_value='70000' comment='NJ 2.45% bracket ceiling MFJ'></field>
+		<field name='nj_bracket_4_joint' type='double' subtype='' access='r' input='' default_value='80000' comment='NJ 3.5% bracket ceiling MFJ'></field>
+		<field name='nj_bracket_5_joint' type='double' subtype='' access='r' input='' default_value='150000' comment='NJ 5.525% bracket ceiling MFJ'></field>
+		<field name='nj_bracket_6_joint' type='double' subtype='' access='r' input='' default_value='500000' comment='NJ 6.37% bracket ceiling MFJ'></field>
+		<field name='nj_bracket_7_joint' type='double' subtype='' access='r' input='' default_value='1000000' comment='NJ 8.97% bracket ceiling MFJ'></field>
+		<!-- NJ Tax Rates -->
+		<field name='nj_rate_1' type='double' subtype='' access='r' input='' default_value='0.014' comment='NJ tax rate 1.4%'></field>
+		<field name='nj_rate_2' type='double' subtype='' access='r' input='' default_value='0.0175' comment='NJ tax rate 1.75%'></field>
+		<field name='nj_rate_3' type='double' subtype='' access='r' input='' default_value='0.035' comment='NJ tax rate 3.5%'></field>
+		<field name='nj_rate_4' type='double' subtype='' access='r' input='' default_value='0.05525' comment='NJ tax rate 5.525%'></field>
+		<field name='nj_rate_5' type='double' subtype='' access='r' input='' default_value='0.0637' comment='NJ tax rate 6.37%'></field>
+		<field name='nj_rate_6' type='double' subtype='' access='r' input='' default_value='0.0897' comment='NJ tax rate 8.97%'></field>
+		<field name='nj_rate_7' type='double' subtype='' access='r' input='' default_value='0.1075' comment='NJ tax rate 10.75%'></field>
+		<!-- Additional NJ-specific bracket for MFJ -->
+		<field name='nj_rate_2_mfj' type='double' subtype='' access='r' input='' default_value='0.0245' comment='NJ tax rate 2.45% (MFJ bracket 3)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1420,6 +1449,12 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- New Jersey State Tax Results -->
+		<field name='nj_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New Jersey gross income (from federal AGI)'></field>
+		<field name='nj_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total NJ exemptions (personal + dependent)'></field>
+		<field name='nj_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New Jersey taxable income'></field>
+		<field name='nj_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Jersey state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>

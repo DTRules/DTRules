@@ -8712,6 +8712,18 @@ job.state IL streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>New Jersey state</condition_comment>
+<condition_description>job.state is equal to "NJ"</condition_description>
+<condition_postfix>
+job.state NJ streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8726,12 +8738,21 @@ Calculate_IL_Tax
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_comment>Calculate New Jersey state tax</action_comment>
+<action_description>Calculate_NJ_Tax</action_description>
+<action_postfix>
+Calculate_NJ_Tax
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
 "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8740,6 +8761,10 @@ Calculate_IL_Tax
 <policy_statement_postfix>"Calculate Illinois state income tax per Form IL-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
+<policy_description>Calculate New Jersey state income tax</policy_description>
+<policy_statement_postfix>"Calculate New Jersey state income tax per Form NJ-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
@@ -8827,6 +8852,143 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <policy_statement column="2">
 <policy_description>Illinois tax without exemptions</policy_description>
 <policy_statement_postfix>"Illinois tax calculated without exemptions"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42300: Calculate_NJ_Tax - New Jersey State Income Tax          -->
+<!-- Reference: New Jersey Form NJ-1040 (2025)                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NJ_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates New Jersey state income tax per Form NJ-1040. NJ uses progressive tax brackets ranging from 1.4% to 10.75% (2025). Personal exemptions are $1,000 per taxpayer and $1,500 per dependent. Starting with federal AGI, subtracts retirement income (Social Security, military pensions, Railroad Retirement are exempt), applies exemptions, and calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>42300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize NJ tax calculation</action_description>
+<action_postfix>
+"NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" job.audit_trail swap addto
+0 local@ num_taxpayers >
+0 local@ num_dependents >
+result.agi /result.nj_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Count taxpayers and dependents</condition_comment>
+<condition_description>Get number of taxpayers and dependents for exemptions</condition_description>
+<condition_postfix>
+job.taxpayers arraysize local@ num_taxpayers >
+job.dependents arraysize local@ num_dependents >
+num_taxpayers 1 >=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NJ tax with progressive brackets</action_comment>
+<action_description>Calculate NJ AGI, apply exemptions, calculate progressive tax</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+result.agi local@ nj_retirement_subtraction >
+0 local@ state_bond_addition >
+{ dup type income_type > income_type "social_security" streq income_type "railroad_retirement" streq or income_type "military_pension" streq or if dup gross_amount nj_retirement_subtraction f+ local@ nj_retirement_subtraction > endif } job.incomes forall
+nj_retirement_subtraction 0 f> if
+  "  Subtract Exempt Retirement Income: -$" nj_retirement_subtraction cvs strconcat " (SS, RR, Military exempt)" strconcat job.audit_trail swap addto
+  result.nj_agi nj_retirement_subtraction f- /result.nj_agi xdef
+endif
+"  New Jersey Gross Income: $" result.nj_agi cvs strconcat " (Form NJ-1040 Line 27)" strconcat job.audit_trail swap addto
+num_taxpayers nj_personal_exemption f* num_dependents nj_dependent_exemption f* f+ /result.nj_exemption_total xdef
+"  Exemptions: " num_taxpayers cvs strconcat " × $" strconcat nj_personal_exemption cvs strconcat " + " strconcat num_dependents cvs strconcat " × $" strconcat nj_dependent_exemption cvs strconcat " = $" strconcat result.nj_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.nj_agi result.nj_exemption_total f- 0 fmax /result.nj_taxable_income xdef
+"  New Jersey Taxable Income: $" result.nj_taxable_income cvs strconcat " (Gross Income - Exemptions)" strconcat job.audit_trail swap addto
+0 local@ nj_calculated_tax >
+job.filing_status "married_filing_jointly" streq if
+  result.nj_taxable_income nj_bracket_1_joint f<= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_2_joint f<= if
+    nj_bracket_1_joint nj_rate_1 f* result.nj_taxable_income nj_bracket_1_joint f- nj_rate_2 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_3_joint f<= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ result.nj_taxable_income nj_bracket_2_joint f- nj_rate_2_mfj f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_4_joint f<= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ result.nj_taxable_income nj_bracket_3_joint f- nj_rate_3 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_5_joint f<= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ result.nj_taxable_income nj_bracket_4_joint f- nj_rate_4 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_6_joint f<= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ result.nj_taxable_income nj_bracket_5_joint f- nj_rate_5 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_7_joint f<= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ nj_bracket_6_joint nj_bracket_5_joint f- nj_rate_5 f* f+ result.nj_taxable_income nj_bracket_6_joint f- nj_rate_6 f* f+ local@ nj_calculated_tax >
+  else
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ nj_bracket_6_joint nj_bracket_5_joint f- nj_rate_5 f* f+ nj_bracket_7_joint nj_bracket_6_joint f- nj_rate_6 f* f+ result.nj_taxable_income nj_bracket_7_joint f- nj_rate_7 f* f+ local@ nj_calculated_tax >
+  endif endif endif endif endif endif endif
+else
+  result.nj_taxable_income nj_bracket_1_single f<= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_2_single f<= if
+    nj_bracket_1_single nj_rate_1 f* result.nj_taxable_income nj_bracket_1_single f- nj_rate_2 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_3_single f<= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ result.nj_taxable_income nj_bracket_2_single f- nj_rate_3 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_4_single f<= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ result.nj_taxable_income nj_bracket_3_single f- nj_rate_4 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_5_single f<= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ result.nj_taxable_income nj_bracket_4_single f- nj_rate_5 f* f+ local@ nj_calculated_tax >
+  else result.nj_taxable_income nj_bracket_6_single f<= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ nj_bracket_5_single nj_bracket_4_single f- nj_rate_5 f* f+ result.nj_taxable_income nj_bracket_5_single f- nj_rate_6 f* f+ local@ nj_calculated_tax >
+  else
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ nj_bracket_5_single nj_bracket_4_single f- nj_rate_5 f* f+ nj_bracket_6_single nj_bracket_5_single f- nj_rate_6 f* f+ result.nj_taxable_income nj_bracket_6_single f- nj_rate_7 f* f+ local@ nj_calculated_tax >
+  endif endif endif endif endif endif
+endif
+nj_calculated_tax /result.nj_tax xdef
+"  New Jersey Tax: $" result.nj_tax cvs strconcat " (Form NJ-1040 Line 42)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxpayers - unlikely case</action_comment>
+<action_description>Calculate NJ tax without exemptions</action_description>
+<action_postfix>
+"  New Jersey Gross Income: $" result.nj_agi cvs strconcat job.audit_trail swap addto
+result.nj_agi 0 fmax /result.nj_taxable_income xdef
+0 local@ nj_calculated_tax >
+job.filing_status "married_filing_jointly" streq if
+  result.nj_taxable_income nj_bracket_1_joint f<= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
+  else
+    nj_bracket_1_joint nj_rate_1 f* result.nj_taxable_income nj_bracket_1_joint f- nj_rate_2 f* f+ local@ nj_calculated_tax >
+  endif
+else
+  result.nj_taxable_income nj_bracket_1_single f<= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
+  else
+    nj_bracket_1_single nj_rate_1 f* result.nj_taxable_income nj_bracket_1_single f- nj_rate_2 f* f+ local@ nj_calculated_tax >
+  endif
+endif
+nj_calculated_tax /result.nj_tax xdef
+"  New Jersey Tax: $" result.nj_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>New Jersey progressive tax with exemptions</policy_description>
+<policy_statement_postfix>"New Jersey progressive tax (1.4%-10.75%) with exemptions per Form NJ-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>New Jersey tax without exemptions</policy_description>
+<policy_statement_postfix>"New Jersey tax calculated without exemptions"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
