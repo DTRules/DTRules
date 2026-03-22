@@ -954,6 +954,14 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
+		<!-- Indiana State Tax (2025) - Form IT-40 -->
+		<field name='in_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0315' comment='Indiana flat tax rate 3.15% (2025)'></field>
+		<field name='in_exemption_personal' type='double' subtype='' access='r' input='' default_value='3500' comment='Indiana personal exemption per person (2025)'></field>
+		<field name='in_exemption_dependent' type='double' subtype='' access='r' input='' default_value='1500' comment='Indiana dependent exemption per dependent (2025)'></field>
+		<field name='in_exemption_senior_blind' type='double' subtype='' access='r' input='' default_value='1000' comment='Indiana additional exemption for age 65+ or blind (2025)'></field>
+		<field name='in_retirement_deduction' type='double' subtype='' access='r' input='' default_value='1250' comment='Indiana retirement income deduction for age 62+ (2025)'></field>
+		<field name='in_renters_deduction' type='double' subtype='' access='r' input='' default_value='3000' comment='Indiana renters deduction (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1401,6 +1409,12 @@
 		<!-- Net Operating Loss -->
 		<field name='nol_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL deduction used this year'></field>
 		<field name='nol_carryforward_remaining' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL carryforward to future years'></field>
+
+		<!-- Indiana State Tax -->
+		<field name='in_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Indiana exemptions'></field>
+		<field name='in_deductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Indiana deductions'></field>
+		<field name='in_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Indiana taxable income'></field>
+		<field name='in_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Indiana state income tax'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
