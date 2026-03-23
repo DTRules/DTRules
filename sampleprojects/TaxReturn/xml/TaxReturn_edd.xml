@@ -953,7 +953,7 @@
 		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='626350' comment='35% bracket ceiling Single (2025)'></field>
 
 		<!-- States without income tax -->
-		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "AK" "TN" }' comment='States with no income tax'></field>
 
 		<!-- Illinois State Tax Constants (2025) -->
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
@@ -976,6 +976,15 @@
 		<field name='mt_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='21100' comment='MT bracket 2 threshold Single/MFS (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
+
+		<!-- Wyoming State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='wy_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='5500' comment='WY standard deduction Single (2025)'></field>
+		<field name='wy_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='11000' comment='WY standard deduction MFJ (2025)'></field>
+		<field name='wy_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0300' comment='WY tax rate bracket 1 (3.0%)'></field>
+		<field name='wy_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0450' comment='WY tax rate bracket 2 (4.5%)'></field>
+		<field name='wy_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='30000' comment='WY bracket 2 threshold Single/MFS (above this uses 4.5%)'></field>
+		<field name='wy_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='60000' comment='WY bracket 2 threshold MFJ (above this uses 4.5%)'></field>
+		<field name='wy_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='45000' comment='WY bracket 2 threshold HOH (above this uses 4.5%)'></field>
 
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
@@ -1455,6 +1464,14 @@
 		<field name='mt_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 1 tax (4.7%)'></field>
 		<field name='mt_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 2 tax (5.9%)'></field>
 		<field name='mt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana state income tax'></field>
+
+		<!-- Wyoming State Tax Results -->
+		<field name='wy_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Wyoming AGI (federal AGI + adjustments)'></field>
+		<field name='wy_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='WY standard deduction amount'></field>
+		<field name='wy_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Wyoming taxable income'></field>
+		<field name='wy_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='WY bracket 1 tax (3.0%)'></field>
+		<field name='wy_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='WY bracket 2 tax (4.5%)'></field>
+		<field name='wy_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Wyoming state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
