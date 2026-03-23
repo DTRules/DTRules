@@ -8690,92 +8690,55 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <xls_file>State.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Dispatches to state-specific tax calculation based on job.state. Only calculates if job.has_state_income_tax is true.</COMMENTS>
+<COMMENTS>Dispatches to state-specific tax calculation for each state in state_tax_results. Handles both resident and non-resident tax calculations. Calls Calculate_State_Source_Income first to allocate income to states.</COMMENTS>
 <TABLE_NUMBER>40000</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Log state tax calculation start</action_description>
+<action_description>Calculate state-source income allocation</action_description>
 <action_postfix>
-"State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+"Multi-State Tax Calculation" job.audit_trail swap addto
+Calculate_State_Source_Income
 </action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Illinois state</condition_comment>
-<condition_description>job.state is equal to "IL"</condition_description>
+<condition_comment>Process all states</condition_comment>
+<condition_description>Always process all states with income</condition_description>
 <condition_postfix>
-job.state IL streq
+true
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>New Hampshire state</condition_comment>
-<condition_description>job.state is equal to "NH"</condition_description>
-<condition_postfix>
-job.state NH streq
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Montana state</condition_comment>
-<condition_description>job.state is equal to "MT"</condition_description>
-<condition_postfix>
-job.state MT streq
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Illinois state tax</action_comment>
-<action_description>Calculate_IL_Tax</action_description>
+<action_comment>Calculate tax for each state</action_comment>
+<action_description>Dispatch to state-specific tax calculation for each state</action_description>
 <action_postfix>
-Calculate_IL_Tax
+{
+  dup state_code local@ st_code >
+  dup entitypush
+  st_code IL streq if
+    Calculate_IL_Tax
+  endif
+  st_code NH streq if
+    Calculate_NH_Tax
+  endif
+  st_code MT streq if
+    Calculate_MT_Tax
+  endif
+  st_code IL streq st_code NH streq or st_code MT streq or not if
+    "  State tax not implemented for " st_code strconcat job.audit_trail swap addto
+  endif
+  entitypop pop
+} job.state_tax_results forall
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate New Hampshire state tax</action_comment>
-<action_description>Calculate_NH_Tax</action_description>
-<action_postfix>
-Calculate_NH_Tax
-</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate Montana state tax</action_comment>
-<action_description>Calculate_MT_Tax</action_description>
-<action_postfix>
-Calculate_MT_Tax
-</action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>State tax calculation not implemented</action_comment>
-<action_description>log "State tax calculation not implemented for this state"</action_description>
-<action_postfix>
-"  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8799,6 +8762,118 @@ Calculate_MT_Tax
 </decision_table>
 
 <!-- ====================================================================== -->
+<!-- TABLE 40500: Calculate_State_Source_Income - Non-Resident Allocation  -->
+<!-- Reference: State non-resident tax forms                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_State_Source_Income</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates state-source income for all states to support non-resident tax calculation. For each state with income tax, determines total income earned in that state from W-2 wages, self-employment, rental properties, and other sources. Creates state_tax_result entities for all states where taxpayer has income, marking resident vs non-resident status.</COMMENTS>
+<TABLE_NUMBER>40500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize state-source income calculation</action_description>
+<action_postfix>
+"Calculating state-source income for non-resident tax allocation" job.audit_trail swap addto
+{} local@ state_income_hash >
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always calculate state-source income</condition_comment>
+<condition_description>Calculate state-source income for all states</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate state-source income for each state</action_comment>
+<action_description>Allocate income to states based on source location</action_description>
+<action_postfix>
+{
+  dup w2_state_source w2_state >
+  dup se_state_source se_state >
+  w2_state length 0 > if
+    w2_state state_income_hash dup null eq if
+      pop
+      0 w2_state state_income_hash >
+    endif
+    w2_state state_income_hash dup w2_wages f+ w2_state state_income_hash >
+    "  Taxpayer " name strconcat " W-2 income from " strconcat w2_state strconcat ": $" strconcat w2_wages cvs strconcat strconcat job.audit_trail swap addto
+  endif
+  se_state length 0 > se_net_profit 0 f> and if
+    se_state state_income_hash dup null eq if
+      pop
+      0 se_state state_income_hash >
+    endif
+    se_state state_income_hash dup se_net_profit f+ se_state state_income_hash >
+    "  Taxpayer " name strconcat " SE income from " strconcat se_state strconcat ": $" strconcat se_net_profit cvs strconcat strconcat job.audit_trail swap addto
+  endif
+} job.taxpayers forall
+{
+  dup type income_type >
+  dup state_source income_state >
+  income_state length 0 > if
+    income_state state_income_hash dup null eq if
+      pop
+      0 income_state state_income_hash >
+    endif
+    income_state state_income_hash dup gross_amount f+ income_state state_income_hash >
+    "  Income from " income_state strconcat " (" strconcat income_type strconcat "): $" strconcat gross_amount cvs strconcat strconcat job.audit_trail swap addto
+  endif
+} job.incomes forall
+{
+  dup state_location property_state >
+  property_state length 0 > rental_net_income 0 f> and if
+    property_state state_income_hash dup null eq if
+      pop
+      0 property_state state_income_hash >
+    endif
+    property_state state_income_hash dup rental_net_income f+ property_state state_income_hash >
+    "  Rental income from " property_state strconcat ": $" strconcat rental_net_income cvs strconcat strconcat job.audit_trail swap addto
+  endif
+} job.properties forall
+job.state state_income_hash exch get null eq if
+  job.state state_income_hash exch 0 exch put
+endif
+{} /job.state_tax_results xdef
+{
+  local@ state_income_amt >
+  local@ state_code >
+  /state_tax_result createentity local@ st_result >
+  state_code /st_result.state_code xdef
+  state_code job.state streq /st_result.is_resident xdef
+  state_income_amt /st_result.state_source_income xdef
+  st_result.is_resident if
+    "  Resident state: " state_code strconcat job.audit_trail swap addto
+  else
+    "  Non-resident state: " state_code strconcat " - Source income: $" strconcat state_income_amt cvs strconcat job.audit_trail swap addto
+  endif
+  st_result job.state_tax_results swap addto
+} state_income_hash forallmap
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate state-source income for non-resident taxes</policy_description>
+<policy_statement_postfix>"State-source income calculated for non-resident tax allocation"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 41100: Calculate_IL_Tax - Illinois State Income Tax            -->
 <!-- Reference: Illinois Form IL-1040 (2025)                               -->
 <!-- ====================================================================== -->
@@ -8813,11 +8888,20 @@ Calculate_MT_Tax
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize IL tax calculation</action_description>
+<action_description>Initialize IL tax calculation with constants and resident/non-resident check</action_description>
 <action_postfix>
 "ILLINOIS FORM IL-1040 - State Income Tax Calculation" job.audit_trail swap addto
+2775 local@ il_personal_exemption >
+0.0495 local@ il_tax_rate >
 0 local@ num_people >
-result.agi /result.il_agi xdef
+state_tax_result /current_state xdef
+current_state.is_resident if
+  result.agi /current_state.state_agi xdef
+  "  Illinois Resident - using full federal AGI: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
+else
+  current_state.state_source_income /current_state.state_agi xdef
+  "  Illinois Non-Resident - using IL source income only: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
+endif
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -8837,24 +8921,30 @@ num_people 1 >=
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate IL tax with exemptions</action_comment>
+<action_comment>Calculate IL tax with exemptions for resident or non-resident</action_comment>
 <action_description>Calculate Illinois AGI, apply exemptions, calculate tax at 4.95%</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-result.agi local@ il_retirement_subtraction >
-0 local@ state_bond_addition >
-{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if dup gross_amount il_retirement_subtraction f+ local@ il_retirement_subtraction > endif } job.incomes forall
-il_retirement_subtraction 0 f> if
-  "  Subtract Retirement Income: -$" il_retirement_subtraction cvs strconcat " (IL allows full subtraction)" strconcat job.audit_trail swap addto
-  result.il_agi il_retirement_subtraction f- /result.il_agi xdef
+current_state.is_resident if
+  "  Resident - Starting with Federal AGI: $" result.agi cvs strconcat job.audit_trail swap addto
+  current_state.state_agi local@ il_agi_before_adj >
+  { dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if dup gross_amount current_state.state_agi f- /current_state.state_agi xdef "    Subtract retirement income: $" gross_amount cvs strconcat job.audit_trail swap addto endif } job.incomes forall
+else
+  "  Non-Resident - Starting with IL source income: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
 endif
-"  Illinois AGI: $" result.il_agi cvs strconcat " (Form IL-1040 Line 11)" strconcat job.audit_trail swap addto
-num_people il_personal_exemption f* /result.il_exemption_total xdef
-"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat il_personal_exemption cvs strconcat " = $" strconcat result.il_exemption_total cvs strconcat strconcat job.audit_trail swap addto
-result.il_agi result.il_exemption_total f- 0 fmax /result.il_taxable_income xdef
-"  Illinois Taxable Income: $" result.il_taxable_income cvs strconcat " (AGI - Exemptions)" strconcat job.audit_trail swap addto
-result.il_taxable_income il_tax_rate f* /result.il_tax xdef
-"  Illinois Tax (4.95%): $" result.il_tax cvs strconcat " (Form IL-1040 Line 13)" strconcat job.audit_trail swap addto
+"  Illinois AGI: $" current_state.state_agi cvs strconcat " (Form IL-1040 Line 11)" strconcat job.audit_trail swap addto
+num_people il_personal_exemption f* local@ il_exemption_total >
+current_state.is_resident if
+  il_exemption_total local@ il_exemption_allowed >
+else
+  current_state.state_agi result.agi fdiv il_exemption_total f* local@ il_exemption_allowed >
+  "  Non-Resident - Prorated exemptions: $" il_exemption_allowed cvs strconcat " (ratio: " strconcat current_state.state_agi result.agi fdiv cvs strconcat ")" strconcat job.audit_trail swap addto
+endif
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat il_personal_exemption cvs strconcat " = $" strconcat il_exemption_allowed cvs strconcat job.audit_trail swap addto
+current_state.state_agi il_exemption_allowed f- 0 fmax /current_state.state_taxable_income xdef
+"  Illinois Taxable Income: $" current_state.state_taxable_income cvs strconcat " (AGI - Exemptions)" strconcat job.audit_trail swap addto
+current_state.state_taxable_income il_tax_rate f* /current_state.state_tax_before_credits xdef
+current_state.state_tax_before_credits /current_state.state_tax_liability xdef
+"  Illinois Tax (4.95%): $" current_state.state_tax_liability cvs strconcat " (Form IL-1040 Line 13)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -8863,10 +8953,11 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <action_comment>No exemptions - unlikely case</action_comment>
 <action_description>Calculate IL tax without exemptions</action_description>
 <action_postfix>
-"  Illinois AGI: $" result.il_agi cvs strconcat job.audit_trail swap addto
-result.il_agi 0 fmax /result.il_taxable_income xdef
-result.il_taxable_income il_tax_rate f* /result.il_tax xdef
-"  Illinois Tax (4.95%): $" result.il_tax cvs strconcat job.audit_trail swap addto
+"  Illinois AGI: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
+current_state.state_agi 0 fmax /current_state.state_taxable_income xdef
+current_state.state_taxable_income il_tax_rate f* /current_state.state_tax_before_credits xdef
+current_state.state_tax_before_credits /current_state.state_tax_liability xdef
+"  Illinois Tax (4.95%): $" current_state.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -8898,10 +8989,18 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize NH tax calculation</action_description>
+<action_description>Initialize NH tax calculation with resident/non-resident check</action_description>
 <action_postfix>
 "NEW HAMPSHIRE FORM NH-1040 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.nh_agi xdef
+job.state NH streq /result.nh_is_resident xdef
+result.nh_is_resident if
+  result.agi /result.nh_agi xdef
+  "  Resident - using full AGI: $" result.nh_agi cvs strconcat job.audit_trail swap addto
+else
+  NH state_income_hash dup null eq if pop 0 endif /result.nh_state_source_income xdef
+  result.nh_state_source_income /result.nh_agi xdef
+  "  Non-resident - using NH source income only: $" result.nh_agi cvs strconcat job.audit_trail swap addto
+endif
 0 /result.nh_bracket_1_tax xdef
 0 /result.nh_bracket_2_tax xdef
 0 /result.nh_bracket_3_tax xdef
@@ -9015,10 +9114,18 @@ result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /r
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize MT tax calculation</action_description>
+<action_description>Initialize MT tax calculation with resident/non-resident check</action_description>
 <action_postfix>
 "MONTANA FORM 2 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.mt_agi xdef
+job.state MT streq /result.mt_is_resident xdef
+result.mt_is_resident if
+  result.agi /result.mt_agi xdef
+  "  Resident - using full AGI: $" result.mt_agi cvs strconcat job.audit_trail swap addto
+else
+  MT state_income_hash dup null eq if pop 0 endif /result.mt_state_source_income xdef
+  result.mt_state_source_income /result.mt_agi xdef
+  "  Non-resident - using MT source income only: $" result.mt_agi cvs strconcat job.audit_trail swap addto
+endif
 0 /result.mt_bracket_1_tax xdef
 0 /result.mt_bracket_2_tax xdef
 </action_postfix>

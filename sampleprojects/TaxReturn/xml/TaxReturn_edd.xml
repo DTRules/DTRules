@@ -79,8 +79,10 @@
 		<field name='is_primary' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Primary taxpayer on return'></field>
 		<field name='w2_wages' type='double' subtype='' access='rw' input='main' default_value='0' comment='W-2 wage income'></field>
 		<field name='w2_withholding' type='double' subtype='' access='rw' input='main' default_value='0' comment='Federal tax withheld from W-2'></field>
+		<field name='w2_state_source' type='string' subtype='' access='r' input='main' default_value='' comment='State where W-2 wages were earned (for non-resident tax)'></field>
 		<field name='se_gross_income' type='double' subtype='' access='rw' input='main' default_value='0' comment='Self-employment gross receipts'></field>
 		<field name='se_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Total Schedule C expenses'></field>
+		<field name='se_state_source' type='string' subtype='' access='r' input='main' default_value='' comment='State where self-employment income was earned (for non-resident tax)'></field>
 		<field name='se_net_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Schedule C net profit (computed)'></field>
 		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (computed)'></field>
 		<field name='se_tax_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible portion of SE tax (computed)'></field>
@@ -163,6 +165,8 @@
 		<!-- Capital Gains fields -->
 		<field name='holding_period' type='string' subtype='' access='r' input='main' default_value='' comment='Holding period: short_term or long_term (Schedule D)'></field>
 		<field name='is_qualified_dividend' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Qualifies for LTCG rates (Form 1099-DIV Box 1b)'></field>
+		<!-- Non-resident state tax -->
+		<field name='state_source' type='string' subtype='' access='r' input='main' default_value='' comment='State where income was earned (for non-resident tax allocation)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -193,6 +197,8 @@
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
 		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
+		<!-- Non-resident state tax -->
+		<field name='state_location' type='string' subtype='' access='r' input='main' default_value='' comment='State where property is located (for non-resident tax on rental income)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -1471,6 +1477,8 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is resident (vs non-resident)'></field>
+		<field name='state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in this state (for non-residents)'></field>
 		<field name='state_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='State adjusted gross income'></field>
 		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income after deductions'></field>
 		<field name='state_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax before credits'></field>
