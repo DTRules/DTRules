@@ -163,6 +163,9 @@
 		<!-- Capital Gains fields -->
 		<field name='holding_period' type='string' subtype='' access='r' input='main' default_value='' comment='Holding period: short_term or long_term (Schedule D)'></field>
 		<field name='is_qualified_dividend' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Qualifies for LTCG rates (Form 1099-DIV Box 1b)'></field>
+		<!-- Multi-State Income Tracking -->
+		<field name='state_earned' type='string' subtype='' access='r' input='main' default_value='' comment='State where income was earned (for non-resident state tax)'></field>
+		<field name='state_tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='State tax withheld at source'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -174,6 +177,7 @@
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Property ID'></field>
 		<field name='type' type='string' subtype='' access='r' input='main' default_value='primary_residence' comment='Type: primary_residence, rental, second_home'></field>
 		<field name='address' type='string' subtype='' access='r' input='main' default_value='' comment='Property address'></field>
+		<field name='state' type='string' subtype='' access='r' input='main' default_value='' comment='State where property is located (for state tax allocation)'></field>
 		<field name='purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date purchased'></field>
 		<field name='purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price'></field>
 		<field name='current_fmv' type='double' subtype='' access='r' input='main' default_value='0' comment='Current fair market value'></field>
@@ -977,6 +981,46 @@
 		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
 
+		<!-- New York State Tax Constants (2025) -->
+		<field name='ny_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NY standard deduction Single (2025)'></field>
+		<field name='ny_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16050' comment='NY standard deduction MFJ (2025)'></field>
+		<field name='ny_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.04' comment='NY tax rate bracket 1 (4.0%)'></field>
+		<field name='ny_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.045' comment='NY tax rate bracket 2 (4.5%)'></field>
+		<field name='ny_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.0525' comment='NY tax rate bracket 3 (5.25%)'></field>
+		<field name='ny_tax_rate_4' type='double' subtype='' access='r' input='' default_value='0.0585' comment='NY tax rate bracket 4 (5.85%)'></field>
+		<field name='ny_tax_rate_5' type='double' subtype='' access='r' input='' default_value='0.0625' comment='NY tax rate bracket 5 (6.25%)'></field>
+		<field name='ny_tax_rate_6' type='double' subtype='' access='r' input='' default_value='0.0685' comment='NY tax rate bracket 6 (6.85%)'></field>
+		<field name='ny_tax_rate_7' type='double' subtype='' access='r' input='' default_value='0.0965' comment='NY tax rate bracket 7 (9.65%)'></field>
+		<field name='ny_tax_rate_8' type='double' subtype='' access='r' input='' default_value='0.103' comment='NY tax rate bracket 8 (10.3%)'></field>
+		<field name='ny_tax_rate_9' type='double' subtype='' access='r' input='' default_value='0.109' comment='NY tax rate bracket 9 (10.9%)'></field>
+
+		<!-- New Jersey State Tax Constants (2025) -->
+		<field name='nj_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.014' comment='NJ tax rate bracket 1 (1.4%)'></field>
+		<field name='nj_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.0175' comment='NJ tax rate bracket 2 (1.75%)'></field>
+		<field name='nj_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.035' comment='NJ tax rate bracket 3 (3.5%)'></field>
+		<field name='nj_tax_rate_4' type='double' subtype='' access='r' input='' default_value='0.05525' comment='NJ tax rate bracket 4 (5.525%)'></field>
+		<field name='nj_tax_rate_5' type='double' subtype='' access='r' input='' default_value='0.0637' comment='NJ tax rate bracket 5 (6.37%)'></field>
+		<field name='nj_tax_rate_6' type='double' subtype='' access='r' input='' default_value='0.0897' comment='NJ tax rate bracket 6 (8.97%)'></field>
+		<field name='nj_tax_rate_7' type='double' subtype='' access='r' input='' default_value='0.1075' comment='NJ tax rate bracket 7 (10.75%)'></field>
+
+		<!-- California State Tax Constants (2025) -->
+		<field name='ca_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='5363' comment='CA standard deduction Single (2025)'></field>
+		<field name='ca_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='10726' comment='CA standard deduction MFJ (2025)'></field>
+		<field name='ca_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.01' comment='CA tax rate bracket 1 (1.0%)'></field>
+		<field name='ca_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.02' comment='CA tax rate bracket 2 (2.0%)'></field>
+		<field name='ca_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.04' comment='CA tax rate bracket 3 (4.0%)'></field>
+		<field name='ca_tax_rate_4' type='double' subtype='' access='r' input='' default_value='0.06' comment='CA tax rate bracket 4 (6.0%)'></field>
+		<field name='ca_tax_rate_5' type='double' subtype='' access='r' input='' default_value='0.08' comment='CA tax rate bracket 5 (8.0%)'></field>
+		<field name='ca_tax_rate_6' type='double' subtype='' access='r' input='' default_value='0.093' comment='CA tax rate bracket 6 (9.3%)'></field>
+		<field name='ca_tax_rate_7' type='double' subtype='' access='r' input='' default_value='0.103' comment='CA tax rate bracket 7 (10.3%)'></field>
+		<field name='ca_tax_rate_8' type='double' subtype='' access='r' input='' default_value='0.113' comment='CA tax rate bracket 8 (11.3%)'></field>
+		<field name='ca_tax_rate_9' type='double' subtype='' access='r' input='' default_value='0.123' comment='CA tax rate bracket 9 (12.3%)'></field>
+
+		<!-- Arizona State Tax Constants (2025) -->
+		<field name='az_tax_rate' type='double' subtype='' access='r' input='' default_value='0.025' comment='Arizona flat tax rate (2.5% as of 2025)'></field>
+		<field name='az_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='14600' comment='AZ standard deduction Single (follows federal 2025)'></field>
+		<field name='az_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='29200' comment='AZ standard deduction MFJ (follows federal 2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1478,6 +1522,10 @@
 		<field name='state_tax_liability' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax liability after credits'></field>
 		<field name='state_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax withheld'></field>
 		<field name='state_refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='State refund (positive) or amount owed (negative)'></field>
+		<!-- Credit for Taxes Paid to Other States -->
+		<field name='income_taxed_by_other_states' type='double' subtype='' access='rw' input='' default_value='0' comment='Income amount taxed by other states (for resident state credit)'></field>
+		<field name='taxes_paid_to_other_states' type='double' subtype='' access='rw' input='' default_value='0' comment='Total taxes paid to other states'></field>
+		<field name='other_state_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit for taxes paid to other states'></field>
 	</entity>
 
 </entity_data_dictionary>
