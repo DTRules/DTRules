@@ -66,7 +66,7 @@ func setupTaxReturn(b *testing.B) *session.RuleSet {
 }
 
 // loadTestData loads test XML data into a session
-func loadTestData(b *testing.B, sess *session.Session, testFile string) {
+func loadTestData(b *testing.B, sess *session.RSession, testFile string) {
 	b.Helper()
 
 	cwd, _ := os.Getwd()
@@ -106,7 +106,7 @@ func loadTestData(b *testing.B, sess *session.Session, testFile string) {
 }
 
 // executeTaxReturn runs the Compute_Tax_Return decision table
-func executeTaxReturn(b *testing.B, sess *session.Session) {
+func executeTaxReturn(b *testing.B, sess *session.RSession) {
 	b.Helper()
 
 	ef := sess.GetEntityFactory()
@@ -143,8 +143,8 @@ func BenchmarkSingleStateTax(b *testing.B) {
 			if err != nil {
 				b.Fatalf("Failed to create session: %v", err)
 			}
-			loadTestData(b, sess, tc.file)
-			executeTaxReturn(b, sess)
+			loadTestData(b, sess.(*session.RSession), tc.file)
+			executeTaxReturn(b, sess.(*session.RSession))
 
 			b.ResetTimer()
 
@@ -155,8 +155,8 @@ func BenchmarkSingleStateTax(b *testing.B) {
 					b.Fatalf("Failed to create session: %v", err)
 				}
 
-				loadTestData(b, sess, tc.file)
-				executeTaxReturn(b, sess)
+				loadTestData(b, sess.(*session.RSession), tc.file)
+				executeTaxReturn(b, sess.(*session.RSession))
 			}
 		})
 	}
@@ -177,8 +177,8 @@ func BenchmarkAllStates(b *testing.B) {
 		// Warmup
 		for _, file := range testFiles {
 			sess, _ := rs.NewSession()
-			loadTestData(b, sess, file)
-			executeTaxReturn(b, sess)
+			loadTestData(b, sess.(*session.RSession), file)
+			executeTaxReturn(b, sess.(*session.RSession))
 		}
 
 		b.ResetTimer()
@@ -190,8 +190,8 @@ func BenchmarkAllStates(b *testing.B) {
 					b.Fatalf("Failed to create session: %v", err)
 				}
 
-				loadTestData(b, sess, file)
-				executeTaxReturn(b, sess)
+				loadTestData(b, sess.(*session.RSession), file)
+				executeTaxReturn(b, sess.(*session.RSession))
 			}
 		}
 	})
@@ -217,8 +217,8 @@ func BenchmarkMultiStateTax(b *testing.B) {
 		b.Run(tc.name, func(b *testing.B) {
 			// Warmup
 			sess, _ := rs.NewSession()
-			loadTestData(b, sess, tc.file)
-			executeTaxReturn(b, sess)
+			loadTestData(b, sess.(*session.RSession), tc.file)
+			executeTaxReturn(b, sess.(*session.RSession))
 
 			b.ResetTimer()
 
@@ -228,8 +228,8 @@ func BenchmarkMultiStateTax(b *testing.B) {
 					b.Fatalf("Failed to create session: %v", err)
 				}
 
-				loadTestData(b, sess, tc.file)
-				executeTaxReturn(b, sess)
+				loadTestData(b, sess.(*session.RSession), tc.file)
+				executeTaxReturn(b, sess.(*session.RSession))
 			}
 		})
 	}
@@ -252,8 +252,8 @@ func BenchmarkFederalPlusState(b *testing.B) {
 		b.Run(tc.name, func(b *testing.B) {
 			// Warmup
 			sess, _ := rs.NewSession()
-			loadTestData(b, sess, tc.file)
-			executeTaxReturn(b, sess)
+			loadTestData(b, sess.(*session.RSession), tc.file)
+			executeTaxReturn(b, sess.(*session.RSession))
 
 			b.ResetTimer()
 
@@ -263,8 +263,8 @@ func BenchmarkFederalPlusState(b *testing.B) {
 					b.Fatalf("Failed to create session: %v", err)
 				}
 
-				loadTestData(b, sess, tc.file)
-				executeTaxReturn(b, sess)
+				loadTestData(b, sess.(*session.RSession), tc.file)
+				executeTaxReturn(b, sess.(*session.RSession))
 			}
 		})
 	}
@@ -290,7 +290,7 @@ func BenchmarkStateTaxComponents(b *testing.B) {
 			sess, _ := rs.NewSession()
 			b.StartTimer()
 
-			loadTestData(b, sess, "TestCase_NH_01_Single_W2.xml")
+			loadTestData(b, sess.(*session.RSession), "TestCase_NH_01_Single_W2.xml")
 		}
 	})
 
@@ -298,10 +298,10 @@ func BenchmarkStateTaxComponents(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			b.StopTimer()
 			sess, _ := rs.NewSession()
-			loadTestData(b, sess, "TestCase_NH_01_Single_W2.xml")
+			loadTestData(b, sess.(*session.RSession), "TestCase_NH_01_Single_W2.xml")
 			b.StartTimer()
 
-			executeTaxReturn(b, sess)
+			executeTaxReturn(b, sess.(*session.RSession))
 		}
 	})
 }
@@ -327,8 +327,8 @@ func TestPerformanceTargets(t *testing.T) {
 			}
 
 			start := time.Now()
-			loadTestDataForTest(t, sess, "TestCase_NH_01_Single_W2.xml")
-			executeTaxReturnForTest(t, sess)
+			loadTestDataForTest(t, sess.(*session.RSession), "TestCase_NH_01_Single_W2.xml")
+			executeTaxReturnForTest(t, sess.(*session.RSession))
 			elapsed := time.Since(start)
 			total += elapsed
 		}
@@ -354,8 +354,8 @@ func TestPerformanceTargets(t *testing.T) {
 			}
 
 			start := time.Now()
-			loadTestDataForTest(t, sess, "TestCase_MultiState_03_Traveling_Consultant.xml")
-			executeTaxReturnForTest(t, sess)
+			loadTestDataForTest(t, sess.(*session.RSession), "TestCase_MultiState_03_Traveling_Consultant.xml")
+			executeTaxReturnForTest(t, sess.(*session.RSession))
 			elapsed := time.Since(start)
 			total += elapsed
 		}
@@ -381,8 +381,8 @@ func TestPerformanceTargets(t *testing.T) {
 			}
 
 			start := time.Now()
-			loadTestDataForTest(t, sess, "TestCase_Family_2025.xml")
-			executeTaxReturnForTest(t, sess)
+			loadTestDataForTest(t, sess.(*session.RSession), "TestCase_Family_2025.xml")
+			executeTaxReturnForTest(t, sess.(*session.RSession))
 			elapsed := time.Since(start)
 			total += elapsed
 		}
@@ -433,7 +433,7 @@ func setupTaxReturnForTest(t *testing.T) *session.RuleSet {
 	return rs
 }
 
-func loadTestDataForTest(t *testing.T, sess *session.Session, testFile string) {
+func loadTestDataForTest(t *testing.T, sess *session.RSession, testFile string) {
 	t.Helper()
 
 	cwd, _ := os.Getwd()
@@ -470,7 +470,7 @@ func loadTestDataForTest(t *testing.T, sess *session.Session, testFile string) {
 	}
 }
 
-func executeTaxReturnForTest(t *testing.T, sess *session.Session) {
+func executeTaxReturnForTest(t *testing.T, sess *session.RSession) {
 	t.Helper()
 
 	ef := sess.GetEntityFactory()

@@ -101,6 +101,12 @@ func opPolicyStatements(state dtrules.State) error {
 		return err
 	}
 
+	// TODO: Implement policy statements extraction from current execution context
+	// For now, just return empty array to allow compilation
+	// This requires tracking current decision table and action node in State
+	return nil
+
+	/*
 	// Get the current ANode and decision table
 	anodeInterface := state.GetANode()
 	tableInterface := state.GetCurrentTable()
@@ -180,6 +186,7 @@ func opPolicyStatements(state dtrules.State) error {
 	}
 
 	return nil
+	*/
 }
 
 // opPop: ( a -- ) removes top element
@@ -640,7 +647,7 @@ func opCreateEntity(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	entity, err := state.GetEntityProvider().CreateEntity(name)
+	entity, err := state.GetSession().CreateEntity(name)
 	if err != nil {
 		return err
 	}
@@ -666,7 +673,7 @@ func opFindCreateEntity(state dtrules.State) error {
 		return err
 	}
 	// For now just create - full implementation would track by id
-	entity, err := state.GetEntityProvider().CreateEntity(name)
+	entity, err := state.GetSession().CreateEntity(name)
 	if err != nil {
 		return err
 	}
@@ -748,7 +755,7 @@ func opCvd(state dtrules.State) error {
 	if err != nil {
 		// Try parsing as string
 		str := obj.StringValue()
-		date, err := dtrules.GetRDate(state.GetDateParserProvider(), str)
+		date, err := dtrules.GetRDate(state.GetSession(), str)
 		if err != nil {
 			return state.DataPush(dtrules.GetRNull())
 		}
