@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Connecticut
+
+  CT implements progressive tax with 7 brackets (2% to 6.99%)
+
+  Table Number: 40700 (CT is state #7 alphabetically)
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Add state-specific constants to the 'result' entity -->
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="ct_standard_deduction_single" type="double" default_value="15000.0"
+           comment="CT standard deduction single (2025)"/>
+    <field name="ct_standard_deduction_joint" type="double" default_value="24000.0"
+           comment="CT standard deduction married filing jointly (2025)"/>
+    <field name="ct_standard_deduction_hoh" type="double" default_value="15000.0"
+           comment="CT standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets - Single filers -->
+    <field name="ct_bracket_1_limit" type="double" default_value="10000.0"
+           comment="CT tax bracket 1 upper limit - Single (2025)"/>
+    <field name="ct_bracket_1_rate" type="double" default_value="0.02"
+           comment="CT tax rate for bracket 1: 2% (2025)"/>
+
+    <field name="ct_bracket_2_limit" type="double" default_value="50000.0"
+           comment="CT tax bracket 2 upper limit - Single (2025)"/>
+    <field name="ct_bracket_2_rate" type="double" default_value="0.045"
+           comment="CT tax rate for bracket 2: 4.5% (2025)"/>
+
+    <field name="ct_bracket_3_limit" type="double" default_value="100000.0"
+           comment="CT tax bracket 3 upper limit - Single (2025)"/>
+    <field name="ct_bracket_3_rate" type="double" default_value="0.055"
+           comment="CT tax rate for bracket 3: 5.5% (2025)"/>
+
+    <field name="ct_bracket_4_limit" type="double" default_value="200000.0"
+           comment="CT tax bracket 4 upper limit - Single (2025)"/>
+    <field name="ct_bracket_4_rate" type="double" default_value="0.06"
+           comment="CT tax rate for bracket 4: 6.0% (2025)"/>
+
+    <field name="ct_bracket_5_limit" type="double" default_value="250000.0"
+           comment="CT tax bracket 5 upper limit - Single (2025)"/>
+    <field name="ct_bracket_5_rate" type="double" default_value="0.065"
+           comment="CT tax rate for bracket 5: 6.5% (2025)"/>
+
+    <field name="ct_bracket_6_limit" type="double" default_value="500000.0"
+           comment="CT tax bracket 6 upper limit - Single (2025)"/>
+    <field name="ct_bracket_6_rate" type="double" default_value="0.069"
+           comment="CT tax rate for bracket 6: 6.9% (2025)"/>
+
+    <field name="ct_bracket_7_rate" type="double" default_value="0.0699"
+           comment="CT tax rate for bracket 7: 6.99% over $500,000 (2025)"/>
+
+    <!-- Progressive tax brackets - Married Filing Jointly -->
+    <field name="ct_bracket_1_limit_joint" type="double" default_value="20000.0"
+           comment="CT tax bracket 1 upper limit - MFJ (2025)"/>
+
+    <field name="ct_bracket_2_limit_joint" type="double" default_value="100000.0"
+           comment="CT tax bracket 2 upper limit - MFJ (2025)"/>
+
+    <field name="ct_bracket_3_limit_joint" type="double" default_value="200000.0"
+           comment="CT tax bracket 3 upper limit - MFJ (2025)"/>
+
+    <field name="ct_bracket_4_limit_joint" type="double" default_value="400000.0"
+           comment="CT tax bracket 4 upper limit - MFJ (2025)"/>
+
+    <field name="ct_bracket_5_limit_joint" type="double" default_value="500000.0"
+           comment="CT tax bracket 5 upper limit - MFJ (2025)"/>
+
+    <!-- State tax result -->
+    <field name="ct_state_tax" type="double" default_value="0.0"
+           comment="Calculated CT state tax liability (2025)"/>
+
+  </entity>
+</entity_data_dictionary>
