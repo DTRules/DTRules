@@ -56,7 +56,7 @@ Implement comprehensive state income tax calculation for all 41 states (plus DC)
 - [x] #225 - Implement Maine progressive tax
 - [x] #226 - Implement Rhode Island progressive tax
 - [ ] #227 - Implement New Hampshire (interest/dividends only)
-- [ ] #228 - Implement Washington DC progressive tax
+- [x] #228 - Implement Washington DC progressive tax
 
 **Phase 4: West Coast States (Issues #230-233) - depends on #200**
 - [ ] #230 - Implement California progressive tax (complex)
