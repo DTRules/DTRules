@@ -8682,6 +8682,99 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 
 
 <!-- ====================================================================== -->
+<!-- TABLE 39900: Calculate_Part_Year_Allocation - Part-Year Resident Allocation -->
+<!-- Reference: State part-year resident forms                              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Part_Year_Allocation</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates resident months, income allocation, and deduction allocation for part-year residents. Iterates through state_tax_results array and computes values based on residency dates.</COMMENTS>
+<TABLE_NUMBER>39900</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context>
+<context_formal>state_tax_result</context_formal>
+<context_description>State tax result to process</context_description>
+</context>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize part-year calculation</action_description>
+<action_postfix>
+state_tax_result.residency_status "part_year_resident" streq if
+  "  Part-Year Resident Calculation for " state_tax_result.state_code strconcat job.audit_trail swap addto
+  0 local@ resident_months >
+  state_tax_result.residency_start_date null eq not state_tax_result.residency_end_date null eq not and if
+    state_tax_result.residency_end_date month state_tax_result.residency_start_date month - 1 + local@ resident_months >
+    resident_months 1 12 bound /state_tax_result.resident_months xdef
+    state_tax_result.resident_months 12.0 f/ /state_tax_result.resident_ratio xdef
+    "    Resident months: " state_tax_result.resident_months cvs strconcat " (ratio: " strconcat state_tax_result.resident_ratio cvs strconcat ")" strconcat job.audit_trail swap addto
+  else
+    12 /state_tax_result.resident_months xdef
+    1.0 /state_tax_result.resident_ratio xdef
+  endif
+endif
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Part-year resident</condition_comment>
+<condition_description>residency_status is "part_year_resident"</condition_description>
+<condition_postfix>
+state_tax_result.residency_status "part_year_resident" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Allocate income and deductions for part-year resident</action_comment>
+<action_description>Prorate income and deductions based on resident_ratio</action_description>
+<action_postfix>
+result.agi state_tax_result.resident_ratio f* /state_tax_result.resident_income xdef
+"    Resident income (prorated): $" state_tax_result.resident_income cvs strconcat job.audit_trail swap addto
+result.agi 1.0 state_tax_result.resident_ratio f- f* /state_tax_result.non_resident_income xdef
+"    Non-resident income: $" state_tax_result.non_resident_income cvs strconcat job.audit_trail swap addto
+result.total_deductions state_tax_result.resident_ratio f* /state_tax_result.allocated_deductions xdef
+"    Allocated deductions: $" state_tax_result.allocated_deductions cvs strconcat job.audit_trail swap addto
+state_tax_result.resident_income state_tax_result.non_resident_income f+ /state_tax_result.state_agi xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Full-year resident or non-resident</action_comment>
+<action_description>No allocation needed</action_description>
+<action_postfix>
+12 /state_tax_result.resident_months xdef
+1.0 /state_tax_result.resident_ratio xdef
+result.agi /state_tax_result.state_agi xdef
+0 /state_tax_result.resident_income xdef
+0 /state_tax_result.non_resident_income xdef
+result.total_deductions /state_tax_result.allocated_deductions xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Part-year resident income and deduction allocation</policy_description>
+<policy_statement_postfix>"Part-year resident income allocated based on residency period"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Full-year resident - no allocation</policy_description>
+<policy_statement_postfix>"Full-year resident uses full federal amounts"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 40000: Dispatch_State_Tax - State Tax Dispatcher               -->
 <!-- Reference: State-specific income tax forms                             -->
 <!-- ====================================================================== -->
@@ -8696,9 +8789,10 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Log state tax calculation start</action_description>
+<action_description>Log state tax calculation start and calculate part-year allocation</action_description>
 <action_postfix>
 "State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+{ Calculate_Part_Year_Allocation } job.state_tax_results forall
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -8807,17 +8901,32 @@ Calculate_MT_Tax
 <xls_file>State.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates Illinois state income tax per Form IL-1040. Illinois uses a flat tax rate of 4.95% (2025) with personal exemptions of $2,775 per person. Starting with federal AGI, adds state bond interest, subtracts retirement income, applies personal exemptions, and calculates tax at flat rate.</COMMENTS>
+<COMMENTS>Calculates Illinois state income tax per Form IL-1040. Illinois uses a flat tax rate of 4.95% (2025) with personal exemptions of $2,775 per person. Starting with federal AGI (or state AGI for part-year residents), adds state bond interest, subtracts retirement income, applies personal exemptions, and calculates tax at flat rate. Supports part-year residents via state_tax_result.</COMMENTS>
 <TABLE_NUMBER>41100</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context>
+<context_formal>state_tax_result</context_formal>
+<context_description>State tax result for Illinois</context_description>
+</context>
+</contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize IL tax calculation</action_description>
+<action_description>Initialize IL tax calculation and create/find state_tax_result</action_description>
 <action_postfix>
 "ILLINOIS FORM IL-1040 - State Income Tax Calculation" job.audit_trail swap addto
 0 local@ num_people >
-result.agi /result.il_agi xdef
+job.state_tax_results arraysize 0 eq if
+  state_tax_result new /state_tax_result >
+  "IL" /state_tax_result.state_code xdef
+  "full_year_resident" /state_tax_result.residency_status xdef
+  result.agi /state_tax_result.state_agi xdef
+  result.total_deductions /state_tax_result.allocated_deductions xdef
+  state_tax_result job.state_tax_results addto
+else
+  job.state_tax_results 0 at@ /state_tax_result >
+endif
+state_tax_result.state_agi /result.il_agi xdef
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -8840,20 +8949,22 @@ num_people 1 >=
 <action_comment>Calculate IL tax with exemptions</action_comment>
 <action_description>Calculate Illinois AGI, apply exemptions, calculate tax at 4.95%</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-result.agi local@ il_retirement_subtraction >
+"  Starting State AGI: $" state_tax_result.state_agi cvs strconcat " (Federal AGI or allocated AGI)" strconcat job.audit_trail swap addto
+state_tax_result.state_agi local@ il_retirement_subtraction >
 0 local@ state_bond_addition >
-{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if dup gross_amount il_retirement_subtraction f+ local@ il_retirement_subtraction > endif } job.incomes forall
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if dup gross_amount state_tax_result.resident_ratio f* il_retirement_subtraction f+ local@ il_retirement_subtraction > endif } job.incomes forall
 il_retirement_subtraction 0 f> if
   "  Subtract Retirement Income: -$" il_retirement_subtraction cvs strconcat " (IL allows full subtraction)" strconcat job.audit_trail swap addto
-  result.il_agi il_retirement_subtraction f- /result.il_agi xdef
+  state_tax_result.state_agi il_retirement_subtraction f- dup /state_tax_result.state_agi xdef /result.il_agi xdef
+else
+  state_tax_result.state_agi /result.il_agi xdef
 endif
 "  Illinois AGI: $" result.il_agi cvs strconcat " (Form IL-1040 Line 11)" strconcat job.audit_trail swap addto
-num_people il_personal_exemption f* /result.il_exemption_total xdef
-"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat il_personal_exemption cvs strconcat " = $" strconcat result.il_exemption_total cvs strconcat strconcat job.audit_trail swap addto
-result.il_agi result.il_exemption_total f- 0 fmax /result.il_taxable_income xdef
+num_people il_personal_exemption f* state_tax_result.resident_ratio f* /result.il_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat il_personal_exemption cvs strconcat " × " strconcat state_tax_result.resident_ratio cvs strconcat " = $" strconcat result.il_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.il_agi result.il_exemption_total f- 0 fmax dup /state_tax_result.state_taxable_income xdef /result.il_taxable_income xdef
 "  Illinois Taxable Income: $" result.il_taxable_income cvs strconcat " (AGI - Exemptions)" strconcat job.audit_trail swap addto
-result.il_taxable_income il_tax_rate f* /result.il_tax xdef
+result.il_taxable_income il_tax_rate f* dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.il_tax xdef
 "  Illinois Tax (4.95%): $" result.il_tax cvs strconcat " (Form IL-1040 Line 13)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -8864,8 +8975,8 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <action_description>Calculate IL tax without exemptions</action_description>
 <action_postfix>
 "  Illinois AGI: $" result.il_agi cvs strconcat job.audit_trail swap addto
-result.il_agi 0 fmax /result.il_taxable_income xdef
-result.il_taxable_income il_tax_rate f* /result.il_tax xdef
+result.il_agi 0 fmax dup /state_tax_result.state_taxable_income xdef /result.il_taxable_income xdef
+result.il_taxable_income il_tax_rate f* dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.il_tax xdef
 "  Illinois Tax (4.95%): $" result.il_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -8892,16 +9003,31 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <xls_file>State.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates New Hampshire state income tax per hypothetical Form NH-1040. New Hampshire uses progressive tax brackets: 3% on first $75,000, 5% on $75,000-$150,000, 7.5% above $150,000. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets with div/int arithmetic only.</COMMENTS>
+<COMMENTS>Calculates New Hampshire state income tax per hypothetical Form NH-1040. New Hampshire uses progressive tax brackets: 3% on first $75,000, 5% on $75,000-$150,000, 7.5% above $150,000. Starting with federal AGI (or allocated AGI for part-year residents), applies standard deduction based on filing status, then calculates tax using progressive brackets. Supports part-year residents via state_tax_result.</COMMENTS>
 <TABLE_NUMBER>42700</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context>
+<context_formal>state_tax_result</context_formal>
+<context_description>State tax result for New Hampshire</context_description>
+</context>
+</contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize NH tax calculation</action_description>
+<action_description>Initialize NH tax calculation and create/find state_tax_result</action_description>
 <action_postfix>
 "NEW HAMPSHIRE FORM NH-1040 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.nh_agi xdef
+job.state_tax_results arraysize 0 eq if
+  state_tax_result new /state_tax_result >
+  "NH" /state_tax_result.state_code xdef
+  "full_year_resident" /state_tax_result.residency_status xdef
+  result.agi /state_tax_result.state_agi xdef
+  result.total_deductions /state_tax_result.allocated_deductions xdef
+  state_tax_result job.state_tax_results addto
+else
+  job.state_tax_results 0 at@ /state_tax_result >
+endif
+state_tax_result.state_agi /result.nh_agi xdef
 0 /result.nh_bracket_1_tax xdef
 0 /result.nh_bracket_2_tax xdef
 0 /result.nh_bracket_3_tax xdef
@@ -8926,10 +9052,10 @@ job.filing_status married_filing_jointly streq
 <action_comment>Calculate NH tax MFJ</action_comment>
 <action_description>Calculate NH tax with MFJ standard deduction and progressive brackets</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.nh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nh_standard_deduction_mfj /result.nh_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.nh_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nh_agi result.nh_standard_deduction f- 0 fmax /result.nh_taxable_income xdef
+"  Starting State AGI: $" result.nh_agi cvs strconcat " (Federal AGI or allocated AGI)" strconcat job.audit_trail swap addto
+nh_standard_deduction_mfj state_tax_result.resident_ratio f* /result.nh_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.nh_standard_deduction cvs strconcat " (ratio: " strconcat state_tax_result.resident_ratio cvs strconcat ")" strconcat job.audit_trail swap addto
+result.nh_agi result.nh_standard_deduction f- 0 fmax dup /state_tax_result.state_taxable_income xdef /result.nh_taxable_income xdef
 "  NH Taxable Income: $" result.nh_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
 result.nh_taxable_income nh_bracket_3_threshold f> if
   nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
@@ -8949,7 +9075,7 @@ else
     "  Bracket 1 (3% on $0-$" result.nh_taxable_income cvs strconcat "): $" strconcat result.nh_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
   endif
 endif
-result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /result.nh_tax xdef
+result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.nh_tax xdef
 "  Total NH Tax: $" result.nh_tax cvs strconcat " (Form NH-1040)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -8959,10 +9085,10 @@ result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /r
 <action_comment>Calculate NH tax Single/other</action_comment>
 <action_description>Calculate NH tax with Single standard deduction and progressive brackets</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.nh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nh_standard_deduction_single /result.nh_standard_deduction xdef
-"  Standard Deduction (Single): $" result.nh_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nh_agi result.nh_standard_deduction f- 0 fmax /result.nh_taxable_income xdef
+"  Starting State AGI: $" result.nh_agi cvs strconcat " (Federal AGI or allocated AGI)" strconcat job.audit_trail swap addto
+nh_standard_deduction_single state_tax_result.resident_ratio f* /result.nh_standard_deduction xdef
+"  Standard Deduction (Single): $" result.nh_standard_deduction cvs strconcat " (ratio: " strconcat state_tax_result.resident_ratio cvs strconcat ")" strconcat job.audit_trail swap addto
+result.nh_agi result.nh_standard_deduction f- 0 fmax dup /state_tax_result.state_taxable_income xdef /result.nh_taxable_income xdef
 "  NH Taxable Income: $" result.nh_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
 result.nh_taxable_income nh_bracket_3_threshold f> if
   nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
@@ -8982,7 +9108,7 @@ else
     "  Bracket 1 (3% on $0-$" result.nh_taxable_income cvs strconcat "): $" strconcat result.nh_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
   endif
 endif
-result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /result.nh_tax xdef
+result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.nh_tax xdef
 "  Total NH Tax: $" result.nh_tax cvs strconcat " (Form NH-1040)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -9009,16 +9135,31 @@ result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /r
 <xls_file>State.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates Montana state income tax per Form 2. Montana uses progressive tax brackets: 4.7% on first bracket, 5.9% above threshold. Thresholds vary by filing status: Single/MFS $21,100, MFJ $42,200, HOH $31,700. Starting with federal AGI, applies standard deduction based on filing status ($4,500 Single, $11,500 MFJ), then calculates tax using progressive brackets.</COMMENTS>
+<COMMENTS>Calculates Montana state income tax per Form 2. Montana uses progressive tax brackets: 4.7% on first bracket, 5.9% above threshold. Thresholds vary by filing status: Single/MFS $21,100, MFJ $42,200, HOH $31,700. Starting with federal AGI (or allocated AGI for part-year residents), applies standard deduction based on filing status ($4,500 Single, $11,500 MFJ), then calculates tax using progressive brackets. Supports part-year residents via state_tax_result.</COMMENTS>
 <TABLE_NUMBER>44900</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context>
+<context_formal>state_tax_result</context_formal>
+<context_description>State tax result for Montana</context_description>
+</context>
+</contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize MT tax calculation</action_description>
+<action_description>Initialize MT tax calculation and create/find state_tax_result</action_description>
 <action_postfix>
 "MONTANA FORM 2 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.mt_agi xdef
+job.state_tax_results arraysize 0 eq if
+  state_tax_result new /state_tax_result >
+  "MT" /state_tax_result.state_code xdef
+  "full_year_resident" /state_tax_result.residency_status xdef
+  result.agi /state_tax_result.state_agi xdef
+  result.total_deductions /state_tax_result.allocated_deductions xdef
+  state_tax_result job.state_tax_results addto
+else
+  job.state_tax_results 0 at@ /state_tax_result >
+endif
+state_tax_result.state_agi /result.mt_agi xdef
 0 /result.mt_bracket_1_tax xdef
 0 /result.mt_bracket_2_tax xdef
 </action_postfix>
@@ -9065,10 +9206,10 @@ job.filing_status head_of_household streq
 <action_comment>Calculate MT tax MFJ</action_comment>
 <action_description>Calculate MT tax with MFJ standard deduction and progressive brackets</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_mfj /result.mt_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  Starting State AGI: $" result.mt_agi cvs strconcat " (Federal AGI or allocated AGI)" strconcat job.audit_trail swap addto
+mt_standard_deduction_mfj state_tax_result.resident_ratio f* /result.mt_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.mt_standard_deduction cvs strconcat " (ratio: " strconcat state_tax_result.resident_ratio cvs strconcat ")" strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax dup /state_tax_result.state_taxable_income xdef /result.mt_taxable_income xdef
 "  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
 result.mt_taxable_income mt_bracket_2_threshold_mfj f> if
   mt_bracket_2_threshold_mfj mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
@@ -9079,7 +9220,7 @@ else
   result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
   "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
 endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.mt_tax xdef
 "  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -9089,10 +9230,10 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 <action_comment>Calculate MT tax Single</action_comment>
 <action_description>Calculate MT tax with Single standard deduction and progressive brackets</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_single /result.mt_standard_deduction xdef
-"  Standard Deduction (Single): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  Starting State AGI: $" result.mt_agi cvs strconcat " (Federal AGI or allocated AGI)" strconcat job.audit_trail swap addto
+mt_standard_deduction_single state_tax_result.resident_ratio f* /result.mt_standard_deduction xdef
+"  Standard Deduction (Single): $" result.mt_standard_deduction cvs strconcat " (ratio: " strconcat state_tax_result.resident_ratio cvs strconcat ")" strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax dup /state_tax_result.state_taxable_income xdef /result.mt_taxable_income xdef
 "  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
 result.mt_taxable_income mt_bracket_2_threshold_single f> if
   mt_bracket_2_threshold_single mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
@@ -9103,7 +9244,7 @@ else
   result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
   "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
 endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.mt_tax xdef
 "  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -9113,10 +9254,10 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 <action_comment>Calculate MT tax HOH</action_comment>
 <action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_single /result.mt_standard_deduction xdef
-"  Standard Deduction (HOH uses Single): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  Starting State AGI: $" result.mt_agi cvs strconcat " (Federal AGI or allocated AGI)" strconcat job.audit_trail swap addto
+mt_standard_deduction_single state_tax_result.resident_ratio f* /result.mt_standard_deduction xdef
+"  Standard Deduction (HOH uses Single): $" result.mt_standard_deduction cvs strconcat " (ratio: " strconcat state_tax_result.resident_ratio cvs strconcat ")" strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax dup /state_tax_result.state_taxable_income xdef /result.mt_taxable_income xdef
 "  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
 result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
   mt_bracket_2_threshold_hoh mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
@@ -9127,7 +9268,7 @@ else
   result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
   "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
 endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ dup /state_tax_result.state_tax_before_credits xdef dup /state_tax_result.state_tax_liability xdef /result.mt_tax xdef
 "  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
