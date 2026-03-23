@@ -968,6 +968,20 @@
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+		<!-- Nebraska State Tax Constants (2025) - Progressive Tax -->
+		<field name='ne_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8600' comment='NE standard deduction Single (2025)'></field>
+		<field name='ne_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='17200' comment='NE standard deduction MFJ (2025)'></field>
+		<field name='ne_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0246' comment='NE tax rate bracket 1 (2.46%)'></field>
+		<field name='ne_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0351' comment='NE tax rate bracket 2 (3.51%)'></field>
+		<field name='ne_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0501' comment='NE tax rate bracket 3 (5.01%)'></field>
+		<field name='ne_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='NE tax rate bracket 4 (5.20%)'></field>
+		<field name='ne_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='4030' comment='NE bracket 2 threshold Single (above this uses 3.51%)'></field>
+		<field name='ne_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='24120' comment='NE bracket 3 threshold Single (above this uses 5.01%)'></field>
+		<field name='ne_bracket_4_threshold_single' type='double' subtype='' access='r' input='' default_value='38870' comment='NE bracket 4 threshold Single (above this uses 5.20%)'></field>
+		<field name='ne_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='8040' comment='NE bracket 2 threshold MFJ (above this uses 3.51%)'></field>
+		<field name='ne_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='48250' comment='NE bracket 3 threshold MFJ (above this uses 5.01%)'></field>
+		<field name='ne_bracket_4_threshold_mfj' type='double' subtype='' access='r' input='' default_value='77730' comment='NE bracket 4 threshold MFJ (above this uses 5.20%)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1438,6 +1452,16 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- Nebraska State Tax Results -->
+		<field name='ne_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Nebraska AGI (federal AGI + adjustments)'></field>
+		<field name='ne_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NE standard deduction amount'></field>
+		<field name='ne_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Nebraska taxable income'></field>
+		<field name='ne_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 1 tax (2.46%)'></field>
+		<field name='ne_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 2 tax (3.51%)'></field>
+		<field name='ne_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 3 tax (5.01%)'></field>
+		<field name='ne_bracket_4_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 4 tax (5.20%)'></field>
+		<field name='ne_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Nebraska state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
