@@ -1440,12 +1440,17 @@
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
 
 		<!-- State Tax -->
+		<!-- Illinois State Tax Results -->
+		<field name='il_is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is IL resident'></field>
+		<field name='il_state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in IL (for non-residents)'></field>
 		<field name='il_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois AGI (federal AGI + adjustments)'></field>
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
 
 		<!-- New Hampshire State Tax Results -->
+		<field name='nh_is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is NH resident'></field>
+		<field name='nh_state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in NH (for non-residents)'></field>
 		<field name='nh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire AGI (federal AGI + adjustments)'></field>
 		<field name='nh_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NH standard deduction amount'></field>
 		<field name='nh_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire taxable income'></field>
@@ -1455,6 +1460,8 @@
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
 
 		<!-- Montana State Tax Results -->
+		<field name='mt_is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is MT resident'></field>
+		<field name='mt_state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in MT (for non-residents)'></field>
 		<field name='mt_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana AGI (federal AGI + adjustments)'></field>
 		<field name='mt_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MT standard deduction amount'></field>
 		<field name='mt_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana taxable income'></field>

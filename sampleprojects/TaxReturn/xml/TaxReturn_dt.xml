@@ -8989,21 +8989,27 @@ current_state.state_tax_before_credits /current_state.state_tax_liability xdef
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize NH tax calculation with resident/non-resident check</action_description>
+<action_description>Initialize NH tax calculation with constants and resident/non-resident check</action_description>
 <action_postfix>
 "NEW HAMPSHIRE FORM NH-1040 - State Income Tax Calculation" job.audit_trail swap addto
-job.state NH streq /result.nh_is_resident xdef
-result.nh_is_resident if
-  result.agi /result.nh_agi xdef
-  "  Resident - using full AGI: $" result.nh_agi cvs strconcat job.audit_trail swap addto
+8000 local@ nh_standard_deduction_single >
+16000 local@ nh_standard_deduction_mfj >
+75000 local@ nh_bracket_1_limit >
+150000 local@ nh_bracket_2_limit >
+0.03 local@ nh_bracket_1_rate >
+0.05 local@ nh_bracket_2_rate >
+0.075 local@ nh_bracket_3_rate >
+state_tax_result /current_state xdef
+current_state.is_resident if
+  result.agi /current_state.state_agi xdef
+  "  New Hampshire Resident - using full federal AGI: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
 else
-  NH state_income_hash dup null eq if pop 0 endif /result.nh_state_source_income xdef
-  result.nh_state_source_income /result.nh_agi xdef
-  "  Non-resident - using NH source income only: $" result.nh_agi cvs strconcat job.audit_trail swap addto
+  current_state.state_source_income /current_state.state_agi xdef
+  "  New Hampshire Non-Resident - using NH source income only: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
 endif
-0 /result.nh_bracket_1_tax xdef
-0 /result.nh_bracket_2_tax xdef
-0 /result.nh_bracket_3_tax xdef
+0 local@ nh_bracket_1_tax >
+0 local@ nh_bracket_2_tax >
+0 local@ nh_bracket_3_tax >
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -9114,20 +9120,26 @@ result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /r
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize MT tax calculation with resident/non-resident check</action_description>
-<action_postfix>
+<action_description>Initialize MT tax calculation with constants and resident/non-resident check</action_description>
+<parameter name="action_postfix">
 "MONTANA FORM 2 - State Income Tax Calculation" job.audit_trail swap addto
-job.state MT streq /result.mt_is_resident xdef
-result.mt_is_resident if
-  result.agi /result.mt_agi xdef
-  "  Resident - using full AGI: $" result.mt_agi cvs strconcat job.audit_trail swap addto
+4500 local@ mt_standard_deduction_single >
+11500 local@ mt_standard_deduction_mfj >
+21100 local@ mt_bracket_threshold_single >
+42200 local@ mt_bracket_threshold_mfj >
+31700 local@ mt_bracket_threshold_hoh >
+0.047 local@ mt_bracket_1_rate >
+0.059 local@ mt_bracket_2_rate >
+state_tax_result /current_state xdef
+current_state.is_resident if
+  result.agi /current_state.state_agi xdef
+  "  Montana Resident - using full federal AGI: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
 else
-  MT state_income_hash dup null eq if pop 0 endif /result.mt_state_source_income xdef
-  result.mt_state_source_income /result.mt_agi xdef
-  "  Non-resident - using MT source income only: $" result.mt_agi cvs strconcat job.audit_trail swap addto
+  current_state.state_source_income /current_state.state_agi xdef
+  "  Montana Non-Resident - using MT source income only: $" current_state.state_agi cvs strconcat job.audit_trail swap addto
 endif
-0 /result.mt_bracket_1_tax xdef
-0 /result.mt_bracket_2_tax xdef
+0 local@ mt_bracket_1_tax >
+0 local@ mt_bracket_2_tax >
 </action_postfix>
 </initial_action>
 </initial_actions>
