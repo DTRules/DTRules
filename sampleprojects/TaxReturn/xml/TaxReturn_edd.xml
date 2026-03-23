@@ -967,6 +967,7 @@
 	<field name='wv_bracket_4' type='double' subtype='' access='r' input='' default_value='60000' comment='WV bracket 4 ceiling ($60,000)'></field>
 	<field name='wv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='WV standard deduction Single (2025)'></field>
 	<field name='wv_standard_deduction_joint' type='double' subtype='' access='r' input='' default_value='4000' comment='WV standard deduction MFJ (2025)'></field>
+	<field name='wv_personal_exemption' type='double' subtype='' access='r' input='' default_value='2000' comment='WV personal exemption per person (2025)'></field>
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
