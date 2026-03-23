@@ -45,6 +45,7 @@
 		<field name='lihtc_recaptures' type='array' subtype='lihtc_recapture' access='r' input='' default_value='' comment='Form 8611 LIHTC Recaptures'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='state_tax_results' type='array' subtype='state_tax_result' access='r' input='' default_value='' comment='State tax calculation results'></field>
+		<field name='state_periods' type='array' subtype='state_period' access='r' input='' default_value='' comment='Periods of residence/work in different states (for multi-state allocation)'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Healthcare / Premium Tax Credit -->
 		<field name='has_marketplace_coverage' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Had marketplace health insurance'></field>
@@ -158,6 +159,8 @@
 		<field name='gross_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross income amount'></field>
 		<field name='tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Tax withheld at source'></field>
 		<field name='is_earned' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Earned income (wages, SE) vs unearned (interest, dividends)'></field>
+		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='State where income was earned (for multi-state allocation)'></field>
+		<field name='state_period_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Reference to state_period for date-based allocation'></field>
 		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form reference'></field>
 		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
 		<!-- Capital Gains fields -->
@@ -1478,6 +1481,24 @@
 		<field name='state_tax_liability' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax liability after credits'></field>
 		<field name='state_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax withheld'></field>
 		<field name='state_refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='State refund (positive) or amount owed (negative)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- STATE_PERIOD - Period of residence/work in a specific state       -->
+	<!-- ================================================================== -->
+	<entity name='state_period' xls_file='Core.xls' access='rw' comment='Period of residence or work in a specific state for multi-state allocation'>
+		<field name='state_period' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='State period ID'></field>
+		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='Two-letter state code (e.g., NY, FL, CA, TX)'></field>
+		<field name='start_date' type='date' subtype='' access='r' input='main' default_value='' comment='Start date of residence/work in this state'></field>
+		<field name='end_date' type='date' subtype='' access='r' input='main' default_value='' comment='End date of residence/work in this state'></field>
+		<field name='resident_status' type='string' subtype='' access='r' input='main' default_value='full_year' comment='Residency status: full_year, part_year, or nonresident'></field>
+		<field name='days_in_state' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of days in this state during this period (computed)'></field>
+		<field name='allocation_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='Percentage of income allocated to this state (computed)'></field>
+		<field name='allocated_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income allocated to this state (computed)'></field>
+		<field name='allocated_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='Withholding allocated to this state (computed)'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about this state period'></field>
 	</entity>
 
 </entity_data_dictionary>

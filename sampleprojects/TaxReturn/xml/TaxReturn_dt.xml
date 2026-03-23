@@ -8682,6 +8682,96 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 
 
 <!-- ====================================================================== -->
+<!-- TABLE 45000: Allocate_Income_By_State - Multi-State Income Allocation -->
+<!-- Reference: Multi-state resident income allocation rules                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Allocate_Income_By_State</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>ITERATIVE</Type>
+<COMMENTS>Allocates income across multiple states for taxpayers who moved between states during the tax year. Processes each state_period and allocates income based on dates and source state.</COMMENTS>
+<TABLE_NUMBER>45000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_entity>state_period</context_entity>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log multi-state allocation start</action_description>
+<action_postfix>
+"Multi-State Income Allocation" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>State period exists</condition_comment>
+<condition_description>state_period is not null</condition_description>
+<condition_postfix>
+state_period isnull not
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate days in state</action_comment>
+<action_description>Calculate days between start_date and end_date</action_description>
+<action_postfix>
+state_period.end_date state_period.start_date daysbetween state_period.days_in_state !
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate allocation percentage</action_comment>
+<action_description>Calculate allocation percentage based on days in state</action_description>
+<action_postfix>
+state_period.days_in_state cvt:d 365.0 div state_period.allocation_percentage !
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Allocate income for this state</action_comment>
+<action_description>Allocate income to this state based on state_code match or allocation percentage</action_description>
+<action_postfix>
+0 state_period.allocated_income !
+0 state_period.allocated_withholding !
+job.incomes foreach income do
+  income.state_code state_period.state_code streq
+  income.state_code null:s streq or
+  if
+    state_period.allocated_income income.gross_amount state_period.allocation_percentage mult add state_period.allocated_income !
+    state_period.allocated_withholding income.tax_withheld state_period.allocation_percentage mult add state_period.allocated_withholding !
+  then
+done
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Log allocation results</action_comment>
+<action_description>Log the allocation results for audit trail</action_description>
+<action_postfix>
+"  Allocated " state_period.allocated_income formatnumber strconcat " to " strconcat state_period.state_code strconcat
+" (" strconcat state_period.days_in_state cvt:s strconcat " days)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Allocate income across multiple states based on days worked in each state</policy_description>
+<policy_statement_postfix>"For taxpayers who moved between states, income is allocated based on days in each state and source of income"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 40000: Dispatch_State_Tax - State Tax Dispatcher               -->
 <!-- Reference: State-specific income tax forms                             -->
 <!-- ====================================================================== -->
@@ -8689,16 +8779,24 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <table_name>Dispatch_State_Tax</table_name>
 <xls_file>State.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Dispatches to state-specific tax calculation based on job.state. Only calculates if job.has_state_income_tax is true.</COMMENTS>
+<Type>ITERATIVE</Type>
+<COMMENTS>Dispatches to state-specific tax calculation for each state_period or falls back to job.state for single-state returns. Supports multi-state allocation for taxpayers who moved between states.</COMMENTS>
 <TABLE_NUMBER>40000</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_entity>state_period</context_entity>
+</contexts>
 <initial_actions>
 <initial_action>
 <action_description>Log state tax calculation start</action_description>
 <action_postfix>
-"State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+job.state_periods length 0 eq
+if
+  "State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+else
+  "Multi-State Tax Calculation" job.audit_trail swap addto
+  Allocate_Income_By_State
+then
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -8706,38 +8804,77 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Illinois state</condition_comment>
-<condition_description>job.state is equal to "IL"</condition_description>
+<condition_description>state_period.state_code or job.state is equal to "IL"</condition_description>
 <condition_postfix>
-job.state IL streq
+state_period isnull not
+if
+  state_period.state_code IL streq
+else
+  job.state IL streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>New Hampshire state</condition_comment>
-<condition_description>job.state is equal to "NH"</condition_description>
+<condition_description>state_period.state_code or job.state is equal to "NH"</condition_description>
 <condition_postfix>
-job.state NH streq
+state_period isnull not
+if
+  state_period.state_code NH streq
+else
+  job.state NH streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Montana state</condition_comment>
-<condition_description>job.state is equal to "MT"</condition_description>
+<condition_description>state_period.state_code or job.state is equal to "MT"</condition_description>
 <condition_postfix>
-job.state MT streq
+state_period isnull not
+if
+  state_period.state_code MT streq
+else
+  job.state MT streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>No state income tax (TX, FL, etc.)</condition_comment>
+<condition_description>state_period has no income tax or job.state has no income tax</condition_description>
+<condition_postfix>
+state_period isnull not
+if
+  state_period.state_code TX streq
+  state_period.state_code FL streq or
+  state_period.state_code WA streq or
+  state_period.state_code NV streq or
+else
+  job.has_state_income_tax not
+then
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8770,12 +8907,31 @@ Calculate_MT_Tax
 </action_details>
 <action_details>
 <action_number>4</action_number>
+<action_comment>No state income tax</action_comment>
+<action_description>log "No state income tax for this state"</action_description>
+<action_postfix>
+state_period isnull not
+if
+  "  No state income tax for " state_period.state_code strconcat job.audit_trail swap addto
+else
+  "  No state income tax for " job.state strconcat job.audit_trail swap addto
+then
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
-"  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
+state_period isnull not
+if
+  "  State tax calculation not yet implemented for " state_period.state_code strconcat job.audit_trail swap addto
+else
+  "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
+then
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8792,6 +8948,10 @@ Calculate_MT_Tax
 <policy_statement_postfix>"Calculate Montana state income tax per Montana Form 2"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="4">
+<policy_description>No state income tax</policy_description>
+<policy_statement_postfix>"No state income tax for TX, FL, WA, NV, and other no-tax states"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
