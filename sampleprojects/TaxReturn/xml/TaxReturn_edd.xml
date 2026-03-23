@@ -959,6 +959,24 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- Washington DC State Tax Constants (2025) -->
+		<field name='dc_bracket_1_limit' type='double' subtype='' access='r' input='' default_value='10000' comment='DC tax bracket 1 upper limit'></field>
+		<field name='dc_bracket_2_limit' type='double' subtype='' access='r' input='' default_value='40000' comment='DC tax bracket 2 upper limit'></field>
+		<field name='dc_bracket_3_limit' type='double' subtype='' access='r' input='' default_value='60000' comment='DC tax bracket 3 upper limit'></field>
+		<field name='dc_bracket_4_limit' type='double' subtype='' access='r' input='' default_value='250000' comment='DC tax bracket 4 upper limit'></field>
+		<field name='dc_bracket_5_limit' type='double' subtype='' access='r' input='' default_value='500000' comment='DC tax bracket 5 upper limit'></field>
+		<field name='dc_bracket_6_limit' type='double' subtype='' access='r' input='' default_value='1000000' comment='DC tax bracket 6 upper limit'></field>
+		<field name='dc_rate_1' type='double' subtype='' access='r' input='' default_value='0.04' comment='DC tax rate 4% (bracket 1)'></field>
+		<field name='dc_rate_2' type='double' subtype='' access='r' input='' default_value='0.06' comment='DC tax rate 6% (bracket 2)'></field>
+		<field name='dc_rate_3' type='double' subtype='' access='r' input='' default_value='0.065' comment='DC tax rate 6.5% (bracket 3)'></field>
+		<field name='dc_rate_4' type='double' subtype='' access='r' input='' default_value='0.085' comment='DC tax rate 8.5% (bracket 4)'></field>
+		<field name='dc_rate_5' type='double' subtype='' access='r' input='' default_value='0.0925' comment='DC tax rate 9.25% (bracket 5)'></field>
+		<field name='dc_rate_6' type='double' subtype='' access='r' input='' default_value='0.0975' comment='DC tax rate 9.75% (bracket 6)'></field>
+		<field name='dc_rate_7' type='double' subtype='' access='r' input='' default_value='0.1075' comment='DC tax rate 10.75% (bracket 7)'></field>
+		<field name='dc_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='DC standard deduction single/MFS (2025)'></field>
+		<field name='dc_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='DC standard deduction head of household (2025)'></field>
+		<field name='dc_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='DC standard deduction MFJ/QW (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1420,6 +1438,12 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- Washington DC State Tax Results -->
+		<field name='dc_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Washington DC AGI (federal AGI + adjustments)'></field>
+		<field name='dc_standard_deduction_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='DC standard deduction amount'></field>
+		<field name='dc_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Washington DC taxable income'></field>
+		<field name='dc_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Washington DC state income tax'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
