@@ -1,376 +1,295 @@
-# State Tax System API Documentation
+# State Tax API Documentation
 
-This document provides comprehensive guidance for implementing state income tax calculations in the DTRules TaxReturn system.
+Comprehensive guide for implementing state income tax calculations in DTRules.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Entity Structure](#entity-structure)
-- [Decision Table Structure](#decision-table-structure)
-- [Adding a New State](#adding-a-new-state)
+- [Table Naming Conventions](#table-naming-conventions)
+- [How to Add a New State](#how-to-add-a-new-state)
 - [Implementation Examples](#implementation-examples)
-  - [Flat Tax: Illinois](#flat-tax-illinois)
-  - [Progressive Tax: New Hampshire](#progressive-tax-new-hampshire)
-  - [Progressive Tax: Montana](#progressive-tax-montana)
-  - [Tax Credits](#tax-credits)
+  - [Flat Tax (Illinois)](#flat-tax-illinois)
+  - [Progressive Tax (New Hampshire)](#progressive-tax-new-hampshire)
+  - [Tax Credits (Montana)](#tax-credits-montana)
   - [Multi-State Allocation](#multi-state-allocation)
-- [Postfix Notation Guide](#postfix-notation-guide)
+- [Postfix Notation](#postfix-notation)
 - [Test Format](#test-format)
-- [Constants Management](#constants-management)
 - [Architecture Diagrams](#architecture-diagrams)
+- [Best Practices](#best-practices)
 
 ---
 
 ## Overview
 
-The DTRules TaxReturn system implements state income tax calculations through a modular architecture using decision tables and entities. The system supports:
+The DTRules state tax system provides a flexible framework for calculating state income taxes across multiple jurisdictions. It supports:
 
-- Flat tax states (e.g., Illinois at 4.95%)
-- Progressive tax states (e.g., New Hampshire, Montana)
-- Multi-state returns for part-year residents and non-residents
-- State-specific credits and deductions
-- States with no income tax (TX, FL, WA, NV, etc.)
+- **Flat tax rates** (e.g., Illinois)
+- **Progressive bracket systems** (e.g., New Hampshire, Montana)
+- **Tax credits and deductions** (e.g., Montana)
+- **Multi-state resident allocation** (part-year residents, nonresidents)
+- **States with no income tax** (TX, FL, WA, NV, WY, SD, AK, TN)
 
-**Key Files:**
-- **Entity Definitions**: `/sampleprojects/TaxReturn/xml/TaxReturn_edd.xml`
-- **Decision Tables**: `/sampleprojects/TaxReturn/xml/TaxReturn_dt.xml`
-- **Test Cases**: `/sampleprojects/TaxReturn/testfiles/TestScenarios/`
-- **Multi-State Docs**: `/sampleprojects/TaxReturn/docs/MULTI_STATE_ALLOCATION.md`
+**Location:** `sampleprojects/TaxReturn/`
+
+**Key Components:**
+- Entity definitions: `xml/TaxReturn_edd.xml`
+- Decision tables: `xml/TaxReturn_dt.xml`
+- Test cases: `testfiles/TestScenarios/`
+- Documentation: `docs/MULTI_STATE_ALLOCATION.md`
 
 ---
 
 ## Architecture
 
-### Execution Flow
-
 ```
-TABLE 1: Compute_Tax_Return (Entry Point)
-├─> TABLE 2: Calculate_Gross_Income
-├─> TABLE 3: Calculate_Deductions
-├─> TABLE 4: Calculate_Taxable_Income
-├─> TABLE 5: Calculate_Tax_Liability (Federal)
-├─> TABLE 6: Calculate_Credits
-│
-├─> TABLE 40000: Dispatch_State_Tax *** STATE TAX ENTRY POINT ***
-│   │
-│   ├─> TABLE 45000: Allocate_Income_By_State (if multi-state)
-│   │
-│   ├─> TABLE 41100: Calculate_IL_Tax (Illinois)
-│   ├─> TABLE 42700: Calculate_NH_Tax (New Hampshire)
-│   ├─> TABLE 44900: Calculate_MT_Tax (Montana)
-│   └─> [New state tables go here]
-│
-├─> TABLE 7: Calculate_Final_Balance
-└─> TABLE 8: Validate_Results
+┌─────────────────────────────────────────────────────────────────┐
+│                    State Tax Calculation Flow                   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  TABLE 40000: Dispatch_State_Tax                                │
+│  - Routes to appropriate state calculation                      │
+│  - Handles multi-state allocation                               │
+│  - Falls back to single-state (job.state)                       │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                ┌─────────────┴──────────────┐
+                ▼                            ▼
+┌───────────────────────────┐  ┌───────────────────────────┐
+│ Multi-State?              │  │ Single-State              │
+│                           │  │                           │
+│ TABLE 45000:              │  │ Direct to state table:    │
+│ Allocate_Income_By_State  │  │ - Calculate_IL_Tax        │
+│                           │  │ - Calculate_NH_Tax        │
+│ Allocates income based on │  │ - Calculate_MT_Tax        │
+│ days in each state        │  │                           │
+└───────────────────────────┘  └───────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  For each state_period:                                         │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │ Calculate_IL_Tax│  │ Calculate_NH_Tax│  │ Calculate_MT_Tax│ │
+│  │ (TABLE 41100)   │  │ (TABLE 42700)   │  │ (TABLE 44900)   │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Result Entity                                                  │
+│  - il_tax, nh_tax, mt_tax                                       │
+│  - Detailed calculations stored for audit trail                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
-
-### Table Numbering Convention
-
-- **1-99**: Core federal tax calculation flow
-- **6000s**: Federal tax credits (CTC, Education Credits, etc.)
-- **19000-26999**: Special tax forms (K-1, IRA, Farm, Foreign, etc.)
-- **40000-45000**: State tax tables
-  - **TABLE 40000**: Dispatch_State_Tax (dispatcher/router)
-  - **TABLE 41xxx**: Illinois state tax
-  - **TABLE 42xxx**: New Hampshire state tax
-  - **TABLE 44xxx**: Montana state tax
-  - **TABLE 45000**: Allocate_Income_By_State (multi-state allocation)
-  - **TABLE 4xxxx**: Reserved for future state implementations
-
-**Recommendation**: When adding a new state, use the next available 41xxx, 43xxx, 46xxx, etc. range.
 
 ---
 
 ## Entity Structure
 
-### Core State Tax Entities
+### Core Entities
+
+#### `job` Entity
+The main input entity containing taxpayer information and configuration.
+
+**Key Fields:**
+```
+- state (string): Primary state of residence
+- filing_status (string): "single", "married_filing_jointly", "head_of_household", etc.
+- taxpayers (array): Array of taxpayer entities
+- dependents (array): Array of dependent entities
+- incomes (array): Array of income entities
+- state_periods (array): Array of state_period entities (for multi-state)
+- audit_trail (array): Audit log of calculations
+```
+
+**State-Specific Constants (Illinois example):**
+```
+- il_tax_rate (double): 0.0495 (4.95%)
+- il_personal_exemption (double): 2775
+```
+
+**State-Specific Constants (New Hampshire example):**
+```
+- nh_bracket_1_rate (double): 0.03 (3%)
+- nh_bracket_1_threshold (integer): 75000
+- nh_bracket_2_rate (double): 0.05 (5%)
+- nh_bracket_2_threshold (integer): 150000
+- nh_bracket_3_rate (double): 0.075 (7.5%)
+- nh_standard_deduction_single (integer): 8000
+- nh_standard_deduction_mfj (integer): 16000
+```
 
 #### `state_period` Entity
-
-Represents a period of time during the tax year when a taxpayer resided or worked in a specific state. Used for multi-state returns.
-
-**Location**: `TaxReturn_edd.xml`, referenced in `Core.xlsx`
+Represents a period of time in a specific state (for multi-state returns).
 
 **Fields:**
 ```xml
-<entity_name>state_period</entity_name>
-<fields>
-  <field name="id" type="integer" access="rw"
-         comment="Unique identifier for the state period"/>
-
-  <field name="state_code" type="string" access="rw"
-         comment="Two-letter state code (e.g., NY, FL, CA, TX)"/>
-
-  <field name="start_date" type="date" access="rw"
-         comment="Start date of residence/work in this state"/>
-
-  <field name="end_date" type="date" access="rw"
-         comment="End date of residence/work in this state"/>
-
-  <field name="resident_status" type="string" access="rw"
-         comment="full_year, part_year, or nonresident"/>
-
-  <field name="days_in_state" type="integer" access="rc"
-         comment="Number of days in this state (computed)"/>
-
-  <field name="allocation_percentage" type="double" access="rc"
-         comment="Percentage of income allocated (computed)"/>
-
-  <field name="allocated_income" type="double" access="rc"
-         comment="Income allocated to this state (computed)"/>
-
-  <field name="allocated_withholding" type="double" access="rc"
-         comment="Withholding allocated to this state (computed)"/>
-
-  <field name="notes" type="array" access="rw"
-         comment="Notes about this state period"/>
-</fields>
+<entity name='state_period'>
+  <field name='id' type='integer' comment='State period ID'/>
+  <field name='state_code' type='string' comment='Two-letter state code'/>
+  <field name='start_date' type='date' comment='Start date'/>
+  <field name='end_date' type='date' comment='End date'/>
+  <field name='resident_status' type='string' comment='full_year, part_year, or nonresident'/>
+  <field name='days_in_state' type='integer' comment='Computed'/>
+  <field name='allocation_percentage' type='double' comment='Computed'/>
+  <field name='allocated_income' type='double' comment='Computed'/>
+  <field name='allocated_withholding' type='double' comment='Computed'/>
+  <field name='notes' type='array'/>
+</entity>
 ```
 
-**Access Modifiers:**
-- `rw` = read/write (can be set externally)
-- `rc` = read/computed (calculated by decision tables)
+**Resident Status Values:**
+- `full_year`: Resident for entire tax year
+- `part_year`: Moved into or out of state during tax year
+- `nonresident`: Worked in state but not a resident
 
-#### `state_tax_result` Entity
+#### `income` Entity
+Represents a single income source.
 
-Stores the results of state tax calculations for a specific state.
-
-**Location**: `TaxReturn_edd.xml`, referenced in `Core.xlsx`
-
-**Fields:**
-```xml
-<entity_name>state_tax_result</entity_name>
-<fields>
-  <field name="state_code" type="string" access="rw"
-         comment="Two-letter state code"/>
-
-  <field name="state_agi" type="double" access="rc"
-         comment="State adjusted gross income"/>
-
-  <field name="state_taxable_income" type="double" access="rc"
-         comment="State taxable income after deductions"/>
-
-  <field name="state_tax_before_credits" type="double" access="rc"
-         comment="State tax before credits"/>
-
-  <field name="state_credits" type="double" access="rc"
-         comment="Total state tax credits"/>
-
-  <field name="state_tax_liability" type="double" access="rc"
-         comment="State tax liability after credits"/>
-
-  <field name="state_withholding" type="double" access="rc"
-         comment="State tax withheld"/>
-
-  <field name="state_refund_or_owed" type="double" access="rc"
-         comment="Refund (positive) or owed (negative)"/>
-</fields>
+**Key Fields for State Tax:**
+```
+- type (string): "w2_wages", "self_employment", "pension", etc.
+- gross_amount (double): Total income amount
+- state_code (string): State where income was earned (for multi-state)
+- state_period_id (integer): Reference to state_period
+- state_withholding (double): State tax withheld
 ```
 
-#### `job` Entity (Modified)
+#### `result` Entity
+Stores calculated tax results.
 
-The root entity for a tax return calculation.
-
-**State-Related Fields:**
-```xml
-<entity_name>job</entity_name>
-<fields>
-  <!-- Single-state field (backward compatible) -->
-  <field name="state" type="string" access="rw"
-         comment="Single state code for simple returns"/>
-
-  <!-- Multi-state support -->
-  <field name="state_periods" type="array" subtype="state_period" access="rw"
-         comment="Array of periods in different states"/>
-
-  <field name="state_tax_results" type="array" subtype="state_tax_result" access="rw"
-         comment="Array of state tax results"/>
-</fields>
+**Illinois Fields:**
+```
+- il_agi (double): Illinois Adjusted Gross Income
+- il_exemption_total (double): Total personal exemptions
+- il_taxable_income (double): Taxable income after exemptions
+- il_tax (double): Calculated Illinois tax
 ```
 
-#### `income` Entity (Modified)
+**New Hampshire Fields:**
+```
+- nh_agi (double): New Hampshire AGI
+- nh_standard_deduction (double): Standard deduction based on filing status
+- nh_taxable_income (double): Taxable income after deduction
+- nh_bracket_1_tax (double): Tax from bracket 1
+- nh_bracket_2_tax (double): Tax from bracket 2
+- nh_bracket_3_tax (double): Tax from bracket 3
+- nh_tax (double): Total NH tax
+```
 
-**State-Related Fields:**
-```xml
-<entity_name>income</entity_name>
-<fields>
-  <field name="state_code" type="string" access="rw"
-         comment="State where income was earned (for multi-state allocation)"/>
-
-  <field name="state_period_id" type="integer" access="rw"
-         comment="Reference to state_period for date-based allocation"/>
-</fields>
+**Montana Fields:**
+```
+- mt_agi (double): Montana AGI
+- mt_standard_deduction (double): Standard deduction
+- mt_taxable_income (double): Taxable income
+- mt_bracket_1_tax (double): Tax from bracket 1
+- mt_bracket_2_tax (double): Tax from bracket 2
+- mt_tax (double): Total MT tax
 ```
 
 ---
 
-## Decision Table Structure
+## Table Naming Conventions
 
-### TABLE 40000: Dispatch_State_Tax
+### Table Number Ranges
 
-This is the main dispatcher that routes to state-specific calculation tables.
+The state tax system uses a structured numbering convention:
 
-**Table Type**: ITERATIVE (processes each state_period)
+| Range | Purpose | Example |
+|-------|---------|---------|
+| **40000-40999** | State dispatchers and routing | 40000: Dispatch_State_Tax |
+| **41000-41999** | States A-I | 41100: Calculate_IL_Tax (Illinois) |
+| **42000-42999** | States J-N | 42700: Calculate_NH_Tax (New Hampshire) |
+| **43000-43999** | States O-T | (Reserved for future states) |
+| **44000-44999** | States U-Z | 44900: Calculate_MT_Tax (Montana) |
+| **45000-45999** | Helper/utility tables | 45000: Allocate_Income_By_State |
 
-**XML Structure**:
-```xml
-<decision_table>
-  <table_name>Dispatch_State_Tax</table_name>
-  <xls_file>State.xls</xls_file>
-  <attribute_fields>
-    <Type>ITERATIVE</Type>
-    <COMMENTS>Dispatches to appropriate state tax calculation based on state code</COMMENTS>
-    <TABLE_NUMBER>40000</TABLE_NUMBER>
-  </attribute_fields>
+### Naming Pattern
 
-  <contexts>
-    <context>state_period</context>
-  </contexts>
-
-  <initial_actions>
-    <initial_action>
-      <action_description>Check for multi-state and allocate income</action_description>
-      <action_postfix>
-        job.state_periods arraysize 0 > if
-          Allocate_Income_By_State execute
-        then
-      </action_postfix>
-    </initial_action>
-  </initial_actions>
-
-  <conditions>
-    <condition_details>
-      <condition_number>1</condition_number>
-      <condition_comment>Check state code</condition_comment>
-      <condition_description>Is this Illinois?</condition_description>
-      <condition_postfix>
-        state_period.state_code "IL" streq
-      </condition_postfix>
-    </condition_details>
-
-    <condition_details>
-      <condition_number>2</condition_number>
-      <condition_comment>Check state code</condition_comment>
-      <condition_description>Is this New Hampshire?</condition_description>
-      <condition_postfix>
-        state_period.state_code "NH" streq
-      </condition_postfix>
-    </condition_details>
-
-    <!-- More state conditions... -->
-  </conditions>
-
-  <columns>
-    <column>
-      <column_number>1</column_number>
-      <conditions>Y - - - -</conditions>
-      <actions>
-        <action>
-          <action_description>Calculate Illinois tax</action_description>
-          <action_postfix>Calculate_IL_Tax execute</action_postfix>
-        </action>
-      </actions>
-    </column>
-
-    <column>
-      <column_number>2</column_number>
-      <conditions>- Y - - -</conditions>
-      <actions>
-        <action>
-          <action_description>Calculate New Hampshire tax</action_description>
-          <action_postfix>Calculate_NH_Tax execute</action_postfix>
-        </action>
-      </actions>
-    </column>
-
-    <!-- More state columns... -->
-  </columns>
-</decision_table>
+Decision tables follow this naming pattern:
 ```
+Calculate_[STATE_CODE]_Tax
+```
+
+Examples:
+- `Calculate_IL_Tax` - Illinois
+- `Calculate_NH_Tax` - New Hampshire
+- `Calculate_MT_Tax` - Montana
+- `Calculate_CA_Tax` - California (future)
+
+### Table Types
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| **FIRST** | Executes first matching column | Single tax calculation |
+| **ITERATIVE** | Processes array elements | Multi-state, multiple income sources |
+| **UNIQUE** | All matching columns execute | Multiple conditions apply |
 
 ---
 
-## Adding a New State
+## How to Add a New State
 
-Follow these steps to add a new state income tax calculation:
+Follow these steps to implement a new state tax calculation:
 
-### Step 1: Choose a Table Number
+### Step 1: Research State Tax Rules
 
-Select an unused table number in the 40000-45000 range:
-- **41xxx**: If following Illinois pattern
-- **43xxx**: Next available range
-- **46xxx-49xxx**: Additional ranges
+Gather the following information:
+- Tax rate(s) and bracket structure
+- Standard deduction amounts
+- Personal exemptions
+- Credits and special adjustments
+- Filing status variations
+- Official tax forms for reference
 
-Example: For California, use **TABLE 43100** (next available after 42xxx)
+### Step 2: Define Constants in Entity
 
-### Step 2: Add State Constants to EDD
+Add state-specific constants to the `job` entity in `TaxReturn_edd.xml`:
 
-Edit `TaxReturn_edd.xml` and add constants to the `constants` entity (around line 960).
-
-**Example for California:**
 ```xml
-<!-- California 2025 Constants -->
-<attribute name="ca_tax_rate_1" type="double" default="0.0100"
-           comment="California tax bracket 1: 1%"/>
-<attribute name="ca_tax_rate_2" type="double" default="0.0200"
-           comment="California tax bracket 2: 2%"/>
-<attribute name="ca_tax_rate_3" type="double" default="0.0400"
-           comment="California tax bracket 3: 4%"/>
-<attribute name="ca_tax_rate_4" type="double" default="0.0600"
-           comment="California tax bracket 4: 6%"/>
-<attribute name="ca_tax_rate_5" type="double" default="0.0800"
-           comment="California tax bracket 5: 8%"/>
-<attribute name="ca_tax_rate_6" type="double" default="0.0930"
-           comment="California tax bracket 6: 9.3%"/>
-<attribute name="ca_tax_rate_7" type="double" default="0.1030"
-           comment="California tax bracket 7: 10.3%"/>
-<attribute name="ca_tax_rate_8" type="double" default="0.1130"
-           comment="California tax bracket 8: 11.3%"/>
-<attribute name="ca_tax_rate_9" type="double" default="0.1230"
-           comment="California tax bracket 9: 12.3%"/>
-
-<!-- California bracket thresholds for Single filers -->
-<attribute name="ca_bracket_2_threshold_single" type="double" default="10099"
-           comment="CA bracket 2 starts at $10,099"/>
-<attribute name="ca_bracket_3_threshold_single" type="double" default="23942"
-           comment="CA bracket 3 starts at $23,942"/>
-<!-- ... more thresholds ... -->
-
-<!-- California standard deduction -->
-<attribute name="ca_standard_deduction_single" type="double" default="5202"
-           comment="CA standard deduction for single filers"/>
-<attribute name="ca_standard_deduction_mfj" type="double" default="10404"
-           comment="CA standard deduction for MFJ"/>
+<!-- California example -->
+<field name='ca_bracket_1_rate' type='double' default='0.01' comment='1%'/>
+<field name='ca_bracket_1_threshold' type='integer' default='10000'/>
+<field name='ca_bracket_2_rate' type='double' default='0.02' comment='2%'/>
+<field name='ca_bracket_2_threshold' type='integer' default='23000'/>
+<!-- ... additional brackets ... -->
+<field name='ca_standard_deduction_single' type='integer' default='5363'/>
+<field name='ca_standard_deduction_mfj' type='integer' default='10726'/>
 ```
 
-**Naming Convention:**
-- Use lowercase state abbreviation: `ca_`, `ny_`, `tx_`
-- Rate constants: `{state}_tax_rate_{n}` or `{state}_rate_{n}`
-- Thresholds: `{state}_bracket_{n}_threshold_{filing_status}`
-- Deductions: `{state}_standard_deduction_{filing_status}`
+### Step 3: Add Result Fields
 
-### Step 3: Create State Tax Calculation Table
+Add calculation result fields to the `result` entity:
 
-Add a new decision table to `TaxReturn_dt.xml`.
-
-**Template:**
 ```xml
-<!-- ====================================================================== -->
-<!-- TABLE 43100: Calculate_CA_Tax - California State Income Tax          -->
-<!-- Reference: California Form 540 (2025)                                 -->
-<!-- ====================================================================== -->
+<!-- California result fields -->
+<field name='ca_agi' type='double' default='0' comment='California AGI'/>
+<field name='ca_standard_deduction' type='double' default='0'/>
+<field name='ca_taxable_income' type='double' default='0'/>
+<field name='ca_bracket_1_tax' type='double' default='0'/>
+<field name='ca_bracket_2_tax' type='double' default='0'/>
+<!-- ... additional bracket tax fields ... -->
+<field name='ca_tax' type='double' default='0' comment='Total CA tax'/>
+```
+
+### Step 4: Create Decision Table
+
+Create a new decision table following the naming convention. Choose appropriate table number from the ranges above.
+
+**Example structure:**
+
+```xml
 <decision_table>
 <table_name>Calculate_CA_Tax</table_name>
 <xls_file>State.xls</xls_file>
 <attribute_fields>
   <Type>FIRST</Type>
-  <COMMENTS>Calculates California state income tax per Form 540. [Brief description of tax structure]</COMMENTS>
-  <TABLE_NUMBER>43100</TABLE_NUMBER>
+  <COMMENTS>Calculates California state income tax per Form 540...</COMMENTS>
+  <TABLE_NUMBER>41200</TABLE_NUMBER>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions>
   <initial_action>
     <action_description>Initialize CA tax calculation</action_description>
@@ -380,183 +299,136 @@ Add a new decision table to `TaxReturn_dt.xml`.
     </action_postfix>
   </initial_action>
 </initial_actions>
-
 <conditions>
   <condition_details>
     <condition_number>1</condition_number>
-    <condition_comment>Filing Status</condition_comment>
-    <condition_description>Married Filing Jointly</condition_description>
-    <condition_postfix>
-      job.filing_status "married_filing_jointly" streq
-    </condition_postfix>
-  </condition_details>
-
-  <condition_details>
-    <condition_number>2</condition_number>
-    <condition_comment>Filing Status</condition_comment>
-    <condition_description>Single</condition_description>
+    <condition_comment>Determine filing status</condition_comment>
+    <condition_description>Check if single filer</condition_description>
     <condition_postfix>
       job.filing_status "single" streq
     </condition_postfix>
-  </condition_details>
-
-  <condition_details>
-    <condition_number>3</condition_number>
-    <condition_comment>Filing Status</condition_comment>
-    <condition_description>Head of Household</condition_description>
-    <condition_postfix>
-      job.filing_status "head_of_household" streq
-    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="2" column_value="N"></condition_column>
   </condition_details>
 </conditions>
-
-<columns>
-  <!-- Column 1: Married Filing Jointly -->
-  <column>
-    <column_number>1</column_number>
-    <conditions>Y - -</conditions>
-    <actions>
-      <action>
-        <action_description>Apply MFJ standard deduction</action_description>
-        <action_postfix>
-          ca_standard_deduction_mfj /result.ca_standard_deduction xdef
-          result.ca_agi result.ca_standard_deduction f- 0 fmax /result.ca_taxable_income xdef
-        </action_postfix>
-      </action>
-
-      <action>
-        <action_description>Calculate CA tax with progressive brackets (MFJ)</action_description>
-        <action_postfix>
-          <!-- Progressive bracket calculation logic here -->
-          <!-- See examples below for flat vs progressive -->
-        </action_postfix>
-      </action>
-
-      <action>
-        <action_description>Log calculation to audit trail</action_description>
-        <action_postfix>
-          "  CA AGI: $" result.ca_agi cvs strconcat job.audit_trail swap addto
-          "  CA Standard Deduction: $" result.ca_standard_deduction cvs strconcat job.audit_trail swap addto
-          "  CA Taxable Income: $" result.ca_taxable_income cvs strconcat job.audit_trail swap addto
-          "  CA Tax: $" result.ca_tax cvs strconcat job.audit_trail swap addto
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
-
-  <!-- Column 2: Single -->
-  <column>
-    <column_number>2</column_number>
-    <conditions>- Y -</conditions>
-    <actions>
-      <!-- Similar structure for Single filing status -->
-    </actions>
-  </column>
-
-  <!-- Column 3: Head of Household -->
-  <column>
-    <column_number>3</column_number>
-    <conditions>- - Y</conditions>
-    <actions>
-      <!-- Similar structure for HOH filing status -->
-    </actions>
-  </column>
-</columns>
-
+<actions>
+  <!-- Action details here -->
+</actions>
 </decision_table>
 ```
 
-### Step 4: Add State to Dispatcher
+### Step 5: Add to Dispatcher
 
-Edit TABLE 40000 in `TaxReturn_dt.xml` to add the new state.
+Update `Dispatch_State_Tax` (TABLE 40000) to route to your new state:
 
-**Add a condition:**
+Add a condition:
 ```xml
 <condition_details>
-  <condition_number>4</condition_number>
-  <condition_comment>Check state code</condition_comment>
-  <condition_description>Is this California?</condition_description>
+  <condition_number>X</condition_number>
+  <condition_comment>California</condition_comment>
+  <condition_description>State is CA</condition_description>
   <condition_postfix>
     state_period.state_code "CA" streq
   </condition_postfix>
+  <condition_column column_number="X" column_value="Y"></condition_column>
 </condition_details>
 ```
 
-**Add a column:**
+Add an action:
 ```xml
-<column>
-  <column_number>4</column_number>
-  <conditions>- - - Y -</conditions>
-  <actions>
-    <action>
-      <action_description>Calculate California tax</action_description>
-      <action_postfix>Calculate_CA_Tax execute</action_postfix>
-    </action>
-  </actions>
-</column>
-```
-
-**Update all other columns** to add a dash (-) in the new condition position.
-
-### Step 5: Add Result Fields (Optional)
-
-If your state needs custom intermediate calculation fields beyond the standard `state_tax_result` entity, add them to the `result` entity in `TaxReturn_edd.xml`.
-
-**Example:**
-```xml
-<!-- California-specific intermediate fields -->
-<attribute name="ca_agi" type="double" access="rc"
-           comment="California adjusted gross income"/>
-<attribute name="ca_standard_deduction" type="double" access="rc"
-           comment="California standard deduction"/>
-<attribute name="ca_taxable_income" type="double" access="rc"
-           comment="California taxable income"/>
-<attribute name="ca_bracket_1_tax" type="double" access="rc"
-           comment="Tax from bracket 1"/>
-<!-- ... more brackets ... -->
-<attribute name="ca_tax" type="double" access="rc"
-           comment="Total California tax"/>
+<action_details>
+  <action_number>X</action_number>
+  <action_comment>Calculate California tax</action_comment>
+  <action_description>Call CA calculation table</action_description>
+  <action_postfix>
+    "Calculating California state tax..." job.audit_trail swap addto
+    Calculate_CA_Tax dtexecute
+  </action_postfix>
+  <action_column column_number="X" column_value="X"></action_column>
+</action_details>
 ```
 
 ### Step 6: Create Test Cases
 
-Create test files in `/sampleprojects/TaxReturn/testfiles/TestScenarios/`.
+Create XML test files in `testfiles/TestScenarios/`:
 
-**Naming Convention**: `TestCase_CA_01_Description.xml`, `TestCase_CA_02_Description.xml`, etc.
+**Single-State Test (`TestCase_CA_01_Single.xml`):**
+```xml
+<test_case name="CA Single Filer">
+  <job>
+    <state>CA</state>
+    <filing_status>single</filing_status>
+    <incomes>
+      <income id="1">
+        <type>w2_wages</type>
+        <gross_amount>75000</gross_amount>
+      </income>
+    </incomes>
+  </job>
+  <expected_results>
+    <ca_tax>XXXX.XX</ca_tax>
+  </expected_results>
+</test_case>
+```
 
-See [Test Format](#test-format) section for details.
+**Multi-State Test (`TestCase_MultiState_CA_NV.xml`):**
+```xml
+<test_case name="CA to NV Move">
+  <job>
+    <state>NV</state>
+    <state_periods>
+      <state_period id="1">
+        <state_code>CA</state_code>
+        <start_date>1/1/2025</start_date>
+        <end_date>6/30/2025</end_date>
+        <resident_status>part_year</resident_status>
+      </state_period>
+      <state_period id="2">
+        <state_code>NV</state_code>
+        <start_date>7/1/2025</start_date>
+        <end_date>12/31/2025</end_date>
+        <resident_status>part_year</resident_status>
+      </state_period>
+    </state_periods>
+    <!-- ... income details ... -->
+  </job>
+</test_case>
+```
 
-### Step 7: Validate
+### Step 7: Test and Validate
 
-1. Build the project to ensure XML is valid
-2. Run tests to verify calculations
-3. Check audit trail output for correctness
+1. Compile the decision tables: `mvn exec:java -Dexec.mainClass="CompileClass"`
+2. Run test cases: `mvn exec:java -Dexec.mainClass="TestClass"`
+3. Verify calculations against official tax forms
+4. Check audit trail output for correctness
 
 ---
 
 ## Implementation Examples
 
-### Flat Tax: Illinois
+### Flat Tax (Illinois)
 
-**Tax Structure:**
-- Flat rate: 4.95%
-- Personal exemption: $2,775 per person (taxpayers + dependents)
+Illinois uses a simple flat tax rate with personal exemptions.
 
-**TABLE 41100 Implementation:**
+**Tax Formula:**
+```
+Illinois AGI = Federal AGI - Retirement Income
+Taxable Income = Illinois AGI - (Number of People × Personal Exemption)
+Illinois Tax = Taxable Income × 4.95%
+```
+
+**Implementation (TABLE 41100: Calculate_IL_Tax):**
 
 ```xml
 <decision_table>
 <table_name>Calculate_IL_Tax</table_name>
-<xls_file>State.xls</xls_file>
 <attribute_fields>
   <Type>FIRST</Type>
-  <COMMENTS>Illinois flat tax at 4.95% with personal exemptions</COMMENTS>
+  <COMMENTS>Illinois flat tax at 4.95% with $2,775 personal exemptions</COMMENTS>
   <TABLE_NUMBER>41100</TABLE_NUMBER>
 </attribute_fields>
-
 <initial_actions>
   <initial_action>
-    <action_description>Initialize IL calculation</action_description>
     <action_postfix>
       "ILLINOIS FORM IL-1040 - State Income Tax Calculation" job.audit_trail swap addto
       0 local@ num_people >
@@ -564,1246 +436,1093 @@ See [Test Format](#test-format) section for details.
     </action_postfix>
   </initial_action>
 </initial_actions>
-
 <conditions>
   <condition_details>
     <condition_number>1</condition_number>
     <condition_comment>Calculate number of people</condition_comment>
-    <condition_description>Count taxpayers and dependents</condition_description>
     <condition_postfix>
       job.taxpayers arraysize job.dependents arraysize + local@ num_people >
       num_people 1 >=
     </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
   </condition_details>
 </conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>Calculate IL tax with exemptions</action_comment>
+    <action_postfix>
+      result.agi local@ il_retirement_subtraction >
+      0 local@ state_bond_addition >
 
-<columns>
-  <column>
-    <column_number>1</column_number>
-    <conditions>Y</conditions>
-    <actions>
-      <action>
-        <action_description>Calculate total exemptions</action_description>
-        <action_postfix>
-          num_people il_personal_exemption f* /result.il_exemption_total xdef
-          "  Number of people: " num_people cvs strconcat job.audit_trail swap addto
-          "  IL Personal Exemption ($2,775 x " num_people cvs strconcat
-            "): $" strconcat result.il_exemption_total cvs strconcat
-            job.audit_trail swap addto
-        </action_postfix>
-      </action>
+      { dup type income_type >
+        income_type "pension" streq
+        income_type "ira_distribution" streq or
+        income_type "social_security" streq or
+        if
+          dup gross_amount il_retirement_subtraction f+
+          local@ il_retirement_subtraction >
+        endif
+      } job.incomes forall
 
-      <action>
-        <action_description>Calculate IL taxable income</action_description>
-        <action_postfix>
-          result.il_agi result.il_exemption_total f- 0 fmax /result.il_taxable_income xdef
-          "  IL Taxable Income: $" result.il_taxable_income cvs strconcat
-            job.audit_trail swap addto
-        </action_postfix>
-      </action>
+      il_retirement_subtraction 0 f> if
+        result.il_agi il_retirement_subtraction f- /result.il_agi xdef
+      endif
 
-      <action>
-        <action_description>Apply flat 4.95% rate</action_description>
-        <action_postfix>
-          result.il_taxable_income il_tax_rate f* /result.il_tax xdef
-          "  IL Tax (4.95%): $" result.il_tax cvs strconcat
-            job.audit_trail swap addto
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
-</columns>
-
+      num_people il_personal_exemption f* /result.il_exemption_total xdef
+      result.il_agi result.il_exemption_total f- 0 fmax /result.il_taxable_income xdef
+      result.il_taxable_income il_tax_rate f* /result.il_tax xdef
+    </action_postfix>
+  </action_details>
+</actions>
 </decision_table>
 ```
 
-**Key Postfix Patterns:**
+**Key Points:**
+- Subtracts all retirement income (pension, IRA, Social Security)
+- Calculates personal exemptions based on number of people
+- Applies flat 4.95% rate
+- Uses `fmax` to ensure taxable income doesn't go negative
 
-1. **Count array items:**
-   ```
-   job.taxpayers arraysize job.dependents arraysize + local@ num_people >
-   ```
+---
 
-2. **Multiplication:**
-   ```
-   num_people il_personal_exemption f* /result.il_exemption_total xdef
-   ```
+### Progressive Tax (New Hampshire)
 
-3. **Subtraction with floor at zero:**
-   ```
-   result.il_agi result.il_exemption_total f- 0 fmax /result.il_taxable_income xdef
-   ```
-   Translation: `max(AGI - exemptions, 0)` → prevents negative taxable income
+New Hampshire uses progressive tax brackets with different rates.
 
-4. **Apply percentage:**
-   ```
-   result.il_taxable_income il_tax_rate f* /result.il_tax xdef
-   ```
-
-### Progressive Tax: New Hampshire
-
-**Tax Structure:**
-- Bracket 1: 3% on first $75,000
-- Bracket 2: 5% on $75,001-$150,000
-- Bracket 3: 7.5% on $150,001+
-- Standard deduction: $8,000 (Single), $16,000 (MFJ)
-
-**TABLE 42700 Implementation (Progressive Bracket Logic):**
-
-```xml
-<action>
-  <action_description>Calculate NH tax with progressive brackets</action_description>
-  <action_postfix>
-    0 /result.nh_bracket_1_tax xdef
-    0 /result.nh_bracket_2_tax xdef
-    0 /result.nh_bracket_3_tax xdef
-
-    <!-- Check if income exceeds bracket 3 threshold -->
-    result.nh_taxable_income nh_bracket_3_threshold f> if
-      <!-- All three brackets apply -->
-      nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-      nh_bracket_3_threshold nh_bracket_2_threshold f- nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
-      result.nh_taxable_income nh_bracket_3_threshold f- nh_bracket_3_rate f* /result.nh_bracket_3_tax xdef
-    else
-      <!-- Check if income exceeds bracket 2 threshold -->
-      result.nh_taxable_income nh_bracket_2_threshold f> if
-        <!-- Two brackets apply -->
-        nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-        result.nh_taxable_income nh_bracket_2_threshold f- nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
-      else
-        <!-- Only first bracket applies -->
-        result.nh_taxable_income nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-      endif
-    endif
-
-    <!-- Sum all brackets -->
-    result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /result.nh_tax xdef
-
-    <!-- Audit trail -->
-    "  NH Tax Calculation (Progressive Brackets):" job.audit_trail swap addto
-    "    Bracket 1 (3% on $0-$75,000): $" result.nh_bracket_1_tax cvs strconcat
-      job.audit_trail swap addto
-    "    Bracket 2 (5% on $75,001-$150,000): $" result.nh_bracket_2_tax cvs strconcat
-      job.audit_trail swap addto
-    "    Bracket 3 (7.5% on $150,001+): $" result.nh_bracket_3_tax cvs strconcat
-      job.audit_trail swap addto
-    "  Total NH Tax: $" result.nh_tax cvs strconcat job.audit_trail swap addto
-  </action_postfix>
-</action>
+**Tax Formula:**
+```
+NH AGI = Federal AGI (simplified for this example)
+Taxable Income = NH AGI - Standard Deduction
+Bracket 1 Tax = min(Taxable Income, $75,000) × 3%
+Bracket 2 Tax = min(max(Taxable Income - $75,000, 0), $75,000) × 5%
+Bracket 3 Tax = max(Taxable Income - $150,000, 0) × 7.5%
+Total Tax = Bracket 1 + Bracket 2 + Bracket 3
 ```
 
-**Key Progressive Tax Pattern:**
-
-```
-if (taxable_income > bracket_3_threshold) {
-  bracket_1_tax = bracket_2_threshold * rate_1
-  bracket_2_tax = (bracket_3_threshold - bracket_2_threshold) * rate_2
-  bracket_3_tax = (taxable_income - bracket_3_threshold) * rate_3
-} else if (taxable_income > bracket_2_threshold) {
-  bracket_1_tax = bracket_2_threshold * rate_1
-  bracket_2_tax = (taxable_income - bracket_2_threshold) * rate_2
-} else {
-  bracket_1_tax = taxable_income * rate_1
-}
-total_tax = bracket_1_tax + bracket_2_tax + bracket_3_tax
-```
-
-### Progressive Tax: Montana
-
-**Tax Structure:**
-- Bracket 1: 4.7% on income up to threshold
-- Bracket 2: 5.9% on income above threshold
-- Thresholds vary by filing status:
-  - Single/MFS: $21,100
-  - MFJ: $42,200
-  - HOH: $31,700
-- Standard deductions vary by filing status
-
-**TABLE 44900 Implementation (Filing Status Conditions):**
-
-```xml
-<conditions>
-  <condition_details>
-    <condition_number>1</condition_number>
-    <condition_description>Married Filing Jointly</condition_description>
-    <condition_postfix>
-      job.filing_status "married_filing_jointly" streq
-    </condition_postfix>
-  </condition_details>
-
-  <condition_details>
-    <condition_number>2</condition_number>
-    <condition_description>Single</condition_description>
-    <condition_postfix>
-      job.filing_status "single" streq
-    </condition_postfix>
-  </condition_details>
-
-  <condition_details>
-    <condition_number>3</condition_number>
-    <condition_description>Head of Household</condition_description>
-    <condition_postfix>
-      job.filing_status "head_of_household" streq
-    </condition_postfix>
-  </condition_details>
-</conditions>
-
-<columns>
-  <!-- Column 1: MFJ -->
-  <column>
-    <column_number>1</column_number>
-    <conditions>Y - -</conditions>
-    <actions>
-      <action>
-        <action_description>Apply MFJ standard deduction and threshold</action_description>
-        <action_postfix>
-          mt_standard_deduction_mfj /result.mt_standard_deduction xdef
-          mt_bracket_2_threshold_mfj local@ mt_threshold >
-
-          result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
-
-          <!-- Calculate progressive brackets -->
-          result.mt_taxable_income mt_threshold f> if
-            mt_threshold mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-            result.mt_taxable_income mt_threshold f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
-          else
-            result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-          endif
-
-          result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
-
-  <!-- Column 2: Single -->
-  <column>
-    <column_number>2</column_number>
-    <conditions>- Y -</conditions>
-    <actions>
-      <action>
-        <action_description>Apply Single standard deduction and threshold</action_description>
-        <action_postfix>
-          mt_standard_deduction_single /result.mt_standard_deduction xdef
-          mt_bracket_2_threshold_single local@ mt_threshold >
-
-          <!-- Rest similar to MFJ column with different threshold -->
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
-
-  <!-- Column 3: HOH -->
-  <!-- Similar structure -->
-</columns>
-```
-
-**Key Pattern: Filing Status-Specific Values**
-
-Use conditions to check filing status, then apply appropriate thresholds/deductions in each column:
-
-```
-Column 1 (MFJ):  mt_bracket_2_threshold_mfj, mt_standard_deduction_mfj
-Column 2 (Single): mt_bracket_2_threshold_single, mt_standard_deduction_single
-Column 3 (HOH): mt_bracket_2_threshold_hoh, mt_standard_deduction_hoh
-```
-
-### Tax Credits
-
-Credits are typically implemented using the **ALL** table type, which evaluates all rows for each item in an array (e.g., each dependent).
-
-**Example: Child Tax Credit (TABLE 6100)**
+**Implementation (TABLE 42700: Calculate_NH_Tax):**
 
 ```xml
 <decision_table>
-<table_name>Calculate_Child_Tax_Credit</table_name>
+<table_name>Calculate_NH_Tax</table_name>
 <attribute_fields>
-  <Type>ALL</Type>
-  <COMMENTS>Evaluates CTC for all dependents</COMMENTS>
-  <TABLE_NUMBER>6100</TABLE_NUMBER>
+  <Type>FIRST</Type>
+  <COMMENTS>NH progressive brackets: 3% on first $75k, 5% on $75k-$150k, 7.5% above $150k</COMMENTS>
+  <TABLE_NUMBER>42700</TABLE_NUMBER>
 </attribute_fields>
-
-<contexts>
-  <context>dependent</context>
-</contexts>
-
 <conditions>
   <condition_details>
     <condition_number>1</condition_number>
-    <condition_description>Is this a child?</condition_description>
+    <condition_comment>Filing status is single</condition_comment>
     <condition_postfix>
-      dependent.relationship "child" streq
+      job.filing_status "single" streq
     </condition_postfix>
-  </condition_details>
-
-  <condition_details>
-    <condition_number>2</condition_number>
-    <condition_description>Under age 17?</condition_description>
-    <condition_postfix>
-      dependent.age constants.ctc_age_limit <
-    </condition_postfix>
-  </condition_details>
-
-  <condition_details>
-    <condition_number>3</condition_number>
-    <condition_description>Has SSN?</condition_description>
-    <condition_postfix>
-      dependent.has_ssn true beq
-    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="2" column_value="N"></condition_column>
   </condition_details>
 </conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>Calculate NH tax - Single</action_comment>
+    <action_postfix>
+      nh_standard_deduction_single /result.nh_standard_deduction xdef
+      result.nh_agi result.nh_standard_deduction f- 0 fmax /result.nh_taxable_income xdef
 
-<columns>
-  <!-- Column 1: Child under 17 with SSN → $2,000 CTC -->
-  <column>
-    <column_number>1</column_number>
-    <conditions>Y Y Y</conditions>
-    <actions>
-      <action>
-        <action_description>Award Child Tax Credit</action_description>
-        <action_postfix>
-          true /dependent.qualifies_for_ctc xdef
-          constants.ctc_amount /dependent.ctc_amount xdef
-          dependent.ctc_amount result.total_ctc f+ /result.total_ctc xdef
-          "  Child Tax Credit for " dependent.name strconcat ": $" strconcat
-            dependent.ctc_amount cvs strconcat job.audit_trail swap addto
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
+      <!-- Bracket 1: 3% on first $75,000 -->
+      result.nh_taxable_income nh_bracket_1_threshold imin
+      nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
 
-  <!-- Column 2: Child age 17+ with SSN → $500 ODC -->
-  <column>
-    <column_number>2</column_number>
-    <conditions>Y N Y</conditions>
-    <actions>
-      <action>
-        <action_description>Award Other Dependent Credit</action_description>
-        <action_postfix>
-          true /dependent.qualifies_for_odc xdef
-          constants.odc_amount /dependent.odc_amount xdef
-          dependent.odc_amount result.total_odc f+ /result.total_odc xdef
-          "  Other Dependent Credit for " dependent.name strconcat ": $" strconcat
-            dependent.odc_amount cvs strconcat job.audit_trail swap addto
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
+      <!-- Bracket 2: 5% on $75,000 to $150,000 -->
+      result.nh_taxable_income nh_bracket_1_threshold isub 0 imax
+      nh_bracket_1_threshold imin
+      nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
 
-  <!-- Column 3: Non-child dependent with SSN → $500 ODC -->
-  <column>
-    <column_number>3</column_number>
-    <conditions>N - Y</conditions>
-    <actions>
-      <action>
-        <action_description>Award Other Dependent Credit</action_description>
-        <action_postfix>
-          <!-- Similar to column 2 -->
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
-</columns>
+      <!-- Bracket 3: 7.5% above $150,000 -->
+      result.nh_taxable_income nh_bracket_2_threshold isub 0 imax
+      nh_bracket_3_rate f* /result.nh_bracket_3_tax xdef
 
+      result.nh_bracket_1_tax result.nh_bracket_2_tax f+
+      result.nh_bracket_3_tax f+ /result.nh_tax xdef
+    </action_postfix>
+  </action_details>
+  <action_details>
+    <action_number>2</action_number>
+    <action_comment>Calculate NH tax - MFJ</action_comment>
+    <action_postfix>
+      nh_standard_deduction_mfj /result.nh_standard_deduction xdef
+      <!-- Similar bracket calculations with MFJ deduction -->
+    </action_postfix>
+  </action_details>
+</actions>
 </decision_table>
 ```
 
-**Key Pattern: Accumulating Credits**
+**Key Points:**
+- Uses `imin` (integer minimum) and `imax` (integer maximum) for bracket calculations
+- Separates tax calculation by bracket for transparency
+- Different standard deductions by filing status
+- Each bracket amount is calculated and stored separately
 
+---
+
+### Tax Credits (Montana)
+
+Montana supports both progressive brackets and standard deductions.
+
+**Tax Formula:**
 ```
-credit_amount result.total_credit f+ /result.total_credit xdef
+MT AGI = Federal AGI
+Taxable Income = MT AGI - Standard Deduction
+Bracket 1 Tax = min(Taxable Income, Threshold) × 4.7%
+Bracket 2 Tax = max(Taxable Income - Threshold, 0) × 5.9%
+Total Tax = Bracket 1 + Bracket 2
 ```
 
-This adds the credit amount to the running total.
+**Implementation (TABLE 44900: Calculate_MT_Tax):**
+
+```xml
+<decision_table>
+<table_name>Calculate_MT_Tax</table_name>
+<attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Montana progressive brackets with standard deductions</COMMENTS>
+  <TABLE_NUMBER>44900</TABLE_NUMBER>
+</attribute_fields>
+<conditions>
+  <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>Single filer</condition_comment>
+    <condition_postfix>
+      job.filing_status "single" streq
+    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+  </condition_details>
+  <condition_details>
+    <condition_number>2</condition_number>
+    <condition_comment>MFJ filer</condition_comment>
+    <condition_postfix>
+      job.filing_status "married_filing_jointly" streq
+    </condition_postfix>
+    <condition_column column_number="2" column_value="Y"></condition_column>
+  </condition_details>
+</conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>MT tax - Single</action_comment>
+    <action_postfix>
+      mt_standard_deduction_single /result.mt_standard_deduction xdef
+      mt_bracket_2_threshold_single local@ bracket_2_threshold >
+
+      result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+
+      <!-- Bracket 1: 4.7% up to threshold -->
+      result.mt_taxable_income bracket_2_threshold imin
+      mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+
+      <!-- Bracket 2: 5.9% above threshold -->
+      result.mt_taxable_income bracket_2_threshold isub 0 imax
+      mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
+
+      result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+    </action_postfix>
+  </action_details>
+  <action_details>
+    <action_number>2</action_number>
+    <action_comment>MT tax - MFJ</action_comment>
+    <action_postfix>
+      mt_standard_deduction_mfj /result.mt_standard_deduction xdef
+      mt_bracket_2_threshold_mfj local@ bracket_2_threshold >
+      <!-- Similar calculations with MFJ threshold -->
+    </action_postfix>
+  </action_details>
+</actions>
+</decision_table>
+```
+
+**Key Points:**
+- Bracket thresholds vary by filing status
+- Uses local variables for cleaner code
+- Standard deductions reduce AGI before bracket calculations
+- Two-bracket structure is simpler than NH's three brackets
+
+---
 
 ### Multi-State Allocation
 
-**TABLE 45000: Allocate_Income_By_State**
+For taxpayers who moved between states or worked in multiple states.
 
-For taxpayers who moved between states or worked in multiple states during the year.
+**Allocation Formula:**
+```
+Days in State = End Date - Start Date
+Allocation Percentage = Days in State / 365
+Allocated Income = Total Income × Allocation Percentage
+```
+
+**Implementation (TABLE 45000: Allocate_Income_By_State):**
 
 ```xml
 <decision_table>
 <table_name>Allocate_Income_By_State</table_name>
-<xls_file>State.xls</xls_file>
 <attribute_fields>
   <Type>ITERATIVE</Type>
-  <COMMENTS>Allocates income across states for multi-state returns</COMMENTS>
+  <COMMENTS>Allocates income across states based on days worked/lived</COMMENTS>
   <TABLE_NUMBER>45000</TABLE_NUMBER>
 </attribute_fields>
-
-<contexts>
-  <context>state_period</context>
-</contexts>
-
+<contexts>state_period</contexts>
 <initial_actions>
   <initial_action>
-    <action_description>Start allocation</action_description>
     <action_postfix>
-      "Multi-State Income Allocation" job.audit_trail swap addto
+      "=== Allocating income by state ===" job.audit_trail swap addto
+      state_period.start_date state_period.end_date daysbetween
+      /state_period.days_in_state xdef
+
+      state_period.days_in_state 365 div /state_period.allocation_percentage xdef
+
+      0.0 /state_period.allocated_income xdef
+      0.0 /state_period.allocated_withholding xdef
     </action_postfix>
   </initial_action>
 </initial_actions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>Allocate income to this state</action_comment>
+    <action_postfix>
+      { dup state_code local@ income_state >
+        dup gross_amount local@ income_amount >
+        dup state_withholding local@ withholding_amount >
 
-<conditions>
-  <condition_details>
-    <condition_number>1</condition_number>
-    <condition_description>State period exists</condition_description>
-    <condition_postfix>
-      state_period.state_code null:s ne
-    </condition_postfix>
-  </condition_details>
-</conditions>
+        income_state state_period.state_code streq
+        income_state null eq or
+        if
+          state_period.allocated_income
+          income_amount state_period.allocation_percentage f* f+
+          /state_period.allocated_income xdef
 
-<columns>
-  <column>
-    <column_number>1</column_number>
-    <conditions>Y</conditions>
-    <actions>
-      <action>
-        <action_description>Calculate days in state</action_description>
-        <action_postfix>
-          state_period.end_date state_period.start_date daysbetween
-            /state_period.days_in_state xdef
-
-          state_period.days_in_state cvt:d 365.0 div
-            /state_period.allocation_percentage xdef
-
-          "  " state_period.state_code strconcat ": " strconcat
-            state_period.days_in_state cvs strconcat " days (" strconcat
-            state_period.allocation_percentage 100.0 f* cvs strconcat "%)" strconcat
-            job.audit_trail swap addto
-        </action_postfix>
-      </action>
-
-      <action>
-        <action_description>Allocate income to state</action_description>
-        <action_postfix>
-          0.0 /state_period.allocated_income xdef
-          0.0 /state_period.allocated_withholding xdef
-
-          job.incomes foreach income do
-            <!-- If income is state-specific, allocate only to matching state -->
-            income.state_code state_period.state_code streq
-            income.state_code null:s streq or
-            if
-              state_period.allocated_income
-                income.gross_amount state_period.allocation_percentage f* f+
-                /state_period.allocated_income xdef
-
-              state_period.allocated_withholding
-                income.tax_withheld state_period.allocation_percentage f* f+
-                /state_period.allocated_withholding xdef
-            then
-          done
-
-          "    Allocated Income: $" state_period.allocated_income cvs strconcat
-            job.audit_trail swap addto
-          "    Allocated Withholding: $" state_period.allocated_withholding cvs strconcat
-            job.audit_trail swap addto
-        </action_postfix>
-      </action>
-    </actions>
-  </column>
-</columns>
-
+          state_period.allocated_withholding
+          withholding_amount state_period.allocation_percentage f* f+
+          /state_period.allocated_withholding xdef
+        endif
+      } job.incomes forall
+    </action_postfix>
+  </action_details>
+</actions>
 </decision_table>
 ```
 
-**Key Pattern: Foreach Loop**
+**Key Points:**
+- Uses ITERATIVE type to process each `state_period`
+- Calculates days using `daysbetween` operator
+- Allocates income if `state_code` matches or is null
+- Proportionally allocates withholding with income
 
-```
-job.incomes foreach income do
-  <!-- Condition check -->
-  income.state_code state_period.state_code streq if
-    <!-- Actions -->
-  then
-done
-```
+**Multi-State Dispatcher Updates:**
 
-**Key Pattern: Date Arithmetic**
+The dispatcher (TABLE 40000) must handle multi-state scenarios:
 
-```
-state_period.end_date state_period.start_date daysbetween /state_period.days_in_state xdef
-state_period.days_in_state cvt:d 365.0 div /state_period.allocation_percentage xdef
+```xml
+<initial_actions>
+  <initial_action>
+    <action_postfix>
+      job.state_periods arraysize 0 > if
+        <!-- Multi-state: Call allocation first -->
+        Allocate_Income_By_State dtexecute
+      endif
+    </action_postfix>
+  </initial_action>
+</initial_actions>
 ```
 
 ---
 
-## Postfix Notation Guide
+## Postfix Notation
 
-DTRules uses **Reverse Polish Notation (RPN)** for all calculations. Operands are pushed onto a stack, and operators consume items from the stack.
+DTRules uses a **stack-based postfix notation** (Reverse Polish Notation) for all expressions and actions in decision tables. Understanding this notation is crucial for implementing state tax calculations.
 
-### Basic Operators
+### Stack-Based Execution
+
+All operations use a stack:
+1. Push operands onto stack
+2. Execute operator (pops operands, pushes result)
+3. Repeat until expression complete
+
+### Basic Operations
 
 #### Arithmetic
 
-| Operator | Description | Example | Equivalent |
-|----------|-------------|---------|------------|
-| `f+` | Float addition | `a b f+` | `a + b` |
-| `f-` | Float subtraction | `a b f-` | `a - b` |
-| `f*` | Float multiplication | `a b f*` | `a * b` |
-| `div` | Division | `a b div` | `a / b` |
-| `fmax` | Maximum of two floats | `a b fmax` | `max(a, b)` |
-| `fmin` | Minimum of two floats | `a b fmin` | `min(a, b)` |
+**Infix:** `result.agi - 12000`
+**Postfix:** `result.agi 12000 f-`
 
-#### Comparison
+**Infix:** `income * tax_rate`
+**Postfix:** `income tax_rate f*`
 
-| Operator | Description | Example | Equivalent |
-|----------|-------------|---------|------------|
-| `f>` | Float greater than | `a b f>` | `a > b` |
-| `f<` | Float less than | `a b f<` | `a < b` |
-| `f>=` | Float greater or equal | `a b f>=` | `a >= b` |
-| `f<=` | Float less or equal | `a b f<=` | `a <= b` |
-| `feq` | Float equals | `a b feq` | `a == b` |
-| `streq` | String equals | `a b streq` | `a.equals(b)` |
-| `beq` | Boolean equals | `a b beq` | `a == b` |
-| `ne` | Not equals | `a b ne` | `a != b` |
+**Infix:** `(agi - deduction) * 0.05`
+**Postfix:** `agi deduction f- 0.05 f*`
 
-#### Logical
+#### Operators
 
-| Operator | Description | Example |
+| Operation | Integer | Float | Description |
+|-----------|---------|-------|-------------|
+| Add | `iadd` or `+` | `f+` or `fadd` | Addition |
+| Subtract | `isub` or `-` | `f-` or `fsub` | Subtraction |
+| Multiply | `imul` or `*` | `f*` or `fmul` | Multiplication |
+| Divide | `idiv` or `/` or `div` | `f/` or `fdiv` | Division |
+| Maximum | `imax` | `fmax` | Maximum of two values |
+| Minimum | `imin` | `fmin` | Minimum of two values |
+
+### Variable Operations
+
+#### Reading Variables
+Simply reference the variable name:
+```
+result.agi          # Pushes value onto stack
+job.filing_status   # Pushes value onto stack
+```
+
+#### Writing Variables
+Use `xdef` (define) or `>` operators:
+```
+# Set result.il_agi to result.agi value
+result.agi /result.il_agi xdef
+
+# Equivalent using > operator
+result.agi local@ temp_agi >
+```
+
+#### Local Variables
+Declare and use local variables:
+```
+# Declare local variable
+0 local@ num_people >
+
+# Use local variable
+num_people il_personal_exemption f*
+```
+
+### String Operations
+
+```
+# String concatenation
+"Tax: $" result.tax cvs strconcat
+
+# String comparison
+job.filing_status "single" streq    # String equal
+state_period.state_code "CA" streq
+```
+
+### Type Conversions
+
+| Operator | Converts To | Example |
 |----------|-------------|---------|
-| `and` | Logical AND | `cond1 cond2 and` |
-| `or` | Logical OR | `cond1 cond2 or` |
-| `not` | Logical NOT | `cond not` |
+| `cvs` | String | `result.tax cvs` |
+| `cvi` | Integer | `"123" cvi` |
+| `cvr` | Float/Real | `"123.45" cvr` |
+| `cvb` | Boolean | `"true" cvb` |
+| `cvd` | Date | `"1/1/2025" cvd` |
 
-#### Stack Operations
+### Control Flow
 
-| Operator | Description | Stack Effect |
-|----------|-------------|--------------|
-| `dup` | Duplicate top | `a` → `a a` |
-| `swap` | Swap top two | `a b` → `b a` |
-| `pop` | Remove top | `a b` → `a` |
+#### If/Then/Else
+```
+condition if
+  # True branch
+  value1 /result xdef
+else
+  # False branch
+  value2 /result xdef
+endif
+```
 
-#### Variable Operations
+**Example:**
+```
+result.il_agi result.il_exemption_total f- 0 fmax /result.il_taxable_income xdef
+```
+Equivalent to: `max(agi - exemption, 0)`
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `!` | Store to variable (pop) | `value variable !` |
-| `xdef` | Define variable | `value /variable_name xdef` |
-| `>` | Store to local variable | `value local@ name >` |
-| `local@` | Local variable marker | `0 local@ counter >` |
+#### Loops (ForAll)
 
-#### Type Conversion
+Process array elements:
+```
+{
+  # Code block executed for each element
+  # 'dup' duplicates top stack element
+  dup gross_amount total f+ local@ total >
+} job.incomes forall
+```
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `cvt:d` | Convert to double | `integer cvt:d` |
-| `cvs` or `cvt:s` | Convert to string | `number cvs` |
+### Complex Example: Progressive Tax Bracket
 
-#### Control Flow
+**Goal:** Calculate tax for NH Bracket 2 (5% on $75k-$150k)
 
-| Construct | Syntax | Description |
-|-----------|--------|-------------|
-| If-Then | `condition if ... then` | Execute if true |
-| If-Else | `condition if ... else ... then` | Conditional branch |
-| If-ElseIf | `cond1 if ... cond2 elseif ... else ... then` | Multiple conditions |
+**Formula:** `min(max(taxable_income - 75000, 0), 75000) * 0.05`
 
-#### Array Operations
+**Postfix:**
+```
+result.nh_taxable_income        # Push taxable income
+nh_bracket_1_threshold          # Push 75000
+isub                            # Subtract: income - 75000
+0                               # Push 0
+imax                            # Max: max(income - 75000, 0)
+nh_bracket_1_threshold          # Push 75000
+imin                            # Min: min(result, 75000)
+nh_bracket_2_rate               # Push 0.05
+f*                              # Multiply: result * 0.05
+/result.nh_bracket_2_tax xdef   # Store in result.nh_bracket_2_tax
+```
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `arraysize` or `length` | Get array length | `job.dependents arraysize` |
-| `addto` | Add to array | `item array addto` |
-| `foreach ... do ... done` | Iterate array | `array foreach item do ... done` |
+### Audit Trail Logging
 
-#### String Operations
+Add messages to audit trail:
+```
+"Starting Illinois tax calculation" job.audit_trail swap addto
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `strconcat` | Concatenate strings | `"Hello " name strconcat` |
+"  Illinois AGI: $" result.il_agi cvs strconcat
+" (Form IL-1040)" strconcat
+job.audit_trail swap addto
+```
 
-#### Date Operations
-
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `daysbetween` | Days between dates | `end_date start_date daysbetween` |
-
-#### Execution
-
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `execute` | Execute decision table | `Calculate_Tax execute` |
+**Breakdown:**
+1. `"text"` - Push string literal
+2. `result.il_agi` - Push value
+3. `cvs` - Convert to string
+4. `strconcat` - Concatenate strings
+5. `job.audit_trail` - Push audit trail array
+6. `swap` - Swap top two stack elements
+7. `addto` - Add string to array
 
 ### Common Patterns
 
-#### 1. Simple Assignment
-
-**Infix**: `result.agi = 50000`
-
-**Postfix**:
+#### Maximum of Zero (Non-Negative)
 ```
-50000 /result.agi xdef
+value 0 fmax    # Ensures result >= 0
 ```
 
-#### 2. Arithmetic Assignment
-
-**Infix**: `result.taxable = result.agi - result.deduction`
-
-**Postfix**:
+#### Clamping to Range
 ```
-result.agi result.deduction f- /result.taxable xdef
+value min_val fmax max_val fmin    # Clamp between min and max
 ```
 
-#### 3. Maximum (Floor at Zero)
-
-**Infix**: `result.taxable = max(result.agi - result.deduction, 0)`
-
-**Postfix**:
+#### Conditional Assignment
 ```
-result.agi result.deduction f- 0 fmax /result.taxable xdef
-```
-
-#### 4. Percentage Calculation
-
-**Infix**: `result.tax = result.taxable * 0.0495`
-
-**Postfix**:
-```
-result.taxable il_tax_rate f* /result.tax xdef
-```
-
-or inline:
-```
-result.taxable 0.0495 f* /result.tax xdef
-```
-
-#### 5. Conditional Assignment
-
-**Infix**:
-```java
-if (job.filing_status.equals("single")) {
-  result.deduction = 8000;
-} else {
-  result.deduction = 16000;
-}
-```
-
-**Postfix**:
-```
-job.filing_status "single" streq if
-  8000 /result.deduction xdef
+condition if
+  value1
 else
-  16000 /result.deduction xdef
-then
+  value2
+endif
+/result xdef
 ```
 
-#### 6. String Concatenation
-
-**Infix**: `message = "Tax: $" + result.tax`
-
-**Postfix**:
+#### Array Sum
 ```
-"Tax: $" result.tax cvs strconcat
-```
-
-#### 7. Multi-Part String Building
-
-**Infix**: `message = "Bracket 1 (" + rate + "%): $" + tax`
-
-**Postfix**:
-```
-"Bracket 1 (" rate cvs strconcat "%): $" strconcat tax cvs strconcat
-```
-
-#### 8. Add to Audit Trail
-
-**Infix**: `job.audit_trail.add("Message: " + value)`
-
-**Postfix**:
-```
-"Message: " value cvs strconcat job.audit_trail swap addto
-```
-
-**Why swap?** Because `addto` expects `array item addto`, but our stack has `item array`, so we swap them.
-
-#### 9. Array Length Check
-
-**Infix**: `if (job.dependents.size() > 0)`
-
-**Postfix**:
-```
-job.dependents arraysize 0 >
-```
-
-#### 10. Sum Array Sizes
-
-**Infix**: `count = job.taxpayers.size() + job.dependents.size()`
-
-**Postfix**:
-```
-job.taxpayers arraysize job.dependents arraysize + /count xdef
-```
-
-#### 11. Local Variable
-
-**Infix**:
-```java
-int threshold = 75000;
-// use threshold
-```
-
-**Postfix**:
-```
-75000 local@ threshold >
-threshold // later reference
-```
-
-#### 12. Foreach Loop
-
-**Infix**:
-```java
-for (Income income : job.incomes) {
-  if (income.state_code.equals("CA")) {
-    total += income.amount;
-  }
-}
-```
-
-**Postfix**:
-```
-job.incomes foreach income do
-  income.state_code "CA" streq if
-    total income.amount f+ /total xdef
-  then
-done
-```
-
-#### 13. Progressive Bracket Logic
-
-**Infix**:
-```java
-if (taxable > bracket2_threshold) {
-  bracket1_tax = bracket2_threshold * rate1;
-  bracket2_tax = (taxable - bracket2_threshold) * rate2;
-} else {
-  bracket1_tax = taxable * rate1;
-  bracket2_tax = 0;
-}
-total_tax = bracket1_tax + bracket2_tax;
-```
-
-**Postfix**:
-```
-taxable bracket2_threshold f> if
-  bracket2_threshold rate1 f* /bracket1_tax xdef
-  taxable bracket2_threshold f- rate2 f* /bracket2_tax xdef
-else
-  taxable rate1 f* /bracket1_tax xdef
-  0 /bracket2_tax xdef
-then
-bracket1_tax bracket2_tax f+ /total_tax xdef
+0.0 local@ total >
+{ dup amount total f+ local@ total > } items forall
+total /result xdef
 ```
 
 ---
 
 ## Test Format
 
-Test files are XML documents in `/sampleprojects/TaxReturn/testfiles/TestScenarios/`.
+Test cases are XML files that define inputs and expected outputs.
 
-### Naming Convention
-
-- **Single-state**: `TestCase_{STATE}_{NN}_{Description}.xml`
-  - Example: `TestCase_NH_01_Single_W2.xml`
-  - Example: `TestCase_IL_02_Retirement_Income.xml`
-
-- **Multi-state**: `TestCase_MultiState_{NN}_{Description}.xml`
-  - Example: `TestCase_MultiState_01_NY_FL_Move.xml`
-  - Example: `TestCase_MultiState_03_Traveling_Consultant.xml`
-
-### Test Structure
+### Test File Structure
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<job>
-  <!-- Test identification -->
-  <id>NH-01</id>
-  <tax_year>2025</tax_year>
-  <filing_status>single</filing_status>
-  <state>NH</state>
+<test_suite>
+  <test_case name="Descriptive Test Name">
+    <!-- Input Data -->
+    <job>
+      <state>XX</state>
+      <filing_status>single</filing_status>
+      <taxpayers>
+        <taxpayer id="1">
+          <first_name>John</first_name>
+          <last_name>Doe</last_name>
+          <ssn>123-45-6789</ssn>
+          <date_of_birth>1/1/1980</date_of_birth>
+        </taxpayer>
+      </taxpayers>
 
-  <!-- Expected values for validation -->
-  <expected_agi>65000</expected_agi>
-  <expected_taxable_income>50000</expected_taxable_income>
-  <expected_tax>5000</expected_tax>
-  <expected_nh_agi>65000</expected_nh_agi>
-  <expected_nh_taxable_income>57000</expected_nh_taxable_income>
-  <expected_nh_tax>1710</expected_nh_tax>
-  <expected_total_tax>6710</expected_total_tax>
+      <incomes>
+        <income id="1">
+          <type>w2_wages</type>
+          <gross_amount>75000</gross_amount>
+          <federal_withholding>8500</federal_withholding>
+          <state_withholding>3500</state_withholding>
+        </income>
+      </incomes>
+    </job>
 
-  <!-- Taxpayer information -->
-  <taxpayers>
-    <taxpayer id="1">
-      <name>John Smith</name>
-      <ssn>123-45-6789</ssn>
-      <date_of_birth>1/15/1980</date_of_birth>
-      <w2_wages>65000</w2_wages>
-      <w2_withholding>9500</w2_withholding>
-    </taxpayer>
-  </taxpayers>
-
-  <!-- Dependents (if applicable) -->
-  <dependents>
-    <dependent id="1">
-      <name>Jane Smith</name>
-      <relationship>child</relationship>
-      <age>12</age>
-      <has_ssn>true</has_ssn>
-    </dependent>
-  </dependents>
-
-  <!-- Multi-state information (if applicable) -->
-  <state_periods>
-    <state_period id="1">
-      <state_code>NH</state_code>
-      <start_date>1/1/2025</start_date>
-      <end_date>4/30/2025</end_date>
-      <resident_status>nonresident</resident_status>
-    </state_period>
-  </state_periods>
-
-  <!-- Income details (for multi-state allocation) -->
-  <incomes>
-    <income id="1">
-      <type>w2_wages</type>
-      <gross_amount>65000</gross_amount>
-      <tax_withheld>9500</tax_withheld>
-      <state_code>NH</state_code>
-      <state_period_id>1</state_period_id>
-    </income>
-  </incomes>
-</job>
+    <!-- Expected Results -->
+    <expected_results>
+      <il_agi>75000.00</il_agi>
+      <il_exemption_total>2775.00</il_exemption_total>
+      <il_taxable_income>72225.00</il_taxable_income>
+      <il_tax>3575.14</il_tax>
+    </expected_results>
+  </test_case>
+</test_suite>
 ```
 
-### Test Case Examples
+### Single-State Test Example
 
-#### Single-State Test: Illinois Single Filer
-
+**TestCase_IL_01_Single_W2.xml:**
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<job>
-  <id>IL-01</id>
-  <tax_year>2025</tax_year>
-  <filing_status>single</filing_status>
-  <state>IL</state>
+<test_case name="IL Single Filer with W-2 Income">
+  <job>
+    <state>IL</state>
+    <filing_status>single</filing_status>
 
-  <expected_agi>75000</expected_agi>
-  <expected_il_agi>75000</expected_il_agi>
-  <expected_il_taxable_income>72225</expected_il_taxable_income>
-  <expected_il_tax>3575</expected_il_tax>
+    <taxpayers>
+      <taxpayer id="1">
+        <first_name>Alice</first_name>
+        <last_name>Johnson</last_name>
+      </taxpayer>
+    </taxpayers>
 
-  <taxpayers>
-    <taxpayer id="1">
-      <name>Jane Doe</name>
-      <w2_wages>75000</w2_wages>
-      <w2_withholding>3600</w2_withholding>
-    </taxpayer>
-  </taxpayers>
-</job>
+    <incomes>
+      <income id="1">
+        <type>w2_wages</type>
+        <gross_amount>65000</gross_amount>
+        <employer_name>Tech Corp</employer_name>
+      </income>
+    </incomes>
+  </job>
+
+  <expected_results>
+    <il_agi>65000.00</il_agi>
+    <il_exemption_total>2775.00</il_exemption_total>
+    <il_taxable_income>62225.00</il_taxable_income>
+    <il_tax>3080.14</il_tax>
+  </expected_results>
+</test_case>
 ```
 
-**Calculation**:
-- AGI: $75,000
-- Exemptions: 1 person × $2,775 = $2,775
-- Taxable Income: $75,000 - $2,775 = $72,225
-- Tax: $72,225 × 4.95% = $3,575.14 ≈ $3,575
+### Multi-State Test Example
 
-#### Multi-State Test: NY to FL Move
-
+**TestCase_MultiState_NH_IL.xml:**
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<job>
-  <id>MultiState-01</id>
-  <tax_year>2025</tax_year>
-  <filing_status>single</filing_status>
-  <state>FL</state>
+<test_case name="Multi-State: NH to IL Move">
+  <job>
+    <state>IL</state>  <!-- Final state -->
+    <filing_status>single</filing_status>
 
-  <expected_agi>90000</expected_agi>
+    <state_periods>
+      <state_period id="1">
+        <state_code>NH</state_code>
+        <start_date>1/1/2025</start_date>
+        <end_date>6/30/2025</end_date>
+        <resident_status>part_year</resident_status>
+      </state_period>
+      <state_period id="2">
+        <state_code>IL</state_code>
+        <start_date>7/1/2025</start_date>
+        <end_date>12/31/2025</end_date>
+        <resident_status>part_year</resident_status>
+      </state_period>
+    </state_periods>
 
-  <taxpayers>
-    <taxpayer id="1">
-      <name>Bob Johnson</name>
-      <w2_wages>90000</w2_wages>
-      <w2_withholding>12000</w2_withholding>
-    </taxpayer>
-  </taxpayers>
+    <taxpayers>
+      <taxpayer id="1">
+        <first_name>Bob</first_name>
+        <last_name>Smith</last_name>
+      </taxpayer>
+    </taxpayers>
 
-  <state_periods>
-    <state_period id="1">
-      <state_code>NY</state_code>
-      <start_date>1/1/2025</start_date>
-      <end_date>7/31/2025</end_date>
-      <resident_status>part_year</resident_status>
-      <!-- Expected: 212 days = 58.1% -->
-    </state_period>
-    <state_period id="2">
-      <state_code>FL</state_code>
-      <start_date>8/1/2025</start_date>
-      <end_date>12/31/2025</end_date>
-      <resident_status>part_year</resident_status>
-      <!-- Expected: 153 days = 41.9% -->
-    </state_period>
-  </state_periods>
-</job>
+    <incomes>
+      <income id="1">
+        <type>w2_wages</type>
+        <gross_amount>100000</gross_amount>
+        <!-- No state_code: allocate proportionally -->
+      </income>
+    </incomes>
+  </job>
+
+  <expected_results>
+    <!-- NH allocation: 181 days / 365 = 49.6% -->
+    <nh_allocated_income>49600.00</nh_allocated_income>
+    <nh_tax>1248.00</nh_tax>
+
+    <!-- IL allocation: 184 days / 365 = 50.4% -->
+    <il_allocated_income>50400.00</il_allocated_income>
+    <il_tax>2357.14</il_tax>
+  </expected_results>
+</test_case>
 ```
 
-**Calculation**:
-- Total income: $90,000
-- NY period: 212 days = 58.1% → $52,290
-- FL period: 153 days = 41.9% → $37,710
-- NY tax calculated on $52,290
-- FL has no state income tax
+### Progressive Tax Test Example
+
+**TestCase_NH_03_High_Income_All_Brackets.xml:**
+```xml
+<test_case name="NH High Income - All Three Brackets">
+  <job>
+    <state>NH</state>
+    <filing_status>single</filing_status>
+
+    <taxpayers>
+      <taxpayer id="1">
+        <first_name>Carol</first_name>
+        <last_name>Williams</last_name>
+      </taxpayer>
+    </taxpayers>
+
+    <incomes>
+      <income id="1">
+        <type>w2_wages</type>
+        <gross_amount>200000</gross_amount>
+      </income>
+    </incomes>
+  </job>
+
+  <expected_results>
+    <nh_agi>200000.00</nh_agi>
+    <nh_standard_deduction>8000.00</nh_standard_deduction>
+    <nh_taxable_income>192000.00</nh_taxable_income>
+
+    <!-- Bracket 1: $75,000 × 3% = $2,250 -->
+    <nh_bracket_1_tax>2250.00</nh_bracket_1_tax>
+
+    <!-- Bracket 2: $75,000 × 5% = $3,750 -->
+    <nh_bracket_2_tax>3750.00</nh_bracket_2_tax>
+
+    <!-- Bracket 3: ($192,000 - $150,000) × 7.5% = $3,150 -->
+    <nh_bracket_3_tax>3150.00</nh_bracket_3_tax>
+
+    <!-- Total: $2,250 + $3,750 + $3,150 = $9,150 -->
+    <nh_tax>9150.00</nh_tax>
+  </expected_results>
+</test_case>
+```
 
 ### Running Tests
 
-Tests are executed through the DTRules test framework. The system:
+```bash
+cd sampleprojects/TaxReturn
 
-1. Loads the test XML
-2. Executes the decision tables
-3. Compares computed values to expected values
-4. Reports pass/fail for each assertion
+# Compile decision tables
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.taxreturn.CompileTaxReturn"
 
----
+# Run all tests
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.taxreturn.TestTaxReturn"
 
-## Constants Management
-
-All state tax constants are defined in the `constants` entity in `TaxReturn_edd.xml` (around line 960).
-
-### Naming Convention
-
-```xml
-<!-- {state}_{constant_type}_{details} -->
-<attribute name="il_tax_rate" type="double" default="0.0495"/>
-<attribute name="il_personal_exemption" type="double" default="2775"/>
-
-<attribute name="nh_bracket_1_rate" type="double" default="0.0300"/>
-<attribute name="nh_bracket_2_threshold" type="double" default="75000"/>
-<attribute name="nh_standard_deduction_single" type="double" default="8000"/>
-
-<attribute name="ca_bracket_1_rate" type="double" default="0.0100"/>
-<attribute name="ca_bracket_2_threshold_single" type="double" default="10099"/>
-<attribute name="ca_standard_deduction_mfj" type="double" default="10404"/>
-```
-
-### Guidelines
-
-1. **State prefix**: Always use lowercase two-letter state code (e.g., `ca_`, `ny_`)
-2. **Rate constants**: `{state}_tax_rate` or `{state}_bracket_{n}_rate`
-3. **Thresholds**: `{state}_bracket_{n}_threshold` or `{state}_bracket_{n}_threshold_{filing_status}`
-4. **Deductions**: `{state}_standard_deduction_{filing_status}`
-5. **Credits**: `{state}_{credit_name}_amount`
-6. **Type**: Use `double` for all monetary and percentage values
-7. **Percentages**: Express as decimals (4.95% = 0.0495)
-
-### Example: Adding California Constants
-
-```xml
-<!-- California 2025 Tax Constants -->
-<!-- Progressive tax rates -->
-<attribute name="ca_bracket_1_rate" type="double" default="0.0100"
-           comment="CA bracket 1: 1%"/>
-<attribute name="ca_bracket_2_rate" type="double" default="0.0200"
-           comment="CA bracket 2: 2%"/>
-<attribute name="ca_bracket_3_rate" type="double" default="0.0400"
-           comment="CA bracket 3: 4%"/>
-<attribute name="ca_bracket_4_rate" type="double" default="0.0600"
-           comment="CA bracket 4: 6%"/>
-<attribute name="ca_bracket_5_rate" type="double" default="0.0800"
-           comment="CA bracket 5: 8%"/>
-<attribute name="ca_bracket_6_rate" type="double" default="0.0930"
-           comment="CA bracket 6: 9.3%"/>
-
-<!-- Thresholds for Single filers -->
-<attribute name="ca_bracket_2_threshold_single" type="double" default="10099"/>
-<attribute name="ca_bracket_3_threshold_single" type="double" default="23942"/>
-<attribute name="ca_bracket_4_threshold_single" type="double" default="37788"/>
-<attribute name="ca_bracket_5_threshold_single" type="double" default="52455"/>
-<attribute name="ca_bracket_6_threshold_single" type="double" default="66295"/>
-
-<!-- Thresholds for MFJ -->
-<attribute name="ca_bracket_2_threshold_mfj" type="double" default="20198"/>
-<attribute name="ca_bracket_3_threshold_mfj" type="double" default="47884"/>
-<!-- ... etc ... -->
-
-<!-- Standard deductions -->
-<attribute name="ca_standard_deduction_single" type="double" default="5202"/>
-<attribute name="ca_standard_deduction_mfj" type="double" default="10404"/>
-<attribute name="ca_standard_deduction_hoh" type="double" default="10412"/>
+# Run specific test
+mvn exec:java -Dexec.mainClass="com.dtrules.samples.taxreturn.TestTaxReturn" \
+  -Dexec.args="TestCase_IL_01_Single_W2.xml"
 ```
 
 ---
 
 ## Architecture Diagrams
 
+### Overall System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Application Layer                           │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐        │
+│  │ Web Service  │   │ Batch Jobs   │   │ CLI Tools    │        │
+│  └──────────────┘   └──────────────┘   └──────────────┘        │
+└─────────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    DTRules Engine                               │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  RulesDirectory                                           │  │
+│  │  - Manages rule sets                                      │  │
+│  │  - Configuration (DTRules.xml)                            │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                     │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  RuleSet                                                  │  │
+│  │  - Entity definitions (*_edd.xml)                         │  │
+│  │  - Decision tables (*_dt.xml)                             │  │
+│  │  - Mappings (*_map.xml)                                   │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                     │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  IRSession (per evaluation)                               │  │
+│  │  - Entity instances                                       │  │
+│  │  - Execution state                                        │  │
+│  │  - Stack-based interpreter                                │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Data Layer                                  │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐        │
+│  │ XML Files    │   │ Java Objects │   │ Databases    │        │
+│  └──────────────┘   └──────────────┘   └──────────────┘        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### State Tax Execution Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    TABLE 1: Compute_Tax_Return                  │
-│                         (Main Entry Point)                      │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ├─→ Federal Tax Calculation (Tables 2-6)
-                             │   ├─ Gross Income
-                             │   ├─ Deductions
-                             │   ├─ Taxable Income
-                             │   ├─ Tax Liability
-                             │   └─ Credits
-                             │
-                             ▼
+│  Application calls session.execute("Dispatch_State_Tax")       │
+└─────────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              TABLE 40000: Dispatch_State_Tax                    │
-│                    (State Tax Dispatcher)                       │
+│  TABLE 40000: Dispatch_State_Tax                                │
 │                                                                 │
-│  Type: ITERATIVE (processes each state_period)                 │
-│  Context: state_period                                         │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ├─→ Check if multi-state
-                             │   (job.state_periods.size() > 0?)
-                             │
-                             ├─→ If multi-state:
-                             │   Execute TABLE 45000: Allocate_Income_By_State
-                             │
-                             ├─→ Route to state-specific tables:
-                             │
-        ┌────────────────────┼────────────────────┬───────────────┐
-        │                    │                    │               │
-        ▼                    ▼                    ▼               ▼
-┌───────────────┐    ┌───────────────┐    ┌───────────────┐    ┌──────────┐
-│  TABLE 41100  │    │  TABLE 42700  │    │  TABLE 44900  │    │  Future  │
-│   Illinois    │    │New Hampshire  │    │   Montana     │    │  States  │
-│   Flat Tax    │    │  Progressive  │    │  Progressive  │    │          │
-│    4.95%      │    │   3/5/7.5%    │    │   4.7/5.9%    │    │   ...    │
-└───────────────┘    └───────────────┘    └───────────────┘    └──────────┘
-        │                    │                    │               │
-        └────────────────────┴────────────────────┴───────────────┘
-                             │
-                             ▼
-                   Store results in:
-                   state_tax_result entity
+│  Check: job.state_periods array empty?                          │
+└─────────────────────────────────────────────────────────────────┘
+            │                                    │
+            │ Empty                              │ Has entries
+            ▼                                    ▼
+  ┌──────────────────────┐         ┌────────────────────────────┐
+  │ Single-State Mode    │         │ Multi-State Mode           │
+  │                      │         │                            │
+  │ Use job.state        │         │ Execute:                   │
+  │ Call Calculate_XX_Tax│         │ Allocate_Income_By_State   │
+  └──────────────────────┘         └────────────────────────────┘
+            │                                    │
+            │                                    ▼
+            │              ┌────────────────────────────────────┐
+            │              │ For each state_period:             │
+            │              │ - Calculate days_in_state          │
+            │              │ - Calculate allocation_percentage  │
+            │              │ - Allocate income and withholding  │
+            │              └────────────────────────────────────┘
+            │                                    │
+            │                                    ▼
+            │              ┌────────────────────────────────────┐
+            │              │ Iterate state_periods array:       │
+            │              │ Dispatch to state calculation      │
+            │              └────────────────────────────────────┘
+            │                                    │
+            └──────────────┬─────────────────────┘
+                           ▼
+         ┌────────────────────────────────────────────┐
+         │  Route by state_code:                      │
+         │  - IL → Calculate_IL_Tax (41100)           │
+         │  - NH → Calculate_NH_Tax (42700)           │
+         │  - MT → Calculate_MT_Tax (44900)           │
+         │  - TX/FL/WA/NV → Log "No income tax"       │
+         └────────────────────────────────────────────┘
+                           │
+                           ▼
+         ┌────────────────────────────────────────────┐
+         │  State-Specific Calculation                │
+         │  1. Initialize (set AGI)                   │
+         │  2. Apply state adjustments                │
+         │  3. Calculate deductions/exemptions        │
+         │  4. Determine taxable income               │
+         │  5. Apply tax rates/brackets               │
+         │  6. Store results in result entity         │
+         │  7. Log to audit trail                     │
+         └────────────────────────────────────────────┘
+                           │
+                           ▼
+         ┌────────────────────────────────────────────┐
+         │  Return control to application             │
+         │  Results available in result entity        │
+         └────────────────────────────────────────────┘
 ```
 
 ### Entity Relationship Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                            job                                  │
-│  (Root entity - represents a complete tax return)               │
-├─────────────────────────────────────────────────────────────────┤
-│ - id: string                                                    │
-│ - tax_year: integer                                             │
-│ - filing_status: string (single, mfj, hoh, mfs)                 │
-│ - state: string (backward compatible, single state)             │
-│ - state_periods: array<state_period>  ← MULTI-STATE            │
-│ - state_tax_results: array<state_tax_result>                    │
-│ - taxpayers: array<taxpayer>                                    │
-│ - dependents: array<dependent>                                  │
-│ - incomes: array<income>                                        │
-│ - audit_trail: array<string>                                    │
-└───────────┬─────────────────────────────────┬──────────────────┘
-            │                                 │
-            │ Contains multiple               │ Contains multiple
-            ▼                                 ▼
-┌───────────────────────────┐    ┌──────────────────────────────┐
-│      state_period         │    │     state_tax_result         │
-├───────────────────────────┤    ├──────────────────────────────┤
-│ - id: integer             │    │ - state_code: string         │
-│ - state_code: string      │    │ - state_agi: double          │
-│ - start_date: date        │    │ - state_taxable_income       │
-│ - end_date: date          │    │ - state_tax_before_credits   │
-│ - resident_status         │    │ - state_credits: double      │
-│ - days_in_state (calc)    │    │ - state_tax_liability        │
-│ - allocation_% (calc)     │    │ - state_withholding          │
-│ - allocated_income (calc) │    │ - state_refund_or_owed       │
-│ - allocated_withhold(calc)│    └──────────────────────────────┘
-└───────────────────────────┘
-            │
-            │ Referenced by
-            ▼
-┌───────────────────────────┐
-│        income             │
-├───────────────────────────┤
-│ - id: integer             │
-│ - type: string            │
-│ - gross_amount: double    │
-│ - tax_withheld: double    │
-│ - state_code: string      │  ← Links income to state
-│ - state_period_id: int    │  ← Links to specific period
-└───────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                            job                               │
+├──────────────────────────────────────────────────────────────┤
+│ - state: string                                              │
+│ - filing_status: string                                      │
+│ - taxpayers: array <taxpayer>                                │
+│ - dependents: array <dependent>                              │
+│ - incomes: array <income>                                    │
+│ - state_periods: array <state_period>                        │
+│ - audit_trail: array <string>                                │
+│ - il_tax_rate, nh_bracket_1_rate, etc. (constants)          │
+└──────────────────────────────────────────────────────────────┘
+                    │          │          │
+        ┌───────────┘          │          └───────────┐
+        ▼                      ▼                      ▼
+┌─────────────┐       ┌─────────────┐       ┌─────────────────┐
+│  taxpayer   │       │   income    │       │  state_period   │
+├─────────────┤       ├─────────────┤       ├─────────────────┤
+│ - id        │       │ - id        │       │ - id            │
+│ - name      │       │ - type      │       │ - state_code    │
+│ - ssn       │       │ - amount    │       │ - start_date    │
+│ - dob       │       │ - state_code│◀──────│ - end_date      │
+└─────────────┘       │ - state_id  │       │ - days_in_state │
+                      └─────────────┘       │ - alloc_pct     │
+                                            │ - alloc_income  │
+                                            └─────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│                          result                              │
+├──────────────────────────────────────────────────────────────┤
+│ Federal Results:                                             │
+│ - agi, taxable_income, federal_tax                           │
+│                                                              │
+│ Illinois Results:                                            │
+│ - il_agi, il_exemption_total, il_taxable_income, il_tax     │
+│                                                              │
+│ New Hampshire Results:                                       │
+│ - nh_agi, nh_standard_deduction, nh_taxable_income          │
+│ - nh_bracket_1_tax, nh_bracket_2_tax, nh_bracket_3_tax      │
+│ - nh_tax                                                     │
+│                                                              │
+│ Montana Results:                                             │
+│ - mt_agi, mt_standard_deduction, mt_taxable_income          │
+│ - mt_bracket_1_tax, mt_bracket_2_tax, mt_tax                │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Multi-State Allocation Flow
+### Decision Table Processing Model
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│           TABLE 45000: Allocate_Income_By_State                 │
-│                  (ITERATIVE on state_period)                    │
-└─────────────────────────────────────────────────────────────────┘
-                             │
-                             ▼
-            For each state_period in job.state_periods:
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-        ▼                    ▼                    ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  NY Period   │    │  FL Period   │    │  CA Period   │
-│  212 days    │    │  153 days    │    │  (example)   │
-│  58.1%       │    │  41.9%       │    │              │
-└──────┬───────┘    └──────┬───────┘    └──────┬───────┘
-       │                   │                   │
-       ├─→ Calculate days_in_state              │
-       │   (end_date - start_date)              │
-       │                                        │
-       ├─→ Calculate allocation_percentage      │
-       │   (days_in_state / 365)                │
-       │                                        │
-       └─→ Allocate income:                     │
-           For each income in job.incomes:      │
-             If income.state_code == "NY"       │
-               OR income.state_code == null:    │
-                 allocated_income +=            │
-                   income.amount * 58.1%        │
-                                                │
-                    Results stored in:          │
-                 state_period.allocated_income  │
-              state_period.allocated_withholding│
-```
-
-### Decision Table Structure
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                       DECISION TABLE                            │
-├─────────────────────────────────────────────────────────────────┤
-│  TABLE NUMBER: 41100                                            │
-│  TABLE NAME: Calculate_IL_Tax                                   │
-│  TYPE: FIRST (first matching column executes)                   │
-│  CONTEXT: (none - operates on job/result entities)              │
-└─────────────────────────────────────────────────────────────────┘
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-        ▼                    ▼                    ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   INITIAL    │    │  CONDITIONS  │    │   COLUMNS    │
-│   ACTIONS    │    │              │    │              │
-├──────────────┤    ├──────────────┤    ├──────────────┤
-│ Execute once │    │ Evaluated    │    │ Actions      │
-│ at table     │    │ for each     │    │ execute if   │
-│ start        │    │ column       │    │ conditions   │
-│              │    │              │    │ match        │
-│ - Initialize │    │ Cond 1: Y/-  │    │ Col 1:       │
-│ - Set        │    │ Cond 2: Y/-  │    │   Cond: Y    │
-│   defaults   │    │ Cond 3: Y/-  │    │   Actions:   │
-│ - Audit log  │    │              │    │   - Calc AGI │
-│              │    │ Each returns │    │   - Calc Tax │
-│              │    │ true/false   │    │   - Log      │
-└──────────────┘    └──────────────┘    └──────────────┘
-```
-
-### Data Flow: Single-State Return
-
-```
-┌──────────────┐
-│  Test XML    │
-│  Input Data  │
-└──────┬───────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  job entity populated:              │
-│  - filing_status = "single"         │
-│  - state = "IL"                     │
-│  - taxpayers[0].w2_wages = 75000    │
-└──────┬──────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  TABLE 1: Compute_Tax_Return        │
-│  Calculates federal tax             │
-│  → result.agi = 75000               │
-└──────┬──────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  TABLE 40000: Dispatch_State_Tax    │
-│  Checks: job.state == "IL"          │
-│  Routes to: Calculate_IL_Tax        │
-└──────┬──────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  TABLE 41100: Calculate_IL_Tax      │
-│  - result.il_agi = 75000            │
-│  - exemptions = 1 × 2775 = 2775     │
-│  - taxable = 75000 - 2775 = 72225   │
-│  - tax = 72225 × 4.95% = 3575       │
-│  → result.il_tax = 3575             │
-└──────┬──────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  result entity contains:            │
-│  - agi = 75000                      │
-│  - il_agi = 75000                   │
-│  - il_taxable_income = 72225        │
-│  - il_tax = 3575                    │
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│              Decision Table: Calculate_IL_Tax               │
+├─────────────────────────────────────────────────────────────┤
+│  Type: FIRST (execute first matching column)                │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Initial Actions (always executed)                          │
+│  - Set up local variables                                   │
+│  - Initialize result fields                                 │
+│  - Log start of calculation                                 │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Conditions (evaluated left to right)                       │
+│                                                             │
+│     Condition 1    Condition 2    Condition 3              │
+│  ┌──────────────┬──────────────┬──────────────┐           │
+│  │ Column 1     │ Column 2     │ Column 3     │           │
+│  ├──────────────┼──────────────┼──────────────┤           │
+│  │ Y            │ N            │ -            │           │
+│  │ num_people   │ num_people   │ (don't care) │           │
+│  │ >= 1         │ = 0          │              │           │
+│  └──────────────┴──────────────┴──────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Find First Matching Column                                 │
+│  - Evaluate all conditions for Column 1                     │
+│  - If all match, execute Column 1 actions                   │
+│  - Otherwise, try Column 2, then Column 3, etc.             │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Actions (execute for matching column)                      │
+│                                                             │
+│     Action 1       Action 2       Action 3                 │
+│  ┌──────────────┬──────────────┬──────────────┐           │
+│  │ Column 1     │ Column 2     │ Column 3     │           │
+│  ├──────────────┼──────────────┼──────────────┤           │
+│  │ X            │              │ X            │           │
+│  │ Calculate    │              │ Special      │           │
+│  │ with exemp.  │              │ handling     │           │
+│  └──────────────┴──────────────┴──────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Results stored in result entity                            │
+│  - result.il_agi                                            │
+│  - result.il_taxable_income                                 │
+│  - result.il_tax                                            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Summary Checklist
+## Best Practices
 
-When adding a new state, ensure you complete all these steps:
+### 1. Entity Design
 
-- [ ] Choose an unused table number (e.g., 43100 for California)
-- [ ] Add state constants to `constants` entity in `TaxReturn_edd.xml`
-  - [ ] Tax rates
-  - [ ] Bracket thresholds (if progressive)
-  - [ ] Standard deductions (by filing status)
-  - [ ] Credits (if applicable)
-- [ ] Create state tax calculation table in `TaxReturn_dt.xml`
-  - [ ] Table metadata (name, number, type, comments)
-  - [ ] Initial actions (initialize, audit log header)
-  - [ ] Conditions (filing status checks, income thresholds, etc.)
-  - [ ] Columns with actions (one per filing status or scenario)
-- [ ] Add state condition to TABLE 40000 (Dispatch_State_Tax)
-- [ ] Add state column to TABLE 40000 that calls your new table
-- [ ] (Optional) Add result fields to `result` entity for intermediate values
-- [ ] Create test cases
-  - [ ] At least one test per filing status
-  - [ ] Edge cases (low income, high income, multiple brackets)
-  - [ ] Include expected values for validation
-- [ ] Build project and verify XML is valid
-- [ ] Run tests and verify calculations
-- [ ] Review audit trail output for correctness
+**DO:**
+- Use descriptive field names (`il_taxable_income` not `il_ti`)
+- Store intermediate calculations for audit trail
+- Use appropriate data types (integer for counts, double for money)
+- Add comments to all entity fields
+- Group related constants in the `job` entity
+
+**DON'T:**
+- Overload single field with multiple meanings
+- Use generic field names like `temp1`, `value2`
+- Mix different state results in same fields
+- Forget to initialize result fields to 0
+
+### 2. Decision Table Design
+
+**DO:**
+- Use FIRST type for single-column selection (tax calculations)
+- Use ITERATIVE type for processing arrays (multi-state, multiple incomes)
+- Keep conditions simple and testable
+- Log all major calculation steps to audit trail
+- Use meaningful column descriptions
+
+**DON'T:**
+- Create overly complex conditions
+- Nest decision tables more than 2-3 levels deep
+- Forget to handle edge cases (zero income, negative values)
+- Skip initial actions for setup
+
+### 3. Postfix Notation
+
+**DO:**
+- Use local variables for intermediate results
+- Comment complex postfix expressions in XML
+- Test postfix expressions incrementally
+- Use `fmax` to enforce non-negative results
+- Maintain consistent operator usage (f+ for floats, + for integers)
+
+**DON'T:**
+- Leave orphaned values on the stack
+- Use wrong operator types (mixing integer and float ops)
+- Create excessively long postfix expressions (break into steps)
+- Forget type conversions (cvs, cvi, cvr)
+
+### 4. Testing
+
+**DO:**
+- Test boundary conditions (zero income, threshold amounts)
+- Test all bracket combinations for progressive taxes
+- Create multi-state test cases
+- Verify calculations against official tax forms
+- Include both typical and edge cases
+
+**DON'T:**
+- Test only "happy path" scenarios
+- Skip multi-state scenarios
+- Use unrealistic test data
+- Forget to test filing status variations
+
+### 5. Documentation
+
+**DO:**
+- Reference official state tax forms in comments
+- Document tax formulas in table comments
+- Maintain audit trail with descriptive messages
+- Update documentation when rates change
+- Include effective tax year in documentation
+
+**DON'T:**
+- Assume formulas are self-explanatory
+- Skip documentation of special cases
+- Use ambiguous terminology
+- Forget to document assumptions
+
+### 6. State Tax Implementation
+
+**DO:**
+- Follow naming conventions consistently
+- Reuse patterns from existing state implementations
+- Store all tax constants in entity definitions (not hard-coded)
+- Handle states with no income tax explicitly
+- Implement backward compatibility for single-state returns
+
+**DON'T:**
+- Hard-code tax rates in decision tables
+- Forget to update dispatcher when adding new states
+- Skip validation of state codes
+- Assume all states have income tax
+
+### 7. Multi-State Handling
+
+**DO:**
+- Allocate income based on actual days in state
+- Support both proportional and source-based allocation
+- Fall back to single-state gracefully
+- Document resident status values
+- Test part-year and nonresident scenarios
+
+**DON'T:**
+- Assume equal allocation across states
+- Forget to handle states with no income tax
+- Skip withholding allocation
+- Ignore resident status differences
+
+### 8. Performance
+
+**DO:**
+- Use integer operations where possible (faster than float)
+- Minimize array iterations
+- Reuse local variables
+- Cache calculated values
+- Use FIRST type when only one column will match
+
+**DON'T:**
+- Recalculate same values multiple times
+- Use UNIQUE type unnecessarily (slower)
+- Create deeply nested loops
+- Forget to clear large arrays after use
+
+### 9. Maintenance
+
+**DO:**
+- Version control all XML files
+- Track tax rate changes by year
+- Use constants for values that change annually
+- Document assumptions and limitations
+- Create regression tests for bug fixes
+
+**DON'T:**
+- Modify production rules without testing
+- Remove old test cases
+- Change table numbers after deployment
+- Skip impact analysis for changes
+
+### 10. Error Handling
+
+**DO:**
+- Validate input data (state codes, dates, amounts)
+- Handle missing or null values gracefully
+- Log errors to audit trail
+- Use sensible defaults
+- Test with invalid inputs
+
+**DON'T:**
+- Assume all input is valid
+- Allow negative tax calculations
+- Skip null checks
+- Fail silently on errors
 
 ---
 
-## Related Documentation
+## Summary
 
-- **Multi-State Allocation**: `/sampleprojects/TaxReturn/docs/MULTI_STATE_ALLOCATION.md`
-- **General API Guide**: `/docs/API-GUIDE.md`
-- **Architecture Overview**: `/docs/ARCHITECTURE.md`
-- **Entity Definitions**: `/sampleprojects/TaxReturn/xml/TaxReturn_edd.xml`
-- **Decision Tables**: `/sampleprojects/TaxReturn/xml/TaxReturn_dt.xml`
+The DTRules state tax system provides a robust, extensible framework for implementing state income tax calculations. Key takeaways:
+
+1. **Consistent Structure**: All state implementations follow the same entity/table/test pattern
+2. **Stack-Based Execution**: Postfix notation provides precise control over calculations
+3. **Multi-State Support**: Built-in allocation for part-year residents and multi-state workers
+4. **Audit Trail**: All calculations are logged for transparency and debugging
+5. **Extensibility**: Adding new states follows a clear, repeatable process
+
+**Reference Implementations:**
+- **Flat Tax**: Illinois (TABLE 41100)
+- **Progressive Tax**: New Hampshire (TABLE 42700), Montana (TABLE 44900)
+- **Multi-State**: Allocation (TABLE 45000), Dispatcher (TABLE 40000)
+
+**Next Steps:**
+1. Review existing state implementations
+2. Study postfix notation examples
+3. Create test cases for your state
+4. Implement decision table
+5. Validate against official tax forms
+
+For questions or additional examples, refer to:
+- `docs/EL-REFERENCE.md` - Expression Language reference
+- `docs/ARCHITECTURE.md` - System architecture
+- `sampleprojects/TaxReturn/docs/MULTI_STATE_ALLOCATION.md` - Multi-state details
 
 ---
 
-## Contact and Support
-
-For questions or issues with state tax implementations, please refer to:
-
-- **DTRules Documentation**: `/docs/`
-- **GitHub Issues**: https://github.com/DTRules/DTRules
-- **Decision Table Reference**: See `/docs/ARCHITECTURE.md` for decision table concepts
-
----
-
-**Document Version**: 1.0
-**Last Updated**: 2026-03-23
-**Covers**: Illinois (IL), New Hampshire (NH), Montana (MT) state tax implementations
+**Document Version:** 1.0
+**Last Updated:** 2026-03-23
+**Compatible with:** DTRules 5.0-SNAPSHOT
