@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for South Dakota (SD)
+
+  South Dakota has NO state income tax.
+  This table simply sets state_tax_liability to zero.
+
+  Table Number: 44100 (SD is state #41 alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 44100: Calculate_SD_Tax - South Dakota State Income Tax         -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SD_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>South Dakota state income tax calculation. SD has no state income tax (2025).</COMMENTS>
+<TABLE_NUMBER>44100</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize SD tax calculation</action_description>
+<action_postfix>
+"South Dakota Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute - SD has no income tax</condition_comment>
+<condition_description>true</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Set SD tax liability to zero (no state income tax)</action_comment>
+<action_postfix>
+0.0 /result.state_tax_liability xdef
+
+"South Dakota has no state income tax - tax liability: $0.00" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>
