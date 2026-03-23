@@ -8712,6 +8712,18 @@ job.state IL streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>California state</condition_comment>
+<condition_description>job.state is equal to "CA"</condition_description>
+<condition_postfix>
+job.state CA streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8726,12 +8738,21 @@ Calculate_IL_Tax
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_comment>Calculate California AGI</action_comment>
+<action_description>Calculate_CA_AGI</action_description>
+<action_postfix>
+Calculate_CA_AGI
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
 <action_description>log "State tax calculation not implemented for this state"</action_description>
 <action_postfix>
 "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8740,6 +8761,10 @@ Calculate_IL_Tax
 <policy_statement_postfix>"Calculate Illinois state income tax per Form IL-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
+<policy_description>Calculate California AGI</policy_description>
+<policy_statement_postfix>"Calculate California AGI per Form 540 Schedule CA"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
@@ -8827,6 +8852,200 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <policy_statement column="2">
 <policy_description>Illinois tax without exemptions</policy_description>
 <policy_statement_postfix>"Illinois tax calculated without exemptions"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 43001: Calculate_CA_AGI - California Adjusted Gross Income      -->
+<!-- Reference: California Form 540 Schedule CA (2025)                     -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CA_AGI</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates California AGI per Form 540 Schedule CA. California conforms to IRC as of Jan 1, 2025 (SB 711) but has major differences. Starting with federal AGI, applies CA-specific additions (foreign earned income exclusion, combat pay) and subtractions (Social Security, unemployment, state tax refunds, military retirement).</COMMENTS>
+<TABLE_NUMBER>43001</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize CA AGI calculation</action_description>
+<action_postfix>
+"CALIFORNIA FORM 540 SCHEDULE CA - AGI Adjustments" job.audit_trail swap addto
+result.agi /result.ca_agi xdef
+0 local@ ca_additions >
+0 local@ ca_subtractions >
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Social Security income</condition_comment>
+<condition_description>Any income item is type social_security</condition_description>
+<condition_postfix>
+false local@ has_ss >
+{ dup type income_type > income_type "social_security" streq if true local@ has_ss > endif } job.incomes forall
+has_ss
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has unemployment compensation</condition_comment>
+<condition_description>Any income item is type unemployment</condition_description>
+<condition_postfix>
+false local@ has_unemp >
+{ dup type income_type > income_type "unemployment" streq if true local@ has_unemp > endif } job.incomes forall
+has_unemp
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has military retirement income</condition_comment>
+<condition_description>Any income is pension from military</condition_description>
+<condition_postfix>
+false local@ has_military_retirement >
+{ dup type income_type > income_type "pension" streq if
+    dup description desc > desc "military" contains desc "uniformed services" contains or if
+      true local@ has_military_retirement >
+    endif
+  endif } job.incomes forall
+has_military_retirement
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>CA AGI with SS, unemployment, and military retirement</action_comment>
+<action_description>Apply all major CA subtractions from federal AGI</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ss_total >
+{ dup type income_type > income_type "social_security" streq if dup gross_amount ss_total f+ local@ ss_total > endif } job.incomes forall
+ss_total 0 f> if
+  "  Subtract Social Security: -$" ss_total cvs strconcat " (CA excludes SS benefits)" strconcat job.audit_trail swap addto
+  result.ca_agi ss_total f- /result.ca_agi xdef
+  ca_subtractions ss_total f+ local@ ca_subtractions >
+endif
+0 local@ unemp_total >
+{ dup type income_type > income_type "unemployment" streq if dup gross_amount unemp_total f+ local@ unemp_total > endif } job.incomes forall
+unemp_total 0 f> if
+  "  Subtract Unemployment: -$" unemp_total cvs strconcat " (CA excludes unemployment)" strconcat job.audit_trail swap addto
+  result.ca_agi unemp_total f- /result.ca_agi xdef
+  ca_subtractions unemp_total f+ local@ ca_subtractions >
+endif
+0 local@ military_retirement >
+{ dup type income_type > income_type "pension" streq if
+    dup description desc > desc "military" contains desc "uniformed services" contains or if
+      dup gross_amount military_retirement f+ local@ military_retirement >
+    endif
+  endif } job.incomes forall
+military_retirement 0 f> if
+  military_retirement ca_military_retirement_exclusion fmin local@ exclusion_amt >
+  "  Subtract Military Retirement: -$" exclusion_amt cvs strconcat " (CA allows $20k exclusion)" strconcat job.audit_trail swap addto
+  result.ca_agi exclusion_amt f- /result.ca_agi xdef
+  ca_subtractions exclusion_amt f+ local@ ca_subtractions >
+endif
+"  California AGI: $" result.ca_agi cvs strconcat " (Form 540 Schedule CA)" strconcat job.audit_trail swap addto
+"  Total CA Subtractions: $" ca_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>CA AGI with SS and unemployment only</action_comment>
+<action_description>Apply SS and unemployment subtractions</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ss_total >
+{ dup type income_type > income_type "social_security" streq if dup gross_amount ss_total f+ local@ ss_total > endif } job.incomes forall
+ss_total 0 f> if
+  "  Subtract Social Security: -$" ss_total cvs strconcat " (CA excludes SS benefits)" strconcat job.audit_trail swap addto
+  result.ca_agi ss_total f- /result.ca_agi xdef
+  ca_subtractions ss_total f+ local@ ca_subtractions >
+endif
+0 local@ unemp_total >
+{ dup type income_type > income_type "unemployment" streq if dup gross_amount unemp_total f+ local@ unemp_total > endif } job.incomes forall
+unemp_total 0 f> if
+  "  Subtract Unemployment: -$" unemp_total cvs strconcat " (CA excludes unemployment)" strconcat job.audit_trail swap addto
+  result.ca_agi unemp_total f- /result.ca_agi xdef
+  ca_subtractions unemp_total f+ local@ ca_subtractions >
+endif
+"  California AGI: $" result.ca_agi cvs strconcat " (Form 540 Schedule CA)" strconcat job.audit_trail swap addto
+"  Total CA Subtractions: $" ca_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>CA AGI with SS and military retirement only</action_comment>
+<action_description>Apply SS and military retirement subtractions</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ss_total >
+{ dup type income_type > income_type "social_security" streq if dup gross_amount ss_total f+ local@ ss_total > endif } job.incomes forall
+ss_total 0 f> if
+  "  Subtract Social Security: -$" ss_total cvs strconcat " (CA excludes SS benefits)" strconcat job.audit_trail swap addto
+  result.ca_agi ss_total f- /result.ca_agi xdef
+  ca_subtractions ss_total f+ local@ ca_subtractions >
+endif
+0 local@ military_retirement >
+{ dup type income_type > income_type "pension" streq if
+    dup description desc > desc "military" contains desc "uniformed services" contains or if
+      dup gross_amount military_retirement f+ local@ military_retirement >
+    endif
+  endif } job.incomes forall
+military_retirement 0 f> if
+  military_retirement ca_military_retirement_exclusion fmin local@ exclusion_amt >
+  "  Subtract Military Retirement: -$" exclusion_amt cvs strconcat " (CA allows $20k exclusion)" strconcat job.audit_trail swap addto
+  result.ca_agi exclusion_amt f- /result.ca_agi xdef
+  ca_subtractions exclusion_amt f+ local@ ca_subtractions >
+endif
+"  California AGI: $" result.ca_agi cvs strconcat " (Form 540 Schedule CA)" strconcat job.audit_trail swap addto
+"  Total CA Subtractions: $" ca_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>CA AGI equals federal AGI (no adjustments)</action_comment>
+<action_description>No CA-specific adjustments needed</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+"  California AGI: $" result.ca_agi cvs strconcat " (No CA adjustments)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>CA AGI with SS, unemployment, and military retirement subtractions</policy_description>
+<policy_statement_postfix>"California AGI with all major subtractions per Schedule CA"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>CA AGI with SS and unemployment subtractions</policy_description>
+<policy_statement_postfix>"California AGI with SS and unemployment subtractions per Schedule CA"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>CA AGI with SS and military retirement subtractions</policy_description>
+<policy_statement_postfix>"California AGI with SS and military retirement subtractions per Schedule CA"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>CA AGI equals federal AGI</policy_description>
+<policy_statement_postfix>"California AGI equals federal AGI (no Schedule CA adjustments)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

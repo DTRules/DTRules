@@ -959,6 +959,55 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- California State Tax Constants (2025) -->
+		<!-- Standard Deductions (FTB Pub 1005) -->
+		<field name='ca_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='5363' comment='CA standard deduction Single (2025)'></field>
+		<field name='ca_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='10726' comment='CA standard deduction MFJ (2025)'></field>
+		<field name='ca_standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='5363' comment='CA standard deduction MFS (2025)'></field>
+		<field name='ca_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='10726' comment='CA standard deduction HOH (2025)'></field>
+
+		<!-- CA Tax Brackets Single (Rev. & Tax Code 17041) - Progressive 1% to 13.3% -->
+		<field name='ca_bracket_1_single' type='double' subtype='' access='r' input='' default_value='10412' comment='1% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_2_single' type='double' subtype='' access='r' input='' default_value='24684' comment='2% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_3_single' type='double' subtype='' access='r' input='' default_value='38959' comment='4% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_4_single' type='double' subtype='' access='r' input='' default_value='54081' comment='6% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_5_single' type='double' subtype='' access='r' input='' default_value='68350' comment='8% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_6_single' type='double' subtype='' access='r' input='' default_value='349137' comment='9.3% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_7_single' type='double' subtype='' access='r' input='' default_value='418961' comment='10.3% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_8_single' type='double' subtype='' access='r' input='' default_value='698271' comment='11.3% bracket ceiling Single (2025)'></field>
+		<field name='ca_bracket_9_single' type='double' subtype='' access='r' input='' default_value='1000000' comment='12.3% bracket ceiling Single (2025)'></field>
+
+		<!-- CA Tax Brackets MFJ - Progressive 1% to 13.3% -->
+		<field name='ca_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='20824' comment='1% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='49368' comment='2% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='77918' comment='4% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_4_mfj' type='double' subtype='' access='r' input='' default_value='108162' comment='6% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_5_mfj' type='double' subtype='' access='r' input='' default_value='136700' comment='8% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='698274' comment='9.3% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_7_mfj' type='double' subtype='' access='r' input='' default_value='837922' comment='10.3% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_8_mfj' type='double' subtype='' access='r' input='' default_value='1396542' comment='11.3% bracket ceiling MFJ (2025)'></field>
+		<field name='ca_bracket_9_mfj' type='double' subtype='' access='r' input='' default_value='1000000' comment='12.3% bracket ceiling MFJ (2025)'></field>
+
+		<!-- CA Tax Rates (Rev. & Tax Code 17041) -->
+		<field name='ca_rate_1' type='double' subtype='' access='r' input='' default_value='0.01' comment='CA tax rate 1%'></field>
+		<field name='ca_rate_2' type='double' subtype='' access='r' input='' default_value='0.02' comment='CA tax rate 2%'></field>
+		<field name='ca_rate_3' type='double' subtype='' access='r' input='' default_value='0.04' comment='CA tax rate 4%'></field>
+		<field name='ca_rate_4' type='double' subtype='' access='r' input='' default_value='0.06' comment='CA tax rate 6%'></field>
+		<field name='ca_rate_5' type='double' subtype='' access='r' input='' default_value='0.08' comment='CA tax rate 8%'></field>
+		<field name='ca_rate_6' type='double' subtype='' access='r' input='' default_value='0.093' comment='CA tax rate 9.3%'></field>
+		<field name='ca_rate_7' type='double' subtype='' access='r' input='' default_value='0.103' comment='CA tax rate 10.3%'></field>
+		<field name='ca_rate_8' type='double' subtype='' access='r' input='' default_value='0.113' comment='CA tax rate 11.3%'></field>
+		<field name='ca_rate_9' type='double' subtype='' access='r' input='' default_value='0.123' comment='CA tax rate 12.3%'></field>
+		<field name='ca_rate_10' type='double' subtype='' access='r' input='' default_value='0.133' comment='CA tax rate 13.3%'></field>
+
+		<!-- CA Mental Health Services Tax (Rev. & Tax Code 17043) -->
+		<field name='ca_mhst_rate' type='double' subtype='' access='r' input='' default_value='0.01' comment='CA Mental Health Services Tax rate (1%)'></field>
+		<field name='ca_mhst_threshold' type='double' subtype='' access='r' input='' default_value='1000000' comment='MHST threshold $1M+ (all filing statuses)'></field>
+
+		<!-- CA AGI Conformity (Schedule CA Adjustments) -->
+		<field name='ca_conformity_date' type='string' subtype='' access='r' input='' default_value='2025-01-01' comment='CA IRC conformity date (SB 711, Jan 1, 2025)'></field>
+		<field name='ca_military_retirement_exclusion' type='double' subtype='' access='r' input='' default_value='20000' comment='CA military retirement exclusion (2025-2029)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1420,6 +1469,14 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- California State Tax -->
+		<field name='ca_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='California AGI (CA adjustments)'></field>
+		<field name='ca_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='CA standard deduction'></field>
+		<field name='ca_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='CA taxable income'></field>
+		<field name='ca_regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='CA regular tax (before MHST)'></field>
+		<field name='ca_mhst' type='double' subtype='' access='rw' input='' default_value='0' comment='CA Mental Health Services Tax (1% on $1M+)'></field>
+		<field name='ca_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total CA state income tax (including MHST)'></field>
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
