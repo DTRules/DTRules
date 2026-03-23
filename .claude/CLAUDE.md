@@ -33,11 +33,27 @@ tail -50 /tmp/go-test.log
 
 ## State Tax Implementation
 
-### File Locations
-- **Decision tables**: `sampleprojects/TaxReturn/xml/TaxReturn_dt.xml`
-- **Entity definitions**: `sampleprojects/TaxReturn/xml/TaxReturn_edd.xml`
-- **Test cases**: `sampleprojects/TaxReturn/testfiles/TestScenarios/State/<STATE>/`
-- **Test harness**: `go/pkg/dtrules/taxreturn_results_test.go`
+### CRITICAL: Use Separate Files Per State
+
+**Each state gets 2 files** to avoid merge conflicts:
+- `sampleprojects/TaxReturn/xml/states/XX_edd.xml` (state constants)
+- `sampleprojects/TaxReturn/xml/states/XX_dt.xml` (state decision tables)
+
+Where XX is the 2-letter state code (CO, CA, NY, etc.)
+
+**Do NOT edit** the main `TaxReturn_edd.xml` or `TaxReturn_dt.xml` files directly!
+
+### File Templates
+
+Copy these templates to create your state files:
+- `sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml`
+- `sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml`
+
+Example:
+```bash
+cp sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml sampleprojects/TaxReturn/xml/states/CO_edd.xml
+cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml
+```
 
 ### State Implementation Pattern
 
@@ -48,22 +64,33 @@ tail -50 /tmp/go-test.log
    - 2-3 key state-specific rules
    - Don't research everything upfront!
 
-2. **Add constants to EDD** (`TaxReturn_edd.xml`):
-   ```xml
-   <field name='co_tax_rate' type='double' default_value='0.044' comment='CO flat rate 4.4%'/>
+2. **Create state files from templates**:
+   ```bash
+   cp sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml sampleprojects/TaxReturn/xml/states/XX_edd.xml
+   cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/xml/states/XX_dt.xml
    ```
 
-3. **Create decision table** (`TaxReturn_dt.xml`):
-   - Use existing federal tables as examples
-   - Keep it simple initially
-   - Add complexity incrementally
-
-4. **Add state branch to dispatcher**:
+3. **Add constants to `XX_edd.xml`**:
    ```xml
-   job.state "CO" streq { Calculate_CO_Tax } if
+   <entity name="result">
+     <field name='co_tax_rate' type='double' default_value='0.044'
+            comment='CO flat rate 4.4% (2025)'/>
+     <field name='co_standard_deduction_single' type='double' default_value='15000'
+            comment='CO standard deduction single (2025)'/>
+   </entity>
    ```
 
-5. **Create 3 test cases** minimum
+4. **Create decision table in `XX_dt.xml`**:
+   - Use TEMPLATE_dt.xml as starting point
+   - Replace XX with your state code
+   - Assign unique table number (see template for numbering convention)
+   - Keep it simple initially, add complexity incrementally
+
+5. **Merge files before testing**:
+   ```bash
+   cd sampleprojects/TaxReturn
+   ./scripts/merge-states.sh
+   ```
 
 6. **Build and test**:
    ```bash
@@ -71,6 +98,39 @@ tail -50 /tmp/go-test.log
    go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
    tail -50 /tmp/test.log
    ```
+
+7. **Create 3 test cases** in `testfiles/TestScenarios/State/XX/`
+
+### Git Workflow for States
+
+```bash
+# Create your state files
+cp xml/states/TEMPLATE_edd.xml xml/states/CO_edd.xml
+cp xml/states/TEMPLATE_dt.xml xml/states/CO_dt.xml
+
+# Edit the files (add your state's logic)
+# ... edit CO_edd.xml and CO_dt.xml ...
+
+# Merge and test
+./scripts/merge-states.sh
+cd go && go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
+tail -50 /tmp/test.log
+
+# Stage ONLY your state files (not the merged files!)
+git add xml/states/CO_edd.xml xml/states/CO_dt.xml
+
+# Commit
+git commit -m "feat: implement CO state tax (#180)"
+
+# Push
+git push origin feature/issue-180 > /tmp/git-push.log 2>&1
+```
+
+### Why Separate Files?
+
+**Problem**: All 41 states modifying `TaxReturn_edd.xml` and `TaxReturn_dt.xml` causes guaranteed merge conflicts.
+
+**Solution**: Each state gets its own files. The merge script combines them for testing. States are truly independent - Colorado changes don't conflict with California changes.
 
 ### Avoiding Context Overflow
 
@@ -122,16 +182,19 @@ git commit -m "test: add test cases for <State> (#<issue>)"
 ## Git Workflow
 
 ```bash
-# Stage specific files (preferred over git add .)
-git add sampleprojects/TaxReturn/xml/TaxReturn_dt.xml
-git add sampleprojects/TaxReturn/xml/TaxReturn_edd.xml
+# Stage ONLY your state-specific files
+git add sampleprojects/TaxReturn/xml/states/XX_edd.xml
+git add sampleprojects/TaxReturn/xml/states/XX_dt.xml
+git add sampleprojects/TaxReturn/testfiles/TestScenarios/State/XX/
 
 # Commit
-git commit -m "feat: implement CO state tax (#180)"
+git commit -m "feat: implement XX state tax (#<issue>)"
 
 # Push (redirect for verbose output)
 git push origin feature/issue-<N> > /tmp/git-push.log 2>&1
 ```
+
+**IMPORTANT**: Do NOT commit the merged `TaxReturn_edd.xml` or `TaxReturn_dt.xml` files! These are generated files created by the merge script for testing only.
 
 ## When to Ask for Help
 
