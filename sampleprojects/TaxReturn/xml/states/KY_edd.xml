@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Kentucky (KY)
+
+  Kentucky has a flat tax rate of 4% for 2025.
+  Standard deduction is $3,270 for all filing statuses.
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Add state-specific constants to the 'result' entity -->
+  <entity name="result">
+    <!-- Tax rates -->
+    <field name="ky_tax_rate" type="double" default_value="0.04"
+           comment="KY flat tax rate 4% (2025)"/>
+
+    <!-- Standard deductions -->
+    <field name="ky_standard_deduction" type="double" default_value="3270"
+           comment="KY standard deduction all filing statuses (2025)"/>
+
+    <!-- Retirement income exclusion -->
+    <field name="ky_pension_exclusion" type="double" default_value="31110"
+           comment="KY pension income exclusion per taxpayer (2025)"/>
+
+    <!-- State tax computation fields -->
+    <field name="ky_taxable_income" type="double" default_value="0.0"
+           comment="KY taxable income after deductions"/>
+    <field name="ky_state_tax" type="double" default_value="0.0"
+           comment="KY state income tax liability"/>
+
+  </entity>
+</entity_data_dictionary>
