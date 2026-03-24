@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  New York State Corporate Tax Decision Tables
+
+  NY Article 9-A General Business Corporation Tax
+  Tables 50100-50199 (NY allocation)
+
+  Table Structure:
+  - 50100: Determine NY Filing Requirement
+  - 50120: Calculate NY Income Adjustments
+  - 50180: Calculate NY State Tax
+  - 50190: Calculate NY MTA Surcharge
+
+  Tax Rate: 6.5% (Tax Law § 209)
+  MTA Surcharge: 0.34% for businesses in MTA region
+  Economic Nexus: $1,000,000 in NY receipts
+-->
+<decision_tables name="CorporateTax_NY_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 50100: Determine NY Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file NY state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in state
+    - Economic nexus (post-Wayfair): $1,000,000 gross receipts threshold
+  -->
+  <decision_table name="Determine_NY_Filing_Requirement" number="50100">
+    <description>
+      Determine if corporation must file NY state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'NY'</expression>
+        <comment>Has physical presence in NY (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'NY'</expression>
+        <comment>Meets NY economic nexus threshold ($1M)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          NY filing required due to physical presence (office, employees, or property in state).
+
+          Reference: NY Tax Law Article 9-A
+          Reference: NY Department of Taxation and Finance Publication 20
+          Reference: TSB-M-15(1)C - Corporate Tax Reform
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          NY filing required due to economic nexus (post-Wayfair).
+          Threshold: $1,000,000 in NY gross receipts.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: NY Tax Law § 209.1
+          Reference: TSB-M-18(5)C - Economic Nexus Standard
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No NY nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50120: Calculate NY State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates state additions and subtractions to federal taxable income.
+
+    NY-specific additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - IRC Section 199A qualified business income deduction addback
+    - Certain depreciation adjustments
+
+    NY-specific subtractions:
+    - Interest on NY and local government bonds
+    - Qualified emerging technology company deductions
+  -->
+  <decision_table name="Calculate_NY_Income_Adjustments" number="50120">
+    <description>
+      Calculate NY state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate NY state additions
+            double additions = 0.0;
+
+            // NY adds back interest on U.S. government obligations
+            // (exempt from federal tax but taxable to NY)
+            // additions += revenue.federal_bond_interest;
+
+            // NY adds back IRC 199A deduction (state doesn't conform)
+            // additions += result.section_199a_deduction;
+
+            // NY may require depreciation adjustments
+            // additions += result.ny_depreciation_addback;
+
+            apportionment.state_additions = additions;
+
+            // Calculate NY state subtractions
+            double subtractions = 0.0;
+
+            // NY allows subtraction for interest on NY/local government bonds
+            // subtractions += revenue.ny_municipal_interest;
+
+            // Qualified emerging technology company (QETC) deductions
+            // subtractions += result.ny_qetc_deduction;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          NY state-specific income adjustments to federal taxable income.
+
+          Additions may include:
+          - Interest on U.S. government obligations (NY Tax Law § 208.9)
+          - IRC Section 199A qualified business income deduction addback
+          - Certain depreciation adjustments
+
+          Subtractions may include:
+          - Interest on NY state and local government bonds
+          - Qualified emerging technology company (QETC) deductions
+
+          Reference: NY Form CT-3 Instructions (Article 9-A)
+          Reference: NY Tax Law § 208 (Computation of tax)
+          Reference: TSB-M-18(1)C - Federal Tax Law Changes
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50180: Calculate NY State Tax
+    ============================================================================
+
+    Calculates final NY state corporate income tax.
+
+    Process:
+    1. Federal taxable income apportioned to NY (done by table 7500)
+    2. Add state-specific additions (done by table 50120)
+    3. Subtract state-specific subtractions (done by table 50120)
+    4. Calculate NY state taxable income
+    5. Apply NY tax rate (6.5% flat rate)
+    6. Subtract NY state credits
+    7. MTA surcharge calculated separately in table 50190
+    8. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_NY_State_Tax" number="50180">
+    <description>
+      Calculate NY state corporate income tax.
+      Applies NY 6.5% tax rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate NY tax at 6.5% flat rate -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // NY uses flat 6.5% rate (Tax Law § 209)
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract NY state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // MTA surcharge will be added in table 50190 if applicable
+            // For now, calculate base refund/owed (will be adjusted by MTA surcharge)
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          NY state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to NY: × [Apportionment %]
+          3. State additions: + [Additions]
+          4. State subtractions: - [Subtractions]
+          5. NY taxable income: = [Result]
+          6. NY tax rate: × 6.5%
+          7. NY income tax: = [Tax before credits]
+          8. NY credits: - [Credits]
+          9. NY tax liability (before MTA): = [Tax]
+
+          Note: MTA surcharge (0.34%) calculated separately if business is in MTA region.
+
+          Reference: NY Form CT-3 Instructions (Article 9-A General Business Corporation)
+          Reference: NY Tax Law § 209 (Tax rate: 6.5%)
+          Reference: NY Tax Law § 210 (Computation of tax base)
+          Reference: TSB-M-15(1)C - Corporate Tax Reform
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No NY nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Nexus but no taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No NY taxable income - no tax liability.
+          NY NOL rules may apply (not implemented).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50190: Calculate NY MTA Surcharge
+    ============================================================================
+
+    Calculates NY MTA (Metropolitan Transportation Authority) surcharge.
+
+    The MTA surcharge is 0.34% (17/50ths of 1%) of the business income base
+    for businesses operating in the MTA region (primarily NYC metro area).
+
+    The surcharge applies to corporations that:
+    - Are subject to NY corporate tax
+    - Have business operations in the MTA region
+  -->
+  <decision_table name="Calculate_NY_MTA_Surcharge" number="50190">
+    <description>
+      Calculate NY MTA surcharge for businesses in MTA region.
+      Surcharge is 0.34% of business income base.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have NY nexus</comment>
+      </condition>
+
+      <condition name="in_mta_region">
+        <expression>result.ny_in_mta_region == true</expression>
+        <comment>Business operates in MTA region</comment>
+      </condition>
+
+      <condition name="has_positive_tax_base">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive tax base for surcharge calculation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate MTA surcharge -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <in_mta_region>Y</in_mta_region>
+          <has_positive_tax_base>Y</has_positive_tax_base>
+        </conditions>
+        <actions>
+          <action>
+            // MTA surcharge is 0.34% of business income base
+            result.ny_mta_surcharge =
+              apportionment.state_taxable_income * result.ny_mta_surcharge_rate;
+
+            // Add MTA surcharge to total state tax
+            apportionment.state_tax = apportionment.state_tax + result.ny_mta_surcharge;
+
+            // Recalculate refund or amount owed including MTA surcharge
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          NY MTA surcharge applies to businesses in the MTA region.
+
+          MTA Surcharge Calculation:
+          - Business income base: [State taxable income]
+          - MTA surcharge rate: × 0.34% (17/50ths of 1%)
+          - MTA surcharge: = [Surcharge amount]
+          - Total NY tax: Base tax + MTA surcharge
+
+          MTA Region includes:
+          - New York City (5 boroughs)
+          - Counties: Dutchess, Nassau, Orange, Putnam, Rockland, Suffolk, Westchester
+
+          Reference: NY Tax Law § 209-B (MTA surcharge)
+          Reference: NY Form CT-3-M/ATT (MTA Surcharge)
+          Reference: TSB-M-09(1)C - MTA Surcharge Implementation
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No MTA surcharge - not in MTA region -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <in_mta_region>N</in_mta_region>
+        </conditions>
+        <actions>
+          <action>
+            result.ny_mta_surcharge = 0.0;
+            // State tax and refund/owed already calculated in table 50180
+          </action>
+        </actions>
+        <policy>
+          No MTA surcharge - business not operating in MTA region.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: No MTA surcharge - no nexus or no tax base -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            result.ny_mta_surcharge = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No MTA surcharge - no NY nexus or no taxable income.
+        </policy>
+      </rule>
+
+      <rule number="4">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <in_mta_region>Y</in_mta_region>
+          <has_positive_tax_base>N</has_positive_tax_base>
+        </conditions>
+        <actions>
+          <action>
+            result.ny_mta_surcharge = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No MTA surcharge - no positive tax base.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>
