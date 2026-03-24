@@ -26,724 +26,640 @@
   - Nevada Tax Commission Commerce Tax Information Guide
   - Form CT-1 (Commerce Tax Return)
 -->
-<decision_tables name="CorporateTax_NV_Tables">
-
-  <!--
-    ============================================================================
-    TABLE 54000: Determine NV Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file Nevada Commerce Tax return.
-
-    Nevada Commerce Tax nexus:
-    - Physical presence: Office, employees, property in Nevada
-    - Economic nexus: $100,000 or more in Nevada receipts OR 200+ transactions
-    - Registration: Doing business in Nevada
-
-    No tax due threshold: $4,000,000 in Nevada gross revenue (2025)
-  -->
-  <decision_table name="Determine_NV_Filing_Requirement" number="54000">
-    <description>
-      Determine if corporation must file Nevada Commerce Tax return.
-      Checks for physical presence, economic nexus, and revenue threshold.
-    </description>
-
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'NV'</expression>
-        <comment>Has physical presence in Nevada (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'NV'</expression>
-        <comment>Meets Nevada economic nexus threshold ($100K or 200 transactions)</comment>
-      </condition>
-
-      <condition name="below_commerce_tax_threshold">
-        <expression>result.nv_gross_revenue &lt; result.nv_commerce_tax_threshold</expression>
-        <comment>Nevada gross revenue below $4M threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-          <below_commerce_tax_threshold>Y</below_commerce_tax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Physical presence but below threshold - no Commerce Tax due
-            result.nv_qualifies_for_exemption = true;
-            result.nv_commerce_tax = 0.0;
-            apportionment.state_tax = 0.0;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax: No tax due (Nevada gross revenue below $4M threshold).
-
-          Nevada has NO corporate income tax.
-
-          The Commerce Tax only applies to businesses with Nevada-sitused gross revenue
-          exceeding $4,000,000. Below this threshold, no Commerce Tax is due.
-
-          Note: Business license fees and modified business tax (payroll tax) may still
-          apply but are separate from Commerce Tax.
-
-          Reference: NRS 363C.100 - Commerce Tax Threshold
-          Reference: NRS 363C.110 - Exemptions
-          Reference: Form CT-1 (Commerce Tax Return)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-          <below_commerce_tax_threshold>N</below_commerce_tax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus and above threshold - Commerce Tax required
-            result.nv_qualifies_for_exemption = false;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax filing required due to physical presence and revenue exceeding $4M.
-
-          Physical presence includes:
-          - Office or place of business in Nevada
-          - Employees working in Nevada
-          - Tangible property in Nevada
-          - Nevada entity (organized under Nevada law)
-          - Registered to do business in Nevada
-
-          The Commerce Tax is calculated on Nevada-sitused gross revenue exceeding $4M.
-
-          Reference: NRS 363C.040 - Nexus
-          Reference: NRS 363C.100 - Tax Imposition
-          Reference: NRS 363C.110 - Tax Calculation
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-          <below_commerce_tax_threshold>N</below_commerce_tax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus and above threshold - Commerce Tax required
-            result.nv_qualifies_for_exemption = false;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax filing required due to economic nexus.
-
-          Economic nexus threshold (either):
-          - $100,000 or more in Nevada-sourced receipts, OR
-          - 200 or more separate transactions in Nevada
-
-          Nevada adopted economic nexus following South Dakota v. Wayfair (2018).
-
-          Reference: NRS 363C.040 - Economic Nexus
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-        </policy>
-      </rule>
-
-      <rule number="4">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            result.nv_qualifies_for_exemption = true;
-            result.nv_commerce_tax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Nevada nexus - no Commerce Tax filing requirement.
-
-          Corporation does not have:
-          - Physical presence in Nevada
-          - $100,000 or more in Nevada receipts
-          - 200 or more Nevada transactions
-
-          Any estimated payments would be refunded.
-
-          Reference: NRS 363C.040 - Nexus Requirements
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54020: Calculate NV Income Adjustments
-    ============================================================================
-
-    Nevada has NO corporate income tax, so this table confirms zero tax liability
-    and ensures no income-based adjustments are applied.
-
-    This table exists for framework consistency but performs no actual calculations.
-  -->
-  <decision_table name="Calculate_NV_Income_Adjustments" number="54020">
-    <description>
-      Nevada has NO corporate income tax.
-      This table confirms zero income tax liability for consistency with framework.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Has nexus with Nevada</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Nevada has NO corporate income tax
-            // Set income tax rate to zero
-            apportionment.state_tax_rate = 0.0;
-
-            // No state additions or subtractions (no income tax base)
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          Nevada has NO corporate income tax.
-
-          Nevada does NOT tax corporate net income. Instead, Nevada imposes:
-          - Commerce Tax: Gross receipts tax on revenue exceeding $4M
-          - Modified Business Tax: Payroll tax on employee compensation
-          - Business License Fee: Annual fee for doing business in Nevada
-
-          This decision table confirms zero income tax for framework consistency.
-
-          The Commerce Tax (gross receipts tax) is calculated separately by table 54080.
-
-          Reference: NRS 363C - Commerce Tax (NOT an income tax)
-          Reference: Nevada does not have NRS chapter for corporate income tax (none exists)
-          Reference: Nevada Constitution Article 10 - No state income tax
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - confirm zero tax
-            apportionment.state_tax_rate = 0.0;
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No Nevada nexus - no tax liability.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54040: Determine NV Business Classification
-    ============================================================================
-
-    Determines the business classification for Commerce Tax rate purposes.
-
-    Nevada Commerce Tax rates vary by NAICS industry code:
-    - Financial Services (NAICS 52): 0.331% (highest)
-    - Mining (NAICS 21): 0.262%
-    - Utilities (NAICS 22): 0.266%
-    - Professional Services (NAICS 54): 0.128%
-    - Retail Trade (NAICS 44-45): 0.091%
-    - Manufacturing (NAICS 31-33): 0.091%
-    - Wholesale Trade (NAICS 42): 0.101%
-    - Other Services: 0.051% (lowest)
-
-    See NAC 363C for complete NAICS code mapping.
-  -->
-  <decision_table name="Determine_NV_Business_Classification" number="54040">
-    <description>
-      Determine Nevada business classification for Commerce Tax rate.
-      Sets appropriate Commerce Tax rate based on industry (NAICS code).
-    </description>
-
-    <conditions>
-      <condition name="classification">
-        <expression>result.nv_business_classification</expression>
-        <comment>Business classification code</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <classification>financial</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Financial Services: 0.331% (highest rate)
-            result.nv_commerce_tax_rate = result.nv_financial_services_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Financial Services: 0.331%
-
-          NAICS Code 52 - Finance and Insurance
-          This includes banks, credit unions, securities dealers, insurance carriers,
-          and other financial institutions.
-
-          This is the highest Commerce Tax rate classification.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <classification>mining</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Mining: 0.262%
-            result.nv_commerce_tax_rate = result.nv_mining_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Mining: 0.262%
-
-          NAICS Code 21 - Mining, Quarrying, and Oil and Gas Extraction
-          Includes metal ore mining, coal mining, oil and gas extraction, and mining support.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <classification>utilities</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Utilities: 0.266%
-            result.nv_commerce_tax_rate = result.nv_utilities_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Utilities: 0.266%
-
-          NAICS Code 22 - Utilities
-          Includes electric power, natural gas, water, and sewage utilities.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="4">
-        <conditions>
-          <classification>professional</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Professional Services: 0.128%
-            result.nv_commerce_tax_rate = result.nv_professional_services_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Professional, Scientific, Technical Services: 0.128%
-
-          NAICS Code 54 - Professional, Scientific, and Technical Services
-          Includes legal, accounting, engineering, consulting, computer systems design,
-          and other professional services.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="5">
-        <conditions>
-          <classification>retail</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Retail Trade: 0.091%
-            result.nv_commerce_tax_rate = result.nv_retail_trade_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Retail Trade: 0.091%
-
-          NAICS Codes 44-45 - Retail Trade
-          Includes motor vehicle dealers, furniture stores, electronics stores,
-          food and beverage stores, and other retail establishments.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="6">
-        <conditions>
-          <classification>manufacturing</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Manufacturing: 0.091%
-            result.nv_commerce_tax_rate = result.nv_manufacturing_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Manufacturing: 0.091%
-
-          NAICS Codes 31-33 - Manufacturing
-          Includes production of goods from raw materials through fabrication,
-          processing, assembling, and packaging.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="7">
-        <conditions>
-          <classification>wholesale</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Wholesale Trade: 0.101%
-            result.nv_commerce_tax_rate = result.nv_wholesale_trade_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Wholesale Trade: 0.101%
-
-          NAICS Code 42 - Wholesale Trade
-          Includes merchant wholesalers, agents and brokers selling goods
-          to retailers, business/institutional customers, or other wholesalers.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-
-      <rule number="8">
-        <conditions>
-          <classification>other</classification>
-        </conditions>
-        <actions>
-          <action>
-            // Other Services: 0.051% (lowest rate)
-            result.nv_commerce_tax_rate = result.nv_other_rate;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax - Other Services: 0.051% (lowest rate)
-
-          Catch-all classification for business activities not specifically
-          classified in other NAICS categories.
-
-          Reference: NRS 363C.110 - Tax Rates
-          Reference: NAC 363C.100 - Business Category Classification
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54060: Calculate NV Sitused Revenue
-    ============================================================================
-
-    Calculates Nevada-sitused gross revenue for Commerce Tax.
-
-    Nevada uses market-based sourcing to determine what revenue is "sitused"
-    (sourced) to Nevada:
-    - Sales of tangible property: Destination (where delivered)
-    - Services: Where customer receives benefit
-    - Intangible property/royalties: Where customer is located
-    - Rental income: Location of property
-
-    Only revenue sitused to Nevada counts toward the $4M threshold and tax calculation.
-  -->
-  <decision_table name="Calculate_NV_Sitused_Revenue" number="54060">
-    <description>
-      Calculate Nevada-sitused gross revenue for Commerce Tax.
-      Uses market-based sourcing to determine revenue attributable to Nevada.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate Nevada sitused revenue</comment>
-      </condition>
-
-      <condition name="has_apportionment_percentage">
-        <expression>apportionment.apportionment_percentage > 0</expression>
-        <comment>Has calculated apportionment percentage to Nevada</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_apportionment_percentage>Y</has_apportionment_percentage>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate Nevada-sitused gross revenue using market-based sourcing
-            result.nv_sitused_revenue =
-              revenue.total_revenue * apportionment.apportionment_percentage;
-
-            // Gross revenue includes sitused revenue (same for Commerce Tax)
-            result.nv_gross_revenue = result.nv_sitused_revenue;
-          </action>
-        </actions>
-        <policy>
-          Nevada sitused revenue calculation for Commerce Tax:
-
-          Nevada uses market-based sourcing (destination-based) to determine
-          what revenue is sitused to Nevada:
-
-          - Sales of tangible property: Destination state (where delivered to customer)
-          - Services: Where customer receives benefit (location of customer)
-          - Intangible property/licenses: Where customer uses intangible (customer location)
-          - Rental income: Location of rented property
-
-          Only revenue sitused to Nevada is subject to Commerce Tax.
-
-          The $4M threshold applies to Nevada-sitused revenue only (not total worldwide revenue).
-
-          Reference: NRS 363C.100 - Situsing Gross Revenue
-          Reference: NAC 363C.200 - Situsing Rules
-          Reference: NAC 363C.220 - Market-Based Sourcing
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_apportionment_percentage>N</has_apportionment_percentage>
-        </conditions>
-        <actions>
-          <action>
-            // No apportionment calculated - assume 100% Nevada if nexus exists
-            result.nv_sitused_revenue = revenue.total_revenue;
-            result.nv_gross_revenue = revenue.total_revenue;
-          </action>
-        </actions>
-        <policy>
-          No apportionment percentage calculated - treating all receipts as Nevada-sitused.
-          This is conservative approach when apportionment data is unavailable.
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            result.nv_sitused_revenue = 0.0;
-            result.nv_gross_revenue = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No Nevada nexus - no revenue sitused to Nevada.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54080: Calculate NV State Tax
-    ============================================================================
-
-    Calculates final Nevada Commerce Tax liability.
-
-    Process:
-    1. Calculate Nevada-sitused gross revenue (done by table 54060)
-    2. Determine if revenue exceeds $4M threshold
-    3. If yes, calculate taxable revenue = gross revenue - $4M
-    4. Determine business classification rate (done by table 54040)
-    5. Calculate Commerce Tax = taxable revenue × Commerce Tax rate
-    6. Apply credits (renewable energy, data center, film, aviation)
-    7. Calculate refund or amount owed
-
-    Note: Commerce Tax is on GROSS RECEIPTS exceeding $4M, not net income.
-  -->
-  <decision_table name="Calculate_NV_State_Tax" number="54080">
-    <description>
-      Calculate Nevada Commerce Tax liability.
-      Applies Commerce Tax rate to Nevada-sitused gross revenue exceeding $4M.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe Commerce Tax</comment>
-      </condition>
-
-      <condition name="exceeds_threshold">
-        <expression>result.nv_gross_revenue >= result.nv_commerce_tax_threshold</expression>
-        <comment>Nevada gross revenue meets or exceeds $4M threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <exceeds_threshold>Y</exceeds_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate taxable revenue (gross revenue minus $4M threshold)
-            result.nv_taxable_revenue = Math.max(0.0,
-              result.nv_gross_revenue - result.nv_commerce_tax_threshold);
-
-            // Calculate Commerce Tax on taxable revenue
-            result.nv_commerce_tax = result.nv_taxable_revenue * result.nv_commerce_tax_rate;
-
-            // Apply credits
-            result.nv_commerce_tax = Math.max(0.0,
-              result.nv_commerce_tax - apportionment.state_credits);
-
-            // Nevada Commerce Tax is reported as "state tax" for consistency with framework
-            // Note: This is NOT an income tax
-            apportionment.state_tax = result.nv_commerce_tax;
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Nevada Commerce Tax Calculation:
-
-          IMPORTANT: Nevada has NO corporate income tax.
-          The Commerce Tax is a gross receipts tax, NOT an income tax.
-
-          1. Nevada-sitused gross revenue: [Revenue sourced to Nevada]
-          2. Commerce Tax threshold: - $4,000,000
-          3. Taxable revenue: = [Excess over threshold]
-          4. Business classification: [financial/mining/retail/professional/etc.]
-          5. Commerce Tax rate: [0.051% to 0.331% based on industry]
-          6. Commerce Tax before credits: = [Taxable revenue × Rate]
-          7. Credits: - [Renewable energy, data center, film, aviation, etc.]
-          8. Commerce Tax liability: = [Final tax]
-
-          Key Differences from Income Tax:
-          - Based on GROSS RECEIPTS (revenue), not net income
-          - No deductions for expenses, COGS, or operating costs
-          - $4M threshold (only revenue above $4M is taxed)
-          - Very low rates (0.051%-0.331%) but on gross revenue
-          - Must be paid even if business operates at a loss
-
-          Available Credits:
-          - Renewable energy credits
-          - Data center tax abatements
-          - Film production credits
-          - Aviation and aerospace credits
-          - Transferable tax credits (allowed under NRS 363C.150)
-
-          Reference: NRS 363C.100 - Commerce Tax Imposition
-          Reference: NRS 363C.110 - Tax Rates by Industry
-          Reference: NRS 363C.150 - Credits
-          Reference: Form CT-1 - Commerce Tax Return
-          Reference: Nevada Tax Commission - Commerce Tax Information Guide
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <exceeds_threshold>N</exceeds_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Below threshold - no Commerce Tax
-            result.nv_qualifies_for_exemption = true;
-            result.nv_taxable_revenue = 0.0;
-            result.nv_commerce_tax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Nevada Commerce Tax due - Nevada-sitused revenue below $4M threshold.
-
-          Nevada has NO corporate income tax.
-
-          The Commerce Tax only applies to businesses with Nevada-sitused gross revenue
-          exceeding $4,000,000. Revenue below this threshold is exempt from Commerce Tax.
-
-          Note: Other Nevada taxes may still apply:
-          - Business License Fee (annual fee)
-          - Modified Business Tax (payroll tax on wages)
-          - Sales and Use Tax (on retail sales)
-
-          These are separate from Commerce Tax and calculated independently.
-
-          Any estimated Commerce Tax payments would be refunded.
-
-          Reference: NRS 363C.100 - $4M Threshold Exemption
-          Reference: NRS 363C.110 - Tax Calculation
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no Commerce Tax
-            result.nv_qualifies_for_exemption = true;
-            result.nv_taxable_revenue = 0.0;
-            result.nv_commerce_tax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Nevada nexus - no Commerce Tax liability.
-
-          Corporation does not have:
-          - Physical presence in Nevada
-          - $100,000 or more in Nevada receipts
-          - 200 or more Nevada transactions
-
-          Any estimated payments are refunded.
-
-          Reference: NRS 363C.040 - Nexus Requirements
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54000: Determine_NV_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_NV_Filing_Requirement</table_name>
+<xls_file>NV_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Nevada Commerce Tax return. Checks for physical presence, economic nexus, and revenue threshold.</COMMENTS>
+<TABLE_NUMBER>54000</TABLE_NUMBER>
+<FILE_PATH>states/NV/54000_Determine_NV_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Nevada filing requirement check</action_description>
+<action_postfix>
+"Nevada Commerce Tax Filing Requirement Check Started" job.audit_trail swap addto
+false /result.nv_qualifies_for_exemption xdef
+0.0 /result.nv_commerce_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Nevada</condition_comment>
+<condition_description>has_physical_presence == true AND below threshold</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_revenue result.nv_commerce_tax_threshold lt and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has physical presence and exceeds threshold</condition_comment>
+<condition_description>has_physical_presence == true AND exceeds threshold</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has economic nexus and exceeds threshold</condition_comment>
+<condition_description>has_economic_nexus == true AND exceeds threshold</condition_description>
+<condition_postfix>
+result.nv_gross_revenue result.nv_economic_nexus_threshold ge result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical presence but below threshold - no Commerce Tax due</action_comment>
+<action_postfix>
+<!-- Physical presence but below threshold - no Commerce Tax due -->
+true /result.nv_qualifies_for_exemption xdef
+0.0 /result.nv_commerce_tax xdef
+0.0 /result.state_tax xdef
+"Nevada Commerce Tax: No tax due (Nevada gross revenue below $4M threshold). Nevada has NO corporate income tax. The Commerce Tax only applies to businesses with Nevada-sitused gross revenue exceeding $4,000,000. Below this threshold, no Commerce Tax is due. Reference: NRS 363C.100 - Commerce Tax Threshold" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Physical nexus and above threshold - Commerce Tax required</action_comment>
+<action_postfix>
+<!-- Physical nexus and above threshold - Commerce Tax required -->
+false /result.nv_qualifies_for_exemption xdef
+"Nevada Commerce Tax filing required due to physical presence and revenue exceeding $4M. Physical presence includes: office or place of business in Nevada, employees working in Nevada, tangible property in Nevada, Nevada entity (organized under Nevada law), or registered to do business in Nevada. The Commerce Tax is calculated on Nevada-sitused gross revenue exceeding $4M. Reference: NRS 363C.040 - Nexus, NRS 363C.100 - Tax Imposition" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Economic nexus and above threshold - Commerce Tax required</action_comment>
+<action_postfix>
+<!-- Economic nexus and above threshold - Commerce Tax required -->
+false /result.nv_qualifies_for_exemption xdef
+"Nevada Commerce Tax filing required due to economic nexus. Economic nexus threshold: $100,000 or more in Nevada-sourced receipts, OR 200 or more separate transactions in Nevada. Nevada adopted economic nexus following South Dakota v. Wayfair (2018). Reference: NRS 363C.040 - Economic Nexus, South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+true /result.nv_qualifies_for_exemption xdef
+0.0 /result.nv_commerce_tax xdef
+0.0 /result.state_tax xdef
+result.state_payments /result.state_refund_or_owed xdef
+"No Nevada nexus - no Commerce Tax filing requirement. Corporation does not have: physical presence in Nevada, $100,000 or more in Nevada receipts, or 200 or more Nevada transactions. Any estimated payments would be refunded. Reference: NRS 363C.040 - Nexus Requirements" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54020: Calculate_NV_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NV_Income_Adjustments</table_name>
+<xls_file>NV_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Nevada has NO corporate income tax. This table confirms zero income tax liability for consistency with framework.</COMMENTS>
+<TABLE_NUMBER>54020</TABLE_NUMBER>
+<FILE_PATH>states/NV/54020_Calculate_NV_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Nevada income adjustments (none - no income tax)</action_description>
+<action_postfix>
+"Nevada Corporate Income Adjustments Check: Nevada has NO corporate income tax" job.audit_trail swap addto
+0.0 /result.state_tax_rate xdef
+0.0 /result.state_additions xdef
+0.0 /result.state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with Nevada</condition_comment>
+<condition_description>has_economic_nexus == true OR has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Nevada has NO corporate income tax</action_comment>
+<action_postfix>
+<!-- Nevada has NO corporate income tax -->
+0.0 /result.state_tax_rate xdef
+0.0 /result.state_additions xdef
+0.0 /result.state_subtractions xdef
+"Nevada has NO corporate income tax. Nevada does NOT tax corporate net income. Instead, Nevada imposes: Commerce Tax (gross receipts tax on revenue exceeding $4M), Modified Business Tax (payroll tax on employee compensation), and Business License Fee (annual fee). This decision table confirms zero income tax for framework consistency. The Commerce Tax is calculated separately by table 54080. Reference: NRS 363C - Commerce Tax (NOT an income tax), Nevada Constitution Article 10 - No state income tax" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - confirm zero tax</action_comment>
+<action_postfix>
+<!-- No nexus - confirm zero tax -->
+0.0 /result.state_tax_rate xdef
+0.0 /result.state_additions xdef
+0.0 /result.state_subtractions xdef
+"No Nevada nexus - no tax liability" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54040: Determine_NV_Business_Classification                     -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_NV_Business_Classification</table_name>
+<xls_file>NV_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine Nevada business classification for Commerce Tax rate. Sets appropriate Commerce Tax rate based on industry (NAICS code).</COMMENTS>
+<TABLE_NUMBER>54040</TABLE_NUMBER>
+<FILE_PATH>states/NV/54040_Determine_NV_Business_Classification</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Nevada business classification determination</action_description>
+<action_postfix>
+"Nevada Business Classification Determination Started" job.audit_trail swap addto
+result.nv_other_rate /result.nv_commerce_tax_rate xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Financial Services (NAICS 52)</condition_comment>
+<condition_description>business classification is financial</condition_description>
+<condition_postfix>
+result.nv_business_classification financial streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Mining (NAICS 21)</condition_comment>
+<condition_description>business classification is mining</condition_description>
+<condition_postfix>
+result.nv_business_classification mining streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Utilities (NAICS 22)</condition_comment>
+<condition_description>business classification is utilities</condition_description>
+<condition_postfix>
+result.nv_business_classification utilities streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Professional Services (NAICS 54)</condition_comment>
+<condition_description>business classification is professional</condition_description>
+<condition_postfix>
+result.nv_business_classification professional streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Retail Trade (NAICS 44-45)</condition_comment>
+<condition_description>business classification is retail</condition_description>
+<condition_postfix>
+result.nv_business_classification retail streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Manufacturing (NAICS 31-33)</condition_comment>
+<condition_description>business classification is manufacturing</condition_description>
+<condition_postfix>
+result.nv_business_classification manufacturing streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Wholesale Trade (NAICS 42)</condition_comment>
+<condition_description>business classification is wholesale</condition_description>
+<condition_postfix>
+result.nv_business_classification wholesale streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Financial Services: 0.331% (highest rate)</action_comment>
+<action_postfix>
+<!-- Financial Services: 0.331% (highest rate) -->
+result.nv_financial_services_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Financial Services: 0.331%. NAICS Code 52 - Finance and Insurance includes banks, credit unions, securities dealers, insurance carriers, and other financial institutions. This is the highest Commerce Tax rate classification. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Mining: 0.262%</action_comment>
+<action_postfix>
+<!-- Mining: 0.262% -->
+result.nv_mining_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Mining: 0.262%. NAICS Code 21 - Mining, Quarrying, and Oil and Gas Extraction includes metal ore mining, coal mining, oil and gas extraction, and mining support. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Utilities: 0.266%</action_comment>
+<action_postfix>
+<!-- Utilities: 0.266% -->
+result.nv_utilities_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Utilities: 0.266%. NAICS Code 22 - Utilities includes electric power, natural gas, water, and sewage utilities. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>Professional Services: 0.128%</action_comment>
+<action_postfix>
+<!-- Professional Services: 0.128% -->
+result.nv_professional_services_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Professional, Scientific, Technical Services: 0.128%. NAICS Code 54 - Professional, Scientific, and Technical Services includes legal, accounting, engineering, consulting, computer systems design, and other professional services. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>5</action_number>
+<action_comment>Retail Trade: 0.091%</action_comment>
+<action_postfix>
+<!-- Retail Trade: 0.091% -->
+result.nv_retail_trade_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Retail Trade: 0.091%. NAICS Codes 44-45 - Retail Trade includes motor vehicle dealers, furniture stores, electronics stores, food and beverage stores, and other retail establishments. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>6</action_number>
+<action_comment>Manufacturing: 0.091%</action_comment>
+<action_postfix>
+<!-- Manufacturing: 0.091% -->
+result.nv_manufacturing_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Manufacturing: 0.091%. NAICS Codes 31-33 - Manufacturing includes production of goods from raw materials through fabrication, processing, assembling, and packaging. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>7</action_number>
+<action_comment>Wholesale Trade: 0.101%</action_comment>
+<action_postfix>
+<!-- Wholesale Trade: 0.101% -->
+result.nv_wholesale_trade_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Wholesale Trade: 0.101%. NAICS Code 42 - Wholesale Trade includes merchant wholesalers, agents and brokers selling goods to retailers, business/institutional customers, or other wholesalers. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>8</action_number>
+<action_comment>Other Services: 0.051% (lowest rate)</action_comment>
+<action_postfix>
+<!-- Other Services: 0.051% (lowest rate) -->
+result.nv_other_rate /result.nv_commerce_tax_rate xdef
+"Nevada Commerce Tax - Other Services: 0.051% (lowest rate). Catch-all classification for business activities not specifically classified in other NAICS categories. Reference: NRS 363C.110 - Tax Rates, NAC 363C.100 - Business Category Classification" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54060: Calculate_NV_Sitused_Revenue                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NV_Sitused_Revenue</table_name>
+<xls_file>NV_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Nevada-sitused gross revenue for Commerce Tax. Uses market-based sourcing to determine revenue attributable to Nevada.</COMMENTS>
+<TABLE_NUMBER>54060</TABLE_NUMBER>
+<FILE_PATH>states/NV/54060_Calculate_NV_Sitused_Revenue</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Nevada sitused revenue calculation</action_description>
+<action_postfix>
+"Nevada Sitused Revenue Calculation Started" job.audit_trail swap addto
+0.0 /result.nv_sitused_revenue xdef
+0.0 /result.nv_gross_revenue xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus and has apportionment percentage</condition_comment>
+<condition_description>has_nexus AND apportionment_percentage > 0</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
+result.apportionment_percentage 0 gt and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has nexus but no apportionment percentage</condition_comment>
+<condition_description>has_nexus AND apportionment_percentage = 0</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
+result.apportionment_percentage 0 eq and
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Nevada-sitused revenue using market-based sourcing</action_comment>
+<action_postfix>
+<!-- Calculate Nevada-sitused gross revenue using market-based sourcing -->
+result.total_revenue result.apportionment_percentage mul /result.nv_sitused_revenue xdef
+result.nv_sitused_revenue /result.nv_gross_revenue xdef
+"Nevada sitused revenue calculation for Commerce Tax: Nevada uses market-based sourcing (destination-based) to determine what revenue is sitused to Nevada: Sales of tangible property (destination state), Services (where customer receives benefit), Intangible property/licenses (where customer uses intangible), Rental income (location of rented property). Only revenue sitused to Nevada is subject to Commerce Tax. The $4M threshold applies to Nevada-sitused revenue only. Reference: NRS 363C.100 - Situsing Gross Revenue, NAC 363C.200 - Situsing Rules, NAC 363C.220 - Market-Based Sourcing" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No apportionment - assume 100% Nevada if nexus exists</action_comment>
+<action_postfix>
+<!-- No apportionment calculated - assume 100% Nevada if nexus exists -->
+result.total_revenue /result.nv_sitused_revenue xdef
+result.total_revenue /result.nv_gross_revenue xdef
+"No apportionment percentage calculated - treating all receipts as Nevada-sitused. This is conservative approach when apportionment data is unavailable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No Nevada nexus - no revenue sitused to Nevada</action_comment>
+<action_postfix>
+<!-- No nexus - no revenue sitused to Nevada -->
+0.0 /result.nv_sitused_revenue xdef
+0.0 /result.nv_gross_revenue xdef
+"No Nevada nexus - no revenue sitused to Nevada" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54080: Calculate_NV_State_Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NV_State_Tax</table_name>
+<xls_file>NV_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Nevada Commerce Tax liability. Applies Commerce Tax rate to Nevada-sitused gross revenue exceeding $4M. IMPORTANT: This is a gross receipts tax, NOT an income tax.</COMMENTS>
+<TABLE_NUMBER>54080</TABLE_NUMBER>
+<FILE_PATH>states/NV/54080_Calculate_NV_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Nevada Commerce Tax calculation</action_description>
+<action_postfix>
+"Nevada Commerce Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.nv_taxable_revenue xdef
+0.0 /result.nv_commerce_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus and exceeds $4M threshold</condition_comment>
+<condition_description>has_nexus AND gross_revenue >= threshold</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
+result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has nexus but below threshold</condition_comment>
+<condition_description>has_nexus AND gross_revenue < threshold</condition_description>
+<condition_postfix>
+result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
+result.nv_gross_revenue result.nv_commerce_tax_threshold lt and
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Commerce Tax on taxable revenue</action_comment>
+<action_postfix>
+<!-- Calculate taxable revenue (gross revenue minus $4M threshold) -->
+result.nv_gross_revenue result.nv_commerce_tax_threshold sub 0 max /result.nv_taxable_revenue xdef
+
+<!-- Calculate Commerce Tax on taxable revenue -->
+result.nv_taxable_revenue result.nv_commerce_tax_rate mul /result.nv_commerce_tax xdef
+
+<!-- Apply credits -->
+result.nv_commerce_tax result.state_credits sub 0 max /result.nv_commerce_tax xdef
+
+<!-- Nevada Commerce Tax is reported as "state tax" for consistency with framework -->
+result.nv_commerce_tax /result.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+result.state_payments result.state_tax sub /result.state_refund_or_owed xdef
+
+"Nevada Commerce Tax Calculation: IMPORTANT - Nevada has NO corporate income tax. The Commerce Tax is a gross receipts tax, NOT an income tax. Process: 1) Nevada-sitused gross revenue, 2) Commerce Tax threshold: -$4,000,000, 3) Taxable revenue = excess over threshold, 4) Business classification determines rate (0.051%-0.331%), 5) Commerce Tax before credits, 6) Credits applied (renewable energy, data center, film, aviation, etc.), 7) Final Commerce Tax liability. Key Differences from Income Tax: Based on GROSS RECEIPTS (revenue) not net income, No deductions for expenses/COGS/operating costs, $4M threshold, Very low rates (0.051%-0.331%) but on gross revenue, Must be paid even if business operates at a loss. Reference: NRS 363C.100 - Commerce Tax Imposition, NRS 363C.110 - Tax Rates by Industry, NRS 363C.150 - Credits, Form CT-1 - Commerce Tax Return" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Below threshold - no Commerce Tax</action_comment>
+<action_postfix>
+<!-- Below threshold - no Commerce Tax -->
+true /result.nv_qualifies_for_exemption xdef
+0.0 /result.nv_taxable_revenue xdef
+0.0 /result.nv_commerce_tax xdef
+0.0 /result.state_tax xdef
+result.state_payments /result.state_refund_or_owed xdef
+"No Nevada Commerce Tax due - Nevada-sitused revenue below $4M threshold. Nevada has NO corporate income tax. The Commerce Tax only applies to businesses with Nevada-sitused gross revenue exceeding $4,000,000. Revenue below this threshold is exempt from Commerce Tax. Note: Other Nevada taxes may still apply: Business License Fee (annual fee), Modified Business Tax (payroll tax on wages), Sales and Use Tax (on retail sales). Any estimated Commerce Tax payments would be refunded. Reference: NRS 363C.100 - $4M Threshold Exemption, NRS 363C.110 - Tax Calculation" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no Commerce Tax</action_comment>
+<action_postfix>
+<!-- No nexus - no Commerce Tax -->
+true /result.nv_qualifies_for_exemption xdef
+0.0 /result.nv_taxable_revenue xdef
+0.0 /result.nv_commerce_tax xdef
+0.0 /result.state_tax xdef
+result.state_payments /result.state_refund_or_owed xdef
+"No Nevada nexus - no Commerce Tax liability. Corporation does not have: physical presence in Nevada, $100,000 or more in Nevada receipts, or 200 or more Nevada transactions. Any estimated payments are refunded. Reference: NRS 363C.040 - Nexus Requirements" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
 
 </decision_tables>

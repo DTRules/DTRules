@@ -18,6 +18,9 @@
         There are no deductions for COGS, expenses, or losses.
 -->
 <entity_dictionary name="CorporateTax_OH_Constants">
+  <file_metadata>
+    <file_path>states/OH/50700_OH_corp_constants</file_path>
+  </file_metadata>
 
   <!--
     Apportionment Entity: Ohio-Specific Configuration
@@ -25,7 +28,7 @@
     Note: Ohio does NOT use traditional apportionment since the CAT is a gross receipts tax.
     These fields are maintained for consistency with the framework but many are not used.
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='OH_Corp.xls'>
 
     <!-- State Identification -->
     <field name='state_code' type='string' default_value='OH'
@@ -65,7 +68,7 @@
     These fields implement the Ohio CAT calculation.
     The CAT is NOT an income tax - it's based on gross receipts.
   -->
-  <entity name="result">
+  <entity name="result" xls_file='OH_Corp.xls'>
 
     <!-- Ohio Taxable Gross Receipts -->
     <field name='oh_taxable_gross_receipts' type='double' default_value='0.0'

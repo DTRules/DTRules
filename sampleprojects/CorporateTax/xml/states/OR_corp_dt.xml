@@ -21,568 +21,520 @@
   - Oregon Form 20 Instructions (Corporation Excise Tax Return)
   - Oregon Department of Revenue Corporate Activity Tax guidance
 -->
-<decision_tables name="CorporateTax_OR_Tables">
-
-  <!--
-    ============================================================================
-    TABLE 54200: Determine OR Corporate Tax Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file OR state tax return.
-
-    Nexus types:
-    - Physical presence: Office, employees, property in Oregon
-    - Economic nexus (post-Wayfair): $750,000 in Oregon sales (higher than typical)
-
-    Oregon uses a higher economic nexus threshold than most states.
-  -->
-  <decision_table name="Determine_OR_Filing_Requirement" number="54200">
-    <description>
-      Determine if corporation must file Oregon state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
-
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'OR'</expression>
-        <comment>Has physical presence in OR (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'OR'</expression>
-        <comment>Meets OR economic nexus threshold ($750,000)</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          OR filing required due to physical presence (office, employees, or property in state).
-
-          A corporation has physical presence nexus in Oregon if it has:
-          - An office, warehouse, or other place of business in Oregon
-          - Employees working in Oregon
-          - Tangible personal property located in Oregon
-          - Real property located in Oregon
-
-          Reference: ORS 317.010-317.665 (Corporation Excise Tax)
-          Reference: Oregon Form 20 Instructions (Filing requirements)
-          Reference: Oregon Department of Revenue Corporate Income Tax Guide
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Oregon threshold: $750,000 in Oregon sales (higher than typical)
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          OR filing required due to economic nexus (post-Wayfair).
-
-          Economic nexus threshold: $750,000 in Oregon sales (higher than the typical $100,000 threshold).
-
-          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Oregon requires
-          filing if a corporation exceeds economic nexus thresholds, even without
-          physical presence.
-
-          Oregon uses a higher economic nexus threshold ($750,000) compared to most states
-          that use $100,000 or $500,000 thresholds.
-
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Oregon Department of Revenue Economic Nexus Guidance
-          Reference: ORS 317.010 (Definitions and nexus standards)
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No OR nexus - no filing requirement.
-
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
-
-          Reference: ORS 317.010 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54220: Calculate OR State-Specific Income Adjustments
-    ============================================================================
-
-    Calculates OR additions and subtractions to federal taxable income.
-
-    Common OR additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to OR)
-    - State income tax refunds included in federal income
-    - IRC Section 199A qualified business income deduction (OR may require addback)
-    - Federal bonus depreciation (OR may decouple)
-    - Certain expenses related to exempt income
-
-    Common OR subtractions:
-    - Interest on Oregon state and municipal bonds (exempt for OR purposes)
-    - Oregon net operating loss deduction (if different from federal)
-    - Dividends from certain subsidiaries
-    - Federal income taxes paid (if included in federal taxable income)
-  -->
-  <decision_table name="Calculate_OR_Income_Adjustments" number="54220">
-    <description>
-      Calculate OR state-specific additions and subtractions to federal taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate OR state additions
-            double additions = 0.0;
-
-            // OR requires addback of:
-            // - Federal interest income (taxable to OR)
-            // - IRC 199A deduction (OR may not conform depending on year)
-            // - State income tax refunds
-            // - Certain bonus depreciation amounts (depends on year)
-            // - Expenses related to exempt income
-
-            // Example additions (would be calculated from entity fields):
-            // additions += revenue.federal_bond_interest;
-            // additions += result.section_199a_deduction;
-            // additions += result.state_tax_refunds;
-
-            apportionment.state_additions = additions;
-
-            // Calculate OR state subtractions
-            double subtractions = 0.0;
-
-            // OR allows subtraction of:
-            // - OR municipal bond interest (exempt for OR purposes)
-            // - OR net operating loss deduction (if applicable)
-            // - Dividends from certain subsidiaries
-            // - Federal income taxes (if included in federal taxable income)
-
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.or_municipal_interest;
-            // subtractions += result.or_nol_deduction;
-            // subtractions += result.qualified_dividend_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          OR state-specific income adjustments to federal taxable income.
-
-          OR ADDITIONS to federal taxable income include:
-          - Interest income from U.S. government obligations (exempt federally, taxable to OR)
-          - IRC Section 199A qualified business income deduction addback (OR conformity varies)
-          - State income tax refunds included in federal income
-          - Bonus depreciation addback (OR may decouple from federal accelerated depreciation)
-          - Expenses related to income exempt from Oregon tax
-
-          OR SUBTRACTIONS from federal taxable income include:
-          - Interest on Oregon state and municipal bonds (exempt for OR purposes)
-          - Oregon net operating loss deduction (subject to OR limitations)
-          - Dividends from certain subsidiaries (subject to ownership requirements)
-          - Federal income taxes paid (to extent included in federal taxable income)
-
-          Reference: Oregon Form 20 Schedule OR-ASC (Additions and Subtractions)
-          Reference: ORS 317.267 (Oregon taxable income determination)
-          Reference: Oregon Department of Revenue Publication 17-118 (Federal tax changes)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-
-          Corporation does not have OR nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54280: Calculate OR State Tax
-    ============================================================================
-
-    Calculates final OR state corporate excise tax.
-
-    Oregon has TWO tax components:
-    1. Excise tax: 6.6% of apportioned taxable income (7.6% for financial institutions)
-    2. Minimum tax: $150 to $100,000 based on Oregon sales (REQUIRED)
-
-    The corporation pays the GREATER of the two amounts.
-
-    Process:
-    1. Federal taxable income apportioned to OR (done by table 7500)
-    2. Add state-specific additions (done by table 54220)
-    3. Subtract state-specific subtractions (done by table 54220)
-    4. Calculate OR state taxable income
-    5. Apply OR tax rate (6.6% or 7.6% for financial institutions)
-    6. Calculate minimum tax based on Oregon sales
-    7. Tax liability = MAX(excise tax, minimum tax)
-    8. Subtract OR state credits
-    9. Calculate refund or amount owed
-
-    Minimum Tax Schedule (ORS 317.090):
-    - Less than $500,000: $150
-    - $500,000 to $999,999: $500
-    - $1 million to $1.999 million: $1,000
-    - $2 million to $2.999 million: $1,500
-    - $3 million to $4.999 million: $2,000
-    - $5 million to $6.999 million: $4,000
-    - $7 million to $9.999 million: $7,500
-    - $10 million to $24.999 million: $15,000
-    - $25 million to $49.999 million: $30,000
-    - $50 million to $74.999 million: $50,000
-    - $75 million to $99.999 million: $75,000
-    - $100 million or more: $100,000
-  -->
-  <decision_table name="Calculate_OR_State_Tax" number="54280">
-    <description>
-      Calculate OR state corporate excise tax.
-      Applies OR 6.6% flat rate (7.6% for financial institutions) to apportioned
-      and adjusted taxable income, then ensures minimum tax is met.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-
-      <condition name="is_financial_institution">
-        <expression>result.or_is_financial_institution == true</expression>
-        <comment>Is financial institution subject to 7.6% rate</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate OR tax for financial institutions (7.6% rate) -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <is_financial_institution>Y</is_financial_institution>
-        </conditions>
-        <actions>
-          <action>
-            // Financial institutions use 7.6% rate instead of 6.6%
-            double excise_tax =
-              apportionment.state_taxable_income * result.or_financial_institution_rate;
-
-            // Calculate minimum tax based on Oregon sales (ORS 317.090)
-            double or_sales = result.or_sales_in_oregon;
-            double minimum_tax = 150.0; // Default minimum
-
-            if (or_sales >= 100000000.0) {
-              minimum_tax = 100000.0;
-            } else if (or_sales >= 75000000.0) {
-              minimum_tax = 75000.0;
-            } else if (or_sales >= 50000000.0) {
-              minimum_tax = 50000.0;
-            } else if (or_sales >= 25000000.0) {
-              minimum_tax = 30000.0;
-            } else if (or_sales >= 10000000.0) {
-              minimum_tax = 15000.0;
-            } else if (or_sales >= 7000000.0) {
-              minimum_tax = 7500.0;
-            } else if (or_sales >= 5000000.0) {
-              minimum_tax = 4000.0;
-            } else if (or_sales >= 3000000.0) {
-              minimum_tax = 2000.0;
-            } else if (or_sales >= 2000000.0) {
-              minimum_tax = 1500.0;
-            } else if (or_sales >= 1000000.0) {
-              minimum_tax = 1000.0;
-            } else if (or_sales >= 500000.0) {
-              minimum_tax = 500.0;
-            }
-
-            result.or_minimum_tax = minimum_tax;
-
-            // Tax liability is GREATER of excise tax or minimum tax
-            apportionment.state_tax = Math.max(excise_tax, minimum_tax);
-
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(minimum_tax, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          OR state corporate excise tax calculation (FINANCIAL INSTITUTIONS):
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to OR: × [Single-sales apportionment %]
-          3. OR additions: + [Federal interest, 199A addback, etc.]
-          4. OR subtractions: - [OR municipal interest, OR NOL, etc.]
-          5. OR taxable income: = [Result]
-          6. OR tax rate: × 7.6% (FINANCIAL INSTITUTION RATE)
-          7. OR excise tax: = [Tax before minimum]
-          8. OR minimum tax: = [Based on Oregon sales - see ORS 317.090]
-          9. OR tax before credits: = MAX(excise tax, minimum tax)
-          10. OR credits: - [Film, renewable energy, business expansion credits]
-          11. OR tax liability: = MAX(minimum tax, tax - credits)
-
-          Note: Credits cannot reduce tax below the minimum tax amount.
-
-          Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return)
-          Reference: ORS 317.061(2) (Financial institution tax rate - 7.6%)
-          Reference: ORS 317.090 (Minimum tax schedule)
-          Reference: ORS 317.267 (Single-sales factor apportionment)
-        </policy>
-      </rule>
-
-      <!-- Rule 2: Calculate OR tax for regular corporations (6.6% rate) -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <is_financial_institution>N</is_financial_institution>
-        </conditions>
-        <actions>
-          <action>
-            // Regular corporations use 6.6% flat rate
-            double excise_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Calculate minimum tax based on Oregon sales (ORS 317.090)
-            double or_sales = result.or_sales_in_oregon;
-            double minimum_tax = 150.0; // Default minimum
-
-            if (or_sales >= 100000000.0) {
-              minimum_tax = 100000.0;
-            } else if (or_sales >= 75000000.0) {
-              minimum_tax = 75000.0;
-            } else if (or_sales >= 50000000.0) {
-              minimum_tax = 50000.0;
-            } else if (or_sales >= 25000000.0) {
-              minimum_tax = 30000.0;
-            } else if (or_sales >= 10000000.0) {
-              minimum_tax = 15000.0;
-            } else if (or_sales >= 7000000.0) {
-              minimum_tax = 7500.0;
-            } else if (or_sales >= 5000000.0) {
-              minimum_tax = 4000.0;
-            } else if (or_sales >= 3000000.0) {
-              minimum_tax = 2000.0;
-            } else if (or_sales >= 2000000.0) {
-              minimum_tax = 1500.0;
-            } else if (or_sales >= 1000000.0) {
-              minimum_tax = 1000.0;
-            } else if (or_sales >= 500000.0) {
-              minimum_tax = 500.0;
-            }
-
-            result.or_minimum_tax = minimum_tax;
-
-            // Tax liability is GREATER of excise tax or minimum tax
-            apportionment.state_tax = Math.max(excise_tax, minimum_tax);
-
-            // Subtract state credits (but cannot reduce below minimum tax)
-            apportionment.state_tax =
-              Math.max(minimum_tax, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          OR state corporate excise tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to OR: × [Single-sales apportionment %]
-          3. OR additions: + [Federal interest, 199A addback, state tax refunds, etc.]
-          4. OR subtractions: - [OR municipal interest, OR NOL, qualified dividends, etc.]
-          5. OR taxable income: = [Result]
-          6. OR tax rate: × 6.6% (flat rate for regular corporations)
-          7. OR excise tax: = [Tax before minimum]
-          8. OR minimum tax: = [Based on Oregon sales - see schedule below]
-          9. OR tax before credits: = MAX(excise tax, minimum tax)
-          10. OR credits: - [Film, renewable energy, business expansion, etc.]
-          11. OR tax liability: = MAX(minimum tax, tax - credits)
-
-          CRITICAL: Credits cannot reduce tax below the minimum tax amount.
-
-          Oregon Minimum Tax Schedule (ORS 317.090):
-          - Less than $500,000 in OR sales: $150
-          - $500,000 to $999,999: $500
-          - $1 million to $1.999 million: $1,000
-          - $2 million to $2.999 million: $1,500
-          - $3 million to $4.999 million: $2,000
-          - $5 million to $6.999 million: $4,000
-          - $7 million to $9.999 million: $7,500
-          - $10 million to $24.999 million: $15,000
-          - $25 million to $49.999 million: $30,000
-          - $50 million to $74.999 million: $50,000
-          - $75 million to $99.999 million: $75,000
-          - $100 million or more: $100,000
-
-          Oregon provides various tax credits including:
-          - Film and video production credit
-          - Renewable energy development credit
-          - Business expansion credit
-          - Housing development credit
-
-          Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return)
-          Reference: ORS 317.061(1) (Tax rate - 6.6%)
-          Reference: ORS 317.090 (Minimum tax schedule)
-          Reference: ORS 317.267 (Single-sales factor apportionment)
-          Reference: Oregon Department of Revenue Corporate Tax Credits Guide
-        </policy>
-      </rule>
-
-      <!-- Rule 3: No nexus -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            result.or_minimum_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No OR nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in OR.
-          Any estimated payments are refunded.
-
-          Reference: ORS 317.010 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 4: Nexus but no taxable income (still owe minimum tax!) -->
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // No excise tax, but MINIMUM TAX STILL APPLIES
-            // Calculate minimum tax based on Oregon sales
-            double or_sales = result.or_sales_in_oregon;
-            double minimum_tax = 150.0; // Default minimum
-
-            if (or_sales >= 100000000.0) {
-              minimum_tax = 100000.0;
-            } else if (or_sales >= 75000000.0) {
-              minimum_tax = 75000.0;
-            } else if (or_sales >= 50000000.0) {
-              minimum_tax = 50000.0;
-            } else if (or_sales >= 25000000.0) {
-              minimum_tax = 30000.0;
-            } else if (or_sales >= 10000000.0) {
-              minimum_tax = 15000.0;
-            } else if (or_sales >= 7000000.0) {
-              minimum_tax = 7500.0;
-            } else if (or_sales >= 5000000.0) {
-              minimum_tax = 4000.0;
-            } else if (or_sales >= 3000000.0) {
-              minimum_tax = 2000.0;
-            } else if (or_sales >= 2000000.0) {
-              minimum_tax = 1500.0;
-            } else if (or_sales >= 1000000.0) {
-              minimum_tax = 1000.0;
-            } else if (or_sales >= 500000.0) {
-              minimum_tax = 500.0;
-            }
-
-            result.or_minimum_tax = minimum_tax;
-            apportionment.state_tax = minimum_tax;
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          No OR taxable income - but MINIMUM TAX STILL APPLIES.
-
-          Corporation has OR nexus but no positive taxable income after apportionment
-          and adjustments. However, Oregon MINIMUM TAX is still required based on
-          Oregon sales.
-
-          CRITICAL: Even with no taxable income or a loss, corporations with Oregon
-          nexus must pay the minimum tax. The minimum tax ranges from $150 to $100,000
-          based on Oregon sales.
-
-          Oregon net operating loss (NOL) rules:
-          - Oregon allows NOL carryforward
-          - Carryback rules vary by tax year
-          - NOL does not eliminate minimum tax requirement
-
-          Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return)
-          Reference: ORS 317.090 (Minimum tax - applies regardless of income)
-          Reference: ORS 317.476 (Net operating loss deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54200: Determine OR Corporate Tax Filing Requirement            -->
+<!-- ====================================================================== -->
+<!--
+  Determines if corporation must file OR state tax return.
+
+  Nexus types:
+  - Physical presence: Office, employees, property in Oregon
+  - Economic nexus (post-Wayfair): $750,000 in Oregon sales (higher than typical)
+
+  Oregon uses a higher economic nexus threshold than most states.
+-->
+<decision_table>
+<table_name>Determine_OR_Filing_Requirement</table_name>
+<xls_file>OR_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Oregon state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>54200</TABLE_NUMBER>
+<FILE_PATH>states/OR/54200_Determine_OR_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize OR filing determination</action_description>
+<action_postfix>
+"Oregon Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in OR</condition_comment>
+<condition_description>apportionment.has_physical_presence == true and state_code == 'OR'</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code "OR" streq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in OR</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true and state_code == 'OR'</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code "OR" streq and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_description>Physical nexus established - filing required. Apportionment will be calculated by tables 7000-7500</action_description>
+<action_postfix>
+"OR filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_description>Economic nexus established per Wayfair - filing required. OR threshold: $750,000 in sales</action_description>
+<action_postfix>
+"OR filing required: Economic nexus ($750,000 threshold exceeded)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>No nexus - no filing required</action_description>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+"No OR nexus - no filing requirement" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>OR filing required due to physical presence</policy_description>
+<policy_statement_postfix>
+"OR filing required due to physical presence (office, employees, or property in state). A corporation has physical presence nexus in Oregon if it has: an office, warehouse, or other place of business in Oregon; employees working in Oregon; tangible personal property located in Oregon; or real property located in Oregon. Reference: ORS 317.010-317.665 (Corporation Excise Tax), Oregon Form 20 Instructions (Filing requirements), Oregon Department of Revenue Corporate Income Tax Guide."
+</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="2">
+<policy_description>OR filing required due to economic nexus</policy_description>
+<policy_statement_postfix>
+"OR filing required due to economic nexus (post-Wayfair). Economic nexus threshold: $750,000 in Oregon sales (higher than the typical $100,000 threshold). Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Oregon requires filing if a corporation exceeds economic nexus thresholds, even without physical presence. Oregon uses a higher economic nexus threshold ($750,000) compared to most states that use $100,000 or $500,000 thresholds. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Oregon Department of Revenue Economic Nexus Guidance, ORS 317.010 (Definitions and nexus standards)."
+</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="3">
+<policy_description>No OR nexus - no filing requirement</policy_description>
+<policy_statement_postfix>
+"No OR nexus - no filing requirement. Corporation does not meet physical presence or economic nexus thresholds. Any estimated payments would be refunded. Reference: ORS 317.010 (Nexus requirements)."
+</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54220: Calculate OR State-Specific Income Adjustments           -->
+<!-- ====================================================================== -->
+<!--
+  Calculates OR additions and subtractions to federal taxable income.
+
+  Common OR additions:
+  - Interest on U.S. government obligations (exempt federally, taxable to OR)
+  - State income tax refunds included in federal income
+  - IRC Section 199A qualified business income deduction (OR may require addback)
+  - Federal bonus depreciation (OR may decouple)
+  - Certain expenses related to exempt income
+
+  Common OR subtractions:
+  - Interest on Oregon state and municipal bonds (exempt for OR purposes)
+  - Oregon net operating loss deduction (if different from federal)
+  - Dividends from certain subsidiaries
+  - Federal income taxes paid (if included in federal taxable income)
+-->
+<decision_table>
+<table_name>Calculate_OR_Income_Adjustments</table_name>
+<xls_file>OR_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate OR state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>54220</TABLE_NUMBER>
+<FILE_PATH>states/OR/54220_Calculate_OR_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize OR income adjustments</action_description>
+<action_postfix>
+"Oregon Income Adjustments Calculation" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus</condition_comment>
+<condition_description>Must have nexus to calculate adjustments</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate OR state additions and subtractions</action_comment>
+<action_description>Calculate OR state additions and subtractions to federal taxable income</action_description>
+<action_postfix>
+<!-- Calculate OR state additions -->
+0.0 local@ additions >
+
+<!-- OR requires addback of:
+     - Federal interest income (taxable to OR)
+     - IRC 199A deduction (OR may not conform depending on year)
+     - State income tax refunds
+     - Certain bonus depreciation amounts (depends on year)
+     - Expenses related to exempt income -->
+
+<!-- Example additions (would be calculated from entity fields):
+     revenue.federal_bond_interest additions f+ local@ additions >
+     result.section_199a_deduction additions f+ local@ additions >
+     result.state_tax_refunds additions f+ local@ additions > -->
+
+additions /apportionment.state_additions xdef
+
+<!-- Calculate OR state subtractions -->
+0.0 local@ subtractions >
+
+<!-- OR allows subtraction of:
+     - OR municipal bond interest (exempt for OR purposes)
+     - OR net operating loss deduction (if applicable)
+     - Dividends from certain subsidiaries
+     - Federal income taxes (if included in federal taxable income) -->
+
+<!-- Example subtractions (would be calculated from entity fields):
+     revenue.or_municipal_interest subtractions f+ local@ subtractions >
+     result.or_nol_deduction subtractions f+ local@ subtractions >
+     result.qualified_dividend_deduction subtractions f+ local@ subtractions > -->
+
+subtractions /apportionment.state_subtractions xdef
+
+"OR state additions: $" additions cvs strconcat job.audit_trail swap addto
+"OR state subtractions: $" subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_description>No nexus - no state adjustments calculated</action_description>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+"No OR nexus - no state adjustments" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>OR state-specific income adjustments</policy_description>
+<policy_statement_postfix>
+"OR state-specific income adjustments to federal taxable income. OR ADDITIONS to federal taxable income include: interest income from U.S. government obligations (exempt federally, taxable to OR); IRC Section 199A qualified business income deduction addback (OR conformity varies); state income tax refunds included in federal income; bonus depreciation addback (OR may decouple from federal accelerated depreciation); expenses related to income exempt from Oregon tax. OR SUBTRACTIONS from federal taxable income include: interest on Oregon state and municipal bonds (exempt for OR purposes); Oregon net operating loss deduction (subject to OR limitations); dividends from certain subsidiaries (subject to ownership requirements); federal income taxes paid (to extent included in federal taxable income). Reference: Oregon Form 20 Schedule OR-ASC (Additions and Subtractions), ORS 317.267 (Oregon taxable income determination), Oregon Department of Revenue Publication 17-118 (Federal tax changes)."
+</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="2">
+<policy_description>No nexus - no adjustments</policy_description>
+<policy_statement_postfix>
+"No nexus - no state adjustments calculated. Corporation does not have OR nexus, so no income adjustments are needed."
+</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54280: Calculate OR State Tax                                   -->
+<!-- ====================================================================== -->
+<!--
+  Calculates final OR state corporate excise tax.
+
+  Oregon has TWO tax components:
+  1. Excise tax: 6.6% of apportioned taxable income (7.6% for financial institutions)
+  2. Minimum tax: $150 to $100,000 based on Oregon sales (REQUIRED)
+
+  The corporation pays the GREATER of the two amounts.
+
+  Process:
+  1. Federal taxable income apportioned to OR (done by table 7500)
+  2. Add state-specific additions (done by table 54220)
+  3. Subtract state-specific subtractions (done by table 54220)
+  4. Calculate OR state taxable income
+  5. Apply OR tax rate (6.6% or 7.6% for financial institutions)
+  6. Calculate minimum tax based on Oregon sales
+  7. Tax liability = MAX(excise tax, minimum tax)
+  8. Subtract OR state credits
+  9. Calculate refund or amount owed
+
+  Minimum Tax Schedule (ORS 317.090):
+  - Less than $500,000: $150
+  - $500,000 to $999,999: $500
+  - $1 million to $1.999 million: $1,000
+  - $2 million to $2.999 million: $1,500
+  - $3 million to $4.999 million: $2,000
+  - $5 million to $6.999 million: $4,000
+  - $7 million to $9.999 million: $7,500
+  - $10 million to $24.999 million: $15,000
+  - $25 million to $49.999 million: $30,000
+  - $50 million to $74.999 million: $50,000
+  - $75 million to $99.999 million: $75,000
+  - $100 million or more: $100,000
+-->
+<decision_table>
+<table_name>Calculate_OR_State_Tax</table_name>
+<xls_file>OR_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate OR state corporate excise tax. Applies OR 6.6% flat rate (7.6% for financial institutions) to apportioned and adjusted taxable income, then ensures minimum tax is met.</COMMENTS>
+<TABLE_NUMBER>54280</TABLE_NUMBER>
+<FILE_PATH>states/OR/54280_Calculate_OR_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize OR tax calculation</action_description>
+<action_postfix>
+"Oregon Corporate Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus</condition_comment>
+<condition_description>Must have nexus to owe tax</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>Has positive state taxable income</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0 f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Is financial institution</condition_comment>
+<condition_description>Is financial institution subject to 7.6% rate</condition_description>
+<condition_postfix>
+result.or_is_financial_institution true eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate OR tax for financial institutions (7.6% rate)</action_comment>
+<action_description>Financial institutions use 7.6% rate instead of 6.6%</action_description>
+<action_postfix>
+<!-- Financial institutions use 7.6% rate instead of 6.6% -->
+apportionment.state_taxable_income result.or_financial_institution_rate f* local@ excise_tax >
+
+<!-- Calculate minimum tax based on Oregon sales (ORS 317.090) -->
+result.or_sales_in_oregon local@ or_sales >
+150.0 local@ minimum_tax >
+
+or_sales 100000000.0 f>= { 100000.0 local@ minimum_tax > } if
+or_sales 75000000.0 f>= or_sales 100000000.0 f< and { 75000.0 local@ minimum_tax > } if
+or_sales 50000000.0 f>= or_sales 75000000.0 f< and { 50000.0 local@ minimum_tax > } if
+or_sales 25000000.0 f>= or_sales 50000000.0 f< and { 30000.0 local@ minimum_tax > } if
+or_sales 10000000.0 f>= or_sales 25000000.0 f< and { 15000.0 local@ minimum_tax > } if
+or_sales 7000000.0 f>= or_sales 10000000.0 f< and { 7500.0 local@ minimum_tax > } if
+or_sales 5000000.0 f>= or_sales 7000000.0 f< and { 4000.0 local@ minimum_tax > } if
+or_sales 3000000.0 f>= or_sales 5000000.0 f< and { 2000.0 local@ minimum_tax > } if
+or_sales 2000000.0 f>= or_sales 3000000.0 f< and { 1500.0 local@ minimum_tax > } if
+or_sales 1000000.0 f>= or_sales 2000000.0 f< and { 1000.0 local@ minimum_tax > } if
+or_sales 500000.0 f>= or_sales 1000000.0 f< and { 500.0 local@ minimum_tax > } if
+
+minimum_tax /result.or_minimum_tax xdef
+
+<!-- Tax liability is GREATER of excise tax or minimum tax -->
+excise_tax minimum_tax fmax /apportionment.state_tax xdef
+
+<!-- Subtract state credits (but cannot reduce below minimum tax) -->
+apportionment.state_tax apportionment.state_credits f- minimum_tax fmax /apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax f- /apportionment.state_refund_or_owed xdef
+
+"OR excise tax (7.6% financial institution rate): $" excise_tax cvs strconcat job.audit_trail swap addto
+"OR minimum tax: $" minimum_tax cvs strconcat job.audit_trail swap addto
+"OR tax liability: $" apportionment.state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate OR tax for regular corporations (6.6% rate)</action_comment>
+<action_description>Regular corporations use 6.6% flat rate</action_description>
+<action_postfix>
+<!-- Regular corporations use 6.6% flat rate -->
+apportionment.state_taxable_income apportionment.state_tax_rate f* local@ excise_tax >
+
+<!-- Calculate minimum tax based on Oregon sales (ORS 317.090) -->
+result.or_sales_in_oregon local@ or_sales >
+150.0 local@ minimum_tax >
+
+or_sales 100000000.0 f>= { 100000.0 local@ minimum_tax > } if
+or_sales 75000000.0 f>= or_sales 100000000.0 f< and { 75000.0 local@ minimum_tax > } if
+or_sales 50000000.0 f>= or_sales 75000000.0 f< and { 50000.0 local@ minimum_tax > } if
+or_sales 25000000.0 f>= or_sales 50000000.0 f< and { 30000.0 local@ minimum_tax > } if
+or_sales 10000000.0 f>= or_sales 25000000.0 f< and { 15000.0 local@ minimum_tax > } if
+or_sales 7000000.0 f>= or_sales 10000000.0 f< and { 7500.0 local@ minimum_tax > } if
+or_sales 5000000.0 f>= or_sales 7000000.0 f< and { 4000.0 local@ minimum_tax > } if
+or_sales 3000000.0 f>= or_sales 5000000.0 f< and { 2000.0 local@ minimum_tax > } if
+or_sales 2000000.0 f>= or_sales 3000000.0 f< and { 1500.0 local@ minimum_tax > } if
+or_sales 1000000.0 f>= or_sales 2000000.0 f< and { 1000.0 local@ minimum_tax > } if
+or_sales 500000.0 f>= or_sales 1000000.0 f< and { 500.0 local@ minimum_tax > } if
+
+minimum_tax /result.or_minimum_tax xdef
+
+<!-- Tax liability is GREATER of excise tax or minimum tax -->
+excise_tax minimum_tax fmax /apportionment.state_tax xdef
+
+<!-- Subtract state credits (but cannot reduce below minimum tax) -->
+apportionment.state_tax apportionment.state_credits f- minimum_tax fmax /apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax f- /apportionment.state_refund_or_owed xdef
+
+"OR excise tax (6.6% rate): $" excise_tax cvs strconcat job.audit_trail swap addto
+"OR minimum tax: $" minimum_tax cvs strconcat job.audit_trail swap addto
+"OR tax liability: $" apportionment.state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_description>No nexus - no tax liability</action_description>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+0.0 /result.or_minimum_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+"No OR nexus - no tax liability" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>Nexus but no taxable income (still owe minimum tax!)</action_comment>
+<action_description>No excise tax, but MINIMUM TAX STILL APPLIES</action_description>
+<action_postfix>
+<!-- No excise tax, but MINIMUM TAX STILL APPLIES -->
+<!-- Calculate minimum tax based on Oregon sales -->
+result.or_sales_in_oregon local@ or_sales >
+150.0 local@ minimum_tax >
+
+or_sales 100000000.0 f>= { 100000.0 local@ minimum_tax > } if
+or_sales 75000000.0 f>= or_sales 100000000.0 f< and { 75000.0 local@ minimum_tax > } if
+or_sales 50000000.0 f>= or_sales 75000000.0 f< and { 50000.0 local@ minimum_tax > } if
+or_sales 25000000.0 f>= or_sales 50000000.0 f< and { 30000.0 local@ minimum_tax > } if
+or_sales 10000000.0 f>= or_sales 25000000.0 f< and { 15000.0 local@ minimum_tax > } if
+or_sales 7000000.0 f>= or_sales 10000000.0 f< and { 7500.0 local@ minimum_tax > } if
+or_sales 5000000.0 f>= or_sales 7000000.0 f< and { 4000.0 local@ minimum_tax > } if
+or_sales 3000000.0 f>= or_sales 5000000.0 f< and { 2000.0 local@ minimum_tax > } if
+or_sales 2000000.0 f>= or_sales 3000000.0 f< and { 1500.0 local@ minimum_tax > } if
+or_sales 1000000.0 f>= or_sales 2000000.0 f< and { 1000.0 local@ minimum_tax > } if
+or_sales 500000.0 f>= or_sales 1000000.0 f< and { 500.0 local@ minimum_tax > } if
+
+minimum_tax /result.or_minimum_tax xdef
+minimum_tax /apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax f- /apportionment.state_refund_or_owed xdef
+
+"No OR taxable income - but MINIMUM TAX STILL APPLIES: $" minimum_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>OR corporate excise tax (FINANCIAL INSTITUTIONS)</policy_description>
+<policy_statement_postfix>
+"OR state corporate excise tax calculation (FINANCIAL INSTITUTIONS): 1. Federal taxable income [Form 1120 line 28]; 2. Apportioned to OR × [Single-sales apportionment %]; 3. OR additions + [Federal interest, 199A addback, etc.]; 4. OR subtractions - [OR municipal interest, OR NOL, etc.]; 5. OR taxable income = [Result]; 6. OR tax rate × 7.6% (FINANCIAL INSTITUTION RATE); 7. OR excise tax = [Tax before minimum]; 8. OR minimum tax = [Based on Oregon sales - see ORS 317.090]; 9. OR tax before credits = MAX(excise tax, minimum tax); 10. OR credits - [Film, renewable energy, business expansion credits]; 11. OR tax liability = MAX(minimum tax, tax - credits). Note: Credits cannot reduce tax below the minimum tax amount. Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return), ORS 317.061(2) (Financial institution tax rate - 7.6%), ORS 317.090 (Minimum tax schedule), ORS 317.267 (Single-sales factor apportionment)."
+</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="2">
+<policy_description>OR corporate excise tax (REGULAR CORPORATIONS)</policy_description>
+<policy_statement_postfix>
+"OR state corporate excise tax calculation: 1. Federal taxable income [Form 1120 line 28]; 2. Apportioned to OR × [Single-sales apportionment %]; 3. OR additions + [Federal interest, 199A addback, state tax refunds, etc.]; 4. OR subtractions - [OR municipal interest, OR NOL, qualified dividends, etc.]; 5. OR taxable income = [Result]; 6. OR tax rate × 6.6% (flat rate for regular corporations); 7. OR excise tax = [Tax before minimum]; 8. OR minimum tax = [Based on Oregon sales - see schedule below]; 9. OR tax before credits = MAX(excise tax, minimum tax); 10. OR credits - [Film, renewable energy, business expansion, etc.]; 11. OR tax liability = MAX(minimum tax, tax - credits). CRITICAL: Credits cannot reduce tax below the minimum tax amount. Oregon Minimum Tax Schedule (ORS 317.090): Less than $500,000 in OR sales: $150; $500,000 to $999,999: $500; $1 million to $1.999 million: $1,000; $2 million to $2.999 million: $1,500; $3 million to $4.999 million: $2,000; $5 million to $6.999 million: $4,000; $7 million to $9.999 million: $7,500; $10 million to $24.999 million: $15,000; $25 million to $49.999 million: $30,000; $50 million to $74.999 million: $50,000; $75 million to $99.999 million: $75,000; $100 million or more: $100,000. Oregon provides various tax credits including: Film and video production credit; Renewable energy development credit; Business expansion credit; Housing development credit. Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return), ORS 317.061(1) (Tax rate - 6.6%), ORS 317.090 (Minimum tax schedule), ORS 317.267 (Single-sales factor apportionment), Oregon Department of Revenue Corporate Tax Credits Guide."
+</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="3">
+<policy_description>No OR nexus - no tax liability</policy_description>
+<policy_statement_postfix>
+"No OR nexus - no tax liability. Corporation does not have physical presence or economic nexus in OR. Any estimated payments are refunded. Reference: ORS 317.010 (Nexus requirements)."
+</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="4">
+<policy_description>No OR taxable income - but MINIMUM TAX STILL APPLIES</policy_description>
+<policy_statement_postfix>
+"No OR taxable income - but MINIMUM TAX STILL APPLIES. Corporation has OR nexus but no positive taxable income after apportionment and adjustments. However, Oregon MINIMUM TAX is still required based on Oregon sales. CRITICAL: Even with no taxable income or a loss, corporations with Oregon nexus must pay the minimum tax. The minimum tax ranges from $150 to $100,000 based on Oregon sales. Oregon net operating loss (NOL) rules: Oregon allows NOL carryforward; Carryback rules vary by tax year; NOL does not eliminate minimum tax requirement. Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return), ORS 317.090 (Minimum tax - applies regardless of income), ORS 317.476 (Net operating loss deduction)."
+</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+
+</decision_table>
 
 </decision_tables>

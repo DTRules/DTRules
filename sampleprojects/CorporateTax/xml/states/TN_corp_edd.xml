@@ -7,84 +7,78 @@
   2. Franchise Tax: 0.25% on net worth (property + capital)
 
   Both taxes are administered together on Form FAE 170.
+
+  This file defines TN-specific constants for the CorporateTax system.
 -->
-<entity_dictionary name="CorporateTax_TN_Constants">
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/TN/51900_TN_constants</file_path>
+  </file_metadata>
 
-  <!--
-    Apportionment Entity: Tennessee-Specific Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='TN'
-           comment='Tennessee - Two-letter state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='TN economic nexus threshold: $100,000 gross receipts'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='TN economic nexus transaction threshold: 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='TN uses single-sales factor apportionment'/>
-
-    <!-- State Tax Rate (Excise Tax) -->
-    <field name='state_tax_rate' type='double' default_value='0.0650'
-           comment='TN excise tax rate: 6.5% on net earnings (TN Code § 67-4-2007)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='TN-specific additions to federal taxable income'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='TN-specific subtractions from federal taxable income'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='TN tax credits: jobs, investment, research, headquarters, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: Tennessee-Specific Extensions
-
-    Tennessee has a unique dual-tax system:
-    - Excise tax (6.5% on apportioned net earnings)
-    - Franchise tax (0.25% on net worth)
-  -->
+  <!-- Result Entity: Tennessee-Specific Fields -->
   <entity name="result">
 
     <!-- Tennessee Franchise Tax Fields -->
-    <field name='tn_franchise_tax_rate' type='double' default_value='0.0025'
-           comment='TN franchise tax rate: 0.25% (TN Code § 67-4-2104)'/>
+    <field name="tn_franchise_tax_rate" type="double" default_value="0.0025"
+           comment="TN franchise tax rate: 0.25% (TN Code § 67-4-2104)"/>
 
-    <field name='tn_net_worth' type='double' default_value='0.0'
-           comment='TN net worth: greater of (1) capital stock + surplus + undivided profits or (2) property owned/used in TN'/>
+    <field name="tn_net_worth" type="double" default_value="0.0"
+           comment="TN net worth: greater of (1) capital stock + surplus + undivided profits or (2) property owned/used in TN"/>
 
-    <field name='tn_net_worth_method' type='string' default_value='greater_of_book_or_property'
-           comment='TN net worth calculation method: greater_of_book_or_property'/>
+    <field name="tn_net_worth_method" type="string" default_value="greater_of_book_or_property"
+           comment="TN net worth calculation method: greater_of_book_or_property"/>
 
-    <field name='tn_franchise_tax' type='double' default_value='0.0'
-           comment='TN franchise tax calculated: net_worth × 0.0025'/>
+    <field name="tn_franchise_tax" type="double" default_value="0.0"
+           comment="TN franchise tax calculated: net_worth × 0.0025"/>
 
     <!-- Tennessee Excise Tax Fields -->
-    <field name='tn_excise_tax' type='double' default_value='0.0'
-           comment='TN excise tax calculated: apportioned_income × 0.065'/>
+    <field name="tn_excise_tax" type="double" default_value="0.0"
+           comment="TN excise tax calculated: apportioned_income × 0.065"/>
 
     <!-- Tennessee Total Tax Liability -->
-    <field name='tn_total_tax' type='double' default_value='0.0'
-           comment='TN total tax: franchise_tax + excise_tax'/>
+    <field name="tn_total_tax" type="double" default_value="0.0"
+           comment="TN total tax: franchise_tax + excise_tax"/>
 
     <!-- Tennessee Minimum Tax -->
-    <field name='tn_minimum_tax' type='double' default_value='100.0'
-           comment='TN minimum combined tax: $100 (applies to both franchise + excise)'/>
+    <field name="tn_minimum_tax" type="double" default_value="100.0"
+           comment="TN minimum combined tax: $100 (applies to both franchise + excise)"/>
 
   </entity>
 
-</entity_dictionary>
+  <!-- Apportionment Entity: Tennessee-Specific Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="TN"
+           comment="Tennessee - Two-letter state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="TN economic nexus threshold: $100,000 gross receipts"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="TN economic nexus transaction threshold: 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="TN uses single-sales factor apportionment"/>
+
+    <!-- State Tax Rate (Excise Tax) -->
+    <field name="state_tax_rate" type="double" default_value="0.0650"
+           comment="TN excise tax rate: 6.5% on net earnings (TN Code § 67-4-2007)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="TN-specific additions to federal taxable income"/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="TN-specific subtractions from federal taxable income"/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="TN tax credits: jobs, investment, research, headquarters, etc."/>
+
+  </entity>
+
+</entity_data_dictionary>

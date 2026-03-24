@@ -27,11 +27,14 @@
 
     Reference: PA Code § 7401(3)2.(a)(15)(C)
   -->
-  <decision_table name="Determine_PA_Filing_Requirement" number="50600">
-    <description>
-      Determine if corporation must file PA Corporate Net Income Tax return.
-      PA has $500,000 economic nexus threshold (higher than typical $100K).
-    </description>
+  <decision_table>
+    <table_name>Determine_PA_Filing_Requirement</table_name>
+    <xls_file>PA_Corp.xls</xls_file>
+    <attribute_fields>
+      <TABLE_NUMBER>50600</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine if corporation must file PA Corporate Net Income Tax return. PA has $500,000 economic nexus threshold (higher than typical $100K).</COMMENTS>
+    </attribute_fields>
 
     <conditions>
       <condition name="has_physical_presence">
@@ -136,10 +139,14 @@
 
     Reference: PA Code § 7401(3)1.(b) (Additions/Subtractions)
   -->
-  <decision_table name="Calculate_PA_Income_Adjustments" number="50620">
-    <description>
-      Calculate PA state-specific additions and subtractions to federal taxable income.
-    </description>
+  <decision_table>
+    <table_name>Calculate_PA_Income_Adjustments</table_name>
+    <xls_file>PA_Corp.xls</xls_file>
+    <attribute_fields>
+      <TABLE_NUMBER>50620</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate PA state-specific additions and subtractions to federal taxable income.</COMMENTS>
+    </attribute_fields>
 
     <conditions>
       <condition name="has_nexus">
@@ -249,11 +256,14 @@
     Reference: PA Code § 7401(3)1.(a) (Tax rate)
     Reference: PA Form RCT-101 (PA Corporate Tax Report)
   -->
-  <decision_table name="Calculate_PA_State_Tax" number="50680">
-    <description>
-      Calculate PA Corporate Net Income Tax (CNIT).
-      Applies PA 8.99% flat rate to apportioned and adjusted taxable income.
-    </description>
+  <decision_table>
+    <table_name>Calculate_PA_State_Tax</table_name>
+    <xls_file>PA_Corp.xls</xls_file>
+    <attribute_fields>
+      <TABLE_NUMBER>50680</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate PA Corporate Net Income Tax (CNIT). Applies PA 8.99% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+    </attribute_fields>
 
     <conditions>
       <condition name="has_nexus">

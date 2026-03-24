@@ -17,7 +17,7 @@
     This entity is used by decision tables 7000-7500 to calculate
     multi-state tax apportionment.
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='IL_Corp.xls'>
 
     <!-- State Identification (REQUIRED) -->
     <field name='state_code' type='string' default_value='IL'
@@ -59,7 +59,7 @@
     The replacement tax is an additional 2.5% tax on corporate income,
     bringing the effective tax rate to 12.0% (9.5% + 2.5%).
   -->
-  <entity name="result">
+  <entity name="result" xls_file='IL_Corp.xls'>
 
     <!-- Illinois Personal Property Replacement Tax -->
     <field name='il_replacement_tax_rate' type='double' default_value='0.025'

@@ -2,85 +2,78 @@
 <!--
   Minnesota Corporate Tax Entity Data Dictionary
 
-  MN Corporate Tax Summary (2025):
-  - Tax Rate: 9.5% flat rate (as of 2024 tax year)
-  - Previously had progressive brackets, now simplified to single rate
+  Minnesota uses:
+  - Flat rate: 9.5% (as of 2024 tax year, MN Stat. § 290.06)
+  - Previously had progressive brackets, simplified to single rate in 2024
   - Apportionment: Single-sales factor
   - Economic Nexus: $100,000 in gross receipts
   - Form: Form M4 (Corporation Franchise Tax Return)
 
   References:
-  - MN Stat. § 290.06 (Tax rate)
+  - MN Stat. § 290.06 (Tax rate: 9.5% flat)
   - MN Stat. § 290.191 (Apportionment)
   - MN Form M4 Instructions
 -->
 <entity_dictionary name="CorporateTax_MN_Constants">
+  <file_metadata>
+    <file_path>states/MN/51500_MN_constants</file_path>
+  </file_metadata>
 
   <!--
-    Apportionment Entity: Minnesota-Specific Configuration
+    Apportionment Entity: Minnesota State Configuration
 
-    Minnesota uses single-sales factor apportionment and has a flat 9.5% rate
-    (changed from progressive brackets in 2024).
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
   -->
   <entity name="apportionment">
 
-    <!-- State Identification -->
+    <!-- State Identification (REQUIRED) -->
     <field name='state_code' type='string' default_value='MN'
-           comment='Minnesota state code'/>
+           comment='Minnesota two-letter state code'/>
 
     <!-- Economic Nexus Thresholds (Post-Wayfair) -->
     <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='MN economic nexus: $100,000 in gross receipts'/>
+           comment='Economic nexus gross receipts threshold - $100K per MN DOR guidance'/>
 
     <field name='transaction_threshold' type='integer' default_value='200'
-           comment='MN economic nexus: 200 transactions (standard threshold)'/>
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
 
-    <!-- Apportionment Formula -->
+    <!-- Apportionment Formula (REQUIRED) -->
     <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='MN uses single-sales factor apportionment (100% sales factor)'/>
+           comment='Minnesota uses single-sales factor apportionment (100% sales)'/>
 
-    <!-- State Tax Rate -->
+    <!-- State Tax Rate (REQUIRED) -->
     <field name='state_tax_rate' type='double' default_value='0.095'
-           comment='MN flat corporate tax rate: 9.5% (as of 2024)'/>
+           comment='Minnesota flat corporate income tax rate: 9.5% (MN Stat. § 290.06)'/>
 
     <!-- State Additions to Federal Taxable Income -->
     <field name='state_additions' type='double' default_value='0.0'
-           comment='MN additions: federal interest, IRC 199A addback, foreign dividend deduction, etc.'/>
+           comment='State-specific additions: federal interest, IRC 199A addback, foreign dividend deduction, etc.'/>
 
     <!-- State Subtractions from Federal Taxable Income -->
     <field name='state_subtractions' type='double' default_value='0.0'
-           comment='MN subtractions: state municipal interest, state NOL, business income deduction, etc.'/>
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, small business deduction, etc.'/>
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='MN credits: R&D, jobs, Angel investment, renewable energy, etc.'/>
+           comment='State tax credits: R&D, jobs, Angel investment, renewable energy, etc.'/>
 
   </entity>
 
   <!--
-    Result Entity: Minnesota-Specific Extensions
+    Result Entity: State-Specific Extensions (OPTIONAL)
 
-    MN-specific fields for the flat 9.5% rate structure.
-    These fields document the transition from progressive to flat rate.
+    Minnesota-specific fields can be added here if needed for detailed tracking.
+    The standard apportionment entity fields are sufficient for basic implementation.
   -->
   <entity name="result">
-
-    <!-- Minnesota Flat Rate Fields -->
-    <field name='mn_flat_rate' type='double' default_value='0.095'
-           comment='MN flat corporate tax rate: 9.5% (effective 2024)'/>
-
-    <!-- Historical note: MN previously had progressive brackets -->
-    <field name='mn_rate_notes' type='string' default_value='Flat 9.5% rate as of 2024'
-           comment='MN simplified from progressive brackets to flat rate in 2024'/>
-
-    <!-- Minnesota-Specific Deductions -->
+    <!-- Optional: MN-specific tracking fields -->
+    <!-- Example:
     <field name='mn_small_business_deduction' type='double' default_value='0.0'
            comment='MN small business income deduction (if applicable)'/>
-
-    <!-- Minnesota NOL (may differ from federal) -->
     <field name='mn_nol_carryforward' type='double' default_value='0.0'
            comment='MN NOL carryforward (80% of income limitation)'/>
-
+    -->
   </entity>
 
 </entity_dictionary>

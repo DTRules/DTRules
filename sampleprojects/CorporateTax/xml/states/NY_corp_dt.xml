@@ -28,85 +28,73 @@
     - Physical presence: Office, employees, property in state
     - Economic nexus (post-Wayfair): $1,000,000 gross receipts threshold
   -->
-  <decision_table name="Determine_NY_Filing_Requirement" number="50100">
-    <description>
-      Determine if corporation must file NY state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
-
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'NY'</expression>
-        <comment>Has physical presence in NY (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'NY'</expression>
-        <comment>Meets NY economic nexus threshold ($1M)</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          NY filing required due to physical presence (office, employees, or property in state).
-
-          Reference: NY Tax Law Article 9-A
-          Reference: NY Department of Taxation and Finance Publication 20
-          Reference: TSB-M-15(1)C - Corporate Tax Reform
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          NY filing required due to economic nexus (post-Wayfair).
-          Threshold: $1,000,000 in NY gross receipts.
-
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: NY Tax Law § 209.1
-          Reference: TSB-M-18(5)C - Economic Nexus Standard
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No NY nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
+  <decision_table>
+  <table_name>Determine_NY_Filing_Requirement</table_name>
+  <xls_file>NY_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Determine if corporation must file NY state corporate tax return. Checks for physical presence or economic nexus. Nexus types: Physical presence (office, employees, property) or Economic nexus (post-Wayfair) $1,000,000 gross receipts threshold.</COMMENTS>
+  <TABLE_NUMBER>50100</TABLE_NUMBER>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+  <conditions>
+  <condition_details>
+  <condition_number>1</condition_number>
+  <condition_comment>Has physical presence in NY (office, employees, property)</condition_comment>
+  <condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == 'NY'</condition_description>
+  <condition_postfix>
+  apportionment.has_physical_presence true eq
+  apportionment.state_code NY streq and
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="N"></condition_column>
+  <condition_column column_number="3" column_value="N"></condition_column>
+  </condition_details>
+  <condition_details>
+  <condition_number>2</condition_number>
+  <condition_comment>Meets NY economic nexus threshold ($1M)</condition_comment>
+  <condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == 'NY'</condition_description>
+  <condition_postfix>
+  apportionment.has_economic_nexus true eq
+  apportionment.state_code NY streq and
+  </condition_postfix>
+  <condition_column column_number="1" column_value="*"></condition_column>
+  <condition_column column_number="2" column_value="Y"></condition_column>
+  <condition_column column_number="3" column_value="N"></condition_column>
+  </condition_details>
+  </conditions>
+  <actions>
+  <action_details>
+  <action_number>1</action_number>
+  <action_comment>Physical nexus established - filing required</action_comment>
+  <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+  <action_postfix>
+  "NY filing required due to physical presence (office, employees, or property in state). Reference: NY Tax Law Article 9-A, NY Department of Taxation and Finance Publication 20, TSB-M-15(1)C - Corporate Tax Reform" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="1" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>2</action_number>
+  <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+  <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+  <action_postfix>
+  "NY filing required due to economic nexus (post-Wayfair). Threshold: $1,000,000 in NY gross receipts. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NY Tax Law § 209.1, TSB-M-18(5)C - Economic Nexus Standard" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="2" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>3</action_number>
+  <action_comment>No nexus - no filing required</action_comment>
+  <action_description>No NY nexus - any estimated payments would be refunded</action_description>
+  <action_postfix>
+  0.0 /apportionment.state_tax xdef
+  apportionment.state_payments /apportionment.state_refund_or_owed xdef
+  "No NY nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="3" column_value="X"></action_column>
+  </action_details>
+  </actions>
   </decision_table>
 
   <!--
@@ -125,86 +113,55 @@
     - Interest on NY and local government bonds
     - Qualified emerging technology company deductions
   -->
-  <decision_table name="Calculate_NY_Income_Adjustments" number="50120">
-    <description>
-      Calculate NY state-specific additions and subtractions to federal taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate NY state additions
-            double additions = 0.0;
-
-            // NY adds back interest on U.S. government obligations
-            // (exempt from federal tax but taxable to NY)
-            // additions += revenue.federal_bond_interest;
-
-            // NY adds back IRC 199A deduction (state doesn't conform)
-            // additions += result.section_199a_deduction;
-
-            // NY may require depreciation adjustments
-            // additions += result.ny_depreciation_addback;
-
-            apportionment.state_additions = additions;
-
-            // Calculate NY state subtractions
-            double subtractions = 0.0;
-
-            // NY allows subtraction for interest on NY/local government bonds
-            // subtractions += revenue.ny_municipal_interest;
-
-            // Qualified emerging technology company (QETC) deductions
-            // subtractions += result.ny_qetc_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          NY state-specific income adjustments to federal taxable income.
-
-          Additions may include:
-          - Interest on U.S. government obligations (NY Tax Law § 208.9)
-          - IRC Section 199A qualified business income deduction addback
-          - Certain depreciation adjustments
-
-          Subtractions may include:
-          - Interest on NY state and local government bonds
-          - Qualified emerging technology company (QETC) deductions
-
-          Reference: NY Form CT-3 Instructions (Article 9-A)
-          Reference: NY Tax Law § 208 (Computation of tax)
-          Reference: TSB-M-18(1)C - Federal Tax Law Changes
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
+  <decision_table>
+  <table_name>Calculate_NY_Income_Adjustments</table_name>
+  <xls_file>NY_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Calculate NY state-specific additions and subtractions to federal taxable income. Additions: Interest on U.S. government obligations (NY Tax Law § 208.9), IRC Section 199A qualified business income deduction addback, Certain depreciation adjustments. Subtractions: Interest on NY state and local government bonds, Qualified emerging technology company (QETC) deductions. Reference: NY Form CT-3 Instructions (Article 9-A), NY Tax Law § 208 (Computation of tax), TSB-M-18(1)C - Federal Tax Law Changes</COMMENTS>
+  <TABLE_NUMBER>50120</TABLE_NUMBER>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+  <conditions>
+  <condition_details>
+  <condition_number>1</condition_number>
+  <condition_comment>Must have nexus to calculate adjustments</condition_comment>
+  <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+  <condition_postfix>
+  apportionment.has_economic_nexus true eq
+  apportionment.has_physical_presence true eq or
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="N"></condition_column>
+  </condition_details>
+  </conditions>
+  <actions>
+  <action_details>
+  <action_number>1</action_number>
+  <action_comment>Calculate NY state additions and subtractions</action_comment>
+  <action_description>Calculate state additions (federal bond interest, IRC 199A addback, depreciation) and subtractions (NY municipal interest, QETC deductions)</action_description>
+  <action_postfix>
+  0.0 /additions ldef
+  0.0 /subtractions ldef
+  additions /apportionment.state_additions xdef
+  subtractions /apportionment.state_subtractions xdef
+  "NY state-specific income adjustments calculated. Additions may include: Interest on U.S. government obligations (NY Tax Law § 208.9), IRC Section 199A qualified business income deduction addback, Certain depreciation adjustments. Subtractions may include: Interest on NY state and local government bonds, Qualified emerging technology company (QETC) deductions" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="1" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>2</action_number>
+  <action_comment>No nexus - no state adjustments</action_comment>
+  <action_description>No nexus - no state adjustments calculated</action_description>
+  <action_postfix>
+  0.0 /apportionment.state_additions xdef
+  0.0 /apportionment.state_subtractions xdef
+  "No nexus - no state adjustments calculated" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="2" column_value="X"></action_column>
+  </action_details>
+  </actions>
   </decision_table>
 
   <!--
@@ -224,105 +181,77 @@
     7. MTA surcharge calculated separately in table 50190
     8. Calculate refund or amount owed
   -->
-  <decision_table name="Calculate_NY_State_Tax" number="50180">
-    <description>
-      Calculate NY state corporate income tax.
-      Applies NY 6.5% tax rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate NY tax at 6.5% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // NY uses flat 6.5% rate (Tax Law § 209)
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract NY state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // MTA surcharge will be added in table 50190 if applicable
-            // For now, calculate base refund/owed (will be adjusted by MTA surcharge)
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          NY state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to NY: × [Apportionment %]
-          3. State additions: + [Additions]
-          4. State subtractions: - [Subtractions]
-          5. NY taxable income: = [Result]
-          6. NY tax rate: × 6.5%
-          7. NY income tax: = [Tax before credits]
-          8. NY credits: - [Credits]
-          9. NY tax liability (before MTA): = [Tax]
-
-          Note: MTA surcharge (0.34%) calculated separately if business is in MTA region.
-
-          Reference: NY Form CT-3 Instructions (Article 9-A General Business Corporation)
-          Reference: NY Tax Law § 209 (Tax rate: 6.5%)
-          Reference: NY Tax Law § 210 (Computation of tax base)
-          Reference: TSB-M-15(1)C - Corporate Tax Reform
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No NY nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No NY taxable income - no tax liability.
-          NY NOL rules may apply (not implemented).
-        </policy>
-      </rule>
-    </rules>
+  <decision_table>
+  <table_name>Calculate_NY_State_Tax</table_name>
+  <xls_file>NY_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Calculate NY state corporate income tax. Applies NY 6.5% tax rate to apportioned and adjusted taxable income. Process: 1. Federal taxable income apportioned to NY, 2. Add state additions, 3. Subtract state subtractions, 4. Apply NY 6.5% tax rate, 5. Subtract credits, 6. MTA surcharge calculated separately. Reference: NY Form CT-3 Instructions (Article 9-A), NY Tax Law § 209 (6.5% rate), NY Tax Law § 210 (Computation), TSB-M-15(1)C - Corporate Tax Reform</COMMENTS>
+  <TABLE_NUMBER>50180</TABLE_NUMBER>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+  <conditions>
+  <condition_details>
+  <condition_number>1</condition_number>
+  <condition_comment>Must have nexus to owe tax</condition_comment>
+  <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+  <condition_postfix>
+  apportionment.has_economic_nexus true eq
+  apportionment.has_physical_presence true eq or
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="N"></condition_column>
+  <condition_column column_number="3" column_value="Y"></condition_column>
+  </condition_details>
+  <condition_details>
+  <condition_number>2</condition_number>
+  <condition_comment>Has positive state taxable income</condition_comment>
+  <condition_description>apportionment.state_taxable_income > 0</condition_description>
+  <condition_postfix>
+  apportionment.state_taxable_income 0 gt
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="*"></condition_column>
+  <condition_column column_number="3" column_value="N"></condition_column>
+  </condition_details>
+  </conditions>
+  <actions>
+  <action_details>
+  <action_number>1</action_number>
+  <action_comment>Calculate NY tax at 6.5% flat rate</action_comment>
+  <action_description>NY uses flat 6.5% rate (Tax Law § 209), subtract credits, calculate refund/owed</action_description>
+  <action_postfix>
+  apportionment.state_taxable_income apportionment.state_tax_rate mult /apportionment.state_tax xdef
+  0.0 apportionment.state_tax apportionment.state_credits sub max /apportionment.state_tax xdef
+  apportionment.state_payments apportionment.state_tax sub /apportionment.state_refund_or_owed xdef
+  "NY state corporate income tax calculation: 1. Federal taxable income apportioned to NY, 2. State additions, 3. State subtractions, 4. NY taxable income, 5. NY tax rate: × 6.5%, 6. NY credits subtracted, 7. NY tax liability (before MTA). Note: MTA surcharge (0.34%) calculated separately if business is in MTA region. Reference: NY Form CT-3 Instructions (Article 9-A General Business Corporation), NY Tax Law § 209 (Tax rate: 6.5%), NY Tax Law § 210 (Computation of tax base), TSB-M-15(1)C - Corporate Tax Reform" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="1" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>2</action_number>
+  <action_comment>No nexus - no tax liability</action_comment>
+  <action_description>No NY nexus - any estimated payments are refunded</action_description>
+  <action_postfix>
+  0.0 /apportionment.state_tax xdef
+  apportionment.state_payments /apportionment.state_refund_or_owed xdef
+  "No NY nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="2" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>3</action_number>
+  <action_comment>Nexus but no taxable income - no tax liability</action_comment>
+  <action_description>No NY taxable income - NY NOL rules may apply (not implemented)</action_description>
+  <action_postfix>
+  0.0 /apportionment.state_tax xdef
+  apportionment.state_payments /apportionment.state_refund_or_owed xdef
+  "No NY taxable income - no tax liability. NY NOL rules may apply (not implemented)." job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="3" column_value="X"></action_column>
+  </action_details>
+  </actions>
   </decision_table>
 
   <!--
@@ -339,119 +268,99 @@
     - Are subject to NY corporate tax
     - Have business operations in the MTA region
   -->
-  <decision_table name="Calculate_NY_MTA_Surcharge" number="50190">
-    <description>
-      Calculate NY MTA surcharge for businesses in MTA region.
-      Surcharge is 0.34% of business income base.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have NY nexus</comment>
-      </condition>
-
-      <condition name="in_mta_region">
-        <expression>result.ny_in_mta_region == true</expression>
-        <comment>Business operates in MTA region</comment>
-      </condition>
-
-      <condition name="has_positive_tax_base">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive tax base for surcharge calculation</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate MTA surcharge -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <in_mta_region>Y</in_mta_region>
-          <has_positive_tax_base>Y</has_positive_tax_base>
-        </conditions>
-        <actions>
-          <action>
-            // MTA surcharge is 0.34% of business income base
-            result.ny_mta_surcharge =
-              apportionment.state_taxable_income * result.ny_mta_surcharge_rate;
-
-            // Add MTA surcharge to total state tax
-            apportionment.state_tax = apportionment.state_tax + result.ny_mta_surcharge;
-
-            // Recalculate refund or amount owed including MTA surcharge
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          NY MTA surcharge applies to businesses in the MTA region.
-
-          MTA Surcharge Calculation:
-          - Business income base: [State taxable income]
-          - MTA surcharge rate: × 0.34% (17/50ths of 1%)
-          - MTA surcharge: = [Surcharge amount]
-          - Total NY tax: Base tax + MTA surcharge
-
-          MTA Region includes:
-          - New York City (5 boroughs)
-          - Counties: Dutchess, Nassau, Orange, Putnam, Rockland, Suffolk, Westchester
-
-          Reference: NY Tax Law § 209-B (MTA surcharge)
-          Reference: NY Form CT-3-M/ATT (MTA Surcharge)
-          Reference: TSB-M-09(1)C - MTA Surcharge Implementation
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No MTA surcharge - not in MTA region -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <in_mta_region>N</in_mta_region>
-        </conditions>
-        <actions>
-          <action>
-            result.ny_mta_surcharge = 0.0;
-            // State tax and refund/owed already calculated in table 50180
-          </action>
-        </actions>
-        <policy>
-          No MTA surcharge - business not operating in MTA region.
-        </policy>
-      </rule>
-
-      <!-- Rule 3: No MTA surcharge - no nexus or no tax base -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            result.ny_mta_surcharge = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No MTA surcharge - no NY nexus or no taxable income.
-        </policy>
-      </rule>
-
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <in_mta_region>Y</in_mta_region>
-          <has_positive_tax_base>N</has_positive_tax_base>
-        </conditions>
-        <actions>
-          <action>
-            result.ny_mta_surcharge = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No MTA surcharge - no positive tax base.
-        </policy>
-      </rule>
-    </rules>
+  <decision_table>
+  <table_name>Calculate_NY_MTA_Surcharge</table_name>
+  <xls_file>NY_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Calculate NY MTA surcharge for businesses in MTA region. Surcharge is 0.34% (17/50ths of 1%) of business income base. MTA Region includes: New York City (5 boroughs), Counties: Dutchess, Nassau, Orange, Putnam, Rockland, Suffolk, Westchester. Reference: NY Tax Law § 209-B (MTA surcharge), NY Form CT-3-M/ATT (MTA Surcharge), TSB-M-09(1)C - MTA Surcharge Implementation</COMMENTS>
+  <TABLE_NUMBER>50190</TABLE_NUMBER>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+  <conditions>
+  <condition_details>
+  <condition_number>1</condition_number>
+  <condition_comment>Must have NY nexus</condition_comment>
+  <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+  <condition_postfix>
+  apportionment.has_economic_nexus true eq
+  apportionment.has_physical_presence true eq or
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="Y"></condition_column>
+  <condition_column column_number="3" column_value="N"></condition_column>
+  <condition_column column_number="4" column_value="Y"></condition_column>
+  </condition_details>
+  <condition_details>
+  <condition_number>2</condition_number>
+  <condition_comment>Business operates in MTA region</condition_comment>
+  <condition_description>result.ny_in_mta_region == true</condition_description>
+  <condition_postfix>
+  result.ny_in_mta_region true eq
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="N"></condition_column>
+  <condition_column column_number="3" column_value="*"></condition_column>
+  <condition_column column_number="4" column_value="Y"></condition_column>
+  </condition_details>
+  <condition_details>
+  <condition_number>3</condition_number>
+  <condition_comment>Has positive tax base for surcharge calculation</condition_comment>
+  <condition_description>apportionment.state_taxable_income > 0</condition_description>
+  <condition_postfix>
+  apportionment.state_taxable_income 0 gt
+  </condition_postfix>
+  <condition_column column_number="1" column_value="Y"></condition_column>
+  <condition_column column_number="2" column_value="*"></condition_column>
+  <condition_column column_number="3" column_value="*"></condition_column>
+  <condition_column column_number="4" column_value="N"></condition_column>
+  </condition_details>
+  </conditions>
+  <actions>
+  <action_details>
+  <action_number>1</action_number>
+  <action_comment>Calculate MTA surcharge at 0.34%</action_comment>
+  <action_description>MTA surcharge is 0.34% of business income base, add to total state tax, recalculate refund/owed</action_description>
+  <action_postfix>
+  apportionment.state_taxable_income result.ny_mta_surcharge_rate mult /result.ny_mta_surcharge xdef
+  apportionment.state_tax result.ny_mta_surcharge add /apportionment.state_tax xdef
+  apportionment.state_payments apportionment.state_tax sub /apportionment.state_refund_or_owed xdef
+  "NY MTA surcharge applies to businesses in the MTA region. MTA Surcharge Calculation: Business income base × MTA surcharge rate: 0.34% (17/50ths of 1%) = MTA surcharge. Total NY tax: Base tax + MTA surcharge. MTA Region includes: New York City (5 boroughs), Counties: Dutchess, Nassau, Orange, Putnam, Rockland, Suffolk, Westchester. Reference: NY Tax Law § 209-B (MTA surcharge), NY Form CT-3-M/ATT (MTA Surcharge), TSB-M-09(1)C - MTA Surcharge Implementation" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="1" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>2</action_number>
+  <action_comment>No MTA surcharge - not in MTA region</action_comment>
+  <action_description>State tax and refund/owed already calculated in table 50180</action_description>
+  <action_postfix>
+  0.0 /result.ny_mta_surcharge xdef
+  "No MTA surcharge - business not operating in MTA region" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="2" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>3</action_number>
+  <action_comment>No MTA surcharge - no nexus</action_comment>
+  <action_description>No MTA surcharge - no NY nexus or no taxable income</action_description>
+  <action_postfix>
+  0.0 /result.ny_mta_surcharge xdef
+  "No MTA surcharge - no NY nexus or no taxable income" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="3" column_value="X"></action_column>
+  </action_details>
+  <action_details>
+  <action_number>4</action_number>
+  <action_comment>No MTA surcharge - no positive tax base</action_comment>
+  <action_description>No positive tax base for surcharge calculation</action_description>
+  <action_postfix>
+  0.0 /result.ny_mta_surcharge xdef
+  "No MTA surcharge - no positive tax base" job.audit_trail swap addto
+  </action_postfix>
+  <action_column column_number="4" column_value="X"></action_column>
+  </action_details>
+  </actions>
   </decision_table>
 
 </decision_tables>

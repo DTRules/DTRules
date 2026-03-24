@@ -25,7 +25,7 @@
     Note: Texas does NOT use traditional apportionment since it's not an income tax.
     These fields are maintained for consistency with the framework but many are not used.
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='TX_Corp.xls'>
 
     <!-- State Identification -->
     <field name='state_code' type='string' default_value='TX'
@@ -65,7 +65,7 @@
     These fields implement the Texas franchise tax calculation.
     The franchise tax is NOT an income tax - it's based on gross margin.
   -->
-  <entity name="result">
+  <entity name="result" xls_file='TX_Corp.xls'>
 
     <!-- Texas Total Revenue -->
     <field name='tx_total_revenue' type='double' default_value='0.0'

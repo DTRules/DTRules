@@ -16,7 +16,7 @@
     This entity is used by decision tables 7000-7500 to calculate
     multi-state tax apportionment.
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='NY_Corp.xls'>
 
     <!-- State Identification (REQUIRED) -->
     <field name='state_code' type='string' default_value='NY'
@@ -64,7 +64,7 @@
     - Special industry taxes (financial institutions, utilities)
     - State-specific NOL rules that differ from federal
   -->
-  <entity name="result">
+  <entity name="result" xls_file='NY_Corp.xls'>
 
     <!--
       Uncomment and customize examples below as needed for your state:

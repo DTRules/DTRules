@@ -1,65 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Colorado Corporate Tax Entity Data Dictionary
+  State-specific constants for Colorado corporate tax
 
-  Colorado uses:
+  Colorado corporate tax structure:
   - Flat rate: 4.55% (as of 2025, CO Rev. Stat. § 39-22-104)
   - Apportionment: Single-sales factor (100% sales apportionment)
   - Economic nexus: $100,000 in gross receipts
 
   CO Form DR 0112: Corporation Income Tax Return
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
 -->
-<entity_dictionary name="CorporateTax_CO_Constants">
-
-  <!--
-    Apportionment Entity: Colorado State Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification (REQUIRED) -->
-    <field name='state_code' type='string' default_value='CO'
-           comment='Colorado two-letter state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Economic nexus gross receipts threshold - $100K per Colorado DOR guidance'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Economic nexus transaction count threshold - 200 transactions'/>
-
-    <!-- Apportionment Formula (REQUIRED) -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Colorado uses single-sales factor apportionment (100% sales)'/>
-
-    <!-- State Tax Rate (REQUIRED) -->
-    <field name='state_tax_rate' type='double' default_value='0.0455'
-           comment='Colorado flat corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: State-Specific Extensions (OPTIONAL)
-
-    Colorado does not require special state-specific fields for basic corporate tax.
-    The standard apportionment entity fields are sufficient.
-  -->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/CO/51400_CO_corporate_constants</file_path>
+  </file_metadata>
   <entity name="result">
-    <!-- No special Colorado-specific fields required for basic implementation -->
-  </entity>
+    <!-- Colorado Corporate Tax Rate -->
+    <field name="co_corp_tax_rate" type="double" default_value="0.0455"
+           comment="CO corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104, 2025)"/>
 
-</entity_dictionary>
+    <!-- Apportionment Configuration -->
+    <field name="co_apportionment_formula" type="string" default_value="single_sales"
+           comment="CO uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="co_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="CO economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="co_transaction_threshold" type="integer" default_value="200"
+           comment="CO economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="co_state_additions" type="double" default_value="0.0"
+           comment="CO additions to federal taxable income (U.S. interest, IRC 199A addback, etc.)"/>
+
+    <field name="co_state_subtractions" type="double" default_value="0.0"
+           comment="CO subtractions from federal taxable income (state taxes, CO NOL, etc.)"/>
+
+    <field name="co_state_credits" type="double" default_value="0.0"
+           comment="CO state tax credits (R&D, jobs, film, renewable energy, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="co_taxable_income" type="double" default_value="0.0"
+           comment="CO taxable income after apportionment and modifications"/>
+
+    <field name="co_tax_liability" type="double" default_value="0.0"
+           comment="CO corporate income tax liability"/>
+
+    <field name="co_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Colorado"/>
+  </entity>
+</entity_data_dictionary>

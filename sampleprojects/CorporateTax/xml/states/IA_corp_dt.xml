@@ -1,456 +1,380 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Iowa Corporate Tax Decision Tables
+  State-specific decision tables for Iowa corporate tax
 
-  IA has a graduated corporate income tax with rates from 5.5% to 7.1%.
+  Iowa corporate tax structure:
+  - Graduated rates: 5.5% on first $100,000, 7.1% over $100,000
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts (no transaction count as of 7/1/2023)
 
-  Table Allocation: 52600-52699
-  - 52600: Determine_IA_Filing_Requirement
-  - 52620: Calculate_IA_Income_Adjustments
-  - 52680: Calculate_IA_State_Tax
+  Table Number Range: 52600-52699 (Iowa corporate allocation)
 
   References:
   - Iowa Code § 422.33 (Tax rates: 5.5% on first $100K, 7.1% over $100K)
   - Iowa Code § 422.32 (Apportionment - single sales factor)
   - Iowa Form IA 1120 (Corporation Income Tax Return)
-  - Iowa Department of Revenue Corporate Income Tax Instructions
-  - https://revenue.iowa.gov/taxes/tax-guidance/business-income-tax/iowa-corporate-income-tax-rates
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
 -->
-<decision_tables name="CorporateTax_IA_Tables">
-
-  <!--
-    ============================================================================
-    TABLE 52600: Determine IA Corporate Tax Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file IA state tax return.
-
-    Nexus types:
-    - Physical presence: Office, employees, property in IA
-    - Economic nexus (post-Wayfair): $100,000 gross receipts (no transaction count)
-  -->
-  <decision_table name="Determine_IA_Filing_Requirement" number="52600">
-    <description>
-      Determine if corporation must file Iowa state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
-
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'IA'</expression>
-        <comment>Has physical presence in IA (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'IA'</expression>
-        <comment>Meets IA economic nexus threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          IA filing required due to physical presence (office, employees, or property in state).
-
-          A corporation has physical presence nexus in IA if it has:
-          - An office, store, warehouse, or other place of business in IA
-          - Employees working in IA
-          - Tangible personal property located in IA
-          - Real property located in IA
-
-          Reference: Iowa Code § 422.32 (Nexus and apportionment)
-          Reference: Iowa Department of Revenue guidance on corporate nexus standards
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          IA filing required due to economic nexus (post-Wayfair).
-
-          Economic nexus threshold: $100,000 gross receipts in IA.
-
-          Note: As of July 1, 2023, Iowa eliminated the transaction count threshold
-          (formerly 200 transactions). Only the revenue threshold applies.
-
-          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), IA requires
-          filing if a corporation exceeds economic nexus threshold, even without
-          physical presence.
-
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Iowa Department of Revenue Economic Nexus Guidance
-          Reference: https://revenue.iowa.gov/taxes/tax-guidance/sales-use-excise-tax/remote-sellers-marketplace-facilitators
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No IA nexus - no filing requirement.
-
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
-
-          Reference: Iowa Code § 422.32 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52620: Calculate IA State-Specific Income Adjustments
-    ============================================================================
-
-    Calculates IA additions and subtractions to federal taxable income.
-
-    Common IA additions:
-    - State income taxes deducted on federal return
-    - Certain expenses related to exempt income
-    - Interest expense adjustments (IA does not conform to federal limitations)
-
-    Common IA subtractions:
-    - Interest on U.S. government obligations (U.S. Treasury bonds, notes, bills)
-    - Interest on IA state and municipal bonds (exempt for IA purposes)
-    - IA net operating loss deduction (if different from federal)
-    - Federal income taxes paid (if applicable)
-  -->
-  <decision_table name="Calculate_IA_Income_Adjustments" number="52620">
-    <description>
-      Calculate IA state-specific additions and subtractions to federal taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate IA state additions
-            double additions = 0.0;
-
-            // IA requires addback of:
-            // - State income taxes deducted federally
-            // - Certain expenses related to exempt income
-            // - Interest expense adjustments (IA does not conform to federal §163(j) limitations)
-
-            // Example additions (would be calculated from entity fields):
-            // additions += result.state_taxes_deducted;
-            // additions += result.exempt_income_expenses;
-
-            apportionment.state_additions = additions;
-
-            // Calculate IA state subtractions
-            double subtractions = 0.0;
-
-            // IA allows subtraction of:
-            // - Interest on U.S. government obligations (U.S. Treasury bonds, notes, bills)
-            //   These are exempt under 31 USC § 3124(a)
-            // - Interest on IA state and municipal bonds (exempt for IA purposes)
-            // - IA net operating loss deduction (if applicable)
-            // - Federal income taxes paid (if applicable to certain entities)
-
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.federal_bond_interest;
-            // subtractions += revenue.ia_municipal_interest;
-            // subtractions += result.ia_nol_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          IA state-specific income adjustments to federal taxable income.
-
-          IA ADDITIONS to federal taxable income include:
-          - State income taxes deducted on federal return
-          - Expenses related to exempt income
-          - Interest expense adjustments (IA does not conform to federal IRC § 163(j) limitation)
-          - Certain depreciation adjustments
-
-          IA SUBTRACTIONS from federal taxable income include:
-          - Interest on U.S. government obligations (U.S. Treasury bonds, notes, bills)
-            Exempt under 31 USC § 3124(a)
-          - Interest on Iowa state and municipal bonds (listed in Iowa Administrative Code rule 701-302.3)
-          - Iowa net operating loss deduction (subject to IA limitations)
-          - Federal income taxes paid (certain entities only)
-          - Certain dividend income eligible for Iowa dividend received deduction
-
-          Reference: Iowa Form IA 1120 (Corporation Income Tax Return)
-          Reference: Iowa Department of Revenue Corporate Income Tax Instructions 2025
-          Reference: Iowa Code § 422.35 (Adjustments to federal taxable income)
-          Reference: https://revenue.iowa.gov/media/4372/download (2025 IA 1120 Instructions)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-
-          Corporation does not have IA nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52680: Calculate IA State Tax
-    ============================================================================
-
-    Calculates final IA state corporate income tax.
-
-    IA uses GRADUATED RATES:
-    - 5.5% on taxable income up to $100,000
-    - 7.1% on taxable income over $100,000
-
-    Note: Iowa is transitioning toward a flat 5.5% rate in future years.
-
-    Process:
-    1. Federal taxable income apportioned to IA (done by table 7500)
-    2. Add IA-specific additions (done by table 52620)
-    3. Subtract IA-specific subtractions (done by table 52620)
-    4. Calculate IA state taxable income
-    5. Apply IA graduated tax rates
-    6. Subtract IA state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_IA_State_Tax" number="52680">
-    <description>
-      Calculate IA state corporate income tax.
-      Applies IA graduated rates (5.5% up to $100K, 7.1% over $100K) to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-
-      <condition name="exceeds_bracket_threshold">
-        <expression>apportionment.state_taxable_income > apportionment.state_tax_bracket_threshold</expression>
-        <comment>Income exceeds $100,000 bracket threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate IA tax with graduated rates - income over $100K -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <exceeds_bracket_threshold>Y</exceeds_bracket_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // IA uses graduated rates:
-            // - 5.5% on first $100,000
-            // - 7.1% on amount over $100,000
-
-            result.ia_tax_bracket_1 =
-              apportionment.state_tax_bracket_threshold * apportionment.state_tax_rate_bracket_1;
-
-            result.ia_tax_bracket_2 =
-              (apportionment.state_taxable_income - apportionment.state_tax_bracket_threshold) *
-              apportionment.state_tax_rate_bracket_2;
-
-            apportionment.state_tax = result.ia_tax_bracket_1 + result.ia_tax_bracket_2;
-
-            // Subtract IA state credits
-            // IA offers various credits: research activities, high quality jobs,
-            // renewable energy, historic preservation, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          IA state corporate income tax calculation (income over $100,000):
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to IA: × [IA apportionment percentage]
-          3. IA additions: + [State taxes, exempt income expenses, etc.]
-          4. IA subtractions: - [Federal interest, IA municipal interest, IA NOL, etc.]
-          5. IA taxable income: = [Result]
-          6. IA tax bracket 1: $100,000 × 5.5% = $5,500
-          7. IA tax bracket 2: [Income over $100K] × 7.1%
-          8. Total IA income tax: = [Bracket 1 + Bracket 2]
-          9. IA credits: - [Research, high quality jobs, renewable energy, historic preservation, etc.]
-          10. IA tax liability: = [Final tax]
-
-          IA uses single-sales factor apportionment (100% sales factor).
-
-          IA tax rate structure (2025):
-          - 5.5% on taxable income up to $100,000
-          - 7.1% on taxable income over $100,000
-
-          Note: Iowa is transitioning toward a flat 5.5% rate in future years.
-
-          IA provides various tax credits including:
-          - Research activities credit
-          - High quality jobs program credit
-          - Renewable energy tax credit
-          - Historic preservation tax credit
-          - Redevelopment tax credit
-
-          Reference: Iowa Form IA 1120 (Corporation Income Tax Return)
-          Reference: Iowa Code § 422.33 (Tax rates)
-          Reference: Iowa Code § 422.32 (Single-sales apportionment)
-          Reference: https://revenue.iowa.gov/taxes/tax-guidance/business-income-tax/iowa-corporate-income-tax-rates
-        </policy>
-      </rule>
-
-      <!-- Rule 2: Calculate IA tax with graduated rates - income under $100K -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <exceeds_bracket_threshold>N</exceeds_bracket_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Income is $100,000 or less - apply only bracket 1 rate
-            result.ia_tax_bracket_1 =
-              apportionment.state_taxable_income * apportionment.state_tax_rate_bracket_1;
-
-            result.ia_tax_bracket_2 = 0.0;
-
-            apportionment.state_tax = result.ia_tax_bracket_1;
-
-            // Subtract IA state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          IA state corporate income tax calculation (income $100,000 or less):
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to IA: × [IA apportionment percentage]
-          3. IA additions: + [State taxes, exempt income expenses, etc.]
-          4. IA subtractions: - [Federal interest, IA municipal interest, IA NOL, etc.]
-          5. IA taxable income: = [Result, $100,000 or less]
-          6. IA tax: [IA taxable income] × 5.5%
-          7. IA credits: - [Research, high quality jobs, renewable energy, etc.]
-          8. IA tax liability: = [Final tax]
-
-          For taxable income of $100,000 or less, only the 5.5% rate applies.
-
-          Reference: Iowa Form IA 1120 (Corporation Income Tax Return)
-          Reference: Iowa Code § 422.33 (Tax rates)
-          Reference: https://revenue.iowa.gov/taxes/tax-guidance/business-income-tax/iowa-corporate-income-tax-rates
-        </policy>
-      </rule>
-
-      <!-- Rule 3: No nexus -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No IA nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in IA.
-          Any estimated payments are refunded.
-
-          Reference: Iowa Code § 422.32 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 4: Nexus but no taxable income -->
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No IA taxable income - no tax liability.
-
-          Corporation has IA nexus but no positive taxable income after apportionment
-          and adjustments. Any estimated payments are refunded.
-
-          IA net operating loss (NOL) rules may apply:
-          - IA allows NOL carryforward (subject to state limitations)
-          - NOL carryback provisions may apply depending on tax year
-          - Consult Iowa Code § 422.35 for specific NOL rules
-
-          Reference: Iowa Form IA 1120 (Corporation Income Tax Return)
-          Reference: Iowa Code § 422.35 (Net operating loss deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 52600: Determine_IA_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_IA_Corporate_Filing_Requirement</table_name>
+<xls_file>IA_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Iowa corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>52600</TABLE_NUMBER>
+<FILE_PATH>states/IA/52600_Determine_IA_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Iowa filing requirement check</action_description>
+<action_postfix>
+"Iowa Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.ia_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Iowa</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_ia
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold ($100K gross receipts)</condition_comment>
+<condition_description>ia_gross_receipts >= ia_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.ia_gross_receipts result.ia_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.ia_has_nexus xdef
+"Iowa filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required (no transaction count as of 7/1/2023)</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+true /result.ia_has_nexus xdef
+"Iowa filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.ia_has_nexus xdef
+0.0 /result.ia_tax_liability xdef
+"Iowa filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 52620: Calculate_IA_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_IA_Corporate_Income_Adjustments</table_name>
+<xls_file>IA_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Iowa state-specific additions and subtractions to federal taxable income. IA requires addback of state taxes deducted federally and allows subtraction of federal interest income.</COMMENTS>
+<TABLE_NUMBER>52620</TABLE_NUMBER>
+<FILE_PATH>states/IA/52620_Calculate_IA_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Iowa income adjustments</action_description>
+<action_postfix>
+"Iowa Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.ia_state_additions xdef
+0.0 /result.ia_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Iowa nexus</condition_comment>
+<condition_description>ia_has_nexus == true</condition_description>
+<condition_postfix>
+result.ia_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Iowa state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Iowa state additions -->
+0.0 /ia_additions xdef
+
+<!-- Common Iowa additions: -->
+<!-- - State income taxes deducted on federal return -->
+<!-- - Certain expenses related to exempt income -->
+<!-- - Interest expense adjustments (IA does not conform to federal IRC 163(j) limitations) -->
+
+result.ia_state_taxes_deducted 0.0 ne
+{
+  ia_additions result.ia_state_taxes_deducted add /ia_additions xdef
+} if
+
+ia_additions /result.ia_state_additions xdef
+
+<!-- Calculate Iowa state subtractions -->
+0.0 /ia_subtractions xdef
+
+<!-- Common Iowa subtractions: -->
+<!-- - Interest on U.S. government obligations (U.S. Treasury bonds, notes, bills) -->
+<!-- - Interest on IA state and municipal bonds (exempt for IA purposes) -->
+<!-- - IA net operating loss deduction (if applicable) -->
+
+result.ia_us_interest_income 0.0 ne
+{
+  ia_subtractions result.ia_us_interest_income add /ia_subtractions xdef
+} if
+
+result.ia_municipal_interest 0.0 ne
+{
+  ia_subtractions result.ia_municipal_interest add /ia_subtractions xdef
+} if
+
+ia_subtractions /result.ia_state_subtractions xdef
+
+"Iowa additions: $" result.ia_state_additions cvs strconcat ", subtractions: $" strconcat result.ia_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.ia_state_additions xdef
+0.0 /result.ia_state_subtractions xdef
+"Iowa adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 52680: Calculate_IA_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_IA_Corporate_Tax</table_name>
+<xls_file>IA_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Iowa corporate income tax. Applies Iowa graduated rates (5.5% on first $100K, 7.1% over $100K) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52680</TABLE_NUMBER>
+<FILE_PATH>states/IA/52680_Calculate_IA_Corporate_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Iowa tax calculation</action_description>
+<action_postfix>
+"Iowa Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.ia_taxable_income xdef
+0.0 /result.ia_tax_bracket_1 xdef
+0.0 /result.ia_tax_bracket_2 xdef
+0.0 /result.ia_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Iowa nexus</condition_comment>
+<condition_description>ia_has_nexus == true</condition_description>
+<condition_postfix>
+result.ia_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>ia_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.ia_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income exceeds $100,000 bracket threshold</condition_comment>
+<condition_description>ia_taxable_income > ia_tax_bracket_threshold</condition_description>
+<condition_postfix>
+result.ia_taxable_income result.ia_tax_bracket_threshold gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></column_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Iowa tax with graduated rates - income over $100K</action_comment>
+<action_postfix>
+<!-- Calculate Iowa taxable income -->
+<!-- Federal taxable income apportioned to IA + additions - subtractions -->
+result.ia_apportioned_income
+result.ia_state_additions add
+result.ia_state_subtractions sub
+0.0 max
+/result.ia_taxable_income xdef
+
+<!-- Calculate Iowa tax using graduated rates -->
+<!-- Bracket 1: 5.5% on first $100,000 -->
+result.ia_tax_bracket_threshold result.ia_corp_tax_rate_bracket_1 mul
+/result.ia_tax_bracket_1 xdef
+
+<!-- Bracket 2: 7.1% on amount over $100,000 -->
+result.ia_taxable_income result.ia_tax_bracket_threshold sub
+result.ia_corp_tax_rate_bracket_2 mul
+/result.ia_tax_bracket_2 xdef
+
+<!-- Total tax before credits -->
+result.ia_tax_bracket_1 result.ia_tax_bracket_2 add
+/ia_tax_before_credits xdef
+
+<!-- Subtract Iowa state credits -->
+ia_tax_before_credits result.ia_state_credits sub 0.0 max
+/result.ia_tax_liability xdef
+
+<!-- Calculate refund or amount owed -->
+result.ia_estimated_payments result.ia_tax_liability sub
+/result.ia_refund_or_owed xdef
+
+"Iowa taxable income: $" result.ia_taxable_income cvs strconcat job.audit_trail swap addto
+"Iowa tax bracket 1 (5.5% on $100K): $" result.ia_tax_bracket_1 cvs strconcat job.audit_trail swap addto
+"Iowa tax bracket 2 (7.1% on excess): $" result.ia_tax_bracket_2 cvs strconcat job.audit_trail swap addto
+"Iowa tax liability: $" result.ia_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Iowa tax - income $100K or less (only 5.5% rate)</action_comment>
+<action_postfix>
+<!-- Calculate Iowa taxable income -->
+result.ia_apportioned_income
+result.ia_state_additions add
+result.ia_state_subtractions sub
+0.0 max
+/result.ia_taxable_income xdef
+
+<!-- Apply only bracket 1 rate: 5.5% -->
+result.ia_taxable_income result.ia_corp_tax_rate_bracket_1 mul
+/result.ia_tax_bracket_1 xdef
+
+0.0 /result.ia_tax_bracket_2 xdef
+
+<!-- Subtract Iowa state credits -->
+result.ia_tax_bracket_1 result.ia_state_credits sub 0.0 max
+/result.ia_tax_liability xdef
+
+<!-- Calculate refund or amount owed -->
+result.ia_estimated_payments result.ia_tax_liability sub
+/result.ia_refund_or_owed xdef
+
+"Iowa taxable income: $" result.ia_taxable_income cvs strconcat job.audit_trail swap addto
+"Iowa tax liability (5.5%): $" result.ia_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.ia_taxable_income xdef
+0.0 /result.ia_tax_liability xdef
+result.ia_estimated_payments /result.ia_refund_or_owed xdef
+"Iowa tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.ia_taxable_income xdef
+0.0 /result.ia_tax_liability xdef
+result.ia_estimated_payments /result.ia_refund_or_owed xdef
+"Iowa tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
 
 </decision_tables>

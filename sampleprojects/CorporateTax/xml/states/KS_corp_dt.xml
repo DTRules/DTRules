@@ -1,482 +1,383 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Kansas Corporate Tax Decision Tables
+  State-specific decision tables for Kansas corporate tax
 
-  KS has a two-tier corporate income tax structure:
-  - 4.0% base rate on all income
-  - Additional 3.0% surtax on income over $50,000
-  - Effective rate: 7.0% on income above $50,000
+  Kansas corporate tax structure:
+  - Two-tier rate: 4.0% base + 3.0% surtax on income over $50,000 (effective 7.0%)
+  - Apportionment: Three-factor (property, payroll, sales) with optional two-factor
+  - Future: Single-sales factor for tax years beginning after Dec. 31, 2026
+  - Economic nexus: $100,000 in gross receipts or 200 transactions
 
-  Table Allocation: 52900-52999
-  - 52900: Determine_KS_Filing_Requirement
-  - 52920: Calculate_KS_Income_Adjustments
-  - 52980: Calculate_KS_State_Tax
+  Table Number Range: 52900-52999 (Kansas corporate allocation)
 
   References:
-  - K.S.A. 79-32,110 (Tax rate: 4.0% + 3.0% surtax over $50,000)
-  - K.S.A. 79-32,138 (Apportionment)
+  - K.S.A. 79-32,110 (Tax rate: 4.0% + 3.0% surtax over $50K)
   - Kansas Form K-120 (Corporation Income Tax Return)
-  - Kansas Department of Revenue Corporate Tax Booklet 2025
-  - House Bill 2231 (2025) - Single sales factor for 2027+
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
 -->
-<decision_tables name="CorporateTax_KS_Tables">
-
-  <!--
-    ============================================================================
-    TABLE 52900: Determine KS Corporate Tax Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file KS state tax return.
-
-    Nexus types:
-    - Physical presence: Office, employees, property in KS
-    - Economic nexus (post-Wayfair): $100,000 gross receipts or 200 transactions
-  -->
-  <decision_table name="Determine_KS_Filing_Requirement" number="52900">
-    <description>
-      Determine if corporation must file Kansas state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
-
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'KS'</expression>
-        <comment>Has physical presence in KS (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'KS'</expression>
-        <comment>Meets KS economic nexus threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          KS filing required due to physical presence (office, employees, or property in state).
-
-          A corporation has physical presence nexus in KS if it has:
-          - An office, store, warehouse, or other place of business in KS
-          - Employees working in KS
-          - Tangible personal property located in KS
-          - Real property located in KS
-
-          Reference: K.S.A. 79-32,138 (Nexus and apportionment)
-          Reference: Kansas Department of Revenue Corporate Tax Booklet 2025
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          KS filing required due to economic nexus (post-Wayfair).
-
-          Economic nexus threshold: $100,000 gross receipts OR 200 transactions in KS.
-
-          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), KS requires
-          filing if a corporation exceeds economic nexus thresholds, even without
-          physical presence.
-
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Kansas Department of Revenue Economic Nexus Guidance
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No KS nexus - no filing requirement.
-
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
-
-          Reference: K.S.A. 79-32,138 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52920: Calculate KS State-Specific Income Adjustments
-    ============================================================================
-
-    Calculates KS additions and subtractions to federal taxable income.
-
-    Common KS additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to KS)
-    - State income tax refunds included in federal income
-    - IRC Section 163(j) business interest expense adjustments
-    - State income taxes deducted on federal return
-
-    Common KS subtractions:
-    - Interest on Kansas state and municipal bonds (exempt for KS purposes)
-    - Kansas net operating loss deduction (if different from federal)
-    - State income taxes paid during the year
-  -->
-  <decision_table name="Calculate_KS_Income_Adjustments" number="52920">
-    <description>
-      Calculate KS state-specific additions and subtractions to federal taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate KS state additions
-            double additions = 0.0;
-
-            // KS requires addback of:
-            // - Federal interest income (taxable to KS)
-            // - State income tax refunds included in federal income
-            // - IRC 163(j) business interest expense carryforward deductions
-            // - State income taxes deducted federally
-
-            // Example additions (would be calculated from entity fields):
-            // additions += revenue.federal_bond_interest;
-            // additions += result.state_tax_refunds;
-            // additions += result.irc_163j_adjustments;
-            // additions += result.state_taxes_deducted;
-
-            apportionment.state_additions = additions;
-
-            // Calculate KS state subtractions
-            double subtractions = 0.0;
-
-            // KS allows subtraction of:
-            // - Kansas municipal bond interest (exempt for KS purposes)
-            // - Kansas net operating loss deduction (if applicable)
-            // - State income taxes paid during the year
-
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.ks_municipal_interest;
-            // subtractions += result.ks_nol_deduction;
-            // subtractions += result.state_taxes_paid;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          KS state-specific income adjustments to federal taxable income.
-
-          KS ADDITIONS to federal taxable income include:
-          - Interest income from U.S. government obligations (exempt federally, taxable to KS)
-          - State income tax refunds included in federal taxable income
-          - Business interest expense carryforward deductions under IRC Section 163(j)
-          - State income taxes deducted on federal return
-          - Expenses related to exempt income
-
-          KS SUBTRACTIONS from federal taxable income include:
-          - Interest on Kansas state and municipal bonds
-          - Kansas net operating loss deduction (subject to KS limitations)
-          - State income taxes paid during the taxable year
-          - Certain refunds of state income taxes
-
-          Reference: Kansas Form K-120 Schedule S (Additions and Subtractions)
-          Reference: Kansas Department of Revenue Corporate Tax Booklet 2025
-          Reference: K.S.A. 79-32,117 (Adjustments to federal taxable income)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-
-          Corporation does not have KS nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52980: Calculate KS State Tax
-    ============================================================================
-
-    Calculates final KS state corporate income tax.
-
-    KS uses a TWO-TIER rate structure:
-    - 4.0% base rate on ALL income
-    - Additional 3.0% surtax on income OVER $50,000
-    - Effective combined rate: 7.0% on income above $50,000
-
-    Process:
-    1. Federal taxable income apportioned to KS (done by table 7500)
-    2. Add KS-specific additions (done by table 52920)
-    3. Subtract KS-specific subtractions (done by table 52920)
-    4. Calculate KS state taxable income
-    5. Apply KS two-tier rate structure:
-       - First $50,000: 4.0%
-       - Amount over $50,000: 7.0% (4.0% base + 3.0% surtax)
-    6. Subtract KS state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_KS_State_Tax" number="52980">
-    <description>
-      Calculate KS state corporate income tax.
-      Applies KS two-tier rate structure: 4.0% base + 3.0% surtax on income over $50,000.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-
-      <condition name="exceeds_surtax_threshold">
-        <expression>apportionment.state_taxable_income > apportionment.surtax_threshold</expression>
-        <comment>Income exceeds $50,000 surtax threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate KS tax with surtax (income over $50,000) -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <exceeds_surtax_threshold>Y</exceeds_surtax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Split income at surtax threshold
-            result.ks_income_below_threshold = apportionment.surtax_threshold;
-            result.ks_income_above_threshold =
-              apportionment.state_taxable_income - apportionment.surtax_threshold;
-
-            // Calculate base tax at 4.0% on ALL income
-            result.ks_base_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_base_rate;
-
-            // Calculate surtax at 3.0% on income ABOVE $50,000
-            result.ks_surtax =
-              result.ks_income_above_threshold * apportionment.state_tax_surtax_rate;
-
-            // Total KS tax = base tax + surtax
-            apportionment.state_tax = result.ks_base_tax + result.ks_surtax;
-
-            // Subtract KS state credits
-            // KS offers various credits: job creation, film production,
-            // historic preservation, community service contribution, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          KS state corporate income tax calculation with surtax:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to KS: × [KS apportionment percentage]
-          3. KS additions: + [Federal interest, state tax refunds, IRC 163(j), etc.]
-          4. KS subtractions: - [KS municipal interest, KS NOL, state taxes paid, etc.]
-          5. KS taxable income: = [Result]
-
-          Two-tier tax calculation:
-          6a. Base tax on ALL income: [Taxable income] × 4.0%
-          6b. Surtax on income over $50,000: [Amount over $50,000] × 3.0%
-          7. Total KS tax before credits: = [Base tax + Surtax]
-
-          8. KS credits: - [Job creation, film, historic preservation, etc.]
-          9. KS tax liability: = [Final tax]
-
-          Example calculation for $150,000 taxable income:
-          - Base tax: $150,000 × 4.0% = $6,000
-          - Surtax: ($150,000 - $50,000) × 3.0% = $3,000
-          - Total tax: $6,000 + $3,000 = $9,000
-          - Effective rate: $9,000 / $150,000 = 6.0%
-
-          KS apportionment formula:
-          - Current (2025-2026): Three-factor (property, payroll, sales)
-          - Optional: Two-factor (sales and property) if payroll exceeds 200% average
-          - Future (2027+): Single-sales factor per House Bill 2231
-
-          KS provides various tax credits including:
-          - Job creation and expansion credits
-          - Film production credits
-          - Historic preservation credits
-          - Community service contribution credits
-          - Research and development credits
-
-          Reference: Kansas Form K-120 (Corporation Income Tax Return)
-          Reference: K.S.A. 79-32,110 (Tax rate: 4.0% + 3.0% surtax over $50,000)
-          Reference: K.S.A. 79-32,138 (Three-factor apportionment)
-          Reference: Kansas Department of Revenue Corporate Tax Booklet 2025
-          Reference: House Bill 2231 (2025) - Single sales factor for 2027+
-        </policy>
-      </rule>
-
-      <!-- Rule 2: Calculate KS tax without surtax (income $50,000 or less) -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <exceeds_surtax_threshold>N</exceeds_surtax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // All income below threshold - no surtax
-            result.ks_income_below_threshold = apportionment.state_taxable_income;
-            result.ks_income_above_threshold = 0.0;
-
-            // Calculate base tax at 4.0% only (no surtax)
-            result.ks_base_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_base_rate;
-            result.ks_surtax = 0.0;
-
-            // Total KS tax = base tax only (no surtax)
-            apportionment.state_tax = result.ks_base_tax;
-
-            // Subtract KS state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          KS state corporate income tax calculation without surtax.
-
-          Income does not exceed $50,000 surtax threshold, so only base rate applies.
-
-          Tax calculation:
-          1. KS taxable income: [Amount $50,000 or less]
-          2. Base tax: [Taxable income] × 4.0%
-          3. Surtax: $0 (threshold not exceeded)
-          4. Total tax before credits: = [Base tax]
-          5. KS credits: - [Job creation, film, historic preservation, etc.]
-          6. KS tax liability: = [Final tax]
-
-          Example calculation for $30,000 taxable income:
-          - Base tax: $30,000 × 4.0% = $1,200
-          - Surtax: $0 (below $50,000 threshold)
-          - Total tax: $1,200
-          - Effective rate: $1,200 / $30,000 = 4.0%
-
-          Reference: Kansas Form K-120 (Corporation Income Tax Return)
-          Reference: K.S.A. 79-32,110 (Tax rate: 4.0% base rate)
-          Reference: Kansas Department of Revenue Corporate Tax Booklet 2025
-        </policy>
-      </rule>
-
-      <!-- Rule 3: No nexus -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            result.ks_income_below_threshold = 0.0;
-            result.ks_income_above_threshold = 0.0;
-            result.ks_base_tax = 0.0;
-            result.ks_surtax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No KS nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in KS.
-          Any estimated payments are refunded.
-
-          Reference: K.S.A. 79-32,138 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 4: Nexus but no taxable income -->
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            result.ks_income_below_threshold = 0.0;
-            result.ks_income_above_threshold = 0.0;
-            result.ks_base_tax = 0.0;
-            result.ks_surtax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No KS taxable income - no tax liability.
-
-          Corporation has KS nexus but no positive taxable income after apportionment
-          and adjustments. Any estimated payments are refunded.
-
-          KS net operating loss (NOL) rules may apply:
-          - KS allows NOL carryforward
-          - NOL limited to percentage of taxable income (similar to federal)
-
-          Reference: Kansas Form K-120 (Corporation Income Tax Return)
-          Reference: K.S.A. 79-32,143 (Net operating loss deduction)
-          Reference: Kansas Department of Revenue Corporate Tax Booklet 2025
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 52900: Determine_KS_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_KS_Corporate_Filing_Requirement</table_name>
+<xls_file>KS_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Kansas corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>52900</TABLE_NUMBER>
+<FILE_PATH>states/KS/52900_Determine_KS_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kansas filing requirement check</action_description>
+<action_postfix>
+"Kansas Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.ks_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Kansas</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_ks
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions)</condition_comment>
+<condition_description>ks_gross_receipts >= ks_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.ks_gross_receipts result.ks_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.ks_has_nexus xdef
+"Kansas filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+true /result.ks_has_nexus xdef
+"Kansas filing required: Economic nexus (exceeds $100,000 gross receipts or 200 transactions)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.ks_has_nexus xdef
+0.0 /result.ks_tax_liability xdef
+"Kansas filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 52920: Calculate_KS_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_KS_Corporate_Income_Adjustments</table_name>
+<xls_file>KS_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Kansas state-specific additions and subtractions to federal taxable income. KS requires addback of federal interest income and state income tax refunds, with subtraction of Kansas municipal bond interest.</COMMENTS>
+<TABLE_NUMBER>52920</TABLE_NUMBER>
+<FILE_PATH>states/KS/52920_Calculate_KS_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kansas income adjustments</action_description>
+<action_postfix>
+"Kansas Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.ks_state_additions xdef
+0.0 /result.ks_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Kansas nexus</condition_comment>
+<condition_description>ks_has_nexus == true</condition_description>
+<condition_postfix>
+result.ks_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Kansas state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Kansas state additions -->
+0.0 /ks_additions xdef
+
+<!-- Common Kansas additions: -->
+<!-- - Federal interest income -->
+<!-- - State income tax refunds -->
+<!-- - IRC 163(j) adjustments -->
+
+result.ks_us_interest_income 0.0 ne
+{
+  ks_additions result.ks_us_interest_income add /ks_additions xdef
+} if
+
+result.ks_state_tax_refunds 0.0 ne
+{
+  ks_additions result.ks_state_tax_refunds add /ks_additions xdef
+} if
+
+ks_additions /result.ks_state_additions xdef
+
+<!-- Calculate Kansas state subtractions -->
+0.0 /ks_subtractions xdef
+
+<!-- Common Kansas subtractions: -->
+<!-- - Kansas municipal bond interest -->
+<!-- - State income taxes paid -->
+<!-- - Kansas NOL deduction -->
+
+result.ks_municipal_interest 0.0 ne
+{
+  ks_subtractions result.ks_municipal_interest add /ks_subtractions xdef
+} if
+
+result.ks_state_taxes_paid 0.0 ne
+{
+  ks_subtractions result.ks_state_taxes_paid add /ks_subtractions xdef
+} if
+
+ks_subtractions /result.ks_state_subtractions xdef
+
+"Kansas additions: $" result.ks_state_additions cvs strconcat ", subtractions: $" strconcat result.ks_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.ks_state_additions xdef
+0.0 /result.ks_state_subtractions xdef
+"Kansas adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 52980: Calculate_KS_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_KS_Corporate_Tax</table_name>
+<xls_file>KS_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Kansas corporate income tax. Applies Kansas two-tier rate (4.0% base + 3.0% surtax on income over $50K) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52980</TABLE_NUMBER>
+<FILE_PATH>states/KS/52980_Calculate_KS_Corporate_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kansas tax calculation</action_description>
+<action_postfix>
+"Kansas Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.ks_taxable_income xdef
+0.0 /result.ks_base_tax xdef
+0.0 /result.ks_surtax xdef
+0.0 /result.ks_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Kansas nexus</condition_comment>
+<condition_description>ks_has_nexus == true</condition_description>
+<condition_postfix>
+result.ks_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>ks_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.ks_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income exceeds $50,000 surtax threshold</condition_comment>
+<condition_description>ks_taxable_income > ks_surtax_threshold</condition_description>
+<condition_postfix>
+result.ks_taxable_income result.ks_surtax_threshold gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Kansas tax with base rate + surtax (income over $50K)</action_comment>
+<action_postfix>
+<!-- Calculate Kansas taxable income -->
+result.ks_apportioned_income
+result.ks_state_additions add
+result.ks_state_subtractions sub
+0.0 max
+/result.ks_taxable_income xdef
+
+<!-- Calculate Kansas base tax: 4.0% on all income -->
+result.ks_taxable_income result.ks_corp_tax_base_rate mul
+/result.ks_base_tax xdef
+
+<!-- Calculate Kansas surtax: 3.0% on income over $50,000 -->
+result.ks_taxable_income result.ks_surtax_threshold sub
+result.ks_corp_tax_surtax_rate mul
+/result.ks_surtax xdef
+
+<!-- Total tax before credits -->
+result.ks_base_tax result.ks_surtax add
+/ks_tax_before_credits xdef
+
+<!-- Subtract Kansas state credits -->
+ks_tax_before_credits result.ks_state_credits sub 0.0 max
+/result.ks_tax_liability xdef
+
+<!-- Calculate refund or amount owed -->
+result.ks_estimated_payments result.ks_tax_liability sub
+/result.ks_refund_or_owed xdef
+
+"Kansas taxable income: $" result.ks_taxable_income cvs strconcat job.audit_trail swap addto
+"Kansas base tax (4.0%): $" result.ks_base_tax cvs strconcat job.audit_trail swap addto
+"Kansas surtax (3.0% on excess over $50K): $" result.ks_surtax cvs strconcat job.audit_trail swap addto
+"Kansas tax liability: $" result.ks_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Kansas tax - income $50K or less (base rate only)</action_comment>
+<action_postfix>
+<!-- Calculate Kansas taxable income -->
+result.ks_apportioned_income
+result.ks_state_additions add
+result.ks_state_subtractions sub
+0.0 max
+/result.ks_taxable_income xdef
+
+<!-- Apply only base rate: 4.0% -->
+result.ks_taxable_income result.ks_corp_tax_base_rate mul
+/result.ks_base_tax xdef
+
+0.0 /result.ks_surtax xdef
+
+<!-- Subtract Kansas state credits -->
+result.ks_base_tax result.ks_state_credits sub 0.0 max
+/result.ks_tax_liability xdef
+
+<!-- Calculate refund or amount owed -->
+result.ks_estimated_payments result.ks_tax_liability sub
+/result.ks_refund_or_owed xdef
+
+"Kansas taxable income: $" result.ks_taxable_income cvs strconcat job.audit_trail swap addto
+"Kansas tax liability (4.0%): $" result.ks_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.ks_taxable_income xdef
+0.0 /result.ks_tax_liability xdef
+result.ks_estimated_payments /result.ks_refund_or_owed xdef
+"Kansas tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.ks_taxable_income xdef
+0.0 /result.ks_tax_liability xdef
+result.ks_estimated_payments /result.ks_refund_or_owed xdef
+"Kansas tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
 
 </decision_tables>

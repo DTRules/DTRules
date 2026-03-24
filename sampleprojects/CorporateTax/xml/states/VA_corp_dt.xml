@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Virginia Corporate Tax Decision Tables
+
+  Table numbering: 50900-50999 (Virginia allocation)
+
+  Virginia has a straightforward corporate tax structure:
+  - Flat rate: 6%
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts
+
+  References:
+  - VA Code § 58.1-400 (Tax rate: 6%)
+  - VA Form 500 (Corporation Income Tax Return)
+  - VA Department of Taxation Publication 1630 (Corporate Income Tax)
+-->
 <decision_tables name="CorporateTax_VA_Tables">
 
   <!--
@@ -11,10 +26,15 @@
     Nexus types:
     - Physical presence: Office, employees, property in Virginia
     - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
-
-    Table number range: 50900-50999 (Virginia allocation)
   -->
   <decision_table name="Determine_VA_Filing_Requirement" number="50900">
+    <xls_file>VA_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine if corporation must file Virginia state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+      <TABLE_NUMBER>50900</TABLE_NUMBER>
+      <FILE_PATH>states/VA/50900_Determine_VA_Filing_Requirement</FILE_PATH>
+    </attribute_fields>
     <description>
       Determine if corporation must file Virginia state corporate tax return.
       Checks for physical presence or economic nexus.
@@ -112,6 +132,13 @@
     - Dividends from affiliated corporations (85% deduction may apply)
   -->
   <decision_table name="Calculate_VA_Income_Adjustments" number="50920">
+    <xls_file>VA_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Virginia state-specific additions and subtractions to federal taxable income.</COMMENTS>
+      <TABLE_NUMBER>50920</TABLE_NUMBER>
+      <FILE_PATH>states/VA/50920_Calculate_VA_Income_Adjustments</FILE_PATH>
+    </attribute_fields>
     <description>
       Calculate Virginia state-specific additions and subtractions to federal taxable income.
     </description>
@@ -213,6 +240,13 @@
     7. Calculate refund or amount owed
   -->
   <decision_table name="Calculate_VA_State_Tax" number="50980">
+    <xls_file>VA_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Virginia state corporate income tax. Applies 6% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+      <TABLE_NUMBER>50980</TABLE_NUMBER>
+      <FILE_PATH>states/VA/50980_Calculate_VA_State_Tax</FILE_PATH>
+    </attribute_fields>
     <description>
       Calculate Virginia state corporate income tax.
       Applies 6% flat rate to apportioned and adjusted taxable income.

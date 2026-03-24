@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Mississippi Corporate Tax Entity Data Dictionary
+  Mississippi Corporate Tax Constants
 
   Mississippi Code Title 27, Chapter 7, § 27-7-5 (Corporate income tax)
   - Top tax rate: 5% on taxable income over $10,000
@@ -9,88 +9,62 @@
   - Economic nexus: $250,000 in gross receipts (sales tax standard)
   - Form: MS Form 83-100 (Corporate Income and Franchise Tax Return)
 
-  Key Features:
-  - Three-bracket graduated tax structure
-  - Single-sales apportionment formula
-  - 5-year net operating loss carryforward
-  - No carryback provisions
-  - Federal interest income addback required
-  - State municipal bond interest deductible
-
-  References:
-  - Mississippi Code § 27-7-5 (Tax rates)
-  - Mississippi Code § 27-7-19 (Filing requirements)
-  - MS Form 83-100 (Corporate Income and Franchise Tax Return)
-  - Mississippi Department of Revenue Business Tax Guide
+  This file will be merged into CorporateTax_edd.xml by merge script
 -->
-<entity_dictionary name="CorporateTax_MS_Constants">
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/MS/53400_MS_corporate_constants</file_path>
+  </file_metadata>
 
-  <!--
-    Apportionment Entity: Mississippi Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and MS-specific tables 53400-53499.
-  -->
+  <!-- Apportionment Entity: Mississippi Configuration -->
   <entity name="apportionment">
 
     <!-- State Identification -->
-    <field name='state_code' type='string' default_value='MS'
-           comment='Mississippi state code'/>
+    <field name="state_code" type="string" default_value="MS"
+           comment="Mississippi state code"/>
 
     <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='250000.0'
-           comment='MS economic nexus gross receipts threshold: $250,000'/>
+    <field name="economic_nexus_threshold" type="double" default_value="250000.0"
+           comment="MS economic nexus gross receipts threshold: $250,000"/>
 
-    <field name='transaction_threshold' type='integer' default_value='0'
-           comment='MS does not have a separate transaction count threshold'/>
+    <field name="transaction_threshold" type="integer" default_value="0"
+           comment="MS does not have a separate transaction count threshold"/>
 
     <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='MS uses single-sales factor apportionment (100% sales factor) for most businesses'/>
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="MS uses single-sales factor apportionment (100% sales factor) for most businesses"/>
 
     <!-- State Tax Rates - Graduated Structure -->
-    <field name='state_tax_rate' type='double' default_value='0.05'
-           comment='MS top corporate income tax rate: 5% on income over $10,000 - MS Code § 27-7-5'/>
+    <field name="state_tax_rate" type="double" default_value="0.05"
+           comment="MS top corporate income tax rate: 5% on income over $10,000 - MS Code § 27-7-5"/>
 
-    <field name='ms_tax_rate_tier1' type='double' default_value='0.03'
-           comment='MS tier 1 tax rate: 3% on first $5,000 of taxable income'/>
+    <field name="ms_tax_rate_tier1" type="double" default_value="0.03"
+           comment="MS tier 1 tax rate: 3% on first $5,000 of taxable income"/>
 
-    <field name='ms_tax_rate_tier2' type='double' default_value='0.04'
-           comment='MS tier 2 tax rate: 4% on next $5,000 of taxable income ($5,001-$10,000)'/>
+    <field name="ms_tax_rate_tier2" type="double" default_value="0.04"
+           comment="MS tier 2 tax rate: 4% on next $5,000 of taxable income ($5,001-$10,000)"/>
 
-    <field name='ms_tax_rate_tier3' type='double' default_value='0.05'
-           comment='MS tier 3 tax rate: 5% on taxable income over $10,000'/>
+    <field name="ms_tax_rate_tier3" type="double" default_value="0.05"
+           comment="MS tier 3 tax rate: 5% on taxable income over $10,000"/>
 
-    <field name='ms_bracket_tier1' type='double' default_value='5000.0'
-           comment='MS tier 1 bracket limit: $5,000'/>
+    <field name="ms_bracket_tier1" type="double" default_value="5000.0"
+           comment="MS tier 1 bracket limit: $5,000"/>
 
-    <field name='ms_bracket_tier2' type='double' default_value='10000.0'
-           comment='MS tier 2 bracket limit: $10,000'/>
+    <field name="ms_bracket_tier2" type="double" default_value="10000.0"
+           comment="MS tier 2 bracket limit: $10,000"/>
 
     <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='MS additions: federal interest income, IRC 199A addback, certain bonus depreciation, etc.'/>
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="MS additions: federal interest income, IRC 199A addback, certain bonus depreciation, etc."/>
 
     <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='MS subtractions: MS municipal bond interest, state income taxes, state NOL (5-year carryforward), etc.'/>
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="MS subtractions: MS municipal bond interest, state income taxes, state NOL (5-year carryforward), etc."/>
 
     <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='MS tax credits: jobs creation, investment, research & development, film production, etc.'/>
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="MS tax credits: jobs creation, investment, research &amp; development, film production, etc."/>
 
   </entity>
 
-  <!--
-    Result Entity: MS does not require special state-specific fields
-
-    Mississippi uses a graduated three-bracket system but does not require:
-    - Alternative minimum tax
-    - Special industry surcharges
-    - Separate franchise tax calculation (though franchise tax exists separately)
-  -->
-  <entity name="result">
-    <!-- No MS-specific fields required -->
-  </entity>
-
-</entity_dictionary>
+</entity_data_dictionary>

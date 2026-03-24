@@ -1,76 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Kentucky Corporate Tax Entity Data Dictionary
+  State-specific constants for Kentucky corporate tax
 
-  KY corporate income tax rate: 4.5% flat rate (effective 2025)
+  Kentucky corporate tax structure:
+  - Flat rate: 4.5% (effective 2025)
+  - Apportionment: Single-sales factor (100% sales apportionment)
+  - Economic nexus: $100,000 in gross receipts or 200 transactions
 
-  Key Features:
-  - Flat 4.5% corporate income tax rate (KRS 141.040)
-  - Single-sales apportionment formula
-  - Economic nexus: $100,000 gross receipts threshold or 200 transactions
-  - LLET (Limited Liability Entity Tax) applies separately to gross receipts
-  - No alternative minimum tax
+  KY Form 720: Corporation Income Tax Return
 
   References:
   - KRS 141.040 (Tax rate: 4.5%)
   - KRS 141.120 (Apportionment)
-  - Kentucky Form 720 (Corporation Income Tax Return)
   - Kentucky Department of Revenue Corporation Income Tax Instructions
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
 -->
-<entity_dictionary name="CorporateTax_KY_Constants">
-
-  <!--
-    Apportionment Entity: Kentucky Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and KY-specific tables 53000-53099.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='KY'
-           comment='Kentucky state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='KY economic nexus gross receipts threshold: $100,000'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='KY economic nexus transaction count threshold: 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='KY uses single-sales factor apportionment (100% sales factor)'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.045'
-           comment='KY corporate income tax rate: 4.5% flat rate (KRS 141.040, effective 2025)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='KY additions: federal interest income, IRC 199A addback, state tax refunds, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='KY subtractions: KY municipal bond interest, dividends from KY corporations, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='KY tax credits: industrial development, film industry, coal incentive, recycling, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: KY does not require special state-specific fields
-
-    Kentucky uses a straightforward flat-rate system without:
-    - Alternative minimum tax
-    - Special surcharges (except LLET which is separate)
-    - Industry-specific tax rates
-    - Complex combined reporting requirements
-  -->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/KY/53000_KY_corporate_constants</file_path>
+  </file_metadata>
   <entity name="result">
-    <!-- No KY-specific fields required -->
-  </entity>
+    <!-- Kentucky Corporate Tax Rate -->
+    <field name="ky_corp_tax_rate" type="double" default_value="0.045"
+           comment="KY corporate income tax rate: 4.5% flat rate (KRS 141.040, effective 2025)"/>
 
-</entity_dictionary>
+    <!-- Apportionment Configuration -->
+    <field name="ky_apportionment_formula" type="string" default_value="single_sales"
+           comment="KY uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="ky_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="KY economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="ky_transaction_threshold" type="integer" default_value="200"
+           comment="KY economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="ky_state_additions" type="double" default_value="0.0"
+           comment="KY additions to federal taxable income (federal interest income, IRC 199A addback, state tax refunds, etc.)"/>
+
+    <field name="ky_state_subtractions" type="double" default_value="0.0"
+           comment="KY subtractions from federal taxable income (KY municipal bond interest, dividends from KY corporations, etc.)"/>
+
+    <field name="ky_state_credits" type="double" default_value="0.0"
+           comment="KY tax credits (industrial development, film industry, coal incentive, recycling, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="ky_taxable_income" type="double" default_value="0.0"
+           comment="KY taxable income after apportionment and modifications"/>
+
+    <field name="ky_tax_liability" type="double" default_value="0.0"
+           comment="KY corporate income tax liability"/>
+
+    <field name="ky_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Kentucky"/>
+  </entity>
+</entity_data_dictionary>

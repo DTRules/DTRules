@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Nevada Corporate Tax Entity Data Dictionary
+  State-specific constants for Nevada
 
   IMPORTANT: Nevada has NO corporate income tax.
 
@@ -21,112 +21,85 @@
 
   Note: Nevada also has annual business license fee and modified business tax (payroll tax)
         but those are separate from Commerce Tax
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
 -->
-<entity_dictionary name="CorporateTax_NV_Constants">
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/NV/54000_NV_constants</file_path>
+  </file_metadata>
 
-  <!--
-    Apportionment Entity: Nevada-Specific Configuration
-
-    Note: Nevada does NOT use traditional apportionment since it's not an income tax.
-    These fields are maintained for consistency with the framework but many are not used.
-  -->
+  <!-- Nevada state-specific constants -->
   <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='NV'
-           comment='Nevada state code'/>
-
     <!-- Economic Nexus Thresholds -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Nevada economic nexus: $100,000 in Nevada receipts (follows Wayfair standard)'/>
+    <field name="nv_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="Nevada economic nexus: $100,000 in Nevada receipts (follows Wayfair standard)"/>
 
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Nevada economic nexus: 200 or more separate transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Nevada uses single-sales factor for sourcing receipts to Nevada'/>
+    <field name="nv_transaction_threshold" type="integer" default_value="200"
+           comment="Nevada economic nexus: 200 or more separate transactions"/>
 
     <!-- State Tax Rate (NOT USED - Nevada has no income tax) -->
-    <field name='state_tax_rate' type='double' default_value='0.0'
-           comment='Nevada has NO corporate income tax (Commerce Tax is calculated separately)'/>
-
-    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='Not applicable - Nevada has no income tax'/>
-
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='Not applicable - Nevada has no income tax'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='Nevada Commerce Tax credits (renewable energy, data center, film, aviation)'/>
+    <field name="nv_state_tax_rate" type="double" default_value="0.0"
+           comment="Nevada has NO corporate income tax (Commerce Tax is calculated separately)"/>
 
   </entity>
 
-  <!--
-    Result Entity: Nevada Commerce Tax Fields
-
-    These fields implement the Nevada Commerce Tax calculation.
-    The Commerce Tax is NOT an income tax - it's based on gross receipts.
-  -->
   <entity name="result">
-
     <!-- Nevada Gross Revenue -->
-    <field name='nv_gross_revenue' type='double' default_value='0.0'
-           comment='Nevada-sourced gross revenue for Commerce Tax (receipts from Nevada activities)'/>
+    <field name="nv_gross_revenue" type="double" default_value="0.0"
+           comment="Nevada-sourced gross revenue for Commerce Tax (receipts from Nevada activities)"/>
 
     <!-- Nevada Commerce Tax Threshold -->
-    <field name='nv_commerce_tax_threshold' type='double' default_value='4000000.0'
-           comment='Nevada Commerce Tax threshold: $4,000,000 in Nevada gross revenue (2025)'/>
+    <field name="nv_commerce_tax_threshold" type="double" default_value="4000000.0"
+           comment="Nevada Commerce Tax threshold: $4,000,000 in Nevada gross revenue (2025)"/>
 
-    <field name='nv_qualifies_for_exemption' type='boolean' default_value='false'
-           comment='Nevada gross revenue below $4M threshold - no Commerce Tax due'/>
+    <field name="nv_qualifies_for_exemption" type="boolean" default_value="false"
+           comment="Nevada gross revenue below $4M threshold - no Commerce Tax due"/>
 
     <!-- Nevada Business Classification (NAICS-based) -->
-    <field name='nv_business_classification' type='string' default_value='other'
-           comment='Nevada business classification: financial, mining, retail, professional, manufacturing, other'/>
+    <field name="nv_business_classification" type="string" default_value="other"
+           comment="Nevada business classification: financial, mining, retail, professional, manufacturing, other"/>
 
     <!-- Nevada Commerce Tax Rate (varies by industry) -->
-    <field name='nv_commerce_tax_rate' type='double' default_value='0.00051'
-           comment='Nevada Commerce Tax rate based on industry classification (0.051% default for lowest tier)'/>
+    <field name="nv_commerce_tax_rate" type="double" default_value="0.00051"
+           comment="Nevada Commerce Tax rate based on industry classification (0.051% default for lowest tier)"/>
 
     <!-- Nevada Commerce Tax Rates by Industry Classification -->
-    <field name='nv_financial_services_rate' type='double' default_value='0.00331'
-           comment='Financial Services Commerce Tax rate: 0.331% (highest rate)'/>
+    <field name="nv_financial_services_rate" type="double" default_value="0.00331"
+           comment="Financial Services Commerce Tax rate: 0.331% (highest rate)"/>
 
-    <field name='nv_mining_rate' type='double' default_value='0.00262'
-           comment='Mining Commerce Tax rate: 0.262%'/>
+    <field name="nv_mining_rate" type="double" default_value="0.00262"
+           comment="Mining Commerce Tax rate: 0.262%"/>
 
-    <field name='nv_utilities_rate' type='double' default_value='0.00266'
-           comment='Utilities Commerce Tax rate: 0.266%'/>
+    <field name="nv_utilities_rate" type="double" default_value="0.00266"
+           comment="Utilities Commerce Tax rate: 0.266%"/>
 
-    <field name='nv_retail_trade_rate' type='double' default_value='0.00091'
-           comment='Retail Trade Commerce Tax rate: 0.091%'/>
+    <field name="nv_retail_trade_rate" type="double" default_value="0.00091"
+           comment="Retail Trade Commerce Tax rate: 0.091%"/>
 
-    <field name='nv_professional_services_rate' type='double' default_value='0.00128'
-           comment='Professional, Scientific, Technical Services Commerce Tax rate: 0.128%'/>
+    <field name="nv_professional_services_rate" type="double" default_value="0.00128"
+           comment="Professional, Scientific, Technical Services Commerce Tax rate: 0.128%"/>
 
-    <field name='nv_manufacturing_rate' type='double' default_value='0.00091'
-           comment='Manufacturing Commerce Tax rate: 0.091%'/>
+    <field name="nv_manufacturing_rate" type="double" default_value="0.00091"
+           comment="Manufacturing Commerce Tax rate: 0.091%"/>
 
-    <field name='nv_wholesale_trade_rate' type='double' default_value='0.00101'
-           comment='Wholesale Trade Commerce Tax rate: 0.101%'/>
+    <field name="nv_wholesale_trade_rate" type="double" default_value="0.00101"
+           comment="Wholesale Trade Commerce Tax rate: 0.101%"/>
 
-    <field name='nv_other_rate' type='double' default_value='0.00051'
-           comment='Other Services Commerce Tax rate: 0.051% (lowest rate)'/>
+    <field name="nv_other_rate" type="double" default_value="0.00051"
+           comment="Other Services Commerce Tax rate: 0.051% (lowest rate)"/>
 
     <!-- Nevada Commerce Tax Calculation -->
-    <field name='nv_taxable_revenue' type='double' default_value='0.0'
-           comment='Taxable revenue for Commerce Tax (gross revenue minus $4M threshold)'/>
+    <field name="nv_taxable_revenue" type="double" default_value="0.0"
+           comment="Taxable revenue for Commerce Tax (gross revenue minus $4M threshold)"/>
 
-    <field name='nv_commerce_tax' type='double' default_value='0.0'
-           comment='Nevada Commerce Tax liability (NOT an income tax - based on gross receipts)'/>
+    <field name="nv_commerce_tax" type="double" default_value="0.0"
+           comment="Nevada Commerce Tax liability (NOT an income tax - based on gross receipts)"/>
 
     <!-- Nevada Sitused Revenue -->
-    <field name='nv_sitused_revenue' type='double' default_value='0.0'
-           comment='Nevada sitused revenue (gross revenue sourced to Nevada using market-based rules)'/>
+    <field name="nv_sitused_revenue" type="double" default_value="0.0"
+           comment="Nevada sitused revenue (gross revenue sourced to Nevada using market-based rules)"/>
 
   </entity>
 
-</entity_dictionary>
+</entity_data_dictionary>

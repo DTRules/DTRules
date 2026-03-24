@@ -24,7 +24,7 @@
   - Texas Comptroller Publication 96-1045 (Franchise Tax Rules)
   - Form 05-158 (Texas Franchise Tax Report)
 -->
-<decision_tables name="CorporateTax_TX_Tables">
+<decision_tables>
 
   <!--
     ============================================================================
@@ -40,11 +40,17 @@
 
     No tax due threshold: $1.23M in total revenue (2025)
   -->
-  <decision_table name="Determine_TX_Filing_Requirement" number="50200">
-    <description>
-      Determine if corporation must file Texas franchise tax return.
-      Checks for physical presence, economic nexus, or Texas registration.
-    </description>
+  <decision_table>
+    <table_name>Determine_TX_Filing_Requirement</table_name>
+    <xls_file>TX_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine if corporation must file Texas franchise tax return. Checks for physical presence, economic nexus, or Texas registration.</COMMENTS>
+      <TABLE_NUMBER>50200</TABLE_NUMBER>
+    </attribute_fields>
+
+    <contexts></contexts>
+    <initial_actions></initial_actions>
 
     <conditions>
       <condition name="has_physical_presence">
@@ -189,11 +195,17 @@
 
     Most taxpayers choose COGS or compensation based on business type.
   -->
-  <decision_table name="Determine_TX_Deduction_Method" number="50210">
-    <description>
-      Determine which deduction method produces the lowest franchise tax liability.
-      Taxpayer can choose COGS, compensation, or 70% of revenue.
-    </description>
+  <decision_table>
+    <table_name>Determine_TX_Deduction_Method</table_name>
+    <xls_file>TX_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine which deduction method produces the lowest franchise tax liability. Taxpayer can choose COGS, compensation, or 70% of revenue.</COMMENTS>
+      <TABLE_NUMBER>50210</TABLE_NUMBER>
+    </attribute_fields>
+
+    <contexts></contexts>
+    <initial_actions></initial_actions>
 
     <conditions>
       <condition name="has_nexus">
@@ -338,11 +350,17 @@
     4. Multiply by Texas apportionment factor (receipts sourced to Texas)
     5. Equals: Apportioned margin subject to franchise tax
   -->
-  <decision_table name="Calculate_TX_Margin" number="50220">
-    <description>
-      Calculate Texas taxable margin for franchise tax.
-      Margin = Revenue - (COGS or Compensation or 70% of Revenue)
-    </description>
+  <decision_table>
+    <table_name>Calculate_TX_Margin</table_name>
+    <xls_file>TX_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Texas taxable margin for franchise tax. Margin = Revenue - (COGS or Compensation or 70% of Revenue)</COMMENTS>
+      <TABLE_NUMBER>50220</TABLE_NUMBER>
+    </attribute_fields>
+
+    <contexts></contexts>
+    <initial_actions></initial_actions>
 
     <conditions>
       <condition name="has_nexus">
@@ -477,11 +495,17 @@
     - Research and development credit
     - Disabled veteran business enterprise credit
   -->
-  <decision_table name="Calculate_TX_Franchise_Tax" number="50280">
-    <description>
-      Calculate Texas franchise tax liability.
-      Applies 0.75% or 0.375% rate to apportioned margin.
-    </description>
+  <decision_table>
+    <table_name>Calculate_TX_Franchise_Tax</table_name>
+    <xls_file>TX_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Texas franchise tax liability. Applies 0.75% or 0.375% rate to apportioned margin.</COMMENTS>
+      <TABLE_NUMBER>50280</TABLE_NUMBER>
+    </attribute_fields>
+
+    <contexts></contexts>
+    <initial_actions></initial_actions>
 
     <conditions>
       <condition name="has_nexus">

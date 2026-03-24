@@ -1,427 +1,400 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  New Mexico Corporate Tax Decision Tables
+  State-specific decision tables for New Mexico
 
   NM Corporate Income Tax Overview:
   - Tax rate: 5.9% flat rate (effective 2025)
   - Apportionment: Single-sales factor
   - Economic nexus: $100,000 gross receipts threshold
 
-  Table Allocation: 53900-53999
-  - 53900: Determine_NM_Filing_Requirement
-  - 53920: Calculate_NM_Income_Adjustments
-  - 53980: Calculate_NM_State_Tax
-
-  References:
-  - New Mexico Statutes § 7-2A-5 (Tax rate: 5.9% flat rate)
-  - New Mexico Statutes § 7-4-10 (Apportionment)
-  - NM Form CIT-1 (Corporate Income and Franchise Tax Return)
-  - Senate Bill 151 (2025 corporate tax reform - decoupling from federal provisions)
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
 -->
-<decision_tables name="CorporateTax_NM_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 53900: Determine NM Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 53900: Determine_NM_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_NM_Filing_Requirement</table_name>
+<xls_file>NM_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file New Mexico state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>53900</TABLE_NUMBER>
+<FILE_PATH>states/NM/53900_Determine_NM_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file NM state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in NM
-    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
-      (Note: NM simplified by eliminating transaction count requirement)
-  -->
-  <decision_table name="Determine_NM_Filing_Requirement" number="53900">
-    <description>
-      Determine if corporation must file New Mexico state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<initial_actions>
+<initial_action>
+<action_description>Initialize NM filing requirement check</action_description>
+<action_postfix>
+"NM Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'NM'</expression>
-        <comment>Has physical presence in NM (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in NM</condition_comment>
+<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'NM'</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence get
+apportionment.state_code get 'NM' eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'NM'</expression>
-        <comment>Meets NM economic nexus threshold</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in NM</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'NM'</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.state_code get 'NM' eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          NM filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+# NM filing required due to physical presence (office, employees, or property in state).
+#
+# A corporation has physical presence nexus in NM if it has:
+# - An office, store, warehouse, or other place of business in NM
+# - Employees working in NM
+# - Tangible personal property located in NM
+# - Real property located in NM
+#
+# Reference: New Mexico Statutes § 7-4-2 (Nexus standards)
+# Reference: NM Taxation and Revenue Department Publication FYI-350
 
-          A corporation has physical presence nexus in NM if it has:
-          - An office, store, warehouse, or other place of business in NM
-          - Employees working in NM
-          - Tangible personal property located in NM
-          - Real property located in NM
+"NM filing required - physical nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Reference: New Mexico Statutes § 7-4-2 (Nexus standards)
-          Reference: NM Taxation and Revenue Department Publication FYI-350
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+# NM filing required due to economic nexus (post-Wayfair).
+#
+# Economic nexus threshold: $100,000 gross receipts in NM.
+#
+# New Mexico simplified its economic nexus requirements by eliminating
+# the transaction count threshold. Only the gross receipts threshold
+# ($100,000) applies.
+#
+# Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NM requires
+# filing if a corporation exceeds economic nexus threshold, even without
+# physical presence.
+#
+# Measurement: Prior year sales determine nexus (2024 sales determine 2025 nexus).
+#
+# Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+# Reference: NM Taxation and Revenue Department Economic Nexus Guidance
+# Reference: New Mexico Statutes § 7-9-3.5 (Economic nexus provisions)
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          NM filing required due to economic nexus (post-Wayfair).
+"NM filing required - economic nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Economic nexus threshold: $100,000 gross receipts in NM.
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+# No NM nexus - no filing requirement.
+#
+# Corporation does not meet physical presence or economic nexus thresholds.
+# Any estimated payments would be refunded.
+#
+# Reference: New Mexico Statutes § 7-4-2 (Nexus requirements)
 
-          New Mexico simplified its economic nexus requirements by eliminating
-          the transaction count threshold. Only the gross receipts threshold
-          ($100,000) applies.
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 
-          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NM requires
-          filing if a corporation exceeds economic nexus threshold, even without
-          physical presence.
+"NM - no nexus, no filing required" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          Measurement: Prior year sales determine nexus (2024 sales determine 2025 nexus).
+</decision_table>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: NM Taxation and Revenue Department Economic Nexus Guidance
-          Reference: New Mexico Statutes § 7-9-3.5 (Economic nexus provisions)
-        </policy>
-      </rule>
+<!-- ====================================================================== -->
+<!-- TABLE 53920: Calculate_NM_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NM_Income_Adjustments</table_name>
+<xls_file>NM_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate NM state-specific additions and subtractions to federal taxable income. Includes adjustments for NM's decoupling from federal bonus depreciation, IRC 168(n), and IRC 163(j) provisions.</COMMENTS>
+<TABLE_NUMBER>53920</TABLE_NUMBER>
+<FILE_PATH>states/NM/53920_Calculate_NM_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No NM nexus - no filing requirement.
+<contexts></contexts>
 
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
+<initial_actions>
+<initial_action>
+<action_description>Initialize NM income adjustments</action_description>
+<action_postfix>
+"NM Income Adjustments Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-          Reference: New Mexico Statutes § 7-4-2 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with NM</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-  <!--
-    ============================================================================
-    TABLE 53920: Calculate NM State-Specific Income Adjustments
-    ============================================================================
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NM state additions and subtractions</action_comment>
+<action_postfix>
+# NM state-specific income adjustments to federal taxable income.
+#
+# NM ADDITIONS to federal taxable income include:
+# - Interest income from U.S. government obligations (exempt federally, taxable to NM)
+# - Bonus depreciation addback - NM decouples from IRC § 168(k)
+#   (100% bonus depreciation for qualified property placed in service after 1/19/2025)
+# - IRC § 168(n) qualified production property expensing addback
+#   (100% expensing provision - effective for tax years beginning on or after 1/1/2027)
+# - IRC § 163(j) business interest deduction adjustments
+#   (NM decouples from federal interest deduction changes)
+# - State income taxes deducted on federal return
+# - Expenses related to exempt income
+#
+# NM SUBTRACTIONS from federal taxable income include:
+# - Interest on NM state and municipal bonds
+# - NM net operating loss deduction (subject to NM limitations)
+# - Dividend income eligible for NM dividend received deduction (85%)
+# - Certain refunds of state income taxes
+#
+# SIGNIFICANT 2025 REFORM:
+# Senate Bill 151 (2025) represents one of the most significant corporate
+# tax reforms of the year. NM decoupled from federal provisions to prevent
+# erosion of the corporate tax base and corporate tax avoidance.
+#
+# Decoupling provisions:
+# - IRC § 168(k) bonus depreciation: Addback required
+# - IRC § 168(n) qualified property: Addback required (effective 2027)
+# - IRC § 163(j) business interest: Adjustment required
+#
+# Reference: NM Form CIT-1 Schedule A (Additions to Federal Taxable Income)
+# Reference: NM Form CIT-1 Schedule B (Deductions from Federal Taxable Income)
+# Reference: New Mexico Statutes § 7-2A-8 (Adjustments to federal taxable income)
+# Reference: Senate Bill 151 (2025 corporate tax reform)
 
-    Calculates NM additions and subtractions to federal taxable income.
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
 
-    NM made significant changes in 2025 (Senate Bill 151), decoupling from:
-    - Federal bonus depreciation (IRC § 168(k))
-    - Qualified property expensing (IRC § 168(n))
-    - Business interest deductions (IRC § 163(j))
+"NM income adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    Common NM additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to NM)
-    - Bonus depreciation addback (NM decouples from IRC § 168(k))
-    - IRC Section 168(n) qualified property expensing addback
-    - IRC Section 163(j) business interest deduction adjustments
-    - State income taxes deducted on federal return
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
 
-    Common NM subtractions:
-    - Interest on NM state and municipal bonds (exempt for NM purposes)
-    - NM net operating loss deduction (if different from federal)
-    - Dividend deductions (85% dividend received deduction)
-  -->
-  <decision_table name="Calculate_NM_Income_Adjustments" number="53920">
-    <description>
-      Calculate NM state-specific additions and subtractions to federal taxable income.
-      Includes adjustments for NM's decoupling from federal bonus depreciation,
-      IRC 168(n), and IRC 163(j) provisions.
-    </description>
+"NM - no nexus, no adjustments" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+</decision_table>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate NM state additions
-            double additions = 0.0;
+<!-- ====================================================================== -->
+<!-- TABLE 53980: Calculate_NM_State_Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NM_State_Tax</table_name>
+<xls_file>NM_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate NM state corporate income tax. Applies NM 5.9% flat rate to apportioned and adjusted taxable income. NM changed to flat rate system in 2025 (previously had graduated rates).</COMMENTS>
+<TABLE_NUMBER>53980</TABLE_NUMBER>
+<FILE_PATH>states/NM/53980_Calculate_NM_State_Tax</FILE_PATH>
+</attribute_fields>
 
-            // NM requires addback of:
-            // - Federal interest income (taxable to NM)
-            // - Bonus depreciation (NM decouples from IRC § 168(k))
-            // - IRC § 168(n) qualified property expensing
-            // - IRC § 163(j) business interest deduction adjustments
-            // - State income taxes deducted federally
+<contexts></contexts>
 
-            // Example additions (would be calculated from entity fields):
-            // additions += revenue.federal_bond_interest;
-            // additions += result.bonus_depreciation_claimed;
-            // additions += result.section_168n_deduction;
-            // additions += result.section_163j_adjustment;
-            // additions += result.state_taxes_deducted;
+<initial_actions>
+<initial_action>
+<action_description>Initialize NM state tax calculation</action_description>
+<action_postfix>
+"NM State Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-            apportionment.state_additions = additions;
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with NM</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-            // Calculate NM state subtractions
-            double subtractions = 0.0;
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-            // NM allows subtraction of:
-            // - NM municipal bond interest (exempt for NM purposes)
-            // - NM net operating loss deduction (if applicable)
-            // - Certain dividend income (85% dividend received deduction)
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NM tax at 5.9% flat rate</action_comment>
+<action_postfix>
+# NM state corporate income tax calculation:
+#
+# 1. Federal taxable income: [Form 1120 line 28]
+# 2. Apportioned to NM: × [NM apportionment percentage]
+# 3. NM additions: + [Federal interest, bonus depreciation, IRC 168(n), IRC 163(j), etc.]
+# 4. NM subtractions: - [NM municipal interest, NM NOL, dividend deductions, etc.]
+# 5. NM taxable income: = [Result]
+# 6. NM tax rate: × 5.9% (FLAT RATE - effective 2025)
+# 7. NM income tax: = [Tax before credits]
+# 8. NM credits: - [Job creation, rural area, technology jobs, film, renewable energy, etc.]
+# 9. NM tax liability: = [Final tax]
+#
+# NM uses single-sales factor apportionment (100% sales factor).
+#
+# NM tax rate history:
+# - 2025+: 5.9% flat rate (simplified from graduated rates)
+# - Before 2025: Graduated rates (4.8% to 5.9% depending on income level)
+#
+# The 2025 change to a flat 5.9% rate represents a relatively rare case
+# of a corporate income tax rate INCREASE in recent years, as NM moved
+# from graduated rates (starting at 4.8%) to a flat 5.9% on all income.
+#
+# NM provides various tax credits including:
+# - Job training incentive program credit
+# - Rural job tax credit
+# - Technology jobs and research and development tax credit
+# - Film production tax credit
+# - Renewable energy production tax credit
+# - Sustainable building tax credit
+#
+# Reference: NM Form CIT-1 (Corporate Income and Franchise Tax Return)
+# Reference: New Mexico Statutes § 7-2A-5 (Tax rate of 5.9% flat rate - effective 2025)
+# Reference: New Mexico Statutes § 7-4-10 (Single-sales apportionment)
+# Reference: NM Taxation and Revenue Department Corporate Tax Guidance 2025
+# Reference: Senate Bill 151 (2025 corporate tax reform)
 
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.nm_municipal_interest;
-            // subtractions += result.nm_nol_deduction;
-            // subtractions += result.dividend_received_deduction;
+apportionment.state_taxable_income get
+apportionment.nm_state_tax_rate get
+mul
+/apportionment.state_tax xdef
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          NM state-specific income adjustments to federal taxable income.
+apportionment.state_tax get
+apportionment.state_credits get
+sub
+0.0 max
+/apportionment.state_tax xdef
 
-          NM ADDITIONS to federal taxable income include:
-          - Interest income from U.S. government obligations (exempt federally, taxable to NM)
-          - Bonus depreciation addback - NM decouples from IRC § 168(k)
-            (100% bonus depreciation for qualified property placed in service after 1/19/2025)
-          - IRC § 168(n) qualified production property expensing addback
-            (100% expensing provision - effective for tax years beginning on or after 1/1/2027)
-          - IRC § 163(j) business interest deduction adjustments
-            (NM decouples from federal interest deduction changes)
-          - State income taxes deducted on federal return
-          - Expenses related to exempt income
+apportionment.state_payments get
+apportionment.state_tax get
+sub
+/apportionment.state_refund_or_owed xdef
 
-          NM SUBTRACTIONS from federal taxable income include:
-          - Interest on NM state and municipal bonds
-          - NM net operating loss deduction (subject to NM limitations)
-          - Dividend income eligible for NM dividend received deduction (85%)
-          - Certain refunds of state income taxes
+"NM tax calculated: $" apportionment.state_tax get cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          SIGNIFICANT 2025 REFORM:
-          Senate Bill 151 (2025) represents one of the most significant corporate
-          tax reforms of the year. NM decoupled from federal provisions to prevent
-          erosion of the corporate tax base and corporate tax avoidance.
+<action_details>
+<action_number>2</action_number>
+<action_comment>Nexus but no taxable income</action_comment>
+<action_postfix>
+# No NM taxable income - no tax liability.
+#
+# Corporation has NM nexus but no positive taxable income after apportionment
+# and adjustments. Any estimated payments are refunded.
+#
+# NM net operating loss (NOL) rules:
+# - NM allows NOL carryforward for 20 years
+# - No carryback allowed (as of 2025)
+# - NOL limited to prevent complete elimination of tax liability
+#
+# Reference: NM Form CIT-1 (Corporate Income and Franchise Tax Return)
+# Reference: New Mexico Statutes § 7-2A-8 (Net operating loss deduction)
 
-          Decoupling provisions:
-          - IRC § 168(k) bonus depreciation: Addback required
-          - IRC § 168(n) qualified property: Addback required (effective 2027)
-          - IRC § 163(j) business interest: Adjustment required
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 
-          Reference: NM Form CIT-1 Schedule A (Additions to Federal Taxable Income)
-          Reference: NM Form CIT-1 Schedule B (Deductions from Federal Taxable Income)
-          Reference: New Mexico Statutes § 7-2A-8 (Adjustments to federal taxable income)
-          Reference: Senate Bill 151 (2025 corporate tax reform)
-        </policy>
-      </rule>
+"NM - nexus but no taxable income" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+# No NM nexus - no tax liability.
+#
+# Corporation does not have physical presence or economic nexus in NM.
+# Any estimated payments are refunded.
+#
+# Reference: New Mexico Statutes § 7-4-2 (Nexus requirements)
 
-          Corporation does not have NM nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 
-  <!--
-    ============================================================================
-    TABLE 53980: Calculate NM State Tax
-    ============================================================================
+"NM - no nexus, no tax liability" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    Calculates final NM state corporate income tax.
-
-    NM changed to a FLAT RATE of 5.9% effective 2025.
-    This was a rare case of a corporate income tax rate INCREASE.
-    Previously had graduated rates (4.8% to 5.9%); now simplified to flat 5.9%.
-
-    Process:
-    1. Federal taxable income apportioned to NM (done by table 7500)
-    2. Add NM-specific additions (done by table 53920)
-    3. Subtract NM-specific subtractions (done by table 53920)
-    4. Calculate NM state taxable income
-    5. Apply NM 5.9% flat tax rate
-    6. Subtract NM state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_NM_State_Tax" number="53980">
-    <description>
-      Calculate NM state corporate income tax.
-      Applies NM 5.9% flat rate to apportioned and adjusted taxable income.
-      NM changed to flat rate system in 2025 (previously had graduated rates).
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate NM tax at 5.9% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // NM uses 5.9% flat rate (effective 2025)
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract NM state credits
-            // NM offers various credits: job creation, rural area credits,
-            // technology jobs, film production, renewable energy, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          NM state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to NM: × [NM apportionment percentage]
-          3. NM additions: + [Federal interest, bonus depreciation, IRC 168(n), IRC 163(j), etc.]
-          4. NM subtractions: - [NM municipal interest, NM NOL, dividend deductions, etc.]
-          5. NM taxable income: = [Result]
-          6. NM tax rate: × 5.9% (FLAT RATE - effective 2025)
-          7. NM income tax: = [Tax before credits]
-          8. NM credits: - [Job creation, rural area, technology jobs, film, renewable energy, etc.]
-          9. NM tax liability: = [Final tax]
-
-          NM uses single-sales factor apportionment (100% sales factor).
-
-          NM tax rate history:
-          - 2025+: 5.9% flat rate (simplified from graduated rates)
-          - Before 2025: Graduated rates (4.8% to 5.9% depending on income level)
-
-          The 2025 change to a flat 5.9% rate represents a relatively rare case
-          of a corporate income tax rate INCREASE in recent years, as NM moved
-          from graduated rates (starting at 4.8%) to a flat 5.9% on all income.
-
-          NM provides various tax credits including:
-          - Job training incentive program credit
-          - Rural job tax credit
-          - Technology jobs and research and development tax credit
-          - Film production tax credit
-          - Renewable energy production tax credit
-          - Sustainable building tax credit
-
-          Reference: NM Form CIT-1 (Corporate Income and Franchise Tax Return)
-          Reference: New Mexico Statutes § 7-2A-5 (Tax rate of 5.9% flat rate - effective 2025)
-          Reference: New Mexico Statutes § 7-4-10 (Single-sales apportionment)
-          Reference: NM Taxation and Revenue Department Corporate Tax Guidance 2025
-          Reference: Senate Bill 151 (2025 corporate tax reform)
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No NM nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in NM.
-          Any estimated payments are refunded.
-
-          Reference: New Mexico Statutes § 7-4-2 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No NM taxable income - no tax liability.
-
-          Corporation has NM nexus but no positive taxable income after apportionment
-          and adjustments. Any estimated payments are refunded.
-
-          NM net operating loss (NOL) rules:
-          - NM allows NOL carryforward for 20 years
-          - No carryback allowed (as of 2025)
-          - NOL limited to prevent complete elimination of tax liability
-
-          Reference: NM Form CIT-1 (Corporate Income and Franchise Tax Return)
-          Reference: New Mexico Statutes § 7-2A-8 (Net operating loss deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

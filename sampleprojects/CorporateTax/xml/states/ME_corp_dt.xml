@@ -13,455 +13,487 @@
     - 53200: Determine_ME_Filing_Requirement
     - 53220: Calculate_ME_Income_Adjustments
     - 53280: Calculate_ME_State_Tax
+
+  This file will be merged into CorporateTax_dt.xml by merge script
 -->
-<decision_tables name="CorporateTax_ME_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 53200: Determine ME Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 53200: Determine_ME_Filing_Requirement                           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_ME_Filing_Requirement</table_name>
+<xls_file>ME_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file ME state corporate tax return. Checks for physical presence or economic nexus (factor presence standards).</COMMENTS>
+<TABLE_NUMBER>53200</TABLE_NUMBER>
+<FILE_PATH>states/ME/53200_Determine_ME_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file ME state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in state
-    - Economic nexus (factor presence): $250,000 property, $250,000 payroll,
-      $500,000 sales, or 25% of total property/payroll/sales in ME
-  -->
-  <decision_table name="Determine_ME_Filing_Requirement" number="53200">
-    <description>
-      Determine if corporation must file ME state corporate tax return.
-      Checks for physical presence or economic nexus (factor presence standards).
-    </description>
+<initial_actions>
+<initial_action>
+<action_description>Initialize ME filing requirement check</action_description>
+<action_postfix>
+"ME Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'ME'</expression>
-        <comment>Has physical presence in ME (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in ME</condition_comment>
+<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == "ME"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code "ME" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'ME'</expression>
-        <comment>Meets ME economic nexus threshold (factor presence)</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in ME</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == "ME"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code "ME" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          ME filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - ME filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"ME filing required due to physical presence (office, employees, or property in state)" job.audit_trail swap addto
 
-          Reference: ME Form 1120ME Instructions
-          Reference: 36 M.R.S. § 5200-B (Corporate income tax nexus)
-        </policy>
-      </rule>
+<!-- Reference: ME Form 1120ME Instructions -->
+<!-- Reference: 36 M.R.S. § 5200-B (Corporate income tax nexus) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per factor presence standards - filing required
-            // ME thresholds:
-            // - $250,000 in property
-            // - $250,000 in payroll
-            // - $500,000 in sales
-            // - OR 25% of total property, payroll, or sales in ME
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          ME filing required due to economic nexus (factor presence standards).
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - ME filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per factor presence standards - filing required -->
+<!-- ME thresholds: $250,000 property, $250,000 payroll, $500,000 sales, OR 25% factor presence -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"ME filing required due to economic nexus (factor presence standards)" job.audit_trail swap addto
 
-          Nexus established if any of the following thresholds are exceeded:
-          - $250,000 in Maine property
-          - $250,000 in Maine payroll
-          - $500,000 in Maine sales
-          - 25% of total property, payroll, or sales in Maine
+<!-- Reference: 36 M.R.S. § 5200-B (Corporate income tax nexus) -->
+<!-- Reference: ME Revenue Services Rule 808 (Corporate Income Tax Nexus) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
 
-          Reference: 36 M.R.S. § 5200-B (Corporate income tax nexus)
-          Reference: ME Revenue Services Rule 808 (Corporate Income Tax Nexus)
-        </policy>
-      </rule>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No ME nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+"No ME nexus - no filing requirement. Any estimated payments refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-  <!--
-    ============================================================================
-    TABLE 53220: Calculate ME State-Specific Income Adjustments
-    ============================================================================
+</decision_table>
 
-    Calculates state additions and subtractions to federal taxable income.
+<!-- ====================================================================== -->
+<!-- TABLE 53220: Calculate_ME_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ME_Income_Adjustments</table_name>
+<xls_file>ME_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate ME state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>53220</TABLE_NUMBER>
+<FILE_PATH>states/ME/53220_Calculate_ME_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-    Common ME additions:
-    - IRC Section 199A qualified business income deduction addback
-    - Certain accelerated depreciation differences
-    - Safe harbor lease deductions
-    - Foreign dividends deduction addback
+<contexts></contexts>
 
-    Common ME subtractions:
-    - Interest on U.S. government obligations (federal bonds)
-    - Interest on Maine municipal bonds
-    - Dividends from subsidiaries (95% deduction)
-    - Maine net operating loss deduction
-  -->
-  <decision_table name="Calculate_ME_Income_Adjustments" number="53220">
-    <description>
-      Calculate ME state-specific additions and subtractions to federal taxable income.
-    </description>
+<initial_actions>
+<initial_action>
+<action_description>Initialize ME income adjustments</action_description>
+<action_postfix>
+"ME Income Adjustments Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has ME nexus</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate state additions (ME-specific)
-            double additions = 0.0;
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate ME state-specific additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate state additions (ME-specific) -->
+0.0 /additions xdef
 
-            // ME requires addback of IRC 199A deduction (ME doesn't conform)
-            // additions += result.section_199a_deduction;
+<!-- ME requires addback of IRC 199A deduction (ME doesn't conform) -->
+<!-- additions += result.section_199a_deduction; -->
 
-            // ME requires addback of certain depreciation differences
-            // additions += result.federal_me_depreciation_difference;
+<!-- ME requires addback of certain depreciation differences -->
+<!-- additions += result.federal_me_depreciation_difference; -->
 
-            // ME requires addback of safe harbor lease deductions
-            // additions += result.safe_harbor_lease_deduction;
+<!-- ME requires addback of safe harbor lease deductions -->
+<!-- additions += result.safe_harbor_lease_deduction; -->
 
-            apportionment.state_additions = additions;
+additions /apportionment.state_additions xdef
 
-            // Calculate state subtractions (ME-specific)
-            double subtractions = 0.0;
+<!-- Calculate state subtractions (ME-specific) -->
+0.0 /subtractions xdef
 
-            // ME allows subtraction for federal bond interest (exempt from ME tax)
-            // subtractions += revenue.federal_bond_interest;
+<!-- ME allows subtraction for federal bond interest (exempt from ME tax) -->
+<!-- subtractions += revenue.federal_bond_interest; -->
 
-            // ME allows subtraction for Maine municipal bond interest
-            // subtractions += revenue.maine_municipal_bond_interest;
+<!-- ME allows subtraction for Maine municipal bond interest -->
+<!-- subtractions += revenue.maine_municipal_bond_interest; -->
 
-            // ME allows deduction for dividends from subsidiaries (95% deduction)
-            // subtractions += revenue.qualified_dividend_deduction;
+<!-- ME allows deduction for dividends from subsidiaries (95% deduction) -->
+<!-- subtractions += revenue.qualified_dividend_deduction; -->
 
-            // ME NOL deduction
-            // subtractions += result.me_nol_deduction;
+<!-- ME NOL deduction -->
+<!-- subtractions += result.me_nol_deduction; -->
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          ME state-specific income adjustments to federal taxable income.
+subtractions /apportionment.state_subtractions xdef
 
-          Additions may include:
-          - IRC Section 199A qualified business income deduction
-          - Accelerated depreciation differences (federal vs ME)
-          - Safe harbor lease deductions
-          - Foreign dividends deduction addback
+"ME state-specific income adjustments calculated" job.audit_trail swap addto
 
-          Subtractions may include:
-          - Interest on U.S. government obligations (federal bonds)
-          - Interest on Maine municipal bonds
-          - Dividends from subsidiaries (95% deduction for 15%+ ownership)
-          - Maine net operating loss deduction
+<!-- Reference: ME Form 1120ME Schedule 1A (Additions) -->
+<!-- Reference: ME Form 1120ME Schedule 1S (Subtractions) -->
+<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax - computation) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+</action_details>
 
-          Reference: ME Form 1120ME Schedule 1A (Additions)
-          Reference: ME Form 1120ME Schedule 1S (Subtractions)
-          Reference: 36 M.R.S. § 5200-A (Corporate income tax - computation)
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+"No ME nexus - no state adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-  <!--
-    ============================================================================
-    TABLE 53280: Calculate ME State Tax
-    ============================================================================
+</decision_table>
 
-    Calculates final ME state corporate income tax.
+<!-- ====================================================================== -->
+<!-- TABLE 53280: Calculate_ME_State_Tax                                    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ME_State_Tax</table_name>
+<xls_file>ME_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate ME state corporate income tax. Applies graduated tax rates to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>53280</TABLE_NUMBER>
+<FILE_PATH>states/ME/53280_Calculate_ME_State_Tax</FILE_PATH>
+</attribute_fields>
 
-    Process:
-    1. Federal taxable income apportioned to ME (done by table 7500)
-    2. Add state-specific additions (done by table 53220)
-    3. Subtract state-specific subtractions (done by table 53220)
-    4. Calculate ME state taxable income
-    5. Apply ME graduated tax rates:
-       - 3.5% on income up to $350,000
-       - 7.5% on income $350,000 to $1,050,000
-       - 8.3% on income $1,050,000 to $3,500,000
-       - 8.93% on income over $3,500,000
-    6. Subtract ME state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_ME_State_Tax" number="53280">
-    <description>
-      Calculate ME state corporate income tax.
-      Applies graduated tax rates to apportioned and adjusted taxable income.
-    </description>
+<contexts></contexts>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
+<initial_actions>
+<initial_action>
+<action_description>Initialize ME state tax calculation</action_description>
+<action_postfix>
+"ME State Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has ME nexus</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+<condition_column column_number="6" column_value=""></condition_column>
+</condition_details>
 
-      <condition name="income_tier">
-        <expression>
-          if (apportionment.state_taxable_income <= 350000.0) { "tier1"; }
-          else if (apportionment.state_taxable_income <= 1050000.0) { "tier2"; }
-          else if (apportionment.state_taxable_income <= 3500000.0) { "tier3"; }
-          else { "tier4"; }
-        </expression>
-        <comment>Determine which tax tier applies</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+<condition_column column_number="6" column_value=""></condition_column>
+</condition_details>
 
-    <rules>
-      <!-- Rule 1: Tier 1 - Income up to $350,000 at 3.5% -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <income_tier>tier1</income_tier>
-        </conditions>
-        <actions>
-          <action>
-            // ME graduated rate tier 1: 3.5% on income up to $350,000
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.tax_rate_tier1;
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income tier determination</condition_comment>
+<condition_description>Determine which tax tier applies</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 350000.0 le
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+<condition_column column_number="6" column_value=""></condition_column>
+</condition_details>
 
-            // Subtract state credits (Pine Tree Zone, R&D, employment credits, etc.)
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Tier 2 income range</condition_comment>
+<condition_description>Income $350,000 to $1,050,000</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 1050000.0 le
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+<condition_column column_number="6" column_value=""></condition_column>
+</condition_details>
 
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          ME state corporate income tax calculation - Tier 1:
-          Income up to $350,000 taxed at 3.5%
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Tier 3 income range</condition_comment>
+<condition_description>Income $1,050,000 to $3,500,000</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 3500000.0 le
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+<condition_column column_number="6" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-          Reference: ME Form 1120ME Instructions
-          Reference: 36 M.R.S. § 5200-A (Corporate income tax rates)
-        </policy>
-      </rule>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>ME tax tier 1: 3.5% on income up to $350,000</action_comment>
+<action_postfix>
+<!-- ME graduated rate tier 1: 3.5% on income up to $350,000 -->
+apportionment.state_taxable_income apportionment.tax_rate_tier1 mul
+/apportionment.state_tax xdef
 
-      <!-- Rule 2: Tier 2 - Income $350,000 to $1,050,000 -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <income_tier>tier2</income_tier>
-        </conditions>
-        <actions>
-          <action>
-            // ME graduated rate tier 2:
-            // First $350,000 at 3.5% + excess at 7.5%
-            double tier1_tax = 350000.0 * apportionment.tax_rate_tier1;
-            double tier2_income = apportionment.state_taxable_income - 350000.0;
-            double tier2_tax = tier2_income * apportionment.tax_rate_tier2;
+<!-- Subtract state credits (Pine Tree Zone, R&D, employment credits, etc.) -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
 
-            apportionment.state_tax = tier1_tax + tier2_tax;
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
 
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+"ME state tax calculated (Tier 1: 3.5%)" job.audit_trail swap addto
 
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          ME state corporate income tax calculation - Tier 2:
-          Income $350,000 to $1,050,000
-          - First $350,000 at 3.5%
-          - Excess at 7.5%
+<!-- Reference: ME Form 1120ME Instructions -->
+<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value=""></action_column>
+</action_details>
 
-          Reference: ME Form 1120ME Instructions
-          Reference: 36 M.R.S. § 5200-A (Corporate income tax rates)
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>ME tax tier 2: First $350K at 3.5% + excess at 7.5%</action_comment>
+<action_postfix>
+<!-- ME graduated rate tier 2: First $350,000 at 3.5% + excess at 7.5% -->
+350000.0 apportionment.tax_rate_tier1 mul /tier1_tax xdef
+apportionment.state_taxable_income 350000.0 sub /tier2_income xdef
+tier2_income apportionment.tax_rate_tier2 mul /tier2_tax xdef
 
-      <!-- Rule 3: Tier 3 - Income $1,050,000 to $3,500,000 -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <income_tier>tier3</income_tier>
-        </conditions>
-        <actions>
-          <action>
-            // ME graduated rate tier 3:
-            // First $350,000 at 3.5% + next $700,000 at 7.5% + excess at 8.3%
-            double tier1_tax = 350000.0 * apportionment.tax_rate_tier1;
-            double tier2_tax = 700000.0 * apportionment.tax_rate_tier2;
-            double tier3_income = apportionment.state_taxable_income - 1050000.0;
-            double tier3_tax = tier3_income * apportionment.tax_rate_tier3;
+tier1_tax tier2_tax add /apportionment.state_tax xdef
 
-            apportionment.state_tax = tier1_tax + tier2_tax + tier3_tax;
+<!-- Subtract state credits -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
 
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
 
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          ME state corporate income tax calculation - Tier 3:
-          Income $1,050,000 to $3,500,000
-          - First $350,000 at 3.5%
-          - Next $700,000 at 7.5%
-          - Excess at 8.3%
+"ME state tax calculated (Tier 2: $350K-$1.05M)" job.audit_trail swap addto
 
-          Reference: ME Form 1120ME Instructions
-          Reference: 36 M.R.S. § 5200-A (Corporate income tax rates)
-        </policy>
-      </rule>
+<!-- Reference: ME Form 1120ME Instructions -->
+<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value=""></action_column>
+</action_details>
 
-      <!-- Rule 4: Tier 4 - Income over $3,500,000 -->
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-          <income_tier>tier4</income_tier>
-        </conditions>
-        <actions>
-          <action>
-            // ME graduated rate tier 4:
-            // First $350,000 at 3.5% + next $700,000 at 7.5% +
-            // next $2,450,000 at 8.3% + excess at 8.93%
-            double tier1_tax = 350000.0 * apportionment.tax_rate_tier1;
-            double tier2_tax = 700000.0 * apportionment.tax_rate_tier2;
-            double tier3_tax = 2450000.0 * apportionment.tax_rate_tier3;
-            double tier4_income = apportionment.state_taxable_income - 3500000.0;
-            double tier4_tax = tier4_income * apportionment.tax_rate_tier4;
+<action_details>
+<action_number>3</action_number>
+<action_comment>ME tax tier 3: First $350K at 3.5% + next $700K at 7.5% + excess at 8.3%</action_comment>
+<action_postfix>
+<!-- ME graduated rate tier 3 -->
+350000.0 apportionment.tax_rate_tier1 mul /tier1_tax xdef
+700000.0 apportionment.tax_rate_tier2 mul /tier2_tax xdef
+apportionment.state_taxable_income 1050000.0 sub /tier3_income xdef
+tier3_income apportionment.tax_rate_tier3 mul /tier3_tax xdef
 
-            apportionment.state_tax = tier1_tax + tier2_tax + tier3_tax + tier4_tax;
+tier1_tax tier2_tax add tier3_tax add /apportionment.state_tax xdef
 
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+<!-- Subtract state credits -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
 
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          ME state corporate income tax calculation - Tier 4:
-          Income over $3,500,000
-          - First $350,000 at 3.5%
-          - Next $700,000 at 7.5%
-          - Next $2,450,000 at 8.3%
-          - Excess at 8.93%
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
 
-          Reference: ME Form 1120ME Instructions
-          Reference: 36 M.R.S. § 5200-A (Corporate income tax rates)
-        </policy>
-      </rule>
+"ME state tax calculated (Tier 3: $1.05M-$3.5M)" job.audit_trail swap addto
 
-      <!-- Rule 5: No nexus -->
-      <rule number="5">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No ME nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
+<!-- Reference: ME Form 1120ME Instructions -->
+<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value=""></action_column>
+</action_details>
 
-      <!-- Rule 6: Nexus but no taxable income -->
-      <rule number="6">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No ME taxable income - no tax liability.
-          ME NOL carryforward rules may apply.
+<action_details>
+<action_number>4</action_number>
+<action_comment>ME tax tier 4: Progressive rates with top tier at 8.93%</action_comment>
+<action_postfix>
+<!-- ME graduated rate tier 4: Income over $3,500,000 -->
+350000.0 apportionment.tax_rate_tier1 mul /tier1_tax xdef
+700000.0 apportionment.tax_rate_tier2 mul /tier2_tax xdef
+2450000.0 apportionment.tax_rate_tier3 mul /tier3_tax xdef
+apportionment.state_taxable_income 3500000.0 sub /tier4_income xdef
+tier4_income apportionment.tax_rate_tier4 mul /tier4_tax xdef
 
-          Reference: 36 M.R.S. § 5200-A (Net operating loss deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+tier1_tax tier2_tax add tier3_tax add tier4_tax add /apportionment.state_tax xdef
+
+<!-- Subtract state credits -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"ME state tax calculated (Tier 4: Over $3.5M)" job.audit_trail swap addto
+
+<!-- Reference: ME Form 1120ME Instructions -->
+<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>5</action_number>
+<action_comment>No ME nexus - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No ME nexus - no tax liability. Any estimated payments refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value="X"></action_column>
+<action_column column_number="6" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>6</action_number>
+<action_comment>Nexus but no taxable income</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No ME taxable income - no tax liability. ME NOL carryforward rules may apply." job.audit_trail swap addto
+
+<!-- Reference: 36 M.R.S. § 5200-A (Net operating loss deduction) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
 
 </decision_tables>

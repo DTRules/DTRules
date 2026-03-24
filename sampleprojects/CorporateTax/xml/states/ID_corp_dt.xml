@@ -1,404 +1,319 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Idaho Corporate Tax Decision Tables
+  State-specific decision tables for Idaho corporate tax
 
-  ID has a flat 5.3% corporate income tax rate (effective 2025).
+  Idaho corporate tax structure:
+  - Flat rate: 5.3% (effective 2025)
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts (primarily for sales tax)
 
-  Table Allocation: 52700-52799
-  - 52700: Determine_ID_Filing_Requirement
-  - 52720: Calculate_ID_Income_Adjustments
-  - 52780: Calculate_ID_State_Tax
+  Table Number Range: 52700-52799 (Idaho corporate allocation)
 
   References:
   - Idaho Code § 63-3025 (Tax rate: 5.3%)
   - Idaho Code § 63-3027 (Apportionment)
   - Idaho Form 41 (Corporation Income Tax Return)
-  - Idaho State Tax Commission Corporate Income Tax Guidance
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
 -->
-<decision_tables name="CorporateTax_ID_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52700: Determine ID Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 52700: Determine_ID_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_ID_Corporate_Filing_Requirement</table_name>
+<xls_file>ID_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Idaho corporate tax return. Checks for physical presence or doing business in Idaho.</COMMENTS>
+<TABLE_NUMBER>52700</TABLE_NUMBER>
+<FILE_PATH>states/ID/52700_Determine_ID_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file ID state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in ID
-    - Doing business: Active solicitation, deriving income from ID sources
-    - Economic nexus: $100,000 gross receipts (primarily for sales tax)
-  -->
-  <decision_table name="Determine_ID_Filing_Requirement" number="52700">
-    <description>
-      Determine if corporation must file Idaho state corporate tax return.
-      Checks for physical presence or doing business in Idaho.
-    </description>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Idaho filing requirement check</action_description>
+<action_postfix>
+"Idaho Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.id_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'ID'</expression>
-        <comment>Has physical presence in ID (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Idaho</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_id
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'ID'</expression>
-        <comment>Meets ID economic nexus threshold or doing business standard</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus or doing business threshold</condition_comment>
+<condition_description>id_gross_receipts >= id_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.id_gross_receipts result.id_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          ID filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.id_has_nexus xdef
+"Idaho filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          A corporation has physical presence nexus in ID if it has:
-          - An office, store, warehouse, or other place of business in ID
-          - Employees working in ID
-          - Tangible personal property located in ID
-          - Real property located in ID
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus or doing business - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus or doing business established - filing required -->
+true /result.id_has_nexus xdef
+"Idaho filing required: Economic nexus or doing business in Idaho" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Reference: Idaho Code § 63-3027 (Nexus and apportionment)
-          Reference: Idaho State Tax Commission Corporate Tax Guidance
-          Reference: Idaho Business Registration &amp; Tax Nexus Rules
-        </policy>
-      </rule>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.id_has_nexus xdef
+0.0 /result.id_tax_liability xdef
+"Idaho filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Doing business nexus or economic nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          ID filing required due to doing business in Idaho or economic nexus.
+</decision_table>
 
-          Idaho uses a "doing business" standard for income tax nexus.
-          Corporations establish nexus through:
-          - Regular solicitation activities in Idaho
-          - Deriving income from Idaho sources
-          - Economic nexus threshold: $100,000 gross receipts
+<!-- ====================================================================== -->
+<!-- TABLE 52720: Calculate_ID_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ID_Corporate_Income_Adjustments</table_name>
+<xls_file>ID_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Idaho state-specific additions and subtractions to federal taxable income. ID requires addback of state taxes deducted federally and allows subtraction of U.S. government interest.</COMMENTS>
+<TABLE_NUMBER>52720</TABLE_NUMBER>
+<FILE_PATH>states/ID/52720_Calculate_ID_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Activities establishing nexus include:
-          - Maintaining employees or independent contractors in ID
-          - Storing inventory within the state (including third-party fulfillment)
-          - Trade shows, pop-up locations, or short-term assignments
-          - Active solicitation resulting in Idaho sales
+<contexts></contexts>
 
-          Federal Public Law 86-272 may provide protection for companies whose
-          only Idaho activity involves soliciting orders for tangible personal
-          property shipped from outside the state. However, this protection
-          disappears when employees provide services, maintain inventory, or
-          perform activities beyond pure sales solicitation.
+<initial_actions>
+<initial_action>
+<action_description>Initialize Idaho income adjustments</action_description>
+<action_postfix>
+"Idaho Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.id_state_additions xdef
+0.0 /result.id_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-          Reference: Idaho Code § 63-3027 (Nexus requirements)
-          Reference: Idaho State Tax Commission Economic Nexus Guidance
-          Reference: Public Law 86-272 (federal protections)
-        </policy>
-      </rule>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Idaho nexus</condition_comment>
+<condition_description>id_has_nexus == true</condition_description>
+<condition_postfix>
+result.id_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No ID nexus - no filing requirement.
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Idaho state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Idaho state additions -->
+0.0 /id_additions xdef
 
-          Corporation does not meet physical presence or doing business standards.
-          Any estimated payments would be refunded.
+<!-- Common Idaho additions: -->
+<!-- - State income taxes deducted on federal return -->
+<!-- - Certain expenses related to exempt income -->
 
-          Reference: Idaho Code § 63-3027 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+result.id_state_taxes_deducted 0.0 ne
+{
+  id_additions result.id_state_taxes_deducted add /id_additions xdef
+} if
 
-  <!--
-    ============================================================================
-    TABLE 52720: Calculate ID State-Specific Income Adjustments
-    ============================================================================
+id_additions /result.id_state_additions xdef
 
-    Calculates ID additions and subtractions to federal taxable income.
+<!-- Calculate Idaho state subtractions -->
+0.0 /id_subtractions xdef
 
-    Common ID additions:
-    - State income taxes deducted on federal return
-    - Expenses related to exempt income
-    - IRC Section 78 gross-up dividends (if applicable)
+<!-- Common Idaho subtractions: -->
+<!-- - U.S. government interest (U.S. Treasury bonds, notes, bills) -->
+<!-- - Idaho municipal bond interest -->
+<!-- - State NOL deduction (if different from federal) -->
 
-    Common ID subtractions:
-    - Interest on U.S. government obligations (exempt from state tax)
-    - Interest on Idaho state and municipal bonds
-    - Idaho net operating loss deduction (if different from federal)
-    - Dividend income (certain exclusions may apply)
-  -->
-  <decision_table name="Calculate_ID_Income_Adjustments" number="52720">
-    <description>
-      Calculate ID state-specific additions and subtractions to federal taxable income.
-    </description>
+result.id_us_interest_income 0.0 ne
+{
+  id_subtractions result.id_us_interest_income add /id_subtractions xdef
+} if
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+result.id_municipal_interest 0.0 ne
+{
+  id_subtractions result.id_municipal_interest add /id_subtractions xdef
+} if
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate ID state additions
-            double additions = 0.0;
+id_subtractions /result.id_state_subtractions xdef
 
-            // ID requires addback of:
-            // - State income taxes deducted on federal return
-            // - Expenses related to exempt income
-            // - IRC Section 78 gross-up dividends (if applicable)
-            // - Other items per Idaho Code § 63-3022
+"Idaho additions: $" result.id_state_additions cvs strconcat ", subtractions: $" strconcat result.id_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-            // Example additions (would be calculated from entity fields):
-            // additions += result.state_taxes_deducted;
-            // additions += revenue.exempt_income_expenses;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.id_state_additions xdef
+0.0 /result.id_state_subtractions xdef
+"Idaho adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            apportionment.state_additions = additions;
+</decision_table>
 
-            // Calculate ID state subtractions
-            double subtractions = 0.0;
+<!-- ====================================================================== -->
+<!-- TABLE 52780: Calculate_ID_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ID_Corporate_Tax</table_name>
+<xls_file>ID_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Idaho corporate income tax. Applies Idaho flat rate (5.3%) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52780</TABLE_NUMBER>
+<FILE_PATH>states/ID/52780_Calculate_ID_Corporate_Tax</FILE_PATH>
+</attribute_fields>
 
-            // ID allows subtraction of:
-            // - Interest on U.S. government obligations (exempt from state tax)
-            // - Interest on Idaho municipal bonds
-            // - Idaho net operating loss deduction
-            // - Dividend income (certain exclusions)
-            // - Other items per Idaho Code § 63-3022
+<contexts></contexts>
 
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.federal_bond_interest;
-            // subtractions += revenue.id_municipal_interest;
-            // subtractions += result.id_nol_deduction;
+<initial_actions>
+<initial_action>
+<action_description>Initialize Idaho tax calculation</action_description>
+<action_postfix>
+"Idaho Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.id_taxable_income xdef
+0.0 /result.id_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          ID state-specific income adjustments to federal taxable income.
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Idaho nexus</condition_comment>
+<condition_description>id_has_nexus == true</condition_description>
+<condition_postfix>
+result.id_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-          ID ADDITIONS to federal taxable income include:
-          - State, municipal, and local taxes measured by net income
-          - Expenses related to income not taxable under Internal Revenue Code
-          - IRC Section 78 gross-up dividends (certain foreign tax situations)
-          - Other additions required by Idaho Code § 63-3022
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>id_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.id_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-          ID SUBTRACTIONS from federal taxable income include:
-          - Interest and dividends not taxable under Internal Revenue Code
-            (primarily U.S. government interest)
-          - Interest on Idaho state and municipal bonds
-          - Idaho net operating loss deduction (subject to Idaho limitations)
-          - Dividend income exclusions (if applicable)
-          - Other subtractions allowed by Idaho Code § 63-3022
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Idaho corporate tax (flat rate 5.3%)</action_comment>
+<action_postfix>
+<!-- Calculate Idaho taxable income -->
+<!-- Federal taxable income apportioned to ID + additions - subtractions -->
+result.id_apportioned_income
+result.id_state_additions add
+result.id_state_subtractions sub
+0.0 max
+/result.id_taxable_income xdef
 
-          Key difference from federal: Idaho does NOT tax interest on U.S.
-          government obligations, while federal tax includes this income.
-          This is a major subtraction item on Form 41.
+<!-- Calculate Idaho tax using flat rate: 5.3% -->
+result.id_taxable_income result.id_corp_tax_rate mul
+/id_tax_before_credits xdef
 
-          Reference: Idaho Form 41 Lines 11-31 (Income Additions and Subtractions)
-          Reference: Idaho Code § 63-3022 (Idaho taxable income defined)
-          Reference: Idaho Form 41 Instructions
-        </policy>
-      </rule>
+<!-- Subtract Idaho state credits -->
+id_tax_before_credits result.id_state_credits sub 0.0 max
+/result.id_tax_liability xdef
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
+<!-- Calculate refund or amount owed -->
+result.id_estimated_payments result.id_tax_liability sub
+/result.id_refund_or_owed xdef
 
-          Corporation does not have ID nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+"Idaho taxable income: $" result.id_taxable_income cvs strconcat job.audit_trail swap addto
+"Idaho tax liability (5.3%): $" result.id_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-  <!--
-    ============================================================================
-    TABLE 52780: Calculate ID State Tax
-    ============================================================================
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.id_taxable_income xdef
+0.0 /result.id_tax_liability xdef
+result.id_estimated_payments /result.id_refund_or_owed xdef
+"Idaho tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-    Calculates final ID state corporate income tax.
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.id_taxable_income xdef
+0.0 /result.id_tax_liability xdef
+result.id_estimated_payments /result.id_refund_or_owed xdef
+"Idaho tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    ID uses a FLAT RATE of 5.3% (effective 2025).
-
-    Process:
-    1. Federal taxable income apportioned to ID (done by table 7500)
-    2. Add ID-specific additions (done by table 52720)
-    3. Subtract ID-specific subtractions (done by table 52720)
-    4. Calculate ID state taxable income
-    5. Apply ID 5.3% flat tax rate
-    6. Subtract ID state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_ID_State_Tax" number="52780">
-    <description>
-      Calculate ID state corporate income tax.
-      Applies ID 5.3% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate ID tax at 5.3% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // ID uses 5.3% flat rate (effective 2025)
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract ID state credits
-            // ID offers various credits: investment tax credit, R&amp;D credit,
-            // broadband equipment credit, new jobs credit, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          ID state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to ID: × [ID apportionment percentage]
-          3. ID additions: + [State taxes deducted, exempt income expenses, etc.]
-          4. ID subtractions: - [U.S. govt interest, ID municipal interest, ID NOL, etc.]
-          5. ID taxable income: = [Result]
-          6. ID tax rate: × 5.3% flat rate (effective 2025)
-          7. ID income tax: = [Tax before credits]
-          8. ID credits: - [Investment, R&amp;D, broadband, new jobs, etc.]
-          9. ID tax liability: = [Final tax]
-
-          ID uses single-sales factor apportionment (100% sales factor).
-
-          ID tax rate history:
-          - 2025+: 5.3% flat rate
-          - 2024: 5.695% flat rate
-          - Prior years: Progressive rates (phased out 2022-2024)
-
-          ID provides various tax credits including:
-          - Investment tax credit (Idaho Code § 63-3029B)
-          - Research and development credit (Idaho Code § 63-3029E)
-          - Broadband equipment investment credit (Idaho Code § 63-3029G)
-          - New jobs credit (Idaho Code § 63-3029I)
-          - Small employer new jobs credit (Idaho Code § 63-3029J)
-          - Community rehabilitation program credit (Idaho Code § 63-3029K)
-
-          Reference: Idaho Form 41 (Corporation Income Tax Return)
-          Reference: Idaho Code § 63-3025 (Tax rate of 5.3%)
-          Reference: Idaho Code § 63-3027 (Single-sales apportionment)
-          Reference: Idaho State Tax Commission Corporate Tax Bulletin 2025
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No ID nexus - no tax liability.
-
-          Corporation does not have physical presence or doing business nexus in ID.
-          Any estimated payments are refunded.
-
-          Reference: Idaho Code § 63-3027 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No ID taxable income - no tax liability.
-
-          Corporation has ID nexus but no positive taxable income after apportionment
-          and adjustments. Any estimated payments are refunded.
-
-          ID net operating loss (NOL) rules may apply:
-          - ID allows NOL carryforward for 20 years (as of 2025)
-          - No carryback allowed (as of 2025)
-          - NOL limited to 80% of taxable income (similar to federal)
-
-          Reference: Idaho Form 41 (Corporation Income Tax Return)
-          Reference: Idaho Code § 63-3029 (Net operating loss deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

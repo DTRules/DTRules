@@ -1,82 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Louisiana Corporate Tax Entity Data Dictionary
+  State-specific constants for Louisiana corporate tax
 
-  Tax Rate: 5.5% flat rate (effective 2025)
-  Apportionment: Single-sales factor
-  Economic Nexus: $100,000 gross receipts
-  Standard Deduction: $20,000
+  Louisiana corporate tax structure (MAJOR TAX REFORM 2025):
+  - Flat rate: 5.5% (replaced graduated rates up to 7.5%)
+  - Standard deduction: $20,000 (NEW for 2025)
+  - Apportionment: Single-sales factor (100% sales apportionment)
+  - Economic nexus: $100,000 in gross receipts (no transaction count as of 2023)
+  - Eliminated: Federal income tax deduction (historically unique feature)
+  - Repealed: Franchise tax (effective 2026)
 
-  MAJOR TAX REFORM: Louisiana enacted significant tax reform for 2025:
-  - Replaced graduated rates (up to 7.5%) with flat 5.5% rate
-  - Introduced $20,000 corporate standard deduction
-  - Eliminated federal income tax deduction (historically unique feature)
-  - Repealed franchise tax (effective 2026)
-  - Added immediate expensing for qualified property
+  LA Form CIFT-620: Corporation Income Tax Return
 
   References:
   - Louisiana Revised Statute 47:287.1-47:287.95
-  - LA Form CIFT-620 (Corporation Income Tax Return)
   - Louisiana Department of Revenue Tax Reform Bulletin (2024)
   - Grant Thornton Tax Alert (Dec 2024) - Tax Reform Overview
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
 -->
-<entity_dictionary name="CorporateTax_LA_Constants">
-
-  <!--
-    Apportionment Entity: Louisiana Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment and LA-specific tables 53100-53199.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='LA'
-           comment='Louisiana state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Louisiana economic nexus gross receipts threshold - $100,000'/>
-
-    <field name='transaction_threshold' type='integer' default_value='0'
-           comment='Louisiana eliminated transaction count threshold in 2023'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Louisiana uses single-sales factor apportionment (100% sales factor)'/>
-
-    <!-- Louisiana Tax Rate - NEW 2025 FLAT RATE -->
-    <field name='state_tax_rate' type='double' default_value='0.055'
-           comment='Louisiana corporate income tax rate - 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%)'/>
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/LA/53100_LA_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Louisiana Corporate Tax Rate - NEW 2025 FLAT RATE -->
+    <field name="la_corp_tax_rate" type="double" default_value="0.055"
+           comment="LA corporate income tax rate: 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%, LA R.S. 47:287)"/>
 
     <!-- Louisiana Standard Deduction - NEW 2025 -->
-    <field name='la_standard_deduction' type='double' default_value='20000.0'
-           comment='Louisiana corporate standard deduction - $20,000 (new for 2025 tax reform)'/>
+    <field name="la_standard_deduction" type="double" default_value="20000.0"
+           comment="LA corporate standard deduction: $20,000 (new for 2025 tax reform)"/>
 
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='Louisiana additions: federal bond interest, certain state tax refunds, etc.'/>
+    <!-- Apportionment Configuration -->
+    <field name="la_apportionment_formula" type="string" default_value="single_sales"
+           comment="LA uses single-sales factor apportionment (100% sales)"/>
 
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='Louisiana subtractions: standard deduction, LA municipal interest, qualified property expensing, etc.'/>
+    <!-- Economic Nexus Thresholds -->
+    <field name="la_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="LA economic nexus gross receipts threshold: $100,000"/>
 
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='Louisiana tax credits: reduced significantly in 2025 reform (many credits eliminated)'/>
+    <field name="la_transaction_threshold" type="integer" default_value="0"
+           comment="LA eliminated transaction count threshold in 2023"/>
 
+    <!-- State Modifications Working Variables -->
+    <field name="la_state_additions" type="double" default_value="0.0"
+           comment="LA additions to federal taxable income (federal bond interest, certain state tax refunds, etc.)"/>
+
+    <field name="la_state_subtractions" type="double" default_value="0.0"
+           comment="LA subtractions from federal taxable income (standard deduction, LA municipal interest, qualified property expensing, etc.)"/>
+
+    <field name="la_state_credits" type="double" default_value="0.0"
+           comment="LA tax credits (reduced significantly in 2025 reform - many credits eliminated)"/>
+
+    <!-- Calculation Results -->
+    <field name="la_taxable_income" type="double" default_value="0.0"
+           comment="LA taxable income after apportionment and modifications"/>
+
+    <field name="la_tax_liability" type="double" default_value="0.0"
+           comment="LA corporate income tax liability"/>
+
+    <field name="la_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Louisiana"/>
   </entity>
-
-  <!--
-    Result Entity: Louisiana-Specific Extensions
-
-    Louisiana underwent major tax reform in 2025:
-    - Historical federal income tax deduction feature eliminated
-    - New $20,000 standard deduction introduced
-    - Immediate expensing option for qualified property
-  -->
-  <entity name="result">
-    <!-- No Louisiana-specific result fields required -->
-  </entity>
-
-</entity_dictionary>
+</entity_data_dictionary>

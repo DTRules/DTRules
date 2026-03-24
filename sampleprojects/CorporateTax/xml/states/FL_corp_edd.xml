@@ -8,7 +8,7 @@
     Uses single-sales factor apportionment.
     Economic nexus threshold: $50,000 (lower than typical $100K).
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='FL_Corp.xls'>
 
     <!-- State Identification -->
     <field name='state_code' type='string' default_value='FL'
@@ -49,7 +49,7 @@
     Florida does not require special state-specific fields beyond the standard
     apportionment entity. FL uses a simple flat-rate tax structure.
   -->
-  <entity name="result">
+  <entity name="result" xls_file='FL_Corp.xls'>
     <!-- No FL-specific result fields needed -->
   </entity>
 

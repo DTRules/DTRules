@@ -19,7 +19,7 @@
     This entity is used by decision tables 7000-7500 to calculate
     multi-state tax apportionment.
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='NJ_Corp.xls'>
 
     <!-- State Identification (REQUIRED) -->
     <field name='state_code' type='string' default_value='NJ'
@@ -59,7 +59,7 @@
 
     New Jersey-specific fields for Corporation Business Tax
   -->
-  <entity name="result">
+  <entity name="result" xls_file='NJ_Corp.xls'>
 
     <!-- New Jersey Entire Net Income -->
     <field name='nj_entire_net_income' type='double' default_value='0.0'

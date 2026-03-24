@@ -1,74 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Idaho Corporate Tax Entity Data Dictionary
+  State-specific constants for Idaho corporate tax
 
-  ID has a flat 5.3% corporate income tax rate (effective 2025).
+  Idaho corporate tax structure:
+  - Flat rate: 5.3% (effective 2025)
+  - Apportionment: Single-sales factor (100% sales apportionment)
+  - Economic nexus: $100,000 in gross receipts (primarily for sales tax)
 
-  Key Features:
-  - Flat 5.3% corporate income tax rate (Idaho Code § 63-3025)
-  - Single-sales apportionment formula
-  - Physical presence and doing business standard for nexus
-  - Economic nexus threshold: $100,000 (primarily for sales tax)
-  - Federal interest exempt from state tax
+  ID Form 41: Corporation Income Tax Return
 
   References:
-  - Idaho Code § 63-3025 (Tax rate)
-  - Idaho Form 41 (Corporation Income Tax Return)
+  - Idaho Code § 63-3025 (Tax rate: 5.3%)
   - Idaho State Tax Commission Corporate Income Tax Guidance
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
 -->
-<entity_dictionary name="CorporateTax_ID_Constants">
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/ID/52700_ID_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Idaho Corporate Tax Rate -->
+    <field name="id_corp_tax_rate" type="double" default_value="0.053"
+           comment="ID corporate income tax rate: 5.3% flat rate (effective 2025, Idaho Code § 63-3025)"/>
 
-  <!--
-    Apportionment Entity: Idaho Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and ID-specific tables 52700-52799.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='ID'
-           comment='Idaho state code'/>
+    <!-- Apportionment Configuration -->
+    <field name="id_apportionment_formula" type="string" default_value="single_sales"
+           comment="ID uses single-sales factor apportionment (100% sales)"/>
 
     <!-- Economic Nexus Thresholds -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='ID economic nexus gross receipts threshold: $100,000 (primarily for sales tax)'/>
+    <field name="id_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="ID economic nexus gross receipts threshold: $100,000 (primarily for sales tax)"/>
 
-    <field name='transaction_threshold' type='integer' default_value='0'
-           comment='ID does not use transaction count for corporate income tax nexus'/>
+    <field name="id_transaction_threshold" type="integer" default_value="0"
+           comment="ID does not use transaction count for corporate income tax nexus"/>
 
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='ID uses single-sales factor apportionment (100% sales factor)'/>
+    <!-- State Modifications Working Variables -->
+    <field name="id_state_additions" type="double" default_value="0.0"
+           comment="ID additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"/>
 
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.053'
-           comment='ID corporate income tax rate: 5.3% flat rate (effective 2025) - Idaho Code § 63-3025'/>
+    <field name="id_state_subtractions" type="double" default_value="0.0"
+           comment="ID subtractions from federal taxable income (U.S. government interest, Idaho municipal bond interest, state NOL, etc.)"/>
 
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='ID additions: state income taxes deducted federally, certain expenses, etc.'/>
+    <field name="id_state_credits" type="double" default_value="0.0"
+           comment="ID tax credits (investment tax credit, R&D credit, broadband equipment credit, etc.)"/>
 
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='ID subtractions: U.S. government interest, Idaho municipal bond interest, state NOL, etc.'/>
+    <!-- Calculation Results -->
+    <field name="id_taxable_income" type="double" default_value="0.0"
+           comment="ID taxable income after apportionment and modifications"/>
 
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='ID tax credits: investment tax credit, R&D credit, broadband equipment credit, etc.'/>
+    <field name="id_tax_liability" type="double" default_value="0.0"
+           comment="ID corporate income tax liability"/>
 
+    <field name="id_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Idaho"/>
   </entity>
-
-  <!--
-    Result Entity: ID does not require special state-specific fields
-
-    Idaho uses a straightforward flat-rate system without:
-    - Alternative minimum tax
-    - Special surcharges
-    - Industry-specific tax rates
-  -->
-  <entity name="result">
-    <!-- No ID-specific fields required -->
-  </entity>
-
-</entity_dictionary>
+</entity_data_dictionary>

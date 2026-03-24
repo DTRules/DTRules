@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  New Mexico Corporate Tax Entity Data Dictionary
+  State-specific constants for New Mexico
 
   NM Corporate Income Tax Overview:
   - Tax rate: 5.9% flat rate (effective 2025) - changed from graduated rates
@@ -15,66 +15,26 @@
   - Economic nexus threshold: $100,000 in gross receipts
   - Significant decoupling from federal provisions (bonus depreciation, IRC 163(j))
 
-  References:
-  - New Mexico Statutes § 7-2A-5 (Tax rate - 5.9% flat rate effective 2025)
-  - New Mexico Statutes § 7-4-10 (Apportionment)
-  - NM Form CIT-1 (Corporate Income and Franchise Tax Return)
-  - Senate Bill 151 (2025 corporate tax reform)
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
 -->
-<entity_dictionary name="CorporateTax_NM_Constants">
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/NM/53900_NM_constants</file_path>
+  </file_metadata>
 
-  <!--
-    Apportionment Entity: New Mexico Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and NM-specific tables 53900-53999.
-  -->
+  <!-- New Mexico state-specific constants -->
   <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='NM'
-           comment='New Mexico state code'/>
-
     <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='NM economic nexus gross receipts threshold: $100,000'/>
+    <field name="nm_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="NM economic nexus gross receipts threshold: $100,000"/>
 
-    <field name='transaction_threshold' type='integer' default_value='0'
-           comment='NM has no transaction count threshold (simplified to sales-only)'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='NM uses single-sales factor apportionment (100% sales factor)'/>
+    <field name="nm_transaction_threshold" type="integer" default_value="0"
+           comment="NM has no transaction count threshold (simplified to sales-only)"/>
 
     <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.059'
-           comment='NM corporate income tax rate: 5.9% flat rate (NMSA § 7-2A-5, effective 2025)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='NM additions: federal interest income, bonus depreciation addback, IRC 163(j) adjustments, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='NM subtractions: NM municipal bond interest, state NOL, dividend deductions, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='NM tax credits: job creation, rural area credits, technology jobs, film production, etc.'/>
+    <field name="nm_state_tax_rate" type="double" default_value="0.059"
+           comment="NM corporate income tax rate: 5.9% flat rate (NMSA § 7-2A-5, effective 2025)"/>
 
   </entity>
 
-  <!--
-    Result Entity: NM does not require special state-specific fields
-
-    New Mexico uses a straightforward flat-rate system (5.9%) without:
-    - Alternative minimum tax
-    - Special surcharges
-    - Industry-specific tax rates
-    - Complex combined reporting (though unitary rules apply)
-  -->
-  <entity name="result">
-    <!-- No NM-specific fields required -->
-  </entity>
-
-</entity_dictionary>
+</entity_data_dictionary>

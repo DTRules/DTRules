@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================================
+  File: sampleprojects/CorporateTax/xml/states/GA_corp_edd.xml
+  State: Georgia (GA)
+  Type: Corporate Income Tax - Entity Data Dictionary
+  Table Range: 51100-51199
+  XLS File: GA_Corp.xls
+  ============================================================================
+
+  Georgia Corporate Tax Entity Data Dictionary
+
+  GA corporate income tax: 5.75% flat rate (GA Code § 48-7-21)
+  Apportionment: Single-sales factor (100% sales)
+  Economic nexus: $100,000 gross receipts threshold
+  Form: GA Form 600 (Corporation Tax Return)
+-->
 <entity_dictionary name="CorporateTax_GA_Constants">
-
-  <!--
-    Georgia Corporate Tax Entity Data Dictionary
-
-    GA corporate income tax: 5.75% flat rate (GA Code § 48-7-21)
-    Apportionment: Single-sales factor (100% sales)
-    Economic nexus: $100,000 gross receipts threshold
-    Form: GA Form 600 (Corporation Tax Return)
-  -->
   <entity name="apportionment">
 
     <!-- State Identification -->

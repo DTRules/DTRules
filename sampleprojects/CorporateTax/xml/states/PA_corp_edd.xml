@@ -18,7 +18,7 @@
   <!--
     Apportionment Entity: Pennsylvania Configuration
   -->
-  <entity name="apportionment">
+  <entity name="apportionment" xls_file='PA_Corp.xls'>
 
     <!-- State Identification -->
     <field name='state_code' type='string' default_value='PA'
@@ -59,7 +59,7 @@
     PA generally conforms to federal definitions with few special adjustments.
     No additional fields needed for basic PA CNIT calculation.
   -->
-  <entity name="result">
+  <entity name="result" xls_file='PA_Corp.xls'>
     <!-- No PA-specific result fields needed at this time -->
   </entity>
 

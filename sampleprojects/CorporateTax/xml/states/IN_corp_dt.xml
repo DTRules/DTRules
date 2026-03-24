@@ -1,398 +1,318 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Indiana Corporate Tax Decision Tables
+  State-specific decision tables for Indiana corporate tax
 
-  Indiana has a flat 4.9% corporate income tax rate (2025).
+  Indiana corporate tax structure:
+  - Flat rate: 4.9% (2025)
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts (transaction threshold eliminated Jan 1, 2024)
 
-  Table Allocation: 52800-52899
-  - 52800: Determine_IN_Filing_Requirement
-  - 52820: Calculate_IN_Income_Adjustments
-  - 52880: Calculate_IN_State_Tax
+  Table Number Range: 52800-52899 (Indiana corporate allocation)
 
   References:
   - Indiana Code § 6-3-2-1 (Tax rate: 4.9%)
-  - Indiana Code § 6-3-2-2 (Apportionment)
   - Indiana Form IT-20 (Corporation Income Tax Return)
-  - Indiana Department of Revenue Corporate Income Tax Guidance
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
 -->
-<decision_tables name="CorporateTax_IN_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52800: Determine IN Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 52800: Determine_IN_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_IN_Corporate_Filing_Requirement</table_name>
+<xls_file>IN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Indiana corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>52800</TABLE_NUMBER>
+<FILE_PATH>states/IN/52800_Determine_IN_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file IN state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in IN
-    - Economic nexus (post-Wayfair): $100,000 gross receipts
-      (Transaction threshold of 200 was eliminated January 1, 2024)
+<initial_actions>
+<initial_action>
+<action_description>Initialize Indiana filing requirement check</action_description>
+<action_postfix>
+"Indiana Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.in_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-    Indiana taxes corporations "to the fullest extent permitted by federal law"
-    regardless of physical presence (effective January 1, 2019).
-  -->
-  <decision_table name="Determine_IN_Filing_Requirement" number="52800">
-    <description>
-      Determine if corporation must file Indiana state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Indiana</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_in
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'IN'</expression>
-        <comment>Has physical presence in IN (office, employees, property)</comment>
-      </condition>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold ($100K gross receipts, no transaction count as of Jan 1, 2024)</condition_comment>
+<condition_description>in_gross_receipts >= in_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.in_gross_receipts result.in_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'IN'</expression>
-        <comment>Meets IN economic nexus threshold</comment>
-      </condition>
-    </conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.in_has_nexus xdef
+"Indiana filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          IN filing required due to physical presence (office, employees, or property in state).
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+true /result.in_has_nexus xdef
+"Indiana filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          A corporation has physical presence nexus in IN if it has:
-          - An office, store, warehouse, or other place of business in IN
-          - Employees working in IN
-          - Tangible personal property located in IN
-          - Real property located in IN
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.in_has_nexus xdef
+0.0 /result.in_tax_liability xdef
+"Indiana filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          Reference: Indiana Code § 6-3-2-2 (Nexus and apportionment)
-          Reference: Indiana Department of Revenue Directive #35 (Nexus standards)
-        </policy>
-      </rule>
+</decision_table>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          IN filing required due to economic nexus (post-Wayfair).
+<!-- ====================================================================== -->
+<!-- TABLE 52820: Calculate_IN_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_IN_Corporate_Income_Adjustments</table_name>
+<xls_file>IN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Indiana state-specific additions and subtractions to federal taxable income. IN requires addback of out-of-state municipal bond interest acquired after 12/31/2011.</COMMENTS>
+<TABLE_NUMBER>52820</TABLE_NUMBER>
+<FILE_PATH>states/IN/52820_Calculate_IN_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Economic nexus threshold: $100,000 gross receipts in IN.
+<contexts></contexts>
 
-          As of January 1, 2024, Indiana eliminated the 200-transaction threshold,
-          simplifying compliance by focusing solely on revenue volume.
+<initial_actions>
+<initial_action>
+<action_description>Initialize Indiana income adjustments</action_description>
+<action_postfix>
+"Indiana Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.in_state_additions xdef
+0.0 /result.in_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-          Effective January 1, 2019, Indiana taxes corporations "to the fullest extent
-          permitted by federal law" regardless of physical presence, following
-          South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018).
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Indiana nexus</condition_comment>
+<condition_description>in_has_nexus == true</condition_description>
+<condition_postfix>
+result.in_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-          The $100,000 calculation includes all gross receipts from Indiana sales—
-          both taxable and exempt transactions.
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Indiana state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Indiana state additions -->
+0.0 /in_additions xdef
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Indiana Department of Revenue Remote Seller Information
-          Reference: Indiana Code § 6-2.5-2-1 (Economic nexus provisions)
-        </policy>
-      </rule>
+<!-- Common Indiana additions: -->
+<!-- - Out-of-state municipal bond interest (acquired after 12/31/2011) -->
+<!-- - Certain expenses related to exempt income -->
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No IN nexus - no filing requirement.
+result.in_out_of_state_muni_interest 0.0 ne
+{
+  in_additions result.in_out_of_state_muni_interest add /in_additions xdef
+} if
 
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
+in_additions /result.in_state_additions xdef
 
-          Reference: Indiana Code § 6-3-2-2 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- Calculate Indiana state subtractions -->
+0.0 /in_subtractions xdef
 
-  <!--
-    ============================================================================
-    TABLE 52820: Calculate IN State-Specific Income Adjustments
-    ============================================================================
+<!-- Common Indiana subtractions: -->
+<!-- - IN municipal bond interest -->
+<!-- - State income taxes paid -->
+<!-- - State NOL deduction (if different from federal) -->
 
-    Calculates IN additions and subtractions to federal taxable income.
+result.in_municipal_interest 0.0 ne
+{
+  in_subtractions result.in_municipal_interest add /in_subtractions xdef
+} if
 
-    Common IN additions:
-    - Interest on out-of-state municipal bonds (if acquired after 12/31/2011)
-    - Certain expenses related to exempt income
-    - State income taxes deducted on federal return
+result.in_state_taxes_paid 0.0 ne
+{
+  in_subtractions result.in_state_taxes_paid add /in_subtractions xdef
+} if
 
-    Common IN subtractions:
-    - Interest on Indiana state and municipal bonds (exempt for IN purposes)
-    - Indiana net operating loss deduction (if different from federal)
-    - Certain dividend income
-  -->
-  <decision_table name="Calculate_IN_Income_Adjustments" number="52820">
-    <description>
-      Calculate IN state-specific additions and subtractions to federal taxable income.
-    </description>
+in_subtractions /result.in_state_subtractions xdef
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+"Indiana additions: $" result.in_state_additions cvs strconcat ", subtractions: $" strconcat result.in_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate IN state additions
-            double additions = 0.0;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.in_state_additions xdef
+0.0 /result.in_state_subtractions xdef
+"Indiana adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            // IN requires addback of:
-            // - Out-of-state municipal bond interest (if acquired after 12/31/2011)
-            // - State income taxes deducted federally
-            // - Certain expenses related to exempt income
+</decision_table>
 
-            // Example additions (would be calculated from entity fields):
-            // additions += revenue.out_of_state_municipal_interest;
-            // additions += result.state_taxes_deducted;
+<!-- ====================================================================== -->
+<!-- TABLE 52880: Calculate_IN_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_IN_Corporate_Tax</table_name>
+<xls_file>IN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Indiana corporate income tax. Applies Indiana flat rate (4.9%) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52880</TABLE_NUMBER>
+<FILE_PATH>states/IN/52880_Calculate_IN_Corporate_Tax</FILE_PATH>
+</attribute_fields>
 
-            apportionment.state_additions = additions;
+<contexts></contexts>
 
-            // Calculate IN state subtractions
-            double subtractions = 0.0;
+<initial_actions>
+<initial_action>
+<action_description>Initialize Indiana tax calculation</action_description>
+<action_postfix>
+"Indiana Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.in_taxable_income xdef
+0.0 /result.in_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-            // IN allows subtraction of:
-            // - IN municipal bond interest (exempt for IN purposes)
-            // - IN net operating loss deduction (if applicable)
-            // - Certain dividend income
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Indiana nexus</condition_comment>
+<condition_description>in_has_nexus == true</condition_description>
+<condition_postfix>
+result.in_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.in_municipal_interest;
-            // subtractions += result.in_nol_deduction;
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>in_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.in_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          IN state-specific income adjustments to federal taxable income.
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Indiana corporate tax (flat rate 4.9%)</action_comment>
+<action_postfix>
+<!-- Calculate Indiana taxable income -->
+<!-- Federal taxable income apportioned to IN + additions - subtractions -->
+result.in_apportioned_income
+result.in_state_additions add
+result.in_state_subtractions sub
+0.0 max
+/result.in_taxable_income xdef
 
-          IN ADDITIONS to federal taxable income include:
-          - Interest income from obligations of states other than Indiana or their
-            political subdivisions (if acquired after December 31, 2011)
-          - State income taxes deducted on federal return
-          - Expenses related to exempt income
-          - Certain other state-specific adjustments
+<!-- Calculate Indiana tax using flat rate: 4.9% -->
+result.in_taxable_income result.in_corp_tax_rate mul
+/in_tax_before_credits xdef
 
-          IN SUBTRACTIONS from federal taxable income include:
-          - Interest on Indiana state and municipal bonds
-          - Indiana net operating loss deduction (subject to IN limitations)
-          - Certain dividend income
-          - Certain refunds of state income taxes
+<!-- Subtract Indiana state credits -->
+in_tax_before_credits result.in_state_credits sub 0.0 max
+/result.in_tax_liability xdef
 
-          Note: Interest earned from Indiana municipal obligations is not taxable for
-          Indiana income tax purposes. However, interest from out-of-state municipal
-          bonds acquired after December 31, 2011, must be added back.
+<!-- Calculate refund or amount owed -->
+result.in_estimated_payments result.in_tax_liability sub
+/result.in_refund_or_owed xdef
 
-          Indiana continues to require business interest expense to be deducted in
-          the current year the interest is paid or accrued (conformity to IRC § 163(j)).
+"Indiana taxable income: $" result.in_taxable_income cvs strconcat job.audit_trail swap addto
+"Indiana tax liability (4.9%): $" result.in_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Reference: Indiana Form IT-20 Schedule A (Additions to Federal Taxable Income)
-          Reference: Indiana Form IT-20 Schedule B (Subtractions from Federal Taxable Income)
-          Reference: Indiana Department of Revenue Income Tax Information Bulletin 19
-          Reference: Indiana Code § 6-3-1-3.5 (Adjustments to federal taxable income)
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.in_taxable_income xdef
+0.0 /result.in_tax_liability xdef
+result.in_estimated_payments /result.in_refund_or_owed xdef
+"Indiana tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.in_taxable_income xdef
+0.0 /result.in_tax_liability xdef
+result.in_estimated_payments /result.in_refund_or_owed xdef
+"Indiana tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          Corporation does not have IN nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52880: Calculate IN State Tax
-    ============================================================================
-
-    Calculates final IN state corporate income tax.
-
-    IN uses a FLAT RATE of 4.9% (2025).
-
-    Process:
-    1. Federal taxable income apportioned to IN (done by table 7500)
-    2. Add IN-specific additions (done by table 52820)
-    3. Subtract IN-specific subtractions (done by table 52820)
-    4. Calculate IN state taxable income
-    5. Apply IN 4.9% flat tax rate
-    6. Subtract IN state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_IN_State_Tax" number="52880">
-    <description>
-      Calculate IN state corporate income tax.
-      Applies IN 4.9% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate IN tax at 4.9% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // IN uses 4.9% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract IN state credits
-            // IN offers various credits: economic development, R&D,
-            // headquarters relocation, neighborhood assistance, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          IN state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to IN: × [IN apportionment percentage]
-          3. IN additions: + [Out-of-state municipal interest, state taxes, etc.]
-          4. IN subtractions: - [IN municipal interest, IN NOL, etc.]
-          5. IN taxable income: = [Result]
-          6. IN tax rate: × 4.9% flat rate
-          7. IN income tax: = [Tax before credits]
-          8. IN credits: - [Economic development, R&D, HQ relocation, etc.]
-          9. IN tax liability: = [Final tax]
-
-          IN uses single-sales factor apportionment (100% sales factor).
-
-          IN tax rate:
-          - 2025: 4.9% flat rate
-          - Indiana is among thirteen states with corporate tax rates at or below 5%
-
-          IN provides various tax credits including:
-          - Economic Development for Growing Economy (EDGE) Credit
-          - Research Expense Tax Credit
-          - Headquarters Relocation Tax Credit
-          - Neighborhood Assistance Credit
-          - Venture Capital Investment Tax Credit
-
-          Indiana conforms to the Internal Revenue Code as of January 1, 2026,
-          per Senate Bill 243 (2025), with certain notable exceptions.
-
-          Reference: Indiana Form IT-20 (Corporation Income Tax Return)
-          Reference: Indiana Code § 6-3-2-1 (Tax rate of 4.9%)
-          Reference: Indiana Code § 6-3-2-2 (Single-sales apportionment)
-          Reference: Indiana Department of Revenue Corporate Tax Guidance 2025
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No IN nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in IN.
-          Any estimated payments are refunded.
-
-          Reference: Indiana Code § 6-3-2-2 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No IN taxable income - no tax liability.
-
-          Corporation has IN nexus but no positive taxable income after apportionment
-          and adjustments. Any estimated payments are refunded.
-
-          IN net operating loss (NOL) rules may apply:
-          - IN allows NOL carryforward consistent with federal rules
-          - NOL deduction limitations apply similarly to federal treatment
-
-          Reference: Indiana Form IT-20 (Corporation Income Tax Return)
-          Reference: Indiana Code § 6-3-2-2.6 (Net operating loss deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

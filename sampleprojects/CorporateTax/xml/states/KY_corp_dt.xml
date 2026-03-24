@@ -1,396 +1,319 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Kentucky Corporate Tax Decision Tables
+  State-specific decision tables for Kentucky corporate tax
 
-  KY corporate income tax rate: 4.5% flat rate (effective 2025)
+  Kentucky corporate tax structure:
+  - Flat rate: 4.5% (effective 2025)
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts or 200 transactions
 
-  Table Allocation: 53000-53099
-  - 53000: Determine_KY_Filing_Requirement
-  - 53020: Calculate_KY_Income_Adjustments
-  - 53080: Calculate_KY_State_Tax
+  Table Number Range: 53000-53099 (Kentucky corporate allocation)
 
   References:
   - KRS 141.040 (Tax rate: 4.5%)
-  - KRS 141.120 (Apportionment - single-sales factor)
+  - KRS 141.120 (Apportionment)
   - Kentucky Form 720 (Corporation Income Tax Return)
-  - Kentucky Department of Revenue Corporation Income Tax Instructions
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
 -->
-<decision_tables name="CorporateTax_KY_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 53000: Determine KY Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 53000: Determine_KY_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_KY_Corporate_Filing_Requirement</table_name>
+<xls_file>KY_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Kentucky corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>53000</TABLE_NUMBER>
+<FILE_PATH>states/KY/53000_Determine_KY_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file KY state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in KY
-    - Economic nexus (post-Wayfair): $100,000 gross receipts or 200 transactions
-  -->
-  <decision_table name="Determine_KY_Filing_Requirement" number="53000">
-    <description>
-      Determine if corporation must file Kentucky state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kentucky filing requirement check</action_description>
+<action_postfix>
+"Kentucky Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.ky_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'KY'</expression>
-        <comment>Has physical presence in KY (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Kentucky</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_ky
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'KY'</expression>
-        <comment>Meets KY economic nexus threshold</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions)</condition_comment>
+<condition_description>ky_gross_receipts >= ky_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.ky_gross_receipts result.ky_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          KY filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.ky_has_nexus xdef
+"Kentucky filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          A corporation has physical presence nexus in KY if it has:
-          - An office, store, warehouse, or other place of business in KY
-          - Employees working in KY
-          - Tangible personal property located in KY
-          - Real property located in KY
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+true /result.ky_has_nexus xdef
+"Kentucky filing required: Economic nexus (exceeds $100,000 gross receipts or 200 transactions)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Reference: KRS 141.010 (Nexus definitions)
-          Reference: KRS 141.120 (Apportionment and nexus requirements)
-          Reference: Kentucky Form 720 Instructions (Filing requirements)
-        </policy>
-      </rule>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.ky_has_nexus xdef
+0.0 /result.ky_tax_liability xdef
+"Kentucky filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          KY filing required due to economic nexus (post-Wayfair).
+</decision_table>
 
-          Economic nexus threshold: $100,000 gross receipts OR 200 transactions in KY.
+<!-- ====================================================================== -->
+<!-- TABLE 53020: Calculate_KY_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_KY_Corporate_Income_Adjustments</table_name>
+<xls_file>KY_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Kentucky state-specific additions and subtractions to federal taxable income. KY requires addback of federal interest income and IRC 199A deduction, with subtraction of KY municipal bond interest and dividends from KY corporations.</COMMENTS>
+<TABLE_NUMBER>53020</TABLE_NUMBER>
+<FILE_PATH>states/KY/53020_Calculate_KY_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), KY requires
-          filing if a corporation exceeds economic nexus thresholds, even without
-          physical presence.
+<contexts></contexts>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: KRS 139.340 (Economic nexus for sales tax - applies by analogy)
-          Reference: Kentucky Department of Revenue Economic Nexus Guidance
-        </policy>
-      </rule>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kentucky income adjustments</action_description>
+<action_postfix>
+"Kentucky Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.ky_state_additions xdef
+0.0 /result.ky_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No KY nexus - no filing requirement.
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Kentucky nexus</condition_comment>
+<condition_description>ky_has_nexus == true</condition_description>
+<condition_postfix>
+result.ky_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Kentucky state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Kentucky state additions -->
+0.0 /ky_additions xdef
 
-          Reference: KRS 141.120 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- Common Kentucky additions: -->
+<!-- - Federal interest income -->
+<!-- - IRC 199A addback -->
+<!-- - State tax refunds -->
 
-  <!--
-    ============================================================================
-    TABLE 53020: Calculate KY State-Specific Income Adjustments
-    ============================================================================
+result.ky_us_interest_income 0.0 ne
+{
+  ky_additions result.ky_us_interest_income add /ky_additions xdef
+} if
 
-    Calculates KY additions and subtractions to federal taxable income.
+ky_additions /result.ky_state_additions xdef
 
-    Common KY additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to KY)
-    - IRC Section 199A qualified business income deduction (KY requires addback)
-    - State income tax refunds included in federal income
-    - Bonus depreciation adjustments (KY may decouple)
+<!-- Calculate Kentucky state subtractions -->
+0.0 /ky_subtractions xdef
 
-    Common KY subtractions:
-    - Interest on KY state and municipal bonds (exempt for KY purposes)
-    - Dividends from Kentucky corporations (100% deduction may apply)
-    - Kentucky net operating loss deduction
-  -->
-  <decision_table name="Calculate_KY_Income_Adjustments" number="53020">
-    <description>
-      Calculate KY state-specific additions and subtractions to federal taxable income.
-    </description>
+<!-- Common Kentucky subtractions: -->
+<!-- - KY municipal bond interest -->
+<!-- - Dividends from KY corporations -->
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+result.ky_municipal_interest 0.0 ne
+{
+  ky_subtractions result.ky_municipal_interest add /ky_subtractions xdef
+} if
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate KY state additions
-            double additions = 0.0;
+result.ky_dividends_from_ky_corps 0.0 ne
+{
+  ky_subtractions result.ky_dividends_from_ky_corps add /ky_subtractions xdef
+} if
 
-            // KY requires addback of:
-            // - Federal interest income (U.S. government obligations taxable to KY)
-            // - IRC 199A deduction (KY decouples from federal QBI deduction)
-            // - State income tax refunds previously deducted
-            // - Bonus depreciation amounts (KY may require conformity adjustments)
+ky_subtractions /result.ky_state_subtractions xdef
 
-            // Example additions (would be calculated from entity fields):
-            // additions += revenue.federal_bond_interest;
-            // additions += result.section_199a_deduction;
-            // additions += result.state_tax_refunds;
+"Kentucky additions: $" result.ky_state_additions cvs strconcat ", subtractions: $" strconcat result.ky_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-            apportionment.state_additions = additions;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.ky_state_additions xdef
+0.0 /result.ky_state_subtractions xdef
+"Kentucky adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            // Calculate KY state subtractions
-            double subtractions = 0.0;
+</decision_table>
 
-            // KY allows subtraction of:
-            // - KY municipal bond interest (exempt for KY purposes)
-            // - Dividends from Kentucky corporations (100% deduction for qualifying dividends)
-            // - KY net operating loss deduction (if applicable)
+<!-- ====================================================================== -->
+<!-- TABLE 53080: Calculate_KY_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_KY_Corporate_Tax</table_name>
+<xls_file>KY_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Kentucky corporate income tax. Applies Kentucky flat rate (4.5%) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>53080</TABLE_NUMBER>
+<FILE_PATH>states/KY/53080_Calculate_KY_Corporate_Tax</FILE_PATH>
+</attribute_fields>
 
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.ky_municipal_interest;
-            // subtractions += result.ky_dividend_deduction;
-            // subtractions += result.ky_nol_deduction;
+<contexts></contexts>
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          KY state-specific income adjustments to federal taxable income.
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kentucky tax calculation</action_description>
+<action_postfix>
+"Kentucky Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.ky_taxable_income xdef
+0.0 /result.ky_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
 
-          KY ADDITIONS to federal taxable income include:
-          - Interest income from U.S. government obligations (exempt federally, taxable to KY)
-          - IRC Section 199A qualified business income deduction addback (KY decouples)
-          - State income tax refunds that were deducted federally
-          - Bonus depreciation adjustments (KY may require conformity modifications)
-          - Expenses related to tax-exempt income
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Kentucky nexus</condition_comment>
+<condition_description>ky_has_nexus == true</condition_description>
+<condition_postfix>
+result.ky_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-          KY SUBTRACTIONS from federal taxable income include:
-          - Interest on KY state and municipal bonds
-          - Dividends from Kentucky corporations (100% deduction for qualifying dividends)
-          - Kentucky net operating loss deduction (subject to KY limitations)
-          - Certain dividend income eligible for KY dividend received deduction
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>ky_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.ky_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
 
-          Reference: Kentucky Form 720 Schedule A (Additions to Federal Taxable Income)
-          Reference: Kentucky Form 720 Schedule M (Subtractions from Federal Taxable Income)
-          Reference: KRS 141.010 (Definitions of Kentucky taxable income)
-          Reference: KRS 141.039 (Adjustments to federal taxable income)
-        </policy>
-      </rule>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Kentucky corporate tax (flat rate 4.5%)</action_comment>
+<action_postfix>
+<!-- Calculate Kentucky taxable income -->
+<!-- Federal taxable income apportioned to KY + additions - subtractions -->
+result.ky_apportioned_income
+result.ky_state_additions add
+result.ky_state_subtractions sub
+0.0 max
+/result.ky_taxable_income xdef
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
+<!-- Calculate Kentucky tax using flat rate: 4.5% -->
+result.ky_taxable_income result.ky_corp_tax_rate mul
+/ky_tax_before_credits xdef
 
-          Corporation does not have KY nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- Subtract Kentucky state credits -->
+ky_tax_before_credits result.ky_state_credits sub 0.0 max
+/result.ky_tax_liability xdef
 
-  <!--
-    ============================================================================
-    TABLE 53080: Calculate KY State Tax
-    ============================================================================
+<!-- Calculate refund or amount owed -->
+result.ky_estimated_payments result.ky_tax_liability sub
+/result.ky_refund_or_owed xdef
 
-    Calculates final KY state corporate income tax.
+"Kentucky taxable income: $" result.ky_taxable_income cvs strconcat job.audit_trail swap addto
+"Kentucky tax liability (4.5%): $" result.ky_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    KY uses a FLAT RATE of 4.5% (effective 2025).
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.ky_taxable_income xdef
+0.0 /result.ky_tax_liability xdef
+result.ky_estimated_payments /result.ky_refund_or_owed xdef
+"Kentucky tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-    Process:
-    1. Federal taxable income apportioned to KY (done by table 7500)
-    2. Add KY-specific additions (done by table 53020)
-    3. Subtract KY-specific subtractions (done by table 53020)
-    4. Calculate KY state taxable income
-    5. Apply KY 4.5% flat tax rate
-    6. Subtract KY state credits
-    7. Calculate refund or amount owed
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.ky_taxable_income xdef
+0.0 /result.ky_tax_liability xdef
+result.ky_estimated_payments /result.ky_refund_or_owed xdef
+"Kentucky tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    Note: KY also has a Limited Liability Entity Tax (LLET) which is separate
-    from the corporate income tax and applies to gross receipts. The LLET is
-    not calculated here.
-  -->
-  <decision_table name="Calculate_KY_State_Tax" number="53080">
-    <description>
-      Calculate KY state corporate income tax.
-      Applies KY 4.5% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate KY tax at 4.5% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // KY uses 4.5% flat rate (effective 2025)
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract KY state credits
-            // KY offers various credits: industrial development, film industry,
-            // coal incentive, recycling, research and development, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          KY state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to KY: × [KY apportionment percentage]
-          3. KY additions: + [Federal interest, IRC 199A addback, etc.]
-          4. KY subtractions: - [KY municipal interest, KY dividends, KY NOL, etc.]
-          5. KY taxable income: = [Result]
-          6. KY tax rate: × 4.5% (flat rate, effective 2025)
-          7. KY income tax: = [Tax before credits]
-          8. KY credits: - [Industrial development, film, coal, recycling, R&D, etc.]
-          9. KY tax liability: = [Final tax]
-
-          KY uses single-sales factor apportionment (100% sales factor).
-
-          KY tax rate history:
-          - 2025+: 4.5% (flat rate)
-          - 2019-2024: 5% (flat rate)
-          - Before 2019: Progressive rates with brackets
-
-          KY provides various tax credits including:
-          - Industrial Development Tax Credits (KRS 141.347)
-          - Film Industry Tax Credit (KRS 148.542)
-          - Coal Incentive Tax Credit (KRS 141.428)
-          - Recycling and Composting Equipment Tax Credit (KRS 141.390)
-          - Research and Development Tax Credit (KRS 141.396)
-          - Angel Investor Tax Credit (KRS 141.396)
-
-          Note: KY also imposes Limited Liability Entity Tax (LLET) on gross receipts,
-          which is calculated separately and not included in this table.
-
-          Reference: Kentucky Form 720 (Corporation Income Tax Return)
-          Reference: KRS 141.040 (Tax rate of 4.5%)
-          Reference: KRS 141.120 (Single-sales apportionment)
-          Reference: Kentucky Department of Revenue Corporation Tax Instructions
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No KY nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in KY.
-          Any estimated payments are refunded.
-
-          Reference: KRS 141.120 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No KY taxable income - no tax liability.
-
-          Corporation has KY nexus but no positive taxable income after apportionment
-          and adjustments. Any estimated payments are refunded.
-
-          KY net operating loss (NOL) rules may apply:
-          - KY allows NOL carryforward for 20 years (KRS 141.010(10)(i))
-          - No carryback allowed (as of 2025)
-          - NOL deduction limited by KY law
-
-          Note: Even with no income tax liability, corporations may still owe
-          Kentucky Limited Liability Entity Tax (LLET) based on gross receipts.
-
-          Reference: Kentucky Form 720 (Corporation Income Tax Return)
-          Reference: KRS 141.010(10)(i) (Net operating loss provisions)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>
