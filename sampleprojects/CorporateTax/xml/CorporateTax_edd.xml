@@ -161,4 +161,62 @@
   </entity>
 
 
-</entity_dictionary>
+  <!-- State: CA -->
+
+  <!-- Apportionment Entity: California Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='CA'
+           comment='California state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='610395.0'
+           comment='CA economic nexus threshold (2025: $610,395, indexed annually)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='CA has no transaction count threshold (sales threshold only)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='CA uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0884'
+           comment='CA corporate tax rate: 8.84% (flat rate)'/>
+
+    <!-- State Additions -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='CA additions: federal interest, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='CA subtractions: CA municipal interest, CA NOL, etc.'/>
+
+    <!-- State Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='CA credits: R&D, hiring, film, etc.'/>
+
+  </entity>
+
+  <!-- Result Entity: California-Specific Extensions -->
+  <entity name="result">
+
+    <!-- California Water's Edge Election -->
+    <field name='ca_waters_edge_election' type='boolean' default_value='true'
+           comment='Water s edge election for worldwide combined reporting (most taxpayers elect)'/>
+
+    <!-- California Unitary Group -->
+    <field name='ca_unitary_group_count' type='integer' default_value='1'
+           comment='Number of corporations in CA unitary group (1 = standalone)'/>
+
+    <!-- California Minimum Franchise Tax -->
+    <field name='ca_minimum_franchise_tax' type='double' default_value='800.0'
+           comment='CA minimum franchise tax ($800 for most corporations)'/>
+
+    <!-- California Enterprise Zone Credits (being phased out) -->
+    <field name='ca_enterprise_zone_credit' type='double' default_value='0.0'
+           comment='CA enterprise zone hiring credit (legacy, being phased out)'/>
+
+  </entity>
+
