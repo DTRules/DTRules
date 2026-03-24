@@ -111,10 +111,11 @@ func (e *Exporter) ExportDecisionTablesToDir(dir string) error {
 			continue
 		}
 
-		xlsFile := dt.GetFilename()
-		if xlsFile == "" {
-			xlsFile = "Other.xlsx"
+		filePath := dt.GetFilePath()
+		if filePath == "" {
+			filePath = "Other"
 		}
+		xlsFile := filePath
 		// Normalize to .xlsx extension
 		xlsFile = strings.TrimSuffix(xlsFile, ".xls")
 		xlsFile = strings.TrimSuffix(xlsFile, ".xlsx")
@@ -398,10 +399,11 @@ func (e *Exporter) ExportEDDToDir(dir string) error {
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 
 	for _, ent := range entities {
-		xlsFile := ent.GetXlsFile()
-		if xlsFile == "" {
-			xlsFile = "Other.xlsx"
+		filePath := ent.GetFilePath()
+		if filePath == "" {
+			filePath = "Other"
 		}
+		xlsFile := filePath
 		// Normalize to .xlsx extension
 		xlsFile = strings.TrimSuffix(xlsFile, ".xls")
 		xlsFile = strings.TrimSuffix(xlsFile, ".xlsx")
