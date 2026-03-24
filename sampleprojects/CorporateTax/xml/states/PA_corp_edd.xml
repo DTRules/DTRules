@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pennsylvania Corporate Tax Entity Data Dictionary
+
+  PA Corporate Net Income Tax (CNIT):
+  - Rate: 8.99% (one of the highest state corporate tax rates)
+  - Economic nexus: $500,000 (higher than typical $100,000)
+  - Apportionment: Single-sales factor (100% receipts)
+  - No local tax (Philadelphia has separate Business Income & Receipts Tax)
+
+  References:
+  - PA Code Title 72 § 7401 (Corporate Net Income Tax)
+  - PA Department of Revenue RCT-101 Instructions
+  - Economic nexus: PA Code § 7401(3)2.(a)(15)(C) - $500,000 threshold
+-->
+<entity_dictionary name="CorporateTax_PA_Constants">
+
+  <!--
+    Apportionment Entity: Pennsylvania Configuration
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='PA'
+           comment='Pennsylvania state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
+           comment='PA economic nexus threshold: $500,000 gross receipts (higher than typical $100K)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='PA has no transaction count threshold (receipts only)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='PA uses 100% single-sales factor apportionment (PA Code § 7401(3)2.(a)(17))'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0899'
+           comment='PA Corporate Net Income Tax rate: 8.99% (PA Code § 7401(3)1.(a), 2025)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='PA additions: federal interest income, IRC 199A deduction addback, state/local taxes deducted'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='PA subtractions: state/municipal bond interest, dividends (qualified), PA NOL'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='PA tax credits: R&D, Film, Manufacturing, Job Creation, Keystone Opportunity Zone'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Pennsylvania-Specific Extensions
+
+    PA generally conforms to federal definitions with few special adjustments.
+    No additional fields needed for basic PA CNIT calculation.
+  -->
+  <entity name="result">
+    <!-- No PA-specific result fields needed at this time -->
+  </entity>
+
+</entity_dictionary>

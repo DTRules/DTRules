@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Illinois State Corporate Tax Entity Data Dictionary
+
+  IL Income Tax Act (35 ILCS 5/201)
+  Tax Rate: 9.5% (highest in the nation)
+  Replacement Tax: 2.5% (personal property replacement tax)
+  Total Effective Rate: 12.0%
+  Economic Nexus Threshold: $100,000 in IL receipts
+  Apportionment: Single-sales factor
+-->
+<entity_dictionary name="CorporateTax_IL_Constants">
+
+  <!--
+    Apportionment Entity: State-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='IL'
+           comment='Two-letter state code - Illinois'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - IL uses $100K threshold'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - Default 200'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Illinois uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.095'
+           comment='IL corporate income tax rate - 9.5% per 35 ILCS 5/201 (highest in nation)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Illinois-specific fields for Personal Property Replacement Tax (PPRT)
+    The replacement tax is an additional 2.5% tax on corporate income,
+    bringing the effective tax rate to 12.0% (9.5% + 2.5%).
+  -->
+  <entity name="result">
+
+    <!-- Illinois Personal Property Replacement Tax -->
+    <field name='il_replacement_tax_rate' type='double' default_value='0.025'
+           comment='IL personal property replacement tax rate - 2.5% per 35 ILCS 5/201(c)'/>
+
+    <field name='il_replacement_tax' type='double' default_value='0.0'
+           comment='IL personal property replacement tax amount calculated'/>
+
+  </entity>
+
+</entity_dictionary>

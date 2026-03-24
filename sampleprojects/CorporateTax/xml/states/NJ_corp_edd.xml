@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  New Jersey Corporate Tax Entity Data Dictionary
+
+  New Jersey Corporation Business Tax (CBT)
+  Tax Rate: 9% base rate + 2.5% surtax (total 11.5% for income > $1M)
+  Economic Nexus Threshold: $100,000 (standard)
+  Apportionment: Single-sales factor
+
+  References:
+  - NJ Rev. Stat. § 54:10A-5 (Tax rates)
+  - NJ Division of Taxation Publication CBT-100 Instructions
+-->
+<entity_dictionary name="CorporateTax_NJ_Constants">
+
+  <!--
+    Apportionment Entity: State-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='NJ'
+           comment='Two-letter state code - New Jersey'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - NJ uses standard $100K threshold'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - Default 200'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='NJ uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.0900'
+           comment='NJ base corporate income tax rate - 9% (11.5% for income > $1M with surtax)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    New Jersey-specific fields for Corporation Business Tax
+  -->
+  <entity name="result">
+
+    <!-- New Jersey Entire Net Income -->
+    <field name='nj_entire_net_income' type='double' default_value='0.0'
+           comment='NJ entire net income (NJ term for taxable income base)'/>
+
+    <!-- New Jersey Surtax (2.5% for income > $1M) -->
+    <field name='nj_surtax_rate' type='double' default_value='0.025'
+           comment='NJ surtax rate (2.5% for corporations with income > $1M)'/>
+
+    <field name='nj_surtax_threshold' type='double' default_value='1000000.0'
+           comment='NJ surtax threshold ($1,000,000 entire net income)'/>
+
+    <field name='nj_surtax' type='double' default_value='0.0'
+           comment='NJ surtax amount calculated (2.5% of entire net income > $1M)'/>
+
+  </entity>
+
+</entity_dictionary>

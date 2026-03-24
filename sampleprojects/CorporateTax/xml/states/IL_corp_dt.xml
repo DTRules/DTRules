@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Illinois State Corporate Tax Decision Tables
+
+  IL Income Tax Act (35 ILCS 5/201)
+  Tables 50500-50599 (IL allocation)
+
+  Table Structure:
+  - 50500: Determine IL Filing Requirement
+  - 50520: Calculate IL Income Adjustments
+  - 50580: Calculate IL State Tax (9.5%)
+  - 50590: Calculate IL Replacement Tax (2.5%)
+
+  Tax Rate: 9.5% (highest in the nation)
+  Replacement Tax: 2.5% (personal property replacement tax)
+  Total Effective Rate: 12.0%
+  Economic Nexus: $100,000 in IL receipts
+-->
+<decision_tables name="CorporateTax_IL_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 50500: Determine IL Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file IL state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in state
+    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
+  -->
+  <decision_table name="Determine_IL_Filing_Requirement" number="50500">
+    <description>
+      Determine if corporation must file IL state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'IL'</expression>
+        <comment>Has physical presence in IL (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'IL'</expression>
+        <comment>Meets IL economic nexus threshold ($100K)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          IL filing required due to physical presence (office, employees, or property in state).
+
+          Reference: IL Income Tax Act, 35 ILCS 5/201
+          Reference: IL Department of Revenue Publication 101 (Income Tax Law and Regulations)
+          Reference: 86 Ill. Admin. Code § 100.9710 (Allocation and Apportionment)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          IL filing required due to economic nexus (post-Wayfair).
+          Threshold: $100,000 in IL gross receipts OR 200 transactions.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: 35 ILCS 5/1501(a)(1)
+          Reference: IL Department of Revenue ST 19-0001-GIL (Economic Nexus Guidance)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No IL nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50520: Calculate IL State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates state additions and subtractions to federal taxable income.
+
+    IL-specific additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - IRC Section 199A qualified business income deduction addback
+    - Certain depreciation adjustments for assets placed in service during specific years
+
+    IL-specific subtractions:
+    - Interest on IL and local government bonds
+    - IL state income taxes paid (not deductible for IL purposes)
+  -->
+  <decision_table name="Calculate_IL_Income_Adjustments" number="50520">
+    <description>
+      Calculate IL state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate IL state additions
+            double additions = 0.0;
+
+            // IL adds back interest on U.S. government obligations
+            // (exempt from federal tax but taxable to IL)
+            // additions += revenue.federal_bond_interest;
+
+            // IL adds back IRC 199A deduction (state doesn't fully conform)
+            // additions += result.section_199a_deduction;
+
+            // IL may require depreciation adjustments for certain years
+            // additions += result.il_depreciation_addback;
+
+            apportionment.state_additions = additions;
+
+            // Calculate IL state subtractions
+            double subtractions = 0.0;
+
+            // IL allows subtraction for interest on IL/local government bonds
+            // subtractions += revenue.il_municipal_interest;
+
+            // IL-specific deductions (e.g., domestic production activities)
+            // subtractions += result.il_specific_deductions;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          IL state-specific income adjustments to federal taxable income.
+
+          Additions may include:
+          - Interest on U.S. government obligations (35 ILCS 5/203(a)(2)(G))
+          - IRC Section 199A qualified business income deduction addback
+          - Depreciation adjustments for pre-2012 assets
+
+          Subtractions may include:
+          - Interest on IL state and local government bonds
+          - IL state income taxes paid
+
+          Reference: IL Form IL-1120 Instructions
+          Reference: 35 ILCS 5/203 (Base income defined)
+          Reference: 86 Ill. Admin. Code § 100.2110 (Additions and Subtractions)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50580: Calculate IL State Tax
+    ============================================================================
+
+    Calculates IL state corporate income tax at 9.5% rate.
+
+    Process:
+    1. Federal taxable income apportioned to IL (done by table 7500)
+    2. Add state-specific additions (done by table 50520)
+    3. Subtract state-specific subtractions (done by table 50520)
+    4. Calculate IL state taxable income
+    5. Apply IL tax rate (9.5% flat rate - highest in nation)
+    6. Subtract IL state credits
+    7. Replacement tax calculated separately in table 50590
+    8. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_IL_State_Tax" number="50580">
+    <description>
+      Calculate IL state corporate income tax.
+      Applies IL 9.5% tax rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate IL tax at 9.5% flat rate -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // IL uses flat 9.5% rate (35 ILCS 5/201(b) - highest in nation)
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract IL state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Replacement tax will be added in table 50590
+            // For now, calculate base refund/owed (will be adjusted by replacement tax)
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          IL state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to IL: × [Apportionment %]
+          3. State additions: + [Additions]
+          4. State subtractions: - [Subtractions]
+          5. IL taxable income: = [Result]
+          6. IL tax rate: × 9.5% (highest in the nation)
+          7. IL income tax: = [Tax before credits]
+          8. IL credits: - [Credits]
+          9. IL tax liability (before replacement tax): = [Tax]
+
+          Note: Personal Property Replacement Tax (2.5%) calculated separately.
+          Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%).
+
+          Reference: IL Form IL-1120 Instructions
+          Reference: 35 ILCS 5/201(b) (Tax rate: 9.5%)
+          Reference: 35 ILCS 5/201(c) (Replacement tax: 2.5%)
+          Reference: 86 Ill. Admin. Code § 100.2250 (Computation of tax)
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No IL nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Nexus but no taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No IL taxable income - no tax liability.
+          IL NOL rules may apply (not implemented).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50590: Calculate IL Personal Property Replacement Tax
+    ============================================================================
+
+    Calculates IL Personal Property Replacement Tax (PPRT).
+
+    The replacement tax is 2.5% of net income, making the total effective
+    IL corporate tax rate 12.0% (9.5% income tax + 2.5% replacement tax).
+
+    This tax replaced the personal property tax on corporations when that
+    tax was abolished by the Illinois Constitution in 1970.
+
+    The replacement tax applies to the same income base as the income tax.
+  -->
+  <decision_table name="Calculate_IL_Replacement_Tax" number="50590">
+    <description>
+      Calculate IL Personal Property Replacement Tax (PPRT).
+      Replacement tax is 2.5% of net income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have IL nexus</comment>
+      </condition>
+
+      <condition name="has_positive_tax_base">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive tax base for replacement tax calculation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate replacement tax -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_positive_tax_base>Y</has_positive_tax_base>
+        </conditions>
+        <actions>
+          <action>
+            // Replacement tax is 2.5% of net income (same base as income tax)
+            result.il_replacement_tax =
+              apportionment.state_taxable_income * result.il_replacement_tax_rate;
+
+            // Add replacement tax to total state tax
+            apportionment.state_tax = apportionment.state_tax + result.il_replacement_tax;
+
+            // Recalculate refund or amount owed including replacement tax
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          IL Personal Property Replacement Tax (PPRT) applies to corporations.
+
+          Replacement Tax Calculation:
+          - Net income base: [State taxable income]
+          - Replacement tax rate: × 2.5%
+          - Replacement tax: = [Replacement tax amount]
+          - Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%
+
+          The replacement tax applies to the same income base as the income tax.
+          It was enacted to replace revenue lost when the personal property tax
+          on corporations was abolished by the 1970 Illinois Constitution.
+
+          The replacement tax revenue is distributed to local governments to
+          replace the lost personal property tax revenue.
+
+          Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%)
+          Reference: 35 ILCS 5/201(d) (Replacement tax base)
+          Reference: IL Form IL-1120 Instructions (Schedule of Replacement Tax)
+          Reference: 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No replacement tax - no nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            result.il_replacement_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No replacement tax - no IL nexus.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: No replacement tax - no positive tax base -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_positive_tax_base>N</has_positive_tax_base>
+        </conditions>
+        <actions>
+          <action>
+            result.il_replacement_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No replacement tax - no positive tax base.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>
