@@ -611,6 +611,655 @@
 
   <!--
     ================================================================
+    CREDIT CALCULATION TABLES (5000-5999)
+    ================================================================
+  -->
+
+  <!--
+    Table 5100: Calculate Research & Development Credit
+
+    Calculates R&D tax credit under IRC Section 41.
+
+    Simplified calculation: 20% of qualified research expenses (QREs)
+    exceeding a base amount.
+
+    Reference: Form 6765, IRC Section 41
+  -->
+  <decision_table name="Calculate_RD_Credit" number="5100">
+    <description>
+      Calculate research and development tax credit.
+      Form 6765 - Credit for Increasing Research Activities
+    </description>
+
+    <conditions>
+      <condition name="has_rd_expenses">
+        <expression>result.research_development_credit > 0</expression>
+        <comment>Has qualified research expenses (QREs)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_rd_expenses>Y</has_rd_expenses>
+        </conditions>
+        <actions>
+          <action>
+            // R&D credit calculation (simplified for Phase 2)
+            // Full implementation requires base period calculations
+            // Phase 2: Accept pre-calculated credit amount
+          </action>
+        </actions>
+        <policy>
+          Research & Development credit = 20% of qualified research expenses (QREs)
+          exceeding base amount.
+
+          QREs include:
+          - Wages for qualified research activities
+          - Supplies used in research
+          - Contract research expenses (65% of amount paid)
+
+          Base amount calculation requires 4-year average of prior QREs.
+
+          Reference: Form 6765 - Credit for Increasing Research Activities
+          Reference: IRC Section 41 - Credit for increasing research activities
+          Reference: Publication 561 - Determining Value of Donated Property
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_rd_expenses>N</has_rd_expenses>
+        </conditions>
+        <actions>
+          <action>
+            result.research_development_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No qualified research expenses = no R&D credit.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 5300: Calculate General Business Credit
+
+    Aggregates all business credits and applies general business credit limitation.
+
+    Reference: Form 3800, IRC Section 38
+  -->
+  <decision_table name="Calculate_General_Business_Credit" number="5300">
+    <description>
+      Calculate general business credit (aggregate of all credits).
+      Form 3800 - General Business Credit
+    </description>
+
+    <conditions>
+      <condition name="has_any_credits">
+        <expression>result.research_development_credit > 0 || result.work_opportunity_credit > 0</expression>
+        <comment>Has at least one business credit</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_any_credits>Y</has_any_credits>
+        </conditions>
+        <actions>
+          <action>
+            // Sum all business credits
+            result.general_business_credit =
+              result.research_development_credit +
+              result.work_opportunity_credit;
+
+            // Apply to total credits
+            result.total_credits = result.general_business_credit;
+          </action>
+        </actions>
+        <policy>
+          General business credit = Sum of all component credits
+          - Research & development credit (Form 6765)
+          - Work opportunity tax credit (Form 5884)
+          - Energy credits (not implemented)
+          - Low-income housing credit (not implemented)
+          - Other credits (not implemented)
+
+          Credit is limited to net income tax minus greater of:
+          (1) Tentative minimum tax, or
+          (2) 25% of net regular tax liability above $25,000
+
+          Unused credits carry back 1 year, forward 20 years.
+
+          Reference: Form 3800 Instructions
+          Reference: IRC Section 38 - General business credit
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_any_credits>N</has_any_credits>
+        </conditions>
+        <actions>
+          <action>
+            result.general_business_credit = 0.0;
+            result.total_credits = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No business credits available.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    DEPRECIATION TABLES (6000-6999)
+    ================================================================
+  -->
+
+  <!--
+    Table 6000: Determine Asset Class and Recovery Period
+
+    Determines MACRS asset class and recovery period based on asset type.
+
+    Common MACRS Classes:
+    - 3-year: Tractor units, racehorses over 2 years old
+    - 5-year: Automobiles, computers, office equipment
+    - 7-year: Office furniture, most machinery and equipment
+    - 15-year: Land improvements, gas stations
+    - 27.5-year: Residential rental property
+    - 39-year: Nonresidential real property
+
+    Reference: Publication 946 Table B-1
+  -->
+  <decision_table name="Determine_Asset_Class" number="6000">
+    <description>
+      Determine MACRS asset class and recovery period for depreciable property.
+      Publication 946 - How to Depreciate Property
+    </description>
+
+    <conditions>
+      <condition name="has_asset_class">
+        <expression>asset.asset_class != null && asset.asset_class != ''</expression>
+        <comment>Asset class is already specified</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_asset_class>Y</has_asset_class>
+        </conditions>
+        <actions>
+          <action>
+            // Asset class already specified, set recovery period
+            if (asset.asset_class == '3-year') {
+              asset.recovery_period = 3;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '5-year') {
+              asset.recovery_period = 5;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '7-year') {
+              asset.recovery_period = 7;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '10-year') {
+              asset.recovery_period = 10;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '15-year') {
+              asset.recovery_period = 15;
+              asset.depreciation_method = 'MACRS-150DB';
+            } else if (asset.asset_class == '20-year') {
+              asset.recovery_period = 20;
+              asset.depreciation_method = 'MACRS-150DB';
+            } else if (asset.asset_class == '27.5-year') {
+              asset.recovery_period = 27.5;
+              asset.depreciation_method = 'MACRS-SL';
+            } else if (asset.asset_class == '39-year') {
+              asset.recovery_period = 39;
+              asset.depreciation_method = 'MACRS-SL';
+            }
+          </action>
+        </actions>
+        <policy>
+          MACRS asset classification determines recovery period and depreciation method.
+
+          Property Classes (Publication 946 Table B-1):
+          - 3-year: Tractor units, racehorses 2+ years, breeding hogs
+          - 5-year: Automobiles, computers, office equipment, breeding/dairy cattle
+          - 7-year: Office furniture, fixtures, most machinery and equipment
+          - 10-year: Vessels, barges, tugs, single-purpose agricultural structures
+          - 15-year: Land improvements, gas stations, depreciable improvements
+          - 20-year: Farm buildings, municipal sewers
+          - 27.5-year: Residential rental property
+          - 39-year: Nonresidential real property (commercial buildings)
+
+          Depreciation methods:
+          - 200% declining balance (200DB) for 3, 5, 7, 10-year property
+          - 150% declining balance (150DB) for 15, 20-year property
+          - Straight-line (SL) for 27.5, 39-year property
+
+          Reference: Publication 946 - How to Depreciate Property
+          Reference: IRC Section 168 - MACRS
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_asset_class>N</has_asset_class>
+        </conditions>
+        <actions>
+          <action>
+            // Default to 7-year property if not specified
+            asset.asset_class = '7-year';
+            asset.recovery_period = 7;
+            asset.depreciation_method = 'MACRS-200DB';
+          </action>
+        </actions>
+        <policy>
+          If asset class not specified, default to 7-year property (most common).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6100: Calculate Section 179 Deduction
+
+    Section 179 allows immediate expensing of qualifying property up to annual limits.
+
+    2025 Limits:
+    - Maximum deduction: $1,220,000
+    - Phaseout threshold: $3,050,000
+    - Dollar-for-dollar phaseout above threshold
+
+    Reference: IRC Section 179, Form 4562 Part I
+  -->
+  <decision_table name="Calculate_Section_179" number="6100">
+    <description>
+      Calculate Section 179 expense deduction for qualifying property.
+      Form 4562 Part I - Election To Expense Certain Property
+    </description>
+
+    <conditions>
+      <condition name="eligible_for_179">
+        <expression>asset.eligible_for_section_179 == true</expression>
+        <comment>Property qualifies for Section 179</comment>
+      </condition>
+
+      <condition name="within_limits">
+        <expression>result.section_179_total < result.section_179_limit</expression>
+        <comment>Haven't exceeded annual Section 179 limit</comment>
+      </condition>
+
+      <condition name="has_remaining_basis">
+        <expression>asset.cost_basis > 0</expression>
+        <comment>Has remaining basis to expense</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <eligible_for_179>Y</eligible_for_179>
+          <within_limits>Y</within_limits>
+          <has_remaining_basis>Y</has_remaining_basis>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate available Section 179 deduction
+            double remaining_limit = result.section_179_limit - result.section_179_total;
+            double section_179_amount = Math.min(asset.cost_basis, remaining_limit);
+
+            // Apply Section 179 deduction
+            asset.section_179_deduction = section_179_amount;
+            result.section_179_total += section_179_amount;
+
+            // Reduce basis for remaining depreciation
+            asset.cost_basis -= section_179_amount;
+          </action>
+        </actions>
+        <policy>
+          Section 179 expense deduction allows immediate expensing of qualifying property.
+
+          2025 Limits:
+          - Maximum deduction: $1,220,000
+          - Phaseout threshold: $3,050,000 (total property placed in service)
+          - Phaseout: Dollar-for-dollar reduction above threshold
+
+          Qualifying property:
+          - Tangible personal property (machinery, equipment, furniture, computers)
+          - Off-the-shelf software
+          - Qualified improvement property (QIP)
+          - Must be used > 50% for business
+
+          Nonqualifying property:
+          - Buildings and structural components
+          - Land and land improvements
+          - Property used outside the U.S.
+          - Property used for lodging
+          - Listed property used 50% or less for business
+
+          Limitation: Cannot exceed taxable income from business.
+
+          Reference: Form 4562 Instructions, Part I
+          Reference: IRC Section 179 - Election to expense certain depreciable business assets
+          Reference: Publication 946 Chapter 2
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <eligible_for_179>N</eligible_for_179>
+        </conditions>
+        <actions>
+          <action>
+            asset.section_179_deduction = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Property does not qualify for Section 179 deduction.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <eligible_for_179>Y</eligible_for_179>
+          <within_limits>N</within_limits>
+        </conditions>
+        <actions>
+          <action>
+            asset.section_179_deduction = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Section 179 annual limit exceeded. No additional deduction available.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6200: Calculate Bonus Depreciation
+
+    Bonus depreciation allows additional first-year depreciation for qualifying property.
+
+    Historical rates:
+    - 2022: 100%
+    - 2023: 80%
+    - 2024: 60%
+    - 2025: 40%
+    - 2026: 20%
+    - 2027: 0%
+
+    Reference: IRC Section 168(k), Form 4562 Part II
+  -->
+  <decision_table name="Calculate_Bonus_Depreciation" number="6200">
+    <description>
+      Calculate bonus depreciation for qualifying property.
+      Form 4562 Part II - Special Depreciation Allowance
+    </description>
+
+    <conditions>
+      <condition name="eligible_for_bonus">
+        <expression>asset.eligible_for_bonus == true</expression>
+        <comment>Property qualifies for bonus depreciation</comment>
+      </condition>
+
+      <condition name="has_bonus_rate">
+        <expression>result.bonus_depreciation_rate > 0</expression>
+        <comment>Bonus depreciation rate is greater than zero</comment>
+      </condition>
+
+      <condition name="has_remaining_basis">
+        <expression>asset.cost_basis > 0</expression>
+        <comment>Has remaining basis after Section 179</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <eligible_for_bonus>Y</eligible_for_bonus>
+          <has_bonus_rate>Y</has_bonus_rate>
+          <has_remaining_basis>Y</has_remaining_basis>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate bonus depreciation
+            double bonus_amount = asset.cost_basis * result.bonus_depreciation_rate;
+
+            // Apply bonus depreciation
+            asset.bonus_depreciation = bonus_amount;
+            result.bonus_depreciation_total += bonus_amount;
+
+            // Reduce basis for MACRS depreciation
+            asset.cost_basis -= bonus_amount;
+          </action>
+        </actions>
+        <policy>
+          Bonus depreciation allows additional first-year depreciation for qualifying property.
+
+          Phaseout schedule (TCJA):
+          - 2022: 100%
+          - 2023: 80%
+          - 2024: 60%
+          - 2025: 40%
+          - 2026: 20%
+          - 2027: 0% (expires)
+
+          Qualifying property:
+          - New or used property (expanded by TCJA)
+          - Original use begins with taxpayer OR acquired used property
+          - MACRS property with recovery period of 20 years or less
+          - Computer software
+          - Qualified improvement property (QIP)
+          - Placed in service during tax year
+
+          Nonqualifying property:
+          - Property required to use Alternative Depreciation System (ADS)
+          - Listed property used 50% or less for business
+          - Property used for lodging
+
+          Election to opt out: Taxpayer can elect out of bonus depreciation.
+
+          Reference: Form 4562 Instructions, Part II
+          Reference: IRC Section 168(k) - Special allowance for certain property
+          Reference: Publication 946 Chapter 3
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <eligible_for_bonus>N</eligible_for_bonus>
+        </conditions>
+        <actions>
+          <action>
+            asset.bonus_depreciation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Property does not qualify for bonus depreciation.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <eligible_for_bonus>Y</eligible_for_bonus>
+          <has_bonus_rate>N</has_bonus_rate>
+        </conditions>
+        <actions>
+          <action>
+            asset.bonus_depreciation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Bonus depreciation rate is 0% for 2025 (phased out).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6300: Calculate MACRS Depreciation
+
+    Calculates regular MACRS depreciation using IRS percentage tables.
+
+    Reference: Publication 946 Appendix A, IRC Section 168
+  -->
+  <decision_table name="Calculate_MACRS_Depreciation" number="6300">
+    <description>
+      Calculate MACRS depreciation for property.
+      Form 4562 Part III - MACRS Depreciation
+    </description>
+
+    <conditions>
+      <condition name="has_remaining_basis">
+        <expression>asset.cost_basis > 0</expression>
+        <comment>Has remaining basis after Section 179 and bonus</comment>
+      </condition>
+
+      <condition name="is_first_year">
+        <expression>asset.accumulated_depreciation == 0</expression>
+        <comment>First year of depreciation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_remaining_basis>Y</has_remaining_basis>
+          <is_first_year>Y</is_first_year>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate first-year MACRS depreciation using half-year convention
+            double macrs_rate = 0.0;
+
+            // Lookup MACRS percentage (simplified - using approximate rates)
+            if (asset.recovery_period == 3) {
+              macrs_rate = 0.3333; // 33.33% first year (200DB, half-year)
+            } else if (asset.recovery_period == 5) {
+              macrs_rate = 0.2000; // 20.00% first year (200DB, half-year)
+            } else if (asset.recovery_period == 7) {
+              macrs_rate = 0.1429; // 14.29% first year (200DB, half-year)
+            } else if (asset.recovery_period == 10) {
+              macrs_rate = 0.1000; // 10.00% first year (200DB, half-year)
+            } else if (asset.recovery_period == 15) {
+              macrs_rate = 0.0500; // 5.00% first year (150DB, half-year)
+            } else if (asset.recovery_period == 20) {
+              macrs_rate = 0.0375; // 3.75% first year (150DB, half-year)
+            } else if (asset.recovery_period == 27.5) {
+              macrs_rate = 0.0182; // 1.82% first year (SL, mid-month)
+            } else if (asset.recovery_period == 39) {
+              macrs_rate = 0.0128; // 1.28% first year (SL, mid-month)
+            }
+
+            // Calculate depreciation
+            double macrs_amount = asset.cost_basis * macrs_rate;
+            asset.current_year_depreciation = macrs_amount;
+            asset.accumulated_depreciation += macrs_amount;
+            result.macrs_depreciation_total += macrs_amount;
+          </action>
+        </actions>
+        <policy>
+          MACRS (Modified Accelerated Cost Recovery System) depreciation using IRS tables.
+
+          Depreciation methods by property class:
+          - 3, 5, 7, 10-year: 200% declining balance (200DB)
+          - 15, 20-year: 150% declining balance (150DB)
+          - 27.5, 39-year: Straight-line (SL)
+
+          Conventions:
+          - Half-year: Property placed in service mid-year (most property)
+          - Mid-quarter: If > 40% of property placed in service in Q4
+          - Mid-month: Residential/nonresidential real property
+
+          First-year rates (half-year convention):
+          - 3-year: 33.33%
+          - 5-year: 20.00%
+          - 7-year: 14.29%
+          - 10-year: 10.00%
+          - 15-year: 5.00%
+          - 20-year: 3.75%
+
+          Full MACRS tables in Publication 946 Appendix A.
+
+          Reference: Form 4562 Instructions, Part III
+          Reference: IRC Section 168 - MACRS
+          Reference: Publication 946 Appendix A (MACRS Percentage Tables)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_remaining_basis>N</has_remaining_basis>
+        </conditions>
+        <actions>
+          <action>
+            asset.current_year_depreciation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No remaining basis to depreciate (fully expensed via Section 179/bonus).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6900: Aggregate Depreciation Deduction
+
+    Aggregates Section 179, bonus, and MACRS depreciation for Form 1120 line 20.
+
+    Reference: Form 4562, Form 1120 line 20
+  -->
+  <decision_table name="Aggregate_Depreciation" number="6900">
+    <description>
+      Aggregate all depreciation deductions for Form 1120.
+      Form 4562 - Depreciation and Amortization
+    </description>
+
+    <conditions>
+      <condition name="always_aggregate">
+        <expression>true</expression>
+        <comment>Always aggregate depreciation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_aggregate>Y</always_aggregate>
+        </conditions>
+        <actions>
+          <action>
+            // Total depreciation = Section 179 + Bonus + MACRS
+            result.depreciation =
+              result.section_179_total +
+              result.bonus_depreciation_total +
+              result.macrs_depreciation_total;
+          </action>
+        </actions>
+        <policy>
+          Total depreciation deduction (Form 1120 line 20) equals:
+          - Section 179 expense deduction (Form 4562 Part I)
+          - Bonus depreciation (Form 4562 Part II)
+          - MACRS depreciation (Form 4562 Part III)
+          - Amortization (not implemented)
+
+          Reference: Form 4562 Line 22
+          Reference: Form 1120 Line 20
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
     ORCHESTRATION TABLE (1000-1999)
     ================================================================
   -->
@@ -652,6 +1301,16 @@
             execute(2100);  // Calculate_Gross_Profit
             execute(2600);  // Calculate_Total_Income
 
+            // ===== DEPRECIATION CALCULATION (Form 4562) =====
+            // Process each asset through depreciation waterfall
+            foreach asset in assets {
+              execute(6000);  // Determine_Asset_Class
+              execute(6100);  // Calculate_Section_179
+              execute(6200);  // Calculate_Bonus_Depreciation
+              execute(6300);  // Calculate_MACRS_Depreciation
+            }
+            execute(6900);  // Aggregate_Depreciation
+
             // ===== DEDUCTION CALCULATION =====
             execute(3000);  // Calculate_Compensation_Deduction
             execute(3200);  // Calculate_Interest_Deduction (IRC 163j)
@@ -661,20 +1320,35 @@
             // ===== TAX CALCULATION =====
             execute(4000);  // Calculate_Taxable_Income
             execute(4100);  // Apply_Corporate_Tax_Rate (21%)
+
+            // ===== CREDIT CALCULATION (Form 3800) =====
+            execute(5100);  // Calculate_RD_Credit
+            execute(5300);  // Calculate_General_Business_Credit
+
+            // ===== FINAL CALCULATION =====
             execute(4300);  // Calculate_Refund_Or_Owed
           </action>
         </actions>
         <policy>
-          Corporate tax calculation flow:
+          Corporate tax calculation flow (Phase 2 - with depreciation and credits):
+
           1. Calculate income (Form 1120 lines 1-11)
-          2. Calculate deductions (Form 1120 lines 12-27)
-          3. Calculate taxable income (Form 1120 line 28)
-          4. Apply 21% tax rate (Schedule J)
-          5. Apply credits and payments
-          6. Determine refund or amount owed
+          2. Calculate depreciation (Form 4562):
+             a. Section 179 expense deduction
+             b. Bonus depreciation (phased out in 2025)
+             c. MACRS depreciation
+          3. Calculate deductions (Form 1120 lines 12-27)
+          4. Calculate taxable income (Form 1120 line 28)
+          5. Apply 21% tax rate (Schedule J)
+          6. Calculate credits (Form 3800):
+             a. R&D credit (Form 6765)
+             b. General business credit
+          7. Determine refund or amount owed
 
           Reference: Form 1120 - U.S. Corporation Income Tax Return
-          Reference: Form 1120 Instructions (all sections)
+          Reference: Form 4562 - Depreciation and Amortization
+          Reference: Form 3800 - General Business Credit
+          Reference: Form 6765 - Research & Development Credit
         </policy>
       </rule>
     </rules>

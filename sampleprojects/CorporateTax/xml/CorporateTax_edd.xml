@@ -38,6 +38,26 @@
     <field name='limitation_applied' type='string' comment='Any limitation applied (163j, charitable, etc.)'/>
   </entity>
 
+  <!-- Asset Entity (for depreciation and Section 179) -->
+  <entity name="asset">
+    <field name='id' type='integer' comment='Unique asset ID'/>
+    <field name='description' type='string' comment='Asset description'/>
+    <field name='date_acquired' type='date' comment='Date asset was placed in service'/>
+    <field name='cost_basis' type='double' comment='Original cost basis of asset'/>
+    <field name='asset_class' type='string' comment='MACRS asset class (3-year, 5-year, 7-year, etc.)'/>
+    <field name='recovery_period' type='integer' comment='MACRS recovery period in years'/>
+    <field name='depreciation_method' type='string' comment='Depreciation method: MACRS, SL, DDB, 150DB'/>
+    <field name='convention' type='string' comment='Convention: half-year, mid-quarter, mid-month'/>
+    <field name='current_year_depreciation' type='double' default_value='0.0' comment='Depreciation for current tax year'/>
+    <field name='accumulated_depreciation' type='double' default_value='0.0' comment='Total depreciation taken to date'/>
+    <field name='section_179_deduction' type='double' default_value='0.0' comment='Section 179 expense deduction taken'/>
+    <field name='bonus_depreciation' type='double' default_value='0.0' comment='Bonus depreciation taken'/>
+    <field name='eligible_for_section_179' type='boolean' default_value='true' comment='Qualifies for Section 179 deduction'/>
+    <field name='eligible_for_bonus' type='boolean' default_value='true' comment='Qualifies for bonus depreciation'/>
+    <field name='listed_property' type='boolean' default_value='false' comment='Listed property (vehicles, computers, etc.)'/>
+    <field name='business_use_percentage' type='double' default_value='1.0' comment='Percentage of business use (0.0 to 1.0)'/>
+  </entity>
+
   <!-- Result Entity (tax calculation results and audit trail) -->
   <entity name="result">
     <!-- Federal Income -->
@@ -60,12 +80,23 @@
     <field name='other_deductions' type='double' default_value='0.0' comment='Other deductions (Form 1120 line 26)'/>
     <field name='total_deductions' type='double' default_value='0.0' comment='Total deductions (Form 1120 line 27)'/>
 
+    <!-- Depreciation Tracking (Form 4562) -->
+    <field name='section_179_total' type='double' default_value='0.0' comment='Total Section 179 deduction (Form 4562 Part I)'/>
+    <field name='section_179_limit' type='double' default_value='1220000.0' comment='Section 179 annual limit (2025: $1,220,000)'/>
+    <field name='section_179_phaseout_threshold' type='double' default_value='3050000.0' comment='Section 179 phaseout threshold (2025: $3,050,000)'/>
+    <field name='bonus_depreciation_total' type='double' default_value='0.0' comment='Total bonus depreciation (Form 4562 Part II)'/>
+    <field name='bonus_depreciation_rate' type='double' default_value='0.0' comment='Bonus depreciation rate (0% for 2025)'/>
+    <field name='macrs_depreciation_total' type='double' default_value='0.0' comment='Total MACRS depreciation (Form 4562 Part III)'/>
+
     <!-- Taxable Income and Tax -->
     <field name='taxable_income' type='double' default_value='0.0' comment='Taxable income (Form 1120 line 28 = 11 - 27)'/>
     <field name='federal_tax_rate' type='double' default_value='0.21' comment='Federal corporate tax rate (21% flat rate)'/>
     <field name='federal_tax' type='double' default_value='0.0' comment='Federal income tax (Form 1120 line 31 = 28 × 21%)'/>
 
-    <!-- Credits and Payments -->
+    <!-- Credits and Payments (Form 3800) -->
+    <field name='general_business_credit' type='double' default_value='0.0' comment='General business credit (Form 3800)'/>
+    <field name='research_development_credit' type='double' default_value='0.0' comment='Research & development credit (Form 6765)'/>
+    <field name='work_opportunity_credit' type='double' default_value='0.0' comment='Work opportunity tax credit (Form 5884)'/>
     <field name='total_credits' type='double' default_value='0.0' comment='Total tax credits (Form 1120)'/>
     <field name='estimated_tax_payments' type='double' default_value='0.0' comment='Estimated tax payments'/>
     <field name='total_payments' type='double' default_value='0.0' comment='Total payments and credits'/>

@@ -44,6 +44,24 @@
 			<setattribute tag='deductible' RAttribute='deductible' enclosure='expense' type='boolean'></setattribute>
 			<setattribute tag='limitation_applied' RAttribute='limitation_applied' enclosure='expense' type='string'></setattribute>
 
+			<!-- Asset mappings (for depreciation) -->
+			<setattribute tag='id' RAttribute='id' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='date_acquired' RAttribute='date_acquired' enclosure='asset' type='date'></setattribute>
+			<setattribute tag='cost_basis' RAttribute='cost_basis' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='asset_class' RAttribute='asset_class' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='recovery_period' RAttribute='recovery_period' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='depreciation_method' RAttribute='depreciation_method' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='convention' RAttribute='convention' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='current_year_depreciation' RAttribute='current_year_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='accumulated_depreciation' RAttribute='accumulated_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='section_179_deduction' RAttribute='section_179_deduction' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation' RAttribute='bonus_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='eligible_for_section_179' RAttribute='eligible_for_section_179' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='eligible_for_bonus' RAttribute='eligible_for_bonus' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='listed_property' RAttribute='listed_property' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='business_use_percentage' RAttribute='business_use_percentage' enclosure='asset' type='double'></setattribute>
+
 			<!-- Result mappings (Form 1120 lines 12-35) -->
 			<!-- Total Income -->
 			<setattribute tag='total_income' RAttribute='total_income' enclosure='result' type='double'></setattribute>
@@ -65,10 +83,23 @@
 			<setattribute tag='other_deductions' RAttribute='other_deductions' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_deductions' RAttribute='total_deductions' enclosure='result' type='double'></setattribute>
 
+			<!-- Depreciation Tracking (Form 4562) -->
+			<setattribute tag='section_179_total' RAttribute='section_179_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_limit' RAttribute='section_179_limit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_phaseout_threshold' RAttribute='section_179_phaseout_threshold' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_total' RAttribute='bonus_depreciation_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_rate' RAttribute='bonus_depreciation_rate' enclosure='result' type='double'></setattribute>
+			<setattribute tag='macrs_depreciation_total' RAttribute='macrs_depreciation_total' enclosure='result' type='double'></setattribute>
+
 			<!-- Tax Calculation (lines 28-35) -->
 			<setattribute tag='taxable_income' RAttribute='taxable_income' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax_rate' RAttribute='federal_tax_rate' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax' RAttribute='federal_tax' enclosure='result' type='double'></setattribute>
+
+			<!-- Credits (Form 3800) -->
+			<setattribute tag='general_business_credit' RAttribute='general_business_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='research_development_credit' RAttribute='research_development_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='work_opportunity_credit' RAttribute='work_opportunity_credit' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_credits' RAttribute='total_credits' enclosure='result' type='double'></setattribute>
 			<setattribute tag='estimated_tax_payments' RAttribute='estimated_tax_payments' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
@@ -120,6 +151,24 @@
 			<setattribute tag='deductible' RAttribute='deductible' enclosure='expense' type='boolean'></setattribute>
 			<setattribute tag='limitation_applied' RAttribute='limitation_applied' enclosure='expense' type='string'></setattribute>
 
+			<!-- Asset entity -->
+			<setattribute tag='id' RAttribute='id' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='date_acquired' RAttribute='date_acquired' enclosure='asset' type='date'></setattribute>
+			<setattribute tag='cost_basis' RAttribute='cost_basis' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='asset_class' RAttribute='asset_class' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='recovery_period' RAttribute='recovery_period' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='depreciation_method' RAttribute='depreciation_method' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='convention' RAttribute='convention' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='current_year_depreciation' RAttribute='current_year_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='accumulated_depreciation' RAttribute='accumulated_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='section_179_deduction' RAttribute='section_179_deduction' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation' RAttribute='bonus_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='eligible_for_section_179' RAttribute='eligible_for_section_179' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='eligible_for_bonus' RAttribute='eligible_for_bonus' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='listed_property' RAttribute='listed_property' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='business_use_percentage' RAttribute='business_use_percentage' enclosure='asset' type='double'></setattribute>
+
 			<!-- Result entity -->
 			<setattribute tag='total_income' RAttribute='total_income' enclosure='result' type='double'></setattribute>
 			<setattribute tag='compensation' RAttribute='compensation' enclosure='result' type='double'></setattribute>
@@ -137,9 +186,18 @@
 			<setattribute tag='employee_benefit_programs' RAttribute='employee_benefit_programs' enclosure='result' type='double'></setattribute>
 			<setattribute tag='other_deductions' RAttribute='other_deductions' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_deductions' RAttribute='total_deductions' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_total' RAttribute='section_179_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_limit' RAttribute='section_179_limit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_phaseout_threshold' RAttribute='section_179_phaseout_threshold' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_total' RAttribute='bonus_depreciation_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_rate' RAttribute='bonus_depreciation_rate' enclosure='result' type='double'></setattribute>
+			<setattribute tag='macrs_depreciation_total' RAttribute='macrs_depreciation_total' enclosure='result' type='double'></setattribute>
 			<setattribute tag='taxable_income' RAttribute='taxable_income' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax_rate' RAttribute='federal_tax_rate' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax' RAttribute='federal_tax' enclosure='result' type='double'></setattribute>
+			<setattribute tag='general_business_credit' RAttribute='general_business_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='research_development_credit' RAttribute='research_development_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='work_opportunity_credit' RAttribute='work_opportunity_credit' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_credits' RAttribute='total_credits' enclosure='result' type='double'></setattribute>
 			<setattribute tag='estimated_tax_payments' RAttribute='estimated_tax_payments' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
