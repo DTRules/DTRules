@@ -1424,6 +1424,98 @@
     <field name='tax_liability_from_pfic' type='double' default_value='0.0' comment='Total tax liability from PFIC'/>
   </entity>
 
+  <!-- Form 8865: Return of U.S. Persons With Respect to Certain Foreign Partnerships -->
+  <!--
+    Form 8865 is required for U.S. persons with interests in foreign partnerships.
+
+    Filing Categories (IRC § 6038 and § 6046A):
+    - Category 1: U.S. person controlling (>50%)
+    - Category 2: Acquisition/disposition of 10%+ interest
+    - Category 3: 10%+ owner of controlled foreign partnership
+    - Category 4: Reportable events
+
+    Reference: IRC § 6038, § 6038B, § 6046A, Form 8865 Instructions
+  -->
+  <entity name="foreign_partnership">
+    <!-- Partnership Identification -->
+    <field name='partnership_name' type='string' comment='Name of foreign partnership'/>
+    <field name='partnership_ein' type='string' comment='Partnership EIN (if any)'/>
+    <field name='partnership_country_code' type='string' comment='Country of organization (ISO 3166-1 alpha-2)'/>
+    <field name='partnership_tax_year_end' type='date' comment='End of partnership tax year'/>
+    <field name='partnership_functional_currency' type='string' comment='Functional currency (USD, EUR, etc.)'/>
+
+    <!-- Filing Category Determination -->
+    <field name='filing_category_1' type='boolean' default_value='false' comment='Category 1: U.S. person controlling (>50%)'/>
+    <field name='filing_category_2' type='boolean' default_value='false' comment='Category 2: Acquisition/disposition 10%+'/>
+    <field name='filing_category_3' type='boolean' default_value='false' comment='Category 3: 10%+ of controlled partnership'/>
+    <field name='filing_category_4' type='boolean' default_value='false' comment='Category 4: Reportable events'/>
+    <field name='form_8865_required' type='boolean' default_value='false' comment='Form 8865 filing required'/>
+
+    <!-- Ownership Interests -->
+    <field name='ownership_percentage_profits' type='double' default_value='0.0' comment='Ownership % by profits (0.0 to 1.0)'/>
+    <field name='ownership_percentage_capital' type='double' default_value='0.0' comment='Ownership % by capital (0.0 to 1.0)'/>
+    <field name='ownership_percentage_value' type='double' default_value='0.0' comment='Ownership % by value (0.0 to 1.0)'/>
+    <field name='total_us_persons_ownership' type='double' default_value='0.0' comment='Total U.S. persons ownership'/>
+    <field name='is_controlled_foreign_partnership' type='boolean' default_value='false' comment='Controlled by U.S. persons (>50%)'/>
+
+    <!-- Schedule K: Partnership Income/Loss - Partner Share -->
+    <field name='k_ordinary_business_income' type='double' default_value='0.0' comment='Schedule K line 1: Ordinary business income (loss)'/>
+    <field name='k_guaranteed_payments' type='double' default_value='0.0' comment='Schedule K line 4: Guaranteed payments'/>
+    <field name='k_interest_income' type='double' default_value='0.0' comment='Schedule K line 5: Interest income'/>
+    <field name='k_dividends' type='double' default_value='0.0' comment='Schedule K line 6a: Ordinary dividends'/>
+    <field name='k_royalties' type='double' default_value='0.0' comment='Schedule K line 7: Royalties'/>
+    <field name='k_net_short_term_capital_gain' type='double' default_value='0.0' comment='Schedule K line 8: Net short-term capital gain (loss)'/>
+    <field name='k_net_long_term_capital_gain' type='double' default_value='0.0' comment='Schedule K line 9a: Net long-term capital gain (loss)'/>
+    <field name='k_section_179_deduction' type='double' default_value='0.0' comment='Schedule K line 12: Section 179 deduction'/>
+    <field name='k_foreign_taxes_paid' type='double' default_value='0.0' comment='Schedule K line 16g: Foreign taxes paid'/>
+    <field name='k_foreign_source_income_general' type='double' default_value='0.0' comment='Schedule K line 16d: Foreign source income - general'/>
+    <field name='k_foreign_source_income_passive' type='double' default_value='0.0' comment='Schedule K line 16c: Foreign source income - passive'/>
+
+    <!-- Schedule K-1: Partner Share -->
+    <field name='k1_ordinary_business_income' type='double' default_value='0.0' comment='K-1 line 1: Ordinary income - partner share'/>
+    <field name='k1_total_income' type='double' default_value='0.0' comment='K-1: Total income allocated to partner'/>
+    <field name='k1_distributive_share_pct' type='double' default_value='0.0' comment='K-1: Partner distributive share %'/>
+
+    <!-- Schedule K-2/K-3: International Information -->
+    <field name='k2_foreign_taxes_paid' type='double' default_value='0.0' comment='K-2: Foreign taxes paid (for FTC)'/>
+    <field name='k2_foreign_source_income_general' type='double' default_value='0.0' comment='K-2: Foreign source income - general'/>
+    <field name='k2_foreign_source_income_passive' type='double' default_value='0.0' comment='K-2: Foreign source income - passive'/>
+    <field name='k3_foreign_taxes_paid' type='double' default_value='0.0' comment='K-3: Partner share of foreign taxes'/>
+    <field name='k3_foreign_source_income_general' type='double' default_value='0.0' comment='K-3: Partner share foreign income - general'/>
+    <field name='k3_foreign_source_income_passive' type='double' default_value='0.0' comment='K-3: Partner share foreign income - passive'/>
+
+    <!-- Distributions -->
+    <field name='distributions_cash' type='double' default_value='0.0' comment='Cash distributions received'/>
+    <field name='distributions_property_fmv' type='double' default_value='0.0' comment='FMV of property distributions'/>
+    <field name='distributions_total' type='double' default_value='0.0' comment='Total distributions'/>
+    <field name='distributions_in_excess_of_basis' type='double' default_value='0.0' comment='Distributions > basis (taxable)'/>
+
+    <!-- Capital Account -->
+    <field name='capital_account_beginning' type='double' default_value='0.0' comment='Capital account beginning'/>
+    <field name='capital_contributions_current_year' type='double' default_value='0.0' comment='Current year contributions'/>
+    <field name='capital_account_share_of_income' type='double' default_value='0.0' comment='Share of income (increases capital)'/>
+    <field name='capital_account_share_of_loss' type='double' default_value='0.0' comment='Share of loss (decreases capital)'/>
+    <field name='capital_account_distributions' type='double' default_value='0.0' comment='Distributions (decrease capital)'/>
+    <field name='capital_account_ending' type='double' default_value='0.0' comment='Capital account ending'/>
+
+    <!-- Partner Basis (IRC § 705) -->
+    <field name='basis_beginning' type='double' default_value='0.0' comment='Partner basis beginning'/>
+    <field name='basis_increase_contributions' type='double' default_value='0.0' comment='Basis increase from contributions'/>
+    <field name='basis_increase_income' type='double' default_value='0.0' comment='Basis increase from income share'/>
+    <field name='basis_decrease_distributions' type='double' default_value='0.0' comment='Basis decrease from distributions'/>
+    <field name='basis_decrease_losses' type='double' default_value='0.0' comment='Basis decrease from losses'/>
+    <field name='basis_ending' type='double' default_value='0.0' comment='Partner basis ending'/>
+    <field name='basis_limitation_applied' type='boolean' default_value='false' comment='Basis limitation applied'/>
+    <field name='suspended_losses' type='double' default_value='0.0' comment='Losses suspended - insufficient basis (§ 704(d))'/>
+
+    <!-- Acquisition/Disposition (Category 2) -->
+    <field name='acquisition_date' type='date' comment='Date of acquisition'/>
+    <field name='acquisition_cost' type='double' default_value='0.0' comment='Cost of acquired interest'/>
+    <field name='disposition_date' type='date' comment='Date of disposition'/>
+    <field name='disposition_amount_realized' type='double' default_value='0.0' comment='Amount realized on disposition'/>
+    <field name='disposition_gain_loss' type='double' default_value='0.0' comment='Gain or loss on disposition'/>
+  </entity>
+
   <!-- Job Entity (execution metadata) -->
   <entity name="job">
     <field name='test_case_name' type='string' comment='Name of test case'/>

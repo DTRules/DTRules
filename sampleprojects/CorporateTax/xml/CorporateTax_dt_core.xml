@@ -10067,4 +10067,1287 @@
     </rules>
   </decision_table>
 
+  <!--
+    ============================================================================
+    FORM 8865: FOREIGN PARTNERSHIP REPORTING (14000-14299)
+    ============================================================================
+
+    Form 8865 is required for U.S. persons with interests in foreign partnerships.
+
+    Filing Categories:
+    - Category 1: U.S. person controlling foreign partnership (>50%)
+    - Category 2: U.S. person acquiring/disposing 10%+ interest
+    - Category 3: U.S. person owning 10%+ of controlled foreign partnership
+    - Category 4: Reportable events
+
+    Reference: IRC § 6038, § 6038B, § 6046A
+    Reference: Form 8865 Instructions
+  -->
+
+  <!--
+    ============================================================================
+    TABLE 14000: Identify Form 8865 Filing Requirement
+    ============================================================================
+
+    Determines which filing category applies and whether Form 8865 is required.
+
+    Categories:
+    1. Controlling U.S. person (>50% by profits, capital, value, or vote)
+    2. Acquisition/disposition of 10%+ interest
+    3. 10%+ owner of controlled foreign partnership
+    4. Reportable events (changes in proportional interest, etc.)
+
+    Reference: IRC § 6038(a) - Category 1
+    Reference: IRC § 6038(e) - Category 1 penalties
+    Reference: IRC § 6046A(b) - Category 2
+    Reference: IRC § 6038(a)(1) - Category 3
+    Reference: IRC § 6038(a)(5) - Category 4
+  -->
+  <decision_table name="Identify_Foreign_Partnership_Filing_Requirement" number="14000">
+    <description>
+      Determine Form 8865 filing requirement based on ownership and events.
+      Sets filing category flags and form_8865_required.
+    </description>
+
+    <conditions>
+      <condition name="has_foreign_partnership">
+        <expression>foreign_partnership.partnership_country_code != null &amp;&amp; !foreign_partnership.partnership_country_code.equals("US")</expression>
+        <comment>Partnership is organized in foreign country</comment>
+      </condition>
+
+      <condition name="controls_partnership">
+        <expression>
+          foreign_partnership.ownership_percentage_profits > 0.50 ||
+          foreign_partnership.ownership_percentage_capital > 0.50 ||
+          foreign_partnership.ownership_percentage_value > 0.50
+        </expression>
+        <comment>U.S. person controls >50% by any measure (Category 1)</comment>
+      </condition>
+
+      <condition name="acquired_or_disposed_10pct">
+        <expression>
+          (foreign_partnership.acquisition_date != null &amp;&amp; foreign_partnership.ownership_percentage_profits >= 0.10) ||
+          (foreign_partnership.disposition_date != null &amp;&amp; foreign_partnership.ownership_percentage_profits >= 0.10)
+        </expression>
+        <comment>Acquired or disposed of 10%+ interest during year (Category 2)</comment>
+      </condition>
+
+      <condition name="is_controlled_and_owns_10pct">
+        <expression>
+          foreign_partnership.is_controlled_foreign_partnership &amp;&amp;
+          foreign_partnership.ownership_percentage_profits >= 0.10
+        </expression>
+        <comment>Owns 10%+ of controlled foreign partnership (Category 3)</comment>
+      </condition>
+
+      <condition name="has_reportable_event">
+        <expression>
+          foreign_partnership.change_in_proportional_interest ||
+          foreign_partnership.other_reportable_event != null
+        </expression>
+        <comment>Reportable event occurred (Category 4)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Category 1 - Controlling U.S. person -->
+      <rule number="1">
+        <conditions>
+          <has_foreign_partnership>Y</has_foreign_partnership>
+          <controls_partnership>Y</controls_partnership>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.filing_category_1 = true;
+            foreign_partnership.form_8865_required = true;
+
+            // Determine if partnership is controlled
+            foreign_partnership.is_controlled_foreign_partnership =
+              (foreign_partnership.ownership_percentage_profits > 0.50 ||
+               foreign_partnership.ownership_percentage_capital > 0.50 ||
+               foreign_partnership.ownership_percentage_value > 0.50);
+          </action>
+        </actions>
+        <policy>
+          Form 8865 Category 1 Filer: Controlling U.S. Person
+
+          A U.S. person who controls a foreign partnership must file Form 8865.
+
+          Control Defined (IRC § 6038(e)(3)):
+          A U.S. person controls a foreign partnership if they own, directly or indirectly:
+          - More than 50% of the interests in partnership capital, profits, or
+          - More than 50% of the interests in partnership value
+
+          Filing Requirement:
+          Must file Form 8865 annually with tax return, including:
+          - Schedule K-1 (Partner's Share of Income, Deductions, Credits, etc.)
+          - Schedule K-2 (Partners' Distributive Share Items - International)
+          - Schedule K-3 (Partner's Share of Income, Deductions, Credits, etc. - International)
+          - Balance sheets and income statements
+
+          Penalties (IRC § 6038(b)):
+          - $10,000 per annual accounting period for failure to file
+          - Additional $10,000 for each 30-day period after notice (up to $50,000 max)
+          - Reduction of foreign tax credits if failure to file
+
+          Reference: IRC § 6038(a)(1) - Filing requirement
+          Reference: IRC § 6038(e) - Controlled foreign partnership definition
+          Reference: Form 8865 Instructions - Category 1 Filer
+        </policy>
+      </rule>
+
+      <!-- Rule 2: Category 2 - Acquisition or disposition of 10%+ interest -->
+      <rule number="2">
+        <conditions>
+          <has_foreign_partnership>Y</has_foreign_partnership>
+          <controls_partnership>N</controls_partnership>
+          <acquired_or_disposed_10pct>Y</acquired_or_disposed_10pct>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.filing_category_2 = true;
+            foreign_partnership.form_8865_required = true;
+          </action>
+        </actions>
+        <policy>
+          Form 8865 Category 2 Filer: Acquisition or Disposition of 10%+ Interest
+
+          A U.S. person must file Form 8865 if, during the tax year, they:
+          - Acquire an interest that causes them to own 10% or more of the partnership, or
+          - Dispose of an interest that reduces their ownership below 10%, or
+          - Dispose of any interest if they owned 10% or more
+
+          10% Ownership Test (IRC § 6046A(d)):
+          10% or more of:
+          - Capital interest in the partnership, or
+          - Profits interest in the partnership
+
+          Filing Requirement:
+          Must file Form 8865 with tax return for the year of acquisition or disposition.
+          Includes Schedule O (Transfer of Property to a Foreign Partnership).
+
+          Attribution Rules (IRC § 267(c)):
+          Ownership is determined with constructive ownership rules.
+
+          Penalties (IRC § 6679):
+          - 10% of value of property contributed (if applicable)
+          - Reduction in basis of contributed property
+          - Gain recognition may be required
+
+          Reference: IRC § 6046A(b) - Reporting requirement
+          Reference: IRC § 6046A(d) - 10% interest definition
+          Reference: Form 8865 Instructions - Category 2 Filer
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Category 3 - 10%+ owner of controlled foreign partnership -->
+      <rule number="3">
+        <conditions>
+          <has_foreign_partnership>Y</has_foreign_partnership>
+          <controls_partnership>N</controls_partnership>
+          <acquired_or_disposed_10pct>N</acquired_or_disposed_10pct>
+          <is_controlled_and_owns_10pct>Y</is_controlled_and_owns_10pct>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.filing_category_3 = true;
+            foreign_partnership.form_8865_required = true;
+          </action>
+        </actions>
+        <policy>
+          Form 8865 Category 3 Filer: 10%+ Owner of Controlled Foreign Partnership
+
+          A U.S. person must file Form 8865 if they own 10% or more of a foreign
+          partnership that is controlled by U.S. persons.
+
+          Controlled Foreign Partnership (IRC § 6038(e)(3)):
+          A foreign partnership is "controlled" if U.S. persons own more than 50% of:
+          - Capital interests, or
+          - Profits interests, or
+          - Value interests
+
+          10% Ownership Test:
+          U.S. person owns 10% or more of partnership capital or profits interests.
+
+          Filing Requirement:
+          Must file Form 8865 annually, including:
+          - Schedule K-1 (Partner's Share)
+          - Schedule K-2 and K-3 (International Items)
+          - Limited balance sheet and income statement information
+
+          Difference from Category 1:
+          Category 1 filers control the partnership themselves (>50%).
+          Category 3 filers own 10%+ of a partnership controlled by U.S. persons collectively.
+
+          Penalties (IRC § 6038(b)):
+          Same as Category 1 ($10,000 per year, additional penalties for continued failure).
+
+          Reference: IRC § 6038(a)(1) - Filing requirement
+          Reference: IRC § 6038(e) - Controlled foreign partnership definition
+          Reference: Form 8865 Instructions - Category 3 Filer
+        </policy>
+      </rule>
+
+      <!-- Rule 4: Category 4 - Reportable events -->
+      <rule number="4">
+        <conditions>
+          <has_foreign_partnership>Y</has_foreign_partnership>
+          <controls_partnership>N</controls_partnership>
+          <acquired_or_disposed_10pct>N</acquired_or_disposed_10pct>
+          <is_controlled_and_owns_10pct>N</is_controlled_and_owns_10pct>
+          <has_reportable_event>Y</has_reportable_event>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.filing_category_4 = true;
+            foreign_partnership.form_8865_required = true;
+          </action>
+        </actions>
+        <policy>
+          Form 8865 Category 4 Filer: Reportable Events
+
+          A U.S. person must file Form 8865 if certain reportable events occur, including:
+
+          1. Change in Proportional Interest (IRC § 6038(a)(5)):
+             A change in the filer's proportional interest in the foreign partnership
+
+          2. Contributions:
+             Certain contributions of property to the foreign partnership
+
+          3. Acquisitions:
+             Acquisitions of partnership interests
+
+          4. Dispositions:
+             Dispositions of partnership interests
+
+          5. Changes in Partnership Status:
+             Changes that affect the partnership's classification
+
+          Filing Requirement:
+          Must file Form 8865 for the year the reportable event occurs.
+          Limited schedules required compared to Categories 1-3.
+
+          Reference: IRC § 6038(a)(5) - Reportable events
+          Reference: Treas. Reg. § 1.6038-3 - Information returns required
+          Reference: Form 8865 Instructions - Category 4 Filer
+        </policy>
+      </rule>
+
+      <!-- Rule 5: No filing requirement -->
+      <rule number="5">
+        <conditions>
+          <has_foreign_partnership>Y</has_foreign_partnership>
+          <controls_partnership>N</controls_partnership>
+          <acquired_or_disposed_10pct>N</acquired_or_disposed_10pct>
+          <is_controlled_and_owns_10pct>N</is_controlled_and_owns_10pct>
+          <has_reportable_event>N</has_reportable_event>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.form_8865_required = false;
+            foreign_partnership.filing_category_1 = false;
+            foreign_partnership.filing_category_2 = false;
+            foreign_partnership.filing_category_3 = false;
+            foreign_partnership.filing_category_4 = false;
+          </action>
+        </actions>
+        <policy>
+          Form 8865 Not Required
+
+          U.S. person has interest in foreign partnership but does not meet any of the
+          filing category requirements.
+
+          The partner may still receive Schedule K-1 from the partnership and must
+          report their distributive share of income on their U.S. tax return.
+
+          Reference: Form 1065 Schedule K-1 - Partner's Share of Income
+        </policy>
+      </rule>
+
+      <!-- Rule 6: No foreign partnership -->
+      <rule number="6">
+        <conditions>
+          <has_foreign_partnership>N</has_foreign_partnership>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.form_8865_required = false;
+          </action>
+        </actions>
+        <policy>
+          No foreign partnership - Form 8865 not required.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 14100: Calculate Foreign Partnership Income
+    ============================================================================
+
+    Calculates partner's share of partnership income and allocates to
+    appropriate income categories for U.S. tax purposes.
+
+    Income flows through to partner and is reported on:
+    - Schedule K-1 (domestic partnerships use Form 1065)
+    - Form 8865 Schedule K/K-1 (foreign partnerships)
+
+    Reference: IRC § 702 - Income and credits of partner
+    Reference: IRC § 704 - Partner's distributive share
+  -->
+  <decision_table name="Calculate_Foreign_Partnership_Income" number="14100">
+    <description>
+      Calculate partner's distributive share of partnership income.
+      Allocate income to appropriate categories (ordinary, capital gains, etc.).
+    </description>
+
+    <conditions>
+      <condition name="has_ordinary_income">
+        <expression>foreign_partnership.k_ordinary_business_income != 0.0</expression>
+        <comment>Partnership has ordinary business income/loss</comment>
+      </condition>
+
+      <condition name="has_guaranteed_payments">
+        <expression>foreign_partnership.k_guaranteed_payments > 0.0</expression>
+        <comment>Partner receives guaranteed payments</comment>
+      </condition>
+
+      <condition name="has_investment_income">
+        <expression>
+          foreign_partnership.k_interest_income > 0.0 ||
+          foreign_partnership.k_dividends > 0.0 ||
+          foreign_partnership.k_royalties > 0.0
+        </expression>
+        <comment>Partnership has investment income</comment>
+      </condition>
+
+      <condition name="has_capital_gains">
+        <expression>
+          foreign_partnership.k_net_short_term_capital_gain != 0.0 ||
+          foreign_partnership.k_net_long_term_capital_gain != 0.0
+        </expression>
+        <comment>Partnership has capital gains/losses</comment>
+      </condition>
+
+      <condition name="has_foreign_source_income">
+        <expression>
+          foreign_partnership.k_foreign_source_income_general > 0.0 ||
+          foreign_partnership.k_foreign_source_income_passive > 0.0
+        </expression>
+        <comment>Partnership has foreign source income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate total partnership income -->
+      <rule number="1">
+        <conditions>
+          <has_ordinary_income>Y</has_ordinary_income>
+        </conditions>
+        <actions>
+          <action>
+            // Partner's distributive share percentage
+            // (Typically from partnership agreement or K-1 percentage)
+            if (foreign_partnership.k1_distributive_share_pct == 0.0) {
+              foreign_partnership.k1_distributive_share_pct = foreign_partnership.ownership_percentage_profits;
+            }
+
+            // Calculate partner's share of ordinary income
+            foreign_partnership.k1_ordinary_business_income =
+              foreign_partnership.k_ordinary_business_income * foreign_partnership.k1_distributive_share_pct;
+
+            // Add guaranteed payments (always 100% to receiving partner)
+            // Guaranteed payments are treated as ordinary income
+            foreign_partnership.k1_total_income =
+              foreign_partnership.k1_ordinary_business_income +
+              foreign_partnership.k_guaranteed_payments;
+
+            // Allocate to result entity for inclusion in total income
+            result.other_income += foreign_partnership.k1_total_income;
+          </action>
+        </actions>
+        <policy>
+          Partner's Distributive Share of Partnership Income
+
+          Partnership Income Pass-Through (IRC § 702):
+          Each partner takes into account their distributive share of:
+          - Ordinary business income or loss
+          - Capital gains and losses
+          - Dividends, interest, royalties
+          - Other items of income, gain, loss, deduction, or credit
+
+          Distributive Share Determination (IRC § 704(b)):
+          Partner's distributive share is determined by the partnership agreement,
+          subject to IRC § 704(b) substantial economic effect rules.
+
+          Guaranteed Payments (IRC § 707(c)):
+          Payments to partner for services or use of capital that are determined
+          without regard to partnership income. Treated as ordinary income to
+          receiving partner and deductible by partnership.
+
+          Character Preservation:
+          The character of income items is preserved as they flow through to partners.
+          For example:
+          - Capital gains remain capital gains
+          - Tax-exempt interest remains tax-exempt
+          - Foreign source income retains source and category
+
+          Reference: IRC § 702(a) - Income and credits of partner
+          Reference: IRC § 704(b) - Determination of distributive share
+          Reference: IRC § 707(c) - Guaranteed payments to partners
+          Reference: Form 8865 Instructions - Schedule K-1
+        </policy>
+      </rule>
+
+      <!-- Rule 2: Allocate investment income -->
+      <rule number="2">
+        <conditions>
+          <has_ordinary_income>Y</has_ordinary_income>
+          <has_investment_income>Y</has_investment_income>
+        </conditions>
+        <actions>
+          <action>
+            // Partner's share of interest income
+            double partner_interest = foreign_partnership.k_interest_income * foreign_partnership.k1_distributive_share_pct;
+            result.interest_income += partner_interest;
+
+            // Partner's share of dividend income
+            double partner_dividends = foreign_partnership.k_dividends * foreign_partnership.k1_distributive_share_pct;
+            result.dividends_received += partner_dividends;
+
+            // Partner's share of royalty income
+            double partner_royalties = foreign_partnership.k_royalties * foreign_partnership.k1_distributive_share_pct;
+            result.gross_royalties += partner_royalties;
+
+            // Include in total income
+            result.total_income += (partner_interest + partner_dividends + partner_royalties);
+          </action>
+        </actions>
+        <policy>
+          Partner's Share of Investment Income
+
+          Investment income from partnerships flows through to partners and retains
+          its character:
+
+          Interest Income (IRC § 702(a)(7)):
+          - Partner reports share of partnership interest income
+          - Character as portfolio interest or other category preserved
+
+          Dividend Income (IRC § 702(a)(5)):
+          - Ordinary dividends
+          - Qualified dividends (eligible for preferential rates if requirements met)
+          - Corporate partners may be eligible for dividends received deduction
+
+          Royalty Income (IRC § 702(a)(8)):
+          - Partner reports share of partnership royalty income
+          - May be subject to net investment income tax (§ 1411) for individuals
+
+          Reference: IRC § 702(a) - Character of items constituting distributive share
+          Reference: IRC § 1(h)(11) - Qualified dividend income
+          Reference: Form 8865 Schedule K-1 - Lines 5, 6a, 7
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Allocate capital gains -->
+      <rule number="3">
+        <conditions>
+          <has_ordinary_income>Y</has_ordinary_income>
+          <has_capital_gains>Y</has_capital_gains>
+        </conditions>
+        <actions>
+          <action>
+            // Partner's share of net short-term capital gain/loss
+            double partner_stcg = foreign_partnership.k_net_short_term_capital_gain *
+                                  foreign_partnership.k1_distributive_share_pct;
+
+            // Partner's share of net long-term capital gain/loss
+            double partner_ltcg = foreign_partnership.k_net_long_term_capital_gain *
+                                  foreign_partnership.k1_distributive_share_pct;
+
+            // Add to capital gain income
+            result.capital_gain_net_income += (partner_stcg + partner_ltcg);
+
+            // Include in total income
+            result.total_income += (partner_stcg + partner_ltcg);
+          </action>
+        </actions>
+        <policy>
+          Partner's Share of Capital Gains
+
+          Capital gains from partnership sales of property flow through to partners
+          and retain their character.
+
+          Short-Term Capital Gain (IRC § 1222(1)):
+          - Gain from sale of capital assets held 1 year or less
+          - Taxed as ordinary income
+
+          Long-Term Capital Gain (IRC § 1222(3)):
+          - Gain from sale of capital assets held more than 1 year
+          - Preferential tax rates (0%, 15%, or 20% for individuals)
+          - 21% flat rate for corporations (no preferential treatment)
+
+          Capital Loss Limitations:
+          - Corporations: Capital losses can only offset capital gains
+          - Individuals: $3,000 annual deduction limit, excess carried forward
+
+          Reference: IRC § 702(a)(2) - Capital gains and losses
+          Reference: IRC § 1222 - Capital gain and loss definitions
+          Reference: Form 8865 Schedule K-1 - Lines 8, 9a
+        </policy>
+      </rule>
+
+      <!-- Rule 4: Allocate foreign source income and foreign tax credits -->
+      <rule number="4">
+        <conditions>
+          <has_ordinary_income>Y</has_ordinary_income>
+          <has_foreign_source_income>Y</has_foreign_source_income>
+        </conditions>
+        <actions>
+          <action>
+            // Partner's share of foreign taxes paid
+            foreign_partnership.k3_foreign_taxes_paid =
+              foreign_partnership.k_foreign_taxes_paid * foreign_partnership.k1_distributive_share_pct;
+
+            // Partner's share of foreign source income - general category
+            foreign_partnership.k3_foreign_source_income_general =
+              foreign_partnership.k_foreign_source_income_general * foreign_partnership.k1_distributive_share_pct;
+
+            // Partner's share of foreign source income - passive category
+            foreign_partnership.k3_foreign_source_income_passive =
+              foreign_partnership.k_foreign_source_income_passive * foreign_partnership.k1_distributive_share_pct;
+
+            // Add to foreign tax credit calculation
+            result.foreign_taxes_paid += foreign_partnership.k3_foreign_taxes_paid;
+            result.ftc_general_foreign_income += foreign_partnership.k3_foreign_source_income_general;
+            result.ftc_passive_foreign_income += foreign_partnership.k3_foreign_source_income_passive;
+          </action>
+        </actions>
+        <policy>
+          Partner's Share of Foreign Source Income and Foreign Tax Credits
+
+          Foreign Income Pass-Through (IRC § 702(a)(6)):
+          Partner's distributive share of foreign source income and foreign taxes paid
+          flows through for foreign tax credit purposes.
+
+          Schedule K-2/K-3 Reporting (New for 2021+):
+          Form 8865 Schedule K-2: Partnership-level international information
+          Form 8865 Schedule K-3: Partner's share of international information
+
+          Separate Limitation Baskets (IRC § 904(d)):
+          Foreign source income must be separated into categories:
+          - General category income (active business income)
+          - Passive category income (dividends, interest, rents, royalties)
+          - Other categories (GILTI, foreign branch, etc.)
+
+          Foreign Tax Credit (IRC § 901):
+          Partners can claim foreign tax credit for their share of:
+          - Foreign income taxes paid by partnership
+          - Limited to U.S. tax on foreign source income
+
+          Reference: IRC § 702(a)(6) - Taxes paid to foreign countries
+          Reference: IRC § 901 - Foreign tax credit
+          Reference: IRC § 904 - Limitation on foreign tax credit
+          Reference: Form 8865 Schedule K-2 and K-3 Instructions
+        </policy>
+      </rule>
+
+      <!-- Rule 5: No ordinary income -->
+      <rule number="5">
+        <conditions>
+          <has_ordinary_income>N</has_ordinary_income>
+        </conditions>
+        <actions>
+          <action>
+            foreign_partnership.k1_total_income = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No partnership ordinary income - partner has no distributive share to report.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 14200: Complete Form 8865 Schedules
+    ============================================================================
+
+    Completes Form 8865 schedules K-1, K-2, and K-3 for partner's share
+    of international items.
+
+    Schedules:
+    - Schedule K-1: Partner's Share of Income, Deductions, Credits, etc.
+    - Schedule K-2: Partners' Distributive Share Items - International
+    - Schedule K-3: Partner's Share of Income, Deductions, Credits, etc. - International
+
+    Reference: Form 8865 Instructions
+    Reference: IRC § 6038 - Information reporting for foreign partnerships
+  -->
+  <decision_table name="Complete_Form_8865_Schedules" number="14200">
+    <description>
+      Complete Form 8865 schedules for partner's distributive share.
+      Track capital account and partner basis adjustments.
+    </description>
+
+    <conditions>
+      <condition name="form_required">
+        <expression>foreign_partnership.form_8865_required</expression>
+        <comment>Form 8865 is required to be filed</comment>
+      </condition>
+
+      <condition name="has_income_or_loss">
+        <expression>foreign_partnership.k1_total_income != 0.0</expression>
+        <comment>Partner has distributive share of income or loss</comment>
+      </condition>
+
+      <condition name="has_distributions">
+        <expression>foreign_partnership.distributions_total > 0.0</expression>
+        <comment>Partner received distributions during year</comment>
+      </condition>
+
+      <condition name="has_foreign_items">
+        <expression>
+          foreign_partnership.k3_foreign_taxes_paid > 0.0 ||
+          foreign_partnership.k3_foreign_source_income_general > 0.0 ||
+          foreign_partnership.k3_foreign_source_income_passive > 0.0
+        </expression>
+        <comment>Partner has foreign tax items to report</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate capital account -->
+      <rule number="1">
+        <conditions>
+          <form_required>Y</form_required>
+          <has_income_or_loss>Y</has_income_or_loss>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate ending capital account
+            // Beginning balance + contributions + income share - distributions - loss share
+
+            if (foreign_partnership.k1_total_income > 0.0) {
+              foreign_partnership.capital_account_share_of_income = foreign_partnership.k1_total_income;
+              foreign_partnership.capital_account_share_of_loss = 0.0;
+            } else {
+              foreign_partnership.capital_account_share_of_income = 0.0;
+              foreign_partnership.capital_account_share_of_loss = -foreign_partnership.k1_total_income;
+            }
+
+            foreign_partnership.capital_account_ending =
+              foreign_partnership.capital_account_beginning +
+              foreign_partnership.capital_contributions_current_year +
+              foreign_partnership.capital_account_share_of_income -
+              foreign_partnership.capital_account_share_of_loss -
+              foreign_partnership.capital_account_distributions;
+          </action>
+        </actions>
+        <policy>
+          Capital Account Calculation
+
+          Partner's capital account tracks their equity in the partnership.
+
+          Beginning Capital Account:
+          - Partner's capital account at start of tax year
+
+          Increases:
+          - Contributions of cash or property
+          - Distributive share of partnership income (all types)
+          - Distributive share of tax-exempt income
+
+          Decreases:
+          - Cash and property distributions
+          - Distributive share of partnership losses and deductions
+          - Distributive share of nondeductible expenses
+
+          Ending Capital Account:
+          Beginning + Contributions + Income - Losses - Distributions = Ending
+
+          Capital Account vs. Tax Basis:
+          Capital account and tax basis are related but different:
+          - Capital account: Book-value equity in partnership
+          - Tax basis: Tax cost of partnership interest (affects gain/loss recognition)
+
+          Reference: Form 8865 Schedule K-1 - Part II, Capital Account Analysis
+          Reference: Treas. Reg. § 1.704-1(b)(2)(iv) - Capital account maintenance
+        </policy>
+      </rule>
+
+      <!-- Rule 2: Calculate partner basis adjustments (IRC § 705) -->
+      <rule number="2">
+        <conditions>
+          <form_required>Y</form_required>
+          <has_income_or_loss>Y</has_income_or_loss>
+        </conditions>
+        <actions>
+          <action>
+            // Partner basis adjustments under IRC § 705
+
+            // Basis increases
+            foreign_partnership.basis_increase_income = 0.0;
+            if (foreign_partnership.k1_total_income > 0.0) {
+              foreign_partnership.basis_increase_income = foreign_partnership.k1_total_income;
+            }
+
+            // Basis decreases
+            foreign_partnership.basis_decrease_losses = 0.0;
+            if (foreign_partnership.k1_total_income < 0.0) {
+              foreign_partnership.basis_decrease_losses = -foreign_partnership.k1_total_income;
+            }
+
+            // Calculate ending basis
+            double tentative_ending_basis =
+              foreign_partnership.basis_beginning +
+              foreign_partnership.basis_increase_contributions +
+              foreign_partnership.basis_increase_income -
+              foreign_partnership.basis_decrease_distributions -
+              foreign_partnership.basis_decrease_losses;
+
+            // Apply basis limitation (§ 704(d))
+            // Partner cannot deduct losses in excess of basis
+            if (tentative_ending_basis < 0.0) {
+              foreign_partnership.basis_limitation_applied = true;
+              foreign_partnership.suspended_losses = -tentative_ending_basis;
+              foreign_partnership.basis_ending = 0.0;
+
+              // Adjust loss deduction to available basis
+              foreign_partnership.basis_decrease_losses =
+                foreign_partnership.basis_beginning +
+                foreign_partnership.basis_increase_contributions +
+                foreign_partnership.basis_increase_income -
+                foreign_partnership.basis_decrease_distributions;
+            } else {
+              foreign_partnership.basis_limitation_applied = false;
+              foreign_partnership.suspended_losses = 0.0;
+              foreign_partnership.basis_ending = tentative_ending_basis;
+            }
+          </action>
+        </actions>
+        <policy>
+          Partner Basis Adjustments (IRC § 705)
+
+          Partner's basis in partnership interest is adjusted annually for:
+
+          Basis Increases (IRC § 705(a)(1)):
+          - Contributions of cash or property
+          - Distributive share of partnership taxable income
+          - Distributive share of tax-exempt income
+          - Partner's share of partnership liabilities (§ 752)
+
+          Basis Decreases (IRC § 705(a)(2)):
+          - Distributions of cash and property (§ 733)
+          - Distributive share of partnership losses
+          - Distributive share of nondeductible, noncapital expenditures
+          - Decrease in partner's share of partnership liabilities (§ 752)
+
+          Basis Limitation (IRC § 704(d)):
+          Partner cannot deduct losses in excess of their basis in the partnership interest.
+          Excess losses are suspended and carried forward indefinitely.
+          Suspended losses can be deducted when basis increases or upon disposition.
+
+          Ordering of Adjustments (IRC § 705(a)):
+          1. Increase for income items and contributions
+          2. Decrease for distributions
+          3. Decrease for losses (subject to basis limitation)
+
+          Reference: IRC § 705 - Determination of basis of partner's interest
+          Reference: IRC § 704(d) - Limitation on allowance of losses
+          Reference: IRC § 752 - Treatment of certain liabilities
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Handle distributions -->
+      <rule number="3">
+        <conditions>
+          <form_required>Y</form_required>
+          <has_distributions>Y</has_distributions>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate total distributions
+            foreign_partnership.distributions_total =
+              foreign_partnership.distributions_cash +
+              foreign_partnership.distributions_property_fmv;
+
+            // Check if distributions exceed basis (taxable as capital gain)
+            if (foreign_partnership.distributions_total > foreign_partnership.basis_beginning + foreign_partnership.basis_increase_income) {
+              foreign_partnership.distributions_reduce_basis =
+                foreign_partnership.basis_beginning + foreign_partnership.basis_increase_income;
+              foreign_partnership.distributions_in_excess_of_basis =
+                foreign_partnership.distributions_total - foreign_partnership.distributions_reduce_basis;
+
+              // Recognize capital gain for distributions in excess of basis
+              result.capital_gain_net_income += foreign_partnership.distributions_in_excess_of_basis;
+            } else {
+              foreign_partnership.distributions_reduce_basis = foreign_partnership.distributions_total;
+              foreign_partnership.distributions_in_excess_of_basis = 0.0;
+            }
+
+            foreign_partnership.basis_decrease_distributions = foreign_partnership.distributions_reduce_basis;
+          </action>
+        </actions>
+        <policy>
+          Partnership Distributions (IRC § 731, § 733)
+
+          Non-Liquidating Distributions:
+
+          General Rule (IRC § 731(a)):
+          Distributions are generally non-taxable to partner, but:
+          - Partner recognizes gain if cash distributed exceeds basis
+          - No loss recognition except on liquidating distributions
+
+          Basis Reduction (IRC § 733):
+          Partner's basis is reduced (but not below zero) by:
+          - Amount of cash distributed
+          - Adjusted basis of property distributed
+
+          Distributions Exceeding Basis (IRC § 731(a)(1)):
+          If cash distribution exceeds partner's basis:
+          - Partner recognizes capital gain
+          - Gain = Excess of cash over basis
+          - Character is capital gain (not ordinary income)
+
+          Property Distributions:
+          - Partner's basis in distributed property = carryover basis from partnership
+          - Limited to partner's basis in partnership interest
+
+          Ordering:
+          1. Basis increased for income items
+          2. Basis decreased for distributions (gain recognized if cash > basis)
+          3. Basis decreased for losses (subject to basis limitation)
+
+          Reference: IRC § 731 - Extent of recognition of gain or loss on distribution
+          Reference: IRC § 733 - Basis of distributee partner's interest
+          Reference: Form 8865 Schedule K-1 - Line 19
+        </policy>
+      </rule>
+
+      <!-- Rule 4: Complete Schedule K-3 for foreign items -->
+      <rule number="4">
+        <conditions>
+          <form_required>Y</form_required>
+          <has_foreign_items>Y</has_foreign_items>
+        </conditions>
+        <actions>
+          <action>
+            // Set K-2/K-3 filing flags
+            foreign_partnership.k2_foreign_source_income_general = foreign_partnership.k_foreign_source_income_general;
+            foreign_partnership.k2_foreign_source_income_passive = foreign_partnership.k_foreign_source_income_passive;
+            foreign_partnership.k2_foreign_taxes_paid = foreign_partnership.k_foreign_taxes_paid;
+
+            // Already calculated in Table 14100
+            // foreign_partnership.k3_foreign_source_income_general
+            // foreign_partnership.k3_foreign_source_income_passive
+            // foreign_partnership.k3_foreign_taxes_paid
+          </action>
+        </actions>
+        <policy>
+          Form 8865 Schedule K-2 and K-3: International Tax Information
+
+          Schedule K-2 (Partnership-Level):
+          Reports partnership's international tax information including:
+          - Part I: Partnership's Other Current Year International Information
+          - Part II: Foreign Tax Credit Limitation
+          - Part III: Other Information for Preparation of Form 1116 or 1118
+
+          Schedule K-3 (Partner-Level):
+          Reports partner's distributive share of international items:
+          - Part I: Partner's Share of Partnership's Other Current Year International Information
+          - Part II: Partner's Share of Foreign Tax Credit Information
+          - Part III: Partner's Share of Other Information for Preparation of Form 1116 or 1118
+
+          Purpose:
+          Provides partners with information needed to:
+          - Claim foreign tax credits (Form 1116 or Form 1118)
+          - Apply foreign tax credit limitations by basket
+          - Report foreign source income by category
+
+          Filing Requirement:
+          Required for partnerships with foreign activities or foreign partners.
+          Mandatory for Form 8865 filers with international operations.
+
+          Reference: Form 8865 Instructions - Schedule K-2 and K-3
+          Reference: IRC § 904 - Limitation on credit
+          Reference: IRC § 902 - Deemed paid foreign tax credit
+        </policy>
+      </rule>
+
+      <!-- Rule 5: Form not required -->
+      <rule number="5">
+        <conditions>
+          <form_required>N</form_required>
+        </conditions>
+        <actions>
+          <action>
+            // No Form 8865 filing - nothing to complete
+          </action>
+        </actions>
+        <policy>
+          Form 8865 not required - no schedules to complete.
+
+          Partner still reports distributive share of income on U.S. tax return
+          based on Schedule K-1 received from partnership.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+  <!--
+    ================================================================
+    FOREIGN TAX CREDIT - SEPARATE LIMITATION BASKETS (13000-13699)
+    IRC § 904(d): Separate Limitation Baskets
+    Form 1118: Foreign Tax Credit - Corporations
+    ================================================================
+
+    The separate limitation basket rules prevent "cross-crediting" of
+    foreign taxes between different categories of income.
+
+    Five separate baskets (IRC § 904(d)):
+    1. General Category - Active business income (most common)
+    2. Passive Income - Dividends, interest, rents, royalties (FPHCI)
+    3. GILTI - Global intangible low-taxed income (80% FTC limit)
+    4. Foreign Branch - Income attributable to foreign branches (QBUs)
+    5. Treaty Income - Income subject to withholding under treaty (rare)
+
+    Each basket has its own:
+    - FTC limitation calculation
+    - Carryover/carryback tracking (1 year back, 10 years forward)
+    - No cross-crediting between baskets
+  -->
+
+  <!--
+    Table 13000: Allocate Income to FTC Baskets
+
+    Allocates foreign source income and foreign taxes paid to the
+    appropriate separate limitation baskets per IRC § 904(d).
+
+    Reference: IRC § 904(d) - Separate application of section with respect to certain categories of income
+    Reference: Treas. Reg. § 1.904-4 - Separate limitation baskets
+    Reference: Form 1118 Schedule H - Separate Category Income
+  -->
+  <decision_table name="Allocate_Income_To_FTC_Baskets" number="13000">
+    <description>
+      Allocate foreign source income and foreign taxes to separate limitation baskets.
+      Prevents cross-crediting between income categories.
+    </description>
+
+    <conditions>
+      <condition name="has_services_income">
+        <expression>result.foreign_source_services > 0</expression>
+        <comment>Has foreign source services income</comment>
+      </condition>
+
+      <condition name="has_sales_income">
+        <expression>result.foreign_source_sales > 0</expression>
+        <comment>Has foreign source sales income</comment>
+      </condition>
+
+      <condition name="has_passive_income">
+        <expression>(result.foreign_source_dividends > 0 || result.foreign_source_interest > 0 || result.foreign_source_rents > 0 || result.foreign_source_royalties > 0)</expression>
+        <comment>Has passive income (dividends, interest, rents, royalties)</comment>
+      </condition>
+
+      <condition name="has_gilti_income">
+        <expression>result.ftc_gilti_foreign_income > 0</expression>
+        <comment>Has GILTI tested income from CFCs</comment>
+      </condition>
+
+      <condition name="has_branch_income">
+        <expression>result.ftc_foreign_branch_income > 0</expression>
+        <comment>Has foreign branch income (QBU)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!--
+        Rule 1: Allocate passive income to Passive basket
+        Dividends, interest, rents, royalties = Passive basket (FPHCI)
+      -->
+      <rule number="1">
+        <conditions>
+          <has_passive_income>Y</has_passive_income>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // Passive Income Basket (IRC § 904(d)(2)(B))
+            // ========================================
+            // Includes FPHCI-type income:
+            // - Dividends
+            // - Interest
+            // - Rents
+            // - Royalties
+            // - Passive income from look-through entities
+
+            result.ftc_passive_foreign_income =
+              result.foreign_source_dividends +
+              result.foreign_source_interest +
+              result.foreign_source_rents +
+              result.foreign_source_royalties;
+
+            // Allocate foreign taxes on passive income
+            result.ftc_passive_foreign_taxes =
+              result.foreign_tax_dividends +
+              result.foreign_tax_interest +
+              result.foreign_tax_rents +
+              result.foreign_tax_royalties;
+
+            // High-Tax Kickout Rule (IRC § 904(d)(2)(B)(iii))
+            // If foreign tax rate > US rate (21%), passive income
+            // is re-characterized as general category income
+            if (result.ftc_passive_foreign_income > 0) {
+              double passive_effective_rate =
+                result.ftc_passive_foreign_taxes / result.ftc_passive_foreign_income;
+
+              if (passive_effective_rate > result.federal_tax_rate) {
+                // High-tax kickout: Move to general basket
+                result.ftc_passive_high_tax_kickout = true;
+                result.ftc_general_foreign_income += result.ftc_passive_foreign_income;
+                result.ftc_general_foreign_taxes += result.ftc_passive_foreign_taxes;
+                result.ftc_passive_foreign_income = 0.0;
+                result.ftc_passive_foreign_taxes = 0.0;
+              } else {
+                result.ftc_passive_high_tax_kickout = false;
+              }
+            }
+          </action>
+        </actions>
+        <policy>
+          Passive Income Basket (IRC § 904(d)(2)(B)).
+
+          **Passive Income (FPHCI-type)**:
+          - Dividends (except look-through dividends from CFCs)
+          - Interest
+          - Rents
+          - Royalties
+          - Annuities
+          - Passive income from partnerships, trusts, estates
+
+          **High-Tax Kickout** (IRC § 904(d)(2)(B)(iii)):
+          - If effective foreign tax rate > U.S. rate (21%)
+          - Passive income is re-characterized as general category
+          - Prevents "cherry picking" low-taxed passive income
+
+          **Example**:
+          - Foreign dividends: $100,000
+          - Foreign tax withheld: $25,000 (25% rate)
+          - U.S. rate: 21%
+          - Since 25% > 21%, income moves to general basket
+
+          Reference: IRC § 904(d)(2)(B) - Passive category income
+          Reference: IRC § 904(d)(2)(B)(iii) - High-tax kickout
+          Reference: Treas. Reg. § 1.904-4(b) - Passive category income
+        </policy>
+      </rule>
+
+      <!--
+        Rule 2: Allocate GILTI income to GILTI basket
+        Tested income from CFCs
+      -->
+      <rule number="2">
+        <conditions>
+          <has_gilti_income>Y</has_gilti_income>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // GILTI Basket (IRC § 904(d)(1)(A))
+            // ========================================
+            // Global Intangible Low-Taxed Income
+            // Tested income from CFCs (Section 951A inclusion)
+
+            // GILTI foreign income already populated from Form 5471
+            // (calculated in Subpart F/GILTI tables)
+
+            // GILTI Foreign Taxes: 80% Limitation (IRC § 960(d))
+            // Only 80% of foreign taxes on tested income are creditable
+            result.ftc_gilti_80pct_limit_applied =
+              result.ftc_gilti_foreign_taxes * 0.80;
+
+            // For FTC limitation calculation, use the 80% limited amount
+            // (The 20% disallowance prevents full credit of high foreign taxes)
+          </action>
+        </actions>
+        <policy>
+          GILTI Basket (IRC § 904(d)(1)(A) and § 951A).
+
+          **GILTI Income**:
+          - Global Intangible Low-Taxed Income
+          - Tested income from Controlled Foreign Corporations (CFCs)
+          - Section 951A inclusion (net of QBAI and FDII)
+
+          **80% FTC Limitation** (IRC § 960(d)):
+          - Only 80% of foreign taxes on GILTI are creditable
+          - 20% disallowance applies to foreign taxes deemed paid
+          - Example: $100K foreign taxes → $80K creditable
+
+          **No Carryover for Deemed Paid Taxes**:
+          - GILTI uses "deemed paid" foreign taxes (IRC § 960)
+          - Excess credits in GILTI basket CAN be carried forward
+          - Separate from general category carryovers
+
+          **Interaction with 50% Deduction** (IRC § 250):
+          - GILTI inclusion gets 50% deduction (37.5% for 2021+)
+          - FTC applies to tentative tax on GILTI
+          - Effective GILTI rate: 10.5% (21% × 50%)
+
+          Reference: IRC § 951A - Global intangible low-taxed income
+          Reference: IRC § 960(d) - Special rules for GILTI
+          Reference: IRC § 904(d)(1)(A) - GILTI separate basket
+          Reference: Form 1118 Schedule I - GILTI basket
+        </policy>
+      </rule>
+
+      <!--
+        Rule 3: Allocate foreign branch income to Foreign Branch basket
+        Income attributable to QBUs (Qualified Business Units)
+      -->
+      <rule number="3">
+        <conditions>
+          <has_branch_income>Y</has_branch_income>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // Foreign Branch Basket (IRC § 904(d)(2)(J))
+            // ========================================
+            // Income attributable to foreign branches (QBUs)
+            // Separate from general category starting 2018 (TCJA)
+
+            // Foreign branch income and taxes already allocated
+            // from QBU calculations (would be in separate tables)
+
+            // No special limitation - standard FTC limitation applies
+          </action>
+        </actions>
+        <policy>
+          Foreign Branch Basket (IRC § 904(d)(2)(J)).
+
+          **Foreign Branch Income**:
+          - Income attributable to Qualified Business Units (QBUs)
+          - QBU = separate unit with own books and records
+          - Must conduct trade or business outside U.S.
+          - Includes foreign branches, disregarded entities
+
+          **Branch Income vs. CFC Income**:
+          - Branch income: Direct operations (passthrough)
+          - CFC income: Subpart F or GILTI (inclusion)
+          - Different baskets prevent cross-crediting
+
+          **Attribution Rules**:
+          - Income "attributable" to QBU per Treas. Reg. § 1.904-4(f)
+          - Based on activities, assets, risks of QBU
+          - Transfer pricing principles apply
+
+          **Added by TCJA (2018)**:
+          - Pre-2018: Foreign branch income was general category
+          - Post-2018: Separate basket to prevent mismatch arbitrage
+
+          Reference: IRC § 904(d)(2)(J) - Foreign branch category income
+          Reference: IRC § 989 - Qualified business unit
+          Reference: Treas. Reg. § 1.904-4(f) - Foreign branch category income
+        </policy>
+      </rule>
+
+      <!--
+        Rule 4: Allocate remaining income to General basket
+        Active business income (default basket)
+      -->
+      <rule number="4">
+        <conditions>
+          <has_services_income>Y</has_services_income>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // General Category Basket (IRC § 904(d)(2)(A))
+            // ========================================
+            // Active business income (most common)
+            // Default basket for income not in other baskets
+
+            // Start with services income (active business)
+            result.ftc_general_foreign_income = result.foreign_source_services;
+            result.ftc_general_foreign_taxes = result.foreign_tax_services;
+
+            // Add sales income if applicable
+            if (result.foreign_source_sales > 0) {
+              result.ftc_general_foreign_income += result.foreign_source_sales;
+              result.ftc_general_foreign_taxes += result.foreign_tax_sales;
+            }
+
+            // General basket also includes:
+            // - Look-through dividends from CFCs (not passive)
+            // - Active rents/royalties (if substantial services)
+            // - Any income kicked out from passive (high-tax)
+          </action>
+        </actions>
+        <policy>
+          General Category Basket (IRC § 904(d)(2)(A)).
+
+          **General Category Income**:
+          - Active business income (default)
+          - Services income
+          - Sales of inventory
+          - Manufacturing income
+          - Look-through dividends from CFCs (IRC § 904(d)(4))
+          - High-taxed passive income (via kickout)
+
+          **Most Common Basket**:
+          - Majority of corporate foreign income
+          - Active trade or business operations
+          - Not passive, GILTI, branch, or treaty
+
+          **Look-Through Rules** (IRC § 904(d)(3) and (4)):
+          - CFC dividends "look through" to underlying income
+          - Passive CFC income → Passive basket
+          - General CFC income → General basket
+          - Prevents manipulation via holding companies
+
+          Reference: IRC § 904(d)(2)(A) - General category income
+          Reference: IRC § 904(d)(3) - Look-through rules for dividends
+          Reference: Treas. Reg. § 1.904-4(a) - General category income
+        </policy>
+      </rule>
+
+      <!--
+        Rule 5: No foreign income - initialize all baskets to zero
+      -->
+      <rule number="5">
+        <conditions>
+          <has_services_income>N</has_services_income>
+          <has_sales_income>N</has_sales_income>
+          <has_passive_income>N</has_passive_income>
+          <has_gilti_income>N</has_gilti_income>
+          <has_branch_income>N</has_branch_income>
+        </conditions>
+        <actions>
+          <action>
+            // No foreign income - all baskets remain at zero
+            result.ftc_general_foreign_income = 0.0;
+            result.ftc_general_foreign_taxes = 0.0;
+            result.ftc_passive_foreign_income = 0.0;
+            result.ftc_passive_foreign_taxes = 0.0;
+            result.ftc_gilti_foreign_income = 0.0;
+            result.ftc_gilti_foreign_taxes = 0.0;
+            result.ftc_foreign_branch_income = 0.0;
+            result.ftc_foreign_branch_taxes = 0.0;
+            result.ftc_treaty_foreign_income = 0.0;
+            result.ftc_treaty_foreign_taxes = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No foreign source income - no FTC baskets populated.
+
+          All basket amounts remain at zero.
+          Carryovers from prior years remain available.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!-- Additional tables 13100-13600 would follow here -->
+
+  <!-- For brevity in this draft file, see full implementation in final merged file -->
 </decision_tables>
