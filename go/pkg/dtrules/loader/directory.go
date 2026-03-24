@@ -39,6 +39,33 @@ type xmlFileInfo struct {
 	FilePath        string // The FILE_PATH or file_path value
 }
 
+// shouldSkipFile determines if a file should be skipped during collection.
+func shouldSkipFile(path string) bool {
+	filename := filepath.Base(path)
+
+	// Skip template files
+	if strings.Contains(strings.ToUpper(filename), "TEMPLATE") {
+		return true
+	}
+
+	// Skip mapping files (different XML format)
+	if strings.HasSuffix(filename, "_map.xml") {
+		return true
+	}
+
+	// Skip files in testfiles directory
+	if strings.Contains(path, "/testfiles/") || strings.Contains(path, "\\testfiles\\") {
+		return true
+	}
+
+	// Skip schema files
+	if strings.Contains(path, "/schemas/") || strings.Contains(path, "\\schemas\\") {
+		return true
+	}
+
+	return false
+}
+
 // CollectXMLFiles scans a directory recursively for *.xml files.
 func CollectXMLFiles(dirPath string) ([]string, error) {
 	var files []string
@@ -47,7 +74,9 @@ func CollectXMLFiles(dirPath string) ([]string, error) {
 			return err
 		}
 		if !d.IsDir() && strings.HasSuffix(strings.ToLower(path), ".xml") {
-			files = append(files, path)
+			if !shouldSkipFile(path) {
+				files = append(files, path)
+			}
 		}
 		return nil
 	})
@@ -67,44 +96,77 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 		return nil, fmt.Errorf("failed to read %s: %w", filePath, err)
 	}
 
+	// Quick validation - check if file looks like it contains decision_tables or entity_data_dictionary
+	dataStr := string(data)
+	hasDecisionTables := strings.Contains(dataStr, "<decision_tables")
+	hasEntityDict := strings.Contains(dataStr, "<entity_data_dictionary")
+
+	if !hasDecisionTables && !hasEntityDict {
+		return nil, fmt.Errorf("file %s does not appear to be a DTRules XML file", filePath)
+	}
+
 	info := &xmlFileInfo{
 		Path: filePath,
 	}
 
 	// Try parsing as decision table first
-	var dtFile DTFile
-	if err := xml.Unmarshal(data, &dtFile); err == nil && len(dtFile.Tables) > 0 {
-		// It's a decision table file
-		info.IsDecisionTable = true
+	if hasDecisionTables {
+		var dtFile DTFile
+		if err := xml.Unmarshal(data, &dtFile); err == nil && len(dtFile.Tables) > 0 {
+			// It's a decision table file
+			info.IsDecisionTable = true
 
-		// Extract TABLE_NUMBER from first table
-		if dtFile.Tables[0].AttributeFields.TableNumber != "" {
-			num, err := strconv.Atoi(strings.TrimSpace(dtFile.Tables[0].AttributeFields.TableNumber))
-			if err != nil {
-				return nil, fmt.Errorf("invalid TABLE_NUMBER in %s: %w", filePath, err)
+			// Extract TABLE_NUMBER from first table
+			if dtFile.Tables[0].AttributeFields.TableNumber != "" {
+				tableNumStr := strings.TrimSpace(dtFile.Tables[0].AttributeFields.TableNumber)
+
+				// Check for template placeholders
+				if strings.Contains(tableNumStr, "X") || strings.Contains(tableNumStr, "?") {
+					return nil, fmt.Errorf("template file with placeholder TABLE_NUMBER: %s", tableNumStr)
+				}
+
+				num, err := strconv.Atoi(tableNumStr)
+				if err != nil {
+					return nil, fmt.Errorf("invalid TABLE_NUMBER in %s: %w", filePath, err)
+				}
+				info.Number = num
 			}
-			info.Number = num
+
+			// Extract FILE_PATH
+			filePathStr := strings.TrimSpace(dtFile.Tables[0].AttributeFields.FilePath)
+			info.FilePath = filePathStr
+
+			// Skip merged/monolithic files that don't have FILE_PATH
+			// These are typically generated files like TaxReturn_dt.xml
+			// Individual table files should always have a FILE_PATH
+			if filePathStr == "" {
+				return nil, fmt.Errorf("decision table file missing FILE_PATH (likely a merged/generated file)")
+			}
+
+			return info, nil
 		}
-
-		// Extract FILE_PATH
-		info.FilePath = strings.TrimSpace(dtFile.Tables[0].AttributeFields.FilePath)
-
-		return info, nil
 	}
 
 	// Try parsing as EDD
-	var eddFile EDDFile
-	if err := xml.Unmarshal(data, &eddFile); err == nil {
-		// It's an EDD file
-		info.IsDecisionTable = false
+	if hasEntityDict {
+		var eddFile EDDFile
+		if err := xml.Unmarshal(data, &eddFile); err == nil {
+			// It's an EDD file
+			info.IsDecisionTable = false
 
-		// Extract file_path from metadata
-		filePath := strings.TrimSpace(eddFile.FileMetadata.FilePath)
-		info.FilePath = filePath
+			// Extract file_path from metadata
+			filePathStr := strings.TrimSpace(eddFile.FileMetadata.FilePath)
+			info.FilePath = filePathStr
 
-		// Parse number from file_path (e.g., "states/AL/40100_AL_constants" -> 40100)
-		if filePath != "" {
-			parts := strings.Split(filePath, "/")
+			// Skip merged/monolithic files that don't have file_path
+			// These are typically generated files like TaxReturn_edd.xml
+			// Individual EDD files should always have a file_path
+			if filePathStr == "" {
+				return nil, fmt.Errorf("EDD file missing file_path (likely a merged/generated file)")
+			}
+
+			// Parse number from file_path (e.g., "states/AL/40100_AL_constants" -> 40100)
+			parts := strings.Split(filePathStr, "/")
 			if len(parts) > 0 {
 				lastPart := parts[len(parts)-1]
 				// Extract leading digits
@@ -119,14 +181,14 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 				if numStr != "" {
 					num, err := strconv.Atoi(numStr)
 					if err != nil {
-						return nil, fmt.Errorf("invalid file_path number in %s: %w", filePath, err)
+						return nil, fmt.Errorf("invalid file_path number in %s: %w", filePathStr, err)
 					}
 					info.Number = num
 				}
 			}
-		}
 
-		return info, nil
+			return info, nil
+		}
 	}
 
 	return nil, fmt.Errorf("file %s is neither a valid decision table nor EDD file", filePath)

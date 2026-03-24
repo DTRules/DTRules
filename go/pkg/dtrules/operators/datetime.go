@@ -55,10 +55,9 @@ func init() {
 	Register("getdate", opGetDate)
 	Register("gettimestamp", opGetTimestamp)
 	// Date interval operators
-	// TODO: Re-enable when interval support is implemented
-	// Register("days", opDays)
-	// Register("months", opMonths)
-	// Register("years", opYears)
+	Register("days", opDays)
+	Register("months", opMonths)
+	Register("years", opYears)
 }
 
 // opNow: ( -- date ) pushes the current date/time
@@ -533,8 +532,6 @@ func opDatePlus(state dtrules.State) error {
 	}
 
 	// Check if operand is an interval
-	// TODO: Re-enable when interval support is implemented
-	/*
 	if interval := dtrules.AsInterval(operandObj); interval != nil {
 		t, err := dateObj.TimeValue()
 		if err != nil {
@@ -551,7 +548,6 @@ func opDatePlus(state dtrules.State) error {
 		}
 		return state.DataPush(dtrules.GetRTime(result))
 	}
-	*/
 
 	// Legacy behavior: add two dates
 	t1, err := dateObj.TimeValue()
@@ -580,8 +576,6 @@ func opDateMinus(state dtrules.State) error {
 	}
 
 	// Check if operand is an interval
-	// TODO: Re-enable when interval support is implemented
-	/*
 	if interval := dtrules.AsInterval(operandObj); interval != nil {
 		t, err := dateObj.TimeValue()
 		if err != nil {
@@ -598,7 +592,6 @@ func opDateMinus(state dtrules.State) error {
 		}
 		return state.DataPush(dtrules.GetRTime(result))
 	}
-	*/
 
 	// Legacy behavior: subtract two dates
 	t1, err := dateObj.TimeValue()
@@ -632,8 +625,6 @@ func opGetTimestamp(state dtrules.State) error {
 }
 
 // opDays: ( n -- interval ) creates a days interval
-// TODO: Re-enable when interval support is implemented
-/*
 func opDays(state dtrules.State) error {
 	nObj, err := state.DataPop()
 	if err != nil {
@@ -645,11 +636,8 @@ func opDays(state dtrules.State) error {
 	}
 	return state.DataPush(dtrules.NewRInterval(n, dtrules.IntervalDays))
 }
-*/
 
 // opMonths: ( n -- interval ) creates a months interval
-// TODO: Re-enable when interval support is implemented
-/*
 func opMonths(state dtrules.State) error {
 	nObj, err := state.DataPop()
 	if err != nil {
@@ -661,11 +649,8 @@ func opMonths(state dtrules.State) error {
 	}
 	return state.DataPush(dtrules.NewRInterval(n, dtrules.IntervalMonths))
 }
-*/
 
 // opYears: ( n -- interval ) creates a years interval
-// TODO: Re-enable when interval support is implemented
-/*
 func opYears(state dtrules.State) error {
 	nObj, err := state.DataPop()
 	if err != nil {
@@ -677,4 +662,3 @@ func opYears(state dtrules.State) error {
 	}
 	return state.DataPush(dtrules.NewRInterval(n, dtrules.IntervalYears))
 }
-*/

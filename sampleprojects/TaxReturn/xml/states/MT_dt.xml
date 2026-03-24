@@ -67,14 +67,6 @@ job.filing_status head_of_household streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_description>Calculate credit for dishwashers ($50 per unit)</action_description>
-<action_postfix>
-"Calculating Energy Efficient Appliance Credit - Dishwasher (Form 8909)" job.audit_trail swap addto
-taxpayer.energy_efficient_appliances_produced 50.0 f* /credit_amt xdef
-credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
-"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
-"  Credit per unit: $50" job.audit_trail swap addto
-"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
 <action_comment>Calculate MT tax MFJ</action_comment>
 <action_description>Calculate MT tax with MFJ standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -99,14 +91,6 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_description>Calculate credit for clothes washers ($125 per unit)</action_description>
-<action_postfix>
-"Calculating Energy Efficient Appliance Credit - Clothes Washer (Form 8909)" job.audit_trail swap addto
-taxpayer.energy_efficient_appliances_produced 125.0 f* /credit_amt xdef
-credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
-"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
-"  Credit per unit: $125" job.audit_trail swap addto
-"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
 <action_comment>Calculate MT tax Single</action_comment>
 <action_description>Calculate MT tax with Single standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -131,24 +115,27 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_description>Calculate credit for refrigerators ($100 per unit)</action_description>
+<action_comment>Calculate MT tax Head of Household</action_comment>
+<action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
 <action_postfix>
-"Calculating Energy Efficient Appliance Credit - Refrigerator (Form 8909)" job.audit_trail swap addto
-taxpayer.energy_efficient_appliances_produced 100.0 f* /credit_amt xdef
-credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
-"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
-"  Credit per unit: $100" job.audit_trail swap addto
-"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
+"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mt_standard_deduction_hoh /result.mt_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
+  mt_bracket_2_threshold_hoh mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  result.mt_taxable_income mt_bracket_2_threshold_hoh f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
+  "  Bracket 1 (4.7% on $0-$31,700): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.9% above $31,700): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_description>No qualifying appliances</action_description>
-<action_postfix>
-"Energy Appliance Credit not applicable (Form 8909 - manufacturers only)" job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
