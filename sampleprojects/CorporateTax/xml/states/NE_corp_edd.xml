@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Nebraska Corporate Tax Entity Data Dictionary
+
+  Nebraska Corporate Income Tax:
+  - Flat rate: 5.20% for 2025 (Neb. Rev. Stat. § 77-2734.02)
+  - Future reductions: 4.55% (2026), 3.99% (2027)
+  - Apportionment: Single-sales factor
+  - Economic nexus: No fixed dollar threshold; subject to PL 86-272 protections
+  - Form: Nebraska Form 1120N (Corporation Income Tax Return)
+
+  Key Features:
+  - Flat 5.20% corporate income tax rate (2025)
+  - Single-sales apportionment formula
+  - Federal interest addback (taxable to NE)
+  - Nebraska municipal bond interest subtraction
+  - No alternative minimum tax
+  - Future rate reductions scheduled through LB 754
+
+  References:
+  - Neb. Rev. Stat. § 77-2734.02 (Tax rate schedule)
+  - Neb. Rev. Stat. § 77-2716 (Income adjustments)
+  - Nebraska Form 1120N (Corporation Income Tax Return)
+  - Nebraska Department of Revenue Chapter 24 (Corporate Income Tax Regulations)
+-->
+<entity_dictionary name="CorporateTax_NE_Constants">
+
+  <!--
+    Apportionment Entity: Nebraska Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and NE-specific tables 53700-53799.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='NE'
+           comment='Nebraska state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='NE economic nexus threshold: $100,000 (for sales tax); income tax subject to PL 86-272'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='NE transaction threshold: 200 transactions (sales tax threshold)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='NE uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.052'
+           comment='NE corporate income tax rate: 5.20% for 2025 (Neb. Rev. Stat. § 77-2734.02). Future: 4.55% (2026), 3.99% (2027)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='NE additions: interest on non-NE state/local bonds, federal interest income, etc. (Neb. Rev. Stat. § 77-2716)'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='NE subtractions: federal interest (U.S. obligations), NE Build America Bond interest, etc. (Neb. Rev. Stat. § 77-2716)'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='NE tax credits: jobs creation, R&D, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: NE does not require special state-specific fields
+
+    Nebraska uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+    - Complex combined reporting (though unitary rules may apply)
+  -->
+  <entity name="result">
+    <!-- No NE-specific fields required -->
+  </entity>
+
+</entity_dictionary>

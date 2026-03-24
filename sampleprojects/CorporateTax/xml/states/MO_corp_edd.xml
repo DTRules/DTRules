@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Missouri Corporate Tax Entity Data Dictionary
+
+  Missouri Revised Statutes Chapter 143 § 143.071
+  - Tax rate: 4.0% flat rate on net income
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 in gross receipts
+  - Form: MO-1120 (Corporation Income Tax Return)
+
+  UNIQUE FEATURE: Missouri allows deduction of 50% of federal income tax paid.
+  This is one of only a few states that still allow federal tax deductibility.
+
+  References:
+  - Missouri Revised Statutes § 143.071 (Tax rate)
+  - Missouri Revised Statutes § 143.121 (Federal tax deduction)
+  - Missouri Form MO-1120 (Corporation Income Tax Return)
+  - Missouri Department of Revenue Corporate Income Tax Guidance
+-->
+<entity_dictionary name="CorporateTax_MO_Constants">
+
+  <!--
+    Apportionment Entity: Missouri Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and MO-specific tables 53300-53399.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='MO'
+           comment='Missouri state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Missouri economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='Missouri does not have a transaction count threshold'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Missouri uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.040'
+           comment='Missouri corporate income tax rate: 4.0% flat rate - MO Rev. Stat. § 143.071'/>
+
+    <!-- Federal Tax Deduction Percentage - UNIQUE MISSOURI FEATURE -->
+    <field name='mo_federal_tax_deduction_percentage' type='double' default_value='0.50'
+           comment='Missouri allows deduction of 50% of federal income tax paid - MO Rev. Stat. § 143.121'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Missouri additions: federal interest income, certain expenses, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Missouri subtractions: 50% federal tax deduction, MO municipal interest, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Missouri tax credits: jobs creation, historic preservation, film production, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Missouri-Specific Extensions
+
+    Missouri's unique federal tax deduction feature requires tracking
+    federal income tax paid for the deduction calculation.
+  -->
+  <entity name="result">
+    <!-- No Missouri-specific result fields required -->
+  </entity>
+
+</entity_dictionary>

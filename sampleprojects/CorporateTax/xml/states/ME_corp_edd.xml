@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Maine (ME) Corporate Tax Entity Data Dictionary
+
+  Maine Title 36 § 5200 et seq.
+  - Tax rate: Graduated rates from 3.5% to 8.93%
+  - Apportionment: Single-sales factor
+  - Economic nexus: $250,000 property, $250,000 payroll, $500,000 sales, or 25% factor presence
+  - Form: ME Form 1120ME (Corporate Income Tax Return)
+-->
+<entity_dictionary name="CorporateTax_ME_Constants">
+
+  <!--
+    Apportionment Entity: Maine-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='ME'
+           comment='Maine state code'/>
+
+    <!-- Economic Nexus Thresholds (Factor Presence Standards) -->
+    <field name='economic_nexus_property_threshold' type='double' default_value='250000.0'
+           comment='ME economic nexus property threshold - $250,000'/>
+
+    <field name='economic_nexus_payroll_threshold' type='double' default_value='250000.0'
+           comment='ME economic nexus payroll threshold - $250,000'/>
+
+    <field name='economic_nexus_sales_threshold' type='double' default_value='500000.0'
+           comment='ME economic nexus sales threshold - $500,000'/>
+
+    <field name='economic_nexus_factor_percentage' type='double' default_value='0.25'
+           comment='ME economic nexus 25% factor presence threshold'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='ME uses single-sales factor apportionment'/>
+
+    <!-- Maine Tax Rates (Graduated) -->
+    <field name='tax_rate_tier1' type='double' default_value='0.035'
+           comment='ME tax rate tier 1 - 3.5% on income up to $350,000'/>
+
+    <field name='tax_rate_tier2' type='double' default_value='0.075'
+           comment='ME tax rate tier 2 - 7.5% on income $350,000 to $1,050,000'/>
+
+    <field name='tax_rate_tier3' type='double' default_value='0.083'
+           comment='ME tax rate tier 3 - 8.3% on income $1,050,000 to $3,500,000'/>
+
+    <field name='tax_rate_tier4' type='double' default_value='0.0893'
+           comment='ME tax rate tier 4 - 8.93% on income over $3,500,000'/>
+
+    <field name='tax_bracket_1' type='double' default_value='350000.0'
+           comment='ME tax bracket 1 threshold'/>
+
+    <field name='tax_bracket_2' type='double' default_value='1050000.0'
+           comment='ME tax bracket 2 threshold'/>
+
+    <field name='tax_bracket_3' type='double' default_value='3500000.0'
+           comment='ME tax bracket 3 threshold'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='ME-specific additions: IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='ME-specific subtractions: federal interest, municipal interest, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='ME tax credits: Pine Tree Zone, R&D, employment, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Maine-Specific Extensions
+
+    No special state-specific fields are required for Maine.
+    The standard apportionment fields handle ME's graduated rate structure.
+  -->
+  <entity name="result">
+    <!-- No ME-specific fields needed -->
+  </entity>
+
+</entity_dictionary>

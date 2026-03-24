@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Nebraska Corporate Tax Decision Tables
+
+  Nebraska Corporate Income Tax:
+  - Flat rate: 5.20% for 2025 (reducing to 4.55% in 2026, 3.99% in 2027)
+  - Single-sales apportionment
+
+  Table Allocation: 53700-53799
+  - 53700: Determine_NE_Filing_Requirement
+  - 53720: Calculate_NE_Income_Adjustments
+  - 53780: Calculate_NE_State_Tax
+
+  References:
+  - Neb. Rev. Stat. § 77-2734.02 (Tax rate: 5.20% for 2025)
+  - Neb. Rev. Stat. § 77-2716 (Income adjustments)
+  - Nebraska Form 1120N (Corporation Income Tax Return)
+  - Nebraska Department of Revenue Chapter 24 (Corporate Income Tax Regulations)
+-->
+<decision_tables name="CorporateTax_NE_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 53700: Determine NE Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file NE state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in NE
+    - Economic nexus: Subject to PL 86-272 protections for income tax
+  -->
+  <decision_table name="Determine_NE_Filing_Requirement" number="53700">
+    <description>
+      Determine if corporation must file Nebraska state corporate tax return.
+      Checks for physical presence or economic nexus (considering PL 86-272 protections).
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'NE'</expression>
+        <comment>Has physical presence in NE (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'NE'</expression>
+        <comment>Meets NE economic nexus threshold (beyond PL 86-272 protection)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          NE filing required due to physical presence (office, employees, or property in state).
+
+          A corporation has physical presence nexus in NE if it has:
+          - An office, store, warehouse, or other place of business in NE
+          - Employees working in NE
+          - Tangible personal property located in NE
+          - Real property located in NE
+
+          Nebraska imposes corporate income tax on any corporation doing business in the state,
+          unless protected by Public Law 86-272 (for businesses solely soliciting orders for
+          tangible personal property shipped from outside Nebraska).
+
+          Reference: Neb. Rev. Stat. § 77-2701.13 (Nexus and doing business)
+          Reference: Nebraska Department of Revenue Chapter 24 (Corporate Income Tax)
+          Reference: Public Law 86-272 (Interstate commerce protection)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established (beyond PL 86-272) - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          NE filing required due to economic nexus (activities exceed PL 86-272 protections).
+
+          Economic nexus applies when a corporation has significant economic activity in Nebraska
+          that exceeds the protections of Public Law 86-272. Unlike sales tax (which has a $100,000
+          threshold), income tax nexus depends on the nature and extent of business activities.
+
+          PL 86-272 protects businesses whose only activity is soliciting orders for tangible
+          personal property approved and shipped from outside the state. Activities beyond mere
+          solicitation create nexus for corporate income tax purposes.
+
+          Reference: Public Law 86-272 (Interstate commerce protection)
+          Reference: Neb. Rev. Stat. § 77-2701.13 (Doing business definition)
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No NE nexus - no filing requirement.
+
+          Corporation does not have physical presence or economic nexus in NE, or is protected
+          by Public Law 86-272. Any estimated payments would be refunded.
+
+          Reference: Neb. Rev. Stat. § 77-2701.13 (Nexus requirements)
+          Reference: Public Law 86-272 (Interstate commerce protection)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 53720: Calculate NE State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates NE additions and subtractions to federal taxable income.
+
+    Common NE additions (Neb. Rev. Stat. § 77-2716):
+    - Interest or dividends from non-NE state/municipal bonds (exempt federally or for other states)
+    - Interest income from U.S. government obligations (to extent included in federal income)
+
+    Common NE subtractions (Neb. Rev. Stat. § 77-2716):
+    - Interest on U.S. government obligations (exempt from state tax per federal law)
+    - Interest on Nebraska Build America Bonds
+    - Nebraska net operating loss deduction (if different from federal)
+  -->
+  <decision_table name="Calculate_NE_Income_Adjustments" number="53720">
+    <description>
+      Calculate NE state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate NE state additions
+            double additions = 0.0;
+
+            // NE requires addback of:
+            // - Interest/dividends from non-NE state/municipal obligations
+            //   (These are exempt federally or in other states but taxable to NE)
+            // - Expenses related to exempt income (if deducted federally)
+
+            // Example additions (would be calculated from entity fields):
+            // additions += revenue.other_state_municipal_interest;
+            // Per Neb. Rev. Stat. § 77-2716(2)(a): Interest/dividends from DC,
+            // other states, or their subdivisions (except for RICs)
+
+            apportionment.state_additions = additions;
+
+            // Calculate NE state subtractions
+            double subtractions = 0.0;
+
+            // NE allows subtraction of:
+            // - Interest/dividends from U.S. government obligations
+            //   (Exempt from state tax per federal law, to extent includable in federal income)
+            // - Interest from NE Build America Bonds
+            //   (To extent includable in federal income)
+            // - NE net operating loss deduction (subject to NE limitations)
+
+            // Example subtractions (would be calculated from entity fields):
+            // subtractions += revenue.us_government_interest;
+            // subtractions += revenue.ne_build_america_bond_interest;
+            // subtractions += result.ne_nol_deduction;
+
+            // Per Neb. Rev. Stat. § 77-2716(2)(b): Federal obligations interest
+            // exempt from state tax under federal law
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          NE state-specific income adjustments to federal taxable income.
+
+          NE ADDITIONS to federal taxable income include:
+          - Interest or dividends from obligations of District of Columbia, other states,
+            or their political subdivisions (except for regulated investment companies)
+          - These are exempt at federal level or for other states but taxable to Nebraska
+
+          NE SUBTRACTIONS from federal taxable income include:
+          - Interest or dividend income from U.S. government obligations and territories
+            (Exempt from state tax per federal law, to extent includable in federal income)
+          - Interest from Nebraska Build America Bonds (to extent includable federally)
+          - Nebraska net operating loss deduction (subject to NE-specific limitations)
+
+          Expense adjustments:
+          - Any amounts added/subtracted must be reduced by related expenses
+          - Interest on debt to carry obligations is not deductible
+          - Expenses in production of exempt income are not deductible
+
+          Reference: Neb. Rev. Stat. § 77-2716 (Income tax adjustments)
+          Reference: Nebraska Form 1120N Schedule I (Adjustments to Federal Taxable Income)
+          Reference: Nebraska Department of Revenue Information Guide 8-646 (Interest/Dividend Taxability)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+
+          Corporation does not have NE nexus, so no income adjustments are needed.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 53780: Calculate NE State Tax
+    ============================================================================
+
+    Calculates final NE state corporate income tax.
+
+    NE uses a FLAT RATE of 5.20% for 2025 (with scheduled reductions).
+
+    Process:
+    1. Federal taxable income apportioned to NE (done by table 7500)
+    2. Add NE-specific additions (done by table 53720)
+    3. Subtract NE-specific subtractions (done by table 53720)
+    4. Calculate NE state taxable income
+    5. Apply NE 5.20% flat tax rate (2025)
+    6. Subtract NE state credits
+    7. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_NE_State_Tax" number="53780">
+    <description>
+      Calculate NE state corporate income tax.
+      Applies NE 5.20% flat rate (2025) to apportioned and adjusted taxable income.
+      Rate will decrease to 4.55% (2026) and 3.99% (2027) under LB 754.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate NE tax at 5.20% flat rate -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // NE uses 5.20% flat rate for 2025
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract NE state credits
+            // NE offers various credits: jobs creation, R&D, renewable energy, etc.
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          NE state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to NE: × [NE apportionment percentage]
+          3. NE additions: + [Non-NE municipal interest, etc.]
+          4. NE subtractions: - [Federal interest, NE Build America Bonds, NE NOL, etc.]
+          5. NE taxable income: = [Result]
+          6. NE tax rate: × 5.20% (2025 rate)
+          7. NE income tax: = [Tax before credits]
+          8. NE credits: - [Jobs, R&D, renewable energy, etc.]
+          9. NE tax liability: = [Final tax]
+
+          NE uses single-sales factor apportionment (100% sales factor).
+
+          NE tax rate schedule (Neb. Rev. Stat. § 77-2734.02):
+          - 2025: 5.20% flat rate
+          - 2026: 4.55% flat rate
+          - 2027+: 3.99% flat rate
+
+          Historical rates (pre-LB 754):
+          - Before 2025: Two-tier system (5.58% on first $100K, 7.25% above)
+
+          NE provides various tax credits including:
+          - Jobs creation credits
+          - Research and development credits
+          - Renewable energy credits
+          - Beginning farmer tax credit
+          - Nebraska advantage credits
+
+          Reference: Nebraska Form 1120N (Corporation Income Tax Return)
+          Reference: Neb. Rev. Stat. § 77-2734.02 (Tax rate of 5.20% for 2025)
+          Reference: Neb. Rev. Stat. § 77-2716 (Adjustments to federal income)
+          Reference: Nebraska Department of Revenue Chapter 24 (Corporate Income Tax)
+          Reference: LB 754 (2023) - Corporate tax reform and rate reduction schedule
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No NE nexus - no tax liability.
+
+          Corporation does not have physical presence or economic nexus in NE, or is
+          protected by Public Law 86-272. Any estimated payments are refunded.
+
+          Reference: Neb. Rev. Stat. § 77-2701.13 (Nexus requirements)
+          Reference: Public Law 86-272 (Interstate commerce protection)
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Nexus but no taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No NE taxable income - no tax liability.
+
+          Corporation has NE nexus but no positive taxable income after apportionment
+          and adjustments. Any estimated payments are refunded.
+
+          NE net operating loss (NOL) rules:
+          - NE follows federal NOL provisions with state-specific adjustments
+          - NOL carryforward rules apply (subject to limitations)
+          - State NOL must be computed separately from federal NOL
+          - NOL limited based on Nebraska taxable income
+
+          Reference: Nebraska Form 1120N (Corporation Income Tax Return)
+          Reference: Neb. Rev. Stat. § 77-2716 (Adjustments including NOL)
+          Reference: Nebraska Form 1120N Schedule II (Net Operating Loss Computation)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

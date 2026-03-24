@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  North Dakota Corporate Tax Entity Data Dictionary
+
+  ND has a flat 3.5% corporate income tax rate (reduced from 4.31% in 2024).
+
+  Key Features:
+  - Flat 3.5% corporate income tax rate (ND Century Code § 57-38-30.3)
+  - Single-sales apportionment formula
+  - Economic nexus: $100,000 gross receipts threshold
+  - No alternative minimum tax
+  - Renaissance Zone tax incentive credits available
+
+  References:
+  - ND Century Code § 57-38-30.3 (Tax rate)
+  - ND Form 40 (Corporation Income Tax Return)
+  - ND Office of State Tax Commissioner Corporate Income Tax Guidance
+-->
+<entity_dictionary name="CorporateTax_ND_Constants">
+
+  <!--
+    Apportionment Entity: North Dakota Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and ND-specific tables 53600-53699.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='ND'
+           comment='North Dakota state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='ND economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='ND economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='ND uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.035'
+           comment='ND corporate income tax rate: 3.5% (reduced from 4.31%) - ND Century Code § 57-38-30.3'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='ND additions: federal interest income, state income taxes, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='ND subtractions: ND municipal bond interest, state NOL, dividend income, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='ND tax credits: Renaissance Zone, seed capital, biodiesel, geothermal, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: ND does not require special state-specific fields
+
+    North Dakota uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+    - Complex combined reporting
+  -->
+  <entity name="result">
+    <!-- No ND-specific fields required -->
+  </entity>
+
+</entity_dictionary>

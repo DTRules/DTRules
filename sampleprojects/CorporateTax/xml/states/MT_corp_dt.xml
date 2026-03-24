@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Montana Corporate Tax Decision Tables
+
+  Montana has a 6.75% flat corporate income tax rate (7.0% for water's edge election).
+
+  Table Allocation: 53500-53599
+  - 53500: Determine_MT_Filing_Requirement
+  - 53520: Calculate_MT_Income_Adjustments
+  - 53580: Calculate_MT_State_Tax
+
+  References:
+  - Montana Form CIT (Corporation Income Tax Return)
+  - Montana Code Annotated § 15-30-2120 (Adjustments to federal taxable income)
+  - Montana Department of Revenue Corporate Income Tax Guidance
+-->
+<decision_tables name="CorporateTax_MT_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 53500: Determine MT Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file MT state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in MT
+    - Economic nexus (post-Wayfair): $100,000 gross receipts or 200 transactions
+  -->
+  <decision_table name="Determine_MT_Filing_Requirement" number="53500">
+    <description>
+      Determine if corporation must file Montana state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'MT'</expression>
+        <comment>Has physical presence in MT (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'MT'</expression>
+        <comment>Meets MT economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          MT filing required due to physical presence (office, employees, or property in state).
+
+          A corporation has physical presence nexus in MT if it has:
+          - An office, store, warehouse, or other place of business in MT
+          - Employees working in MT
+          - Tangible personal property located in MT
+          - Real property located in MT
+
+          Reference: Montana Code Annotated § 15-30-2101 (Apportionment and allocation)
+          Reference: Montana Department of Revenue Nexus Guidance
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          MT filing required due to economic nexus (post-Wayfair).
+
+          Economic nexus threshold: $100,000 gross receipts OR 200 transactions in MT.
+
+          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), MT requires
+          filing if a corporation exceeds economic nexus thresholds, even without
+          physical presence.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: Montana Department of Revenue Economic Nexus Guidance
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No MT nexus - no filing requirement.
+
+          Corporation does not meet physical presence or economic nexus thresholds.
+          Any estimated payments would be refunded.
+
+          Reference: Montana Code Annotated § 15-30-2101 (Nexus requirements)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 53520: Calculate MT State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates MT additions and subtractions to federal taxable income.
+
+    Montana uses federal taxable income as the starting point and applies
+    state-specific modifications.
+
+    Common MT additions:
+    - Interest on U.S. government obligations (exempt federally, taxable to MT)
+    - State income tax refunds received
+    - Certain expenses related to exempt income
+    - IRC Section 199A qualified business income deduction addback
+
+    Common MT subtractions:
+    - Interest on MT state and municipal bonds (exempt for MT purposes)
+    - Montana net operating loss deduction (if different from federal)
+    - State income taxes paid
+  -->
+  <decision_table name="Calculate_MT_Income_Adjustments" number="53520">
+    <description>
+      Calculate MT state-specific additions and subtractions to federal taxable income.
+      Montana starts with federal taxable income and applies state modifications.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate MT state additions
+            double additions = 0.0;
+
+            // MT requires addback of:
+            // - Federal interest income (taxable to MT)
+            // - State tax refunds received during the year
+            // - IRC 199A deduction (MT does not conform fully)
+            // - Certain expenses related to exempt income
+
+            // Example additions (would be calculated from entity fields):
+            // additions += revenue.federal_bond_interest;
+            // additions += result.state_tax_refunds;
+            // additions += result.section_199a_deduction;
+
+            apportionment.state_additions = additions;
+
+            // Calculate MT state subtractions
+            double subtractions = 0.0;
+
+            // MT allows subtraction of:
+            // - MT municipal bond interest (exempt for MT purposes)
+            // - State income taxes paid
+            // - MT net operating loss deduction (subject to MT limitations)
+
+            // Example subtractions (would be calculated from entity fields):
+            // subtractions += revenue.mt_municipal_interest;
+            // subtractions += result.state_taxes_paid;
+            // subtractions += result.mt_nol_deduction;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          MT state-specific income adjustments to federal taxable income.
+
+          Montana uses federal taxable income (excluding IRC 199A qualified business
+          income deduction) as the starting point for state tax calculation.
+
+          MT ADDITIONS to federal taxable income include:
+          - Interest income from U.S. government obligations (exempt federally, taxable to MT)
+          - State income tax refunds received during the year
+          - IRC Section 199A qualified business income deduction (if taken federally)
+          - Expenses related to exempt income
+          - Certain federal deductions not allowed by Montana
+
+          MT SUBTRACTIONS from federal taxable income include:
+          - Interest on MT state and municipal bonds
+          - State income taxes paid
+          - Montana net operating loss deduction (subject to MT limitations)
+
+          Reference: Montana Form CIT Schedule I (Additions to Federal Taxable Income)
+          Reference: Montana Form CIT Schedule II (Subtractions from Federal Taxable Income)
+          Reference: Montana Code Annotated § 15-30-2120 (Adjustments to federal taxable income)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+
+          Corporation does not have MT nexus, so no income adjustments are needed.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 53580: Calculate MT State Tax
+    ============================================================================
+
+    Calculates final MT state corporate income tax.
+
+    MT uses a FLAT RATE of 6.75% (or 7.0% for water's edge election).
+
+    Process:
+    1. Federal taxable income apportioned to MT (done by table 7500)
+    2. Add MT-specific additions (done by table 53520)
+    3. Subtract MT-specific subtractions (done by table 53520)
+    4. Calculate MT state taxable income
+    5. Determine effective rate (6.75% standard or 7.0% water's edge)
+    6. Apply MT tax rate
+    7. Subtract MT state credits
+    8. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_MT_State_Tax" number="53580">
+    <description>
+      Calculate MT state corporate income tax.
+      Applies MT 6.75% flat rate (or 7.0% for water's edge election) to
+      apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+
+      <condition name="waters_edge_election">
+        <expression>result.mt_waters_edge_election == true</expression>
+        <comment>Made water's edge election</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate MT tax at 6.75% (no water's edge) -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+          <waters_edge_election>N</waters_edge_election>
+        </conditions>
+        <actions>
+          <action>
+            // MT uses 6.75% flat rate (standard rate)
+            result.mt_effective_rate = 0.0675;
+
+            apportionment.state_tax =
+              apportionment.state_taxable_income * result.mt_effective_rate;
+
+            // Subtract MT state credits
+            // MT offers various credits: jobs creation, research,
+            // energy production, infrastructure investment, etc.
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          MT state corporate income tax calculation (standard 6.75% rate):
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to MT: × [MT apportionment percentage]
+          3. MT additions: + [Federal interest, state tax refunds, IRC 199A addback, etc.]
+          4. MT subtractions: - [MT municipal interest, state taxes paid, MT NOL, etc.]
+          5. MT taxable income: = [Result]
+          6. MT tax rate: × 6.75% (standard flat rate)
+          7. MT income tax: = [Tax before credits]
+          8. MT credits: - [Jobs, research, energy, infrastructure, etc.]
+          9. MT tax liability: = [Final tax]
+
+          MT uses single-sales factor apportionment (100% sales factor).
+
+          MT tax rate: 6.75% flat rate (standard)
+
+          MT provides various tax credits including:
+          - Jobs creation tax credit
+          - Research and development credit
+          - Energy production credit
+          - Infrastructure investment credit
+          - Alternative energy investment credit
+
+          Reference: Montana Form CIT (Corporation Income Tax Return)
+          Reference: Montana Code Annotated § 15-30-2101 (Tax rate of 6.75%)
+          Reference: Montana Code Annotated § 15-30-2110 (Single-sales apportionment)
+        </policy>
+      </rule>
+
+      <!-- Rule 2: Calculate MT tax at 7.0% (water's edge election) -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+          <waters_edge_election>Y</waters_edge_election>
+        </conditions>
+        <actions>
+          <action>
+            // MT uses 7.0% rate for water's edge election
+            result.mt_effective_rate = 0.07;
+
+            apportionment.state_tax =
+              apportionment.state_taxable_income * result.mt_effective_rate;
+
+            // Subtract MT state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          MT state corporate income tax calculation (7.0% rate for water's edge election):
+
+          Corporations that make a water's edge election pay a slightly higher rate
+          of 7.0% instead of the standard 6.75% rate.
+
+          The water's edge election limits the income reported to U.S. operations
+          and specific international operations, simplifying compliance for
+          multinational corporations.
+
+          All other calculation steps are identical to the standard rate calculation.
+
+          Reference: Montana Form CIT (Corporation Income Tax Return)
+          Reference: Montana Code Annotated § 15-30-2101 (Tax rate of 7.0% for water's edge)
+        </policy>
+      </rule>
+
+      <!-- Rule 3: No nexus -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No MT nexus - no tax liability.
+
+          Corporation does not have physical presence or economic nexus in MT.
+          Any estimated payments are refunded.
+
+          Reference: Montana Code Annotated § 15-30-2101 (Nexus requirements)
+        </policy>
+      </rule>
+
+      <!-- Rule 4: Nexus but no taxable income -->
+      <rule number="4">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No MT taxable income - no tax liability.
+
+          Corporation has MT nexus but no positive taxable income after apportionment
+          and adjustments. Any estimated payments are refunded.
+
+          MT net operating loss (NOL) rules:
+          - MT NOL is computed under IRC Section 172 with MT modifications
+          - NOL carryforward allowed (subject to MT limitations)
+          - NOL deduction may be limited similar to federal rules
+
+          Reference: Montana Form CIT (Corporation Income Tax Return)
+          Reference: Montana Code Annotated § 15-30-2120 (MT NOL provisions)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>
