@@ -1,0 +1,1434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Corporate Tax Core Entity Data Dictionary (Federal)
+
+  This file contains federal corporate tax entities only.
+  State-specific constants are in xml/states/*_corp_edd.xml
+
+  The merge-states.sh script combines this file with all state files
+  to produce the final CorporateTax_edd.xml
+-->
+<entity_dictionary name="CorporateTax_Core_EDD">
+
+  <!-- Corporation Entity -->
+  <entity name="corporation">
+    <field name='ein' type='string' comment='Employer Identification Number'/>
+    <field name='corporation_name' type='string' comment='Legal name of corporation'/>
+    <field name='incorporation_date' type='date' comment='Date of incorporation'/>
+    <field name='business_code' type='string' comment='Principal Business Activity Code'/>
+    <field name='accounting_method' type='string' comment='Accounting method: cash or accrual'/>
+    <field name='tax_year_end' type='date' comment='End of tax year'/>
+    <field name='total_assets' type='double' comment='Total assets (Schedule L)'/>
+    <field name='gross_receipts' type='double' comment='Gross receipts for the year'/>
+  </entity>
+
+  <!-- Revenue Entity -->
+  <entity name="revenue">
+    <field name='gross_receipts' type='double' default_value='0.0' comment='Gross receipts or sales (Form 1120 line 1a)'/>
+    <field name='returns_and_allowances' type='double' default_value='0.0' comment='Returns and allowances (Form 1120 line 1b)'/>
+    <field name='net_receipts' type='double' default_value='0.0' comment='Net receipts (line 1c = 1a - 1b)'/>
+    <field name='cost_of_goods_sold' type='double' default_value='0.0' comment='Cost of goods sold (Form 1120 line 2)'/>
+    <field name='gross_profit' type='double' default_value='0.0' comment='Gross profit (Form 1120 line 3 = 1c - 2)'/>
+    <field name='dividends_received' type='double' default_value='0.0' comment='Dividends (Form 1120 line 4)'/>
+    <field name='interest_income' type='double' default_value='0.0' comment='Interest income (Form 1120 line 5)'/>
+    <field name='gross_rents' type='double' default_value='0.0' comment='Gross rents (Form 1120 line 6)'/>
+    <field name='gross_royalties' type='double' default_value='0.0' comment='Gross royalties (Form 1120 line 7)'/>
+    <field name='capital_gain_net_income' type='double' default_value='0.0' comment='Capital gain net income (Form 1120 line 8)'/>
+    <field name='net_gain_loss_4797' type='double' default_value='0.0' comment='Net gain or loss from Form 4797'/>
+    <field name='other_income' type='double' default_value='0.0' comment='Other income (Form 1120 line 10)'/>
+    <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
+  </entity>
+
+  <!-- Expense Entity (for business deductions) -->
+  <entity name="expense">
+    <field name='category' type='string' comment='Expense category (compensation, rent, interest, etc.)'/>
+    <field name='amount' type='double' comment='Expense amount'/>
+    <field name='deductible' type='boolean' default_value='true' comment='Whether expense is deductible'/>
+    <field name='limitation_applied' type='string' comment='Any limitation applied (163j, charitable, etc.)'/>
+  </entity>
+
+  <!-- Asset Entity (for depreciation and Section 179) -->
+  <entity name="asset">
+    <field name='id' type='integer' comment='Unique asset ID'/>
+    <field name='description' type='string' comment='Asset description'/>
+    <field name='date_acquired' type='date' comment='Date asset was placed in service'/>
+    <field name='cost_basis' type='double' comment='Original cost basis of asset'/>
+    <field name='asset_class' type='string' comment='MACRS asset class (3-year, 5-year, 7-year, etc.)'/>
+    <field name='recovery_period' type='integer' comment='MACRS recovery period in years'/>
+    <field name='depreciation_method' type='string' comment='Depreciation method: MACRS, SL, DDB, 150DB'/>
+    <field name='convention' type='string' comment='Convention: half-year, mid-quarter, mid-month'/>
+    <field name='current_year_depreciation' type='double' default_value='0.0' comment='Depreciation for current tax year'/>
+    <field name='accumulated_depreciation' type='double' default_value='0.0' comment='Total depreciation taken to date'/>
+    <field name='section_179_deduction' type='double' default_value='0.0' comment='Section 179 expense deduction taken'/>
+    <field name='bonus_depreciation' type='double' default_value='0.0' comment='Bonus depreciation taken'/>
+    <field name='eligible_for_section_179' type='boolean' default_value='true' comment='Qualifies for Section 179 deduction'/>
+    <field name='eligible_for_bonus' type='boolean' default_value='true' comment='Qualifies for bonus depreciation'/>
+    <field name='listed_property' type='boolean' default_value='false' comment='Listed property (vehicles, computers, etc.)'/>
+    <field name='business_use_percentage' type='double' default_value='1.0' comment='Percentage of business use (0.0 to 1.0)'/>
+  </entity>
+
+  <!-- Result Entity (tax calculation results and audit trail) -->
+  <entity name="result">
+    <!-- Federal Income -->
+    <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
+
+    <!-- Federal Deductions -->
+    <field name='compensation' type='double' default_value='0.0' comment='Compensation of officers (Form 1120 line 12)'/>
+    <field name='salaries_and_wages' type='double' default_value='0.0' comment='Salaries and wages (Form 1120 line 13)'/>
+    <field name='repairs_and_maintenance' type='double' default_value='0.0' comment='Repairs and maintenance (Form 1120 line 14)'/>
+    <field name='bad_debts' type='double' default_value='0.0' comment='Bad debts (Form 1120 line 15)'/>
+    <field name='rents' type='double' default_value='0.0' comment='Rents (Form 1120 line 16)'/>
+    <field name='taxes_and_licenses' type='double' default_value='0.0' comment='Taxes and licenses (Form 1120 line 17)'/>
+    <field name='interest_expense' type='double' default_value='0.0' comment='Interest expense (Form 1120 line 18)'/>
+    <field name='charitable_contributions' type='double' default_value='0.0' comment='Charitable contributions (Form 1120 line 19)'/>
+    <field name='depreciation' type='double' default_value='0.0' comment='Depreciation (Form 1120 line 20)'/>
+    <field name='depletion' type='double' default_value='0.0' comment='Depletion (Form 1120 line 21)'/>
+    <field name='advertising' type='double' default_value='0.0' comment='Advertising (Form 1120 line 22)'/>
+    <field name='pension_profit_sharing' type='double' default_value='0.0' comment='Pension, profit-sharing plans (Form 1120 line 23)'/>
+    <field name='employee_benefit_programs' type='double' default_value='0.0' comment='Employee benefit programs (Form 1120 line 24)'/>
+    <field name='other_deductions' type='double' default_value='0.0' comment='Other deductions (Form 1120 line 26)'/>
+    <field name='total_deductions' type='double' default_value='0.0' comment='Total deductions (Form 1120 line 27)'/>
+
+    <!-- Depreciation Tracking (Form 4562) -->
+    <field name='section_179_total' type='double' default_value='0.0' comment='Total Section 179 deduction (Form 4562 Part I)'/>
+    <field name='section_179_limit' type='double' default_value='1220000.0' comment='Section 179 annual limit (2025: $1,220,000)'/>
+    <field name='section_179_phaseout_threshold' type='double' default_value='3050000.0' comment='Section 179 phaseout threshold (2025: $3,050,000)'/>
+    <field name='bonus_depreciation_total' type='double' default_value='0.0' comment='Total bonus depreciation (Form 4562 Part II)'/>
+    <field name='bonus_depreciation_rate' type='double' default_value='0.0' comment='Bonus depreciation rate (0% for 2025)'/>
+    <field name='macrs_depreciation_total' type='double' default_value='0.0' comment='Total MACRS depreciation (Form 4562 Part III)'/>
+
+    <!-- Taxable Income and Tax -->
+    <field name='taxable_income' type='double' default_value='0.0' comment='Taxable income (Form 1120 line 28 = 11 - 27)'/>
+    <field name='federal_tax_rate' type='double' default_value='0.21' comment='Federal corporate tax rate (21% flat rate)'/>
+    <field name='federal_tax' type='double' default_value='0.0' comment='Federal income tax (Form 1120 line 31 = 28 × 21%)'/>
+
+    <!-- Credits and Payments (Form 3800) -->
+    <field name='general_business_credit' type='double' default_value='0.0' comment='General business credit (Form 3800)'/>
+    <field name='research_development_credit' type='double' default_value='0.0' comment='Research & development credit (Form 6765)'/>
+    <field name='work_opportunity_credit' type='double' default_value='0.0' comment='Work opportunity tax credit (Form 5884)'/>
+    <field name='total_credits' type='double' default_value='0.0' comment='Total tax credits (Form 1120)'/>
+    <field name='estimated_tax_payments' type='double' default_value='0.0' comment='Estimated tax payments'/>
+    <field name='total_payments' type='double' default_value='0.0' comment='Total payments and credits'/>
+
+    <!-- Final Amount -->
+    <field name='refund_or_owed' type='double' default_value='0.0' comment='Refund (positive) or amount owed (negative)'/>
+
+    <!-- Audit Trail -->
+    <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
+
+    <!-- Schedule M-1: Reconciliation of Income per Books With Income per Return -->
+    <field name='m1_net_income_per_books' type='double' default_value='0.0' comment='Net income per books (Schedule M-1 line 1)'/>
+    <field name='m1_federal_tax_per_books' type='double' default_value='0.0' comment='Federal income tax per books (Schedule M-1 line 2)'/>
+    <field name='m1_excess_capital_losses' type='double' default_value='0.0' comment='Excess of capital losses over capital gains (Schedule M-1 line 3)'/>
+    <field name='m1_income_not_on_books' type='double' default_value='0.0' comment='Income subject to tax not recorded on books (Schedule M-1 line 4)'/>
+    <field name='m1_expenses_not_deducted' type='double' default_value='0.0' comment='Expenses recorded on books not deducted on return (Schedule M-1 line 5)'/>
+    <field name='m1_subtotal' type='double' default_value='0.0' comment='Schedule M-1 line 6 (sum of lines 1-5)'/>
+    <field name='m1_income_not_on_return' type='double' default_value='0.0' comment='Income recorded on books not included on return (Schedule M-1 line 7)'/>
+    <field name='m1_deductions_not_on_books' type='double' default_value='0.0' comment='Deductions on return not charged against book income (Schedule M-1 line 8)'/>
+    <field name='m1_total_deductions' type='double' default_value='0.0' comment='Schedule M-1 line 9 (sum of lines 7-8)'/>
+    <field name='m1_reconciled_income' type='double' default_value='0.0' comment='Schedule M-1 line 10 (line 6 minus line 9, equals taxable income)'/>
+
+    <!-- Common M-1 Adjustments (components of lines 4-8) -->
+    <field name='m1_tax_exempt_interest' type='double' default_value='0.0' comment='Tax-exempt interest (line 7 - income on books but not taxable)'/>
+    <field name='m1_meals_entertainment_50pct' type='double' default_value='0.0' comment='50% of meals/entertainment (line 5 - expense on books but only 50% deductible)'/>
+    <field name='m1_depreciation_difference' type='double' default_value='0.0' comment='Depreciation difference (book vs tax, line 5 or 8 depending on direction)'/>
+    <field name='m1_book_depreciation' type='double' default_value='0.0' comment='Book depreciation (GAAP)'/>
+    <field name='m1_capital_loss_carryover' type='double' default_value='0.0' comment='Capital loss carryover (line 8)'/>
+
+    <!-- Schedule M-2: Analysis of Unappropriated Retained Earnings per Books -->
+    <field name='m2_beginning_balance' type='double' default_value='0.0' comment='Retained earnings at beginning of year (Schedule M-2 line 1)'/>
+    <field name='m2_net_income_per_books' type='double' default_value='0.0' comment='Net income per books (Schedule M-2 line 2, from M-1 line 1)'/>
+    <field name='m2_other_increases' type='double' default_value='0.0' comment='Other increases (Schedule M-2 line 3, itemize)'/>
+    <field name='m2_total_increases' type='double' default_value='0.0' comment='Total increases (Schedule M-2 line 4 = 1+2+3)'/>
+    <field name='m2_cash_distributions' type='double' default_value='0.0' comment='Cash distributions to shareholders (Schedule M-2 line 5a)'/>
+    <field name='m2_stock_distributions' type='double' default_value='0.0' comment='Stock distributions (Schedule M-2 line 5b)'/>
+    <field name='m2_property_distributions' type='double' default_value='0.0' comment='Property distributions (Schedule M-2 line 5c)'/>
+    <field name='m2_total_distributions' type='double' default_value='0.0' comment='Total distributions (Schedule M-2 line 5 = 5a+5b+5c)'/>
+    <field name='m2_other_decreases' type='double' default_value='0.0' comment='Other decreases (Schedule M-2 line 6, itemize)'/>
+    <field name='m2_total_decreases' type='double' default_value='0.0' comment='Total decreases (Schedule M-2 line 7 = 5+6)'/>
+    <field name='m2_ending_balance' type='double' default_value='0.0' comment='Retained earnings at end of year (Schedule M-2 line 8 = 4-7)'/>
+
+    <!-- Common M-2 Components -->
+    <field name='m2_prior_year_adjustments' type='double' default_value='0.0' comment='Prior year adjustments (line 3 other increases)'/>
+    <field name='m2_treasury_stock_adjustments' type='double' default_value='0.0' comment='Treasury stock adjustments (line 6 other decreases)'/>
+
+    <!-- Schedule L: Balance Sheet per Books (Beginning and Ending of Year) -->
+    <!-- ASSETS -->
+    <field name='l_cash_beg' type='double' default_value='0.0' comment='Cash (Schedule L line 1, beginning)'/>
+    <field name='l_cash_end' type='double' default_value='0.0' comment='Cash (Schedule L line 1, ending)'/>
+    <field name='l_accounts_receivable_beg' type='double' default_value='0.0' comment='Trade notes and accounts receivable (Schedule L line 2a, beginning)'/>
+    <field name='l_accounts_receivable_end' type='double' default_value='0.0' comment='Trade notes and accounts receivable (Schedule L line 2a, ending)'/>
+    <field name='l_bad_debt_allowance_beg' type='double' default_value='0.0' comment='Less: allowance for bad debts (Schedule L line 2b, beginning)'/>
+    <field name='l_bad_debt_allowance_end' type='double' default_value='0.0' comment='Less: allowance for bad debts (Schedule L line 2b, ending)'/>
+    <field name='l_inventories_beg' type='double' default_value='0.0' comment='Inventories (Schedule L line 3, beginning)'/>
+    <field name='l_inventories_end' type='double' default_value='0.0' comment='Inventories (Schedule L line 3, ending)'/>
+    <field name='l_us_govt_obligations_beg' type='double' default_value='0.0' comment='U.S. government obligations (Schedule L line 4, beginning)'/>
+    <field name='l_us_govt_obligations_end' type='double' default_value='0.0' comment='U.S. government obligations (Schedule L line 4, ending)'/>
+    <field name='l_tax_exempt_securities_beg' type='double' default_value='0.0' comment='Tax-exempt securities (Schedule L line 5, beginning)'/>
+    <field name='l_tax_exempt_securities_end' type='double' default_value='0.0' comment='Tax-exempt securities (Schedule L line 5, ending)'/>
+    <field name='l_other_current_assets_beg' type='double' default_value='0.0' comment='Other current assets (Schedule L line 6, beginning)'/>
+    <field name='l_other_current_assets_end' type='double' default_value='0.0' comment='Other current assets (Schedule L line 6, ending)'/>
+    <field name='l_loans_to_shareholders_beg' type='double' default_value='0.0' comment='Loans to shareholders (Schedule L line 7, beginning)'/>
+    <field name='l_loans_to_shareholders_end' type='double' default_value='0.0' comment='Loans to shareholders (Schedule L line 7, ending)'/>
+    <field name='l_mortgage_real_estate_loans_beg' type='double' default_value='0.0' comment='Mortgage and real estate loans (Schedule L line 8, beginning)'/>
+    <field name='l_mortgage_real_estate_loans_end' type='double' default_value='0.0' comment='Mortgage and real estate loans (Schedule L line 8, ending)'/>
+    <field name='l_other_investments_beg' type='double' default_value='0.0' comment='Other investments (Schedule L line 9, beginning)'/>
+    <field name='l_other_investments_end' type='double' default_value='0.0' comment='Other investments (Schedule L line 9, ending)'/>
+    <field name='l_buildings_gross_beg' type='double' default_value='0.0' comment='Buildings and other depreciable assets (Schedule L line 10a, beginning)'/>
+    <field name='l_buildings_gross_end' type='double' default_value='0.0' comment='Buildings and other depreciable assets (Schedule L line 10a, ending)'/>
+    <field name='l_accumulated_depreciation_beg' type='double' default_value='0.0' comment='Less: accumulated depreciation (Schedule L line 10b, beginning)'/>
+    <field name='l_accumulated_depreciation_end' type='double' default_value='0.0' comment='Less: accumulated depreciation (Schedule L line 10b, ending)'/>
+    <field name='l_depletable_assets_beg' type='double' default_value='0.0' comment='Depletable assets (Schedule L line 11a, beginning)'/>
+    <field name='l_depletable_assets_end' type='double' default_value='0.0' comment='Depletable assets (Schedule L line 11a, ending)'/>
+    <field name='l_accumulated_depletion_beg' type='double' default_value='0.0' comment='Less: accumulated depletion (Schedule L line 11b, beginning)'/>
+    <field name='l_accumulated_depletion_end' type='double' default_value='0.0' comment='Less: accumulated depletion (Schedule L line 11b, ending)'/>
+    <field name='l_land_beg' type='double' default_value='0.0' comment='Land (Schedule L line 12, beginning)'/>
+    <field name='l_land_end' type='double' default_value='0.0' comment='Land (Schedule L line 12, ending)'/>
+    <field name='l_intangible_assets_gross_beg' type='double' default_value='0.0' comment='Intangible assets (Schedule L line 13a, beginning)'/>
+    <field name='l_intangible_assets_gross_end' type='double' default_value='0.0' comment='Intangible assets (Schedule L line 13a, ending)'/>
+    <field name='l_accumulated_amortization_beg' type='double' default_value='0.0' comment='Less: accumulated amortization (Schedule L line 13b, beginning)'/>
+    <field name='l_accumulated_amortization_end' type='double' default_value='0.0' comment='Less: accumulated amortization (Schedule L line 13b, ending)'/>
+    <field name='l_other_assets_beg' type='double' default_value='0.0' comment='Other assets (Schedule L line 14, beginning)'/>
+    <field name='l_other_assets_end' type='double' default_value='0.0' comment='Other assets (Schedule L line 14, ending)'/>
+    <field name='l_total_assets_beg' type='double' default_value='0.0' comment='Total assets (Schedule L line 15, beginning)'/>
+    <field name='l_total_assets_end' type='double' default_value='0.0' comment='Total assets (Schedule L line 15, ending)'/>
+
+    <!-- LIABILITIES -->
+    <field name='l_accounts_payable_beg' type='double' default_value='0.0' comment='Accounts payable (Schedule L line 16, beginning)'/>
+    <field name='l_accounts_payable_end' type='double' default_value='0.0' comment='Accounts payable (Schedule L line 16, ending)'/>
+    <field name='l_mortgages_notes_bonds_lt1yr_beg' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in < 1 year (Schedule L line 17, beginning)'/>
+    <field name='l_mortgages_notes_bonds_lt1yr_end' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in < 1 year (Schedule L line 17, ending)'/>
+    <field name='l_other_current_liabilities_beg' type='double' default_value='0.0' comment='Other current liabilities (Schedule L line 18, beginning)'/>
+    <field name='l_other_current_liabilities_end' type='double' default_value='0.0' comment='Other current liabilities (Schedule L line 18, ending)'/>
+    <field name='l_loans_from_shareholders_beg' type='double' default_value='0.0' comment='Loans from shareholders (Schedule L line 19, beginning)'/>
+    <field name='l_loans_from_shareholders_end' type='double' default_value='0.0' comment='Loans from shareholders (Schedule L line 19, ending)'/>
+    <field name='l_mortgages_notes_bonds_gte1yr_beg' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in >= 1 year (Schedule L line 20, beginning)'/>
+    <field name='l_mortgages_notes_bonds_gte1yr_end' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in >= 1 year (Schedule L line 20, ending)'/>
+    <field name='l_other_liabilities_beg' type='double' default_value='0.0' comment='Other liabilities (Schedule L line 21, beginning)'/>
+    <field name='l_other_liabilities_end' type='double' default_value='0.0' comment='Other liabilities (Schedule L line 21, ending)'/>
+    <field name='l_total_liabilities_beg' type='double' default_value='0.0' comment='Total liabilities (Schedule L line 22, beginning)'/>
+    <field name='l_total_liabilities_end' type='double' default_value='0.0' comment='Total liabilities (Schedule L line 22, ending)'/>
+
+    <!-- SHAREHOLDERS' EQUITY -->
+    <field name='l_capital_stock_beg' type='double' default_value='0.0' comment='Capital stock (Schedule L line 23, beginning)'/>
+    <field name='l_capital_stock_end' type='double' default_value='0.0' comment='Capital stock (Schedule L line 23, ending)'/>
+    <field name='l_additional_paid_in_capital_beg' type='double' default_value='0.0' comment='Additional paid-in capital (Schedule L line 24, beginning)'/>
+    <field name='l_additional_paid_in_capital_end' type='double' default_value='0.0' comment='Additional paid-in capital (Schedule L line 24, ending)'/>
+    <field name='l_retained_earnings_appropriated_beg' type='double' default_value='0.0' comment='Retained earnings - appropriated (Schedule L line 25, beginning)'/>
+    <field name='l_retained_earnings_appropriated_end' type='double' default_value='0.0' comment='Retained earnings - appropriated (Schedule L line 25, ending)'/>
+    <field name='l_retained_earnings_unappropriated_beg' type='double' default_value='0.0' comment='Retained earnings - unappropriated (Schedule L line 26, beginning)'/>
+    <field name='l_retained_earnings_unappropriated_end' type='double' default_value='0.0' comment='Retained earnings - unappropriated (Schedule L line 26, ending)'/>
+    <field name='l_adjustments_to_equity_beg' type='double' default_value='0.0' comment='Adjustments to shareholders equity (Schedule L line 27, beginning)'/>
+    <field name='l_adjustments_to_equity_end' type='double' default_value='0.0' comment='Adjustments to shareholders equity (Schedule L line 27, ending)'/>
+    <field name='l_treasury_stock_beg' type='double' default_value='0.0' comment='Less: cost of treasury stock (Schedule L line 28, beginning)'/>
+    <field name='l_treasury_stock_end' type='double' default_value='0.0' comment='Less: cost of treasury stock (Schedule L line 28, ending)'/>
+    <field name='l_total_equity_beg' type='double' default_value='0.0' comment='Total shareholders equity (Schedule L line 29, beginning)'/>
+    <field name='l_total_equity_end' type='double' default_value='0.0' comment='Total shareholders equity (Schedule L line 29, ending)'/>
+    <field name='l_total_liabilities_and_equity_beg' type='double' default_value='0.0' comment='Total liabilities and shareholders equity (Schedule L line 30, beginning)'/>
+    <field name='l_total_liabilities_and_equity_end' type='double' default_value='0.0' comment='Total liabilities and shareholders equity (Schedule L line 30, ending)'/>
+
+    <!-- Net Operating Loss (NOL) Calculation - IRC Section 172 -->
+    <field name='nol_carryforward_from_prior_years' type='double' default_value='0.0' comment='NOL carryforward from prior tax years (unlimited carryforward)'/>
+    <field name='nol_current_year' type='double' default_value='0.0' comment='Current year NOL (negative taxable income before NOL deduction)'/>
+    <field name='nol_80pct_limitation' type='double' default_value='0.0' comment='80% of taxable income before NOL deduction (IRC 172 limitation)'/>
+    <field name='nol_deduction_allowed' type='double' default_value='0.0' comment='NOL deduction allowed this year (lesser of carryforward or 80% limit)'/>
+    <field name='taxable_income_before_nol' type='double' default_value='0.0' comment='Taxable income before NOL deduction'/>
+    <field name='taxable_income_after_nol' type='double' default_value='0.0' comment='Taxable income after NOL deduction'/>
+    <field name='nol_carryforward_to_future_years' type='double' default_value='0.0' comment='Remaining NOL to carry forward (indefinite carryforward)'/>
+
+    <!-- NOL Detail by Year (optional - for tracking NOL aging) -->
+    <field name='nol_2019_remaining' type='double' default_value='0.0' comment='NOL from 2019 remaining (for CARES Act carryback tracking)'/>
+    <field name='nol_2020_remaining' type='double' default_value='0.0' comment='NOL from 2020 remaining (for CARES Act carryback tracking)'/>
+    <field name='nol_2021_remaining' type='double' default_value='0.0' comment='NOL from 2021 remaining'/>
+    <field name='nol_2022_remaining' type='double' default_value='0.0' comment='NOL from 2022 remaining'/>
+    <field name='nol_2023_remaining' type='double' default_value='0.0' comment='NOL from 2023 remaining'/>
+    <field name='nol_2024_remaining' type='double' default_value='0.0' comment='NOL from 2024 remaining'/>
+
+    <!-- Dividends Received Deduction (DRD) - IRC §§ 243-246 -->
+    <!-- Domestic Dividends - IRC § 243 -->
+    <field name='drd_domestic_dividends_total' type='double' default_value='0.0' comment='Total domestic corporation dividends received'/>
+    <field name='drd_domestic_dividends_lt20' type='double' default_value='0.0' comment='Domestic dividends - ownership < 20%'/>
+    <field name='drd_domestic_dividends_20to80' type='double' default_value='0.0' comment='Domestic dividends - ownership 20-79.9%'/>
+    <field name='drd_domestic_dividends_80plus' type='double' default_value='0.0' comment='Domestic dividends - ownership ≥ 80% (affiliated group)'/>
+    <field name='drd_domestic_ownership_lt20' type='double' default_value='0.0' comment='Ownership percentage for <20% DRD pool'/>
+    <field name='drd_domestic_ownership_20to80' type='double' default_value='0.0' comment='Ownership percentage for 20-80% DRD pool'/>
+    <field name='drd_domestic_ownership_80plus' type='double' default_value='0.0' comment='Ownership percentage for 80%+ DRD pool'/>
+
+    <!-- DRD Percentages (IRC § 243) -->
+    <field name='drd_rate_50pct' type='double' default_value='0.50' comment='DRD rate for <20% ownership (50%)'/>
+    <field name='drd_rate_65pct' type='double' default_value='0.65' comment='DRD rate for 20-79.9% ownership (65%)'/>
+    <field name='drd_rate_100pct' type='double' default_value='1.00' comment='DRD rate for ≥80% ownership (100%)'/>
+
+    <!-- DRD Calculations before limitation -->
+    <field name='drd_domestic_50pct_tentative' type='double' default_value='0.0' comment='Tentative 50% DRD (before limitation)'/>
+    <field name='drd_domestic_65pct_tentative' type='double' default_value='0.0' comment='Tentative 65% DRD (before limitation)'/>
+    <field name='drd_domestic_100pct_tentative' type='double' default_value='0.0' comment='Tentative 100% DRD (no limitation for affiliated)'/>
+
+    <!-- Foreign Dividends - IRC § 245A -->
+    <field name='drd_foreign_dividends_total' type='double' default_value='0.0' comment='Total foreign corporation dividends received'/>
+    <field name='drd_foreign_dividends_245a' type='double' default_value='0.0' comment='Foreign dividends eligible for § 245A participation exemption'/>
+    <field name='drd_foreign_ownership_245a' type='double' default_value='0.0' comment='Ownership percentage in foreign corporation (must be ≥10%)'/>
+    <field name='drd_foreign_sfc_status' type='boolean' default_value='false' comment='Foreign corporation is a Specified Foreign Corporation (SFC)'/>
+    <field name='drd_section_245a_deduction' type='double' default_value='0.0' comment='IRC § 245A 100% DRD for foreign dividends (10%+ owned SFC)'/>
+
+    <!-- DRD Taxable Income Limitation - IRC § 246(b) -->
+    <field name='drd_taxable_income_before_drd' type='double' default_value='0.0' comment='Taxable income before DRD and NOL (for limitation calc)'/>
+    <field name='drd_50pct_limitation_amount' type='double' default_value='0.0' comment='50% of taxable income (limitation for 50% DRD)'/>
+    <field name='drd_65pct_limitation_amount' type='double' default_value='0.0' comment='65% of taxable income (limitation for 65% DRD)'/>
+    <field name='drd_limitation_applies' type='boolean' default_value='false' comment='DRD limitation applies (not in loss position)'/>
+    <field name='drd_limitation_exception' type='boolean' default_value='false' comment='Exception: DRD creates/increases NOL (no limitation)'/>
+
+    <!-- Final DRD Amounts (after limitation) -->
+    <field name='drd_domestic_50pct_allowed' type='double' default_value='0.0' comment='50% DRD allowed (after limitation)'/>
+    <field name='drd_domestic_65pct_allowed' type='double' default_value='0.0' comment='65% DRD allowed (after limitation)'/>
+    <field name='drd_domestic_100pct_allowed' type='double' default_value='0.0' comment='100% DRD allowed (affiliated group, no limitation)'/>
+    <field name='drd_total_allowed' type='double' default_value='0.0' comment='Total DRD allowed (domestic + foreign)'/>
+
+    <!-- Holding Period Requirement - IRC § 246(c) -->
+    <field name='drd_holding_period_met' type='boolean' default_value='true' comment='45-day (90-day for preferred) holding period requirement met'/>
+    <field name='drd_dividend_holding_days' type='integer' default_value='0' comment='Number of days dividend-paying stock held'/>
+    <field name='drd_holding_period_required' type='integer' default_value='45' comment='Required holding period (45 days for common, 90 for preferred)'/>
+
+    <!-- Debt-Financed Portfolio Stock - IRC § 246A -->
+    <field name='drd_debt_financed_percentage' type='double' default_value='0.0' comment='Percentage of stock acquisition debt-financed (reduces DRD)'/>
+    <field name='drd_debt_financed_reduction' type='double' default_value='0.0' comment='DRD reduction due to debt-financed stock'/>
+
+    <!-- Foreign Tax Credit - IRC Section 901 (Form 1118) -->
+    <!-- Legacy fields (preserved for backward compatibility) -->
+    <field name='foreign_source_income' type='double' default_value='0.0' comment='Foreign source taxable income (Form 1118) - sum of all baskets'/>
+    <field name='total_taxable_income_for_ftc' type='double' default_value='0.0' comment='Total taxable income (for FTC limitation calculation)'/>
+    <field name='foreign_taxes_paid' type='double' default_value='0.0' comment='Foreign income taxes paid or accrued (Form 1118) - sum of all baskets'/>
+    <field name='foreign_tax_credit_limitation' type='double' default_value='0.0' comment='FTC limitation (US tax × foreign income / total income) - total across baskets'/>
+    <field name='foreign_tax_credit_allowed' type='double' default_value='0.0' comment='Foreign tax credit allowed (lesser of taxes paid or limitation) - total across baskets'/>
+    <field name='foreign_tax_credit_carryback' type='double' default_value='0.0' comment='Unused FTC carryback from future years (1 year back)'/>
+    <field name='foreign_tax_credit_carryforward' type='double' default_value='0.0' comment='Unused FTC carryforward from prior years (10 years forward)'/>
+    <field name='excess_foreign_tax_credit' type='double' default_value='0.0' comment='Excess FTC to carry forward (taxes paid > limitation)'/>
+
+    <!-- Separate Limitation Baskets - IRC § 904(d) -->
+    <!-- General Category Basket -->
+    <field name='ftc_general_basket' type='double' default_value='0.0' comment='FTC allowed - General category basket (active business income)'/>
+    <field name='ftc_general_foreign_income' type='double' default_value='0.0' comment='Foreign source income - General basket'/>
+    <field name='ftc_general_foreign_taxes' type='double' default_value='0.0' comment='Foreign taxes paid - General basket'/>
+    <field name='ftc_general_limitation' type='double' default_value='0.0' comment='FTC limitation - General basket'/>
+    <field name='ftc_general_carryforward' type='double' default_value='0.0' comment='FTC carryforward - General basket (10 years)'/>
+    <field name='ftc_general_carryback' type='double' default_value='0.0' comment='FTC carryback - General basket (1 year)'/>
+    <field name='ftc_general_excess' type='double' default_value='0.0' comment='Excess FTC - General basket (to carryover)'/>
+
+    <!-- Passive Income Basket -->
+    <field name='ftc_passive_basket' type='double' default_value='0.0' comment='FTC allowed - Passive income basket (dividends, interest, rents, royalties)'/>
+    <field name='ftc_passive_foreign_income' type='double' default_value='0.0' comment='Foreign source income - Passive basket (FPHCI-type income)'/>
+    <field name='ftc_passive_foreign_taxes' type='double' default_value='0.0' comment='Foreign taxes paid - Passive basket'/>
+    <field name='ftc_passive_limitation' type='double' default_value='0.0' comment='FTC limitation - Passive basket'/>
+    <field name='ftc_passive_carryforward' type='double' default_value='0.0' comment='FTC carryforward - Passive basket (10 years)'/>
+    <field name='ftc_passive_carryback' type='double' default_value='0.0' comment='FTC carryback - Passive basket (1 year)'/>
+    <field name='ftc_passive_excess' type='double' default_value='0.0' comment='Excess FTC - Passive basket (to carryover)'/>
+    <field name='ftc_passive_high_tax_kickout' type='boolean' default_value='false' comment='High-tax kickout applies (passive income taxed > US rate)'/>
+
+    <!-- GILTI Basket (Global Intangible Low-Taxed Income) -->
+    <field name='ftc_gilti_basket' type='double' default_value='0.0' comment='FTC allowed - GILTI basket (80% limitation applies)'/>
+    <field name='ftc_gilti_foreign_income' type='double' default_value='0.0' comment='Foreign source income - GILTI basket (tested income)'/>
+    <field name='ftc_gilti_foreign_taxes' type='double' default_value='0.0' comment='Foreign taxes paid - GILTI basket (80% eligible per IRC § 960(d))'/>
+    <field name='ftc_gilti_limitation' type='double' default_value='0.0' comment='FTC limitation - GILTI basket'/>
+    <field name='ftc_gilti_carryforward' type='double' default_value='0.0' comment='FTC carryforward - GILTI basket (10 years)'/>
+    <field name='ftc_gilti_carryback' type='double' default_value='0.0' comment='FTC carryback - GILTI basket (1 year)'/>
+    <field name='ftc_gilti_excess' type='double' default_value='0.0' comment='Excess FTC - GILTI basket (to carryover)'/>
+    <field name='ftc_gilti_80pct_limit_applied' type='double' default_value='0.0' comment='80% limitation on GILTI foreign taxes (IRC § 960(d))'/>
+
+    <!-- Foreign Branch Basket -->
+    <field name='ftc_foreign_branch_basket' type='double' default_value='0.0' comment='FTC allowed - Foreign branch basket'/>
+    <field name='ftc_foreign_branch_income' type='double' default_value='0.0' comment='Foreign source income - Foreign branch basket (attributable to QBUs)'/>
+    <field name='ftc_foreign_branch_taxes' type='double' default_value='0.0' comment='Foreign taxes paid - Foreign branch basket'/>
+    <field name='ftc_foreign_branch_limitation' type='double' default_value='0.0' comment='FTC limitation - Foreign branch basket'/>
+    <field name='ftc_foreign_branch_carryforward' type='double' default_value='0.0' comment='FTC carryforward - Foreign branch basket (10 years)'/>
+    <field name='ftc_foreign_branch_carryback' type='double' default_value='0.0' comment='FTC carryback - Foreign branch basket (1 year)'/>
+    <field name='ftc_foreign_branch_excess' type='double' default_value='0.0' comment='Excess FTC - Foreign branch basket (to carryover)'/>
+
+    <!-- Treaty Income Basket (rare) -->
+    <field name='ftc_treaty_basket' type='double' default_value='0.0' comment='FTC allowed - Treaty income basket'/>
+    <field name='ftc_treaty_foreign_income' type='double' default_value='0.0' comment='Foreign source income - Treaty basket (subject to withholding)'/>
+    <field name='ftc_treaty_foreign_taxes' type='double' default_value='0.0' comment='Foreign taxes paid - Treaty basket'/>
+    <field name='ftc_treaty_limitation' type='double' default_value='0.0' comment='FTC limitation - Treaty basket'/>
+    <field name='ftc_treaty_carryforward' type='double' default_value='0.0' comment='FTC carryforward - Treaty basket (10 years)'/>
+    <field name='ftc_treaty_carryback' type='double' default_value='0.0' comment='FTC carryback - Treaty basket (1 year)'/>
+    <field name='ftc_treaty_excess' type='double' default_value='0.0' comment='Excess FTC - Treaty basket (to carryover)'/>
+
+    <!-- FTC Carryover Tracking by Year and Basket (for expiration management) -->
+    <!-- General Basket Carryovers (10 years forward, 1 year back) -->
+    <field name='ftc_general_cy_minus_1' type='double' default_value='0.0' comment='General basket carryback to prior year'/>
+    <field name='ftc_general_cy_plus_1' type='double' default_value='0.0' comment='General basket carryforward from 1 year ago'/>
+    <field name='ftc_general_cy_plus_2' type='double' default_value='0.0' comment='General basket carryforward from 2 years ago'/>
+    <field name='ftc_general_cy_plus_3' type='double' default_value='0.0' comment='General basket carryforward from 3 years ago'/>
+    <field name='ftc_general_cy_plus_4' type='double' default_value='0.0' comment='General basket carryforward from 4 years ago'/>
+    <field name='ftc_general_cy_plus_5' type='double' default_value='0.0' comment='General basket carryforward from 5 years ago'/>
+    <field name='ftc_general_cy_plus_6' type='double' default_value='0.0' comment='General basket carryforward from 6 years ago'/>
+    <field name='ftc_general_cy_plus_7' type='double' default_value='0.0' comment='General basket carryforward from 7 years ago'/>
+    <field name='ftc_general_cy_plus_8' type='double' default_value='0.0' comment='General basket carryforward from 8 years ago'/>
+    <field name='ftc_general_cy_plus_9' type='double' default_value='0.0' comment='General basket carryforward from 9 years ago'/>
+    <field name='ftc_general_cy_plus_10' type='double' default_value='0.0' comment='General basket carryforward from 10 years ago (expires this year)'/>
+
+    <!-- Passive Basket Carryovers -->
+    <field name='ftc_passive_cy_minus_1' type='double' default_value='0.0' comment='Passive basket carryback to prior year'/>
+    <field name='ftc_passive_cy_plus_1' type='double' default_value='0.0' comment='Passive basket carryforward from 1 year ago'/>
+    <field name='ftc_passive_cy_plus_2' type='double' default_value='0.0' comment='Passive basket carryforward from 2 years ago'/>
+    <field name='ftc_passive_cy_plus_3' type='double' default_value='0.0' comment='Passive basket carryforward from 3 years ago'/>
+    <field name='ftc_passive_cy_plus_4' type='double' default_value='0.0' comment='Passive basket carryforward from 4 years ago'/>
+    <field name='ftc_passive_cy_plus_5' type='double' default_value='0.0' comment='Passive basket carryforward from 5 years ago'/>
+    <field name='ftc_passive_cy_plus_6' type='double' default_value='0.0' comment='Passive basket carryforward from 6 years ago'/>
+    <field name='ftc_passive_cy_plus_7' type='double' default_value='0.0' comment='Passive basket carryforward from 7 years ago'/>
+    <field name='ftc_passive_cy_plus_8' type='double' default_value='0.0' comment='Passive basket carryforward from 8 years ago'/>
+    <field name='ftc_passive_cy_plus_9' type='double' default_value='0.0' comment='Passive basket carryforward from 9 years ago'/>
+    <field name='ftc_passive_cy_plus_10' type='double' default_value='0.0' comment='Passive basket carryforward from 10 years ago (expires this year)'/>
+
+    <!-- GILTI Basket Carryovers -->
+    <field name='ftc_gilti_cy_minus_1' type='double' default_value='0.0' comment='GILTI basket carryback to prior year'/>
+    <field name='ftc_gilti_cy_plus_1' type='double' default_value='0.0' comment='GILTI basket carryforward from 1 year ago'/>
+    <field name='ftc_gilti_cy_plus_2' type='double' default_value='0.0' comment='GILTI basket carryforward from 2 years ago'/>
+    <field name='ftc_gilti_cy_plus_3' type='double' default_value='0.0' comment='GILTI basket carryforward from 3 years ago'/>
+    <field name='ftc_gilti_cy_plus_4' type='double' default_value='0.0' comment='GILTI basket carryforward from 4 years ago'/>
+    <field name='ftc_gilti_cy_plus_5' type='double' default_value='0.0' comment='GILTI basket carryforward from 5 years ago'/>
+    <field name='ftc_gilti_cy_plus_6' type='double' default_value='0.0' comment='GILTI basket carryforward from 6 years ago'/>
+    <field name='ftc_gilti_cy_plus_7' type='double' default_value='0.0' comment='GILTI basket carryforward from 7 years ago'/>
+    <field name='ftc_gilti_cy_plus_8' type='double' default_value='0.0' comment='GILTI basket carryforward from 8 years ago'/>
+    <field name='ftc_gilti_cy_plus_9' type='double' default_value='0.0' comment='GILTI basket carryforward from 9 years ago'/>
+    <field name='ftc_gilti_cy_plus_10' type='double' default_value='0.0' comment='GILTI basket carryforward from 10 years ago (expires this year)'/>
+
+    <!-- Foreign Branch Basket Carryovers -->
+    <field name='ftc_branch_cy_minus_1' type='double' default_value='0.0' comment='Foreign branch basket carryback to prior year'/>
+    <field name='ftc_branch_cy_plus_1' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 1 year ago'/>
+    <field name='ftc_branch_cy_plus_2' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 2 years ago'/>
+    <field name='ftc_branch_cy_plus_3' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 3 years ago'/>
+    <field name='ftc_branch_cy_plus_4' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 4 years ago'/>
+    <field name='ftc_branch_cy_plus_5' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 5 years ago'/>
+    <field name='ftc_branch_cy_plus_6' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 6 years ago'/>
+    <field name='ftc_branch_cy_plus_7' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 7 years ago'/>
+    <field name='ftc_branch_cy_plus_8' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 8 years ago'/>
+    <field name='ftc_branch_cy_plus_9' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 9 years ago'/>
+    <field name='ftc_branch_cy_plus_10' type='double' default_value='0.0' comment='Foreign branch basket carryforward from 10 years ago (expires this year)'/>
+
+    <!-- Treaty Basket Carryovers -->
+    <field name='ftc_treaty_cy_minus_1' type='double' default_value='0.0' comment='Treaty basket carryback to prior year'/>
+    <field name='ftc_treaty_cy_plus_1' type='double' default_value='0.0' comment='Treaty basket carryforward from 1 year ago'/>
+    <field name='ftc_treaty_cy_plus_2' type='double' default_value='0.0' comment='Treaty basket carryforward from 2 years ago'/>
+    <field name='ftc_treaty_cy_plus_3' type='double' default_value='0.0' comment='Treaty basket carryforward from 3 years ago'/>
+    <field name='ftc_treaty_cy_plus_4' type='double' default_value='0.0' comment='Treaty basket carryforward from 4 years ago'/>
+    <field name='ftc_treaty_cy_plus_5' type='double' default_value='0.0' comment='Treaty basket carryforward from 5 years ago'/>
+    <field name='ftc_treaty_cy_plus_6' type='double' default_value='0.0' comment='Treaty basket carryforward from 6 years ago'/>
+    <field name='ftc_treaty_cy_plus_7' type='double' default_value='0.0' comment='Treaty basket carryforward from 7 years ago'/>
+    <field name='ftc_treaty_cy_plus_8' type='double' default_value='0.0' comment='Treaty basket carryforward from 8 years ago'/>
+    <field name='ftc_treaty_cy_plus_9' type='double' default_value='0.0' comment='Treaty basket carryforward from 9 years ago'/>
+    <field name='ftc_treaty_cy_plus_10' type='double' default_value='0.0' comment='Treaty basket carryforward from 10 years ago (expires this year)'/>
+
+    <!-- Foreign Tax Credit by Country (optional detailed tracking) -->
+    <field name='ftc_country_code' type='string' default_value='' comment='Country code for foreign tax (ISO 3166-1 alpha-2)'/>
+    <field name='ftc_treaty_applicable' type='boolean' default_value='false' comment='Tax treaty applicable (affects withholding rates)'/>
+
+    <!-- Legacy fields (deprecated - use basket-specific fields instead) -->
+    <field name='ftc_passive_income' type='double' default_value='0.0' comment='DEPRECATED: Use ftc_passive_foreign_income instead'/>
+    <field name='ftc_general_income' type='double' default_value='0.0' comment='DEPRECATED: Use ftc_general_foreign_income instead'/>
+
+    <!-- Foreign Source Income Determination (IRC §§ 861-865) -->
+    <field name='us_source_income' type='double' default_value='0.0' comment='Total U.S. source income per IRC §§ 861-865'/>
+
+    <!-- U.S. Source Income by Category -->
+    <field name='us_source_services' type='double' default_value='0.0' comment='U.S. source services income (IRC § 861(a)(3))'/>
+    <field name='us_source_sales' type='double' default_value='0.0' comment='U.S. source sales income (IRC § 861(a)(6))'/>
+    <field name='us_source_rents' type='double' default_value='0.0' comment='U.S. source rents (IRC § 861(a)(4))'/>
+    <field name='us_source_royalties' type='double' default_value='0.0' comment='U.S. source royalties (IRC § 861(a)(4))'/>
+    <field name='us_source_dividends' type='double' default_value='0.0' comment='U.S. source dividends (IRC § 861(a)(2))'/>
+    <field name='us_source_interest' type='double' default_value='0.0' comment='U.S. source interest (IRC § 861(a)(1))'/>
+
+    <!-- Foreign Source Income by Category (override from base calculation) -->
+    <field name='foreign_source_services' type='double' default_value='0.0' comment='Foreign source services income (IRC § 862(a)(3))'/>
+    <field name='foreign_source_sales' type='double' default_value='0.0' comment='Foreign source sales income (IRC § 862(a)(6))'/>
+    <field name='foreign_source_rents' type='double' default_value='0.0' comment='Foreign source rents (IRC § 862(a)(4))'/>
+    <field name='foreign_source_royalties' type='double' default_value='0.0' comment='Foreign source royalties (IRC § 862(a)(4))'/>
+    <field name='foreign_source_dividends' type='double' default_value='0.0' comment='Foreign source dividends (IRC § 862(a)(2))'/>
+    <field name='foreign_source_interest' type='double' default_value='0.0' comment='Foreign source interest (IRC § 862(a)(1))'/>
+
+    <!-- Foreign Tax Paid by Category (for separate limitation baskets) -->
+    <field name='foreign_tax_services' type='double' default_value='0.0' comment='Foreign tax paid on services income'/>
+    <field name='foreign_tax_sales' type='double' default_value='0.0' comment='Foreign tax paid on sales income'/>
+    <field name='foreign_tax_rents' type='double' default_value='0.0' comment='Foreign tax paid on rents'/>
+    <field name='foreign_tax_royalties' type='double' default_value='0.0' comment='Foreign tax paid on royalties'/>
+    <field name='foreign_tax_dividends' type='double' default_value='0.0' comment='Foreign tax paid on dividends'/>
+    <field name='foreign_tax_interest' type='double' default_value='0.0' comment='Foreign tax paid on interest'/>
+
+    <!-- GILTI (Global Intangible Low-Taxed Income) - IRC § 951A -->
+    <field name='gilti_gross_tested_income' type='double' default_value='0.0' comment='Sum of all CFCs tested income (IRC § 951A(c)(2)(A))'/>
+    <field name='gilti_tested_loss' type='double' default_value='0.0' comment='Sum of all CFCs tested losses (IRC § 951A(c)(2)(B))'/>
+    <field name='gilti_net_tested_income' type='double' default_value='0.0' comment='Gross tested income minus tested loss (IRC § 951A(c)(1)(A))'/>
+    <field name='gilti_net_deemed_tangible_income_return' type='double' default_value='0.0' comment='10% of QBAI - deemed return on tangible property (IRC § 951A(b)(2))'/>
+    <field name='gilti_inclusion' type='double' default_value='0.0' comment='Total GILTI inclusion (net tested income - 10% QBAI return) (IRC § 951A(b)(1))'/>
+    <field name='gilti_section_250_deduction' type='double' default_value='0.0' comment='Section 250 GILTI deduction: 50% for individuals, 37.5% for C corps (IRC § 250(a)(1)(B))'/>
+    <field name='gilti_foreign_tax_credit' type='double' default_value='0.0' comment='80% of foreign taxes paid on GILTI income (IRC § 960(d))'/>
+    <field name='gilti_high_tax_exclusion' type='double' default_value='0.0' comment='High-taxed income excluded from GILTI (foreign tax rate > 18.9%) (IRC § 951A(c)(2)(A)(i)(III))'/>
+
+    <!-- FDII (Foreign-Derived Intangible Income - IRC § 250) -->
+    <field name='fdii_gross_income' type='double' default_value='0.0' comment='Foreign-derived gross income for FDII calculation (IRC § 250(b)(1))'/>
+    <field name='fdii_gross_receipts_foreign' type='double' default_value='0.0' comment='Gross receipts from foreign persons for foreign use (IRC § 250(b)(4))'/>
+    <field name='fdii_gross_receipts_total' type='double' default_value='0.0' comment='Total gross receipts (domestic + foreign)'/>
+    <field name='fdii_foreign_derived_ratio' type='double' default_value='0.0' comment='Foreign-derived receipts ratio (foreign/total) (IRC § 250(b)(3)(A)(i)(II))'/>
+    <field name='fdii_deductions' type='double' default_value='0.0' comment='Deductions allocable to FDII'/>
+    <field name='fdii_deduction_eligible_income' type='double' default_value='0.0' comment='DEI = gross income - exclusions - deductions (IRC § 250(b)(2))'/>
+    <field name='fdii_foreign_derived_dei' type='double' default_value='0.0' comment='Foreign-derived DEI = DEI × foreign-derived ratio (IRC § 250(b)(1))'/>
+    <field name='fdii_qbai' type='double' default_value='0.0' comment='Qualified Business Asset Investment (tangible depreciable property) (IRC § 951A(d))'/>
+    <field name='fdii_deemed_tangible_income_return' type='double' default_value='0.0' comment='Deemed tangible income return = 10% × QBAI (IRC § 250(b)(2))'/>
+    <field name='fdii_deemed_intangible_income' type='double' default_value='0.0' comment='DII = Foreign-derived DEI - deemed tangible income return (IRC § 250(b)(1))'/>
+    <field name='fdii_deduction_rate' type='double' default_value='0.375' comment='FDII deduction rate: 37.5% (21.875% after 2025) (IRC § 250(a)(1)(A))'/>
+    <field name='fdii_deduction' type='double' default_value='0.0' comment='Section 250 FDII deduction = 37.5% × FDII (21.875% after 2025)'/>
+    <field name='fdii_effective_tax_rate' type='double' default_value='0.13125' comment='Effective tax rate on FDII: 13.125% (21% × 62.5%)'/>
+    <field name='fdii_taxable_income_limitation' type='double' default_value='0.0' comment='FDII deduction limited by taxable income (IRC § 250(a)(2))'/>
+    <field name='fdii_documentation_complete' type='boolean' default_value='false' comment='Documentation of foreign person status and foreign use complete'/>
+
+    <!-- FDII Exclusions from DEI -->
+    <field name='fdii_subpart_f_income' type='double' default_value='0.0' comment='Subpart F income excluded from DEI (IRC § 250(b)(3)(A)(i)(I))'/>
+    <field name='fdii_gilti' type='double' default_value='0.0' comment='GILTI excluded from DEI (IRC § 250(b)(3)(A)(i)(II))'/>
+    <field name='fdii_financial_services_income' type='double' default_value='0.0' comment='Financial services income excluded from DEI (IRC § 250(b)(3)(A)(i)(III))'/>
+    <field name='fdii_dividends_excluded' type='double' default_value='0.0' comment='Dividends excluded from DEI (IRC § 250(b)(3)(A)(i)(IV))'/>
+
+    <!-- U.S. Territories Tax Provisions (IRC §§ 931-937) -->
+    <!-- Guam (GU), American Samoa (AS), Northern Mariana Islands (MP) -->
+
+    <!-- Guam (GU) - IRC § 935 -->
+    <field name='gu_sourced_income' type='double' default_value='0.0'
+           comment='Guam-sourced income (IRC § 935)'/>
+    <field name='gu_bona_fide_resident' type='boolean' default_value='false'
+           comment='Corporation is bona fide resident of Guam'/>
+    <field name='gu_qualified_business_income' type='double' default_value='0.0'
+           comment='Income from qualified business operations in Guam'/>
+    <field name='gu_gda_incentive_rate' type='double' default_value='0.0'
+           comment='Guam Development Authority tax incentive rate (if applicable)'/>
+    <field name='gu_gda_qualified' type='boolean' default_value='false'
+           comment='Qualifies for GDA tax incentives'/>
+    <field name='gu_tax_liability' type='double' default_value='0.0'
+           comment='Tax liability to Guam on Guam-sourced income'/>
+    <field name='gu_us_tax_liability' type='double' default_value='0.0'
+           comment='U.S. tax liability on Guam income (if not bona fide resident)'/>
+
+    <!-- American Samoa (AS) - IRC § 931 -->
+    <field name='as_sourced_income' type='double' default_value='0.0'
+           comment='American Samoa-sourced income (IRC § 931)'/>
+    <field name='as_bona_fide_resident' type='boolean' default_value='false'
+           comment='Corporation is bona fide resident of American Samoa'/>
+    <field name='as_qualified_business_income' type='double' default_value='0.0'
+           comment='Income from qualified business operations in American Samoa'/>
+    <field name='as_territorial_tax_rate' type='double' default_value='0.21'
+           comment='American Samoa territorial tax rate (mirrors U.S. rate)'/>
+    <field name='as_tax_liability' type='double' default_value='0.0'
+           comment='Tax liability to American Samoa on AS-sourced income'/>
+    <field name='as_us_tax_liability' type='double' default_value='0.0'
+           comment='U.S. tax liability on AS income (if not bona fide resident)'/>
+
+    <!-- Northern Mariana Islands (MP) - IRC § 935 -->
+    <field name='mp_sourced_income' type='double' default_value='0.0'
+           comment='Northern Mariana Islands-sourced income (IRC § 935)'/>
+    <field name='mp_bona_fide_resident' type='boolean' default_value='false'
+           comment='Corporation is bona fide resident of Northern Mariana Islands'/>
+    <field name='mp_qualified_business_income' type='double' default_value='0.0'
+           comment='Income from qualified business operations in CNMI'/>
+    <field name='mp_cnmi_incentive_rate' type='double' default_value='0.0'
+           comment='CNMI tax incentive rate (if applicable)'/>
+    <field name='mp_cnmi_qualified' type='boolean' default_value='false'
+           comment='Qualifies for CNMI tax incentives'/>
+    <field name='mp_tax_liability' type='double' default_value='0.0'
+           comment='Tax liability to CNMI on CNMI-sourced income'/>
+    <field name='mp_us_tax_liability' type='double' default_value='0.0'
+           comment='U.S. tax liability on CNMI income (if not bona fide resident)'/>
+
+    <!-- US Virgin Islands (VI) - IRC § 934, 29 USC § 934 -->
+    <!-- USVI Economic Development Program (EDP) -->
+    <field name='usvi_edp_beneficiary' type='boolean' default_value='false'
+           comment='Whether corporation is USVI Economic Development Commission beneficiary'/>
+    <field name='usvi_edp_certificate_number' type='string' default_value=''
+           comment='USVI EDC certificate number (if EDP beneficiary)'/>
+    <field name='usvi_edp_benefit_start_date' type='date'
+
+    <!-- Form 4797: Sales of Business Property (Asset Disposition and Depreciation Recapture) -->
+    <!-- Reference: IRC §§ 1231, 1245, 1250, Form 4797 -->
+
+    <!-- Section 1231 Property (Trade or Business Property Held > 1 Year) -->
+    <field name='section_1231_gross_sales_price' type='double' default_value='0.0' comment='Gross sales price of Section 1231 property (Form 4797 Part I line 1)'/>
+    <field name='section_1231_cost_or_basis' type='double' default_value='0.0' comment='Cost or adjusted basis of Section 1231 property sold'/>
+    <field name='section_1231_depreciation_allowed' type='double' default_value='0.0' comment='Total depreciation allowed or allowable on Section 1231 property'/>
+    <field name='section_1231_gain' type='double' default_value='0.0' comment='Section 1231 gain (sales price - adjusted basis) (Form 4797 Part I line 2)'/>
+    <field name='section_1231_loss' type='double' default_value='0.0' comment='Section 1231 loss (adjusted basis - sales price) (Form 4797 Part I line 3)'/>
+    <field name='section_1231_net_gain' type='double' default_value='0.0' comment='Net Section 1231 gain (gains - losses) (Form 4797 Part I line 7)'/>
+    <field name='section_1231_net_loss' type='double' default_value='0.0' comment='Net Section 1231 loss (losses - gains) (Form 4797 Part I line 8)'/>
+    <field name='section_1231_prior_year_losses' type='double' default_value='0.0' comment='Non-recaptured Section 1231 losses from prior 5 years'/>
+    <field name='section_1231_recapture_as_ordinary' type='double' default_value='0.0' comment='Section 1231 gain recaptured as ordinary income (5-year lookback)'/>
+    <field name='section_1231_capital_gain' type='double' default_value='0.0' comment='Section 1231 net gain treated as long-term capital gain'/>
+    <field name='section_1231_ordinary_loss' type='double' default_value='0.0' comment='Section 1231 net loss treated as ordinary loss'/>
+
+    <!-- Section 1245 Recapture (Personal Property - Full Recapture) -->
+    <field name='section_1245_sales_price' type='double' default_value='0.0' comment='Sales price of Section 1245 property (Form 4797 Part III line 19)'/>
+    <field name='section_1245_original_cost' type='double' default_value='0.0' comment='Original cost or other basis of Section 1245 property'/>
+    <field name='section_1245_depreciation_allowed' type='double' default_value='0.0' comment='Total depreciation allowed or allowable (IRC § 1245(a)(2))'/>
+    <field name='section_1245_adjusted_basis' type='double' default_value='0.0' comment='Adjusted basis (original cost - depreciation) (Form 4797 Part III line 20)'/>
+    <field name='section_1245_total_gain' type='double' default_value='0.0' comment='Total gain realized (sales price - adjusted basis) (Form 4797 Part III line 22)'/>
+    <field name='section_1245_recapture_amount' type='double' default_value='0.0' comment='Section 1245 recapture (lesser of gain or depreciation) (Form 4797 Part III line 23)'/>
+    <field name='section_1245_ordinary_income' type='double' default_value='0.0' comment='Ordinary income from Section 1245 recapture (Form 4797 Part II line 13)'/>
+    <field name='section_1245_section_1231_gain' type='double' default_value='0.0' comment='Section 1231 gain after 1245 recapture (total gain - recapture) (Form 4797 Part I line 6)'/>
+
+    <!-- Section 1250 Recapture (Real Property - Excess Depreciation Only) -->
+    <field name='section_1250_sales_price' type='double' default_value='0.0' comment='Sales price of Section 1250 property (Form 4797 Part III line 19)'/>
+    <field name='section_1250_original_cost' type='double' default_value='0.0' comment='Original cost or other basis of Section 1250 property'/>
+    <field name='section_1250_accumulated_depreciation' type='double' default_value='0.0' comment='Accumulated depreciation (accelerated method if applicable)'/>
+    <field name='section_1250_straight_line_depreciation' type='double' default_value='0.0' comment='Straight-line depreciation allowed over same period'/>
+    <field name='section_1250_excess_depreciation' type='double' default_value='0.0' comment='Excess of accelerated over straight-line depreciation'/>
+    <field name='section_1250_adjusted_basis' type='double' default_value='0.0' comment='Adjusted basis (original cost - accumulated depreciation) (Form 4797 Part III line 20)'/>
+    <field name='section_1250_total_gain' type='double' default_value='0.0' comment='Total gain realized (sales price - adjusted basis) (Form 4797 Part III line 22)'/>
+    <field name='section_1250_recapture_amount' type='double' default_value='0.0' comment='Section 1250 recapture (lesser of gain or excess depreciation) (Form 4797 Part III line 26)'/>
+    <field name='section_1250_ordinary_income' type='double' default_value='0.0' comment='Ordinary income from Section 1250 recapture (Form 4797 Part II line 14)'/>
+    <field name='section_1250_unrecaptured_1250_gain' type='double' default_value='0.0' comment='Unrecaptured Section 1250 gain (25% rate) (straight-line depreciation portion)'/>
+    <field name='section_1250_section_1231_gain' type='double' default_value='0.0' comment='Section 1231 gain after 1250 recapture (total gain - recapture) (Form 4797 Part I line 6)'/>
+
+    <!-- Property Classification Flags -->
+    <field name='is_section_1231_property' type='boolean' default_value='false' comment='Property is Section 1231 property (business property held > 1 year)'/>
+    <field name='is_section_1245_property' type='boolean' default_value='false' comment='Property is Section 1245 property (personal property, equipment, machinery)'/>
+    <field name='is_section_1250_property' type='boolean' default_value='false' comment='Property is Section 1250 property (real property, buildings, structures)'/>
+    <field name='holding_period_months' type='integer' default_value='0' comment='Property holding period in months (must be > 12 for Section 1231)'/>
+
+    <!-- Aggregated Form 4797 Results -->
+    <field name='form_4797_total_ordinary_income' type='double' default_value='0.0' comment='Total ordinary income from depreciation recapture (Form 4797 Part II line 18)'/>
+    <field name='form_4797_total_section_1231_gain' type='double' default_value='0.0' comment='Total Section 1231 gain (Form 4797 Part I line 7 after recapture)'/>
+    <field name='form_4797_capital_gain_portion' type='double' default_value='0.0' comment='Portion of Section 1231 gain treated as long-term capital gain'/>
+    <field name='form_4797_ordinary_loss_portion' type='double' default_value='0.0' comment='Portion of Section 1231 loss treated as ordinary loss'/>
+    <field name='form_4797_net_impact_on_income' type='double' default_value='0.0' comment='Net impact on taxable income (ordinary income + ordinary loss)'/>
+
+    <!-- Unrecaptured Section 1250 Gain (for individual shareholders, informational for C-corps) -->
+    <field name='unrecaptured_1250_gain_total' type='double' default_value='0.0' comment='Total unrecaptured Section 1250 gain (taxed at 25% for individuals, 21% for C-corps)'/>
+
+    <!-- Depreciation Recapture Audit Trail -->
+    <field name='depreciation_method_used' type='string' default_value='' comment='Depreciation method used (MACRS, SL, 200DB, 150DB)'/>
+    <field name='property_placed_in_service_date' type='date' comment='Date property was placed in service'/>
+    <field name='property_disposition_date' type='date' comment='Date property was sold or disposed'/>
+    <field name='recapture_calculation_method' type='string' default_value='' comment='Recapture calculation method (1245 full, 1250 excess, 1231 netting)'/>
+           comment='Date EDP benefits commenced (for 10-year tracking)'/>
+    <field name='usvi_edp_benefit_end_date' type='date'
+           comment='Date EDP benefits expire (typically 10 years from start)'/>
+    <field name='usvi_edp_years_remaining' type='integer' default_value='0'
+           comment='Years of EDP benefits remaining (10-year benefit period)'/>
+
+    <!-- USVI Source Income Determination -->
+    <field name='usvi_source_income' type='double' default_value='0.0'
+           comment='Income sourced to USVI (eligible for EDP incentive)'/>
+    <field name='usvi_source_gross_receipts' type='double' default_value='0.0'
+           comment='Gross receipts from USVI operations'/>
+    <field name='usvi_source_deductions' type='double' default_value='0.0'
+           comment='Deductions allocable to USVI income'/>
+
+    <!-- Economic Substance Requirements -->
+    <field name='usvi_employees_count' type='integer' default_value='0'
+           comment='Number of employees in USVI (economic substance requirement)'/>
+    <field name='usvi_payroll_amount' type='double' default_value='0.0'
+           comment='Annual payroll in USVI (economic substance requirement)'/>
+    <field name='usvi_property_value' type='double' default_value='0.0'
+           comment='Value of tangible property in USVI (economic substance requirement)'/>
+    <field name='usvi_office_location' type='string' default_value=''
+           comment='Physical office address in USVI'/>
+    <field name='usvi_economic_substance_met' type='boolean' default_value='false'
+           comment='Whether economic substance requirements are satisfied'/>
+    <field name='usvi_minimum_employees_required' type='integer' default_value='10'
+           comment='Minimum employees required for EDP (typically 10)'/>
+    <field name='usvi_minimum_payroll_required' type='double' default_value='250000.0'
+           comment='Minimum annual payroll required for EDP (typically $250K)'/>
+
+    <!-- USVI Tax Calculation -->
+    <field name='usvi_taxable_income' type='double' default_value='0.0'
+           comment='Taxable income subject to USVI taxation (mirrors federal calculation)'/>
+    <field name='usvi_tax_before_incentive' type='double' default_value='0.0'
+           comment='USVI tax before EDP incentive (21% rate, mirroring federal)'/>
+    <field name='usvi_edp_reduction_rate' type='double' default_value='0.90'
+           comment='EDP tax reduction rate (typically 90% reduction)'/>
+    <field name='usvi_edp_tax_savings' type='double' default_value='0.0'
+           comment='Tax savings from EDP incentive (90% of USVI tax)'/>
+    <field name='usvi_tax_after_incentive' type='double' default_value='0.0'
+           comment='USVI tax after EDP incentive (10% of standard tax)'/>
+    <field name='usvi_effective_tax_rate' type='double' default_value='0.0'
+           comment='Effective USVI tax rate after EDP incentive (typically 2.1%)'/>
+
+    <!-- Mirror Tax Code Structure -->
+    <field name='usvi_mirrors_irc' type='boolean' default_value='true'
+           comment='USVI mirrors Internal Revenue Code (29 USC § 934)'/>
+    <field name='usvi_federal_tax_offset' type='double' default_value='0.0'
+           comment='Federal tax offset for USVI taxes paid (prevents double taxation)'/>
+
+    <!-- Compliance and Reporting -->
+    <field name='usvi_annual_report_filed' type='boolean' default_value='false'
+           comment='Whether annual EDP compliance report filed with USVI EDC'/>
+    <field name='usvi_edp_compliance_status' type='string' default_value='compliant'
+
+    <!-- Puerto Rico (PR) - IRC § 933, Act 60-2019 (Export Services Act) -->
+    <!--
+      Puerto Rico Act 60 (2019) provides significant tax incentives for export services.
+
+      Key Benefits:
+      - Chapter 2 (Export Services): 4% fixed PR corporate rate on export services (vs 21% US)
+      - 100% tax exemption on PR-sourced dividends and interest
+      - IRC § 933 exclusion: Bona fide PR residents can exclude PR-source income from US taxation
+
+      Requirements:
+      - Must hold valid PR tax decree from DDEC (Department of Economic Development)
+      - Must meet bona fide residence test (IRC § 937): 183+ days in PR, tax home in PR
+      - Export services: ≥80% of revenue from customers outside PR
+
+      Reference: PR Act 60-2019 (Incentives Code)
+      Reference: IRC § 933 (Puerto Rico income exclusion)
+      Reference: IRC § 937 (Bona fide residence test)
+    -->
+
+    <!-- PR Act 60 Decree Status and Eligibility -->
+    <field name='pr_act60_decree_holder' type='boolean' default_value='false'
+           comment='Holds valid PR Act 60 tax decree from DDEC (required for all benefits)'/>
+    <field name='pr_act60_decree_number' type='string' default_value=''
+           comment='PR Act 60 decree number'/>
+    <field name='pr_act60_decree_date' type='date'
+           comment='Date decree was granted by DDEC'/>
+    <field name='pr_act60_decree_expiration' type='date'
+           comment='Decree expiration date (typically 15-20 year term)'/>
+
+    <!-- Bona Fide PR Residence Test (IRC § 937) -->
+    <field name='pr_bona_fide_resident' type='boolean' default_value='false'
+           comment='Meets IRC § 937 bona fide PR residence test (required for § 933 exclusion)'/>
+    <field name='pr_presence_days' type='integer' default_value='0'
+           comment='Days physically present in PR during tax year (must be ≥183 days for § 937)'/>
+    <field name='pr_tax_home' type='boolean' default_value='false'
+           comment='Tax home is in Puerto Rico throughout tax year (§ 937(a)(1)(A))'/>
+    <field name='pr_closer_connection' type='boolean' default_value='false'
+           comment='Has closer connection to PR than to US or foreign country (§ 937(a)(1)(B))'/>
+    <field name='pr_us_presence_days' type='integer' default_value='0'
+           comment='Days present in US (must be ≤90 days for full § 933 exclusion)'/>
+
+    <!-- Export Services Income (Act 60 Chapter 2) -->
+    <field name='pr_export_services_income' type='double' default_value='0.0'
+           comment='Eligible export services income (services to non-PR customers)'/>
+    <field name='pr_local_services_income' type='double' default_value='0.0'
+           comment='Local PR services income (not eligible for 4% rate)'/>
+    <field name='pr_export_services_percentage' type='double' default_value='0.0'
+           comment='Percentage of services exported outside PR (must be ≥80%)'/>
+
+    <!-- PR-Sourced Income (IRC § 934) -->
+    <field name='pr_sourced_income_total' type='double' default_value='0.0'
+           comment='Total PR-sourced income per IRC § 933'/>
+    <field name='pr_sourced_dividends' type='double' default_value='0.0'
+           comment='PR-sourced dividends (100% exempt under Act 60)'/>
+    <field name='pr_sourced_interest' type='double' default_value='0.0'
+           comment='PR-sourced interest (100% exempt under Act 60)'/>
+
+    <!-- PR Tax Calculation -->
+    <field name='pr_export_services_tax_rate' type='double' default_value='0.04'
+           comment='PR Act 60 fixed rate on export services (4% for decree holders)'/>
+    <field name='pr_export_services_tax' type='double' default_value='0.0'
+           comment='PR tax on export services (export income × 4%)'/>
+
+    <!-- US Tax Treatment (IRC § 933) -->
+    <field name='pr_income_excluded_from_us' type='double' default_value='0.0'
+           comment='PR income excluded from US taxation per IRC § 933 (for bona fide residents)'/>
+    <field name='pr_income_subject_to_us' type='double' default_value='0.0'
+           comment='PR income subject to US taxation (if not bona fide resident)'/>
+
+    <!-- Compliance -->
+    <field name='pr_annual_report_filed' type='boolean' default_value='false'
+           comment='Annual report filed with PR DDEC (required to maintain decree)'/>
+    <field name='pr_job_creation_met' type='boolean' default_value='false'
+           comment='Job creation requirements met (typically 1-5 full-time PR employees)'/>
+    <field name='pr_documentation_complete' type='boolean' default_value='false'
+           comment='Documentation proving services exported outside PR'/>
+
+           comment='EDP compliance status: compliant, non_compliant, under_review'/>
+
+    <!-- Combined Territorial Tax Fields -->
+    <field name='total_territorial_sourced_income' type='double' default_value='0.0'
+           comment='Total income sourced to U.S. territories (GU + AS + MP + VI)'/>
+    <field name='total_territorial_tax_liability' type='double' default_value='0.0'
+           comment='Total tax liability to all territories'/>
+    <field name='total_us_tax_on_territorial_income' type='double' default_value='0.0'
+           comment='Total U.S. tax on territorial income (if not bona fide resident)'/>
+  </entity>
+
+  <!-- Foreign Branch (QBU) Entity - IRC Section 987 -->
+  <!--
+    A Qualified Business Unit (QBU) is a foreign branch that maintains separate books and records
+    and uses a functional currency other than the U.S. dollar.
+
+    Foreign branches generate a separate basket of foreign source income for Foreign Tax Credit
+    purposes under IRC Section 904(d)(1)(E) (foreign branch basket).
+
+    IRC Section 987 governs the treatment of currency gains/losses from QBU operations.
+
+    Reference: IRC § 987 (Foreign Currency Translation Rules)
+    Reference: IRC § 904(d)(1)(E) (Foreign Branch Income Basket)
+    Reference: IRC § 989 (QBU Definition)
+    Reference: Treas. Reg. § 1.987-1 through § 1.987-15
+  -->
+  <entity name="foreign_branch">
+    <!-- QBU Identification -->
+    <field name='qbu_id' type='string' comment='Unique identifier for QBU'/>
+    <field name='qbu_name' type='string' comment='Name of foreign branch or division'/>
+    <field name='country_code' type='string' comment='Country of operation (ISO 3166-1 alpha-2)'/>
+    <field name='functional_currency' type='string' comment='Functional currency (EUR, GBP, JPY, etc.)'/>
+    <field name='is_qbu' type='boolean' default_value='false'
+           comment='Qualifies as QBU (separate books, functional currency per IRC § 989)'/>
+
+    <!-- QBU Determination Criteria (IRC § 989) -->
+    <field name='has_separate_books_and_records' type='boolean' default_value='false'
+           comment='Maintains separate books and records'/>
+    <field name='conducts_trade_or_business' type='boolean' default_value='false'
+           comment='Conducts a trade or business in foreign country'/>
+    <field name='has_employees' type='boolean' default_value='false'
+           comment='Has employees working in foreign country'/>
+    <field name='has_physical_office' type='boolean' default_value='false'
+           comment='Has physical office or location in foreign country'/>
+    <field name='uses_nonfunctional_currency' type='boolean' default_value='false'
+           comment='Uses functional currency other than USD'/>
+
+    <!-- Branch Income Statement (in functional currency) -->
+    <field name='fc_gross_income' type='double' default_value='0.0'
+           comment='Gross income in functional currency'/>
+    <field name='fc_deductions' type='double' default_value='0.0'
+           comment='Deductions in functional currency'/>
+    <field name='fc_net_income' type='double' default_value='0.0'
+           comment='Net income in functional currency'/>
+    <field name='fc_foreign_taxes_paid' type='double' default_value='0.0'
+           comment='Foreign income taxes paid in functional currency'/>
+
+    <!-- Translation to USD (IRC § 987) -->
+    <field name='usd_gross_income' type='double' default_value='0.0'
+           comment='Gross income translated to USD'/>
+    <field name='usd_deductions' type='double' default_value='0.0'
+           comment='Deductions translated to USD'/>
+    <field name='usd_net_income' type='double' default_value='0.0'
+           comment='Net income translated to USD (foreign branch income)'/>
+    <field name='usd_foreign_taxes_paid' type='double' default_value='0.0'
+           comment='Foreign taxes paid translated to USD'/>
+
+    <!-- Exchange Rates (IRC § 987) -->
+    <field name='avg_exchange_rate' type='double' default_value='1.0'
+           comment='Average exchange rate for current year (FC to USD)'/>
+    <field name='spot_rate_beginning' type='double' default_value='1.0'
+           comment='Spot rate at beginning of year (FC to USD)'/>
+    <field name='spot_rate_ending' type='double' default_value='1.0'
+           comment='Spot rate at end of year (FC to USD)'/>
+    <field name='spot_rate_remittance' type='double' default_value='1.0'
+           comment='Spot rate at date of remittance (if applicable)'/>
+
+    <!-- Section 987 Gain/Loss Calculation -->
+    <field name='section_987_unrealized_gain_loss' type='double' default_value='0.0'
+           comment='Unrealized IRC § 987 gain/loss from translation (deferred)'/>
+    <field name='section_987_realized_gain_loss' type='double' default_value='0.0'
+           comment='Realized IRC § 987 gain/loss (triggered by remittance)'/>
+    <field name='section_987_cumulative_deferred_gain_loss' type='double' default_value='0.0'
+           comment='Cumulative deferred § 987 gain/loss (not yet remitted)'/>
+    <field name='remittance_amount_fc' type='double' default_value='0.0'
+           comment='Remittance from QBU to owner in functional currency'/>
+    <field name='remittance_amount_usd' type='double' default_value='0.0'
+           comment='Remittance translated to USD'/>
+    <field name='remittance_proportion' type='double' default_value='0.0'
+           comment='Proportion of QBU assets remitted (for § 987 recognition)'/>
+
+    <!-- QBU Asset Pool (for § 987 gain/loss calculation) -->
+    <field name='net_assets_fc_beginning' type='double' default_value='0.0'
+           comment='QBU net assets in FC at beginning of year'/>
+    <field name='net_assets_fc_ending' type='double' default_value='0.0'
+           comment='QBU net assets in FC at end of year'/>
+    <field name='net_assets_usd_at_historical_rates' type='double' default_value='0.0'
+           comment='QBU net assets at historical exchange rates'/>
+    <field name='net_assets_usd_at_current_rates' type='double' default_value='0.0'
+           comment='QBU net assets at current spot rate'/>
+
+    <!-- Branch Earnings and Profits (E&P) -->
+    <field name='branch_current_ep' type='double' default_value='0.0'
+           comment='Branch current year E&P (in USD, different from CFC E&P)'/>
+    <field name='branch_accumulated_ep' type='double' default_value='0.0'
+           comment='Branch accumulated E&P from prior years (in USD)'/>
+    <field name='branch_ep_adjustment_section_987' type='double' default_value='0.0'
+           comment='E&P adjustment for § 987 gain/loss'/>
+
+    <!-- Foreign Tax Credit - Foreign Branch Basket (IRC § 904(d)(1)(E)) -->
+    <field name='ftc_branch_basket_income' type='double' default_value='0.0'
+           comment='Foreign source income allocable to foreign branch basket (IRC § 904(d)(1)(E))'/>
+    <field name='ftc_branch_basket_taxes' type='double' default_value='0.0'
+           comment='Foreign taxes paid allocable to foreign branch basket'/>
+    <field name='ftc_branch_basket_limitation' type='double' default_value='0.0'
+           comment='FTC limitation for foreign branch basket (separate from general basket)'/>
+    <field name='ftc_branch_basket_allowed' type='double' default_value='0.0'
+           comment='Foreign tax credit allowed for foreign branch basket'/>
+
+    <!-- Attribution Rules (expense allocation to branch) -->
+    <field name='interest_expense_allocated' type='double' default_value='0.0'
+           comment='Interest expense allocated to branch under Treas. Reg. § 1.861-10'/>
+    <field name='rd_expense_allocated' type='double' default_value='0.0'
+           comment='R&D expense allocated to branch under Treas. Reg. § 1.861-17'/>
+    <field name='stewardship_expense_allocated' type='double' default_value='0.0'
+           comment='Stewardship expense allocated to branch'/>
+    <field name='home_office_expense_allocated' type='double' default_value='0.0'
+           comment='Home office expense allocated to branch'/>
+
+    <!-- Branch Termination (IRC § 987) -->
+    <field name='is_terminated' type='boolean' default_value='false'
+           comment='Branch terminated during year (triggers full § 987 recognition)'/>
+    <field name='termination_date' type='date' comment='Date of branch termination'/>
+    <field name='termination_section_987_gain_loss' type='double' default_value='0.0'
+           comment='Total § 987 gain/loss recognized on termination'/>
+
+    <!-- Dual Consolidated Loss Rules (IRC § 1503(d)) -->
+    <field name='has_dual_consolidated_loss' type='boolean' default_value='false'
+           comment='Branch has dual consolidated loss (loss used in both US and foreign country)'/>
+    <field name='dcl_amount' type='double' default_value='0.0'
+           comment='Dual consolidated loss amount (potentially non-deductible)'/>
+    <field name='dcl_domestic_use_agreement_filed' type='boolean' default_value='false'
+           comment='Domestic use agreement filed to preserve US deduction'/>
+
+    <!-- Transfer Pricing (Branch Attribution Rules) -->
+    <field name='intercompany_transactions_with_branch' type='double' default_value='0.0'
+           comment='Transactions between home office and branch (must be arms length)'/>
+    <field name='branch_royalties_paid' type='double' default_value='0.0'
+           comment='Royalties paid by branch to home office'/>
+    <field name='branch_interest_paid' type='double' default_value='0.0'
+           comment='Interest paid by branch to home office'/>
+    <field name='branch_services_received' type='double' default_value='0.0'
+           comment='Value of services received from home office'/>
+
+    <!-- Documentation and Compliance -->
+    <field name='form_8858_filed' type='boolean' default_value='false'
+           comment='Form 8858 (Information Return for Foreign Disregarded Entities) filed'/>
+    <field name='form_1118_separate_basket' type='boolean' default_value='false'
+           comment='Form 1118 filed with separate foreign branch basket'/>
+
+    <!-- Country-Specific Tax Information -->
+    <field name='foreign_country_name' type='string' comment='Full name of foreign country'/>
+    <field name='foreign_tax_id' type='string' comment='Tax ID number in foreign country'/>
+    <field name='foreign_tax_rate' type='double' default_value='0.0'
+           comment='Statutory corporate tax rate in foreign country'/>
+    <field name='treaty_applicable' type='boolean' default_value='false'
+           comment='Tax treaty between US and foreign country applicable'/>
+    <field name='treaty_country' type='string' comment='Treaty country name (if applicable)'/>
+
+    <!-- GILTI Interaction -->
+    <field name='branch_income_excluded_from_gilti' type='boolean' default_value='true'
+           comment='Branch income excluded from GILTI (branches not CFCs)'/>
+    <field name='branch_tangible_assets_not_qbai' type='boolean' default_value='true'
+           comment='Branch tangible assets do not count as QBAI (only CFC assets count)'/>
+  </entity>
+
+  <!-- Form 5471: Information Return of U.S. Persons With Respect To Certain Foreign Corporations -->
+  <!--
+    Form 5471 is required for U.S. shareholders of Controlled Foreign Corporations (CFCs).
+
+    A CFC is a foreign corporation in which more than 50% of:
+    - Total voting power of all classes of stock entitled to vote, or
+    - Total value of stock
+    is owned (directly, indirectly, or constructively) by U.S. shareholders.
+
+    A U.S. shareholder is a U.S. person who owns 10% or more of the voting stock.
+
+    Reference: IRC § 951-965 (Subpart F), IRC § 959 (PTEP)
+    Reference: Form 5471 Instructions
+  -->
+  <entity name="form_5471">
+    <!-- CFC Identification -->
+    <field name='cfc_name' type='string' comment='Name of Controlled Foreign Corporation'/>
+    <field name='cfc_ein' type='string' comment='CFC Employer Identification Number (if any)'/>
+    <field name='cfc_country_code' type='string' comment='Country of incorporation (ISO 3166-1 alpha-2)'/>
+    <field name='cfc_tax_year_end' type='date' comment='End of CFC tax year'/>
+    <field name='cfc_functional_currency' type='string' comment='Functional currency (USD, EUR, etc.)'/>
+
+    <!-- Schedule A: Stock of the CFC -->
+    <field name='sched_a_voting_stock_owned_pct' type='double' default_value='0.0'
+           comment='Schedule A: Percentage of voting stock owned (0.0 to 1.0)'/>
+    <field name='sched_a_total_value_stock_owned_pct' type='double' default_value='0.0'
+           comment='Schedule A: Percentage of total value of stock owned (0.0 to 1.0)'/>
+    <field name='sched_a_shares_owned' type='integer' default_value='0'
+           comment='Schedule A: Number of shares owned'/>
+    <field name='sched_a_total_shares' type='integer' default_value='0'
+           comment='Schedule A: Total number of shares outstanding'/>
+    <field name='sched_a_stock_basis' type='double' default_value='0.0'
+           comment='Schedule A: U.S. shareholder basis in CFC stock'/>
+
+    <!-- Schedule B: U.S. Shareholders of CFC -->
+    <field name='sched_b_shareholder_name' type='string' comment='Schedule B: Name of U.S. shareholder'/>
+    <field name='sched_b_shareholder_ein' type='string' comment='Schedule B: U.S. shareholder EIN'/>
+    <field name='sched_b_is_us_shareholder' type='boolean' default_value='false'
+           comment='Schedule B: Is U.S. shareholder (10%+ voting stock owner)'/>
+
+    <!-- Schedule C: Income Statement -->
+    <field name='sched_c_gross_receipts' type='double' default_value='0.0'
+           comment='Schedule C: Gross receipts or sales'/>
+    <field name='sched_c_cost_of_goods_sold' type='double' default_value='0.0'
+           comment='Schedule C: Cost of goods sold'/>
+    <field name='sched_c_gross_profit' type='double' default_value='0.0'
+           comment='Schedule C: Gross profit (receipts - COGS)'/>
+    <field name='sched_c_dividends' type='double' default_value='0.0'
+           comment='Schedule C: Dividends received'/>
+    <field name='sched_c_interest' type='double' default_value='0.0'
+           comment='Schedule C: Interest income'/>
+    <field name='sched_c_gross_rents_royalties' type='double' default_value='0.0'
+           comment='Schedule C: Gross rents, royalties, and license fees'/>
+    <field name='sched_c_other_income' type='double' default_value='0.0'
+           comment='Schedule C: Other income'/>
+    <field name='sched_c_total_income' type='double' default_value='0.0'
+           comment='Schedule C: Total income'/>
+    <field name='sched_c_compensation' type='double' default_value='0.0'
+           comment='Schedule C: Compensation of officers'/>
+    <field name='sched_c_salaries_wages' type='double' default_value='0.0'
+           comment='Schedule C: Salaries and wages'/>
+    <field name='sched_c_depreciation' type='double' default_value='0.0'
+           comment='Schedule C: Depreciation'/>
+    <field name='sched_c_interest_expense' type='double' default_value='0.0'
+           comment='Schedule C: Interest expense'/>
+    <field name='sched_c_taxes' type='double' default_value='0.0'
+           comment='Schedule C: Taxes (not foreign income taxes)'/>
+    <field name='sched_c_other_deductions' type='double' default_value='0.0'
+           comment='Schedule C: Other deductions'/>
+    <field name='sched_c_total_deductions' type='double' default_value='0.0'
+           comment='Schedule C: Total deductions'/>
+    <field name='sched_c_net_income' type='double' default_value='0.0'
+           comment='Schedule C: Net income per books'/>
+
+    <!-- Schedule E: Income, War Profits, and Excess Profits Taxes Paid or Accrued -->
+    <field name='sched_e_foreign_income_taxes_paid' type='double' default_value='0.0'
+           comment='Schedule E: Foreign income taxes paid or accrued'/>
+    <field name='sched_e_war_profits_taxes' type='double' default_value='0.0'
+           comment='Schedule E: War profits taxes paid'/>
+    <field name='sched_e_excess_profits_taxes' type='double' default_value='0.0'
+           comment='Schedule E: Excess profits taxes paid'/>
+    <field name='sched_e_total_foreign_taxes' type='double' default_value='0.0'
+           comment='Schedule E: Total foreign taxes paid or accrued'/>
+    <field name='sched_e_foreign_tax_category' type='string' default_value='general'
+           comment='Schedule E: Foreign tax category (general, passive, etc.)'/>
+
+    <!-- Schedule H: Current Earnings and Profits (E&P) -->
+    <field name='sched_h_net_income_per_books' type='double' default_value='0.0'
+           comment='Schedule H: Net income per books (from Schedule C)'/>
+    <field name='sched_h_us_depreciation_adjustment' type='double' default_value='0.0'
+           comment='Schedule H: U.S. depreciation adjustment (book vs tax)'/>
+    <field name='sched_h_current_year_deficit' type='double' default_value='0.0'
+           comment='Schedule H: Current year E&P deficit'/>
+    <field name='sched_h_foreign_taxes_paid' type='double' default_value='0.0'
+           comment='Schedule H: Foreign income taxes (reduces E&P)'/>
+    <field name='sched_h_other_adjustments' type='double' default_value='0.0'
+           comment='Schedule H: Other E&P adjustments'/>
+    <field name='sched_h_current_earnings_and_profits' type='double' default_value='0.0'
+           comment='Schedule H: Current year earnings and profits (E&P)'/>
+
+    <!-- Schedule J: Accumulated Earnings and Profits (E&P) -->
+    <field name='sched_j_beginning_accumulated_ep' type='double' default_value='0.0'
+           comment='Schedule J: Accumulated E&P at beginning of year'/>
+    <field name='sched_j_current_year_ep' type='double' default_value='0.0'
+           comment='Schedule J: Current year E&P (from Schedule H)'/>
+    <field name='sched_j_distributions' type='double' default_value='0.0'
+           comment='Schedule J: Distributions during the year'/>
+    <field name='sched_j_reclassifications' type='double' default_value='0.0'
+           comment='Schedule J: Reclassifications to/from PTEP'/>
+    <field name='sched_j_ending_accumulated_ep' type='double' default_value='0.0'
+           comment='Schedule J: Accumulated E&P at end of year'/>
+
+    <!-- Schedule M: Transactions Between CFC and Shareholders or Related Persons -->
+    <field name='sched_m_sales_to_related' type='double' default_value='0.0'
+           comment='Schedule M: Sales of inventory to related persons'/>
+    <field name='sched_m_purchases_from_related' type='double' default_value='0.0'
+           comment='Schedule M: Purchases of inventory from related persons'/>
+    <field name='sched_m_rent_paid_to_related' type='double' default_value='0.0'
+           comment='Schedule M: Rent paid to related persons'/>
+    <field name='sched_m_royalties_paid_to_related' type='double' default_value='0.0'
+           comment='Schedule M: Royalties paid to related persons'/>
+    <field name='sched_m_interest_paid_to_related' type='double' default_value='0.0'
+           comment='Schedule M: Interest paid to related persons'/>
+    <field name='sched_m_loans_from_related_beg' type='double' default_value='0.0'
+           comment='Schedule M: Loans from related persons (beginning balance)'/>
+    <field name='sched_m_loans_from_related_end' type='double' default_value='0.0'
+           comment='Schedule M: Loans from related persons (ending balance)'/>
+    <field name='sched_m_loans_to_related_beg' type='double' default_value='0.0'
+           comment='Schedule M: Loans to related persons (beginning balance)'/>
+    <field name='sched_m_loans_to_related_end' type='double' default_value='0.0'
+           comment='Schedule M: Loans to related persons (ending balance)'/>
+
+    <!-- PTEP Tracking (Previously Taxed Earnings and Profits - IRC § 959) -->
+    <field name='ptep_section_951a_beg' type='double' default_value='0.0'
+           comment='PTEP: Section 951(a) PTEP beginning balance (pre-2018 Subpart F)'/>
+    <field name='ptep_section_951a_additions' type='double' default_value='0.0'
+           comment='PTEP: Section 951(a) PTEP additions this year'/>
+    <field name='ptep_section_951a_distributions' type='double' default_value='0.0'
+           comment='PTEP: Section 951(a) PTEP distributions this year'/>
+    <field name='ptep_section_951a_end' type='double' default_value='0.0'
+           comment='PTEP: Section 951(a) PTEP ending balance'/>
+    <field name='ptep_section_951A_gilti_beg' type='double' default_value='0.0'
+           comment='PTEP: Section 951A GILTI PTEP beginning balance'/>
+    <field name='ptep_section_951A_gilti_additions' type='double' default_value='0.0'
+           comment='PTEP: Section 951A GILTI PTEP additions this year'/>
+    <field name='ptep_section_951A_gilti_distributions' type='double' default_value='0.0'
+           comment='PTEP: Section 951A GILTI PTEP distributions this year'/>
+    <field name='ptep_section_951A_gilti_end' type='double' default_value='0.0'
+           comment='PTEP: Section 951A GILTI PTEP ending balance'/>
+    <field name='ptep_total_beg' type='double' default_value='0.0'
+           comment='PTEP: Total PTEP beginning balance'/>
+    <field name='ptep_total_end' type='double' default_value='0.0'
+           comment='PTEP: Total PTEP ending balance'/>
+
+    <!-- Stock Basis Adjustments -->
+    <field name='stock_basis_beginning' type='double' default_value='0.0'
+           comment='Stock basis at beginning of year'/>
+    <field name='stock_basis_subpart_f_inclusion' type='double' default_value='0.0'
+           comment='Stock basis increase from Subpart F inclusion (IRC § 961)'/>
+    <field name='stock_basis_gilti_inclusion' type='double' default_value='0.0'
+           comment='Stock basis increase from GILTI inclusion (IRC § 961)'/>
+    <field name='stock_basis_distributions_from_ptep' type='double' default_value='0.0'
+           comment='Stock basis decrease from distributions of PTEP (IRC § 961)'/>
+    <field name='stock_basis_ending' type='double' default_value='0.0'
+           comment='Stock basis at end of year'/>
+
+    <!-- CFC Determination Fields (IRC § 957) -->
+    <field name='is_cfc' type='boolean' default_value='false'
+           comment='Qualifies as CFC (>50% US shareholder ownership by vote or value)'/>
+    <field name='us_shareholder_count' type='integer' default_value='0'
+           comment='Number of US shareholders (10%+ owners)'/>
+    <field name='total_us_voting_power' type='double' default_value='0.0'
+           comment='Total percentage of voting power owned by all US shareholders'/>
+    <field name='total_us_value' type='double' default_value='0.0'
+           comment='Total percentage of value owned by all US shareholders'/>
+
+    <!-- Subpart F Income (IRC §§ 951-952) -->
+    <field name='subpart_f_income' type='double' default_value='0.0'
+           comment='Total Subpart F income (passive income, sales/services income)'/>
+    <field name='foreign_base_company_income' type='double' default_value='0.0'
+           comment='Foreign base company income (IRC § 954)'/>
+    <field name='insurance_income' type='double' default_value='0.0'
+           comment='Insurance income (IRC § 953)'/>
+    <field name='foreign_personal_holding_company_income' type='double' default_value='0.0'
+           comment='Foreign personal holding company income (dividends, interest, rents, royalties)'/>
+    <field name='foreign_base_company_sales_income' type='double' default_value='0.0'
+           comment='Foreign base company sales income (related party transactions)'/>
+    <field name='foreign_base_company_services_income' type='double' default_value='0.0'
+           comment='Foreign base company services income (services for related persons)'/>
+
+    <!-- Subpart F Income Calculation Details -->
+    <field name='subpart_f_gross_income' type='double' default_value='0.0'
+           comment='Gross income for Subpart F de minimis/full inclusion tests'/>
+    <field name='subpart_f_before_limitations' type='double' default_value='0.0'
+           comment='Subpart F income before de minimis and full inclusion rules'/>
+    <field name='subpart_f_de_minimis_threshold' type='double' default_value='1000000.0'
+           comment='De minimis threshold ($1M or 5% of gross income)'/>
+    <field name='subpart_f_de_minimis_applied' type='boolean' default_value='false'
+           comment='Whether de minimis rule applied (Subpart F < threshold)'/>
+    <field name='subpart_f_full_inclusion_applied' type='boolean' default_value='false'
+           comment='Whether full inclusion rule applied (Subpart F > 70% gross income)'/>
+    <field name='subpart_f_high_tax_exception_rate' type='double' default_value='0.189'
+           comment='High-tax exception threshold (90% of 21% = 18.9%)'/>
+    <field name='subpart_f_effective_foreign_tax_rate' type='double' default_value='0.0'
+           comment='Effective foreign tax rate on Subpart F income'/>
+    <field name='subpart_f_high_tax_exception_applied' type='boolean' default_value='false'
+           comment='Whether high-tax exception applied (foreign rate > 18.9%)'/>
+    <field name='subpart_f_ep_limitation' type='double' default_value='0.0'
+           comment='Current E&P limitation on Subpart F income'/>
+    <field name='subpart_f_after_ep_limitation' type='double' default_value='0.0'
+           comment='Subpart F income after E&P limitation'/>
+
+    <!-- FPHCI Component Detail (IRC § 954(c)) -->
+    <field name='fphci_dividends' type='double' default_value='0.0'
+           comment='FPHCI: Dividends from non-related foreign corporations'/>
+    <field name='fphci_interest' type='double' default_value='0.0'
+           comment='FPHCI: Interest income'/>
+    <field name='fphci_rents' type='double' default_value='0.0'
+           comment='FPHCI: Rents from real or personal property'/>
+    <field name='fphci_royalties' type='double' default_value='0.0'
+           comment='FPHCI: Royalties from intangible property'/>
+    <field name='fphci_capital_gains' type='double' default_value='0.0'
+           comment='FPHCI: Net capital gains from sale of property'/>
+    <field name='fphci_commodities_gains' type='double' default_value='0.0'
+           comment='FPHCI: Gains from commodities transactions'/>
+    <field name='fphci_foreign_currency_gains' type='double' default_value='0.0'
+           comment='FPHCI: Foreign currency gains (not business hedges)'/>
+
+    <!-- FBCI Sales Component Detail (IRC § 954(d)) -->
+    <field name='fbci_sales_related_party_purchases' type='double' default_value='0.0'
+           comment='FBCI Sales: Purchases of property from related persons'/>
+    <field name='fbci_sales_related_party_sales' type='double' default_value='0.0'
+           comment='FBCI Sales: Sales of property to related persons'/>
+    <field name='fbci_sales_manufactured_in_cfc_country' type='boolean' default_value='false'
+           comment='Whether property manufactured in CFC country of incorporation'/>
+    <field name='fbci_sales_for_use_in_cfc_country' type='boolean' default_value='false'
+           comment='Whether property for use in CFC country of incorporation'/>
+
+    <!-- FBCI Services Component Detail (IRC § 954(e)) -->
+    <field name='fbci_services_related_party_income' type='double' default_value='0.0'
+           comment='FBCI Services: Income from services for related persons'/>
+    <field name='fbci_services_performed_in_cfc_country' type='boolean' default_value='false'
+           comment='Whether services performed in CFC country of incorporation'/>
+    <field name='fbci_services_performed_by_cfc' type='boolean' default_value='true'
+           comment='Whether services performed by CFC employees (vs subcontractors)'/>
+
+    <!-- GILTI (Global Intangible Low-Taxed Income - IRC § 951A) -->
+    <field name='tested_income' type='double' default_value='0.0'
+           comment='Tested income for GILTI calculation (IRC § 951A(c)(2)(A))'/>
+    <field name='tested_loss' type='double' default_value='0.0'
+           comment='Tested loss for GILTI calculation (IRC § 951A(c)(2)(B))'/>
+    <field name='qualified_business_asset_investment' type='double' default_value='0.0'
+           comment='QBAI - tangible depreciable property (IRC § 951A(d))'/>
+    <field name='qbai_depreciation_deduction' type='double' default_value='0.0'
+           comment='Depreciation deduction for QBAI property'/>
+
+    <!-- Constructive Ownership (IRC § 318, § 958) -->
+    <field name='direct_ownership_voting' type='double' default_value='0.0'
+           comment='Direct ownership percentage by voting power'/>
+    <field name='direct_ownership_value' type='double' default_value='0.0'
+           comment='Direct ownership percentage by value'/>
+    <field name='indirect_ownership_voting' type='double' default_value='0.0'
+           comment='Indirect ownership through partnerships, estates, trusts (voting)'/>
+    <field name='indirect_ownership_value' type='double' default_value='0.0'
+           comment='Indirect ownership through partnerships, estates, trusts (value)'/>
+    <field name='constructive_ownership_voting' type='double' default_value='0.0'
+           comment='Constructive ownership via attribution rules (voting)'/>
+    <field name='constructive_ownership_value' type='double' default_value='0.0'
+           comment='Constructive ownership via attribution rules (value)'/>
+    <field name='total_ownership_voting' type='double' default_value='0.0'
+           comment='Total ownership: direct + indirect + constructive (voting)'/>
+    <field name='total_ownership_value' type='double' default_value='0.0'
+           comment='Total ownership: direct + indirect + constructive (value)'/>
+
+    <!-- Pro-Rata Share Calculations -->
+    <field name='pro_rata_share_subpart_f' type='double' default_value='0.0'
+           comment='US shareholder pro-rata share of Subpart F income'/>
+    <field name='pro_rata_share_tested_income' type='double' default_value='0.0'
+           comment='US shareholder pro-rata share of tested income (for GILTI)'/>
+    <field name='pro_rata_share_qbai' type='double' default_value='0.0'
+           comment='US shareholder pro-rata share of QBAI'/>
+    <field name='days_held_during_year' type='integer' default_value='365'
+           comment='Days CFC status maintained during tax year'/>
+  </entity>
+
+  <!-- Apportionment Entity (for state tax allocation) -->
+  <entity name="apportionment">
+    <field name='state_code' type='string' comment='Two-letter state code (e.g., CA, NY, TX)'/>
+
+    <!-- Nexus Determination -->
+    <field name='has_physical_presence' type='boolean' default_value='false' comment='Has physical presence in state (office, employees, property)'/>
+    <field name='has_economic_nexus' type='boolean' default_value='false' comment='Meets economic nexus threshold (post-Wayfair)'/>
+    <field name='gross_receipts_in_state' type='double' default_value='0.0' comment='Gross receipts sourced to state'/>
+    <field name='transactions_in_state' type='integer' default_value='0' comment='Number of transactions in state'/>
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0' comment='Economic nexus threshold (typically $100K)'/>
+    <field name='transaction_threshold' type='integer' default_value='200' comment='Transaction count threshold (typically 200)'/>
+
+    <!-- Property Factor -->
+    <field name='property_beginning_balance' type='double' default_value='0.0' comment='Property in state at beginning of year'/>
+    <field name='property_ending_balance' type='double' default_value='0.0' comment='Property in state at end of year'/>
+    <field name='property_average' type='double' default_value='0.0' comment='Average property in state'/>
+    <field name='property_total_average' type='double' default_value='0.0' comment='Average property everywhere'/>
+    <field name='property_factor' type='double' default_value='0.0' comment='Property factor (state / total)'/>
+
+    <!-- Payroll Factor -->
+    <field name='payroll_in_state' type='double' default_value='0.0' comment='Total compensation paid in state'/>
+    <field name='payroll_total' type='double' default_value='0.0' comment='Total compensation everywhere'/>
+    <field name='payroll_factor' type='double' default_value='0.0' comment='Payroll factor (state / total)'/>
+
+    <!-- Sales Factor -->
+    <field name='sales_in_state' type='double' default_value='0.0' comment='Sales sourced to state'/>
+    <field name='sales_total' type='double' default_value='0.0' comment='Sales everywhere'/>
+    <field name='sales_factor' type='double' default_value='0.0' comment='Sales factor (state / total)'/>
+
+    <!-- Apportionment Calculation -->
+    <field name='apportionment_formula' type='string' default_value='three_factor' comment='Formula: three_factor, single_sales, double_weighted_sales'/>
+    <field name='apportionment_percentage' type='double' default_value='0.0' comment='Final apportionment percentage'/>
+    <field name='apportioned_income' type='double' default_value='0.0' comment='Federal taxable income × apportionment %'/>
+
+    <!-- State Tax Calculation -->
+    <field name='state_additions' type='double' default_value='0.0' comment='State-specific additions to income'/>
+    <field name='state_subtractions' type='double' default_value='0.0' comment='State-specific subtractions from income'/>
+    <field name='state_taxable_income' type='double' default_value='0.0' comment='State taxable income'/>
+    <field name='state_tax_rate' type='double' default_value='0.0' comment='State corporate tax rate'/>
+    <field name='state_tax' type='double' default_value='0.0' comment='State corporate income tax'/>
+    <field name='state_credits' type='double' default_value='0.0' comment='State tax credits'/>
+    <field name='state_payments' type='double' default_value='0.0' comment='State estimated tax payments'/>
+    <field name='state_refund_or_owed' type='double' default_value='0.0' comment='State refund (positive) or owed (negative)'/>
+  </entity>
+
+  <!-- Intercompany Transaction Entity (for IRC Section 482 transfer pricing) -->
+  <entity name="intercompany_transaction">
+    <field name='id' type='integer' comment='Unique transaction ID'/>
+    <field name='transaction_type' type='string' comment='Type: sale_of_tangible_property, provision_of_services, use_of_intangible_property, lending, guarantee'/>
+    <field name='amount' type='double' comment='Transaction amount (as reported by taxpayer)'/>
+    <field name='related_party_ein' type='string' comment='EIN of related party'/>
+    <field name='related_party_name' type='string' comment='Name of related party'/>
+    <field name='ownership_percentage' type='double' default_value='0.0' comment='Common ownership percentage (>50% = related party per IRC 482)'/>
+    <field name='is_related_party' type='boolean' default_value='false' comment='Whether transaction is with related party'/>
+
+    <!-- Transfer Pricing Method Selection -->
+    <field name='tp_method' type='string' comment='Transfer pricing method: CUP, resale_price, cost_plus, CPM, PSM'/>
+    <field name='method_reliability' type='string' comment='Reliability of method: most_reliable, reliable, less_reliable'/>
+
+    <!-- Arm's Length Analysis -->
+    <field name='arm_length_price' type='double' default_value='0.0' comment='Arm s length price (fair market value)'/>
+    <field name='comparable_data' type='string' comment='Description of comparable transactions or companies used'/>
+    <field name='comparable_price_low' type='double' default_value='0.0' comment='Low end of arm s length range'/>
+    <field name='comparable_price_high' type='double' default_value='0.0' comment='High end of arm s length range'/>
+    <field name='interquartile_range_low' type='double' default_value='0.0' comment='25th percentile of comparable range'/>
+    <field name='interquartile_range_high' type='double' default_value='0.0' comment='75th percentile of comparable range'/>
+
+    <!-- CUP Method (Comparable Uncontrolled Price) -->
+    <field name='cup_comparable_price' type='double' default_value='0.0' comment='Price in comparable uncontrolled transaction'/>
+    <field name='cup_adjustment_factor' type='double' default_value='1.0' comment='Adjustment for differences (quality, terms, etc.)'/>
+
+    <!-- Resale Price Method -->
+    <field name='resale_price' type='double' default_value='0.0' comment='Price at which property is resold to unrelated party'/>
+    <field name='resale_gross_margin' type='double' default_value='0.0' comment='Appropriate gross profit margin'/>
+
+    <!-- Cost Plus Method -->
+    <field name='cost_of_production' type='double' default_value='0.0' comment='Cost of producing property or service'/>
+    <field name='cost_plus_markup' type='double' default_value='0.0' comment='Appropriate gross profit markup'/>
+
+    <!-- Comparable Profits Method (CPM) -->
+    <field name='cpm_profit_level_indicator' type='string' comment='PLI: operating_margin, return_on_assets, berry_ratio, etc.'/>
+    <field name='cpm_tested_party_pli' type='double' default_value='0.0' comment='Tested party s profit level indicator'/>
+    <field name='cpm_comparable_pli' type='double' default_value='0.0' comment='Comparable companies median PLI'/>
+
+    <!-- Profit Split Method (PSM) -->
+    <field name='psm_combined_profit' type='double' default_value='0.0' comment='Combined profit from controlled transactions'/>
+    <field name='psm_allocation_percentage' type='double' default_value='0.0' comment='Percentage allocated to this party'/>
+    <field name='psm_allocation_basis' type='string' comment='Basis for split: contribution_analysis, residual_analysis'/>
+
+    <!-- Transfer Pricing Adjustment -->
+    <field name='adjustment_amount' type='double' default_value='0.0' comment='IRC Section 482 adjustment amount (positive = increase income, negative = decrease)'/>
+    <field name='adjustment_applied' type='boolean' default_value='false' comment='Whether Section 482 adjustment was applied'/>
+    <field name='adjustment_rationale' type='string' comment='Business rationale for adjustment'/>
+
+    <!-- Documentation and Compliance -->
+    <field name='documentation_complete' type='boolean' default_value='false' comment='Whether contemporaneous documentation exists (reduces penalty risk)'/>
+    <field name='advance_pricing_agreement' type='boolean' default_value='false' comment='Whether APA with IRS exists (eliminates adjustment risk)'/>
+    <field name='foreign_jurisdiction' type='string' comment='Country of related party (for treaty considerations)'/>
+    <field name='treaty_applicable' type='boolean' default_value='false' comment='Whether tax treaty affects transfer pricing'/>
+
+    <!-- Penalty Risk Assessment -->
+    <field name='substantial_valuation_misstatement' type='boolean' default_value='false' comment='Adjustment > 20% (20% penalty per IRC 6662)'/>
+    <field name='gross_valuation_misstatement' type='boolean' default_value='false' comment='Adjustment > 40% (40% penalty per IRC 6662)'/>
+    <field name='penalty_amount' type='double' default_value='0.0' comment='Accuracy penalty on underpayment'/>
+  </entity>
+
+
+  <!-- Form 8621: Passive Foreign Investment Company (PFIC) - IRC § 1291-1298 -->
+  <!--
+    Form 8621 is required for U.S. shareholders of PFICs to report income, gains, and distributions.
+
+    A PFIC is a foreign corporation that meets either:
+    1. Income Test: 75% or more of gross income is passive income (IRC § 1297(a)(1))
+    2. Asset Test: 50% or more of assets produce or are held to produce passive income (IRC § 1297(a)(2))
+
+    Passive income includes: dividends, interest, rents, royalties, annuities, gains from
+    commodities/securities, foreign currency gains, etc. (IRC § 1297(b))
+
+    Three taxation regimes:
+    1. Default/Excess Distribution Regime (IRC § 1291): Harsh treatment - distributions allocated
+       over holding period with interest charge
+    2. QEF Election (Qualified Electing Fund) (IRC § 1293): Include pro-rata share of PFIC earnings
+       currently, avoid interest charge
+    3. Mark-to-Market Election (IRC § 1296): Include unrealized gains/losses annually, avoid interest charge
+
+    Reference: IRC § 1291-1298, Form 8621 Instructions
+  -->
+  <entity name="pfic">
+    <!-- PFIC Identification -->
+    <field name='pfic_name' type='string' comment='Name of Passive Foreign Investment Company'/>
+    <field name='pfic_ein' type='string' comment='PFIC Employer Identification Number (if any)'/>
+    <field name='pfic_country_code' type='string' comment='Country of organization (ISO 3166-1 alpha-2)'/>
+    <field name='pfic_tax_year_end' type='date' comment='End of PFIC tax year'/>
+    <field name='shareholder_ein' type='string' comment='U.S. shareholder EIN'/>
+    <field name='shares_owned' type='integer' default_value='0' comment='Number of PFIC shares owned'/>
+    <field name='shares_outstanding' type='integer' default_value='0' comment='Total PFIC shares outstanding'/>
+    <field name='ownership_percentage' type='double' default_value='0.0' comment='Percentage of PFIC owned (0.0 to 1.0)'/>
+
+    <!-- PFIC Status Determination (IRC § 1297) -->
+    <field name='gross_income_total' type='double' default_value='0.0' comment='Total gross income of PFIC for tax year'/>
+    <field name='passive_income' type='double' default_value='0.0' comment='Passive income (dividends, interest, rents, royalties, etc.)'/>
+    <field name='passive_income_percentage' type='double' default_value='0.0' comment='Passive income / total gross income'/>
+    <field name='income_test_met' type='boolean' default_value='false' comment='Income test met: passive income >= 75%'/>
+
+    <field name='total_assets_value' type='double' default_value='0.0' comment='Total value of PFIC assets (quarterly average)'/>
+    <field name='passive_assets_value' type='double' default_value='0.0' comment='Value of assets producing passive income (quarterly average)'/>
+    <field name='passive_assets_percentage' type='double' default_value='0.0' comment='Passive assets / total assets'/>
+    <field name='asset_test_met' type='boolean' default_value='false' comment='Asset test met: passive assets >= 50%'/>
+
+    <field name='is_pfic' type='boolean' default_value='false' comment='Corporation qualifies as PFIC (either test met)'/>
+
+    <!-- Passive Income Components (IRC § 1297(b)) -->
+    <field name='dividends_received' type='double' default_value='0.0' comment='Dividend income'/>
+    <field name='interest_income' type='double' default_value='0.0' comment='Interest income'/>
+    <field name='rents_received' type='double' default_value='0.0' comment='Rental income'/>
+    <field name='royalties_received' type='double' default_value='0.0' comment='Royalty income'/>
+    <field name='annuities_received' type='double' default_value='0.0' comment='Annuity income'/>
+    <field name='commodities_gains' type='double' default_value='0.0' comment='Gains from commodities transactions'/>
+    <field name='securities_gains' type='double' default_value='0.0' comment='Gains from securities transactions'/>
+    <field name='foreign_currency_gains' type='double' default_value='0.0' comment='Foreign currency gains'/>
+    <field name='other_passive_income' type='double' default_value='0.0' comment='Other passive income'/>
+
+    <!-- Default Regime - Excess Distribution Method (IRC § 1291) -->
+    <field name='current_year_distribution' type='double' default_value='0.0' comment='Total distributions received in current year'/>
+    <field name='prior_3yr_avg_distribution' type='double' default_value='0.0' comment='Average distribution from prior 3 years'/>
+    <field name='excess_distribution_threshold' type='double' default_value='0.0' comment='125% of prior 3-year average'/>
+    <field name='excess_distribution' type='double' default_value='0.0' comment='Current distribution exceeding 125% of 3-year average'/>
+    <field name='ordinary_distribution' type='double' default_value='0.0' comment='Distribution portion not exceeding threshold (ordinary income)'/>
+
+    <field name='holding_period_years' type='integer' default_value='0' comment='Number of years PFIC stock held'/>
+    <field name='excess_dist_per_year' type='double' default_value='0.0' comment='Excess distribution allocated to each year of holding period'/>
+    <field name='tax_per_year' type='double' default_value='0.0' comment='Tax that would have been due each year (using highest marginal rate)'/>
+    <field name='total_deferred_tax' type='double' default_value='0.0' comment='Total tax on allocations to prior years'/>
+    <field name='interest_charge' type='double' default_value='0.0' comment='Interest charge on deferred tax (compounded)'/>
+    <field name='current_year_tax' type='double' default_value='0.0' comment='Tax on current year portion at ordinary rates'/>
+    <field name='total_pfic_tax' type='double' default_value='0.0' comment='Total PFIC tax = deferred tax + interest charge + current year tax'/>
+
+    <!-- Stock Disposition Under Default Regime (IRC § 1291) -->
+    <field name='shares_sold' type='integer' default_value='0' comment='Number of shares sold or disposed'/>
+    <field name='sale_proceeds' type='double' default_value='0.0' comment='Gross proceeds from sale'/>
+    <field name='stock_basis' type='double' default_value='0.0' comment='Adjusted basis in PFIC stock'/>
+    <field name='gain_on_sale' type='double' default_value='0.0' comment='Gain on sale (proceeds - basis)'/>
+    <field name='gain_allocated_to_holding_period' type='double' default_value='0.0' comment='Gain allocated across holding period (like excess distribution)'/>
+
+    <!-- QEF Election (Qualified Electing Fund) - IRC § 1293 -->
+    <field name='qef_election_made' type='boolean' default_value='false' comment='Shareholder elected QEF treatment'/>
+    <field name='qef_election_year' type='integer' default_value='0' comment='Year QEF election was made'/>
+    <field name='qef_ordinary_earnings' type='double' default_value='0.0' comment='Pro-rata share of PFIC ordinary earnings'/>
+    <field name='qef_net_capital_gain' type='double' default_value='0.0' comment='Pro-rata share of PFIC net capital gain'/>
+    <field name='qef_total_inclusion' type='double' default_value='0.0' comment='Total QEF inclusion (ordinary earnings + capital gain)'/>
+    <field name='qef_previously_taxed_amount' type='double' default_value='0.0' comment='Cumulative QEF inclusions not yet distributed (basis increase)'/>
+    <field name='qef_distribution_excluded' type='double' default_value='0.0' comment='Distribution excluded as return of previously taxed amounts'/>
+
+    <!-- Mark-to-Market Election (IRC § 1296) -->
+    <field name='mtm_election_made' type='boolean' default_value='false' comment='Shareholder elected mark-to-market treatment'/>
+    <field name='mtm_election_year' type='integer' default_value='0' comment='Year mark-to-market election was made'/>
+    <field name='mtm_marketable_stock' type='boolean' default_value='false' comment='PFIC stock is marketable (regularly traded on exchange)'/>
+    <field name='mtm_fmv_year_end' type='double' default_value='0.0' comment='Fair market value at end of tax year'/>
+    <field name='mtm_fmv_year_start' type='double' default_value='0.0' comment='Fair market value at beginning of tax year'/>
+    <field name='mtm_unrealized_gain' type='double' default_value='0.0' comment='Unrealized gain (year-end FMV > year-start FMV + basis)'/>
+    <field name='mtm_unrealized_loss' type='double' default_value='0.0' comment='Unrealized loss (year-start FMV + basis > year-end FMV)'/>
+    <field name='mtm_loss_limitation' type='double' default_value='0.0' comment='Loss limited to prior years unrealized gains'/>
+    <field name='mtm_ordinary_income' type='double' default_value='0.0' comment='Mark-to-market gain included as ordinary income'/>
+    <field name='mtm_ordinary_loss' type='double' default_value='0.0' comment='Mark-to-market loss deductible as ordinary loss (limited)'/>
+
+    <!-- Election Tracking and Compliance -->
+    <field name='taxation_method' type='string' default_value='excess_distribution'
+           comment='PFIC taxation method: excess_distribution, qef, mark_to_market'/>
+    <field name='first_year_as_shareholder' type='integer' default_value='0' comment='First year shareholder acquired PFIC stock'/>
+    <field name='form_8621_required' type='boolean' default_value='true' comment='Form 8621 filing required'/>
+    <field name='annual_information_statement_received' type='boolean' default_value='false'
+           comment='PFIC Annual Information Statement received (required for QEF)'/>
+
+    <!-- Pedigreed QEF -->
+    <field name='pedigreed_qef' type='boolean' default_value='false'
+           comment='QEF election made in first year stock held (no excess distribution regime history)'/>
+
+    <!-- CFC/PFIC Overlap (IRC § 1297(d)) -->
+    <field name='is_cfc' type='boolean' default_value='false' comment='Corporation also qualifies as CFC'/>
+    <field name='cfc_exception_applies' type='boolean' default_value='false'
+           comment='CFC exception: U.S. shareholder not subject to PFIC rules for CFC stock (IRC § 1297(d))'/>
+
+    <!-- Summary Amounts for Form 8621 -->
+    <field name='income_from_pfic' type='double' default_value='0.0' comment='Total income from PFIC (varies by regime)'/>
+    <field name='deductions_from_pfic' type='double' default_value='0.0' comment='Total deductions related to PFIC'/>
+    <field name='tax_liability_from_pfic' type='double' default_value='0.0' comment='Total tax liability from PFIC'/>
+  </entity>
+
+  <!-- Job Entity (execution metadata) -->
+  <entity name="job">
+    <field name='test_case_name' type='string' comment='Name of test case'/>
+    <field name='execution_date' type='date' comment='Date of execution'/>
+    <field name='dtrules_version' type='string' comment='DTRules version'/>
+  </entity>
+
+</entity_dictionary>
