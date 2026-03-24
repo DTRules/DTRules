@@ -72,8 +72,14 @@ result.filing_status "Head of Household" stringequal
 <action_number>1</action_number>
 <action_comment>Calculate UT tax for single filer</action_comment>
 <action_postfix>
-<!-- Calculate Utah taxable income: AGI minus standard deduction -->
-result.agi result.standard_deduction sub 0 max
+<!-- Calculate UT AGI: Federal AGI minus non-taxable military retirement -->
+result.agi get
+result.military_retirement_pay get result.ut_military_retirement_taxable get sub
+sub 0 max
+/ut_agi xdef
+
+<!-- Calculate Utah taxable income: UT AGI minus standard deduction -->
+ut_agi result.standard_deduction sub 0 max
 
 <!-- Apply 4.5% flat tax rate -->
 result.ut_tax_rate mul
@@ -107,8 +113,14 @@ ut_base_tax swap sub 0 max
 <action_number>2</action_number>
 <action_comment>Calculate UT tax for joint filer</action_comment>
 <action_postfix>
-<!-- Calculate Utah taxable income: AGI minus standard deduction -->
-result.agi result.standard_deduction sub 0 max
+<!-- Calculate UT AGI: Federal AGI minus non-taxable military retirement -->
+result.agi get
+result.military_retirement_pay get result.ut_military_retirement_taxable get sub
+sub 0 max
+/ut_agi xdef
+
+<!-- Calculate Utah taxable income: UT AGI minus standard deduction -->
+ut_agi result.standard_deduction sub 0 max
 
 <!-- Apply 4.5% flat tax rate -->
 result.ut_tax_rate mul
@@ -142,8 +154,14 @@ ut_base_tax swap sub 0 max
 <action_number>3</action_number>
 <action_comment>Calculate UT tax for head of household</action_comment>
 <action_postfix>
-<!-- Calculate Utah taxable income: AGI minus standard deduction -->
-result.agi result.standard_deduction sub 0 max
+<!-- Calculate UT AGI: Federal AGI minus non-taxable military retirement -->
+result.agi get
+result.military_retirement_pay get result.ut_military_retirement_taxable get sub
+sub 0 max
+/ut_agi xdef
+
+<!-- Calculate Utah taxable income: UT AGI minus standard deduction -->
+ut_agi result.standard_deduction sub 0 max
 
 <!-- Apply 4.5% flat tax rate -->
 result.ut_tax_rate mul
@@ -169,6 +187,136 @@ ut_base_tax swap sub 0 max
 /result.state_tax_liability xdef
 
 "Utah tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 44501: Calculate_UT_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_UT_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Utah military retirement exclusion calculation. UT allows up to $10,000 exemption on military retirement pay with income caps: Single $50k, Joint $65k AGI. Must choose between military retirement or Social Security exemption. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
+<TABLE_NUMBER>44501</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize UT military retirement exclusion calculation</action_description>
+<action_postfix>
+"UT Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+0.0 /result.ut_military_retirement_taxable xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has military retirement pay -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has military retirement pay</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+result.military_retirement_pay get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Single filer within AGI cap ($50,000) -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single filer within AGI cap</condition_comment>
+<condition_description>filing_status == "Single" AND agi <= $50,000</condition_description>
+<condition_postfix>
+result.filing_status get "Single" eq
+result.agi get result.ut_military_exemption_agi_cap_single get le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Joint filer within AGI cap ($65,000) -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Joint filer within AGI cap</condition_comment>
+<condition_description>filing_status == "MFJ" AND agi <= $65,000</condition_description>
+<condition_postfix>
+result.filing_status get "MFJ" eq
+result.agi get result.ut_military_exemption_agi_cap_joint get le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Apply UT $10,000 military retirement exemption (within AGI cap) -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply UT $10,000 military retirement exemption (within AGI cap)</action_comment>
+<action_postfix>
+<!-- Utah allows $10,000 exemption on military retirement pay (2025) -->
+<!-- Subject to AGI caps: Single $50k, Joint $65k -->
+<!-- Exemption amount is the lesser of $10,000 or actual military retirement -->
+result.military_retirement_pay get
+result.ut_military_retirement_exemption get
+min
+/ut_exemption_amount xdef
+
+<!-- Calculate taxable military retirement -->
+result.military_retirement_pay get
+ut_exemption_amount sub
+0 max
+/result.ut_military_retirement_taxable xdef
+
+"UT military retirement exemption applied: $" ut_exemption_amount cvs strconcat
+" (Retirement pay: $" strconcat result.military_retirement_pay get cvs strconcat
+", AGI: $" strconcat result.agi get cvs strconcat
+", Taxable: $" strconcat result.ut_military_retirement_taxable get cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: No exemption - exceeds AGI cap -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>No exemption - exceeds AGI cap</action_comment>
+<action_postfix>
+<!-- AGI exceeds cap - no exemption allowed -->
+result.military_retirement_pay get
+/result.ut_military_retirement_taxable xdef
+
+"UT military retirement exemption not applicable - AGI exceeds cap: $" result.agi get cvs strconcat
+" (Fully taxable: $" strconcat result.ut_military_retirement_taxable get cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: No military retirement pay -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No military retirement pay - no exemption</action_comment>
+<action_postfix>
+0.0 /result.ut_military_retirement_taxable xdef
+"No UT military retirement pay - exemption not applicable" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>

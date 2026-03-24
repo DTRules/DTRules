@@ -9,6 +9,14 @@
   This file documents this fact for consistency with the separate-files-per-state
   architecture, but no tax calculation is needed.
 
+  Military Tax Provisions:
+    - TX has no state income tax
+    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
+    - MSRRA: N/A (no income tax)
+    - SCRA: N/A (no income tax)
+    - Military spouses and service members have no state income tax burden
+    - TX offers property tax exemptions for disabled veterans (separate from income tax)
+
   This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
 -->
 <entity_data_dictionary version="1.0">

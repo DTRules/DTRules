@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for California (CA)
+
+  Military Retirement Provisions (2025):
+  - New $20,000 exemption for military retirement pay
+  - AGI limits: $125,000 (single), $250,000 (married filing jointly)
+
+  Source: MOAA State Report Card, California FTB (2025 tax year)
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="ca_military_retirement_exemption_amount" type="double" default_value="20000.0"
+           comment="CA military retirement exemption amount - $20,000 (2025). Source: MOAA"/>
+    <field name="ca_military_agi_limit_single" type="double" default_value="125000.0"
+           comment="CA AGI limit for military retirement exemption - single filers (2025)"/>
+    <field name="ca_military_agi_limit_joint" type="double" default_value="250000.0"
+           comment="CA AGI limit for military retirement exemption - joint filers (2025)"/>
+    <field name="ca_military_retirement_exemption" type="double" default_value="0.0"
+           comment="CA military retirement exemption (computed based on AGI and filing status)"/>
+    <field name="ca_military_retirement_taxable" type="double" default_value="0.0"
+           comment="CA taxable military retirement after exemption (computed)"/>
+
+  </entity>
+</entity_data_dictionary>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for California (CA)
+
+  Military Retirement Provisions (2025):
+  - $20,000 exemption with AGI limits
+  - Single: AGI must be ≤ $125,000
+  - Joint: AGI must be ≤ $250,000
+
+  Table Number: 4800 (CA is 4th state alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 4790: Calculate_CA_Military_Retirement_Exemption                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CA_Military_Retirement_Exemption</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California military retirement exemption (2025). New $20,000 exemption with AGI limits: $125k single, $250k joint. SBP payments receive same treatment. Honors MSRRA and SCRA. Source: MOAA State Report Card, CA FTB.</COMMENTS>
+<TABLE_NUMBER>4790</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize CA military retirement exemption calculation</action_description>
+<action_postfix>
+"CA Military Retirement Exemption Calculation Started" job.audit_trail swap addto
+0.0 /result.ca_military_retirement_exemption xdef
+0.0 /result.ca_military_retirement_taxable xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has military retirement pay -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has military retirement pay</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+result.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Single filer with AGI ≤ $125,000 -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single filer, AGI ≤ $125k</condition_comment>
+<condition_description>Single AND AGI ≤ $125,000</condition_description>
+<condition_postfix>
+result.filing_status "single" strcasecmp 0 eq
+result.agi result.ca_military_agi_limit_single le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Joint filer with AGI ≤ $250,000 -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Joint filer, AGI ≤ $250k</condition_comment>
+<condition_description>Married Filing Jointly AND AGI ≤ $250,000</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+result.filing_status "head_of_household" strcasecmp 0 eq or
+result.agi result.ca_military_agi_limit_joint le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Apply $20,000 exemption (Single, qualifies) -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply CA $20,000 military retirement exemption (Single, AGI ≤ $125k)</action_comment>
+<action_postfix>
+<!-- Exemption is lesser of $20,000 or actual retirement pay -->
+result.military_retirement_pay
+result.ca_military_retirement_exemption_amount
+min
+/result.ca_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ca_military_retirement_exemption sub
+0 max
+/result.ca_military_retirement_taxable xdef
+
+"CA military retirement exemption (Single): $"
+result.ca_military_retirement_exemption cvs strconcat
+" (Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", AGI: $" strconcat result.agi cvs strconcat
+", Taxable: $" strconcat result.ca_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Apply $20,000 exemption (Joint, qualifies) -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_comment>
+<action_postfix>
+<!-- Exemption is lesser of $20,000 or actual retirement pay -->
+result.military_retirement_pay
+result.ca_military_retirement_exemption_amount
+min
+/result.ca_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ca_military_retirement_exemption sub
+0 max
+/result.ca_military_retirement_taxable xdef
+
+"CA military retirement exemption (Joint/HOH): $"
+result.ca_military_retirement_exemption cvs strconcat
+" (Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", AGI: $" strconcat result.agi cvs strconcat
+", Taxable: $" strconcat result.ca_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: No exemption (AGI exceeds limits) -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No CA military retirement exemption (AGI exceeds limit)</action_comment>
+<action_postfix>
+0.0 /result.ca_military_retirement_exemption xdef
+result.military_retirement_pay /result.ca_military_retirement_taxable xdef
+
+"CA military retirement: NO EXEMPTION (AGI exceeds limit). Retirement: $"
+result.military_retirement_pay cvs strconcat
+", AGI: $" strconcat result.agi cvs strconcat
+", Fully taxable" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 4: No military retirement pay -->
+<action_details>
+<action_number>4</action_number>
+<action_comment>No military retirement pay</action_comment>
+<action_postfix>
+0.0 /result.ca_military_retirement_exemption xdef
+0.0 /result.ca_military_retirement_taxable xdef
+"No CA military retirement pay - exemption not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>
