@@ -120,6 +120,44 @@
 		<!-- Form 8909 - Energy Efficient Appliance Credit (MANUFACTURER CREDIT) -->
 		<field name='energy_efficient_appliances_produced' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of qualifying appliances produced (Form 8909 - manufacturers only)'></field>
 		<field name='appliance_type' type='string' subtype='' access='r' input='main' default_value='' comment='Type: dishwasher, clothes_washer, refrigerator (Form 8909)'></field>
+		<!-- Military Service Provisions (IRC § 112, MSRRA, SCRA) -->
+		<field name='is_military' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Active duty military service member'></field>
+		<field name='is_military_spouse' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Spouse of active duty military member (MSRRA)'></field>
+		<field name='military_rank' type='string' subtype='' access='r' input='main' default_value='' comment='Military rank: enlisted, warrant_officer, commissioned_officer'></field>
+		<field name='military_branch' type='string' subtype='' access='r' input='main' default_value='' comment='Branch: army, navy, air_force, marines, coast_guard, space_force'></field>
+		<field name='servicemember_domicile_state' type='string' subtype='' access='r' input='main' default_value='' comment='Service member legal residence state (MSRRA/SCRA)'></field>
+		<field name='spouse_same_domicile' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Spouse has same domicile as service member (MSRRA)'></field>
+		<!-- Combat Zone Service (IRC § 112) -->
+		<field name='combat_zone_service' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Served in combat zone during tax year'></field>
+		<field name='combat_zone_location' type='string' subtype='' access='r' input='main' default_value='' comment='Combat zone: afghanistan, iraq, persian_gulf, sinai, other'></field>
+		<field name='combat_zone_months' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of months in combat zone'></field>
+		<field name='combat_zone_start_date' type='date' subtype='' access='r' input='main' default_value='' comment='Combat zone service start date'></field>
+		<field name='combat_zone_end_date' type='date' subtype='' access='r' input='main' default_value='' comment='Combat zone service end date'></field>
+		<field name='hospitalized_combat_injury' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Hospitalized from combat zone injury'></field>
+		<field name='hospitalization_end_date' type='date' subtype='' access='r' input='main' default_value='' comment='End of hospitalization from combat injury'></field>
+		<!-- Military Pay Components -->
+		<field name='basic_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Basic military pay (W-2 Box 1)'></field>
+		<field name='combat_zone_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Pay earned in combat zone (excludable under IRC § 112)'></field>
+		<field name='imminent_danger_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Imminent danger/hostile fire pay'></field>
+		<field name='bah_amount' type='double' subtype='' access='rw' input='main' default_value='0' comment='Basic Allowance for Housing (nontaxable)'></field>
+		<field name='bas_amount' type='double' subtype='' access='rw' input='main' default_value='0' comment='Basic Allowance for Subsistence (nontaxable)'></field>
+		<field name='moving_expense_reimbursement' type='double' subtype='' access='rw' input='main' default_value='0' comment='Military moving expense reimbursement (nontaxable for military)'></field>
+		<field name='family_separation_allowance' type='double' subtype='' access='rw' input='main' default_value='0' comment='Family separation allowance (nontaxable)'></field>
+		<field name='reenlistment_bonus' type='double' subtype='' access='rw' input='main' default_value='0' comment='Reenlistment bonus (taxable unless combat zone)'></field>
+		<!-- Military Retirement -->
+		<field name='military_retirement_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Military retirement pension (Form 1099-R)'></field>
+		<field name='va_disability_compensation' type='double' subtype='' access='rw' input='main' default_value='0' comment='VA disability compensation (nontaxable)'></field>
+		<field name='va_pension' type='double' subtype='' access='rw' input='main' default_value='0' comment='VA pension for veterans (nontaxable)'></field>
+		<field name='survivor_benefit_plan' type='double' subtype='' access='rw' input='main' default_value='0' comment='Survivor Benefit Plan payments (taxable)'></field>
+		<!-- Death Benefits -->
+		<field name='death_gratuity_amount' type='double' subtype='' access='rw' input='main' default_value='0' comment='Military death gratuity (excludable up to $100,000)'></field>
+		<field name='sgli_payment' type='double' subtype='' access='rw' input='main' default_value='0' comment='Servicemembers Group Life Insurance payment (nontaxable)'></field>
+		<!-- Military Moving Expenses (Reinstated for Military Only) -->
+		<field name='pcs_move' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Permanent Change of Station move'></field>
+		<field name='moving_expenses_paid' type='double' subtype='' access='rw' input='main' default_value='0' comment='Out-of-pocket moving expenses (deductible for military PCS)'></field>
+		<field name='moving_distance_miles' type='integer' subtype='' access='r' input='main' default_value='0' comment='Distance of move in miles'></field>
+		<!-- TRICARE and Military Health -->
+		<field name='tricare_premiums' type='double' subtype='' access='rw' input='main' default_value='0' comment='TRICARE health insurance premiums (if not free)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -1535,6 +1573,15 @@
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
 
+		<!-- Military Tax Provisions Results -->
+		<field name='total_combat_zone_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Total combat zone pay exclusion (IRC § 112)'></field>
+		<field name='military_moving_expense_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Military PCS moving expense deduction'></field>
+		<field name='death_gratuity_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Military death gratuity exclusion'></field>
+		<field name='sgli_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='SGLI life insurance exclusion'></field>
+		<field name='military_retirement_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable military retirement income'></field>
+		<field name='va_disability_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='VA disability compensation (excluded)'></field>
+		<field name='va_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='VA pension (excluded)'></field>
+		<field name='combined_military_foreign_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Combined military combat zone + spouse FEIE'></field>
 		<!-- Audit Trail -->
 		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed calculation notes'></field>

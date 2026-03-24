@@ -9926,4 +9926,312 @@ result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.s
 </policy_statements>
 </decision_table>
 
+<!-- ====================================================================== -->
+<!-- MILITARY TAX PROVISIONS (Tables 25000-25999)                         -->
+<!-- IRC § 112 - Combat Zone Exclusion                                     -->
+<!-- MSRRA - Military Spouse Residency Relief Act                          -->
+<!-- SCRA - Servicemembers Civil Relief Act                                -->
+<!-- ====================================================================== -->
+
+<!-- ====================================================================== -->
+<!-- TABLE 25000: Calculate_Combat_Zone_Pay_Exclusion                      -->
+<!-- IRS Reference: IRC § 112, Pub 3                                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Combat_Zone_Pay_Exclusion</table_name>
+<xls_file>Military.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate combat zone pay exclusion per IRC § 112. Enlisted: entire combat pay excluded. Officers: limited to max enlisted pay + imminent danger pay.</COMMENTS>
+<TABLE_NUMBER>25000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each taxpayer for combat zone exclusion</context_comment>
+<context_description>for all taxpayers with military service</context_description>
+<context_postfix>
+0.0 /result.total_combat_zone_exclusion xdef
+"Processing Combat Zone Pay Exclusion (IRC § 112)" job.audit_trail swap addto
+{ /Calculate_Combat_Zone_Pay_Exclusion executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Served in combat zone</condition_comment>
+<condition_description>taxpayer.combat_zone_service == true</condition_description>
+<condition_postfix>
+taxpayer.combat_zone_service true eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Enlisted rank</condition_comment>
+<condition_description>taxpayer.military_rank == "enlisted"</condition_description>
+<condition_postfix>
+taxpayer.military_rank "enlisted" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Enlisted - exclude all combat zone pay</action_comment>
+<action_description>Entire combat zone pay excluded for enlisted</action_description>
+<action_postfix>
+"  " taxpayer.name strconcat " - Enlisted combat zone service" strconcat job.audit_trail swap addto
+taxpayer.combat_zone_pay /taxpayer.combat_zone_exclusion xdef
+taxpayer.imminent_danger_pay taxpayer.combat_zone_exclusion f+ /taxpayer.combat_zone_exclusion xdef
+result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.total_combat_zone_exclusion xdef
+
+"    Combat zone pay: $" taxpayer.combat_zone_pay cvs strconcat job.audit_trail swap addto
+"    Imminent danger pay: $" taxpayer.imminent_danger_pay cvs strconcat job.audit_trail swap addto
+"    Total exclusion: $" taxpayer.combat_zone_exclusion cvs strconcat job.audit_trail swap addto
+"    Combat zone: " taxpayer.combat_zone_location strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Officer - limited exclusion</action_comment>
+<action_description>Officers limited to max enlisted pay + imminent danger pay</action_description>
+<action_postfix>
+"  " taxpayer.name strconcat " - Officer combat zone service (limited exclusion)" strconcat job.audit_trail swap addto
+
+% For 2025: Max enlisted pay is approximately $9,500/month = $114,000/year
+% Calculate months in combat zone and prorate
+taxpayer.combat_zone_months 12 min /months_in_zone xdef
+9500.0 months_in_zone f* /max_enlisted_for_period xdef
+
+% Officer exclusion = min(combat_zone_pay, max_enlisted_for_period) + imminent_danger_pay
+taxpayer.combat_zone_pay max_enlisted_for_period fmin
+taxpayer.imminent_danger_pay f+
+/taxpayer.combat_zone_exclusion xdef
+
+result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.total_combat_zone_exclusion xdef
+
+"    Combat zone pay: $" taxpayer.combat_zone_pay cvs strconcat job.audit_trail swap addto
+"    Max enlisted pay (" months_in_zone cvs strconcat " months): $" strconcat max_enlisted_for_period cvs strconcat job.audit_trail swap addto
+"    Imminent danger pay: $" taxpayer.imminent_danger_pay cvs strconcat job.audit_trail swap addto
+"    Officer exclusion (limited): $" taxpayer.combat_zone_exclusion cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No combat zone service</action_comment>
+<action_description>No exclusion</action_description>
+<action_postfix>
+0.0 /taxpayer.combat_zone_exclusion xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>IRC § 112(a): Enlisted members exclude all combat zone compensation</policy_description>
+<policy_statement_postfix>"Enlisted: entire combat pay + imminent danger pay excluded per IRC § 112(a)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>IRC § 112(b): Officers limited to maximum enlisted pay + imminent danger pay</policy_description>
+<policy_statement_postfix>"Officer: limited to max enlisted pay (" months_in_zone cvs strconcat " × $9,500) + IDP per IRC § 112(b)" strconcat</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>No combat zone service</policy_description>
+<policy_statement_postfix>"No combat zone service - no exclusion"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 25100: Calculate_Military_Moving_Expenses                       -->
+<!-- IRS Reference: TCJA reinstated for military only                      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Military_Moving_Expenses</table_name>
+<xls_file>Military.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate deductible military moving expenses for PCS moves. TCJA suspended civilian moving expense deduction but retained it for active duty military permanent change of station.</COMMENTS>
+<TABLE_NUMBER>25100</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process military moving expenses</context_comment>
+<context_description>for all military taxpayers</context_description>
+<context_postfix>
+0.0 /result.military_moving_expense_deduction xdef
+"Processing Military Moving Expense Deduction" job.audit_trail swap addto
+{ /Calculate_Military_Moving_Expenses executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Active duty military with PCS move</condition_comment>
+<condition_description>taxpayer.is_military == true AND taxpayer.pcs_move == true</condition_description>
+<condition_postfix>
+taxpayer.is_military true eq
+taxpayer.pcs_move true eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Move meets distance test</condition_comment>
+<condition_description>taxpayer.moving_distance_miles >= 50</condition_description>
+<condition_postfix>
+taxpayer.moving_distance_miles 50 >=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Deduct qualifying military moving expenses</action_comment>
+<action_description>Military PCS moves are fully deductible</action_description>
+<action_postfix>
+"  " taxpayer.name strconcat " - Qualified military PCS move" strconcat job.audit_trail swap addto
+
+% Military moving expenses are deductible as an above-the-line deduction
+% Unlike civilians (suspended under TCJA), military retain this benefit
+taxpayer.moving_expenses_paid /taxpayer.moving_expense_deduction xdef
+result.military_moving_expense_deduction taxpayer.moving_expense_deduction f+
+/result.military_moving_expense_deduction xdef
+
+"    Distance: " taxpayer.moving_distance_miles cvs strconcat " miles" strconcat job.audit_trail swap addto
+"    Moving expenses paid: $" taxpayer.moving_expenses_paid cvs strconcat job.audit_trail swap addto
+"    Deductible amount: $" taxpayer.moving_expense_deduction cvs strconcat job.audit_trail swap addto
+"    Note: Moving expense reimbursement is excluded from income (nontaxable)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Not qualified or not military</action_comment>
+<action_description>No deduction</action_description>
+<action_postfix>
+0.0 /taxpayer.moving_expense_deduction xdef
+
+taxpayer.is_military true eq {
+  "  " taxpayer.name strconcat " - Military move but does not meet distance test" strconcat job.audit_trail swap addto
+} if
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Military PCS moving expenses deductible (exception to TCJA suspension)</policy_description>
+<policy_statement_postfix>"Military PCS: out-of-pocket moving expenses deductible; reimbursements excluded from income"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Not qualified for moving expense deduction</policy_description>
+<policy_statement_postfix>"Moving expense deduction not available (civilian or does not meet requirements)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 25400: Coordinate_Military_And_Foreign_Income                   -->
+<!-- IRS Reference: IRC § 112, IRC § 911 coordination                      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Coordinate_Military_And_Foreign_Income</table_name>
+<xls_file>Military.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Coordinate military combat zone exclusion with foreign earned income exclusion for military stationed abroad with civilian spouse working in foreign country. Combat zone exclusion takes priority; remaining spouse income may qualify for FEIE.</COMMENTS>
+<TABLE_NUMBER>25400</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize coordination of military and foreign income</action_description>
+<action_postfix>
+"Coordinating Military Combat Zone and Foreign Earned Income Exclusions" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Military with combat zone AND foreign earned income</condition_comment>
+<condition_description>Has both combat zone service and foreign earned income</condition_description>
+<condition_postfix>
+result.total_combat_zone_exclusion 0 >
+job.foreign_earned_incomes length 0 >
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply both exclusions (no double benefit)</action_comment>
+<action_description>Combat zone exclusion + spouse FEIE</action_description>
+<action_postfix>
+"  Scenario: Military member in combat zone + spouse working abroad" job.audit_trail swap addto
+"  " job.audit_trail swap addto
+
+% Combat zone pay exclusion already applied to military member
+"  Military member combat zone exclusion: $" result.total_combat_zone_exclusion cvs strconcat job.audit_trail swap addto
+
+% Spouse's foreign earned income can still qualify for FEIE (Form 2555)
+% This is the scenario user asked about: military + wife working in foreign country, filing jointly
+"  Spouse foreign earned income exclusion (Form 2555): $" result.foreign_earned_income_exclusion cvs strconcat job.audit_trail swap addto
+
+% Total exclusions (no overlap - different income sources)
+result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
+/result.combined_military_foreign_exclusion xdef
+
+"  Combined exclusions: $" result.combined_military_foreign_exclusion cvs strconcat job.audit_trail swap addto
+"  " job.audit_trail swap addto
+"  Tax Treatment Summary:" job.audit_trail swap addto
+"  - Military member: Combat zone pay excluded (IRC § 112)" job.audit_trail swap addto
+"  - Spouse: Foreign earned income excluded up to $126,500 (IRC § 911)" job.audit_trail swap addto
+"  - No overlap: Each exclusion applies to different income" job.audit_trail swap addto
+"  - BAH, BAS, and allowances: Always excluded (nontaxable)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No coordination needed</action_comment>
+<action_description>Only one type of exclusion or none</action_description>
+<action_postfix>
+0.0 /result.combined_military_foreign_exclusion xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Military combat zone + civilian spouse foreign income: Both exclusions apply</policy_description>
+<policy_statement_postfix>"Combat zone (IRC § 112): $" result.total_combat_zone_exclusion cvs strconcat " + FEIE (IRC § 911): $" strconcat result.foreign_earned_income_exclusion cvs strconcat strconcat</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No coordination needed</policy_description>
+<policy_statement_postfix>"No military-foreign income coordination required"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>
