@@ -243,6 +243,22 @@
     <field name='nol_2022_remaining' type='double' default_value='0.0' comment='NOL from 2022 remaining'/>
     <field name='nol_2023_remaining' type='double' default_value='0.0' comment='NOL from 2023 remaining'/>
     <field name='nol_2024_remaining' type='double' default_value='0.0' comment='NOL from 2024 remaining'/>
+
+    <!-- Foreign Tax Credit - IRC Section 901 (Form 1118) -->
+    <field name='foreign_source_income' type='double' default_value='0.0' comment='Foreign source taxable income (Form 1118)'/>
+    <field name='total_taxable_income_for_ftc' type='double' default_value='0.0' comment='Total taxable income (for FTC limitation calculation)'/>
+    <field name='foreign_taxes_paid' type='double' default_value='0.0' comment='Foreign income taxes paid or accrued (Form 1118)'/>
+    <field name='foreign_tax_credit_limitation' type='double' default_value='0.0' comment='FTC limitation (US tax × foreign income / total income)'/>
+    <field name='foreign_tax_credit_allowed' type='double' default_value='0.0' comment='Foreign tax credit allowed (lesser of taxes paid or limitation)'/>
+    <field name='foreign_tax_credit_carryback' type='double' default_value='0.0' comment='Unused FTC carryback from future years (1 year back)'/>
+    <field name='foreign_tax_credit_carryforward' type='double' default_value='0.0' comment='Unused FTC carryforward from prior years (10 years forward)'/>
+    <field name='excess_foreign_tax_credit' type='double' default_value='0.0' comment='Excess FTC to carry forward (taxes paid > limitation)'/>
+
+    <!-- Foreign Tax Credit by Country (optional detailed tracking) -->
+    <field name='ftc_country_code' type='string' default_value='' comment='Country code for foreign tax (ISO 3166-1 alpha-2)'/>
+    <field name='ftc_treaty_applicable' type='boolean' default_value='false' comment='Tax treaty applicable (affects withholding rates)'/>
+    <field name='ftc_passive_income' type='double' default_value='0.0' comment='Foreign passive income (separate limitation basket)'/>
+    <field name='ftc_general_income' type='double' default_value='0.0' comment='Foreign general category income (separate limitation basket)'/>
   </entity>
 
   <!-- Apportionment Entity (for state tax allocation) -->

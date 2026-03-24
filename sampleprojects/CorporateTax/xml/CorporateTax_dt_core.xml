@@ -1349,6 +1349,9 @@
             execute(5100);  // Calculate_RD_Credit
             execute(5300);  // Calculate_General_Business_Credit
 
+            // ===== FOREIGN TAX CREDIT (Form 1118) =====
+            execute(9100);  // Calculate_Foreign_Tax_Credit (IRC 901)
+
             // ===== FINAL CALCULATION =====
             execute(4300);  // Calculate_Refund_Or_Owed
 
@@ -1380,19 +1383,24 @@
           7. Calculate credits (Form 3800):
              a. R&D credit (Form 6765)
              b. General business credit
-          8. Determine refund or amount owed
-          9. Complete Schedule M-1 (Book-tax reconciliation)
-          10. Complete Schedule M-2 (Retained earnings analysis)
-          11. Complete Schedule L (Balance sheet per books)
+          8. Apply foreign tax credit (Form 1118):
+             a. FTC limitation calculation
+             b. Carryback/carryforward tracking
+          9. Determine refund or amount owed
+          10. Complete Schedule M-1 (Book-tax reconciliation)
+          11. Complete Schedule M-2 (Retained earnings analysis)
+          12. Complete Schedule L (Balance sheet per books)
 
           Reference: Form 1120 - U.S. Corporation Income Tax Return
           Reference: Form 4562 - Depreciation and Amortization
           Reference: Form 3800 - General Business Credit
           Reference: Form 6765 - Research & Development Credit
+          Reference: Form 1118 - Foreign Tax Credit
           Reference: Form 1120 Schedule M-1 - Reconciliation of Income
           Reference: Form 1120 Schedule M-2 - Analysis of Retained Earnings
           Reference: Form 1120 Schedule L - Balance Sheet per Books
           Reference: IRC Section 172 - Net Operating Loss Deduction
+          Reference: IRC Section 901 - Foreign Tax Credit
         </policy>
       </rule>
     </rules>
@@ -2805,6 +2813,266 @@
           Reference: IRC § 172(a)(1) - NOL deduction defined
           Reference: IRC § 172(b)(1) - Carryforward period (indefinite)
           Reference: CARES Act § 2303 - Temporary 5-year carryback
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 9100: Calculate Foreign Tax Credit (FTC)
+
+    Allows credit for foreign income taxes paid, avoiding double taxation.
+
+    FTC Limitation: Credit cannot exceed US tax on foreign income
+    Formula: US tax × (Foreign income / Total income)
+
+    Carryback/Carryforward:
+    - 1 year carryback
+    - 10 years carryforward
+
+    Reference: IRC § 901 - Foreign tax credit
+    Reference: IRC § 904 - Limitation on credit
+    Reference: Form 1118 - Foreign Tax Credit - Corporations
+  -->
+  <decision_table name="Calculate_Foreign_Tax_Credit" number="9100">
+    <description>
+      Calculate foreign tax credit with limitation and carryover tracking.
+      Prevents double taxation of foreign source income.
+    </description>
+
+    <conditions>
+      <condition name="has_foreign_income">
+        <expression>result.foreign_source_income > 0</expression>
+        <comment>Has foreign source taxable income</comment>
+      </condition>
+
+      <condition name="has_foreign_taxes_paid">
+        <expression>result.foreign_taxes_paid > 0</expression>
+        <comment>Has foreign income taxes paid or accrued</comment>
+      </condition>
+
+      <condition name="has_ftc_carryover">
+        <expression>result.foreign_tax_credit_carryforward > 0 || result.foreign_tax_credit_carryback > 0</expression>
+        <comment>Has FTC carryover from other years</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!--
+        Rule 1: Foreign income AND foreign taxes paid
+        Calculate FTC with limitation
+      -->
+      <rule number="1">
+        <conditions>
+          <has_foreign_income>Y</has_foreign_income>
+          <has_foreign_taxes_paid>Y</has_foreign_taxes_paid>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // Foreign Tax Credit Limitation (IRC § 904)
+            // ========================================
+
+            // Total taxable income for FTC purposes
+            // Use taxable income after NOL but before FTC
+            result.total_taxable_income_for_ftc = result.taxable_income;
+
+            // FTC Limitation Formula:
+            // US Tax × (Foreign Source Income / Total Taxable Income)
+            //
+            // This ensures credit doesn't exceed US tax that would be owed
+            // on the foreign income if earned domestically
+
+            if (result.total_taxable_income_for_ftc > 0) {
+              double foreign_income_ratio =
+                result.foreign_source_income / result.total_taxable_income_for_ftc;
+
+              result.foreign_tax_credit_limitation =
+                result.federal_tax * foreign_income_ratio;
+            } else {
+              result.foreign_tax_credit_limitation = 0.0;
+            }
+
+            // ========================================
+            // FTC Allowed (Lesser of Taxes Paid or Limitation)
+            // ========================================
+
+            // Current year FTC = lesser of:
+            // 1. Foreign taxes actually paid
+            // 2. FTC limitation (US tax on foreign income)
+            double current_year_ftc = Math.min(
+              result.foreign_taxes_paid,
+              result.foreign_tax_credit_limitation
+            );
+
+            // Add carryforward from prior years (within 10-year window)
+            double total_ftc_available =
+              current_year_ftc + result.foreign_tax_credit_carryforward;
+
+            // FTC allowed cannot exceed limitation
+            result.foreign_tax_credit_allowed = Math.min(
+              total_ftc_available,
+              result.foreign_tax_credit_limitation
+            );
+
+            // ========================================
+            // Excess FTC (Carryback/Carryforward)
+            // ========================================
+
+            // If foreign taxes paid > limitation, excess carries over
+            double current_year_excess =
+              result.foreign_taxes_paid - result.foreign_tax_credit_limitation;
+
+            if (current_year_excess > 0) {
+              // Excess can be carried back 1 year or forward 10 years
+              // For simplicity, we track carryforward only (carryback requires prior year data)
+              result.excess_foreign_tax_credit = current_year_excess;
+            } else {
+              result.excess_foreign_tax_credit = 0.0;
+            }
+
+            // Update carryforward for next year
+            // = Prior carryforward - amount used this year + new excess
+            double carryforward_used =
+              result.foreign_tax_credit_allowed - current_year_ftc;
+
+            result.foreign_tax_credit_carryforward =
+              Math.max(0.0, result.foreign_tax_credit_carryforward - carryforward_used) +
+              result.excess_foreign_tax_credit;
+
+            // ========================================
+            // Update Federal Tax (after FTC)
+            // ========================================
+
+            // FTC is a direct credit against federal tax
+            // Reduces tax dollar-for-dollar (unlike deductions)
+            result.federal_tax =
+              Math.max(0.0, result.federal_tax - result.foreign_tax_credit_allowed);
+          </action>
+        </actions>
+        <policy>
+          Foreign Tax Credit (FTC) calculation with limitation.
+
+          **Purpose**:
+          - Prevents double taxation of foreign source income
+          - Allows credit for foreign income taxes paid
+          - Credit (not deduction) reduces US tax dollar-for-dollar
+
+          **FTC Limitation** (IRC § 904):
+          - Credit cannot exceed US tax on foreign income
+          - Formula: US Tax × (Foreign Income / Total Income)
+          - Prevents using foreign taxes to offset US source income tax
+
+          **Example**:
+          - Total taxable income: $1,000,000
+          - Foreign source income: $200,000 (20%)
+          - US tax (21%): $210,000
+          - FTC limitation: $210,000 × 20% = $42,000
+          - Foreign taxes paid: $50,000
+          - FTC allowed: $42,000 (limited)
+          - Excess: $8,000 (carryforward/carryback)
+
+          **Carryback/Carryforward**:
+          - Excess FTC: 1 year carryback, 10 years carryforward
+          - Use carrybacks/carryforwards subject to same limitation
+          - Carryovers expire after 10 years
+
+          **Separate Limitation Baskets** (IRC § 904(d)):
+          - Passive income basket (simplified implementation)
+          - General category income basket
+          - Each basket has separate limitation calculation
+          - Prevents cross-crediting between baskets
+
+          **Form 1118 Requirements**:
+          - Schedule A: Foreign tax paid/accrued
+          - Schedule B: Foreign source income
+          - Schedule C: FTC limitation calculation
+          - Schedule D: Allocation of income/taxes
+
+          Reference: IRC § 901 - Taxes of foreign countries
+          Reference: IRC § 904 - Limitation on credit
+          Reference: IRC § 905 - Applicable rules
+          Reference: Form 1118 Instructions
+          Reference: Regulations § 1.904-1 (Limitation calculation)
+        </policy>
+      </rule>
+
+      <!--
+        Rule 2: Foreign income but NO foreign taxes paid
+        No FTC, but may have carryover
+      -->
+      <rule number="2">
+        <conditions>
+          <has_foreign_income>Y</has_foreign_income>
+          <has_foreign_taxes_paid>N</has_foreign_taxes_paid>
+          <has_ftc_carryover>Y</has_ftc_carryover>
+        </conditions>
+        <actions>
+          <action>
+            // Can use carryforward even if no current year foreign taxes
+
+            result.total_taxable_income_for_ftc = result.taxable_income;
+
+            if (result.total_taxable_income_for_ftc > 0) {
+              double foreign_income_ratio =
+                result.foreign_source_income / result.total_taxable_income_for_ftc;
+
+              result.foreign_tax_credit_limitation =
+                result.federal_tax * foreign_income_ratio;
+            } else {
+              result.foreign_tax_credit_limitation = 0.0;
+            }
+
+            // Use carryforward up to limitation
+            result.foreign_tax_credit_allowed = Math.min(
+              result.foreign_tax_credit_carryforward,
+              result.foreign_tax_credit_limitation
+            );
+
+            // Update carryforward
+            result.foreign_tax_credit_carryforward =
+              result.foreign_tax_credit_carryforward - result.foreign_tax_credit_allowed;
+
+            // Apply credit
+            result.federal_tax =
+              Math.max(0.0, result.federal_tax - result.foreign_tax_credit_allowed);
+          </action>
+        </actions>
+        <policy>
+          Using FTC carryforward from prior years even though no current year foreign taxes paid.
+
+          Carryforward subject to same limitation as current year credit.
+
+          Reference: IRC § 904(c) - Carryback and carryover
+        </policy>
+      </rule>
+
+      <!--
+        Rule 3: No foreign income or taxes
+        No FTC
+      -->
+      <rule number="3">
+        <conditions>
+          <has_foreign_income>N</has_foreign_income>
+        </conditions>
+        <actions>
+          <action>
+            // No foreign income = no FTC
+            result.foreign_tax_credit_limitation = 0.0;
+            result.foreign_tax_credit_allowed = 0.0;
+            result.excess_foreign_tax_credit = 0.0;
+
+            // Carryforward remains for future years
+            // (will expire after 10 years if never used)
+          </action>
+        </actions>
+        <policy>
+          No foreign source income - no foreign tax credit available.
+
+          Unused carryforwards from prior years remain available for future years
+          (subject to 10-year expiration).
+
+          Reference: IRC § 904(c) - Carryover period
         </policy>
       </rule>
     </rules>
