@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Rhode Island (RI) Corporate Tax Entity Data Dictionary
+
+  Rhode Island General Laws Title 44 Chapter 11
+  - Tax rate: 7.0% flat rate on net income
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 in gross receipts or 200 transactions
+  - Form: RI Form RI-1120C (Corporate Income Tax Return)
+-->
+<entity_dictionary name="CorporateTax_RI_Constants">
+
+  <!--
+    Apportionment Entity: Rhode Island-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='RI'
+           comment='Rhode Island state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='RI economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='RI economic nexus transaction count threshold - 200'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='RI uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.070'
+           comment='RI corporate income tax rate - 7% flat rate (R.I. Gen. Laws § 44-11-2)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='RI-specific additions: federal interest, bonus depreciation, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='RI-specific subtractions: municipal interest, certain capital gains, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='RI tax credits: Historic Preservation, R&D, film production, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Rhode Island-Specific Extensions
+
+    No special state-specific fields are required for Rhode Island.
+    The standard apportionment fields are sufficient for RI's 7% flat rate.
+  -->
+  <entity name="result">
+    <!-- No RI-specific fields needed -->
+  </entity>
+
+</entity_dictionary>

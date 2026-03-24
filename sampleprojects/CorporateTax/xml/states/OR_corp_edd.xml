@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oregon (OR) Corporate Tax Entity Data Dictionary
+
+  Oregon Revised Statutes Chapter 317
+  - Tax rate: 6.6% flat rate on net income (ORS 317.061)
+  - Minimum tax: $150 to $100,000 based on Oregon sales (ORS 317.090)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $750,000 in Oregon sales
+  - Form: Oregon Form 20 (Corporation Excise Tax Return)
+
+  Key Features:
+  - 6.6% flat corporate income/excise tax rate (7.6% for financial institutions)
+  - Minimum tax requirement based on Oregon sales
+  - Single-sales apportionment formula
+  - Higher economic nexus threshold: $750,000
+  - Unitary group provisions apply
+
+  References:
+  - ORS 317.061 (Tax rate)
+  - ORS 317.090 (Minimum tax)
+  - ORS 317.010-317.665 (Corporate Excise Tax)
+  - Oregon Form 20 Instructions (Corporation Excise Tax Return)
+-->
+<entity_dictionary name="CorporateTax_OR_Constants">
+
+  <!--
+    Apportionment Entity: Oregon Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and OR-specific tables 54200-54299.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='OR'
+           comment='Oregon state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='750000.0'
+           comment='OR economic nexus threshold: $750,000 in Oregon sales (higher than typical)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='OR economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='OR uses single-sales factor apportionment (100% sales factor) - ORS 317.267'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.066'
+           comment='OR corporate excise tax rate: 6.6% flat rate (7.6% for financial institutions) - ORS 317.061'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='OR additions: federal interest income, state income tax refunds, IRC adjustments, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='OR subtractions: OR municipal bond interest, certain dividends, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='OR tax credits: film production, renewable energy, business expansion, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Oregon-Specific Extensions
+
+    Oregon has a minimum tax requirement based on Oregon sales.
+    This minimum tax must be paid even if regular tax is lower.
+  -->
+  <entity name="result">
+
+    <!-- Oregon Minimum Tax -->
+    <field name='or_sales_in_oregon' type='double' default_value='0.0'
+           comment='Sales attributed to Oregon for minimum tax calculation'/>
+
+    <field name='or_minimum_tax' type='double' default_value='150.0'
+           comment='OR minimum excise tax based on Oregon sales - ORS 317.090'/>
+
+    <field name='or_is_financial_institution' type='boolean' default_value='false'
+           comment='Is financial institution subject to 7.6% rate instead of 6.6%'/>
+
+    <field name='or_financial_institution_rate' type='double' default_value='0.076'
+           comment='OR tax rate for financial institutions: 7.6% - ORS 317.061(2)'/>
+
+  </entity>
+
+</entity_dictionary>

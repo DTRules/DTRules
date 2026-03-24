@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables name="CorporateTax_OK_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 54100: Determine OK Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Oklahoma state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in Oklahoma
+    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
+
+    Table number range: 54100-54199 (Oklahoma allocation)
+  -->
+  <decision_table name="Determine_OK_Filing_Requirement" number="54100">
+    <description>
+      Determine if corporation must file Oklahoma state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
+                    apportionment.state_code == 'OK'</expression>
+        <comment>Has physical presence in OK (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &amp;&amp;
+                    apportionment.state_code == 'OK'</expression>
+        <comment>Meets OK economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Oklahoma filing required due to physical presence (office, employees, or property in state).
+
+          Reference: Oklahoma Form 512 Instructions (Corporation Income Tax Return)
+          Reference: 68 Okla. Stat. § 2355 et seq. (Corporate Income Tax)
+          Reference: OAC 710:50-17-3 (What constitutes "Nexus")
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Oklahoma filing required due to economic nexus (post-Wayfair).
+          Threshold: $100,000 gross receipts OR 200 transactions
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: Oklahoma Tax Commission Economic Nexus Guidance
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Oklahoma nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 54120: Calculate OK State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates Oklahoma additions and subtractions to federal taxable income.
+
+    Common OK additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - State income tax refunds included in federal income
+    - IRC Section 199A qualified business income deduction addback
+    - State income taxes deducted on federal return
+
+    Common OK subtractions:
+    - Oklahoma municipal bond interest (exempt)
+    - Dividends received from certain affiliated corporations
+    - Income from U.S. obligations included in federal income
+  -->
+  <decision_table name="Calculate_OK_Income_Adjustments" number="54120">
+    <description>
+      Calculate Oklahoma state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate Oklahoma state additions
+            double additions = 0.0;
+
+            // Oklahoma requires addback of interest on U.S. government obligations
+            // (U.S. obligations are not taxable federally but may be to states)
+            // Per OAC 710:50-17-51, add interest income from U.S. obligations
+            // additions += revenue.federal_bond_interest;
+
+            // Oklahoma requires addback of state income tax refunds if included in federal income
+            // additions += result.state_tax_refund;
+
+            // Oklahoma may require addback of IRC 199A deduction depending on conformity
+            // (OK partially decouples from IRC 199A)
+            // additions += result.section_199a_deduction;
+
+            apportionment.state_additions = additions;
+
+            // Calculate Oklahoma state subtractions
+            double subtractions = 0.0;
+
+            // Subtract Oklahoma municipal bond interest
+            // (exempt from OK tax but may have been included in federal income)
+            // Per OAC 710:50-17-51, subtract interest from OK obligations
+            // subtractions += revenue.ok_municipal_interest;
+
+            // Subtract qualified dividends from affiliated corporations
+            // (OK allows deduction for certain intercorporate dividends)
+            // subtractions += result.affiliated_dividend_deduction;
+
+            // Subtract income from U.S. government obligations if included in federal income
+            // subtractions += revenue.federal_bond_interest_if_included_federally;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          Oklahoma state-specific income adjustments to federal taxable income.
+
+          Additions may include:
+          - Interest on U.S. government obligations (OAC 710:50-17-51)
+          - State income tax refunds included in federal income
+          - IRC Section 199A deduction addback (depending on OK conformity)
+          - State income taxes deducted on federal return
+
+          Subtractions may include:
+          - Interest on Oklahoma state and municipal obligations (OAC 710:50-17-51)
+          - Dividends from affiliated corporations (68 Okla. Stat. § 2357)
+          - Income from U.S. obligations (if included in federal)
+
+          Reference: Oklahoma Form 512 Schedule B (Additions and Subtractions)
+          Reference: OAC 710:50-17-51 (Adjustments to arrive at Oklahoma taxable income)
+          Reference: 68 Okla. Stat. § 2355 et seq.
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 54180: Calculate OK State Tax
+    ============================================================================
+
+    Calculates final Oklahoma state corporate income tax.
+
+    Process:
+    1. Federal taxable income apportioned to OK (done by table 7500)
+    2. Add OK-specific additions (done by table 54120)
+    3. Subtract OK-specific subtractions (done by table 54120)
+    4. Calculate OK state taxable income
+    5. Apply 4% flat tax rate
+    6. Subtract OK state credits
+    7. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_OK_State_Tax" number="54180">
+    <description>
+      Calculate Oklahoma state corporate income tax.
+      Applies 4% flat rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: OK flat rate calculation (4%) -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Oklahoma uses 4% flat rate
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract OK state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          Oklahoma state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to OK: × [Apportionment % using single-sales factor]
+          3. State additions: + [Additions from Schedule B]
+          4. State subtractions: - [Subtractions from Schedule B]
+          5. OK taxable income: = [Result]
+          6. OK tax rate: × 4.0%
+          7. OK income tax: = [Tax before credits]
+          8. OK credits: - [Credits from Schedule C]
+          9. OK tax liability: = [Final tax]
+
+          Oklahoma uses 100% single-sales factor apportionment.
+          Tax rate is a flat 4% with no brackets or alternative minimum tax.
+
+          Available OK credits include:
+          - Investment/New Jobs Tax Credit (68 Okla. Stat. § 2357.21)
+          - Small Employer Quality Jobs Incentive Act Credit
+          - Historic Preservation Tax Credit
+          - Research and Development Tax Credit
+          - Venture Capital Tax Credit
+          - Oklahoma Quality Events Incentive Act Credit
+
+          Reference: Oklahoma Form 512 (Corporation Income Tax Return) Instructions
+          Reference: Oklahoma Form 512 Schedule C (Tax Credits)
+          Reference: 68 Okla. Stat. § 2355 (4% tax rate)
+          Reference: 68 Okla. Stat. § 2358 (Apportionment - single-sales factor)
+          Reference: OAC 710:50-17 (Corporate Income Tax)
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Oklahoma nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Nexus but no taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Oklahoma taxable income - no tax liability.
+          Oklahoma allows NOL carryforward (68 Okla. Stat. § 2357.6).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

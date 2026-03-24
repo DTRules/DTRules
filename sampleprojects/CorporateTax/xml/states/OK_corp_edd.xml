@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oklahoma Corporate Tax Entity Data Dictionary
+
+  OK has a competitive 4% flat corporate income tax rate.
+
+  Key Features:
+  - Flat 4.0% corporate income tax rate (68 Okla. Stat. § 2355)
+  - Single-sales apportionment formula
+  - Economic nexus: $100,000 gross receipts threshold (sales tax standard)
+  - No alternative minimum tax
+  - No special surcharges
+
+  References:
+  - 68 Okla. Stat. § 2355 (Tax rate)
+  - Oklahoma Form 512 (Corporation Income Tax Return)
+  - Oklahoma Tax Commission Administrative Rules Title 710, Chapter 50
+  - OAC 710:50-17-51 (Adjustments to arrive at Oklahoma taxable income)
+-->
+<entity_dictionary name="CorporateTax_OK_Constants">
+
+  <!--
+    Apportionment Entity: Oklahoma Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and OK-specific tables 54100-54199.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='OK'
+           comment='Oklahoma state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='OK economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='OK economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='OK uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.040'
+           comment='OK corporate income tax rate: 4.0% flat rate (68 Okla. Stat. § 2355)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='OK additions: federal interest income, state tax refunds, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='OK subtractions: OK municipal bond interest, dividends from certain corporations, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='OK tax credits: investment/new jobs, small employer quality jobs, historic preservation, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: OK does not require special state-specific fields
+
+    Oklahoma uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+    - Complex combined reporting requirements
+  -->
+  <entity name="result">
+    <!-- No OK-specific fields required -->
+  </entity>
+
+</entity_dictionary>

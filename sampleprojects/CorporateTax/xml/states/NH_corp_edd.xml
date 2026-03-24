@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  New Hampshire (NH) Corporate Tax Entity Data Dictionary
+
+  New Hampshire has NO traditional corporate income tax.
+  Instead, it levies two business taxes:
+  - Business Profits Tax (BPT): 7.5% flat rate on business profits
+  - Business Enterprise Tax (BET): 0.55% on enterprise value base
+    (compensation, interest, dividends) - not implemented here
+
+  This implementation focuses on the Business Profits Tax (BPT) only.
+
+  Key Features:
+  - BPT rate: 7.5% flat rate (for tax periods ending on or after 12/31/2023)
+  - Filing threshold: $109,000 gross business income (for periods beginning 1/1/2025+)
+  - Single-sales apportionment formula
+  - Economic nexus: $109,000 gross receipts threshold
+  - Static conformity to IRC as of December 31, 2018
+  - Full deductibility of Section 163(j) interest (NH decoupled from federal limitation)
+
+  References:
+  - RSA 77-A (Business Profits Tax statute)
+  - NH Rev 300 (Business Profits Tax regulations)
+  - NH Form BT-Summary (Business Tax Return)
+  - NH DRA Business Profits Tax FAQ
+-->
+<entity_dictionary name="CorporateTax_NH_Constants">
+
+  <!--
+    Apportionment Entity: New Hampshire Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and NH-specific tables 53800-53899.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='NH'
+           comment='New Hampshire state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='109000.0'
+           comment='NH economic nexus gross receipts threshold: $109,000 (2025)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='NH has no transaction count threshold - only gross receipts'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='NH uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate - Business Profits Tax -->
+    <field name='state_tax_rate' type='double' default_value='0.075'
+           comment='NH Business Profits Tax rate: 7.5% flat rate (RSA 77-A:2)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='NH additions: federal interest income (U.S. obligations), state taxes, certain IRC differences'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='NH subtractions: NH municipal bond interest, Section 163(j) interest (NH decoupled), dividends received deduction'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='NH tax credits: Research & Development, Coos County Job Creation, Economic Revitalization Zone credits, BET credit against BPT'/>
+
+  </entity>
+
+  <!--
+    Result Entity: NH-Specific Extensions
+
+    NH requires tracking Business Enterprise Tax (BET) separately,
+    though BET implementation is beyond scope of this BPT-focused implementation.
+  -->
+  <entity name="result">
+
+    <!-- Business Enterprise Tax (BET) - not implemented in this version -->
+    <!--
+    <field name='nh_bet_base' type='double' default_value='0.0'
+           comment='NH BET tax base (wages, interest, dividends) - 0.55% rate'/>
+    <field name='nh_bet_tax' type='double' default_value='0.0'
+           comment='NH Business Enterprise Tax (BET) - separate from BPT'/>
+    <field name='nh_bet_credit_against_bpt' type='double' default_value='0.0'
+           comment='BET paid may be credited against BPT to prevent double taxation'/>
+    -->
+
+    <!-- NH static conformity to IRC as of December 31, 2018 -->
+    <field name='nh_irc_conformity_date' type='string' default_value='2018-12-31'
+           comment='NH uses static conformity to IRC as of December 31, 2018'/>
+
+  </entity>
+
+</entity_dictionary>
