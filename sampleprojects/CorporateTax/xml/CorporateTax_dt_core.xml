@@ -1339,6 +1339,10 @@
 
             // ===== TAX CALCULATION =====
             execute(4000);  // Calculate_Taxable_Income
+
+            // ===== NET OPERATING LOSS (NOL) =====
+            execute(9000);  // Calculate_Net_Operating_Loss (IRC 172)
+
             execute(4100);  // Apply_Corporate_Tax_Rate (21%)
 
             // ===== CREDIT CALCULATION (Form 3800) =====
@@ -1347,10 +1351,19 @@
 
             // ===== FINAL CALCULATION =====
             execute(4300);  // Calculate_Refund_Or_Owed
+
+            // ===== SCHEDULE M-1 (Book-Tax Reconciliation) =====
+            execute(8000);  // Complete_Schedule_M1
+
+            // ===== SCHEDULE M-2 (Retained Earnings Analysis) =====
+            execute(8100);  // Complete_Schedule_M2
+
+            // ===== SCHEDULE L (Balance Sheet) =====
+            execute(8200);  // Complete_Schedule_L
           </action>
         </actions>
         <policy>
-          Corporate tax calculation flow (Phase 2 - with depreciation and credits):
+          Corporate tax calculation flow (Phase 4 - with schedules):
 
           1. Calculate income (Form 1120 lines 1-11)
           2. Calculate depreciation (Form 4562):
@@ -1359,16 +1372,27 @@
              c. MACRS depreciation
           3. Calculate deductions (Form 1120 lines 12-27)
           4. Calculate taxable income (Form 1120 line 28)
-          5. Apply 21% tax rate (Schedule J)
-          6. Calculate credits (Form 3800):
+          5. Apply NOL deduction (IRC 172):
+             a. NOL carryforward from prior years
+             b. 80% limitation
+             c. Current year NOL generation
+          6. Apply 21% tax rate (Schedule J)
+          7. Calculate credits (Form 3800):
              a. R&D credit (Form 6765)
              b. General business credit
-          7. Determine refund or amount owed
+          8. Determine refund or amount owed
+          9. Complete Schedule M-1 (Book-tax reconciliation)
+          10. Complete Schedule M-2 (Retained earnings analysis)
+          11. Complete Schedule L (Balance sheet per books)
 
           Reference: Form 1120 - U.S. Corporation Income Tax Return
           Reference: Form 4562 - Depreciation and Amortization
           Reference: Form 3800 - General Business Credit
           Reference: Form 6765 - Research & Development Credit
+          Reference: Form 1120 Schedule M-1 - Reconciliation of Income
+          Reference: Form 1120 Schedule M-2 - Analysis of Retained Earnings
+          Reference: Form 1120 Schedule L - Balance Sheet per Books
+          Reference: IRC Section 172 - Net Operating Loss Deduction
         </policy>
       </rule>
     </rules>
@@ -1992,6 +2016,795 @@
         <policy>
           No federal taxable income = no state tax.
           State NOL rules may apply (not implemented).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    SCHEDULE M-1 TABLE (8000-8999)
+    ================================================================
+  -->
+
+  <!--
+    Table 8000: Complete Schedule M-1 (Reconciliation of Income)
+
+    Reconciles net income per books (GAAP) with taxable income per return.
+    Required for corporations with total assets >= $10 million.
+
+    Schedule M-1 reconciles:
+    - Book income (financial statements / GAAP)
+    - Tax income (Form 1120 line 28)
+
+    Reference: Form 1120 Schedule M-1
+    Reference: Publication 542 (Corporations)
+  -->
+  <decision_table name="Complete_Schedule_M1" number="8000">
+    <description>
+      Complete Schedule M-1 reconciliation of book income to taxable income.
+      Identifies temporary and permanent book-tax differences.
+    </description>
+
+    <conditions>
+      <condition name="has_book_income">
+        <expression>result.m1_net_income_per_books != 0</expression>
+        <comment>Has net income (or loss) per books</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_book_income>Y</has_book_income>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // Schedule M-1 Line 2: Federal Tax per Books
+            // ========================================
+            // Book accounting records federal tax expense
+            // This is added back because federal tax is not deductible for federal tax
+            result.m1_federal_tax_per_books = result.federal_tax;
+
+            // ========================================
+            // Schedule M-1 Line 3: Excess Capital Losses
+            // ========================================
+            // Corporations can only deduct capital losses to extent of capital gains
+            // Any excess is not deductible (carried back/forward)
+            // Simplified: Assume no capital transactions for now
+            result.m1_excess_capital_losses = 0.0;
+
+            // ========================================
+            // Schedule M-1 Line 4: Income Subject to Tax NOT Recorded on Books
+            // ========================================
+            // Rare - prepaid income recognized for tax but deferred for books
+            result.m1_income_not_on_books = 0.0;
+
+            // ========================================
+            // Schedule M-1 Line 5: Expenses Recorded on Books NOT Deducted
+            // ========================================
+            double expenses_not_deducted = 0.0;
+
+            // 50% of meals and entertainment (only 50% deductible for tax)
+            // Book expense is 100%, tax deduction is 50%
+            // Addback = 50% of meals/entertainment expense
+            expenses_not_deducted += result.m1_meals_entertainment_50pct;
+
+            // Book-tax depreciation difference (if book > tax)
+            // Tax depreciation (MACRS/179/Bonus) typically exceeds book (straight-line)
+            // If book depreciation > tax depreciation (rare), addback the difference
+            // Most common: tax depreciation > book, so this is usually 0 or negative
+            double depreciation_addback = Math.max(0.0,
+              result.m1_book_depreciation - result.depreciation);
+            expenses_not_deducted += depreciation_addback;
+
+            // Federal income tax (already counted in line 2, don't double-count)
+            // Other common items: penalties, fines, lobbying, club dues, etc.
+
+            result.m1_expenses_not_deducted = expenses_not_deducted;
+
+            // ========================================
+            // Schedule M-1 Line 6: Subtotal (sum of lines 1-5)
+            // ========================================
+            result.m1_subtotal =
+              result.m1_net_income_per_books +
+              result.m1_federal_tax_per_books +
+              result.m1_excess_capital_losses +
+              result.m1_income_not_on_books +
+              result.m1_expenses_not_deducted;
+
+            // ========================================
+            // Schedule M-1 Line 7: Income on Books NOT Included on Return
+            // ========================================
+            // Tax-exempt interest (tax-exempt municipal bonds)
+            // On books as income, but not taxable
+            result.m1_income_not_on_return = result.m1_tax_exempt_interest;
+
+            // ========================================
+            // Schedule M-1 Line 8: Deductions on Return NOT Charged Against Books
+            // ========================================
+            double deductions_not_on_books = 0.0;
+
+            // Tax depreciation exceeding book depreciation (most common case)
+            // MACRS/179/Bonus typically > straight-line book depreciation
+            double tax_depreciation_excess = Math.max(0.0,
+              result.depreciation - result.m1_book_depreciation);
+            deductions_not_on_books += tax_depreciation_excess;
+
+            // Capital loss carryover from prior years (deductible for tax, not on books)
+            deductions_not_on_books += result.m1_capital_loss_carryover;
+
+            result.m1_deductions_not_on_books = deductions_not_on_books;
+
+            // ========================================
+            // Schedule M-1 Line 9: Total (sum of lines 7-8)
+            // ========================================
+            result.m1_total_deductions =
+              result.m1_income_not_on_return +
+              result.m1_deductions_not_on_books;
+
+            // ========================================
+            // Schedule M-1 Line 10: Reconciled Income (line 6 - line 9)
+            // ========================================
+            // This MUST equal taxable income (Form 1120 line 28)
+            result.m1_reconciled_income =
+              result.m1_subtotal - result.m1_total_deductions;
+
+            // Validation: Check if reconciliation matches taxable income
+            double reconciliation_difference =
+              Math.abs(result.m1_reconciled_income - result.taxable_income);
+
+            // If difference > $1, log warning (should match exactly)
+            if (reconciliation_difference > 1.0) {
+              // Schedule M-1 reconciliation error
+              // M-1 line 10 should equal taxable income
+              // Difference may indicate missing book-tax adjustments
+            }
+          </action>
+        </actions>
+        <policy>
+          Schedule M-1 reconciles net income per books with income per return.
+
+          Common book-tax differences:
+
+          **Temporary Differences** (timing - reverse in future years):
+          - Depreciation (MACRS/bonus vs. straight-line book)
+          - Section 179 expense (immediate vs. capitalized for books)
+          - Prepaid expenses (deductible when paid for tax, recognized over time for books)
+          - Accrued liabilities (deductible when accrued for books, when paid for tax)
+
+          **Permanent Differences** (never reverse):
+          - Tax-exempt interest (income for books, not taxable)
+          - Federal income tax (expense for books, not deductible)
+          - 50% of meals and entertainment (100% expense for books, 50% deductible)
+          - Penalties and fines (expense for books, not deductible)
+          - Life insurance premiums (expense for books, not deductible if corporation is beneficiary)
+          - Lobbying expenses (expense for books, not deductible)
+          - Club dues (expense for books, not deductible)
+
+          Schedule M-1 is required for corporations with:
+          - Total assets >= $10 million at end of year
+
+          Smaller corporations may file simplified Schedule M-1 or omit if assets < $250K.
+
+          Reference: Form 1120 Schedule M-1 Instructions
+          Reference: Publication 542 - Corporations
+          Reference: Regulations § 1.6012-2 (Filing requirements)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_book_income>N</has_book_income>
+        </conditions>
+        <actions>
+          <action>
+            // No book income provided - skip Schedule M-1
+            // May occur if only tax return data available
+            result.m1_net_income_per_books = 0.0;
+            result.m1_subtotal = 0.0;
+            result.m1_reconciled_income = result.taxable_income;
+          </action>
+        </actions>
+        <policy>
+          No book income provided - Schedule M-1 not completed.
+          This may occur for:
+          - Corporations using tax basis accounting for books
+          - Small corporations not required to file Schedule M-1
+          - Test cases without GAAP financial statements
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 8100: Complete Schedule M-2 (Analysis of Retained Earnings)
+
+    Tracks changes in unappropriated retained earnings from beginning to end of year.
+    Required for corporations with total assets >= $250,000.
+
+    Reference: Form 1120 Schedule M-2
+    Reference: Publication 542 (Corporations)
+  -->
+  <decision_table name="Complete_Schedule_M2" number="8100">
+    <description>
+      Complete Schedule M-2 analysis of unappropriated retained earnings.
+      Tracks beginning balance, increases (income), decreases (distributions), ending balance.
+    </description>
+
+    <conditions>
+      <condition name="has_beginning_balance">
+        <expression>result.m2_beginning_balance != 0 || result.m1_net_income_per_books != 0</expression>
+        <comment>Has retained earnings activity</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_beginning_balance>Y</has_beginning_balance>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // Schedule M-2 Line 2: Net Income per Books
+            // ========================================
+            // Comes from Schedule M-1 line 1
+            result.m2_net_income_per_books = result.m1_net_income_per_books;
+
+            // ========================================
+            // Schedule M-2 Line 3: Other Increases
+            // ========================================
+            double other_increases = 0.0;
+
+            // Prior period adjustments (corrections to prior years)
+            other_increases += result.m2_prior_year_adjustments;
+
+            // Other possible increases:
+            // - Adjustments to beginning balance
+            // - Error corrections
+            // - Accounting changes
+
+            result.m2_other_increases = other_increases;
+
+            // ========================================
+            // Schedule M-2 Line 4: Total (1 + 2 + 3)
+            // ========================================
+            result.m2_total_increases =
+              result.m2_beginning_balance +
+              result.m2_net_income_per_books +
+              result.m2_other_increases;
+
+            // ========================================
+            // Schedule M-2 Line 5: Distributions
+            // ========================================
+            // 5a: Cash distributions (dividends paid in cash)
+            // 5b: Stock distributions (stock dividends)
+            // 5c: Property distributions (distribution of assets)
+            result.m2_total_distributions =
+              result.m2_cash_distributions +
+              result.m2_stock_distributions +
+              result.m2_property_distributions;
+
+            // ========================================
+            // Schedule M-2 Line 6: Other Decreases
+            // ========================================
+            double other_decreases = 0.0;
+
+            // Treasury stock purchases (reduce retained earnings)
+            other_decreases += result.m2_treasury_stock_adjustments;
+
+            // Other possible decreases:
+            // - Stock redemptions
+            // - Prior period adjustments (negative)
+            // - Legal capital transfers
+
+            result.m2_other_decreases = other_decreases;
+
+            // ========================================
+            // Schedule M-2 Line 7: Total (5 + 6)
+            // ========================================
+            result.m2_total_decreases =
+              result.m2_total_distributions +
+              result.m2_other_decreases;
+
+            // ========================================
+            // Schedule M-2 Line 8: Ending Balance (4 - 7)
+            // ========================================
+            result.m2_ending_balance =
+              result.m2_total_increases - result.m2_total_decreases;
+
+            // Validation: Ending balance should match balance sheet
+            // If corporation has Schedule L (balance sheet), verify:
+            // M-2 line 8 = Schedule L line 25 (retained earnings - unappropriated)
+          </action>
+        </actions>
+        <policy>
+          Schedule M-2 analyzes changes in unappropriated retained earnings.
+
+          **Components**:
+
+          **Increases to Retained Earnings**:
+          - Net income per books (from Schedule M-1)
+          - Prior period adjustments (corrections to prior years)
+          - Accounting changes
+          - Error corrections
+
+          **Decreases to Retained Earnings**:
+          - Cash dividends paid to shareholders
+          - Stock dividends distributed
+          - Property distributions
+          - Treasury stock purchases
+          - Stock redemptions
+
+          **Required for**:
+          - Corporations with total assets >= $250,000 at end of year
+
+          **Not required for**:
+          - Smaller corporations (assets < $250,000)
+          - S corporations (use different schedule)
+
+          **Notes**:
+          - Schedule M-2 tracks only UNAPPROPRIATED retained earnings
+          - Appropriated retained earnings (reserves) not included
+          - Should reconcile with Schedule L (balance sheet) line 25
+          - Reflects book accounting, not tax basis
+
+          Reference: Form 1120 Schedule M-2 Instructions
+          Reference: Publication 542 - Corporations
+          Reference: Regulations § 1.6012-2 (Filing requirements)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_beginning_balance>N</has_beginning_balance>
+        </conditions>
+        <actions>
+          <action>
+            // No retained earnings data - skip Schedule M-2
+            result.m2_beginning_balance = 0.0;
+            result.m2_ending_balance = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No retained earnings data provided - Schedule M-2 not completed.
+          This may occur for:
+          - New corporations (first year, no beginning balance)
+          - Small corporations not required to file Schedule M-2 (assets < $250K)
+          - Test cases without complete financial data
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 8200: Complete Schedule L (Balance Sheet per Books)
+
+    Balance sheet showing assets, liabilities, and shareholders' equity
+    at beginning and end of tax year.
+
+    Required for corporations with total receipts >= $250,000 OR total assets >= $250,000.
+
+    Reference: Form 1120 Schedule L
+    Reference: Publication 542 (Corporations)
+  -->
+  <decision_table name="Complete_Schedule_L" number="8200">
+    <description>
+      Complete Schedule L balance sheet with beginning and ending balances.
+      Calculates totals and validates balance sheet equation (Assets = Liabilities + Equity).
+    </description>
+
+    <conditions>
+      <condition name="has_balance_sheet_data">
+        <expression>result.l_total_assets_beg > 0 || result.l_total_assets_end > 0 ||
+                    result.l_cash_end > 0 || result.l_accounts_receivable_end > 0</expression>
+        <comment>Has balance sheet data</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_balance_sheet_data>Y</has_balance_sheet_data>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // ASSETS TOTALS
+            // ========================================
+
+            // Calculate total assets (beginning of year)
+            result.l_total_assets_beg =
+              result.l_cash_beg +
+              (result.l_accounts_receivable_beg - result.l_bad_debt_allowance_beg) +
+              result.l_inventories_beg +
+              result.l_us_govt_obligations_beg +
+              result.l_tax_exempt_securities_beg +
+              result.l_other_current_assets_beg +
+              result.l_loans_to_shareholders_beg +
+              result.l_mortgage_real_estate_loans_beg +
+              result.l_other_investments_beg +
+              (result.l_buildings_gross_beg - result.l_accumulated_depreciation_beg) +
+              (result.l_depletable_assets_beg - result.l_accumulated_depletion_beg) +
+              result.l_land_beg +
+              (result.l_intangible_assets_gross_beg - result.l_accumulated_amortization_beg) +
+              result.l_other_assets_beg;
+
+            // Calculate total assets (end of year)
+            result.l_total_assets_end =
+              result.l_cash_end +
+              (result.l_accounts_receivable_end - result.l_bad_debt_allowance_end) +
+              result.l_inventories_end +
+              result.l_us_govt_obligations_end +
+              result.l_tax_exempt_securities_end +
+              result.l_other_current_assets_end +
+              result.l_loans_to_shareholders_end +
+              result.l_mortgage_real_estate_loans_end +
+              result.l_other_investments_end +
+              (result.l_buildings_gross_end - result.l_accumulated_depreciation_end) +
+              (result.l_depletable_assets_end - result.l_accumulated_depletion_end) +
+              result.l_land_end +
+              (result.l_intangible_assets_gross_end - result.l_accumulated_amortization_end) +
+              result.l_other_assets_end;
+
+            // ========================================
+            // LIABILITIES TOTALS
+            // ========================================
+
+            // Calculate total liabilities (beginning of year)
+            result.l_total_liabilities_beg =
+              result.l_accounts_payable_beg +
+              result.l_mortgages_notes_bonds_lt1yr_beg +
+              result.l_other_current_liabilities_beg +
+              result.l_loans_from_shareholders_beg +
+              result.l_mortgages_notes_bonds_gte1yr_beg +
+              result.l_other_liabilities_beg;
+
+            // Calculate total liabilities (end of year)
+            result.l_total_liabilities_end =
+              result.l_accounts_payable_end +
+              result.l_mortgages_notes_bonds_lt1yr_end +
+              result.l_other_current_liabilities_end +
+              result.l_loans_from_shareholders_end +
+              result.l_mortgages_notes_bonds_gte1yr_end +
+              result.l_other_liabilities_end;
+
+            // ========================================
+            // SHAREHOLDERS' EQUITY TOTALS
+            // ========================================
+
+            // Sync retained earnings unappropriated with Schedule M-2
+            // Schedule L line 26 (ending) should equal Schedule M-2 line 8
+            if (result.m2_ending_balance != 0) {
+              result.l_retained_earnings_unappropriated_end = result.m2_ending_balance;
+            }
+            if (result.m2_beginning_balance != 0) {
+              result.l_retained_earnings_unappropriated_beg = result.m2_beginning_balance;
+            }
+
+            // Calculate total shareholders' equity (beginning of year)
+            result.l_total_equity_beg =
+              result.l_capital_stock_beg +
+              result.l_additional_paid_in_capital_beg +
+              result.l_retained_earnings_appropriated_beg +
+              result.l_retained_earnings_unappropriated_beg +
+              result.l_adjustments_to_equity_beg -
+              result.l_treasury_stock_beg;
+
+            // Calculate total shareholders' equity (end of year)
+            result.l_total_equity_end =
+              result.l_capital_stock_end +
+              result.l_additional_paid_in_capital_end +
+              result.l_retained_earnings_appropriated_end +
+              result.l_retained_earnings_unappropriated_end +
+              result.l_adjustments_to_equity_end -
+              result.l_treasury_stock_end;
+
+            // ========================================
+            // BALANCE SHEET EQUATION VALIDATION
+            // ========================================
+
+            // Calculate total liabilities and equity (should equal assets)
+            result.l_total_liabilities_and_equity_beg =
+              result.l_total_liabilities_beg + result.l_total_equity_beg;
+
+            result.l_total_liabilities_and_equity_end =
+              result.l_total_liabilities_end + result.l_total_equity_end;
+
+            // Validate balance sheet equation: Assets = Liabilities + Equity
+            double balance_difference_beg =
+              Math.abs(result.l_total_assets_beg - result.l_total_liabilities_and_equity_beg);
+
+            double balance_difference_end =
+              Math.abs(result.l_total_assets_end - result.l_total_liabilities_and_equity_end);
+
+            // If difference > $1, log warning (should balance exactly)
+            if (balance_difference_beg > 1.0 || balance_difference_end > 1.0) {
+              // Balance sheet does not balance
+              // Assets must equal Liabilities + Equity
+              // Check for missing or incorrect values
+            }
+          </action>
+        </actions>
+        <policy>
+          Schedule L is the balance sheet per books showing financial position.
+
+          **Balance Sheet Structure**:
+
+          **Assets** (what corporation owns):
+          - Current assets: Cash, receivables, inventory, marketable securities
+          - Long-term assets: Property/plant/equipment (net of depreciation), investments, intangibles
+
+          **Liabilities** (what corporation owes):
+          - Current liabilities: Payables, short-term debt (< 1 year), accrued expenses
+          - Long-term liabilities: Long-term debt (>= 1 year), deferred taxes, pensions
+
+          **Shareholders' Equity** (owners' stake):
+          - Capital stock (par value of issued shares)
+          - Additional paid-in capital (amount above par value)
+          - Retained earnings - appropriated (reserves)
+          - Retained earnings - unappropriated (available for dividends)
+          - Adjustments (comprehensive income, FX translation)
+          - Less: Treasury stock (corporation's own shares repurchased)
+
+          **Balance Sheet Equation**:
+          Assets = Liabilities + Shareholders' Equity
+
+          **Integration with Other Schedules**:
+          - Schedule M-1: Reconciles book income (used to calculate retained earnings change)
+          - Schedule M-2: Tracks retained earnings changes (line 8 = Schedule L line 26 ending)
+          - Form 4562: Accumulated depreciation comes from depreciation schedule
+
+          **Required for**:
+          - Corporations with total receipts >= $250,000 OR
+          - Corporations with total assets >= $250,000
+
+          **Not required for**:
+          - Smaller corporations (receipts < $250K and assets < $250K)
+          - Schedule M-3 filers (use Schedule M-3 balance sheet instead)
+
+          Reference: Form 1120 Schedule L Instructions
+          Reference: Publication 542 - Corporations
+          Reference: Regulations § 1.6012-2 (Filing requirements)
+          Reference: GAAP (Generally Accepted Accounting Principles)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_balance_sheet_data>N</has_balance_sheet_data>
+        </conditions>
+        <actions>
+          <action>
+            // No balance sheet data - skip Schedule L
+            result.l_total_assets_beg = 0.0;
+            result.l_total_assets_end = 0.0;
+            result.l_total_liabilities_and_equity_beg = 0.0;
+            result.l_total_liabilities_and_equity_end = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No balance sheet data provided - Schedule L not completed.
+          This may occur for:
+          - Small corporations not required to file Schedule L
+          - Tax basis accounting without formal balance sheet
+          - Test cases without complete financial statements
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    NET OPERATING LOSS (NOL) TABLE (9000-9999)
+    ================================================================
+  -->
+
+  <!--
+    Table 9000: Calculate Net Operating Loss (NOL)
+
+    Handles NOL carryforward from prior years and current year NOL generation.
+
+    Post-TCJA rules (2018+):
+    - No carryback (except farming/insurance)
+    - Indefinite carryforward
+    - 80% limitation (NOL deduction cannot exceed 80% of taxable income)
+
+    CARES Act 2020 (temporary):
+    - 2018-2020 NOLs: 5-year carryback available
+    - Suspended 80% limitation for tax years before 2021
+
+    Reference: IRC Section 172
+    Reference: TCJA (Tax Cuts and Jobs Act) 2017
+    Reference: CARES Act 2020
+  -->
+  <decision_table name="Calculate_Net_Operating_Loss" number="9000">
+    <description>
+      Calculate NOL deduction and carryforward.
+      Applies 80% limitation and tracks NOL for future years.
+    </description>
+
+    <conditions>
+      <condition name="has_prior_nol">
+        <expression>result.nol_carryforward_from_prior_years > 0</expression>
+        <comment>Has NOL carryforward from prior years</comment>
+      </condition>
+
+      <condition name="has_positive_income">
+        <expression>result.taxable_income > 0</expression>
+        <comment>Has positive taxable income before NOL</comment>
+      </condition>
+
+      <condition name="has_current_nol">
+        <expression>result.taxable_income < 0</expression>
+        <comment>Has negative taxable income (current year NOL)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!--
+        Rule 1: Positive income WITH prior year NOL carryforward
+        Apply NOL deduction subject to 80% limitation
+      -->
+      <rule number="1">
+        <conditions>
+          <has_prior_nol>Y</has_prior_nol>
+          <has_positive_income>Y</has_positive_income>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // NOL Deduction with 80% Limitation
+            // ========================================
+
+            // Save taxable income before NOL deduction
+            result.taxable_income_before_nol = result.taxable_income;
+
+            // Calculate 80% limitation (IRC 172(a)(2))
+            // NOL deduction cannot exceed 80% of taxable income before NOL
+            result.nol_80pct_limitation = result.taxable_income_before_nol * 0.80;
+
+            // NOL deduction is lesser of:
+            // 1. NOL carryforward from prior years
+            // 2. 80% of taxable income before NOL
+            result.nol_deduction_allowed = Math.min(
+              result.nol_carryforward_from_prior_years,
+              result.nol_80pct_limitation
+            );
+
+            // Apply NOL deduction
+            result.taxable_income_after_nol =
+              result.taxable_income_before_nol - result.nol_deduction_allowed;
+
+            // Update taxable income (replaces original calculation)
+            result.taxable_income = result.taxable_income_after_nol;
+
+            // Calculate remaining NOL carryforward
+            result.nol_carryforward_to_future_years =
+              result.nol_carryforward_from_prior_years - result.nol_deduction_allowed;
+
+            // No current year NOL (profitable year)
+            result.nol_current_year = 0.0;
+          </action>
+        </actions>
+        <policy>
+          NOL deduction applied to positive taxable income.
+
+          **Post-TCJA Rules (2018+)**:
+          - NOL deduction limited to 80% of taxable income before NOL
+          - Cannot reduce taxable income below 20% of pre-NOL amount
+          - Unused NOL carries forward indefinitely
+
+          **Example**:
+          - Taxable income before NOL: $1,000,000
+          - 80% limitation: $800,000
+          - Prior NOL carryforward: $1,500,000
+          - NOL deduction allowed: $800,000 (limited by 80%)
+          - Taxable income after NOL: $200,000
+          - Remaining NOL carryforward: $700,000
+
+          **CARES Act Exceptions**:
+          - Tax years 2018-2020: 80% limitation suspended
+          - Farming losses: Different rules (not implemented)
+
+          Reference: IRC § 172(a)(2) - 80% limitation
+          Reference: TCJA § 13302 - NOL amendments
+        </policy>
+      </rule>
+
+      <!--
+        Rule 2: Positive income WITHOUT prior year NOL carryforward
+        No NOL deduction, but check if current year generates NOL
+      -->
+      <rule number="2">
+        <conditions>
+          <has_prior_nol>N</has_prior_nol>
+          <has_positive_income>Y</has_positive_income>
+        </conditions>
+        <actions>
+          <action>
+            // No NOL carryforward to apply
+            result.taxable_income_before_nol = result.taxable_income;
+            result.taxable_income_after_nol = result.taxable_income;
+            result.nol_deduction_allowed = 0.0;
+            result.nol_80pct_limitation = 0.0;
+            result.nol_current_year = 0.0;
+            result.nol_carryforward_to_future_years = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No NOL carryforward from prior years.
+          Full taxable income subject to tax.
+        </policy>
+      </rule>
+
+      <!--
+        Rule 3: Negative taxable income (Current Year NOL)
+        Generate NOL for carryforward to future years
+      -->
+      <rule number="3">
+        <conditions>
+          <has_current_nol>Y</has_current_nol>
+        </conditions>
+        <actions>
+          <action>
+            // ========================================
+            // Current Year NOL Generation
+            // ========================================
+
+            result.taxable_income_before_nol = result.taxable_income;
+
+            // Current year NOL (absolute value of negative taxable income)
+            result.nol_current_year = Math.abs(result.taxable_income);
+
+            // No NOL deduction this year (loss year, not profit year)
+            result.nol_deduction_allowed = 0.0;
+            result.nol_80pct_limitation = 0.0;
+
+            // Taxable income remains at $0 (cannot be negative on return)
+            result.taxable_income_after_nol = 0.0;
+            result.taxable_income = 0.0;
+
+            // Total NOL carryforward = prior years + current year
+            result.nol_carryforward_to_future_years =
+              result.nol_carryforward_from_prior_years +
+              result.nol_current_year;
+
+            // No tax liability (loss year)
+            result.federal_tax = 0.0;
+            result.refund_or_owed = result.total_payments;  // Refund all payments
+          </action>
+        </actions>
+        <policy>
+          Current year NOL (negative taxable income).
+
+          **NOL Generation**:
+          - Corporation has loss (expenses exceed income)
+          - NOL = absolute value of negative taxable income
+          - No tax owed in NOL year
+          - Estimated payments refunded
+
+          **Post-TCJA Carryforward**:
+          - Indefinite carryforward (no expiration)
+          - No carryback (general rule)
+          - Can offset 80% of future taxable income
+
+          **CARES Act Carryback** (2018-2020 NOLs):
+          - 5-year carryback available
+          - Must elect carryback vs. carryforward
+          - Carryback not implemented in this version
+
+          **NOL Calculation**:
+          - Start with taxable income before NOL
+          - If negative, equals current year NOL
+          - Add to prior year NOL carryforward
+          - Total carries forward indefinitely
+
+          Reference: IRC § 172(a)(1) - NOL deduction defined
+          Reference: IRC § 172(b)(1) - Carryforward period (indefinite)
+          Reference: CARES Act § 2303 - Temporary 5-year carryback
         </policy>
       </rule>
     </rules>

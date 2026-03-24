@@ -115,6 +115,134 @@
 
     <!-- Audit Trail -->
     <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
+
+    <!-- Schedule M-1: Reconciliation of Income per Books With Income per Return -->
+    <field name='m1_net_income_per_books' type='double' default_value='0.0' comment='Net income per books (Schedule M-1 line 1)'/>
+    <field name='m1_federal_tax_per_books' type='double' default_value='0.0' comment='Federal income tax per books (Schedule M-1 line 2)'/>
+    <field name='m1_excess_capital_losses' type='double' default_value='0.0' comment='Excess of capital losses over capital gains (Schedule M-1 line 3)'/>
+    <field name='m1_income_not_on_books' type='double' default_value='0.0' comment='Income subject to tax not recorded on books (Schedule M-1 line 4)'/>
+    <field name='m1_expenses_not_deducted' type='double' default_value='0.0' comment='Expenses recorded on books not deducted on return (Schedule M-1 line 5)'/>
+    <field name='m1_subtotal' type='double' default_value='0.0' comment='Schedule M-1 line 6 (sum of lines 1-5)'/>
+    <field name='m1_income_not_on_return' type='double' default_value='0.0' comment='Income recorded on books not included on return (Schedule M-1 line 7)'/>
+    <field name='m1_deductions_not_on_books' type='double' default_value='0.0' comment='Deductions on return not charged against book income (Schedule M-1 line 8)'/>
+    <field name='m1_total_deductions' type='double' default_value='0.0' comment='Schedule M-1 line 9 (sum of lines 7-8)'/>
+    <field name='m1_reconciled_income' type='double' default_value='0.0' comment='Schedule M-1 line 10 (line 6 minus line 9, equals taxable income)'/>
+
+    <!-- Common M-1 Adjustments (components of lines 4-8) -->
+    <field name='m1_tax_exempt_interest' type='double' default_value='0.0' comment='Tax-exempt interest (line 7 - income on books but not taxable)'/>
+    <field name='m1_meals_entertainment_50pct' type='double' default_value='0.0' comment='50% of meals/entertainment (line 5 - expense on books but only 50% deductible)'/>
+    <field name='m1_depreciation_difference' type='double' default_value='0.0' comment='Depreciation difference (book vs tax, line 5 or 8 depending on direction)'/>
+    <field name='m1_book_depreciation' type='double' default_value='0.0' comment='Book depreciation (GAAP)'/>
+    <field name='m1_capital_loss_carryover' type='double' default_value='0.0' comment='Capital loss carryover (line 8)'/>
+
+    <!-- Schedule M-2: Analysis of Unappropriated Retained Earnings per Books -->
+    <field name='m2_beginning_balance' type='double' default_value='0.0' comment='Retained earnings at beginning of year (Schedule M-2 line 1)'/>
+    <field name='m2_net_income_per_books' type='double' default_value='0.0' comment='Net income per books (Schedule M-2 line 2, from M-1 line 1)'/>
+    <field name='m2_other_increases' type='double' default_value='0.0' comment='Other increases (Schedule M-2 line 3, itemize)'/>
+    <field name='m2_total_increases' type='double' default_value='0.0' comment='Total increases (Schedule M-2 line 4 = 1+2+3)'/>
+    <field name='m2_cash_distributions' type='double' default_value='0.0' comment='Cash distributions to shareholders (Schedule M-2 line 5a)'/>
+    <field name='m2_stock_distributions' type='double' default_value='0.0' comment='Stock distributions (Schedule M-2 line 5b)'/>
+    <field name='m2_property_distributions' type='double' default_value='0.0' comment='Property distributions (Schedule M-2 line 5c)'/>
+    <field name='m2_total_distributions' type='double' default_value='0.0' comment='Total distributions (Schedule M-2 line 5 = 5a+5b+5c)'/>
+    <field name='m2_other_decreases' type='double' default_value='0.0' comment='Other decreases (Schedule M-2 line 6, itemize)'/>
+    <field name='m2_total_decreases' type='double' default_value='0.0' comment='Total decreases (Schedule M-2 line 7 = 5+6)'/>
+    <field name='m2_ending_balance' type='double' default_value='0.0' comment='Retained earnings at end of year (Schedule M-2 line 8 = 4-7)'/>
+
+    <!-- Common M-2 Components -->
+    <field name='m2_prior_year_adjustments' type='double' default_value='0.0' comment='Prior year adjustments (line 3 other increases)'/>
+    <field name='m2_treasury_stock_adjustments' type='double' default_value='0.0' comment='Treasury stock adjustments (line 6 other decreases)'/>
+
+    <!-- Schedule L: Balance Sheet per Books (Beginning and Ending of Year) -->
+    <!-- ASSETS -->
+    <field name='l_cash_beg' type='double' default_value='0.0' comment='Cash (Schedule L line 1, beginning)'/>
+    <field name='l_cash_end' type='double' default_value='0.0' comment='Cash (Schedule L line 1, ending)'/>
+    <field name='l_accounts_receivable_beg' type='double' default_value='0.0' comment='Trade notes and accounts receivable (Schedule L line 2a, beginning)'/>
+    <field name='l_accounts_receivable_end' type='double' default_value='0.0' comment='Trade notes and accounts receivable (Schedule L line 2a, ending)'/>
+    <field name='l_bad_debt_allowance_beg' type='double' default_value='0.0' comment='Less: allowance for bad debts (Schedule L line 2b, beginning)'/>
+    <field name='l_bad_debt_allowance_end' type='double' default_value='0.0' comment='Less: allowance for bad debts (Schedule L line 2b, ending)'/>
+    <field name='l_inventories_beg' type='double' default_value='0.0' comment='Inventories (Schedule L line 3, beginning)'/>
+    <field name='l_inventories_end' type='double' default_value='0.0' comment='Inventories (Schedule L line 3, ending)'/>
+    <field name='l_us_govt_obligations_beg' type='double' default_value='0.0' comment='U.S. government obligations (Schedule L line 4, beginning)'/>
+    <field name='l_us_govt_obligations_end' type='double' default_value='0.0' comment='U.S. government obligations (Schedule L line 4, ending)'/>
+    <field name='l_tax_exempt_securities_beg' type='double' default_value='0.0' comment='Tax-exempt securities (Schedule L line 5, beginning)'/>
+    <field name='l_tax_exempt_securities_end' type='double' default_value='0.0' comment='Tax-exempt securities (Schedule L line 5, ending)'/>
+    <field name='l_other_current_assets_beg' type='double' default_value='0.0' comment='Other current assets (Schedule L line 6, beginning)'/>
+    <field name='l_other_current_assets_end' type='double' default_value='0.0' comment='Other current assets (Schedule L line 6, ending)'/>
+    <field name='l_loans_to_shareholders_beg' type='double' default_value='0.0' comment='Loans to shareholders (Schedule L line 7, beginning)'/>
+    <field name='l_loans_to_shareholders_end' type='double' default_value='0.0' comment='Loans to shareholders (Schedule L line 7, ending)'/>
+    <field name='l_mortgage_real_estate_loans_beg' type='double' default_value='0.0' comment='Mortgage and real estate loans (Schedule L line 8, beginning)'/>
+    <field name='l_mortgage_real_estate_loans_end' type='double' default_value='0.0' comment='Mortgage and real estate loans (Schedule L line 8, ending)'/>
+    <field name='l_other_investments_beg' type='double' default_value='0.0' comment='Other investments (Schedule L line 9, beginning)'/>
+    <field name='l_other_investments_end' type='double' default_value='0.0' comment='Other investments (Schedule L line 9, ending)'/>
+    <field name='l_buildings_gross_beg' type='double' default_value='0.0' comment='Buildings and other depreciable assets (Schedule L line 10a, beginning)'/>
+    <field name='l_buildings_gross_end' type='double' default_value='0.0' comment='Buildings and other depreciable assets (Schedule L line 10a, ending)'/>
+    <field name='l_accumulated_depreciation_beg' type='double' default_value='0.0' comment='Less: accumulated depreciation (Schedule L line 10b, beginning)'/>
+    <field name='l_accumulated_depreciation_end' type='double' default_value='0.0' comment='Less: accumulated depreciation (Schedule L line 10b, ending)'/>
+    <field name='l_depletable_assets_beg' type='double' default_value='0.0' comment='Depletable assets (Schedule L line 11a, beginning)'/>
+    <field name='l_depletable_assets_end' type='double' default_value='0.0' comment='Depletable assets (Schedule L line 11a, ending)'/>
+    <field name='l_accumulated_depletion_beg' type='double' default_value='0.0' comment='Less: accumulated depletion (Schedule L line 11b, beginning)'/>
+    <field name='l_accumulated_depletion_end' type='double' default_value='0.0' comment='Less: accumulated depletion (Schedule L line 11b, ending)'/>
+    <field name='l_land_beg' type='double' default_value='0.0' comment='Land (Schedule L line 12, beginning)'/>
+    <field name='l_land_end' type='double' default_value='0.0' comment='Land (Schedule L line 12, ending)'/>
+    <field name='l_intangible_assets_gross_beg' type='double' default_value='0.0' comment='Intangible assets (Schedule L line 13a, beginning)'/>
+    <field name='l_intangible_assets_gross_end' type='double' default_value='0.0' comment='Intangible assets (Schedule L line 13a, ending)'/>
+    <field name='l_accumulated_amortization_beg' type='double' default_value='0.0' comment='Less: accumulated amortization (Schedule L line 13b, beginning)'/>
+    <field name='l_accumulated_amortization_end' type='double' default_value='0.0' comment='Less: accumulated amortization (Schedule L line 13b, ending)'/>
+    <field name='l_other_assets_beg' type='double' default_value='0.0' comment='Other assets (Schedule L line 14, beginning)'/>
+    <field name='l_other_assets_end' type='double' default_value='0.0' comment='Other assets (Schedule L line 14, ending)'/>
+    <field name='l_total_assets_beg' type='double' default_value='0.0' comment='Total assets (Schedule L line 15, beginning)'/>
+    <field name='l_total_assets_end' type='double' default_value='0.0' comment='Total assets (Schedule L line 15, ending)'/>
+
+    <!-- LIABILITIES -->
+    <field name='l_accounts_payable_beg' type='double' default_value='0.0' comment='Accounts payable (Schedule L line 16, beginning)'/>
+    <field name='l_accounts_payable_end' type='double' default_value='0.0' comment='Accounts payable (Schedule L line 16, ending)'/>
+    <field name='l_mortgages_notes_bonds_lt1yr_beg' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in < 1 year (Schedule L line 17, beginning)'/>
+    <field name='l_mortgages_notes_bonds_lt1yr_end' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in < 1 year (Schedule L line 17, ending)'/>
+    <field name='l_other_current_liabilities_beg' type='double' default_value='0.0' comment='Other current liabilities (Schedule L line 18, beginning)'/>
+    <field name='l_other_current_liabilities_end' type='double' default_value='0.0' comment='Other current liabilities (Schedule L line 18, ending)'/>
+    <field name='l_loans_from_shareholders_beg' type='double' default_value='0.0' comment='Loans from shareholders (Schedule L line 19, beginning)'/>
+    <field name='l_loans_from_shareholders_end' type='double' default_value='0.0' comment='Loans from shareholders (Schedule L line 19, ending)'/>
+    <field name='l_mortgages_notes_bonds_gte1yr_beg' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in >= 1 year (Schedule L line 20, beginning)'/>
+    <field name='l_mortgages_notes_bonds_gte1yr_end' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in >= 1 year (Schedule L line 20, ending)'/>
+    <field name='l_other_liabilities_beg' type='double' default_value='0.0' comment='Other liabilities (Schedule L line 21, beginning)'/>
+    <field name='l_other_liabilities_end' type='double' default_value='0.0' comment='Other liabilities (Schedule L line 21, ending)'/>
+    <field name='l_total_liabilities_beg' type='double' default_value='0.0' comment='Total liabilities (Schedule L line 22, beginning)'/>
+    <field name='l_total_liabilities_end' type='double' default_value='0.0' comment='Total liabilities (Schedule L line 22, ending)'/>
+
+    <!-- SHAREHOLDERS' EQUITY -->
+    <field name='l_capital_stock_beg' type='double' default_value='0.0' comment='Capital stock (Schedule L line 23, beginning)'/>
+    <field name='l_capital_stock_end' type='double' default_value='0.0' comment='Capital stock (Schedule L line 23, ending)'/>
+    <field name='l_additional_paid_in_capital_beg' type='double' default_value='0.0' comment='Additional paid-in capital (Schedule L line 24, beginning)'/>
+    <field name='l_additional_paid_in_capital_end' type='double' default_value='0.0' comment='Additional paid-in capital (Schedule L line 24, ending)'/>
+    <field name='l_retained_earnings_appropriated_beg' type='double' default_value='0.0' comment='Retained earnings - appropriated (Schedule L line 25, beginning)'/>
+    <field name='l_retained_earnings_appropriated_end' type='double' default_value='0.0' comment='Retained earnings - appropriated (Schedule L line 25, ending)'/>
+    <field name='l_retained_earnings_unappropriated_beg' type='double' default_value='0.0' comment='Retained earnings - unappropriated (Schedule L line 26, beginning)'/>
+    <field name='l_retained_earnings_unappropriated_end' type='double' default_value='0.0' comment='Retained earnings - unappropriated (Schedule L line 26, ending)'/>
+    <field name='l_adjustments_to_equity_beg' type='double' default_value='0.0' comment='Adjustments to shareholders equity (Schedule L line 27, beginning)'/>
+    <field name='l_adjustments_to_equity_end' type='double' default_value='0.0' comment='Adjustments to shareholders equity (Schedule L line 27, ending)'/>
+    <field name='l_treasury_stock_beg' type='double' default_value='0.0' comment='Less: cost of treasury stock (Schedule L line 28, beginning)'/>
+    <field name='l_treasury_stock_end' type='double' default_value='0.0' comment='Less: cost of treasury stock (Schedule L line 28, ending)'/>
+    <field name='l_total_equity_beg' type='double' default_value='0.0' comment='Total shareholders equity (Schedule L line 29, beginning)'/>
+    <field name='l_total_equity_end' type='double' default_value='0.0' comment='Total shareholders equity (Schedule L line 29, ending)'/>
+    <field name='l_total_liabilities_and_equity_beg' type='double' default_value='0.0' comment='Total liabilities and shareholders equity (Schedule L line 30, beginning)'/>
+    <field name='l_total_liabilities_and_equity_end' type='double' default_value='0.0' comment='Total liabilities and shareholders equity (Schedule L line 30, ending)'/>
+
+    <!-- Net Operating Loss (NOL) Calculation - IRC Section 172 -->
+    <field name='nol_carryforward_from_prior_years' type='double' default_value='0.0' comment='NOL carryforward from prior tax years (unlimited carryforward)'/>
+    <field name='nol_current_year' type='double' default_value='0.0' comment='Current year NOL (negative taxable income before NOL deduction)'/>
+    <field name='nol_80pct_limitation' type='double' default_value='0.0' comment='80% of taxable income before NOL deduction (IRC 172 limitation)'/>
+    <field name='nol_deduction_allowed' type='double' default_value='0.0' comment='NOL deduction allowed this year (lesser of carryforward or 80% limit)'/>
+    <field name='taxable_income_before_nol' type='double' default_value='0.0' comment='Taxable income before NOL deduction'/>
+    <field name='taxable_income_after_nol' type='double' default_value='0.0' comment='Taxable income after NOL deduction'/>
+    <field name='nol_carryforward_to_future_years' type='double' default_value='0.0' comment='Remaining NOL to carry forward (indefinite carryforward)'/>
+
+    <!-- NOL Detail by Year (optional - for tracking NOL aging) -->
+    <field name='nol_2019_remaining' type='double' default_value='0.0' comment='NOL from 2019 remaining (for CARES Act carryback tracking)'/>
+    <field name='nol_2020_remaining' type='double' default_value='0.0' comment='NOL from 2020 remaining (for CARES Act carryback tracking)'/>
+    <field name='nol_2021_remaining' type='double' default_value='0.0' comment='NOL from 2021 remaining'/>
+    <field name='nol_2022_remaining' type='double' default_value='0.0' comment='NOL from 2022 remaining'/>
+    <field name='nol_2023_remaining' type='double' default_value='0.0' comment='NOL from 2023 remaining'/>
+    <field name='nol_2024_remaining' type='double' default_value='0.0' comment='NOL from 2024 remaining'/>
   </entity>
 
   <!-- Apportionment Entity (for state tax allocation) -->
