@@ -1,31 +1,27 @@
 #!/bin/bash
-# merge-states.sh - Merge separate state tax files into single EDD and DT files
+# merge-states.sh - Validate and export DTRules decision tables
 #
-# This script merges state-specific XML files from states/ directory into the
-# main TaxReturn_edd.xml and TaxReturn_dt.xml files used by the test harness.
+# This script validates the merged TaxReturn XML files and exports them to Excel format.
+# State-specific files in states/ directory are maintained separately and manually merged
+# into TaxReturn_edd.xml and TaxReturn_dt.xml as needed.
 #
 # Usage:
 #   ./scripts/merge-states.sh
 #
 # Input:
-#   - xml/TaxReturn_edd_core.xml (core entities, no state-specific constants)
-#   - xml/TaxReturn_dt_core.xml (core tables, no state-specific tables)
-#   - xml/states/*_edd.xml (state-specific constants)
-#   - xml/states/*_dt.xml (state-specific decision tables)
+#   - xml/TaxReturn_edd.xml (entity data dictionary)
+#   - xml/TaxReturn_dt.xml (decision tables)
 #
 # Output:
-#   - xml/TaxReturn_edd.xml (merged)
-#   - xml/TaxReturn_dt.xml (merged)
+#   - excel/*.xlsx (Excel exports for documentation)
 
 set -e  # Exit on error
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 XML_DIR="$SCRIPT_DIR/../xml"
-STATES_DIR="$XML_DIR/states"
 
-echo "=== DTRules State Tax File Merger ==="
+echo "=== DTRules Decision Table Exporter ==="
 echo "XML directory: $XML_DIR"
-echo "States directory: $STATES_DIR"
 echo ""
 
 # Check for required tools
@@ -38,103 +34,50 @@ else
 fi
 
 # ============================================================================
-# Merge EDD Files
+# Validate EDD File
 # ============================================================================
 
-echo "Merging EDD files..."
+EDD_FILE="$XML_DIR/TaxReturn_edd.xml"
 
-EDD_CORE="$XML_DIR/TaxReturn_edd_core.xml"
-EDD_OUTPUT="$XML_DIR/TaxReturn_edd.xml"
-
-if [ ! -f "$EDD_CORE" ]; then
-    echo "Error: Core EDD file not found: $EDD_CORE"
-    echo "This file should contain core entities without state-specific constants."
+if [ ! -f "$EDD_FILE" ]; then
+    echo "Error: EDD file not found: $EDD_FILE"
     exit 1
 fi
 
-# Start with core EDD (but remove closing tag)
-head -n -1 "$EDD_CORE" > "$EDD_OUTPUT"
-
-# Process each state EDD file
-STATE_COUNT=0
-if [ -d "$STATES_DIR" ]; then
-    for state_edd in "$STATES_DIR"/*_edd.xml; do
-        if [ -f "$state_edd" ]; then
-            STATE_CODE=$(basename "$state_edd" _edd.xml)
-            echo "  - Merging $STATE_CODE constants..."
-
-            # Extract entity content (skip XML declaration and root tags)
-            # This assumes state files have <entity_data_dictionary><entity>...</entity></entity_data_dictionary>
-            sed -n '/<entity /,/<\/entity>/p' "$state_edd" >> "$EDD_OUTPUT"
-
-            STATE_COUNT=$((STATE_COUNT + 1))
-        fi
-    done
-fi
-
-# Close the EDD file
-echo "</entity_data_dictionary>" >> "$EDD_OUTPUT"
-
-echo "  ✓ Merged $STATE_COUNT state EDD files"
-
-# Validate merged EDD
+echo "Validating EDD file..."
 if [ $VALIDATE -eq 1 ]; then
-    if xmllint --noout "$EDD_OUTPUT" 2>/dev/null; then
-        echo "  ✓ Merged EDD is valid XML"
+    if xmllint --noout "$EDD_FILE" 2>/dev/null; then
+        echo "  ✓ EDD is valid XML"
     else
-        echo "  ✗ Warning: Merged EDD has XML errors"
-        xmllint --noout "$EDD_OUTPUT" || true
+        echo "  ✗ Warning: EDD has XML errors"
+        xmllint --noout "$EDD_FILE" || true
     fi
+else
+    echo "  - Validation skipped (xmllint not available)"
 fi
 
 # ============================================================================
-# Merge Decision Table Files
+# Validate Decision Table File
 # ============================================================================
+
+DT_FILE="$XML_DIR/TaxReturn_dt.xml"
+
+if [ ! -f "$DT_FILE" ]; then
+    echo "Error: Decision table file not found: $DT_FILE"
+    exit 1
+fi
 
 echo ""
-echo "Merging Decision Table files..."
-
-DT_CORE="$XML_DIR/TaxReturn_dt_core.xml"
-DT_OUTPUT="$XML_DIR/TaxReturn_dt.xml"
-
-if [ ! -f "$DT_CORE" ]; then
-    echo "Error: Core DT file not found: $DT_CORE"
-    echo "This file should contain core decision tables without state-specific tables."
-    exit 1
-fi
-
-# Start with core DT (but remove closing tag)
-head -n -1 "$DT_CORE" > "$DT_OUTPUT"
-
-# Process each state DT file
-STATE_COUNT=0
-if [ -d "$STATES_DIR" ]; then
-    for state_dt in "$STATES_DIR"/*_dt.xml; do
-        if [ -f "$state_dt" ]; then
-            STATE_CODE=$(basename "$state_dt" _dt.xml)
-            echo "  - Merging $STATE_CODE decision tables..."
-
-            # Extract decision_table content (skip XML declaration and root tags)
-            sed -n '/<decision_table>/,/<\/decision_table>/p' "$state_dt" >> "$DT_OUTPUT"
-
-            STATE_COUNT=$((STATE_COUNT + 1))
-        fi
-    done
-fi
-
-# Close the DT file
-echo "</decision_tables>" >> "$DT_OUTPUT"
-
-echo "  ✓ Merged $STATE_COUNT state DT files"
-
-# Validate merged DT
+echo "Validating Decision Table file..."
 if [ $VALIDATE -eq 1 ]; then
-    if xmllint --noout "$DT_OUTPUT" 2>/dev/null; then
-        echo "  ✓ Merged DT is valid XML"
+    if xmllint --noout "$DT_FILE" 2>/dev/null; then
+        echo "  ✓ DT is valid XML"
     else
-        echo "  ✗ Warning: Merged DT has XML errors"
-        xmllint --noout "$DT_OUTPUT" || true
+        echo "  ✗ Warning: DT has XML errors"
+        xmllint --noout "$DT_FILE" || true
     fi
+else
+    echo "  - Validation skipped (xmllint not available)"
 fi
 
 # ============================================================================
@@ -142,9 +85,19 @@ fi
 # ============================================================================
 
 echo ""
-echo "=== Merge Complete ==="
-echo "Generated files:"
-echo "  - $EDD_OUTPUT"
-echo "  - $DT_OUTPUT"
+echo "=== Validation Complete ==="
+echo "Files validated:"
+echo "  - $EDD_FILE"
+echo "  - $DT_FILE"
 echo ""
-echo "These files are ready for testing with: go test ./pkg/dtrules/..."
+
+# Extract to Excel format
+echo "Extracting to Excel format..."
+if [ -f "$SCRIPT_DIR/extract-to-excel.sh" ]; then
+    "$SCRIPT_DIR/extract-to-excel.sh" 2>&1 | tail -5
+else
+    echo "Note: extract-to-excel.sh not found, skipping Excel extraction"
+fi
+
+echo ""
+echo "Files are ready for testing with: go test ./pkg/dtrules/..."

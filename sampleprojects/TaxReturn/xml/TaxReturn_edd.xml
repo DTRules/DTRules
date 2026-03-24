@@ -25,6 +25,7 @@
 		<field name='farm_incomes' type='array' subtype='farm_income' access='r' input='' default_value='' comment='Farm income for Schedule F'></field>
 		<field name='property_sales' type='array' subtype='property_sale' access='r' input='' default_value='' comment='Business property sales for Form 4797'></field>
 		<field name='foreign_incomes' type='array' subtype='foreign_income' access='r' input='' default_value='' comment='Foreign income for Form 1116'></field>
+		<field name='household_employees' type='array' subtype='household_employee' access='r' input='' default_value='' comment='Household employees for Schedule H'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Healthcare / Premium Tax Credit -->
@@ -41,6 +42,10 @@
 		<field name='expected_taxable_income' type='double' subtype='' access='r' input='main' default_value='' comment='Expected taxable income for validation'></field>
 		<field name='expected_total_tax' type='double' subtype='' access='r' input='main' default_value='' comment='Expected total tax for validation'></field>
 		<field name='expected_refund' type='double' subtype='' access='r' input='main' default_value='' comment='Expected refund for validation'></field>
+		<!-- Form 8859 - DC First-Time Homebuyer Credit -->
+		<field name='purchased_dc_home_first_time' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Purchased DC home as first-time buyer in qualified period'></field>
+		<field name='dc_home_purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price of DC home (Form 8859)'></field>
+		<field name='dc_home_purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Purchase date of DC home (Form 8859)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -63,7 +68,8 @@
 		<field name='se_net_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Schedule C net profit (computed)'></field>
 		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (computed)'></field>
 		<field name='se_tax_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible portion of SE tax (computed)'></field>
-		<field name='estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='Estimated tax payments made'></field>
+		<field name='estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='Federal estimated tax payments made'></field>
+		<field name='state_estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='State estimated tax payments made'></field>
 		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Income sources for this taxpayer'></field>
 		<field name='total_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total income (computed)'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes and explanations'></field>
@@ -89,6 +95,9 @@
 		<field name='educator_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unreimbursed educator expenses'></field>
 		<!-- Medical Expenses -->
 		<field name='medical_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unreimbursed medical expenses (Schedule A)'></field>
+		<!-- Form 8909 - Energy Efficient Appliance Credit (MANUFACTURER CREDIT) -->
+		<field name='energy_efficient_appliances_produced' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of qualifying appliances produced (Form 8909 - manufacturers only)'></field>
+		<field name='appliance_type' type='string' subtype='' access='r' input='main' default_value='' comment='Type: dishwasher, clothes_washer, refrigerator (Form 8909)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -122,6 +131,23 @@
 		<field name='is_disabled' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Physically or mentally incapable of self-care'></field>
 		<field name='care_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Care expenses for this dependent'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about dependent eligibility'></field>
+		<!-- Form 8615 - Kiddie Tax -->
+		<field name='unearned_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Unearned income (investment income, dividends, interest) - Form 8615'></field>
+		<field name='earned_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Earned income (wages, salary from part-time jobs) - Form 8615'></field>
+		<field name='subject_to_kiddie_tax' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether kiddie tax applies (computed) - Form 8615'></field>
+		<field name='kiddie_tax_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Calculated kiddie tax amount (computed) - Form 8615'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- HOUSEHOLD EMPLOYEE - Schedule H                                   -->
+	<!-- ================================================================== -->
+	<entity name='household_employee' access='rw' comment='Household employee (nanny, housekeeper, etc.)'>
+		<field name='household_employee' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='name' type='string' subtype='' access='r' input='main' default_value='' comment='Employee name'></field>
+		<field name='ssn' type='string' subtype='' access='r' input='main' default_value='' comment='Employee SSN'></field>
+		<field name='wages_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Cash wages paid'></field>
+		<field name='federal_income_tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Federal income tax withheld (optional)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -172,6 +198,10 @@
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
 		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
+		<!-- Form 8396 - Mortgage Interest Credit -->
+		<field name='has_mortgage_credit_certificate' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Has MCC from state/local government (Form 8396)'></field>
+		<field name='mcc_rate' type='double' subtype='' access='r' input='main' default_value='0' comment='Certificate credit rate, usually 10%-50% (Form 8396)'></field>
+		<field name='mortgage_interest_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Mortgage interest paid this year (overrides mortgage_interest if set)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -469,6 +499,18 @@
 		<field name='ss_wage_base' type='double' subtype='' access='r' input='' default_value='176100' comment='Social Security wage base (2025 est.)'></field>
 		<field name='se_threshold' type='double' subtype='' access='r' input='' default_value='400' comment='Minimum SE income to file SE tax'></field>
 
+		<!-- Schedule H - Household Employment Taxes -->
+		<field name='household_wage_threshold' type='double' subtype='' access='r' input='' default_value='2700' comment='Household employee wage threshold for FICA (2025)'></field>
+		<field name='futa_wage_threshold' type='double' subtype='' access='r' input='' default_value='1000' comment='FUTA wage threshold per employee (2025)'></field>
+		<field name='social_security_rate' type='double' subtype='' access='r' input='' default_value='0.062' comment='Social Security tax rate 6.2% (employer share)'></field>
+		<field name='medicare_rate' type='double' subtype='' access='r' input='' default_value='0.0145' comment='Medicare tax rate 1.45% (employer share)'></field>
+		<field name='futa_rate' type='double' subtype='' access='r' input='' default_value='0.06' comment='FUTA rate 6.0% (before state credit)'></field>
+		<field name='futa_wage_base' type='double' subtype='' access='r' input='' default_value='7000' comment='FUTA wage base per employee (2025)'></field>
+
+
+	<!-- Form 3800 - General Business Credit -->
+	<field name='gbc_threshold' type='double' subtype='' access='r' input='' default_value='25000' comment='GBC limitation threshold (Form 3800)'></field>
+	<field name='gbc_limitation_percentage' type='double' subtype='' access='r' input='' default_value='0.75' comment='GBC 75% of tax over threshold (Form 3800 Part II)'></field>
 		<!-- Standard Mileage Rate -->
 		<field name='mileage_rate' type='double' subtype='' access='r' input='' default_value='0.70' comment='Standard mileage rate (2025 est.) per Pub 463'></field>
 
@@ -595,6 +637,10 @@
 		<field name='cdcc_min_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='Min credit rate (20%) for AGI over $43,000'></field>
 		<field name='cdcc_rate_reduction_start' type='double' subtype='' access='r' input='' default_value='15000' comment='AGI where rate reduction begins'></field>
 		<field name='cdcc_rate_reduction_increment' type='double' subtype='' access='r' input='' default_value='2000' comment='AGI increment for 1% rate reduction'></field>
+
+		<!-- Kiddie Tax (Form 8615, IRC 1(g)) -->
+		<field name='kiddie_tax_threshold' type='double' subtype='' access='r' input='' default_value='2500' comment='2025 threshold for unearned income subject to kiddie tax (IRC 1(g)(4)(A))'></field>
+		<field name='kiddie_tax_standard_deduction' type='double' subtype='' access='r' input='' default_value='1300' comment='2025 standard deduction for dependents with unearned income (Rev. Proc. 2024-40)'></field>
 
 		<!-- Saver's Credit (Form 8880, IRC 25B) -->
 		<field name='savers_credit_max_contribution' type='double' subtype='' access='r' input='' default_value='2000' comment='Max eligible contribution per person'></field>
@@ -777,6 +823,14 @@
 		<field name='clean_energy_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Residential Clean Energy Credit (Form 5695 Part I)'></field>
 		<field name='premium_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Premium Tax Credit (Form 8962)'></field>
 		<field name='ptc_repayment' type='double' subtype='' access='rw' input='' default_value='0' comment='Excess APTC repayment'></field>
+		<!-- Form 8859 - DC First-Time Homebuyer Credit -->
+		<field name='dc_homebuyer_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='DC First-Time Homebuyer Credit (Form 8859)'></field>
+		<!-- Form 8396 - Mortgage Interest Credit -->
+		<field name='mortgage_interest_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Mortgage Interest Credit (Form 8396)'></field>
+		<field name='carryforward_mortgage_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Unused mortgage credit to carry forward (Form 8396)'></field>
+		<field name='mortgage_interest_deduction_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Reduction to mortgage interest deduction due to MCC'></field>
+		<!-- Form 8909 - Energy Efficient Appliance Credit -->
+		<field name='energy_appliance_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Energy Efficient Appliance Credit (Form 8909 - manufacturers only)'></field>
 		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
 
 		<!-- Schedule K-1 Income (Schedule E Part II) -->
@@ -818,6 +872,26 @@
 		<field name='total_foreign_taxes_paid' type='double' subtype='' access='rw' input='' default_value='0' comment='Total foreign taxes paid or accrued'></field>
 		<field name='foreign_tax_credit_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='FTC limitation (US tax × foreign/total income)'></field>
 		<field name='foreign_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign Tax Credit allowed (Form 1116)'></field>
+
+
+	<!-- Form 3800 - General Business Credit Component Credits -->
+	<field name='work_opportunity_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Work Opportunity Credit (Form 5884)'></field>
+	<field name='research_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Research Credit (Form 6765)'></field>
+	<field name='low_income_housing_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Low-Income Housing Credit (Form 8586)'></field>
+	<field name='disabled_access_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Disabled Access Credit (Form 8826)'></field>
+	<field name='small_employer_pension_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Small Employer Pension Plan Startup Credit (Form 8881)'></field>
+	<field name='small_employer_health_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Small Employer Health Insurance Credit (Form 8941)'></field>
+	<field name='employer_credit_paid_family_leave' type='double' subtype='' access='rw' input='main' default_value='0' comment='Employer Credit for Paid Family Leave (Form 8994)'></field>
+
+	<!-- Form 3800 - General Business Credit Summary -->
+	<field name='general_business_credit_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total General Business Credit from Form 3800 Part I'></field>
+	<field name='general_business_credit_used' type='double' subtype='' access='rw' input='' default_value='0' comment='Amount of GBC used against current year tax'></field>
+	<field name='general_business_credit_carryforward' type='double' subtype='' access='rw' input='' default_value='0' comment='Unused GBC to carry forward to next year'></field>
+		<!-- Schedule H - Household Employment Taxes -->
+		<field name='schedule_h_social_security_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Social Security tax on household employees (Schedule H)'></field>
+		<field name='schedule_h_medicare_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Medicare tax on household employees (Schedule H)'></field>
+		<field name='schedule_h_futa_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='FUTA tax on household employees (Schedule H)'></field>
+		<field name='schedule_h_total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total household employment tax (Schedule H)'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
