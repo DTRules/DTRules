@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minnesota Corporate Tax Decision Tables
+
+  MN Corporate Tax Implementation (2025):
+  - Tax Rate: 9.5% flat rate (as of 2024)
+  - Apportionment: Single-sales factor
+  - Economic Nexus: $100,000 gross receipts or 200 transactions
+  - Form: Form M4 (Corporation Franchise Tax Return)
+
+  Table Range: 51500-51599
+  - 51500: Determine_MN_Filing_Requirement
+  - 51520: Calculate_MN_Income_Adjustments
+  - 51580: Calculate_MN_State_Tax
+
+  References:
+  - MN Stat. § 290.06 (Tax rate: 9.5% flat)
+  - MN Stat. § 290.191 (Apportionment formula)
+  - MN Form M4 Instructions
+  - MN Revenue Notice 19-03 (Economic Nexus)
+-->
+<decision_tables name="CorporateTax_MN_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 51500: Determine MN Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Minnesota state tax return.
+
+    Minnesota nexus requirements:
+    - Physical presence: Office, employees, property in Minnesota
+    - Economic nexus (post-Wayfair): $100,000 gross receipts OR 200 transactions
+
+    Reference: MN Revenue Notice 19-03 (Economic Nexus Guidelines)
+    Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+  -->
+  <decision_table name="Determine_MN_Filing_Requirement" number="51500">
+    <description>
+      Determine if corporation must file Minnesota state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'MN'</expression>
+        <comment>Has physical presence in MN (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'MN'</expression>
+        <comment>Meets MN economic nexus threshold ($100K or 200 transactions)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - MN filing required
+            // Apportionment will be calculated by federal tables 7000-7500
+            // MN uses single-sales factor apportionment
+          </action>
+        </actions>
+        <policy>
+          Minnesota filing required due to physical presence (office, employees, or property in state).
+
+          Physical presence establishes nexus for Minnesota corporate franchise tax purposes.
+          Corporation must file Form M4 and apportion income using single-sales factor.
+
+          Reference: MN Stat. § 290.015 (Definitions - Doing Business)
+          Reference: MN Form M4 Instructions (Filing Requirements)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - MN filing required
+            // Threshold: $100,000 gross receipts OR 200 transactions
+            // Apportionment calculated by federal tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Minnesota filing required due to economic nexus (post-Wayfair).
+
+          Economic nexus threshold (either condition):
+          - $100,000 or more in gross receipts from MN sources, OR
+          - 200 or more separate transactions with MN customers
+
+          Corporation must file Form M4 even without physical presence.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: MN Revenue Notice 19-03 (Economic Nexus for Corporate Franchise Tax)
+          Reference: MN Stat. § 290.015, subd. 1(c) (Economic Nexus)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no MN filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Minnesota nexus - no filing requirement.
+          Any estimated payments would be refunded.
+
+          Corporation has no physical presence and does not meet economic nexus thresholds.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51520: Calculate MN State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates Minnesota additions and subtractions to federal taxable income.
+
+    Minnesota Common Additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - IRC Section 199A qualified business income deduction addback
+    - Foreign dividend deduction addback (IRC §§ 245A, 250)
+    - Charitable contribution addback (if over federal limit)
+
+    Minnesota Common Subtractions:
+    - Minnesota municipal bond interest (exempt)
+    - State income taxes paid (not deductible for state purposes)
+    - Small business income deduction (for qualifying businesses)
+    - Minnesota NOL deduction (may differ from federal)
+
+    Reference: MN Stat. § 290.01 (Additions and Subtractions)
+    Reference: MN Form M4 Schedule M1M (Additions and Subtractions)
+  -->
+  <decision_table name="Calculate_MN_Income_Adjustments" number="51520">
+    <description>
+      Calculate Minnesota state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate Minnesota state additions
+            double additions = 0.0;
+
+            // Add back federal bond interest (taxable to MN)
+            // Note: Would need revenue.federal_bond_interest field
+            // additions += revenue.federal_bond_interest;
+
+            // Add back IRC 199A deduction (MN doesn't conform)
+            // Note: Would need result.section_199a_deduction field
+            // additions += result.section_199a_deduction;
+
+            // Add back foreign dividend deduction (IRC 245A, 250)
+            // Note: Would need result.foreign_dividend_deduction field
+            // additions += result.foreign_dividend_deduction;
+
+            apportionment.state_additions = additions;
+
+            // Calculate Minnesota state subtractions
+            double subtractions = 0.0;
+
+            // Subtract Minnesota municipal bond interest
+            // Note: Would need revenue.mn_municipal_interest field
+            // subtractions += revenue.mn_municipal_interest;
+
+            // Subtract small business income deduction (if applicable)
+            // Note: Would need to calculate based on MN criteria
+            // subtractions += result.mn_small_business_deduction;
+
+            // Subtract Minnesota NOL deduction
+            // Note: MN has 80% limitation like federal but may have different rules
+            // subtractions += result.mn_nol_carryforward;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          Minnesota state-specific income adjustments to federal taxable income.
+
+          ADDITIONS to federal taxable income:
+          - Interest on U.S. government obligations (federal bonds are taxable to MN)
+          - IRC Section 199A qualified business income deduction addback
+          - Foreign dividend deduction addback (IRC §§ 245A, 250)
+          - Bonus depreciation addback (if MN decouples in future years)
+          - GILTI inclusion addback (for certain taxpayers)
+
+          SUBTRACTIONS from federal taxable income:
+          - Interest on Minnesota municipal bonds (exempt from MN tax)
+          - State income taxes paid (not deductible for MN purposes)
+          - Small business income deduction (for qualifying small businesses)
+          - Minnesota NOL deduction (80% of income limitation)
+          - Certain dividend income from foreign operating corporations
+
+          Reference: MN Stat. § 290.01, subd. 19a (Additions)
+          Reference: MN Stat. § 290.01, subd. 19b (Subtractions)
+          Reference: MN Form M4 Schedule M1M (Additions and Subtractions Schedule)
+          Reference: MN Revenue Fact Sheet on Federal Conformity Updates
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no Minnesota state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51580: Calculate MN State Tax
+    ============================================================================
+
+    Calculates final Minnesota state corporate income tax.
+
+    Minnesota Tax Structure (2025):
+    - FLAT RATE: 9.5% (as of 2024 tax year)
+    - Previously had progressive brackets (9.8% max), simplified in 2024
+    - Single-sales factor apportionment
+
+    Process:
+    1. Federal taxable income apportioned to MN (done by table 7500)
+    2. Add MN-specific additions (done by table 51520)
+    3. Subtract MN-specific subtractions (done by table 51520)
+    4. Calculate MN state taxable income
+    5. Apply MN 9.5% flat tax rate
+    6. Subtract MN state credits
+    7. Calculate refund or amount owed
+
+    Reference: MN Stat. § 290.06, subd. 1 (Tax rate: 9.5%)
+    Reference: MN Form M4 (Line 16 - Tax calculation)
+  -->
+  <decision_table name="Calculate_MN_State_Tax" number="51580">
+    <description>
+      Calculate Minnesota state corporate income tax.
+      Applies MN 9.5% flat rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive Minnesota taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate MN tax using 9.5% flat rate -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Minnesota uses 9.5% flat rate (as of 2024)
+            // Simplified from previous progressive bracket structure
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract Minnesota state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          Minnesota state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to MN: × [MN Apportionment % using single-sales factor]
+          3. MN additions: + [Additions from Schedule M1M]
+          4. MN subtractions: - [Subtractions from Schedule M1M]
+          5. MN taxable income: = [Result]
+          6. MN tax rate: × 9.5% (flat rate as of 2024)
+          7. MN income tax: = [Tax before credits]
+          8. MN credits: - [Credits (R&D, jobs, etc.)]
+          9. MN tax liability: = [Final tax]
+
+          RATE CHANGE HISTORY:
+          - Prior to 2024: Progressive brackets up to 9.8%
+          - 2024 and forward: Flat 9.5% rate (simplified structure)
+
+          Reference: MN Stat. § 290.06, subd. 1 (9.5% flat rate effective for tax years beginning after December 31, 2023)
+          Reference: MN Form M4 Instructions (Line 16 - Tax Calculation)
+          Reference: MN Department of Revenue Notice (2024 Tax Rate Simplification)
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Minnesota nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Nexus but no taxable income (loss year or full deductions) -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Minnesota taxable income - no tax liability.
+
+          Corporation has nexus but no positive taxable income after apportionment and adjustments.
+          This may be due to:
+          - Operating loss for the year
+          - Subtractions exceed apportioned income
+          - Small business income deduction reduces income to zero
+
+          Minnesota NOL rules apply for carryforward (80% limitation similar to federal).
+          Loss can be carried forward indefinitely to offset future MN income.
+
+          Reference: MN Stat. § 290.095 (Net Operating Loss)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

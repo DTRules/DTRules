@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables name="CorporateTax_WI_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 51600: Determine WI Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Wisconsin state tax return.
+
+    Wisconsin nexus requirements:
+    - Physical presence: Office, employees, property in Wisconsin
+    - Economic nexus (post-Wayfair): $100,000 gross receipts OR 200 transactions
+  -->
+  <decision_table name="Determine_WI_Filing_Requirement" number="51600">
+    <description>
+      Determine if corporation must file Wisconsin state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'WI'</expression>
+        <comment>Has physical presence in Wisconsin (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'WI'</expression>
+        <comment>Meets Wisconsin economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Wisconsin filing required due to physical presence (office, employees, or property in state).
+
+          Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)
+          Reference: WI Stat. § 71.22 (Corporations, general provisions)
+          Reference: WI Department of Revenue Publication 112
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Wisconsin filing required due to economic nexus (post-Wayfair).
+          Threshold: $100,000 gross receipts OR 200 transactions.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: Wisconsin Tax Bulletin 203 (July 2018) - Economic Nexus Guidance
+          Reference: WI Stat. § 71.22(1r) (Definitions - doing business)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Wisconsin nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51620: Calculate WI State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates Wisconsin additions and subtractions to federal taxable income.
+
+    Wisconsin common adjustments:
+    - Additions: Federal interest, IRC 199A addback, bonus depreciation addback
+    - Subtractions: Municipal bond interest from other states, state NOL
+  -->
+  <decision_table name="Calculate_WI_Income_Adjustments" number="51620">
+    <description>
+      Calculate Wisconsin state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate Wisconsin state additions
+            double additions = 0.0;
+
+            // Wisconsin additions typically include:
+            // - U.S. government obligations interest
+            // - IRC Section 199A deduction addback
+            // - Bonus depreciation addback (WI decoupled)
+            // - State NOL addback if deducted federally
+
+            apportionment.state_additions = additions;
+
+            // Calculate Wisconsin state subtractions
+            double subtractions = 0.0;
+
+            // Wisconsin subtractions typically include:
+            // - Municipal bond interest from other states (if taxed federally)
+            // - Wisconsin NOL deduction
+            // - Capital gains deduction (certain qualified assets)
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          Wisconsin state-specific income adjustments to federal taxable income.
+
+          Common Wisconsin additions:
+          - Interest on U.S. government obligations (tax-exempt federally but taxable to Wisconsin)
+          - IRC Section 199A qualified business income deduction addback
+          - Federal bonus depreciation addback (Wisconsin partial conformity)
+          - State NOL if deducted on federal return
+
+          Common Wisconsin subtractions:
+          - Municipal bond interest from other states
+          - Wisconsin net operating loss deduction
+          - Capital gains from qualified Wisconsin small business stock
+
+          Reference: Wisconsin Form 4 Schedule RT (Apportionment and Allocation)
+          Reference: Wisconsin Form 4I Instructions (Income and Franchise Tax)
+          Reference: WI Stat. § 71.26 (Surtax on tax-option corporations)
+          Reference: WI Stat. § 71.05 (Income - additions and subtractions)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51680: Calculate WI State Tax
+    ============================================================================
+
+    Calculates final Wisconsin state corporate income tax.
+
+    Wisconsin uses a flat 7.9% tax rate on corporate income.
+    Process:
+    1. Federal taxable income apportioned to Wisconsin (table 7500)
+    2. Add Wisconsin-specific additions (table 51620)
+    3. Subtract Wisconsin-specific subtractions (table 51620)
+    4. Calculate Wisconsin state taxable income
+    5. Apply 7.9% tax rate
+    6. Subtract Wisconsin state credits
+    7. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_WI_State_Tax" number="51680">
+    <description>
+      Calculate Wisconsin state corporate income tax.
+      Applies Wisconsin 7.9% flat rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Wisconsin uses 7.9% flat rate
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract Wisconsin state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          Wisconsin state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to Wisconsin: × [Apportionment percentage]
+          3. State additions: + [Wisconsin additions]
+          4. State subtractions: - [Wisconsin subtractions]
+          5. Wisconsin taxable income: = [Result]
+          6. Wisconsin tax rate: × 7.9%
+          7. Wisconsin income tax: = [Tax before credits]
+          8. Wisconsin credits: - [Credits]
+          9. Wisconsin tax liability: = [Final tax]
+
+          Wisconsin uses a flat 7.9% corporate income tax rate.
+
+          Common Wisconsin credits include:
+          - Business development credit
+          - Jobs tax credit
+          - Research expense credit
+          - Manufacturing and agriculture credit
+          - Historic rehabilitation credit
+
+          Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)
+          Reference: WI Stat. § 71.27 (Corporation tax rate - 7.9%)
+          Reference: Wisconsin Department of Revenue Publication 112
+          Reference: Wisconsin Schedule C (Corporation Credits)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Wisconsin nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Wisconsin taxable income - no tax liability.
+          Wisconsin NOL rules may apply (not implemented).
+
+          Reference: WI Stat. § 71.26(4) (Net operating loss)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_dictionary name="CorporateTax_WI_Constants">
+
+  <!--
+    Wisconsin Corporate Tax Entity Data Dictionary
+
+    WI implements a flat 7.9% corporate income tax rate.
+    Uses single-sales apportionment formula.
+    Economic nexus: $100,000 gross receipts threshold.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='WI'
+           comment='Wisconsin state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Wisconsin economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Wisconsin economic nexus transaction count threshold - 200'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Wisconsin uses single-sales apportionment formula'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.079'
+           comment='Wisconsin corporate income tax rate - 7.9% flat rate (WI Stat. § 71.27)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Wisconsin-specific additions to federal taxable income'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Wisconsin-specific subtractions from federal taxable income'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Wisconsin tax credits: business development, jobs, R&D, etc.'/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- No Wisconsin-specific result fields required for basic implementation -->
+  </entity>
+
+</entity_dictionary>

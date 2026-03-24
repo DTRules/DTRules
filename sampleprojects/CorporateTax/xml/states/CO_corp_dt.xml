@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Colorado Corporate Tax Decision Tables
+
+  Table numbering: 51400-51499 (Colorado allocation)
+
+  Colorado has a straightforward corporate tax structure:
+  - Flat rate: 4.55%
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts
+
+  References:
+  - CO Rev. Stat. § 39-22-104 (Tax rate: 4.55%)
+  - CO Form DR 0112 (Corporation Income Tax Return)
+  - Colorado Department of Revenue Publication FYI Income 2 (Apportionment)
+-->
+<decision_tables name="CorporateTax_CO_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 51400: Determine CO Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Colorado state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in Colorado
+    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
+  -->
+  <decision_table name="Determine_CO_Filing_Requirement" number="51400">
+    <description>
+      Determine if corporation must file Colorado state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'CO'</expression>
+        <comment>Has physical presence in CO (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'CO'</expression>
+        <comment>Meets CO economic nexus threshold ($100K gross receipts)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Colorado filing required due to physical presence (office, employees, or property in state).
+
+          Reference: Colorado Department of Revenue FYI Income 2 (Apportionment and Allocation)
+          Reference: CO Rev. Stat. § 39-22-109 (Nexus requirements)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Colorado filing required due to economic nexus (post-Wayfair).
+          Threshold: $100,000 in gross receipts to Colorado customers.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: Colorado Department of Revenue Economic Nexus Guidance
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Colorado nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51420: Calculate CO State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates Colorado additions and subtractions to federal taxable income.
+
+    Common Colorado adjustments:
+    - Additions: Interest on U.S. government obligations, IRC 199A addback (if applicable)
+    - Subtractions: State income taxes paid, Colorado NOL deduction
+
+    Note: Colorado generally conforms to federal IRC, but with some differences.
+  -->
+  <decision_table name="Calculate_CO_Income_Adjustments" number="51420">
+    <description>
+      Calculate Colorado state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate Colorado state additions
+            double additions = 0.0;
+
+            // Colorado generally adds back:
+            // - Interest on U.S. government obligations (not taxable federally but taxable to CO)
+            // - Any state-specific addbacks (customize as needed)
+
+            apportionment.state_additions = additions;
+
+            // Calculate Colorado state subtractions
+            double subtractions = 0.0;
+
+            // Colorado generally subtracts:
+            // - State income taxes paid (not deductible for state purposes post-TCJA)
+            // - Colorado-specific deductions
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          Colorado state-specific income adjustments to federal taxable income.
+
+          Colorado generally conforms to the Internal Revenue Code with some modifications.
+
+          Additions may include:
+          - Interest on U.S. government obligations
+          - State-specific addbacks
+
+          Subtractions may include:
+          - State income taxes deducted on federal return
+          - Colorado NOL deduction (if different from federal)
+
+          Reference: CO Form DR 0112 Instructions (Schedule B - Modifications)
+          Reference: CO Rev. Stat. § 39-22-104 (Computation of Colorado taxable income)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51480: Calculate CO State Tax
+    ============================================================================
+
+    Calculates final Colorado state corporate income tax.
+
+    Process:
+    1. Federal taxable income apportioned to CO (done by table 7500)
+    2. Add Colorado-specific additions (done by table 51420)
+    3. Subtract Colorado-specific subtractions (done by table 51420)
+    4. Calculate Colorado state taxable income
+    5. Apply Colorado flat tax rate: 4.55%
+    6. Subtract Colorado state credits
+    7. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_CO_State_Tax" number="51480">
+    <description>
+      Calculate Colorado state corporate income tax.
+      Applies Colorado flat rate (4.55%) to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Flat rate calculation -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Colorado uses flat rate: 4.55%
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          Colorado state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to Colorado: × [Apportionment % - single-sales factor]
+          3. State additions: + [Additions from Schedule B]
+          4. State subtractions: - [Subtractions from Schedule B]
+          5. Colorado taxable income: = [Result]
+          6. Colorado tax rate: × 4.55%
+          7. Colorado income tax: = [Tax before credits]
+          8. Colorado credits: - [Credits]
+          9. Colorado tax liability: = [Final tax]
+
+          Reference: CO Form DR 0112 Instructions
+          Reference: CO Rev. Stat. § 39-22-104 (Tax rate: 4.55%)
+          Reference: Colorado Department of Revenue Publication FYI Income 2 (Apportionment)
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus or no income -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Colorado nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Colorado taxable income - no tax liability.
+          Colorado NOL rules may apply (not implemented in basic version).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>
