@@ -18,6 +18,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Nebraska state income tax calculation. Implements progressive tax structure with 4 brackets per Nebraska Department of Revenue (2025).</COMMENTS>
 <TABLE_NUMBER>42700</TABLE_NUMBER>
+<FILE_PATH>states/NE/42700_Calculate_NE_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

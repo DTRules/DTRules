@@ -24,6 +24,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Wisconsin state income tax calculation. Implements progressive tax structure per WI tax code (2025).</COMMENTS>
 <TABLE_NUMBER>44900</TABLE_NUMBER>
+<FILE_PATH>states/WI/44900_Calculate_WI_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

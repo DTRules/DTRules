@@ -19,6 +19,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Washington DC income tax calculation. Implements progressive tax structure with 7 brackets per DC Office of Tax and Revenue (2025).</COMMENTS>
 <TABLE_NUMBER>40750</TABLE_NUMBER>
+<FILE_PATH>states/DC/40750_Calculate_DC_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

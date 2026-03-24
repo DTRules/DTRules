@@ -16,6 +16,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Utah state income tax calculation. Implements flat 4.5% tax rate with Taxpayer Tax Credit per Utah tax code (2025).</COMMENTS>
 <TABLE_NUMBER>42300</TABLE_NUMBER>
+<FILE_PATH>states/UT/42300_Calculate_UT_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

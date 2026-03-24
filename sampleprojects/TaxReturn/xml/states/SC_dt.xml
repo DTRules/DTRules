@@ -25,6 +25,7 @@
 <Type>FIRST</Type>
 <COMMENTS>South Carolina state income tax calculation. Implements progressive tax structure per SC tax code (2025).</COMMENTS>
 <TABLE_NUMBER>44000</TABLE_NUMBER>
+<FILE_PATH>states/SC/44000_Calculate_SC_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

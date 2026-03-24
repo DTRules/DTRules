@@ -26,6 +26,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Minnesota state income tax calculation. Implements progressive tax structure per MN tax code (2025).</COMMENTS>
 <TABLE_NUMBER>42300</TABLE_NUMBER>
+<FILE_PATH>states/MN/42300_Calculate_MN_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

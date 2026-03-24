@@ -19,6 +19,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Rhode Island state income tax calculation. Implements progressive tax structure with 3 brackets per RI Division of Taxation (2025).</COMMENTS>
 <TABLE_NUMBER>43900</TABLE_NUMBER>
+<FILE_PATH>states/RI/43900_Calculate_RI_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

@@ -16,6 +16,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Kentucky state income tax calculation. Implements flat 4% tax structure with $3,270 standard deduction per KY tax code (2025).</COMMENTS>
 <TABLE_NUMBER>41800</TABLE_NUMBER>
+<FILE_PATH>states/KY/41800_Calculate_KY_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

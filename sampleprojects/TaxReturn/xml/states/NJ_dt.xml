@@ -23,6 +23,7 @@
 <Type>FIRST</Type>
 <COMMENTS>New Jersey state income tax calculation. Implements progressive tax structure per NJ tax code (2025).</COMMENTS>
 <TABLE_NUMBER>43000</TABLE_NUMBER>
+<FILE_PATH>states/NJ/43000_Calculate_NJ_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

@@ -21,6 +21,7 @@
 <Type>FIRST</Type>
 <COMMENTS>North Dakota state income tax calculation. Implements progressive tax structure per ND tax code (2025).</COMMENTS>
 <TABLE_NUMBER>43200</TABLE_NUMBER>
+<FILE_PATH>states/ND/43200_Calculate_ND_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

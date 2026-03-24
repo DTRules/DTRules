@@ -25,6 +25,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Arkansas state income tax calculation. Implements progressive tax structure per AR tax code (2025). Top rate reduced from 4.4% to 3.9% effective 1/1/2025.</COMMENTS>
 <TABLE_NUMBER>40400</TABLE_NUMBER>
+<FILE_PATH>states/AR/40400_Calculate_AR_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

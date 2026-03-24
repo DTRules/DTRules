@@ -18,6 +18,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Vermont state income tax calculation. Implements progressive tax structure with 5 brackets per Vermont Department of Taxes (2025).</COMMENTS>
 <TABLE_NUMBER>44800</TABLE_NUMBER>
+<FILE_PATH>states/VT/44800_Calculate_VT_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

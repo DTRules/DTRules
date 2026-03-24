@@ -24,6 +24,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Nevada state income tax calculation. Nevada has no state income tax, so this table sets liability to $0.</COMMENTS>
 <TABLE_NUMBER>42800</TABLE_NUMBER>
+<FILE_PATH>states/NV/42800_Calculate_NV_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

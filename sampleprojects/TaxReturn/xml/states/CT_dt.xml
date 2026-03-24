@@ -18,6 +18,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Connecticut state income tax calculation. Implements progressive tax structure with 7 brackets per CT Department of Revenue Services (2025).</COMMENTS>
 <TABLE_NUMBER>40700</TABLE_NUMBER>
+<FILE_PATH>states/CT/40700_Calculate_CT_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>
