@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_dictionary name="CorporateTax_VA_Constants">
+
+  <!--
+    Virginia Corporate Income Tax - Entity Data Dictionary
+
+    Virginia Code § 58.1-400: Flat rate 6% corporate income tax
+    Apportionment: Single-sales factor (100% sales apportionment)
+    Economic Nexus: $100,000 gross receipts threshold
+    Form: VA Form 500 (Corporation Income Tax Return)
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='VA'
+           comment='Virginia state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='VA economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='VA economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='VA uses 100% single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.060'
+           comment='VA corporate income tax rate: 6% flat rate (VA Code § 58.1-400)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='VA-specific additions to federal taxable income'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='VA-specific subtractions from federal taxable income'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='VA tax credits: R&D, jobs, historic rehabilitation, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: No VA-specific extensions needed
+
+    Virginia has a straightforward flat rate system with no special
+    surcharges, alternative minimum tax, or unique calculation requirements.
+  -->
+  <entity name="result">
+    <!-- No state-specific fields required for VA -->
+  </entity>
+
+</entity_dictionary>

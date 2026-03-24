@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Michigan (MI) Corporate Tax Decision Tables
+
+  Michigan Corporate Income Tax:
+  - Flat rate: 6% (MCL 206.623)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 gross receipts
+  - Form: MI-1120 (Michigan Corporate Income Tax Return)
+
+  Table Number Range: 51300-51399
+
+  Tables:
+  - 51300: Determine_MI_Filing_Requirement
+  - 51320: Calculate_MI_Income_Adjustments
+  - 51380: Calculate_MI_State_Tax
+
+  Reference: MCL 206.623 (Corporate Income Tax rate: 6%)
+  Reference: MI Form 4567 (Corporation Income Tax Return)
+-->
+<decision_tables name="CorporateTax_MI_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 51300: Determine MI Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Michigan state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in Michigan
+    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
+  -->
+  <decision_table name="Determine_MI_Filing_Requirement" number="51300">
+    <description>
+      Determine if corporation must file Michigan state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'MI'</expression>
+        <comment>Has physical presence in Michigan (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'MI'</expression>
+        <comment>Meets Michigan economic nexus threshold ($100,000)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Michigan filing required due to physical presence (office, employees, or property in state).
+
+          Reference: MCL 206.621 (Nexus requirements)
+          Reference: MI Form 4567 Instructions
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Michigan filing required due to economic nexus (post-Wayfair).
+          Threshold: $100,000 gross receipts or 200 transactions.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: Michigan Department of Treasury Revenue Administrative Bulletin 2018-16
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Michigan nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51320: Calculate MI State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates Michigan additions and subtractions to federal taxable income.
+
+    Common Michigan additions:
+    - Interest on U.S. government obligations
+    - IRC Section 199A qualified business income deduction addback
+    - Bonus depreciation addback (Michigan partially decouples)
+
+    Common Michigan subtractions:
+    - Interest on Michigan municipal bonds
+    - State income taxes paid (not deductible for state purposes)
+  -->
+  <decision_table name="Calculate_MI_Income_Adjustments" number="51320">
+    <description>
+      Calculate Michigan state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate Michigan state additions
+            double additions = 0.0;
+
+            // Michigan requires addback of federal bond interest
+            // additions += revenue.federal_bond_interest;
+
+            // Michigan may require IRC 199A addback (check current law)
+            // additions += result.section_199a_deduction;
+
+            // Michigan partially decouples from federal bonus depreciation
+            // additions += result.bonus_depreciation_total;
+
+            apportionment.state_additions = additions;
+
+            // Calculate Michigan state subtractions
+            double subtractions = 0.0;
+
+            // Michigan municipal bond interest (if taxed federally)
+            // subtractions += revenue.mi_municipal_interest;
+
+            // Michigan allows NOL deduction
+            // subtractions += result.state_nol_deduction;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          Michigan state-specific income adjustments to federal taxable income.
+
+          Additions may include:
+          - Interest on U.S. government obligations
+          - IRC Section 199A deduction addback
+          - Bonus depreciation (partial decoupling)
+
+          Subtractions may include:
+          - Interest on Michigan municipal bonds
+          - Michigan-specific NOL deduction
+
+          Reference: MI Form 4567 Instructions
+          Reference: MCL 206.623 (Adjustments to federal taxable income)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 51380: Calculate MI State Tax
+    ============================================================================
+
+    Calculates final Michigan state corporate income tax.
+
+    Process:
+    1. Federal taxable income apportioned to Michigan (done by table 7500)
+    2. Add Michigan-specific additions (done by table 51320)
+    3. Subtract Michigan-specific subtractions (done by table 51320)
+    4. Calculate Michigan state taxable income
+    5. Apply Michigan tax rate: 6.0% flat rate
+    6. Subtract Michigan state credits
+    7. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_MI_State_Tax" number="51380">
+    <description>
+      Calculate Michigan state corporate income tax.
+      Applies 6% flat rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Flat rate calculation -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Michigan uses 6% flat rate
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          Michigan state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to Michigan: × [Apportionment %]
+          3. State additions: + [Additions]
+          4. State subtractions: - [Subtractions]
+          5. Michigan taxable income: = [Result]
+          6. Michigan tax rate: × 6.0%
+          7. Michigan income tax: = [Tax before credits]
+          8. Michigan credits: - [Credits]
+          9. Michigan tax liability: = [Final tax]
+
+          Reference: MI Form 4567 (Corporation Income Tax Return) Instructions
+          Reference: MCL 206.623 (Tax rate: 6%)
+          Reference: Michigan Department of Treasury Corporate Income Tax Guide
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Michigan nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: No taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Michigan taxable income - no tax liability.
+          Michigan NOL rules may apply (not implemented).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

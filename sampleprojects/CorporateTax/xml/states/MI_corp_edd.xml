@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Michigan (MI) Corporate Tax Entity Data Dictionary
+
+  Michigan Corporate Income Tax:
+  - Flat rate: 6% (MCL 206.623)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 gross receipts threshold
+  - Form: MI-1120 (Michigan Corporate Income Tax Return)
+
+  Reference: MCL 206.623 (Corporate Income Tax rate)
+  Reference: MI Form 4567 (Corporation Income Tax Return)
+-->
+<entity_dictionary name="CorporateTax_MI_Constants">
+
+  <!--
+    Apportionment Entity: Michigan-Specific Configuration
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='MI'
+           comment='Michigan state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Michigan uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.060'
+           comment='Michigan corporate income tax rate: 6.0% (MCL 206.623)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Michigan-Specific Extensions
+
+    No special state-specific fields needed for Michigan's flat-rate system.
+  -->
+  <entity name="result">
+    <!-- Michigan uses standard apportionment - no special fields required -->
+  </entity>
+
+</entity_dictionary>
