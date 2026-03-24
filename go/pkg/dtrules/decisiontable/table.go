@@ -800,3 +800,48 @@ func (dt *RDecisionTable) Compare(o dtrules.Object) (int, error) {
 func (dt *RDecisionTable) RStringValue() *dtrules.RString {
 	return dtrules.NewRString(dt.name.StringValue())
 }
+
+// GetFilename returns the source filename
+func (dt *RDecisionTable) GetFilename() string {
+	return dt.filename
+}
+
+// GetContexts returns the context expressions
+func (dt *RDecisionTable) GetContexts() []string {
+	return dt.contexts
+}
+
+// GetContextsComment returns the context comments
+func (dt *RDecisionTable) GetContextsComment() []string {
+	return dt.contextsComment
+}
+
+// GetInitialActions returns the initial action expressions
+func (dt *RDecisionTable) GetInitialActions() []string {
+	return dt.initialActions
+}
+
+// GetInitialActionsComment returns the initial action comments
+func (dt *RDecisionTable) GetInitialActionsComment() []string {
+	return dt.initialActionsComment
+}
+
+// GetConditionsComment returns the condition comments
+func (dt *RDecisionTable) GetConditionsComment() []string {
+	return dt.conditionsComment
+}
+
+// GetActionsComment returns the action comments
+func (dt *RDecisionTable) GetActionsComment() []string {
+	return dt.actionsComment
+}
+
+// GetPolicyStatements returns the policy statements
+func (dt *RDecisionTable) GetPolicyStatements() []string {
+	return dt.policyStatements
+}
+
+// GetFields returns all metadata fields
+func (dt *RDecisionTable) GetFields() map[string]string {
+	return dt.fields
+}

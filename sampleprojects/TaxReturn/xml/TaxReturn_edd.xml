@@ -3,7 +3,7 @@
 	<!-- ================================================================== -->
 	<!-- JOB - Root processing entity containing tax year and filing info  -->
 	<!-- ================================================================== -->
-	<entity name='job' access='rw' comment='Root entity for tax return processing'>
+	<entity name='job' xls_file='Core.xls' access='rw' comment='Root entity for tax return processing'>
 		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Job ID'></field>
@@ -26,7 +26,27 @@
 		<field name='property_sales' type='array' subtype='property_sale' access='r' input='' default_value='' comment='Business property sales for Form 4797'></field>
 		<field name='foreign_incomes' type='array' subtype='foreign_income' access='r' input='' default_value='' comment='Foreign income for Form 1116'></field>
 		<field name='household_employees' type='array' subtype='household_employee' access='r' input='' default_value='' comment='Household employees for Schedule H'></field>
+		<field name='foreign_earned_incomes' type='array' subtype='foreign_earned_income' access='r' input='' default_value='' comment='Form 2555 Foreign Earned Income'></field>
+		<field name='installment_sales' type='array' subtype='installment_sale' access='r' input='' default_value='' comment='Form 6252 Installment Sales'></field>
+		<field name='like_kind_exchanges' type='array' subtype='like_kind_exchange' access='r' input='' default_value='' comment='Form 8824 Like-Kind Exchanges'></field>
+		<field name='early_distributions' type='array' subtype='early_distribution' access='r' input='' default_value='' comment='Form 5329 Early Distributions'></field>
+		<field name='child_unearned_incomes' type='array' subtype='child_unearned_income' access='r' input='' default_value='' comment='Form 8615 Kiddie Tax'></field>
+		<field name='elderly_disabled' type='array' subtype='elderly_disabled' access='r' input='' default_value='' comment='Schedule R Credit'></field>
+		<field name='estimated_payments' type='array' subtype='estimated_payment' access='r' input='' default_value='' comment='Form 2210 Estimated Payments'></field>
+		<field name='casualty_losses' type='array' subtype='casualty_loss' access='r' input='' default_value='' comment='Form 4684 Casualty Losses'></field>
+		<field name='clean_vehicles' type='array' subtype='clean_vehicle' access='r' input='' default_value='' comment='Form 8936 Clean Vehicles'></field>
+		<field name='adoptions' type='array' subtype='adoption' access='r' input='' default_value='' comment='Form 8839 Adoption Credits'></field>
+		<field name='household_employees' type='array' subtype='household_employee' access='r' input='' default_value='' comment='Schedule H Household Employees'></field>
+		<field name='nol_carryovers' type='array' subtype='nol_carryover' access='r' input='' default_value='' comment='Net Operating Loss Carryovers'></field>
+		<field name='noncash_contributions' type='array' subtype='noncash_contribution' access='r' input='' default_value='' comment='Form 8283 Noncash Charitable Contributions'></field>
+		<field name='mortgage_credit_certificates' type='array' subtype='mortgage_credit_certificate' access='r' input='' default_value='' comment='Form 8396 Mortgage Credit Certificates'></field>
+		<field name='prior_year_amts' type='array' subtype='prior_year_amt' access='r' input='' default_value='' comment='Form 8801 Prior Year AMT Credits'></field>
+		<field name='partnership_audits' type='array' subtype='partnership_audit' access='r' input='' default_value='' comment='Form 8978 Partnership Audit Adjustments'></field>
+		<field name='unreported_tips_records' type='array' subtype='unreported_tips' access='r' input='' default_value='' comment='Form 4137 Unreported Tip Income'></field>
+		<field name='lihtc_recaptures' type='array' subtype='lihtc_recapture' access='r' input='' default_value='' comment='Form 8611 LIHTC Recaptures'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
+		<field name='state_tax_results' type='array' subtype='state_tax_result' access='r' input='' default_value='' comment='State tax calculation results'></field>
+		<field name='state_periods' type='array' subtype='state_period' access='r' input='' default_value='' comment='Periods of residence/work in different states (for multi-state allocation)'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Healthcare / Premium Tax Credit -->
 		<field name='has_marketplace_coverage' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Had marketplace health insurance'></field>
@@ -46,12 +66,14 @@
 		<field name='purchased_dc_home_first_time' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Purchased DC home as first-time buyer in qualified period'></field>
 		<field name='dc_home_purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price of DC home (Form 8859)'></field>
 		<field name='dc_home_purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Purchase date of DC home (Form 8859)'></field>
+		<field name='expected_cdcc_credit' type='double' subtype='' access='r' input='main' default_value='' comment='Expected CDCC credit for validation'></field>
+		<field name='expected_education_credit' type='double' subtype='' access='r' input='main' default_value='' comment='Expected education credit for validation'></field>
 	</entity>
 
 	<!-- ================================================================== -->
 	<!-- TAXPAYER - Individual taxpayer information                        -->
 	<!-- ================================================================== -->
-	<entity name='taxpayer' access='rw' comment='Individual taxpayer'>
+	<entity name='taxpayer' xls_file='Core.xls' access='rw' comment='Individual taxpayer'>
 		<field name='taxpayer' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Taxpayer ID'></field>
@@ -64,7 +86,7 @@
 		<field name='w2_wages' type='double' subtype='' access='rw' input='main' default_value='0' comment='W-2 wage income'></field>
 		<field name='w2_withholding' type='double' subtype='' access='rw' input='main' default_value='0' comment='Federal tax withheld from W-2'></field>
 		<field name='se_gross_income' type='double' subtype='' access='rw' input='main' default_value='0' comment='Self-employment gross receipts'></field>
-		<field name='se_expenses' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Schedule C expenses (computed)'></field>
+		<field name='se_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Total Schedule C expenses'></field>
 		<field name='se_net_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Schedule C net profit (computed)'></field>
 		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (computed)'></field>
 		<field name='se_tax_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible portion of SE tax (computed)'></field>
@@ -103,7 +125,7 @@
 	<!-- ================================================================== -->
 	<!-- DEPENDENT - Children and other dependents                         -->
 	<!-- ================================================================== -->
-	<entity name='dependent' access='rw' comment='Dependent (child or qualifying relative)'>
+	<entity name='dependent' xls_file='Core.xls' access='rw' comment='Dependent (child or qualifying relative)'>
 		<field name='dependent' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Dependent ID'></field>
@@ -153,7 +175,7 @@
 	<!-- ================================================================== -->
 	<!-- INCOME - Individual income sources                                -->
 	<!-- ================================================================== -->
-	<entity name='income' access='rw' comment='Income source'>
+	<entity name='income' xls_file='Income.xls' access='rw' comment='Income source'>
 		<field name='income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Income ID'></field>
@@ -163,6 +185,8 @@
 		<field name='gross_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross income amount'></field>
 		<field name='tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Tax withheld at source'></field>
 		<field name='is_earned' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Earned income (wages, SE) vs unearned (interest, dividends)'></field>
+		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='State where income was earned (for multi-state allocation)'></field>
+		<field name='state_period_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Reference to state_period for date-based allocation'></field>
 		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form reference'></field>
 		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
 		<!-- Capital Gains fields -->
@@ -173,7 +197,7 @@
 	<!-- ================================================================== -->
 	<!-- PROPERTY - Real estate (primary residence, rental)                -->
 	<!-- ================================================================== -->
-	<entity name='property' access='rw' comment='Real estate property'>
+	<entity name='property' xls_file='Property.xls' access='rw' comment='Real estate property'>
 		<field name='property' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Property ID'></field>
@@ -207,7 +231,7 @@
 	<!-- ================================================================== -->
 	<!-- VEHICLE - Business vehicles (Schedule C)                          -->
 	<!-- ================================================================== -->
-	<entity name='vehicle' access='rw' comment='Business vehicle'>
+	<entity name='vehicle' xls_file='Property.xls' access='rw' comment='Business vehicle'>
 		<field name='vehicle' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Vehicle ID'></field>
@@ -228,7 +252,7 @@
 	<!-- ================================================================== -->
 	<!-- ENERGY_IMPROVEMENT - Residential energy improvements (Form 5695)  -->
 	<!-- ================================================================== -->
-	<entity name='energy_improvement' access='rw' comment='Residential energy improvement'>
+	<entity name='energy_improvement' xls_file='Credits.xls' access='rw' comment='Residential energy improvement'>
 		<field name='energy_improvement' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Improvement ID'></field>
@@ -243,7 +267,7 @@
 	<!-- ================================================================== -->
 	<!-- K1_INCOME - Schedule K-1 income (Form 1065, 1120-S, 1041)         -->
 	<!-- ================================================================== -->
-	<entity name='k1_income' access='rw' comment='Schedule K-1 income from partnerships, S-corps, trusts'>
+	<entity name='k1_income' xls_file='Income.xls' access='rw' comment='Schedule K-1 income from partnerships, S-corps, trusts'>
 		<field name='k1_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='K-1 ID'></field>
@@ -285,7 +309,7 @@
 	<!-- ================================================================== -->
 	<!-- IRA_ACCOUNT - IRA accounts for Form 8606                          -->
 	<!-- ================================================================== -->
-	<entity name='ira_account' access='rw' comment='IRA account for basis tracking and conversions'>
+	<entity name='ira_account' xls_file='Forms.xls' access='rw' comment='IRA account for basis tracking and conversions'>
 		<field name='ira_account' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Account ID'></field>
@@ -310,7 +334,7 @@
 	<!-- ================================================================== -->
 	<!-- FARM_INCOME - Schedule F farm income                              -->
 	<!-- ================================================================== -->
-	<entity name='farm_income' access='rw' comment='Schedule F farm income and expenses'>
+	<entity name='farm_income' xls_file='Income.xls' access='rw' comment='Schedule F farm income and expenses'>
 		<field name='farm_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Farm ID'></field>
@@ -361,7 +385,7 @@
 	<!-- ================================================================== -->
 	<!-- PROPERTY_SALE - Form 4797 business property sales                 -->
 	<!-- ================================================================== -->
-	<entity name='property_sale' access='rw' comment='Sale of business property (Form 4797)'>
+	<entity name='property_sale' xls_file='Property.xls' access='rw' comment='Sale of business property (Form 4797)'>
 		<field name='property_sale' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Sale ID'></field>
@@ -389,7 +413,7 @@
 	<!-- ================================================================== -->
 	<!-- FOREIGN_INCOME - Form 1116 foreign income                         -->
 	<!-- ================================================================== -->
-	<entity name='foreign_income' access='rw' comment='Foreign income for Form 1116'>
+	<entity name='foreign_income' xls_file='Income.xls' access='rw' comment='Foreign income for Form 1116'>
 		<field name='foreign_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Foreign income ID'></field>
@@ -418,9 +442,445 @@
 	</entity>
 
 	<!-- ================================================================== -->
+	<!-- FOREIGN_EARNED_INCOME - Form 2555 Foreign Earned Income Exclusion -->
+	<!-- ================================================================== -->
+	<entity name='foreign_earned_income' xls_file='Income.xls' access='rw' comment='Form 2555 Foreign Earned Income Exclusion'>
+		<field name='foreign_earned_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
+		<field name='taxpayer_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated taxpayer ID'></field>
+		<field name='country' type='string' subtype='' access='r' input='main' default_value='' comment='Foreign country of residence'></field>
+		<field name='tax_home' type='string' subtype='' access='r' input='main' default_value='' comment='Tax home location'></field>
+		<!-- Qualifying Tests -->
+		<field name='bona_fide_resident' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Bona fide residence test (full tax year)'></field>
+		<field name='physical_presence_days' type='integer' subtype='' access='r' input='main' default_value='0' comment='Days physically present in foreign country'></field>
+		<field name='qualifying_period_start' type='date' subtype='' access='r' input='main' default_value='' comment='Start of qualifying period'></field>
+		<field name='qualifying_period_end' type='date' subtype='' access='r' input='main' default_value='' comment='End of qualifying period'></field>
+		<!-- Income -->
+		<field name='foreign_wages' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign earned wages'></field>
+		<field name='foreign_se_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Foreign self-employment income'></field>
+		<field name='housing_provided' type='double' subtype='' access='r' input='main' default_value='0' comment='Employer-provided housing value'></field>
+		<field name='housing_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Qualified housing expenses paid'></field>
+		<!-- Computed -->
+		<field name='qualifies_exclusion' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for FEIE (computed)'></field>
+		<field name='exclusion_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign earned income exclusion (max $126,500 for 2024)'></field>
+		<field name='housing_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Housing exclusion/deduction amount'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- INSTALLMENT_SALE - Form 6252 Installment Sale Income              -->
+	<!-- ================================================================== -->
+	<entity name='installment_sale' xls_file='Property.xls' access='rw' comment='Form 6252 Installment Sale'>
+		<field name='installment_sale' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Sale ID'></field>
+		<field name='description' type='string' subtype='' access='r' input='main' default_value='' comment='Property description'></field>
+		<field name='date_sold' type='date' subtype='' access='r' input='main' default_value='' comment='Date of sale'></field>
+		<field name='is_related_party' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Sale to related party (IRC 453(e))'></field>
+		<!-- Original Sale Terms -->
+		<field name='selling_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Total selling price'></field>
+		<field name='adjusted_basis' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjusted basis in property'></field>
+		<field name='depreciation_recapture' type='double' subtype='' access='r' input='main' default_value='0' comment='Section 1245/1250 recapture'></field>
+		<field name='selling_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Selling expenses'></field>
+		<!-- Current Year -->
+		<field name='payments_received' type='double' subtype='' access='r' input='main' default_value='0' comment='Payments received this year'></field>
+		<field name='interest_received' type='double' subtype='' access='r' input='main' default_value='0' comment='Interest portion of payments'></field>
+		<field name='prior_payments' type='double' subtype='' access='r' input='main' default_value='0' comment='Payments received in prior years'></field>
+		<!-- Computed -->
+		<field name='gross_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Gross profit (selling price - basis - expenses)'></field>
+		<field name='contract_price' type='double' subtype='' access='rw' input='' default_value='0' comment='Contract price for GP ratio'></field>
+		<field name='gross_profit_ratio' type='double' subtype='' access='rw' input='' default_value='0' comment='Gross profit ratio (GP/Contract Price)'></field>
+		<field name='installment_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Gain recognized this year'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- LIKE_KIND_EXCHANGE - Form 8824 Section 1031 Exchange              -->
+	<!-- ================================================================== -->
+	<entity name='like_kind_exchange' xls_file='Property.xls' access='rw' comment='Form 8824 Like-Kind Exchange'>
+		<field name='like_kind_exchange' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Exchange ID'></field>
+		<!-- Relinquished Property -->
+		<field name='relinquished_description' type='string' subtype='' access='r' input='main' default_value='' comment='Description of property given up'></field>
+		<field name='relinquished_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date relinquished'></field>
+		<field name='relinquished_fmv' type='double' subtype='' access='r' input='main' default_value='0' comment='FMV of relinquished property'></field>
+		<field name='relinquished_basis' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjusted basis of relinquished property'></field>
+		<field name='mortgage_relieved' type='double' subtype='' access='r' input='main' default_value='0' comment='Mortgage debt relieved'></field>
+		<!-- Replacement Property -->
+		<field name='replacement_description' type='string' subtype='' access='r' input='main' default_value='' comment='Description of property received'></field>
+		<field name='replacement_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date replacement acquired'></field>
+		<field name='replacement_fmv' type='double' subtype='' access='r' input='main' default_value='0' comment='FMV of replacement property'></field>
+		<field name='mortgage_assumed' type='double' subtype='' access='r' input='main' default_value='0' comment='Mortgage debt assumed'></field>
+		<field name='cash_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Cash boot paid'></field>
+		<!-- Boot Received -->
+		<field name='cash_received' type='double' subtype='' access='r' input='main' default_value='0' comment='Cash boot received'></field>
+		<field name='other_property_fmv' type='double' subtype='' access='r' input='main' default_value='0' comment='FMV of non-like-kind property received'></field>
+		<!-- Computed -->
+		<field name='boot_received' type='double' subtype='' access='rw' input='' default_value='0' comment='Total boot received'></field>
+		<field name='realized_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Realized gain on exchange'></field>
+		<field name='recognized_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Recognized gain (lesser of boot or realized)'></field>
+		<field name='deferred_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Deferred gain'></field>
+		<field name='new_basis' type='double' subtype='' access='rw' input='' default_value='0' comment='Basis in replacement property'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- EARLY_DISTRIBUTION - Form 5329 Early Withdrawal Penalties         -->
+	<!-- ================================================================== -->
+	<entity name='early_distribution' xls_file='Forms.xls' access='rw' comment='Form 5329 Early Distribution from Retirement Account'>
+		<field name='early_distribution' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Distribution ID'></field>
+		<field name='taxpayer_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated taxpayer ID'></field>
+		<field name='account_type' type='string' subtype='' access='r' input='main' default_value='ira' comment='Account type: ira, 401k, 403b, 457, roth_ira'></field>
+		<field name='institution' type='string' subtype='' access='r' input='main' default_value='' comment='Financial institution'></field>
+		<field name='distribution_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross distribution (Form 1099-R Box 1)'></field>
+		<field name='taxable_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Taxable amount (Form 1099-R Box 2a)'></field>
+		<field name='distribution_code' type='string' subtype='' access='r' input='main' default_value='' comment='Distribution code (Form 1099-R Box 7)'></field>
+		<!-- Exception Codes -->
+		<field name='exception_code' type='string' subtype='' access='r' input='main' default_value='' comment='Exception code: 01-disability, 02-death, 03-medical, 04-sepp, 05-separation, 06-dividend, 07-levy, 08-military, 09-birth_adoption, 10-disaster, 11-domestic_abuse, 12-terminal'></field>
+		<field name='age_at_distribution' type='integer' subtype='' access='r' input='main' default_value='0' comment='Age at time of distribution'></field>
+		<!-- Computed -->
+		<field name='subject_to_penalty' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Subject to 10% penalty (computed)'></field>
+		<field name='penalty_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Early withdrawal penalty (10%)'></field>
+		<field name='exception_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Amount excepted from penalty'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- CHILD_UNEARNED_INCOME - Form 8615 Kiddie Tax                      -->
+	<!-- ================================================================== -->
+	<entity name='child_unearned_income' xls_file='Forms.xls' access='rw' comment='Form 8615 Kiddie Tax'>
+		<field name='child_unearned_income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
+		<field name='dependent_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated dependent ID'></field>
+		<field name='child_age' type='integer' subtype='' access='r' input='main' default_value='' comment='Child age at year end'></field>
+		<field name='is_student' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Full-time student (extends to age 24)'></field>
+		<!-- Child's Income -->
+		<field name='child_earned_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Child earned income'></field>
+		<field name='unearned_income_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Child unearned income (interest, dividends, CG)'></field>
+		<field name='child_itemized_deductions' type='double' subtype='' access='r' input='main' default_value='0' comment='Child itemized deductions allocable to unearned'></field>
+		<!-- Parent Info -->
+		<field name='parent_taxable_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Parent taxable income (for tax rate)'></field>
+		<field name='parent_filing_status' type='string' subtype='' access='r' input='main' default_value='MFJ' comment='Parent filing status'></field>
+		<!-- Computed -->
+		<field name='subject_to_kiddie_tax' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Subject to kiddie tax (computed)'></field>
+		<field name='net_unearned_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Net unearned income subject to kiddie tax'></field>
+		<field name='kiddie_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional tax from kiddie tax'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- ELDERLY_DISABLED - Schedule R Credit for Elderly/Disabled         -->
+	<!-- ================================================================== -->
+	<entity name='elderly_disabled' xls_file='Credits.xls' access='rw' comment='Schedule R Credit for Elderly or Disabled'>
+		<field name='elderly_disabled' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
+		<field name='taxpayer_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated taxpayer ID'></field>
+		<!-- Qualifying Status -->
+		<field name='age_65_or_older' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Age 65 or older at end of year'></field>
+		<field name='permanently_disabled' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Permanently and totally disabled'></field>
+		<field name='disability_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Taxable disability income (if under 65)'></field>
+		<!-- Nontaxable Income -->
+		<field name='ss_tier1_rr' type='double' subtype='' access='r' input='main' default_value='0' comment='Nontaxable SS and Tier 1 RR benefits'></field>
+		<field name='nontaxable_pension' type='double' subtype='' access='r' input='main' default_value='0' comment='Nontaxable pension/annuity/disability'></field>
+		<!-- Computed -->
+		<field name='qualifies' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for credit (computed)'></field>
+		<field name='initial_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Initial amount ($5k-$7.5k based on filing status)'></field>
+		<field name='nontaxable_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Reduction for nontaxable income'></field>
+		<field name='agi_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Reduction for excess AGI'></field>
+		<field name='credit_base' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit base after reductions'></field>
+		<field name='credit_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit amount (15% of base)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- ESTIMATED_PAYMENT - Form 2210 Estimated Tax Penalty               -->
+	<!-- ================================================================== -->
+	<entity name='estimated_payment' xls_file='Forms.xls' access='rw' comment='Estimated Tax Payment for Form 2210'>
+		<field name='estimated_payment' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Payment ID'></field>
+		<field name='quarter' type='integer' subtype='' access='r' input='main' default_value='' comment='Quarter: 1, 2, 3, or 4'></field>
+		<field name='due_date' type='date' subtype='' access='r' input='main' default_value='' comment='Due date for quarter'></field>
+		<field name='payment_date' type='date' subtype='' access='r' input='main' default_value='' comment='Actual payment date'></field>
+		<field name='payment_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Amount paid'></field>
+		<!-- Computed -->
+		<field name='required_payment' type='double' subtype='' access='rw' input='' default_value='0' comment='Required quarterly payment'></field>
+		<field name='underpayment' type='double' subtype='' access='rw' input='' default_value='0' comment='Underpayment amount'></field>
+		<field name='days_late' type='integer' subtype='' access='rw' input='' default_value='0' comment='Days payment was late'></field>
+		<field name='penalty_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Penalty for this quarter'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- CASUALTY_LOSS - Form 4684 Casualties and Thefts                   -->
+	<!-- ================================================================== -->
+	<entity name='casualty_loss' xls_file='Property.xls' access='rw' comment='Form 4684 Casualty or Theft Loss'>
+		<field name='casualty_loss' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Loss ID'></field>
+		<field name='property_description' type='string' subtype='' access='r' input='main' default_value='' comment='Description of property'></field>
+		<field name='property_type' type='string' subtype='' access='r' input='main' default_value='personal' comment='Type: personal, business, income_producing'></field>
+		<field name='loss_type' type='string' subtype='' access='r' input='main' default_value='casualty' comment='Type: casualty, theft'></field>
+		<field name='loss_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date of casualty/theft'></field>
+		<field name='disaster_designation' type='string' subtype='' access='r' input='main' default_value='' comment='Federal disaster declaration number (if applicable)'></field>
+		<!-- Amounts -->
+		<field name='cost_basis' type='double' subtype='' access='r' input='main' default_value='0' comment='Cost or adjusted basis'></field>
+		<field name='fmv_before' type='double' subtype='' access='r' input='main' default_value='0' comment='FMV before casualty'></field>
+		<field name='fmv_after' type='double' subtype='' access='r' input='main' default_value='0' comment='FMV after casualty'></field>
+		<field name='insurance_reimbursement' type='double' subtype='' access='r' input='main' default_value='0' comment='Insurance or other reimbursement'></field>
+		<!-- Computed -->
+		<field name='decrease_in_fmv' type='double' subtype='' access='rw' input='' default_value='0' comment='Decrease in FMV'></field>
+		<field name='loss_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Loss (smaller of basis or FMV decrease)'></field>
+		<field name='net_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Net loss after insurance'></field>
+		<field name='deductible_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible loss (after $100 floor for personal)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- CLEAN_VEHICLE - Form 8936 Clean Vehicle Credits                   -->
+	<!-- ================================================================== -->
+	<entity name='clean_vehicle' xls_file='Credits.xls' access='rw' comment='Form 8936 Clean Vehicle Credit'>
+		<field name='clean_vehicle' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Vehicle ID'></field>
+		<field name='vehicle_description' type='string' subtype='' access='r' input='main' default_value='' comment='Year, make, model'></field>
+		<field name='vin' type='string' subtype='' access='r' input='main' default_value='' comment='Vehicle Identification Number'></field>
+		<field name='purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date placed in service'></field>
+		<field name='purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price'></field>
+		<field name='vehicle_type' type='string' subtype='' access='r' input='main' default_value='new' comment='Type: new, used, commercial'></field>
+		<!-- Eligibility -->
+		<field name='battery_capacity' type='double' subtype='' access='r' input='main' default_value='0' comment='Battery capacity in kWh'></field>
+		<field name='final_assembly_us' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Final assembly in North America'></field>
+		<field name='critical_minerals_pct' type='double' subtype='' access='r' input='main' default_value='0' comment='Critical minerals domestic content %'></field>
+		<field name='battery_components_pct' type='double' subtype='' access='r' input='main' default_value='0' comment='Battery components domestic content %'></field>
+		<field name='msrp' type='double' subtype='' access='r' input='main' default_value='0' comment='MSRP (for price cap test)'></field>
+		<!-- Computed -->
+		<field name='qualifies' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for credit (computed)'></field>
+		<field name='critical_minerals_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Critical minerals credit ($3,750)'></field>
+		<field name='battery_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Battery components credit ($3,750)'></field>
+		<field name='total_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Total clean vehicle credit'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- ADOPTION - Form 8839 Adoption Credit                              -->
+	<!-- ================================================================== -->
+	<entity name='adoption' xls_file='Credits.xls' access='rw' comment='Form 8839 Qualified Adoption Expenses'>
+		<field name='adoption' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Adoption ID'></field>
+		<field name='child_name' type='string' subtype='' access='r' input='main' default_value='' comment='Name of adopted child'></field>
+		<field name='child_ssn' type='string' subtype='' access='r' input='main' default_value='' comment='Child SSN or ATIN'></field>
+		<field name='adoption_type' type='string' subtype='' access='r' input='main' default_value='domestic' comment='Type: domestic, foreign, special_needs'></field>
+		<field name='adoption_finalized' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Adoption finalized'></field>
+		<field name='finalization_year' type='integer' subtype='' access='r' input='main' default_value='0' comment='Year adoption finalized'></field>
+		<!-- Expenses -->
+		<field name='qualified_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Qualified adoption expenses'></field>
+		<field name='employer_assistance' type='double' subtype='' access='r' input='main' default_value='0' comment='Employer-provided adoption assistance'></field>
+		<field name='prior_year_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Expenses claimed in prior years'></field>
+		<!-- Computed -->
+		<field name='max_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Maximum credit per child ($16,810 for 2024)'></field>
+		<field name='credit_before_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit before income limitation'></field>
+		<field name='phaseout_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Reduction from MAGI phase-out'></field>
+		<field name='credit_allowed' type='double' subtype='' access='rw' input='' default_value='0' comment='Adoption credit allowed'></field>
+		<field name='carryforward' type='double' subtype='' access='rw' input='' default_value='0' comment='Unused credit carryforward'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- HOUSEHOLD_EMPLOYEE - Schedule H Household Employment Taxes        -->
+	<!-- ================================================================== -->
+	<entity name='household_employee' xls_file='Forms.xls' access='rw' comment='Schedule H Household Employment'>
+		<field name='household_employee' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Employee ID'></field>
+		<field name='name' type='string' subtype='' access='r' input='main' default_value='' comment='Employee name'></field>
+		<field name='ssn' type='string' subtype='' access='r' input='main' default_value='' comment='Employee SSN'></field>
+		<!-- Wages -->
+		<field name='cash_wages' type='double' subtype='' access='r' input='main' default_value='0' comment='Cash wages paid'></field>
+		<field name='federal_withholding' type='double' subtype='' access='r' input='main' default_value='0' comment='Federal income tax withheld'></field>
+		<field name='ss_wages' type='double' subtype='' access='r' input='main' default_value='0' comment='Social Security wages'></field>
+		<field name='medicare_wages' type='double' subtype='' access='r' input='main' default_value='0' comment='Medicare wages'></field>
+		<!-- FUTA -->
+		<field name='futa_wages' type='double' subtype='' access='r' input='main' default_value='0' comment='FUTA wages (first $7,000)'></field>
+		<field name='state_unemployment_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='State unemployment tax paid'></field>
+		<!-- Computed -->
+		<field name='ss_tax_employer' type='double' subtype='' access='rw' input='' default_value='0' comment='Employer SS tax (6.2%)'></field>
+		<field name='medicare_tax_employer' type='double' subtype='' access='rw' input='' default_value='0' comment='Employer Medicare tax (1.45%)'></field>
+		<field name='futa_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='FUTA tax (0.6% after credit)'></field>
+		<field name='total_household_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total household employment taxes'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- NOL_CARRYOVER - Net Operating Loss                                -->
+	<!-- ================================================================== -->
+	<entity name='nol_carryover' xls_file='Forms.xls' access='rw' comment='Net Operating Loss Carryover'>
+		<field name='nol_carryover' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='NOL ID'></field>
+		<field name='origin_year' type='integer' subtype='' access='r' input='main' default_value='' comment='Year NOL originated'></field>
+		<field name='original_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Original NOL amount'></field>
+		<field name='amount_used_prior' type='double' subtype='' access='r' input='main' default_value='0' comment='Amount used in prior years'></field>
+		<field name='amount_available' type='double' subtype='' access='r' input='main' default_value='0' comment='Amount available this year'></field>
+		<field name='is_farming_loss' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Farming loss (special rules)'></field>
+		<!-- Computed -->
+		<field name='deduction_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='80% of taxable income limit'></field>
+		<field name='amount_used' type='double' subtype='' access='rw' input='' default_value='0' comment='Amount used this year'></field>
+		<field name='remaining_carryover' type='double' subtype='' access='rw' input='' default_value='0' comment='Remaining carryover'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- NONCASH_CONTRIBUTION - Form 8283 Noncash Charitable Contributions -->
+	<!-- ================================================================== -->
+	<entity name='noncash_contribution' xls_file='Deductions.xls' access='rw' comment='Form 8283 Noncash Charitable Contribution'>
+		<field name='noncash_contribution' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Contribution ID'></field>
+		<!-- Property Information -->
+		<field name='description' type='string' subtype='' access='r' input='main' default_value='' comment='Description of donated property'></field>
+		<field name='property_type' type='string' subtype='' access='r' input='main' default_value='other' comment='Type: clothing, household, vehicle, securities, real_estate, art, collectibles, other'></field>
+		<field name='condition' type='string' subtype='' access='r' input='main' default_value='good' comment='Condition: excellent, good, fair, poor'></field>
+		<!-- Dates -->
+		<field name='date_acquired' type='date' subtype='' access='r' input='main' default_value='' comment='Date property was acquired'></field>
+		<field name='acquisition_method' type='string' subtype='' access='r' input='main' default_value='purchase' comment='How acquired: purchase, gift, inheritance, exchange'></field>
+		<field name='date_contributed' type='date' subtype='' access='r' input='main' default_value='' comment='Date of contribution'></field>
+		<!-- Values -->
+		<field name='cost_basis' type='double' subtype='' access='r' input='main' default_value='0' comment='Original cost basis'></field>
+		<field name='fair_market_value' type='double' subtype='' access='r' input='main' default_value='0' comment='Fair market value at time of donation'></field>
+		<field name='valuation_method' type='string' subtype='' access='r' input='main' default_value='comparable_sales' comment='Method: comparable_sales, appraisal, replacement_cost'></field>
+		<!-- Donee Information -->
+		<field name='donee_organization' type='string' subtype='' access='r' input='main' default_value='' comment='Name of charitable organization'></field>
+		<field name='donee_ein' type='string' subtype='' access='r' input='main' default_value='' comment='Organization EIN'></field>
+		<field name='donee_address' type='string' subtype='' access='r' input='main' default_value='' comment='Organization address'></field>
+		<!-- Section A vs B Classification -->
+		<field name='requires_appraisal' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Requires qualified appraisal (Section B - over $5,000)'></field>
+		<field name='appraiser_name' type='string' subtype='' access='r' input='main' default_value='' comment='Qualified appraiser name'></field>
+		<field name='appraisal_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date of appraisal'></field>
+		<!-- Special Rules -->
+		<field name='is_appreciated_property' type='boolean' subtype='' access='r' input='main' default_value='false' comment='FMV exceeds basis (capital gain property)'></field>
+		<field name='holding_period' type='string' subtype='' access='r' input='main' default_value='long_term' comment='Holding period: short_term, long_term'></field>
+		<field name='is_ordinary_income_property' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Would produce ordinary income if sold'></field>
+		<field name='elected_reduced_deduction' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Elected to reduce FMV by appreciation'></field>
+		<!-- Computed Values -->
+		<field name='deduction_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Allowable deduction amount (computed)'></field>
+		<field name='agi_limitation' type='double' subtype='' access='rw' input='' default_value='0' comment='AGI percentage limitation (30% or 50%)'></field>
+		<field name='carryover_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Amount carried over to future years'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- MORTGAGE_CREDIT_CERTIFICATE - Form 8396 Mortgage Interest Credit  -->
+	<!-- ================================================================== -->
+	<entity name='mortgage_credit_certificate' xls_file='Credits.xls' access='rw' comment='Form 8396 Mortgage Credit Certificate for first-time homebuyers'>
+		<field name='mortgage_credit_certificate' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='MCC ID'></field>
+		<field name='certificate_number' type='string' subtype='' access='r' input='main' default_value='' comment='MCC certificate number'></field>
+		<field name='issuing_authority' type='string' subtype='' access='r' input='main' default_value='' comment='State/local housing authority that issued MCC'></field>
+		<field name='issue_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date MCC was issued'></field>
+		<field name='credit_rate' type='double' subtype='' access='r' input='main' default_value='0.20' comment='MCC credit rate (typically 10-50%)'></field>
+		<field name='mortgage_interest_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Total mortgage interest paid during year'></field>
+		<field name='certified_indebtedness' type='double' subtype='' access='r' input='main' default_value='0' comment='Certified indebtedness amount on MCC'></field>
+		<field name='prior_year_carryforward' type='double' subtype='' access='r' input='main' default_value='0' comment='Carryforward from prior 3 years'></field>
+		<!-- Computed Values -->
+		<field name='tentative_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Tentative credit (interest x rate)'></field>
+		<field name='credit_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='Annual credit limit ($2,000 if rate > 20%)'></field>
+		<field name='current_year_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Current year credit allowed'></field>
+		<field name='carryforward_to_next' type='double' subtype='' access='rw' input='' default_value='0' comment='Unused credit carried to next year'></field>
+		<field name='mortgage_interest_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Reduced mortgage interest deduction (interest - credit)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- PRIOR_YEAR_AMT - Form 8801 Prior Year Minimum Tax Credit          -->
+	<!-- ================================================================== -->
+	<entity name='prior_year_amt' xls_file='Credits.xls' access='rw' comment='Form 8801 Prior Year Minimum Tax Credit carryforward'>
+		<field name='prior_year_amt' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='AMT credit ID'></field>
+		<field name='origin_year' type='integer' subtype='' access='r' input='main' default_value='' comment='Tax year AMT was paid'></field>
+		<field name='amt_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='AMT paid in origin year'></field>
+		<field name='exclusion_preferences' type='double' subtype='' access='r' input='main' default_value='0' comment='AMT from exclusion preferences (deferral items)'></field>
+		<field name='prior_credit_used' type='double' subtype='' access='r' input='main' default_value='0' comment='Credit already used in prior years'></field>
+		<field name='credit_available' type='double' subtype='' access='r' input='main' default_value='0' comment='Credit available for carryforward'></field>
+		<!-- Computed Values -->
+		<field name='net_regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Net regular tax liability'></field>
+		<field name='tentative_minimum_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Tentative minimum tax'></field>
+		<field name='credit_allowed' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit allowed this year'></field>
+		<field name='carryforward_remaining' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit remaining for future years'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- PARTNERSHIP_AUDIT - Form 8978 Partner's Additional Tax            -->
+	<!-- ================================================================== -->
+	<entity name='partnership_audit' xls_file='Forms.xls' access='rw' comment='Form 8978 Partners Additional Reporting Year Tax (BBA audits)'>
+		<field name='partnership_audit' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Audit ID'></field>
+		<field name='partnership_name' type='string' subtype='' access='r' input='main' default_value='' comment='Partnership name'></field>
+		<field name='partnership_ein' type='string' subtype='' access='r' input='main' default_value='' comment='Partnership EIN'></field>
+		<field name='reviewed_year' type='integer' subtype='' access='r' input='main' default_value='' comment='Tax year being reviewed'></field>
+		<field name='adjustment_year' type='integer' subtype='' access='r' input='main' default_value='' comment='Adjustment year (current year)'></field>
+		<!-- Adjustments from Form 8986 -->
+		<field name='ordinary_income_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to ordinary income'></field>
+		<field name='capital_gain_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to capital gains'></field>
+		<field name='section_1231_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to Section 1231 gains'></field>
+		<field name='dividend_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to dividends'></field>
+		<field name='interest_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to interest'></field>
+		<field name='rental_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to rental income'></field>
+		<field name='other_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Other adjustments'></field>
+		<field name='credit_adjustment' type='double' subtype='' access='r' input='main' default_value='0' comment='Adjustment to tax credits'></field>
+		<!-- Computed Values -->
+		<field name='total_income_adjustment' type='double' subtype='' access='rw' input='' default_value='0' comment='Total income adjustments'></field>
+		<field name='additional_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional tax due from adjustments'></field>
+		<field name='interest_on_adjustment' type='double' subtype='' access='rw' input='' default_value='0' comment='Interest on underpayment'></field>
+		<field name='total_amount_due' type='double' subtype='' access='rw' input='' default_value='0' comment='Total amount due including interest'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- UNREPORTED_TIPS - Form 4137 Unreported Tip Income                 -->
+	<!-- ================================================================== -->
+	<entity name='unreported_tips' xls_file='Income.xls' access='rw' comment='Form 4137 Social Security and Medicare Tax on Unreported Tip Income'>
+		<field name='unreported_tips' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
+		<field name='taxpayer_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Associated taxpayer ID'></field>
+		<field name='employer_name' type='string' subtype='' access='r' input='main' default_value='' comment='Employer name'></field>
+		<field name='employer_ein' type='string' subtype='' access='r' input='main' default_value='' comment='Employer EIN'></field>
+		<field name='total_tips_received' type='double' subtype='' access='r' input='main' default_value='0' comment='Total tips received (cash + charged)'></field>
+		<field name='tips_reported_to_employer' type='double' subtype='' access='r' input='main' default_value='0' comment='Tips already reported to employer'></field>
+		<field name='unreported_tips_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Unreported tips (total - reported)'></field>
+		<!-- W-2 Information -->
+		<field name='w2_wages' type='double' subtype='' access='r' input='main' default_value='0' comment='Wages from W-2 Box 1'></field>
+		<field name='w2_ss_tips' type='double' subtype='' access='r' input='main' default_value='0' comment='Social security tips from W-2 Box 7'></field>
+		<field name='w2_allocated_tips' type='double' subtype='' access='r' input='main' default_value='0' comment='Allocated tips from W-2 Box 8'></field>
+		<!-- Computed Values -->
+		<field name='ss_wages_and_tips' type='double' subtype='' access='rw' input='' default_value='0' comment='Total SS wages and tips subject to tax'></field>
+		<field name='ss_tax_on_tips' type='double' subtype='' access='rw' input='' default_value='0' comment='Social security tax on unreported tips (6.2%)'></field>
+		<field name='medicare_tax_on_tips' type='double' subtype='' access='rw' input='' default_value='0' comment='Medicare tax on unreported tips (1.45%)'></field>
+		<field name='total_fica_on_tips' type='double' subtype='' access='rw' input='' default_value='0' comment='Total FICA tax on unreported tips'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- LIHTC_RECAPTURE - Form 8611 Low-Income Housing Credit Recapture   -->
+	<!-- ================================================================== -->
+	<entity name='lihtc_recapture' xls_file='Credits.xls' access='rw' comment='Form 8611 Recapture of Low-Income Housing Credit'>
+		<field name='lihtc_recapture' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Record ID'></field>
+		<field name='building_name' type='string' subtype='' access='r' input='main' default_value='' comment='Building name or address'></field>
+		<field name='building_identification' type='string' subtype='' access='r' input='main' default_value='' comment='Building identification number (BIN)'></field>
+		<field name='date_placed_in_service' type='date' subtype='' access='r' input='main' default_value='' comment='Date building placed in service'></field>
+		<field name='recapture_event_date' type='date' subtype='' access='r' input='main' default_value='' comment='Date of recapture event'></field>
+		<field name='recapture_event_type' type='string' subtype='' access='r' input='main' default_value='' comment='Type: disposition, noncompliance, change_use'></field>
+		<!-- Prior Credits -->
+		<field name='accelerated_portion' type='double' subtype='' access='r' input='main' default_value='0' comment='Accelerated portion of credit previously claimed'></field>
+		<field name='total_credits_claimed' type='double' subtype='' access='r' input='main' default_value='0' comment='Total LIHTC credits claimed in prior years'></field>
+		<field name='percentage_decrease' type='double' subtype='' access='r' input='main' default_value='0' comment='Percentage decrease in qualified basis'></field>
+		<!-- Computed Values -->
+		<field name='recapture_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit recapture amount'></field>
+		<field name='interest_on_recapture' type='double' subtype='' access='rw' input='' default_value='0' comment='Interest on recaptured credit'></field>
+		<field name='total_recapture_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax including interest'></field>
+	</entity>
+
+	<!-- ================================================================== -->
 	<!-- DEDUCTION - Itemized deductions                                   -->
 	<!-- ================================================================== -->
-	<entity name='deduction' access='rw' comment='Itemized deduction'>
+	<entity name='deduction' xls_file='Deductions.xls' access='rw' comment='Itemized deduction'>
 		<field name='deduction' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Deduction ID'></field>
@@ -437,7 +897,7 @@
 	<!-- ================================================================== -->
 	<!-- CREDIT - Tax credits                                              -->
 	<!-- ================================================================== -->
-	<entity name='credit' access='rw' comment='Tax credit'>
+	<entity name='credit' xls_file='Credits.xls' access='rw' comment='Tax credit'>
 		<field name='credit' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='Credit ID'></field>
@@ -454,7 +914,7 @@
 	<!-- ================================================================== -->
 	<!-- CONSTANTS - Tax rates, limits, and thresholds for 2025            -->
 	<!-- ================================================================== -->
-	<entity name='constants' access='rw' comment='Tax constants and rates for 2025'>
+	<entity name='constants' xls_file='Core.xls' access='rw' comment='Tax constants and rates for 2025'>
 		<field name='constants' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 
@@ -485,7 +945,7 @@
 		<field name='odc_amount' type='double' subtype='' access='r' input='' default_value='500' comment='Other Dependent Credit amount (IRC 24(h)(4))'></field>
 
 		<!-- SALT Cap (TCJA) -->
-		<field name='salt_cap' type='double' subtype='' access='r' input='' default_value='10000' comment='SALT deduction cap (IRC 164(b)(6)(B), TCJA 11042)'></field>
+		<field name='salt_cap' type='double' subtype='' access='r' input='' default_value='40000' comment='SALT deduction cap $40k per OBBBA 2025 (was $10k under TCJA)'></field>
 
 		<!-- Mortgage Interest Limits -->
 		<field name='mortgage_limit_pre_tcja' type='double' subtype='' access='r' input='' default_value='1000000' comment='Pre-TCJA mortgage limit (before 12/15/2017)'></field>
@@ -538,7 +998,29 @@
 		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='626350' comment='35% bracket ceiling Single (2025)'></field>
 
 		<!-- States without income tax -->
-		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
+
+		<!-- Illinois State Tax Constants (2025) -->
+		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
+		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
+
+		<!-- New Hampshire State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='nh_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NH standard deduction Single (2025)'></field>
+		<field name='nh_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16000' comment='NH standard deduction MFJ (2025)'></field>
+		<field name='nh_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0300' comment='NH tax rate bracket 1 (3.0%)'></field>
+		<field name='nh_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0500' comment='NH tax rate bracket 2 (5.0%)'></field>
+		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
+		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
+		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
+
+		<!-- Montana State Tax Constants (2025) -->
+		<field name='mt_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='4500' comment='MT standard deduction Single (2025)'></field>
+		<field name='mt_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='11500' comment='MT standard deduction MFJ (2025)'></field>
+		<field name='mt_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0470' comment='MT tax rate bracket 1 (4.7%)'></field>
+		<field name='mt_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0590' comment='MT tax rate bracket 2 (5.9%)'></field>
+		<field name='mt_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='21100' comment='MT bracket 2 threshold Single/MFS (above this uses 5.9%)'></field>
+		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
+		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
 
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
@@ -699,12 +1181,69 @@
 		<field name='fpl_7_person' type='double' subtype='' access='r' input='' default_value='47340' comment='2025 FPL for 7 persons'></field>
 		<field name='fpl_8_person' type='double' subtype='' access='r' input='' default_value='52720' comment='2025 FPL for 8 persons'></field>
 		<field name='fpl_additional_person' type='double' subtype='' access='r' input='' default_value='5380' comment='Additional amount per person over 8'></field>
+
+		<!-- Form 2555 - Foreign Earned Income Exclusion (2024/2025) -->
+		<field name='feie_max_exclusion' type='double' subtype='' access='r' input='' default_value='126500' comment='Max foreign earned income exclusion (2024)'></field>
+		<field name='feie_housing_base' type='double' subtype='' access='r' input='' default_value='20216' comment='Housing base amount (16% of FEIE max)'></field>
+		<field name='feie_housing_max' type='double' subtype='' access='r' input='' default_value='37950' comment='Max housing exclusion (30% of FEIE max)'></field>
+		<field name='physical_presence_days_required' type='integer' subtype='' access='r' input='' default_value='330' comment='Days required for physical presence test'></field>
+
+		<!-- Form 5329 - Early Withdrawal Penalty -->
+		<field name='early_withdrawal_penalty_rate' type='double' subtype='' access='r' input='' default_value='0.10' comment='Early withdrawal penalty rate (10%)'></field>
+		<field name='early_withdrawal_age_limit' type='integer' subtype='' access='r' input='' default_value='59' comment='Age before which penalty applies (59.5)'></field>
+
+		<!-- Form 8615 - Kiddie Tax -->
+		<field name='kiddie_tax_threshold' type='double' subtype='' access='r' input='' default_value='2500' comment='Unearned income threshold for kiddie tax (2024)'></field>
+		<field name='kiddie_tax_age_limit' type='integer' subtype='' access='r' input='' default_value='19' comment='Age limit for kiddie tax (under 19, or 24 if student)'></field>
+		<field name='kiddie_tax_student_age' type='integer' subtype='' access='r' input='' default_value='24' comment='Age limit for full-time students'></field>
+
+		<!-- Schedule R - Credit for Elderly/Disabled -->
+		<field name='elderly_credit_single' type='double' subtype='' access='r' input='' default_value='5000' comment='Initial amount Single (Schedule R)'></field>
+		<field name='elderly_credit_mfj_both' type='double' subtype='' access='r' input='' default_value='7500' comment='Initial amount MFJ both qualify'></field>
+		<field name='elderly_credit_mfj_one' type='double' subtype='' access='r' input='' default_value='5000' comment='Initial amount MFJ one qualifies'></field>
+		<field name='elderly_credit_rate' type='double' subtype='' access='r' input='' default_value='0.15' comment='Credit rate (15%)'></field>
+		<field name='elderly_agi_limit_single' type='double' subtype='' access='r' input='' default_value='17500' comment='AGI limit Single (Schedule R)'></field>
+		<field name='elderly_agi_limit_mfj' type='double' subtype='' access='r' input='' default_value='25000' comment='AGI limit MFJ (Schedule R)'></field>
+
+		<!-- Form 2210 - Estimated Tax Penalty -->
+		<field name='estimated_tax_penalty_rate' type='double' subtype='' access='r' input='' default_value='0.08' comment='Underpayment interest rate (2024)'></field>
+		<field name='safe_harbor_percentage' type='double' subtype='' access='r' input='' default_value='0.90' comment='Required payment (90% of current year tax)'></field>
+		<field name='safe_harbor_prior_year' type='double' subtype='' access='r' input='' default_value='1.00' comment='Alternative: 100% of prior year tax'></field>
+		<field name='safe_harbor_high_income' type='double' subtype='' access='r' input='' default_value='1.10' comment='High income: 110% of prior year tax'></field>
+		<field name='safe_harbor_agi_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='AGI threshold for high income rule'></field>
+
+		<!-- Form 4684 - Casualty Loss -->
+		<field name='casualty_loss_floor' type='double' subtype='' access='r' input='' default_value='100' comment='$100 floor per casualty event'></field>
+		<field name='casualty_loss_agi_floor' type='double' subtype='' access='r' input='' default_value='0.10' comment='10% AGI floor for personal casualty'></field>
+
+		<!-- Form 8936 - Clean Vehicle Credit -->
+		<field name='clean_vehicle_credit_max' type='double' subtype='' access='r' input='' default_value='7500' comment='Max new clean vehicle credit'></field>
+		<field name='clean_vehicle_used_max' type='double' subtype='' access='r' input='' default_value='4000' comment='Max used clean vehicle credit'></field>
+		<field name='clean_vehicle_msrp_van' type='double' subtype='' access='r' input='' default_value='80000' comment='MSRP limit for vans/SUVs/pickups'></field>
+		<field name='clean_vehicle_msrp_other' type='double' subtype='' access='r' input='' default_value='55000' comment='MSRP limit for other vehicles'></field>
+		<field name='clean_vehicle_magi_single' type='double' subtype='' access='r' input='' default_value='150000' comment='MAGI limit Single'></field>
+		<field name='clean_vehicle_magi_mfj' type='double' subtype='' access='r' input='' default_value='300000' comment='MAGI limit MFJ'></field>
+		<field name='clean_vehicle_magi_hoh' type='double' subtype='' access='r' input='' default_value='225000' comment='MAGI limit HOH'></field>
+
+		<!-- Form 8839 - Adoption Credit -->
+		<field name='adoption_credit_max' type='double' subtype='' access='r' input='' default_value='16810' comment='Max adoption credit per child (2024)'></field>
+		<field name='adoption_phaseout_start' type='double' subtype='' access='r' input='' default_value='252150' comment='MAGI phase-out start (2024)'></field>
+		<field name='adoption_phaseout_end' type='double' subtype='' access='r' input='' default_value='292150' comment='MAGI phase-out end (2024)'></field>
+
+		<!-- Schedule H - Household Employment -->
+		<field name='household_ss_threshold' type='double' subtype='' access='r' input='' default_value='2700' comment='Cash wages threshold for SS/Medicare (2024)'></field>
+		<field name='household_futa_threshold' type='double' subtype='' access='r' input='' default_value='1000' comment='Cash wages threshold for FUTA'></field>
+		<field name='household_futa_wage_base' type='double' subtype='' access='r' input='' default_value='7000' comment='FUTA wage base'></field>
+		<field name='household_futa_rate' type='double' subtype='' access='r' input='' default_value='0.006' comment='FUTA rate after state credit (0.6%)'></field>
+
+		<!-- Net Operating Loss -->
+		<field name='nol_limitation_rate' type='double' subtype='' access='r' input='' default_value='0.80' comment='NOL limited to 80% of taxable income'></field>
 	</entity>
 
 	<!-- ================================================================== -->
 	<!-- RESULT - Computed tax return results                              -->
 	<!-- ================================================================== -->
-	<entity name='result' access='rw' comment='Tax calculation results'>
+	<entity name='result' xls_file='Core.xls' access='rw' comment='Tax calculation results'>
 		<field name='result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='id' type='integer' subtype='' access='rw' input='main' default_value='' comment='Result ID'></field>
@@ -722,11 +1261,14 @@
 
 		<!-- Deductions -->
 		<field name='total_itemized' type='double' subtype='' access='rw' input='' default_value='0' comment='Total itemized deductions'></field>
+		<field name='total_noncash_charitable' type='double' subtype='' access='rw' input='' default_value='0' comment='Total noncash charitable contributions (Form 8283)'></field>
 		<field name='salt_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='SALT deduction amount (for AMT add-back)'></field>
 		<field name='standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Standard deduction amount'></field>
 		<field name='deduction_used' type='string' subtype='' access='rw' input='' default_value='standard' comment='Which deduction used: standard or itemized'></field>
 		<field name='total_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Total deduction (Form 1040 Line 12)'></field>
 		<field name='qbi_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='QBI deduction (Form 1040 Line 13)'></field>
+		<field name='qbi_from_income' type='double' subtype='' access='rw' input='' default_value='0' comment='20% of qualified business income'></field>
+		<field name='qbi_taxable_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='20% of taxable income limit for QBI'></field>
 
 		<!-- OBBBA 2025 Deductions - Trump Tax Provisions -->
 		<field name='total_tip_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tip income across all taxpayers'></field>
@@ -832,6 +1374,11 @@
 		<!-- Form 8909 - Energy Efficient Appliance Credit -->
 		<field name='energy_appliance_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Energy Efficient Appliance Credit (Form 8909 - manufacturers only)'></field>
 		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
+		<field name='tax_before_nonrefundable_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Tax before non-refundable credits'></field>
+		<field name='other_nonrefundable_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Non-refundable credits excluding CTC'></field>
+		<field name='tax_for_ctc' type='double' subtype='' access='rw' input='' default_value='0' comment='Tax available for CTC'></field>
+		<field name='ctc_used' type='double' subtype='' access='rw' input='' default_value='0' comment='CTC used against tax (non-refundable)'></field>
+		<field name='total_nonrefundable_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total non-refundable credits applied'></field>
 
 		<!-- Schedule K-1 Income (Schedule E Part II) -->
 		<field name='total_k1_ordinary_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total K-1 ordinary business income'></field>
@@ -892,6 +1439,67 @@
 		<field name='schedule_h_medicare_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Medicare tax on household employees (Schedule H)'></field>
 		<field name='schedule_h_futa_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='FUTA tax on household employees (Schedule H)'></field>
 		<field name='schedule_h_total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total household employment tax (Schedule H)'></field>
+		<!-- Form 2555 - Foreign Earned Income Exclusion -->
+		<field name='total_foreign_earned_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total foreign earned income'></field>
+		<field name='foreign_earned_income_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign earned income exclusion (Form 2555)'></field>
+		<field name='foreign_housing_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign housing exclusion (Form 2555)'></field>
+
+		<!-- Form 6252 - Installment Sales -->
+		<field name='total_installment_gain' type='double' subtype='' access='rw' input='' default_value='0' comment='Total installment sale gain recognized'></field>
+		<field name='total_installment_interest' type='double' subtype='' access='rw' input='' default_value='0' comment='Total interest from installment sales'></field>
+
+		<!-- Form 8824 - Like-Kind Exchanges -->
+		<field name='total_like_kind_recognized' type='double' subtype='' access='rw' input='' default_value='0' comment='Total recognized gain from like-kind exchanges'></field>
+		<field name='total_like_kind_deferred' type='double' subtype='' access='rw' input='' default_value='0' comment='Total deferred gain from like-kind exchanges'></field>
+
+		<!-- Form 5329 - Early Withdrawal Penalties -->
+		<field name='total_early_withdrawal_penalty' type='double' subtype='' access='rw' input='' default_value='0' comment='Total early withdrawal penalty (Form 5329)'></field>
+
+		<!-- Form 8615 - Kiddie Tax -->
+		<field name='total_kiddie_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total kiddie tax (Form 8615)'></field>
+
+		<!-- Schedule R - Credit for Elderly/Disabled -->
+		<field name='elderly_disabled_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Credit for elderly or disabled (Schedule R)'></field>
+
+		<!-- Form 2210 - Estimated Tax Penalty -->
+		<field name='total_estimated_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total estimated tax payments made'></field>
+		<field name='estimated_tax_penalty' type='double' subtype='' access='rw' input='' default_value='0' comment='Underpayment penalty (Form 2210)'></field>
+		<field name='safe_harbor_met' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Safe harbor exception met'></field>
+
+		<!-- Form 4684 - Casualty Losses -->
+		<field name='total_casualty_loss' type='double' subtype='' access='rw' input='' default_value='0' comment='Total deductible casualty loss (Form 4684)'></field>
+		<field name='is_disaster_loss' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Loss from federally declared disaster'></field>
+
+		<!-- Form 8936 - Clean Vehicle Credit -->
+		<field name='total_clean_vehicle_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Total clean vehicle credit (Form 8936)'></field>
+
+		<!-- Form 8839 - Adoption Credit -->
+		<field name='total_adoption_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Total adoption credit (Form 8839)'></field>
+		<field name='adoption_credit_carryforward' type='double' subtype='' access='rw' input='' default_value='0' comment='Adoption credit carryforward to next year'></field>
+
+		<!-- Form 8396 - Mortgage Interest Credit -->
+		<field name='mortgage_interest_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Mortgage interest credit (Form 8396)'></field>
+		<field name='mortgage_credit_carryforward' type='double' subtype='' access='rw' input='' default_value='0' comment='MCC carryforward to next year'></field>
+
+		<!-- Form 8801 - Prior Year Minimum Tax Credit -->
+		<field name='prior_year_amt_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Prior year AMT credit (Form 8801)'></field>
+		<field name='amt_credit_carryforward' type='double' subtype='' access='rw' input='' default_value='0' comment='AMT credit carryforward'></field>
+
+		<!-- Form 8978 - Partnership Audit Additional Tax -->
+		<field name='partnership_audit_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Partnership audit additional tax (Form 8978)'></field>
+
+		<!-- Form 4137 - Unreported Tip Income Tax -->
+		<field name='unreported_tips_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='FICA tax on unreported tips (Form 4137)'></field>
+
+		<!-- Form 8611 - LIHTC Recapture -->
+		<field name='lihtc_recapture_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='LIHTC recapture tax (Form 8611)'></field>
+
+		<!-- Schedule H - Household Employment Taxes -->
+		<field name='total_household_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total household employment tax (Schedule H)'></field>
+
+		<!-- Net Operating Loss -->
+		<field name='nol_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL deduction used this year'></field>
+		<field name='nol_carryforward_remaining' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL carryforward to future years'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
@@ -901,12 +1509,69 @@
 		<!-- EITC -->
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
 
+		<!-- State Tax -->
+		<field name='il_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois AGI (federal AGI + adjustments)'></field>
+		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
+		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
+		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- New Hampshire State Tax Results -->
+		<field name='nh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire AGI (federal AGI + adjustments)'></field>
+		<field name='nh_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NH standard deduction amount'></field>
+		<field name='nh_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire taxable income'></field>
+		<field name='nh_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 1 tax (3%)'></field>
+		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
+		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
+		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- Montana State Tax Results -->
+		<field name='mt_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana AGI (federal AGI + adjustments)'></field>
+		<field name='mt_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MT standard deduction amount'></field>
+		<field name='mt_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana taxable income'></field>
+		<field name='mt_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 1 tax (4.7%)'></field>
+		<field name='mt_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 2 tax (5.9%)'></field>
+		<field name='mt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana state income tax'></field>
+
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
 
 		<!-- Audit Trail -->
 		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed calculation notes'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- STATE_TAX_RESULT - State tax calculation results                  -->
+	<!-- ================================================================== -->
+	<entity name='state_tax_result' xls_file='Core.xls' access='rw' comment='State tax calculation results'>
+		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='state_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='State adjusted gross income'></field>
+		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income after deductions'></field>
+		<field name='state_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax before credits'></field>
+		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total state tax credits'></field>
+		<field name='state_tax_liability' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax liability after credits'></field>
+		<field name='state_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax withheld'></field>
+		<field name='state_refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='State refund (positive) or amount owed (negative)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- STATE_PERIOD - Period of residence/work in a specific state       -->
+	<!-- ================================================================== -->
+	<entity name='state_period' xls_file='Core.xls' access='rw' comment='Period of residence or work in a specific state for multi-state allocation'>
+		<field name='state_period' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='State period ID'></field>
+		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='Two-letter state code (e.g., NY, FL, CA, TX)'></field>
+		<field name='start_date' type='date' subtype='' access='r' input='main' default_value='' comment='Start date of residence/work in this state'></field>
+		<field name='end_date' type='date' subtype='' access='r' input='main' default_value='' comment='End date of residence/work in this state'></field>
+		<field name='resident_status' type='string' subtype='' access='r' input='main' default_value='full_year' comment='Residency status: full_year, part_year, or nonresident'></field>
+		<field name='days_in_state' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of days in this state during this period (computed)'></field>
+		<field name='allocation_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='Percentage of income allocated to this state (computed)'></field>
+		<field name='allocated_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income allocated to this state (computed)'></field>
+		<field name='allocated_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='Withholding allocated to this state (computed)'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about this state period'></field>
 	</entity>
 
 </entity_data_dictionary>

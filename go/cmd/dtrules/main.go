@@ -22,21 +22,27 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/DTRules/DTRules/go/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 var (
-	eddFile    = flag.String("edd", "", "Path to EDD XML file")
-	dtFile     = flag.String("dt", "", "Path to Decision Tables XML file")
-	rulesDir   = flag.String("rules", "", "Directory containing EDD.xml and DecisionTables.xml")
-	entryPoint = flag.String("entry", "", "Decision table entry point to execute")
-	validate   = flag.Bool("validate", false, "Validate rules without executing")
-	listTables = flag.Bool("list", false, "List all decision tables")
-	compile    = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
-	verbose    = flag.Bool("v", false, "Verbose output")
-	trace      = flag.Bool("trace", false, "Enable trace output during execution")
-	debug      = flag.Bool("debug", false, "Enable debug output during execution")
+	eddFile      = flag.String("edd", "", "Path to EDD XML file")
+	dtFile       = flag.String("dt", "", "Path to Decision Tables XML file")
+	rulesDir     = flag.String("rules", "", "Directory containing EDD.xml and DecisionTables.xml")
+	entryPoint   = flag.String("entry", "", "Decision table entry point to execute")
+	validate     = flag.Bool("validate", false, "Validate rules without executing")
+	listTables   = flag.Bool("list", false, "List all decision tables")
+	compile      = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
+	exportXLS    = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix, deprecated)")
+	exportDT     = flag.String("export-dt", "", "Export decision tables to Excel file (.xlsx)")
+	exportEDD    = flag.String("export-edd", "", "Export EDD to Excel file (.xlsx)")
+	exportDTDir  = flag.String("export-dt-dir", "", "Export decision tables to directory (grouped by xls_file)")
+	exportEDDDir = flag.String("export-edd-dir", "", "Export EDD to directory (grouped by xls_file)")
+	verbose      = flag.Bool("v", false, "Verbose output")
+	trace        = flag.Bool("trace", false, "Enable trace output during execution")
+	debug        = flag.Bool("debug", false, "Enable debug output during execution")
 )
 
 func main() {
@@ -51,6 +57,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -entry Compute_Eligibility\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -entry Main -trace\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -edd ./EDD.xml -dt ./DecisionTables.xml -entry Main\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "  %s -edd ./EDD.xml -dt ./DecisionTables.xml -export ./output\n", os.Args[0])
 	}
 
 	flag.Parse()
@@ -84,6 +91,24 @@ func main() {
 	// Handle compile mode
 	if *compile != "" {
 		compileRules(rs, *compile)
+		return
+	}
+
+	// Handle export mode (legacy prefix-based)
+	if *exportXLS != "" {
+		exportToExcel(rs, *exportXLS)
+		return
+	}
+
+	// Handle separate export modes
+	if *exportDT != "" || *exportEDD != "" {
+		exportSeparate(rs, *exportDT, *exportEDD)
+		return
+	}
+
+	// Handle directory export modes (grouped by xls_file)
+	if *exportDTDir != "" || *exportEDDDir != "" {
+		exportToDirectories(rs, *exportDTDir, *exportEDDDir)
 		return
 	}
 
@@ -312,4 +337,86 @@ func writeVarint(f *os.File, v int) {
 	}
 	buf = append(buf, byte(v))
 	f.Write(buf)
+}
+
+func exportToExcel(rs *session.RuleSet, prefix string) {
+	exporter := excel.NewExporter(rs)
+
+	// Export decision tables
+	dtFile := prefix + "_dt.xlsx"
+	if *verbose {
+		fmt.Printf("Exporting decision tables to: %s\n", dtFile)
+	}
+	if err := exporter.ExportDecisionTables(dtFile); err != nil {
+		fmt.Fprintf(os.Stderr, "Error exporting decision tables: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Created %s with %d decision tables\n", dtFile, len(rs.GetDecisionTableNames()))
+
+	// Export EDD
+	eddFile := prefix + "_edd.xlsx"
+	if *verbose {
+		fmt.Printf("Exporting EDD to: %s\n", eddFile)
+	}
+	if err := exporter.ExportEDD(eddFile); err != nil {
+		fmt.Fprintf(os.Stderr, "Error exporting EDD: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Created %s with %d entities\n", eddFile, len(rs.GetEntityNames()))
+}
+
+func exportSeparate(rs *session.RuleSet, dtPath, eddPath string) {
+	exporter := excel.NewExporter(rs)
+
+	// Export decision tables if path provided
+	if dtPath != "" {
+		if *verbose {
+			fmt.Printf("Exporting decision tables to: %s\n", dtPath)
+		}
+		if err := exporter.ExportDecisionTables(dtPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error exporting decision tables: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Created %s with %d decision tables\n", dtPath, len(rs.GetDecisionTableNames()))
+	}
+
+	// Export EDD if path provided
+	if eddPath != "" {
+		if *verbose {
+			fmt.Printf("Exporting EDD to: %s\n", eddPath)
+		}
+		if err := exporter.ExportEDD(eddPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error exporting EDD: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Created %s with %d entities\n", eddPath, len(rs.GetEntityNames()))
+	}
+}
+
+func exportToDirectories(rs *session.RuleSet, dtDir, eddDir string) {
+	exporter := excel.NewExporter(rs)
+
+	// Export decision tables if directory provided
+	if dtDir != "" {
+		if *verbose {
+			fmt.Printf("Exporting decision tables to directory: %s\n", dtDir)
+		}
+		if err := exporter.ExportDecisionTablesToDir(dtDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error exporting decision tables: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Exported decision tables to %s (grouped by xls_file)\n", dtDir)
+	}
+
+	// Export EDD if directory provided
+	if eddDir != "" {
+		if *verbose {
+			fmt.Printf("Exporting EDD to directory: %s\n", eddDir)
+		}
+		if err := exporter.ExportEDDToDir(eddDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error exporting EDD: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Exported EDD to %s (grouped by xls_file)\n", eddDir)
+	}
 }
