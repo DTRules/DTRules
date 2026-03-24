@@ -161,6 +161,18 @@ Calculate_AMT
 </action_details>
 <action_details>
 <action_number>10</action_number>
+<action_comment>Calculate kiddie tax for dependents with unearned income (Form 8615)</action_comment>
+<action_description>Calculate_Kiddie_Tax</action_description>
+<action_postfix>
+Calculate_Kiddie_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
 <action_comment>Calculate credits (Form 1040 Lines 19-21)</action_comment>
 <action_description>Calculate_Credits</action_description>
 <action_postfix>
@@ -172,7 +184,7 @@ Calculate_Credits
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>11</action_number>
+<action_number>12</action_number>
 <action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
 <action_description>Calculate_Final_Balance</action_description>
 <action_postfix>
@@ -2098,10 +2110,19 @@ Calculate_Additional_Medicare_Tax
 </action_details>
 <action_details>
 <action_number>6</action_number>
+<action_comment>Calculate Schedule H (household employment taxes)</action_comment>
+<action_description>Calculate_Schedule_H</action_description>
+<action_postfix>
+Calculate_Schedule_H
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
 <action_comment>Calculate total tax before credits</action_comment>
 <action_description>set result.total_tax_before_credits = result.regular_tax + result.capital_gains_tax + result.se_tax + result.niit_tax + result.additional_medicare_tax</action_description>
 <action_postfix>
-result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax f+ result.additional_medicare_tax f+ /result.total_tax_before_credits xdef
+result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax f+ result.additional_medicare_tax f+ result.schedule_h_total_tax f+ /result.total_tax_before_credits xdef
 "  Total Tax Before Credits: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -2563,12 +2584,50 @@ Calculate_Foreign_Tax_Credit
 </action_details>
 <action_details>
 <action_number>10</action_number>
+<action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
+<action_description>Calculate_DC_Homebuyer_Credit</action_description>
+<action_postfix>
+/Calculate_DC_Homebuyer_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
+<action_comment>Calculate Mortgage Interest Credit (Form 8396)</action_comment>
+<action_description>Calculate_Mortgage_Interest_Credit</action_description>
+<action_postfix>
+Calculate_Mortgage_Interest_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>12</action_number>
+<action_comment>Calculate Energy Efficient Appliance Credit (Form 8909)</action_comment>
+<action_description>Calculate_Energy_Appliance_Credit</action_description>
+<action_postfix>
+Calculate_Energy_Appliance_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate General Business Credit (Form 3800)</action_comment>
+<action_description>Calculate_General_Business_Credit</action_description>
+<action_postfix>
+/Calculate_General_Business_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>14</action_number>
 <action_comment>Sum total credits</action_comment>
 <action_description>set result.total_credits = sum of all credit amounts</action_description>
 <action_postfix>
 result.total_ctc result.total_odc f+ result.education_credit f+
 result.cdcc_credit f+ result.savers_credit f+ result.energy_efficiency_credit f+ result.clean_energy_credit f+
-result.premium_tax_credit f+ result.foreign_tax_credit f+ /result.total_credits xdef
+result.premium_tax_credit f+ result.foreign_tax_credit f+
+result.dc_homebuyer_credit f+ result.mortgage_interest_credit f+ result.energy_appliance_credit f+
+result.general_business_credit_used f+ /result.total_credits xdef
 "  Total Child Tax Credit: $" result.total_ctc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total Other Dependent Credit: $" result.total_odc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total EITC: $" result.eitc cvs strconcat " (Schedule EIC)" strconcat job.audit_trail swap addto
@@ -2579,6 +2638,10 @@ result.premium_tax_credit f+ result.foreign_tax_credit f+ /result.total_credits 
 "  Clean Energy Credit: $" result.clean_energy_credit cvs strconcat " (Form 5695)" strconcat job.audit_trail swap addto
 "  Premium Tax Credit: $" result.premium_tax_credit cvs strconcat " (Form 8962)" strconcat job.audit_trail swap addto
 "  Foreign Tax Credit: $" result.foreign_tax_credit cvs strconcat " (Form 1116)" strconcat job.audit_trail swap addto
+"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat " (Form 8859)" strconcat job.audit_trail swap addto
+"  Mortgage Interest Credit: $" result.mortgage_interest_credit cvs strconcat " (Form 8396)" strconcat job.audit_trail swap addto
+"  Energy Appliance Credit: $" result.energy_appliance_credit cvs strconcat " (Form 8909)" strconcat job.audit_trail swap addto
+"  General Business Credit: $" result.general_business_credit_used cvs strconcat " (Form 3800)" strconcat job.audit_trail swap addto
 "  Total Credits: $" result.total_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -7638,6 +7701,42 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 </decision_table>
 
 <!-- ====================================================================== -->
+<!-- TABLE 8300: Calculate_DC_Homebuyer_Credit                             -->
+<!-- IRS Reference: Form 8859 - DC First-Time Homebuyer Credit             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_DC_Homebuyer_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates DC First-Time Homebuyer Credit. Credit is lesser of $5,000 or purchase price. Subject to phase-out at higher income levels. Must be first-time homebuyer in DC during qualified period per Form 8859.</COMMENTS>
+<TABLE_NUMBER>8300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize DC homebuyer credit</action_description>
+<action_postfix>
+0.0 /result.dc_homebuyer_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Purchased DC home as first-time buyer</condition_comment>
+<condition_description>job.purchased_dc_home_first_time equals true</condition_description>
+<condition_postfix>job.purchased_dc_home_first_time</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Purchase price is greater than zero</condition_comment>
+<condition_description>job.dc_home_purchase_price &gt; 0</condition_description>
+<condition_postfix>job.dc_home_purchase_price 0 &gt;</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
 <!-- TABLE 24000: Process_Foreign_Earned_Income - Form 2555                -->
 <!-- IRS Reference: Form 2555, IRC Section 911                             -->
 <!-- ====================================================================== -->
@@ -7679,6 +7778,12 @@ foreign_earned_income.bona_fide_resident foreign_earned_income.physical_presence
 <actions>
 <action_details>
 <action_number>1</action_number>
+<action_description>Calculate DC homebuyer credit (lesser of $5,000 or purchase price)</action_description>
+<action_postfix>
+"Calculating DC First-Time Homebuyer Credit (Form 8859)" job.audit_trail swap addto
+5000.0 job.dc_home_purchase_price fmin /result.dc_homebuyer_credit xdef
+"  Purchase price: $" job.dc_home_purchase_price cvs strconcat job.audit_trail swap addto
+"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat job.audit_trail swap addto
 <action_description>set result.feie_exclusion = the minimum of foreign_earned_income and feie_limit</action_description>
 <action_postfix>
 foreign_earned_income.foreign_wages foreign_earned_income.foreign_se_income f+ result.total_foreign_earned_income f+ /result.total_foreign_earned_income xdef
@@ -7693,6 +7798,9 @@ foreign_earned_income.housing_exclusion result.foreign_housing_exclusion f+ /res
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_description>No DC home purchase</action_description>
+<action_postfix>
+"DC Homebuyer Credit not applicable" job.audit_trail swap addto
 <action_description>set result.feie_exclusion = 0</action_description>
 <action_postfix>
 false /foreign_earned_income.qualifies_exclusion xdef
@@ -7704,6 +7812,16 @@ false /foreign_earned_income.qualifies_exclusion xdef
 </decision_table>
 
 <!-- ====================================================================== -->
+<!-- TABLE 8400: Calculate_Mortgage_Interest_Credit                        -->
+<!-- IRS Reference: Form 8396 - Mortgage Interest Credit                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Mortgage_Interest_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Mortgage Interest Credit for holders of Mortgage Credit Certificates (MCC). Credit = mortgage interest paid x MCC rate. Limited to $2,000. Reduces Schedule A mortgage interest deduction. Excess carries forward per Form 8396.</COMMENTS>
+<TABLE_NUMBER>8400</TABLE_NUMBER>
 <!-- TABLE 24100: Process_Installment_Sales - Form 6252                    -->
 <!-- IRS Reference: Form 6252, IRC Section 453                             -->
 <!-- ====================================================================== -->
@@ -7718,6 +7836,44 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <contexts>
 <context_details>
 <context_number>1</context_number>
+<context_comment>Process each property for MCC</context_comment>
+<context_description>for all properties</context_description>
+<context_postfix>
+{ /Calculate_Mortgage_Interest_Credit executetable } job.properties forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize mortgage interest credit</action_description>
+<action_postfix>
+0.0 /result.mortgage_interest_credit xdef
+0.0 /result.carryforward_mortgage_credit xdef
+0.0 /result.mortgage_interest_deduction_reduction xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property has MCC</condition_comment>
+<condition_description>property.has_mortgage_credit_certificate equals true</condition_description>
+<condition_postfix>property.has_mortgage_credit_certificate</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>MCC rate is valid</condition_comment>
+<condition_description>property.mcc_rate &gt; 0 and &lt;= 0.50</condition_description>
+<condition_postfix>property.mcc_rate 0 &gt; property.mcc_rate 0.50 &lt;= and</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has mortgage interest paid</condition_comment>
+<condition_description>Mortgage interest paid &gt; 0 (use mortgage_interest_paid if set, else mortgage_interest)</condition_description>
+<condition_postfix>
+property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if 0 &gt;
 <context_comment>Process each installment sale</context_comment>
 <context_description>for all installment sales</context_description>
 <context_postfix>
@@ -8536,6 +8692,21 @@ partnership_audit.rental_adjustment f+ partnership_audit.other_adjustment f+ 0 !
 <actions>
 <action_details>
 <action_number>1</action_number>
+<action_description>Calculate mortgage interest credit</action_description>
+<action_postfix>
+"Calculating Mortgage Interest Credit (Form 8396)" job.audit_trail swap addto
+property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if /mortgage_int_amt xdef
+mortgage_int_amt property.mcc_rate f* /tentative_credit xdef
+tentative_credit 2000.0 fmin /allowed_credit xdef
+allowed_credit result.mortgage_interest_credit f+ /result.mortgage_interest_credit xdef
+tentative_credit allowed_credit f- result.carryforward_mortgage_credit f+ /result.carryforward_mortgage_credit xdef
+allowed_credit result.mortgage_interest_deduction_reduction f+ /result.mortgage_interest_deduction_reduction xdef
+"  Property: " property.address strconcat job.audit_trail swap addto
+"  Mortgage interest paid: $" mortgage_int_amt cvs strconcat job.audit_trail swap addto
+"  MCC rate: " property.mcc_rate cvs strconcat job.audit_trail swap addto
+"  Tentative credit: $" tentative_credit cvs strconcat job.audit_trail swap addto
+"  Credit allowed: $" allowed_credit cvs strconcat " (limited to $2,000)" strconcat job.audit_trail swap addto
+tentative_credit allowed_credit f- 0 &gt; { "  Carryforward: $" tentative_credit allowed_credit f- cvs strconcat job.audit_trail swap addto } if
 <action_description>set result.additional_tax = adjustments * applicable_rate</action_description>
 <action_postfix>
 partnership_audit.ordinary_income_adjustment partnership_audit.capital_gain_adjustment f+
@@ -8552,6 +8723,20 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8350: Calculate_Energy_Appliance_Credit                         -->
+<!-- IRS Reference: Form 8909 - Energy Efficient Appliance Credit          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Energy_Appliance_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Energy Efficient Appliance Credit for MANUFACTURERS. Credit varies by appliance type: dishwasher ($25-$75), clothes_washer ($75-$175), refrigerator ($50-$200) per unit. Subject to annual caps. Not for individual homeowners per Form 8909.</COMMENTS>
+<TABLE_NUMBER>8350</TABLE_NUMBER>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -8569,6 +8754,18 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <contexts>
 <context_details>
 <context_number>1</context_number>
+<context_comment>Process each taxpayer for energy appliance credit</context_comment>
+<context_description>for all taxpayers</context_description>
+<context_postfix>
+{ /Calculate_Energy_Appliance_Credit executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize energy appliance credit</action_description>
+<action_postfix>
+0.0 /result.energy_appliance_credit xdef
 <context_comment>Process unreported tips</context_comment>
 <context_description>for all unreported tips records</context_description>
 <context_postfix>
@@ -8707,6 +8904,9 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
+<condition_comment>Produced energy efficient appliances</condition_comment>
+<condition_description>taxpayer.energy_efficient_appliances_produced &gt; 0</condition_description>
+<condition_postfix>taxpayer.energy_efficient_appliances_produced 0 &gt;</condition_postfix>
 <condition_comment>State period exists</condition_comment>
 <condition_description>state_period is not null</condition_description>
 <condition_postfix>
@@ -8817,6 +9017,26 @@ then
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Appliance type is dishwasher</condition_comment>
+<condition_description>taxpayer.appliance_type equals dishwasher</condition_description>
+<condition_postfix>taxpayer.appliance_type "dishwasher" streq</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Appliance type is clothes washer</condition_comment>
+<condition_description>taxpayer.appliance_type equals clothes_washer</condition_description>
+<condition_postfix>taxpayer.appliance_type "clothes_washer" streq</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Appliance type is refrigerator</condition_comment>
+<condition_description>taxpayer.appliance_type equals refrigerator</condition_description>
+<condition_postfix>taxpayer.appliance_type "refrigerator" streq</condition_postfix>
 <condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
@@ -9222,6 +9442,14 @@ job.filing_status head_of_household streq
 <actions>
 <action_details>
 <action_number>1</action_number>
+<action_description>Calculate credit for dishwashers ($50 per unit)</action_description>
+<action_postfix>
+"Calculating Energy Efficient Appliance Credit - Dishwasher (Form 8909)" job.audit_trail swap addto
+taxpayer.energy_efficient_appliances_produced 50.0 f* /credit_amt xdef
+credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
+"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
+"  Credit per unit: $50" job.audit_trail swap addto
+"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
 <action_comment>Calculate MT tax MFJ</action_comment>
 <action_description>Calculate MT tax with MFJ standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -9246,6 +9474,14 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_description>Calculate credit for clothes washers ($125 per unit)</action_description>
+<action_postfix>
+"Calculating Energy Efficient Appliance Credit - Clothes Washer (Form 8909)" job.audit_trail swap addto
+taxpayer.energy_efficient_appliances_produced 125.0 f* /credit_amt xdef
+credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
+"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
+"  Credit per unit: $125" job.audit_trail swap addto
+"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
 <action_comment>Calculate MT tax Single</action_comment>
 <action_description>Calculate MT tax with Single standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -9270,6 +9506,294 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </action_details>
 <action_details>
 <action_number>3</action_number>
+<action_description>Calculate credit for refrigerators ($100 per unit)</action_description>
+<action_postfix>
+"Calculating Energy Efficient Appliance Credit - Refrigerator (Form 8909)" job.audit_trail swap addto
+taxpayer.energy_efficient_appliances_produced 100.0 f* /credit_amt xdef
+credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
+"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
+"  Credit per unit: $100" job.audit_trail swap addto
+"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_description>No qualifying appliances</action_description>
+<action_postfix>
+"Energy Appliance Credit not applicable (Form 8909 - manufacturers only)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8600: Calculate_General_Business_Credit                         -->
+<!-- IRS Reference: Form 3800 - General Business Credit                    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_General_Business_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates General Business Credit per Form 3800. Aggregates component business credits (Forms 5884, 6765, 8586, 8826, 8881, 8941, 8994) and applies limitation based on regular tax liability. Credit limited to net income tax minus greater of: (a) tentative AMT or (b) 25% of regular tax over $25,000. Unused credit carries forward.</COMMENTS>
+<TABLE_NUMBER>8600</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize GBC calculation</action_description>
+<action_postfix>
+0.0 /result.general_business_credit_total xdef
+0.0 /result.general_business_credit_used xdef
+0.0 /result.general_business_credit_carryforward xdef
+"GENERAL BUSINESS CREDIT (Form 3800)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Any business credits present</condition_comment>
+<condition_description>Sum of business credits greater than 0</condition_description>
+<condition_postfix>
+result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+
+result.disabled_access_credit f+ result.small_employer_pension_credit f+
+result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate total GBC (Part I)</action_comment>
+<action_description>Sum all component business credits</action_description>
+<action_postfix>
+result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+
+result.disabled_access_credit f+ result.small_employer_pension_credit f+
+result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ /result.general_business_credit_total xdef
+"  Total component credits: $" result.general_business_credit_total cvs strconcat job.audit_trail swap addto
+result.work_opportunity_credit 0 &gt; { "    Work Opportunity Credit: $" result.work_opportunity_credit cvs strconcat " (Form 5884)" strconcat job.audit_trail swap addto } if
+result.research_credit 0 &gt; { "    Research Credit: $" result.research_credit cvs strconcat " (Form 6765)" strconcat job.audit_trail swap addto } if
+result.low_income_housing_credit 0 &gt; { "    Low-Income Housing Credit: $" result.low_income_housing_credit cvs strconcat " (Form 8586)" strconcat job.audit_trail swap addto } if
+result.disabled_access_credit 0 &gt; { "    Disabled Access Credit: $" result.disabled_access_credit cvs strconcat " (Form 8826)" strconcat job.audit_trail swap addto } if
+result.small_employer_pension_credit 0 &gt; { "    Small Employer Pension Credit: $" result.small_employer_pension_credit cvs strconcat " (Form 8881)" strconcat job.audit_trail swap addto } if
+result.small_employer_health_credit 0 &gt; { "    Small Employer Health Credit: $" result.small_employer_health_credit cvs strconcat " (Form 8941)" strconcat job.audit_trail swap addto } if
+result.employer_credit_paid_family_leave 0 &gt; { "    Employer Paid Family Leave Credit: $" result.employer_credit_paid_family_leave cvs strconcat " (Form 8994)" strconcat job.audit_trail swap addto } if
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate GBC limitation (Part II)</action_comment>
+<action_description>Apply tax liability limitation</action_description>
+<action_postfix>
+/tax_before_credits result.total_tax_before_credits def
+/threshold constants.gbc_threshold def
+/limitation_pct constants.gbc_limitation_percentage def
+/gbc_limit tax_before_credits threshold f- 0 max limitation_pct f* tax_before_credits min def
+gbc_limit 0 &lt; { 0 /gbc_limit xdef } if
+"  Tax before credits: $" tax_before_credits cvs strconcat job.audit_trail swap addto
+"  GBC limitation: Lesser of tax liability or 75% of (tax - $25,000) = $" gbc_limit cvs strconcat job.audit_trail swap addto
+result.general_business_credit_total gbc_limit min /result.general_business_credit_used xdef
+result.general_business_credit_total result.general_business_credit_used f- /result.general_business_credit_carryforward xdef
+"  GBC used this year: $" result.general_business_credit_used cvs strconcat job.audit_trail swap addto
+result.general_business_credit_carryforward 0 &gt; { "  GBC carryforward: $" result.general_business_credit_carryforward cvs strconcat " (to next year)" strconcat job.audit_trail swap addto } if
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No business credits</action_comment>
+<action_description>Log no GBC applicable</action_description>
+<action_postfix>
+"No general business credits (Form 3800 not applicable)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 81: Calculate_Kiddie_Tax                                        -->
+<!-- IRS Reference: Form 8615, IRC Section 1(g)                            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Kiddie_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates tax on unearned income of children under age 19 (or under 24 if full-time student). Applies parent's marginal tax rate to net unearned income over threshold per IRC Section 1(g) and Form 8615.</COMMENTS>
+<TABLE_NUMBER>8100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log kiddie tax calculation start</action_description>
+<action_postfix>
+"KIDDIE TAX CALCULATION (Form 8615)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always process kiddie tax for all dependents</condition_comment>
+<condition_description>always</condition_description>
+<condition_postfix>
+always
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process kiddie tax for each dependent</action_comment>
+<action_description>Calculate_Kiddie_Tax_For_Dependent for each dependent</action_description>
+<action_postfix>
+{ /Calculate_Kiddie_Tax_For_Dependent executetable } job.dependents forall
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8150: Calculate_Kiddie_Tax_For_Dependent                        -->
+<!-- IRS Reference: Form 8615, IRC Section 1(g)                            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Kiddie_Tax_For_Dependent</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Processes kiddie tax for an individual dependent. Determines if dependent meets age and income requirements, then applies parent's marginal tax rate to net unearned income.</COMMENTS>
+<TABLE_NUMBER>8150</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Dependent is under 19 with unearned income over threshold</condition_comment>
+<condition_description>dependent.age lt 19 and dependent.unearned_income gt kiddie_tax_threshold</condition_description>
+<condition_postfix>
+dependent.age 19 &lt;
+dependent.unearned_income kiddie_tax_threshold &gt;
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Dependent is 19-23 full-time student with unearned income over threshold</condition_comment>
+<condition_description>dependent.age between 19 and 23 and is_student and unearned_income gt threshold</condition_description>
+<condition_postfix>
+dependent.age 19 &gt;=
+dependent.age 24 &lt;
+and
+dependent.is_student
+and
+dependent.unearned_income kiddie_tax_threshold &gt;
+and
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Kiddie tax does not apply</condition_comment>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="3" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Mark dependent subject to kiddie tax</action_comment>
+<action_description>Set kiddie tax flag to true</action_description>
+<action_postfix>
+true /dependent.subject_to_kiddie_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate net unearned income subject to parent's tax rate</action_comment>
+<action_description>Net unearned income = unearned_income - kiddie_tax_threshold</action_description>
+<action_postfix>
+dependent.unearned_income kiddie_tax_threshold f- 0 fmax /net_unearned_income local
+"  Dependent: " dependent.name strconcat job.audit_trail swap addto
+"    Age: " dependent.age cvs strconcat job.audit_trail swap addto
+"    Unearned income: $" dependent.unearned_income cvs strconcat job.audit_trail swap addto
+"    Kiddie tax threshold: $" kiddie_tax_threshold cvs strconcat job.audit_trail swap addto
+"    Net unearned income: $" net_unearned_income cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Determine parent's marginal tax rate based on filing status</action_comment>
+<action_description>Calculate parent's marginal rate for MFJ filing status</action_description>
+<action_postfix>
+0.10 /parent_marginal_rate local
+result.agi bracket_1_mfj &lt;={
+  0.10 /parent_marginal_rate local
+} if
+result.agi bracket_1_mfj &gt; result.agi bracket_2_mfj &lt;=and {
+  0.12 /parent_marginal_rate local
+} if
+result.agi bracket_2_mfj &gt; result.agi bracket_3_mfj &lt;=and {
+  0.22 /parent_marginal_rate local
+} if
+result.agi bracket_3_mfj &gt; result.agi bracket_4_mfj &lt;=and {
+  0.24 /parent_marginal_rate local
+} if
+result.agi bracket_4_mfj &gt; result.agi bracket_5_mfj &lt;=and {
+  0.32 /parent_marginal_rate local
+} if
+result.agi bracket_5_mfj &gt; result.agi bracket_6_mfj &lt;=and {
+  0.35 /parent_marginal_rate local
+} if
+result.agi bracket_6_mfj &gt; {
+  0.37 /parent_marginal_rate local
+} if
+net_unearned_income parent_marginal_rate f* /dependent.kiddie_tax_amount xdef
+"    Parent's marginal tax rate: " parent_marginal_rate 100 f* cvs strconcat "%" strconcat job.audit_trail swap addto
+"    Kiddie tax amount: $" dependent.kiddie_tax_amount cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Add kiddie tax to total tax before credits</action_comment>
+<action_description>Add kiddie tax to total tax</action_description>
+<action_postfix>
+result.total_tax_before_credits dependent.kiddie_tax_amount f+ /result.total_tax_before_credits xdef
+"    Total tax before credits increased to: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Kiddie tax does not apply - initialize to zero</action_comment>
+<action_description>No kiddie tax applicable</action_description>
+<action_postfix>
+false /dependent.subject_to_kiddie_tax xdef
+0.0 /dependent.kiddie_tax_amount xdef
 <action_comment>Calculate MT tax HOH</action_comment>
 <action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -9293,6 +9817,99 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+
+
+<!-- ====================================================================== -->
+<!-- TABLE 85: Calculate_Schedule_H                                        -->
+<!-- IRS Reference: Schedule H - Household Employment Taxes                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Schedule_H</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates household employment taxes per Schedule H. Includes employer's share of Social Security (6.2%), Medicare (1.45%), and FUTA (6.0% on first $7,000 per employee). Only applies to employees with wages above threshold ($2,700 for FICA, $1,000 for FUTA).</COMMENTS>
+<TABLE_NUMBER>8500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Schedule H calculation</action_description>
+<action_postfix>
+"SCHEDULE H - Household Employment Taxes" job.audit_trail swap addto
+0.0 /result.schedule_h_social_security_tax xdef
+0.0 /result.schedule_h_medicare_tax xdef
+0.0 /result.schedule_h_futa_tax xdef
+0.0 /result.schedule_h_total_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has household employees</condition_comment>
+<condition_description>job.household_employees length greater than 0</condition_description>
+<condition_postfix>
+job.household_employees length 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate employer FICA and FUTA for each employee</action_comment>
+<action_description>Process each household employee</action_description>
+<action_postfix>
+{
+  /employee xdef
+
+  employee.wages_paid result.household_wage_threshold &gt;= {
+    % Calculate Social Security tax (6.2% on wages up to SS wage base)
+    employee.wages_paid result.ss_wage_base min result.social_security_rate f*
+    result.schedule_h_social_security_tax f+ /result.schedule_h_social_security_tax xdef
+
+    % Calculate Medicare tax (1.45% on all wages)
+    employee.wages_paid result.medicare_rate f*
+    result.schedule_h_medicare_tax f+ /result.schedule_h_medicare_tax xdef
+
+    "  Employee: " employee.name strconcat " - Wages: $" strconcat employee.wages_paid cvs strconcat job.audit_trail swap addto
+  } if
+
+  employee.wages_paid result.futa_wage_threshold &gt;= {
+    % Calculate FUTA (6.0% on first $7,000, typically reduced to 0.6% with state credit)
+    employee.wages_paid result.futa_wage_base min result.futa_rate f* 0.10 f*
+    result.schedule_h_futa_tax f+ /result.schedule_h_futa_tax xdef
+  } if
+} job.household_employees forall
+
+% Calculate total Schedule H tax
+result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.schedule_h_futa_tax f+
+/result.schedule_h_total_tax xdef
+
+"  Total Social Security Tax: $" result.schedule_h_social_security_tax cvs strconcat job.audit_trail swap addto
+"  Total Medicare Tax: $" result.schedule_h_medicare_tax cvs strconcat job.audit_trail swap addto
+"  Total FUTA Tax: $" result.schedule_h_futa_tax cvs strconcat job.audit_trail swap addto
+"  Total Schedule H Tax: $" result.schedule_h_total_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No household employees</action_comment>
+<action_description>Skip Schedule H</action_description>
+<action_postfix>
+"  No household employees - Schedule H not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>MT progressive tax MFJ with standard deduction</policy_description>

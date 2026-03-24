@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for New Mexico (NM)
+
+  New Mexico has a progressive income tax with 6 tax brackets.
+  Tax rates: 1.5%, 3.2%, 4.3%, 4.7%, 4.9%, and 5.9%
+
+  Effective January 1, 2025, per HB 252 (Laws 2024, Chapter 67)
+  First major restructuring since 2005.
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- New Mexico state tax constants -->
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="nm_standard_deduction_single" type="double" default_value="15000"
+           comment="NM standard deduction single (2025)"/>
+    <field name="nm_standard_deduction_joint" type="double" default_value="30000"
+           comment="NM standard deduction married filing jointly (2025)"/>
+    <field name="nm_standard_deduction_hoh" type="double" default_value="15000"
+           comment="NM standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets - Single filers -->
+    <field name="nm_single_bracket_1_limit" type="double" default_value="5500"
+           comment="NM bracket 1 upper limit single (2025)"/>
+    <field name="nm_single_bracket_2_limit" type="double" default_value="16500"
+           comment="NM bracket 2 upper limit single (2025)"/>
+    <field name="nm_single_bracket_3_limit" type="double" default_value="33500"
+           comment="NM bracket 3 upper limit single (2025)"/>
+    <field name="nm_single_bracket_4_limit" type="double" default_value="66500"
+           comment="NM bracket 4 upper limit single (2025)"/>
+    <field name="nm_single_bracket_5_limit" type="double" default_value="210000"
+           comment="NM bracket 5 upper limit single (2025)"/>
+
+    <!-- Progressive tax brackets - Joint filers (using same thresholds for now) -->
+    <!-- Note: Joint filers have different thresholds, but starting with single for initial implementation -->
+    <field name="nm_joint_bracket_1_limit" type="double" default_value="5500"
+           comment="NM bracket 1 upper limit joint (2025)"/>
+    <field name="nm_joint_bracket_2_limit" type="double" default_value="16500"
+           comment="NM bracket 2 upper limit joint (2025)"/>
+    <field name="nm_joint_bracket_3_limit" type="double" default_value="33500"
+           comment="NM bracket 3 upper limit joint (2025)"/>
+    <field name="nm_joint_bracket_4_limit" type="double" default_value="66500"
+           comment="NM bracket 4 upper limit joint (2025)"/>
+    <field name="nm_joint_bracket_5_limit" type="double" default_value="315000"
+           comment="NM bracket 5 upper limit joint (2025)"/>
+
+    <!-- Tax rates for all 6 brackets -->
+    <field name="nm_bracket_1_rate" type="double" default_value="0.015"
+           comment="NM tax rate bracket 1: 1.5% (2025)"/>
+    <field name="nm_bracket_2_rate" type="double" default_value="0.032"
+           comment="NM tax rate bracket 2: 3.2% (2025)"/>
+    <field name="nm_bracket_3_rate" type="double" default_value="0.043"
+           comment="NM tax rate bracket 3: 4.3% (2025)"/>
+    <field name="nm_bracket_4_rate" type="double" default_value="0.047"
+           comment="NM tax rate bracket 4: 4.7% (2025)"/>
+    <field name="nm_bracket_5_rate" type="double" default_value="0.049"
+           comment="NM tax rate bracket 5: 4.9% (2025)"/>
+    <field name="nm_bracket_6_rate" type="double" default_value="0.059"
+           comment="NM tax rate bracket 6: 5.9% (2025)"/>
+
+  </entity>
+</entity_data_dictionary>

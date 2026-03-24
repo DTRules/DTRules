@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Utah
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42300: Calculate_UT_Tax - Utah State Income Tax                 -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_UT_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Utah state income tax calculation. Implements flat 4.5% tax rate with Taxpayer Tax Credit per Utah tax code (2025).</COMMENTS>
+<TABLE_NUMBER>42300</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Utah tax calculation</action_description>
+<action_postfix>
+"Utah Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Single filer</condition_comment>
+<condition_description>Filing status is Single</condition_description>
+<condition_postfix>
+result.filing_status "Single" stringequal
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Married filing jointly</condition_comment>
+<condition_description>Filing status is Married Filing Jointly</condition_description>
+<condition_postfix>
+result.filing_status "Married Filing Jointly" stringequal
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of household</condition_comment>
+<condition_description>Filing status is Head of Household</condition_description>
+<condition_postfix>
+result.filing_status "Head of Household" stringequal
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate UT tax for single filer</action_comment>
+<action_postfix>
+<!-- Calculate Utah taxable income: AGI minus standard deduction -->
+result.agi result.standard_deduction sub 0 max
+
+<!-- Apply 4.5% flat tax rate -->
+result.ut_tax_rate mul
+
+<!-- Store base tax -->
+dup /ut_base_tax ldef
+
+<!-- Calculate Taxpayer Tax Credit: 6% of (standard deduction + exemptions) -->
+result.standard_deduction
+result.ut_personal_exemption result.num_dependents mul add
+result.ut_taxpayer_credit_rate mul
+
+<!-- Apply phase-out if income exceeds threshold -->
+result.agi result.ut_credit_phaseout_single gt
+result.agi result.ut_credit_phaseout_single sub result.ut_credit_phaseout_rate mul
+0 max sub 0 max
+if
+
+<!-- Subtract credit from base tax -->
+ut_base_tax swap sub 0 max
+
+<!-- Store final UT tax liability -->
+/result.state_tax_liability xdef
+
+"Utah tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate UT tax for joint filer</action_comment>
+<action_postfix>
+<!-- Calculate Utah taxable income: AGI minus standard deduction -->
+result.agi result.standard_deduction sub 0 max
+
+<!-- Apply 4.5% flat tax rate -->
+result.ut_tax_rate mul
+
+<!-- Store base tax -->
+dup /ut_base_tax ldef
+
+<!-- Calculate Taxpayer Tax Credit: 6% of (standard deduction + exemptions) -->
+result.standard_deduction
+result.ut_personal_exemption result.num_dependents mul add
+result.ut_taxpayer_credit_rate mul
+
+<!-- Apply phase-out if income exceeds threshold -->
+result.agi result.ut_credit_phaseout_joint gt
+result.agi result.ut_credit_phaseout_joint sub result.ut_credit_phaseout_rate mul
+0 max sub 0 max
+if
+
+<!-- Subtract credit from base tax -->
+ut_base_tax swap sub 0 max
+
+<!-- Store final UT tax liability -->
+/result.state_tax_liability xdef
+
+"Utah tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate UT tax for head of household</action_comment>
+<action_postfix>
+<!-- Calculate Utah taxable income: AGI minus standard deduction -->
+result.agi result.standard_deduction sub 0 max
+
+<!-- Apply 4.5% flat tax rate -->
+result.ut_tax_rate mul
+
+<!-- Store base tax -->
+dup /ut_base_tax ldef
+
+<!-- Calculate Taxpayer Tax Credit: 6% of (standard deduction + exemptions) -->
+result.standard_deduction
+result.ut_personal_exemption result.num_dependents mul add
+result.ut_taxpayer_credit_rate mul
+
+<!-- Apply phase-out if income exceeds threshold -->
+result.agi result.ut_credit_phaseout_hoh gt
+result.agi result.ut_credit_phaseout_hoh sub result.ut_credit_phaseout_rate mul
+0 max sub 0 max
+if
+
+<!-- Subtract credit from base tax -->
+ut_base_tax swap sub 0 max
+
+<!-- Store final UT tax liability -->
+/result.state_tax_liability xdef
+
+"Utah tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

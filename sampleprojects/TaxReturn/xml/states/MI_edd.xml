@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Michigan
+
+  Michigan has a flat income tax rate of 4.25% (2025).
+  Personal exemptions: $5,800 per taxpayer, spouse, and dependent (2025).
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Michigan state tax constants -->
+  <entity name="result">
+    <!-- Tax rate -->
+    <field name="mi_tax_rate" type="double" default_value="0.0425"
+           comment="MI flat tax rate 4.25% (2025)"/>
+
+    <!-- Personal exemptions -->
+    <field name="mi_exemption_single" type="double" default_value="5800.0"
+           comment="MI personal exemption single (2025)"/>
+    <field name="mi_exemption_married" type="double" default_value="11600.0"
+           comment="MI personal exemption married filing jointly - 2 x $5,800 (2025)"/>
+    <field name="mi_exemption_dependent" type="double" default_value="5800.0"
+           comment="MI personal exemption per dependent (2025)"/>
+
+    <!-- Calculated exemption total -->
+    <field name="mi_total_exemption" type="double" default_value="0.0"
+           comment="MI total personal exemptions based on filing status and dependents"/>
+
+    <!-- MI taxable income and tax liability -->
+    <field name="mi_taxable_income" type="double" default_value="0.0"
+           comment="MI taxable income (AGI minus exemptions)"/>
+    <field name="mi_tax_liability" type="double" default_value="0.0"
+           comment="MI state income tax liability"/>
+  </entity>
+</entity_data_dictionary>

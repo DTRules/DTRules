@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Washington (WA)
+
+  Washington State has NO state income tax.
+
+  WA is one of 9 states with no state income tax (along with AK, FL, NV, NH, SD, TN, TX, WY).
+  The state relies on sales tax, business & occupation (B&O) tax, and property taxes for revenue.
+
+  This file documents zero tax for completeness.
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- WA state constants - all zero since WA has no state income tax -->
+  <entity name="result">
+    <!-- No income tax flag -->
+    <field name="wa_has_income_tax" type="boolean" default_value="false"
+           comment="WA has no state income tax"/>
+
+    <!-- Tax rate (zero) -->
+    <field name="wa_tax_rate" type="double" default_value="0.0"
+           comment="WA tax rate - zero (no income tax)"/>
+
+  </entity>
+</entity_data_dictionary>
