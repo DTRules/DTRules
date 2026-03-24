@@ -1375,3 +1375,626 @@
   </decision_table>
 
 </decision_tables>
+
+  <!--
+    ================================================================
+    APPORTIONMENT TABLES (7000-7999)
+    ================================================================
+  -->
+
+  <!--
+    Table 7000: Determine State Nexus
+
+    Determines if corporation has nexus (tax obligation) in a state.
+
+    Nexus types:
+    - Physical: Office, employees, property in state
+    - Economic: Post-Wayfair ($100K sales or 200 transactions typical)
+
+    Reference: South Dakota v. Wayfair (2018), State revenue dept guidance
+  -->
+  <decision_table name="Determine_State_Nexus" number="7000">
+    <description>
+      Determine if corporation has nexus requiring state tax filing.
+      Physical presence or economic nexus (post-Wayfair).
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true</expression>
+        <comment>Has physical presence in state</comment>
+      </condition>
+
+      <condition name="exceeds_economic_threshold">
+        <expression>apportionment.gross_receipts_in_state >= apportionment.economic_nexus_threshold ||
+                    apportionment.transactions_in_state >= apportionment.transaction_threshold</expression>
+        <comment>Meets economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.has_economic_nexus = true; // Physical presence creates nexus
+          </action>
+        </actions>
+        <policy>
+          Physical nexus exists due to presence in state (office, employees, property).
+          Traditional nexus standard under Quill Corp. v. North Dakota (1992).
+          Reference: State-specific statutes and regulations
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <exceeds_economic_threshold>Y</exceeds_economic_threshold>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.has_economic_nexus = true; // Economic nexus (Wayfair)
+          </action>
+        </actions>
+        <policy>
+          Economic nexus established per South Dakota v. Wayfair, Inc. (2018).
+          Typical thresholds: $100,000 gross receipts OR 200 transactions in state.
+          States vary - check state-specific thresholds.
+          Reference: South Dakota v. Wayfair, 138 S. Ct. 2080 (2018)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <exceeds_economic_threshold>N</exceeds_economic_threshold>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.has_economic_nexus = false;
+            apportionment.apportionment_percentage = 0.0;
+            apportionment.state_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state tax obligation.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7100: Calculate Property Factor
+
+    Property factor = Average property in state / Average property everywhere
+
+    Property includes:
+    - Real property (land, buildings)
+    - Tangible personal property (machinery, equipment, inventory)
+    - Rented property (8× annual rent)
+
+    Reference: UDITPA Section 10-11, MTC Regulations
+  -->
+  <decision_table name="Calculate_Property_Factor" number="7100">
+    <description>
+      Calculate property factor for apportionment.
+      Average property in state / average property everywhere.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate factors</comment>
+      </condition>
+
+      <condition name="has_property">
+        <expression>apportionment.property_total_average > 0</expression>
+        <comment>Has property to apportion</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_property>Y</has_property>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate average property (beginning + ending) / 2
+            apportionment.property_average =
+              (apportionment.property_beginning_balance + apportionment.property_ending_balance) / 2.0;
+
+            // Calculate property factor
+            apportionment.property_factor =
+              apportionment.property_average / apportionment.property_total_average;
+          </action>
+        </actions>
+        <policy>
+          Property factor = Average property in state / Average property everywhere.
+
+          Property includes:
+          - Real property owned (land, buildings) at original cost
+          - Tangible personal property owned (machinery, equipment, inventory)
+          - Rented property: 8 times annual rent (capitalization method)
+
+          Average property = (Beginning balance + Ending balance) / 2
+
+          Reference: UDITPA Section 10-11 (Uniform Division of Income for Tax Purposes Act)
+          Reference: Multistate Tax Commission (MTC) Regulations
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_property>N</has_property>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.property_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No property = zero property factor.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.property_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no apportionment factor calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7200: Calculate Payroll Factor
+
+    Payroll factor = Compensation in state / Total compensation
+
+    Compensation includes:
+    - Wages, salaries, commissions, bonuses
+    - Payments to independent contractors (some states)
+
+    Sourcing: Where services performed, not where paid
+
+    Reference: UDITPA Section 13-14, MTC Regulations
+  -->
+  <decision_table name="Calculate_Payroll_Factor" number="7200">
+    <description>
+      Calculate payroll factor for apportionment.
+      Compensation in state / total compensation.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate factors</comment>
+      </condition>
+
+      <condition name="has_payroll">
+        <expression>apportionment.payroll_total > 0</expression>
+        <comment>Has payroll to apportion</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_payroll>Y</has_payroll>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate payroll factor
+            apportionment.payroll_factor =
+              apportionment.payroll_in_state / apportionment.payroll_total;
+          </action>
+        </actions>
+        <policy>
+          Payroll factor = Compensation in state / Total compensation.
+
+          Compensation includes:
+          - Wages, salaries, commissions, bonuses
+          - Other forms of compensation (stock options, deferred comp)
+          - Payments to independent contractors (in some states)
+
+          Sourcing rule: Compensation assigned to state where services performed.
+          If services in multiple states: Assign based on time spent in each state.
+
+          Reference: UDITPA Section 13-14
+          Reference: MTC Regulations Article IV.13-14
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_payroll>N</has_payroll>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.payroll_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No payroll = zero payroll factor.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.payroll_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no apportionment factor calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7300: Calculate Sales Factor
+
+    Sales factor = Sales in state / Total sales
+
+    Sourcing methods:
+    - Tangible goods: Destination state (where delivered)
+    - Services: Market-based sourcing (where benefit received)
+    - Intangibles: Varies by state
+
+    Reference: UDITPA Section 15-17, MTC Market-Based Sourcing
+  -->
+  <decision_table name="Calculate_Sales_Factor" number="7300">
+    <description>
+      Calculate sales factor for apportionment.
+      Sales in state / total sales.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate factors</comment>
+      </condition>
+
+      <condition name="has_sales">
+        <expression>apportionment.sales_total > 0</expression>
+        <comment>Has sales to apportion</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_sales>Y</has_sales>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate sales factor
+            apportionment.sales_factor =
+              apportionment.sales_in_state / apportionment.sales_total;
+          </action>
+        </actions>
+        <policy>
+          Sales factor = Sales in state / Total sales.
+
+          Sourcing rules:
+          
+          Tangible personal property:
+          - Destination state (where shipped/delivered to customer)
+          - If shipped from state inventory to out-of-state customer: Destination state
+
+          Services:
+          - Market-based sourcing: Where customer receives benefit
+          - Cost-of-performance: Where greater cost incurred (older method)
+
+          Intangible property:
+          - Varies by state and type of intangible
+
+          Throwback rule (some states):
+          - If destination state cannot tax, sales "thrown back" to origin state
+
+          Reference: UDITPA Section 15-17
+          Reference: MTC Market-Based Sourcing Amendments
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_sales>N</has_sales>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.sales_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No sales = zero sales factor.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.sales_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no apportionment factor calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7400: Calculate Apportionment Percentage
+
+    Combines property, payroll, and sales factors based on state formula.
+
+    Common formulas:
+    - Three-factor: (Property + Payroll + Sales) / 3
+    - Single-sales: Sales factor only
+    - Double-weighted sales: (Property + Payroll + 2×Sales) / 4
+
+    Reference: State statutes, UDITPA
+  -->
+  <decision_table name="Calculate_Apportionment_Percentage" number="7400">
+    <description>
+      Calculate final apportionment percentage using state formula.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to apportion</comment>
+      </condition>
+
+      <condition name="three_factor">
+        <expression>apportionment.apportionment_formula == 'three_factor'</expression>
+        <comment>Uses traditional three-factor formula</comment>
+      </condition>
+
+      <condition name="single_sales">
+        <expression>apportionment.apportionment_formula == 'single_sales'</expression>
+        <comment>Uses single-sales factor only</comment>
+      </condition>
+
+      <condition name="double_weighted_sales">
+        <expression>apportionment.apportionment_formula == 'double_weighted_sales'</expression>
+        <comment>Uses double-weighted sales formula</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <three_factor>Y</three_factor>
+        </conditions>
+        <actions>
+          <action>
+            // Three-factor formula: (P + Pa + S) / 3
+            apportionment.apportionment_percentage =
+              (apportionment.property_factor +
+               apportionment.payroll_factor +
+               apportionment.sales_factor) / 3.0;
+          </action>
+        </actions>
+        <policy>
+          Traditional three-factor apportionment: (Property + Payroll + Sales) / 3.
+          
+          Equal weighting of all three factors.
+          Used by fewer states as many shift to single-sales.
+
+          Reference: UDITPA Article IV (original version)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <single_sales>Y</single_sales>
+        </conditions>
+        <actions>
+          <action>
+            // Single-sales formula: S only
+            apportionment.apportionment_percentage = apportionment.sales_factor;
+          </action>
+        </actions>
+        <policy>
+          Single-sales factor apportionment: Sales factor = 100%.
+
+          Most common formula in modern state tax law.
+          Eliminates property and payroll factors.
+          Intended to encourage in-state investment and employment.
+
+          Used by: CA, IL, TX, and many other states.
+
+          Reference: State-specific statutes
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <double_weighted_sales>Y</double_weighted_sales>
+        </conditions>
+        <actions>
+          <action>
+            // Double-weighted sales: (P + Pa + 2×S) / 4
+            apportionment.apportionment_percentage =
+              (apportionment.property_factor +
+               apportionment.payroll_factor +
+               (2.0 * apportionment.sales_factor)) / 4.0;
+          </action>
+        </actions>
+        <policy>
+          Double-weighted sales apportionment: (Property + Payroll + 2×Sales) / 4.
+
+          Transitional formula between three-factor and single-sales.
+          Gives more weight to sales while retaining property/payroll factors.
+
+          Less common now as states move to single-sales.
+
+          Reference: State-specific statutes
+        </policy>
+      </rule>
+
+      <rule number="4">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.apportionment_percentage = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = 0% apportionment to state.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7500: Apply Apportionment and Calculate State Tax
+
+    Applies apportionment percentage to federal taxable income,
+    makes state-specific adjustments, and calculates state tax.
+
+    Reference: State corporate income tax forms
+  -->
+  <decision_table name="Apply_Apportionment_Calculate_State_Tax" number="7500">
+    <description>
+      Apply apportionment to federal taxable income and calculate state tax.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe state tax</comment>
+      </condition>
+
+      <condition name="has_taxable_income">
+        <expression>result.taxable_income > 0</expression>
+        <comment>Has federal taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_taxable_income>Y</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Apply apportionment to federal taxable income
+            apportionment.apportioned_income =
+              result.taxable_income * apportionment.apportionment_percentage;
+
+            // Apply state-specific adjustments
+            apportionment.state_taxable_income =
+              apportionment.apportioned_income +
+              apportionment.state_additions -
+              apportionment.state_subtractions;
+
+            // Calculate state tax
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          State tax calculation:
+          
+          1. Apportion federal taxable income:
+             Apportioned income = Federal taxable income × Apportionment %
+
+          2. Apply state adjustments:
+             State additions: Interest on federal bonds, IRC 199A deduction, etc.
+             State subtractions: Municipal bond interest, state taxes, etc.
+
+          3. Calculate state taxable income:
+             State TI = Apportioned income + Additions - Subtractions
+
+          4. Apply state tax rate:
+             State tax = State TI × State rate
+
+          5. Subtract state credits
+
+          6. Compare to payments to determine refund/owed
+
+          Reference: State corporate income tax instructions
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.apportioned_income = 0.0;
+            apportionment.state_taxable_income = 0.0;
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no state tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_taxable_income>N</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.apportioned_income = 0.0;
+            apportionment.state_taxable_income = 0.0;
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No federal taxable income = no state tax.
+          State NOL rules may apply (not implemented).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

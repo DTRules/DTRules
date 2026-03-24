@@ -117,6 +117,51 @@
     <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
   </entity>
 
+  <!-- Apportionment Entity (for state tax allocation) -->
+  <entity name="apportionment">
+    <field name='state_code' type='string' comment='Two-letter state code (e.g., CA, NY, TX)'/>
+
+    <!-- Nexus Determination -->
+    <field name='has_physical_presence' type='boolean' default_value='false' comment='Has physical presence in state (office, employees, property)'/>
+    <field name='has_economic_nexus' type='boolean' default_value='false' comment='Meets economic nexus threshold (post-Wayfair)'/>
+    <field name='gross_receipts_in_state' type='double' default_value='0.0' comment='Gross receipts sourced to state'/>
+    <field name='transactions_in_state' type='integer' default_value='0' comment='Number of transactions in state'/>
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0' comment='Economic nexus threshold (typically $100K)'/>
+    <field name='transaction_threshold' type='integer' default_value='200' comment='Transaction count threshold (typically 200)'/>
+
+    <!-- Property Factor -->
+    <field name='property_beginning_balance' type='double' default_value='0.0' comment='Property in state at beginning of year'/>
+    <field name='property_ending_balance' type='double' default_value='0.0' comment='Property in state at end of year'/>
+    <field name='property_average' type='double' default_value='0.0' comment='Average property in state'/>
+    <field name='property_total_average' type='double' default_value='0.0' comment='Average property everywhere'/>
+    <field name='property_factor' type='double' default_value='0.0' comment='Property factor (state / total)'/>
+
+    <!-- Payroll Factor -->
+    <field name='payroll_in_state' type='double' default_value='0.0' comment='Total compensation paid in state'/>
+    <field name='payroll_total' type='double' default_value='0.0' comment='Total compensation everywhere'/>
+    <field name='payroll_factor' type='double' default_value='0.0' comment='Payroll factor (state / total)'/>
+
+    <!-- Sales Factor -->
+    <field name='sales_in_state' type='double' default_value='0.0' comment='Sales sourced to state'/>
+    <field name='sales_total' type='double' default_value='0.0' comment='Sales everywhere'/>
+    <field name='sales_factor' type='double' default_value='0.0' comment='Sales factor (state / total)'/>
+
+    <!-- Apportionment Calculation -->
+    <field name='apportionment_formula' type='string' default_value='three_factor' comment='Formula: three_factor, single_sales, double_weighted_sales'/>
+    <field name='apportionment_percentage' type='double' default_value='0.0' comment='Final apportionment percentage'/>
+    <field name='apportioned_income' type='double' default_value='0.0' comment='Federal taxable income × apportionment %'/>
+
+    <!-- State Tax Calculation -->
+    <field name='state_additions' type='double' default_value='0.0' comment='State-specific additions to income'/>
+    <field name='state_subtractions' type='double' default_value='0.0' comment='State-specific subtractions from income'/>
+    <field name='state_taxable_income' type='double' default_value='0.0' comment='State taxable income'/>
+    <field name='state_tax_rate' type='double' default_value='0.0' comment='State corporate tax rate'/>
+    <field name='state_tax' type='double' default_value='0.0' comment='State corporate income tax'/>
+    <field name='state_credits' type='double' default_value='0.0' comment='State tax credits'/>
+    <field name='state_payments' type='double' default_value='0.0' comment='State estimated tax payments'/>
+    <field name='state_refund_or_owed' type='double' default_value='0.0' comment='State refund (positive) or owed (negative)'/>
+  </entity>
+
   <!-- Job Entity (execution metadata) -->
   <entity name="job">
     <field name='test_case_name' type='string' comment='Name of test case'/>
