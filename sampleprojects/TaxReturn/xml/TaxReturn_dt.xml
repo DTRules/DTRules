@@ -8971,212 +8971,1152 @@ done
 </policy_statements>
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 40000: Dispatch_State_Tax - State Tax Dispatcher               -->
-<!-- Reference: State-specific income tax forms                             -->
-<!-- ====================================================================== -->
 <decision_table>
 <table_name>Dispatch_State_Tax</table_name>
 <xls_file>State.xls</xls_file>
 <attribute_fields>
-<Type>ITERATIVE</Type>
-<COMMENTS>Dispatches to state-specific tax calculation for each state_period or falls back to job.state for single-state returns. Supports multi-state allocation for taxpayers who moved between states.</COMMENTS>
+<Type>FIRST</Type>
+<COMMENTS>Comprehensive state tax dispatcher. Routes to state-specific tax calculation tables for all 50 states plus DC based on job.state. Handles no-tax states and provides fallback for unimplemented states.</COMMENTS>
 <TABLE_NUMBER>40000</TABLE_NUMBER>
+
 </attribute_fields>
-<contexts>
-<context_entity>state_period</context_entity>
-</contexts>
+
+<contexts></contexts>
+
 <initial_actions>
 <initial_action>
-<action_description>Log state tax calculation start</action_description>
+<action_description>Log state tax dispatcher invocation</action_description>
 <action_postfix>
-job.state_periods length 0 eq
-if
-  "State Tax Calculation for " job.state strconcat job.audit_trail swap addto
-else
-  "Multi-State Tax Calculation" job.audit_trail swap addto
-  Allocate_Income_By_State
-then
+"State Tax Dispatcher: Processing state " job.state cvs strconcat job.audit_trail swap addto
 </action_postfix>
 </initial_action>
 </initial_actions>
+
 <conditions>
+
+<!-- Alabama -->
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Illinois state</condition_comment>
-<condition_description>state_period.state_code or job.state is equal to "IL"</condition_description>
+<condition_comment>Alabama</condition_comment>
+<condition_description>job.state == "AL"</condition_description>
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code IL streq
-else
-  job.state IL streq
-then
+job.state "AL" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
+
+<!-- Alaska -->
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Appliance type is dishwasher</condition_comment>
-<condition_description>taxpayer.appliance_type equals dishwasher</condition_description>
-<condition_postfix>taxpayer.appliance_type "dishwasher" streq</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Appliance type is clothes washer</condition_comment>
-<condition_description>taxpayer.appliance_type equals clothes_washer</condition_description>
-<condition_postfix>taxpayer.appliance_type "clothes_washer" streq</condition_postfix>
+<condition_comment>Alaska</condition_comment>
+<condition_description>job.state == "AK"</condition_description>
+<condition_postfix>
+job.state "AK" streq
+</condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
-<condition_details>
-<condition_number>4</condition_number>
-<condition_comment>Appliance type is refrigerator</condition_comment>
-<condition_description>taxpayer.appliance_type equals refrigerator</condition_description>
-<condition_postfix>taxpayer.appliance_type "refrigerator" streq</condition_postfix>
-<condition_column column_number="5" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>New Hampshire state</condition_comment>
-<condition_description>state_period.state_code or job.state is equal to "NH"</condition_description>
-<condition_postfix>
-state_period isnull not
-if
-  state_period.state_code NH streq
-else
-  job.state NH streq
-then
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
-</condition_details>
+
+<!-- Arkansas -->
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Montana state</condition_comment>
-<condition_description>state_period.state_code or job.state is equal to "MT"</condition_description>
+<condition_comment>Arkansas</condition_comment>
+<condition_description>job.state == "AR"</condition_description>
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code MT streq
-else
-  job.state MT streq
-then
+job.state "AR" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
+
+<!-- Arizona -->
 <condition_details>
 <condition_number>4</condition_number>
-<condition_comment>No state income tax (TX, FL, etc.)</condition_comment>
-<condition_description>state_period has no income tax or job.state has no income tax</condition_description>
+<condition_comment>Arizona</condition_comment>
+<condition_description>job.state == "AZ"</condition_description>
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code TX streq
-  state_period.state_code FL streq or
-  state_period.state_code WA streq or
-  state_period.state_code NV streq or
-else
-  job.has_state_income_tax not
-then
+job.state "AZ" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="Y"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
+
+<!-- California -->
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>California</condition_comment>
+<condition_description>job.state == "CA"</condition_description>
+<condition_postfix>
+job.state "CA" streq
+</condition_postfix>
+<condition_column column_number="5" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Colorado -->
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Colorado</condition_comment>
+<condition_description>job.state == "CO"</condition_description>
+<condition_postfix>
+job.state "CO" streq
+</condition_postfix>
+<condition_column column_number="6" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Connecticut -->
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Connecticut</condition_comment>
+<condition_description>job.state == "CT"</condition_description>
+<condition_postfix>
+job.state "CT" streq
+</condition_postfix>
+<condition_column column_number="7" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- District of Columbia -->
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>District of Columbia</condition_comment>
+<condition_description>job.state == "DC"</condition_description>
+<condition_postfix>
+job.state "DC" streq
+</condition_postfix>
+<condition_column column_number="8" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Delaware -->
+<condition_details>
+<condition_number>9</condition_number>
+<condition_comment>Delaware</condition_comment>
+<condition_description>job.state == "DE"</condition_description>
+<condition_postfix>
+job.state "DE" streq
+</condition_postfix>
+<condition_column column_number="9" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Florida -->
+<condition_details>
+<condition_number>10</condition_number>
+<condition_comment>Florida</condition_comment>
+<condition_description>job.state == "FL"</condition_description>
+<condition_postfix>
+job.state "FL" streq
+</condition_postfix>
+<condition_column column_number="10" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Georgia -->
+<condition_details>
+<condition_number>11</condition_number>
+<condition_comment>Georgia</condition_comment>
+<condition_description>job.state == "GA"</condition_description>
+<condition_postfix>
+job.state "GA" streq
+</condition_postfix>
+<condition_column column_number="11" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Hawaii -->
+<condition_details>
+<condition_number>12</condition_number>
+<condition_comment>Hawaii</condition_comment>
+<condition_description>job.state == "HI"</condition_description>
+<condition_postfix>
+job.state "HI" streq
+</condition_postfix>
+<condition_column column_number="12" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Iowa -->
+<condition_details>
+<condition_number>13</condition_number>
+<condition_comment>Iowa</condition_comment>
+<condition_description>job.state == "IA"</condition_description>
+<condition_postfix>
+job.state "IA" streq
+</condition_postfix>
+<condition_column column_number="13" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Idaho -->
+<condition_details>
+<condition_number>14</condition_number>
+<condition_comment>Idaho</condition_comment>
+<condition_description>job.state == "ID"</condition_description>
+<condition_postfix>
+job.state "ID" streq
+</condition_postfix>
+<condition_column column_number="14" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Illinois -->
+<condition_details>
+<condition_number>15</condition_number>
+<condition_comment>Illinois</condition_comment>
+<condition_description>job.state == "IL"</condition_description>
+<condition_postfix>
+job.state "IL" streq
+</condition_postfix>
+<condition_column column_number="15" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Indiana -->
+<condition_details>
+<condition_number>16</condition_number>
+<condition_comment>Indiana</condition_comment>
+<condition_description>job.state == "IN"</condition_description>
+<condition_postfix>
+job.state "IN" streq
+</condition_postfix>
+<condition_column column_number="16" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Kansas -->
+<condition_details>
+<condition_number>17</condition_number>
+<condition_comment>Kansas</condition_comment>
+<condition_description>job.state == "KS"</condition_description>
+<condition_postfix>
+job.state "KS" streq
+</condition_postfix>
+<condition_column column_number="17" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Kentucky -->
+<condition_details>
+<condition_number>18</condition_number>
+<condition_comment>Kentucky</condition_comment>
+<condition_description>job.state == "KY"</condition_description>
+<condition_postfix>
+job.state "KY" streq
+</condition_postfix>
+<condition_column column_number="18" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Louisiana -->
+<condition_details>
+<condition_number>19</condition_number>
+<condition_comment>Louisiana</condition_comment>
+<condition_description>job.state == "LA"</condition_description>
+<condition_postfix>
+job.state "LA" streq
+</condition_postfix>
+<condition_column column_number="19" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Massachusetts -->
+<condition_details>
+<condition_number>20</condition_number>
+<condition_comment>Massachusetts</condition_comment>
+<condition_description>job.state == "MA"</condition_description>
+<condition_postfix>
+job.state "MA" streq
+</condition_postfix>
+<condition_column column_number="20" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Maryland -->
+<condition_details>
+<condition_number>21</condition_number>
+<condition_comment>Maryland</condition_comment>
+<condition_description>job.state == "MD"</condition_description>
+<condition_postfix>
+job.state "MD" streq
+</condition_postfix>
+<condition_column column_number="21" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Maine -->
+<condition_details>
+<condition_number>22</condition_number>
+<condition_comment>Maine</condition_comment>
+<condition_description>job.state == "ME"</condition_description>
+<condition_postfix>
+job.state "ME" streq
+</condition_postfix>
+<condition_column column_number="22" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Michigan -->
+<condition_details>
+<condition_number>23</condition_number>
+<condition_comment>Michigan</condition_comment>
+<condition_description>job.state == "MI"</condition_description>
+<condition_postfix>
+job.state "MI" streq
+</condition_postfix>
+<condition_column column_number="23" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Minnesota -->
+<condition_details>
+<condition_number>24</condition_number>
+<condition_comment>Minnesota</condition_comment>
+<condition_description>job.state == "MN"</condition_description>
+<condition_postfix>
+job.state "MN" streq
+</condition_postfix>
+<condition_column column_number="24" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Missouri -->
+<condition_details>
+<condition_number>25</condition_number>
+<condition_comment>Missouri</condition_comment>
+<condition_description>job.state == "MO"</condition_description>
+<condition_postfix>
+job.state "MO" streq
+</condition_postfix>
+<condition_column column_number="25" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Mississippi -->
+<condition_details>
+<condition_number>26</condition_number>
+<condition_comment>Mississippi</condition_comment>
+<condition_description>job.state == "MS"</condition_description>
+<condition_postfix>
+job.state "MS" streq
+</condition_postfix>
+<condition_column column_number="26" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Montana -->
+<condition_details>
+<condition_number>27</condition_number>
+<condition_comment>Montana</condition_comment>
+<condition_description>job.state == "MT"</condition_description>
+<condition_postfix>
+job.state "MT" streq
+</condition_postfix>
+<condition_column column_number="27" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- North Carolina -->
+<condition_details>
+<condition_number>28</condition_number>
+<condition_comment>North Carolina</condition_comment>
+<condition_description>job.state == "NC"</condition_description>
+<condition_postfix>
+job.state "NC" streq
+</condition_postfix>
+<condition_column column_number="28" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- North Dakota -->
+<condition_details>
+<condition_number>29</condition_number>
+<condition_comment>North Dakota</condition_comment>
+<condition_description>job.state == "ND"</condition_description>
+<condition_postfix>
+job.state "ND" streq
+</condition_postfix>
+<condition_column column_number="29" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Nebraska -->
+<condition_details>
+<condition_number>30</condition_number>
+<condition_comment>Nebraska</condition_comment>
+<condition_description>job.state == "NE"</condition_description>
+<condition_postfix>
+job.state "NE" streq
+</condition_postfix>
+<condition_column column_number="30" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- New Hampshire -->
+<condition_details>
+<condition_number>31</condition_number>
+<condition_comment>New Hampshire</condition_comment>
+<condition_description>job.state == "NH"</condition_description>
+<condition_postfix>
+job.state "NH" streq
+</condition_postfix>
+<condition_column column_number="31" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- New Jersey -->
+<condition_details>
+<condition_number>32</condition_number>
+<condition_comment>New Jersey</condition_comment>
+<condition_description>job.state == "NJ"</condition_description>
+<condition_postfix>
+job.state "NJ" streq
+</condition_postfix>
+<condition_column column_number="32" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- New Mexico -->
+<condition_details>
+<condition_number>33</condition_number>
+<condition_comment>New Mexico</condition_comment>
+<condition_description>job.state == "NM"</condition_description>
+<condition_postfix>
+job.state "NM" streq
+</condition_postfix>
+<condition_column column_number="33" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Nevada -->
+<condition_details>
+<condition_number>34</condition_number>
+<condition_comment>Nevada</condition_comment>
+<condition_description>job.state == "NV"</condition_description>
+<condition_postfix>
+job.state "NV" streq
+</condition_postfix>
+<condition_column column_number="34" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- New York -->
+<condition_details>
+<condition_number>35</condition_number>
+<condition_comment>New York</condition_comment>
+<condition_description>job.state == "NY"</condition_description>
+<condition_postfix>
+job.state "NY" streq
+</condition_postfix>
+<condition_column column_number="35" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Ohio -->
+<condition_details>
+<condition_number>36</condition_number>
+<condition_comment>Ohio</condition_comment>
+<condition_description>job.state == "OH"</condition_description>
+<condition_postfix>
+job.state "OH" streq
+</condition_postfix>
+<condition_column column_number="36" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Oklahoma -->
+<condition_details>
+<condition_number>37</condition_number>
+<condition_comment>Oklahoma</condition_comment>
+<condition_description>job.state == "OK"</condition_description>
+<condition_postfix>
+job.state "OK" streq
+</condition_postfix>
+<condition_column column_number="37" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Oregon -->
+<condition_details>
+<condition_number>38</condition_number>
+<condition_comment>Oregon</condition_comment>
+<condition_description>job.state == "OR"</condition_description>
+<condition_postfix>
+job.state "OR" streq
+</condition_postfix>
+<condition_column column_number="38" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Pennsylvania -->
+<condition_details>
+<condition_number>39</condition_number>
+<condition_comment>Pennsylvania</condition_comment>
+<condition_description>job.state == "PA"</condition_description>
+<condition_postfix>
+job.state "PA" streq
+</condition_postfix>
+<condition_column column_number="39" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Rhode Island -->
+<condition_details>
+<condition_number>40</condition_number>
+<condition_comment>Rhode Island</condition_comment>
+<condition_description>job.state == "RI"</condition_description>
+<condition_postfix>
+job.state "RI" streq
+</condition_postfix>
+<condition_column column_number="40" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- South Carolina -->
+<condition_details>
+<condition_number>41</condition_number>
+<condition_comment>South Carolina</condition_comment>
+<condition_description>job.state == "SC"</condition_description>
+<condition_postfix>
+job.state "SC" streq
+</condition_postfix>
+<condition_column column_number="41" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- South Dakota -->
+<condition_details>
+<condition_number>42</condition_number>
+<condition_comment>South Dakota</condition_comment>
+<condition_description>job.state == "SD"</condition_description>
+<condition_postfix>
+job.state "SD" streq
+</condition_postfix>
+<condition_column column_number="42" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Tennessee -->
+<condition_details>
+<condition_number>43</condition_number>
+<condition_comment>Tennessee</condition_comment>
+<condition_description>job.state == "TN"</condition_description>
+<condition_postfix>
+job.state "TN" streq
+</condition_postfix>
+<condition_column column_number="43" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Texas -->
+<condition_details>
+<condition_number>44</condition_number>
+<condition_comment>Texas</condition_comment>
+<condition_description>job.state == "TX"</condition_description>
+<condition_postfix>
+job.state "TX" streq
+</condition_postfix>
+<condition_column column_number="44" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Utah -->
+<condition_details>
+<condition_number>45</condition_number>
+<condition_comment>Utah</condition_comment>
+<condition_description>job.state == "UT"</condition_description>
+<condition_postfix>
+job.state "UT" streq
+</condition_postfix>
+<condition_column column_number="45" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Virginia -->
+<condition_details>
+<condition_number>46</condition_number>
+<condition_comment>Virginia</condition_comment>
+<condition_description>job.state == "VA"</condition_description>
+<condition_postfix>
+job.state "VA" streq
+</condition_postfix>
+<condition_column column_number="46" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Vermont -->
+<condition_details>
+<condition_number>47</condition_number>
+<condition_comment>Vermont</condition_comment>
+<condition_description>job.state == "VT"</condition_description>
+<condition_postfix>
+job.state "VT" streq
+</condition_postfix>
+<condition_column column_number="47" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Washington -->
+<condition_details>
+<condition_number>48</condition_number>
+<condition_comment>Washington</condition_comment>
+<condition_description>job.state == "WA"</condition_description>
+<condition_postfix>
+job.state "WA" streq
+</condition_postfix>
+<condition_column column_number="48" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Wisconsin -->
+<condition_details>
+<condition_number>49</condition_number>
+<condition_comment>Wisconsin</condition_comment>
+<condition_description>job.state == "WI"</condition_description>
+<condition_postfix>
+job.state "WI" streq
+</condition_postfix>
+<condition_column column_number="49" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- West Virginia -->
+<condition_details>
+<condition_number>50</condition_number>
+<condition_comment>West Virginia</condition_comment>
+<condition_description>job.state == "WV"</condition_description>
+<condition_postfix>
+job.state "WV" streq
+</condition_postfix>
+<condition_column column_number="50" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Wyoming -->
+<condition_details>
+<condition_number>51</condition_number>
+<condition_comment>Wyoming</condition_comment>
+<condition_description>job.state == "WY"</condition_description>
+<condition_postfix>
+job.state "WY" streq
+</condition_postfix>
+<condition_column column_number="51" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- No-tax states fallback -->
+<condition_details>
+<condition_number>52</condition_number>
+<condition_comment>State has no income tax</condition_comment>
+<condition_description>State in no_income_tax_states array</condition_description>
+<condition_postfix>
+result.no_income_tax_states job.state contains
+</condition_postfix>
+<condition_column column_number="52" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Unimplemented state fallback -->
+<condition_details>
+<condition_number>53</condition_number>
+<condition_comment>State tax not yet implemented</condition_comment>
+<condition_description>Otherwise (unimplemented state)</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="53" column_value="Y"></condition_column>
+</condition_details>
+
 </conditions>
+
 <actions>
+
+<!-- Alabama -->
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Illinois state tax</action_comment>
-<action_description>Calculate_IL_Tax</action_description>
+<action_comment>Dispatch to AL tax calculation</action_comment>
 <action_postfix>
-Calculate_IL_Tax
+Calculate_AL_Tax execute
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
+
+<!-- Alaska -->
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate New Hampshire state tax</action_comment>
-<action_description>Calculate_NH_Tax</action_description>
+<action_comment>Dispatch to AK tax calculation</action_comment>
 <action_postfix>
-Calculate_NH_Tax
+Calculate_AK_Tax execute
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
+
+<!-- Arkansas -->
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate Montana state tax</action_comment>
-<action_description>Calculate_MT_Tax</action_description>
+<action_comment>Dispatch to AR tax calculation</action_comment>
 <action_postfix>
-Calculate_MT_Tax
+Calculate_AR_Tax execute
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
+
+<!-- Arizona -->
 <action_details>
 <action_number>4</action_number>
-<action_comment>No state income tax</action_comment>
-<action_description>log "No state income tax for this state"</action_description>
+<action_comment>Dispatch to AZ tax calculation</action_comment>
 <action_postfix>
-state_period isnull not
-if
-  "  No state income tax for " state_period.state_code strconcat job.audit_trail swap addto
-else
-  "  No state income tax for " job.state strconcat job.audit_trail swap addto
-then
+Calculate_AZ_Tax execute
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+
+<!-- California -->
 <action_details>
 <action_number>5</action_number>
-<action_comment>State tax calculation not implemented</action_comment>
-<action_description>log "State tax calculation not implemented for this state"</action_description>
+<action_comment>Dispatch to CA tax calculation</action_comment>
 <action_postfix>
-state_period isnull not
-if
-  "  State tax calculation not yet implemented for " state_period.state_code strconcat job.audit_trail swap addto
-else
-  "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
-then
+Calculate_CA_Tax execute
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
 </action_details>
+
+<!-- Colorado -->
+<action_details>
+<action_number>6</action_number>
+<action_comment>Dispatch to CO tax calculation</action_comment>
+<action_postfix>
+Calculate_CO_Tax execute
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+
+<!-- Connecticut -->
+<action_details>
+<action_number>7</action_number>
+<action_comment>Dispatch to CT tax calculation</action_comment>
+<action_postfix>
+Calculate_CT_Tax execute
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+
+<!-- District of Columbia -->
+<action_details>
+<action_number>8</action_number>
+<action_comment>Dispatch to DC tax calculation</action_comment>
+<action_postfix>
+Calculate_DC_Tax execute
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+
+<!-- Delaware -->
+<action_details>
+<action_number>9</action_number>
+<action_comment>Dispatch to DE tax calculation</action_comment>
+<action_postfix>
+Calculate_DE_Tax execute
+</action_postfix>
+<action_column column_number="9" column_value="X"></action_column>
+</action_details>
+
+<!-- Florida -->
+<action_details>
+<action_number>10</action_number>
+<action_comment>Dispatch to FL tax calculation</action_comment>
+<action_postfix>
+Calculate_FL_Tax execute
+</action_postfix>
+<action_column column_number="10" column_value="X"></action_column>
+</action_details>
+
+<!-- Georgia -->
+<action_details>
+<action_number>11</action_number>
+<action_comment>Dispatch to GA tax calculation</action_comment>
+<action_postfix>
+Calculate_GA_Tax execute
+</action_postfix>
+<action_column column_number="11" column_value="X"></action_column>
+</action_details>
+
+<!-- Hawaii -->
+<action_details>
+<action_number>12</action_number>
+<action_comment>Dispatch to HI tax calculation</action_comment>
+<action_postfix>
+Calculate_HI_Tax execute
+</action_postfix>
+<action_column column_number="12" column_value="X"></action_column>
+</action_details>
+
+<!-- Iowa -->
+<action_details>
+<action_number>13</action_number>
+<action_comment>Dispatch to IA tax calculation</action_comment>
+<action_postfix>
+Calculate_IA_Tax execute
+</action_postfix>
+<action_column column_number="13" column_value="X"></action_column>
+</action_details>
+
+<!-- Idaho -->
+<action_details>
+<action_number>14</action_number>
+<action_comment>Dispatch to ID tax calculation</action_comment>
+<action_postfix>
+Calculate_ID_Tax execute
+</action_postfix>
+<action_column column_number="14" column_value="X"></action_column>
+</action_details>
+
+<!-- Illinois -->
+<action_details>
+<action_number>15</action_number>
+<action_comment>Dispatch to IL tax calculation</action_comment>
+<action_postfix>
+Calculate_IL_Tax execute
+</action_postfix>
+<action_column column_number="15" column_value="X"></action_column>
+</action_details>
+
+<!-- Indiana -->
+<action_details>
+<action_number>16</action_number>
+<action_comment>Dispatch to IN tax calculation</action_comment>
+<action_postfix>
+Calculate_IN_Tax execute
+</action_postfix>
+<action_column column_number="16" column_value="X"></action_column>
+</action_details>
+
+<!-- Kansas -->
+<action_details>
+<action_number>17</action_number>
+<action_comment>Dispatch to KS tax calculation</action_comment>
+<action_postfix>
+Calculate_KS_Tax execute
+</action_postfix>
+<action_column column_number="17" column_value="X"></action_column>
+</action_details>
+
+<!-- Kentucky -->
+<action_details>
+<action_number>18</action_number>
+<action_comment>Dispatch to KY tax calculation</action_comment>
+<action_postfix>
+Calculate_KY_Tax execute
+</action_postfix>
+<action_column column_number="18" column_value="X"></action_column>
+</action_details>
+
+<!-- Louisiana -->
+<action_details>
+<action_number>19</action_number>
+<action_comment>Dispatch to LA tax calculation</action_comment>
+<action_postfix>
+Calculate_LA_Tax execute
+</action_postfix>
+<action_column column_number="19" column_value="X"></action_column>
+</action_details>
+
+<!-- Massachusetts -->
+<action_details>
+<action_number>20</action_number>
+<action_comment>Dispatch to MA tax calculation</action_comment>
+<action_postfix>
+Calculate_MA_Tax execute
+</action_postfix>
+<action_column column_number="20" column_value="X"></action_column>
+</action_details>
+
+<!-- Maryland -->
+<action_details>
+<action_number>21</action_number>
+<action_comment>Dispatch to MD tax calculation</action_comment>
+<action_postfix>
+Calculate_MD_Tax execute
+</action_postfix>
+<action_column column_number="21" column_value="X"></action_column>
+</action_details>
+
+<!-- Maine -->
+<action_details>
+<action_number>22</action_number>
+<action_comment>Dispatch to ME tax calculation</action_comment>
+<action_postfix>
+Calculate_ME_Tax execute
+</action_postfix>
+<action_column column_number="22" column_value="X"></action_column>
+</action_details>
+
+<!-- Michigan -->
+<action_details>
+<action_number>23</action_number>
+<action_comment>Dispatch to MI tax calculation</action_comment>
+<action_postfix>
+Calculate_MI_Tax execute
+</action_postfix>
+<action_column column_number="23" column_value="X"></action_column>
+</action_details>
+
+<!-- Minnesota -->
+<action_details>
+<action_number>24</action_number>
+<action_comment>Dispatch to MN tax calculation</action_comment>
+<action_postfix>
+Calculate_MN_Tax execute
+</action_postfix>
+<action_column column_number="24" column_value="X"></action_column>
+</action_details>
+
+<!-- Missouri -->
+<action_details>
+<action_number>25</action_number>
+<action_comment>Dispatch to MO tax calculation</action_comment>
+<action_postfix>
+Calculate_MO_Tax execute
+</action_postfix>
+<action_column column_number="25" column_value="X"></action_column>
+</action_details>
+
+<!-- Mississippi -->
+<action_details>
+<action_number>26</action_number>
+<action_comment>Dispatch to MS tax calculation</action_comment>
+<action_postfix>
+Calculate_MS_Tax execute
+</action_postfix>
+<action_column column_number="26" column_value="X"></action_column>
+</action_details>
+
+<!-- Montana -->
+<action_details>
+<action_number>27</action_number>
+<action_comment>Dispatch to MT tax calculation</action_comment>
+<action_postfix>
+Calculate_MT_Tax execute
+</action_postfix>
+<action_column column_number="27" column_value="X"></action_column>
+</action_details>
+
+<!-- North Carolina -->
+<action_details>
+<action_number>28</action_number>
+<action_comment>Dispatch to NC tax calculation</action_comment>
+<action_postfix>
+Calculate_NC_Tax execute
+</action_postfix>
+<action_column column_number="28" column_value="X"></action_column>
+</action_details>
+
+<!-- North Dakota -->
+<action_details>
+<action_number>29</action_number>
+<action_comment>Dispatch to ND tax calculation</action_comment>
+<action_postfix>
+Calculate_ND_Tax execute
+</action_postfix>
+<action_column column_number="29" column_value="X"></action_column>
+</action_details>
+
+<!-- Nebraska -->
+<action_details>
+<action_number>30</action_number>
+<action_comment>Dispatch to NE tax calculation</action_comment>
+<action_postfix>
+Calculate_NE_Tax execute
+</action_postfix>
+<action_column column_number="30" column_value="X"></action_column>
+</action_details>
+
+<!-- New Hampshire -->
+<action_details>
+<action_number>31</action_number>
+<action_comment>Dispatch to NH tax calculation</action_comment>
+<action_postfix>
+Calculate_NH_Tax execute
+</action_postfix>
+<action_column column_number="31" column_value="X"></action_column>
+</action_details>
+
+<!-- New Jersey -->
+<action_details>
+<action_number>32</action_number>
+<action_comment>Dispatch to NJ tax calculation</action_comment>
+<action_postfix>
+Calculate_NJ_Tax execute
+</action_postfix>
+<action_column column_number="32" column_value="X"></action_column>
+</action_details>
+
+<!-- New Mexico -->
+<action_details>
+<action_number>33</action_number>
+<action_comment>Dispatch to NM tax calculation</action_comment>
+<action_postfix>
+Calculate_NM_Tax execute
+</action_postfix>
+<action_column column_number="33" column_value="X"></action_column>
+</action_details>
+
+<!-- Nevada -->
+<action_details>
+<action_number>34</action_number>
+<action_comment>Dispatch to NV tax calculation</action_comment>
+<action_postfix>
+Calculate_NV_Tax execute
+</action_postfix>
+<action_column column_number="34" column_value="X"></action_column>
+</action_details>
+
+<!-- New York -->
+<action_details>
+<action_number>35</action_number>
+<action_comment>Dispatch to NY tax calculation</action_comment>
+<action_postfix>
+Calculate_NY_Tax execute
+</action_postfix>
+<action_column column_number="35" column_value="X"></action_column>
+</action_details>
+
+<!-- Ohio -->
+<action_details>
+<action_number>36</action_number>
+<action_comment>Dispatch to OH tax calculation</action_comment>
+<action_postfix>
+Calculate_OH_Tax execute
+</action_postfix>
+<action_column column_number="36" column_value="X"></action_column>
+</action_details>
+
+<!-- Oklahoma -->
+<action_details>
+<action_number>37</action_number>
+<action_comment>Dispatch to OK tax calculation</action_comment>
+<action_postfix>
+Calculate_OK_Tax execute
+</action_postfix>
+<action_column column_number="37" column_value="X"></action_column>
+</action_details>
+
+<!-- Oregon -->
+<action_details>
+<action_number>38</action_number>
+<action_comment>Dispatch to OR tax calculation</action_comment>
+<action_postfix>
+Calculate_OR_Tax execute
+</action_postfix>
+<action_column column_number="38" column_value="X"></action_column>
+</action_details>
+
+<!-- Pennsylvania -->
+<action_details>
+<action_number>39</action_number>
+<action_comment>Dispatch to PA tax calculation</action_comment>
+<action_postfix>
+Calculate_PA_Tax execute
+</action_postfix>
+<action_column column_number="39" column_value="X"></action_column>
+</action_details>
+
+<!-- Rhode Island -->
+<action_details>
+<action_number>40</action_number>
+<action_comment>Dispatch to RI tax calculation</action_comment>
+<action_postfix>
+Calculate_RI_Tax execute
+</action_postfix>
+<action_column column_number="40" column_value="X"></action_column>
+</action_details>
+
+<!-- South Carolina -->
+<action_details>
+<action_number>41</action_number>
+<action_comment>Dispatch to SC tax calculation</action_comment>
+<action_postfix>
+Calculate_SC_Tax execute
+</action_postfix>
+<action_column column_number="41" column_value="X"></action_column>
+</action_details>
+
+<!-- South Dakota -->
+<action_details>
+<action_number>42</action_number>
+<action_comment>Dispatch to SD tax calculation</action_comment>
+<action_postfix>
+Calculate_SD_Tax execute
+</action_postfix>
+<action_column column_number="42" column_value="X"></action_column>
+</action_details>
+
+<!-- Tennessee -->
+<action_details>
+<action_number>43</action_number>
+<action_comment>Dispatch to TN tax calculation</action_comment>
+<action_postfix>
+Calculate_TN_Tax execute
+</action_postfix>
+<action_column column_number="43" column_value="X"></action_column>
+</action_details>
+
+<!-- Texas -->
+<action_details>
+<action_number>44</action_number>
+<action_comment>Dispatch to TX tax calculation</action_comment>
+<action_postfix>
+Calculate_TX_Tax execute
+</action_postfix>
+<action_column column_number="44" column_value="X"></action_column>
+</action_details>
+
+<!-- Utah -->
+<action_details>
+<action_number>45</action_number>
+<action_comment>Dispatch to UT tax calculation</action_comment>
+<action_postfix>
+Calculate_UT_Tax execute
+</action_postfix>
+<action_column column_number="45" column_value="X"></action_column>
+</action_details>
+
+<!-- Virginia -->
+<action_details>
+<action_number>46</action_number>
+<action_comment>Dispatch to VA tax calculation</action_comment>
+<action_postfix>
+Calculate_VA_Tax execute
+</action_postfix>
+<action_column column_number="46" column_value="X"></action_column>
+</action_details>
+
+<!-- Vermont -->
+<action_details>
+<action_number>47</action_number>
+<action_comment>Dispatch to VT tax calculation</action_comment>
+<action_postfix>
+Calculate_VT_Tax execute
+</action_postfix>
+<action_column column_number="47" column_value="X"></action_column>
+</action_details>
+
+<!-- Washington -->
+<action_details>
+<action_number>48</action_number>
+<action_comment>Dispatch to WA tax calculation</action_comment>
+<action_postfix>
+Calculate_WA_Tax execute
+</action_postfix>
+<action_column column_number="48" column_value="X"></action_column>
+</action_details>
+
+<!-- Wisconsin -->
+<action_details>
+<action_number>49</action_number>
+<action_comment>Dispatch to WI tax calculation</action_comment>
+<action_postfix>
+Calculate_WI_Tax execute
+</action_postfix>
+<action_column column_number="49" column_value="X"></action_column>
+</action_details>
+
+<!-- West Virginia -->
+<action_details>
+<action_number>50</action_number>
+<action_comment>Dispatch to WV tax calculation</action_comment>
+<action_postfix>
+Calculate_WV_Tax execute
+</action_postfix>
+<action_column column_number="50" column_value="X"></action_column>
+</action_details>
+
+<!-- Wyoming -->
+<action_details>
+<action_number>51</action_number>
+<action_comment>Dispatch to WY tax calculation</action_comment>
+<action_postfix>
+Calculate_WY_Tax execute
+</action_postfix>
+<action_column column_number="51" column_value="X"></action_column>
+</action_details>
+
+<!-- No-tax state fallback -->
+<action_details>
+<action_number>52</action_number>
+<action_comment>No state income tax</action_comment>
+<action_postfix>
+0.0 /result.state_tax_liability xdef
+job.state " has no state income tax - state_tax_liability set to $0" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="52" column_value="X"></action_column>
+</action_details>
+
+<!-- Unimplemented state fallback -->
+<action_details>
+<action_number>53</action_number>
+<action_comment>State tax not yet implemented</action_comment>
+<action_postfix>
+0.0 /result.state_tax_liability xdef
+"WARNING: State tax calculation for " job.state strconcat " is not yet implemented - defaulting to $0" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="53" column_value="X"></action_column>
+</action_details>
+
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>Calculate Illinois state income tax</policy_description>
-<policy_statement_postfix>"Calculate Illinois state income tax per Form IL-1040"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>Calculate New Hampshire state income tax</policy_description>
-<policy_statement_postfix>"Calculate New Hampshire state income tax per Form NH-1040"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>Calculate Montana state income tax</policy_description>
-<policy_statement_postfix>"Calculate Montana state income tax per Montana Form 2"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="4">
-<policy_description>No state income tax</policy_description>
-<policy_statement_postfix>"No state income tax for TX, FL, WA, NV, and other no-tax states"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="5">
-<policy_description>State tax not implemented</policy_description>
-<policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+
 </decision_table>
+
 
 <!-- ====================================================================== -->
 <!-- TABLE 41100: Calculate_IL_Tax - Illinois State Income Tax            -->
