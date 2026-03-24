@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_dictionary name="CorporateTax_Core_EDD">
+
+  <!-- Corporation Entity -->
+  <entity name="corporation">
+    <field name='ein' type='string' comment='Employer Identification Number'/>
+    <field name='corporation_name' type='string' comment='Legal name of corporation'/>
+    <field name='incorporation_date' type='date' comment='Date of incorporation'/>
+    <field name='business_code' type='string' comment='Principal Business Activity Code'/>
+    <field name='accounting_method' type='string' comment='Accounting method: cash or accrual'/>
+    <field name='tax_year_end' type='date' comment='End of tax year'/>
+    <field name='total_assets' type='double' comment='Total assets (Schedule L)'/>
+    <field name='gross_receipts' type='double' comment='Gross receipts for the year'/>
+  </entity>
+
+  <!-- Revenue Entity -->
+  <entity name="revenue">
+    <field name='gross_receipts' type='double' default_value='0.0' comment='Gross receipts or sales (Form 1120 line 1a)'/>
+    <field name='returns_and_allowances' type='double' default_value='0.0' comment='Returns and allowances (Form 1120 line 1b)'/>
+    <field name='net_receipts' type='double' default_value='0.0' comment='Net receipts (line 1c = 1a - 1b)'/>
+    <field name='cost_of_goods_sold' type='double' default_value='0.0' comment='Cost of goods sold (Form 1120 line 2)'/>
+    <field name='gross_profit' type='double' default_value='0.0' comment='Gross profit (Form 1120 line 3 = 1c - 2)'/>
+    <field name='dividends_received' type='double' default_value='0.0' comment='Dividends (Form 1120 line 4)'/>
+    <field name='interest_income' type='double' default_value='0.0' comment='Interest income (Form 1120 line 5)'/>
+    <field name='gross_rents' type='double' default_value='0.0' comment='Gross rents (Form 1120 line 6)'/>
+    <field name='gross_royalties' type='double' default_value='0.0' comment='Gross royalties (Form 1120 line 7)'/>
+    <field name='capital_gain_net_income' type='double' default_value='0.0' comment='Capital gain net income (Form 1120 line 8)'/>
+    <field name='net_gain_loss_4797' type='double' default_value='0.0' comment='Net gain or loss from Form 4797'/>
+    <field name='other_income' type='double' default_value='0.0' comment='Other income (Form 1120 line 10)'/>
+    <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
+  </entity>
+
+  <!-- Expense Entity (for business deductions) -->
+  <entity name="expense">
+    <field name='category' type='string' comment='Expense category (compensation, rent, interest, etc.)'/>
+    <field name='amount' type='double' comment='Expense amount'/>
+    <field name='deductible' type='boolean' default_value='true' comment='Whether expense is deductible'/>
+    <field name='limitation_applied' type='string' comment='Any limitation applied (163j, charitable, etc.)'/>
+  </entity>
+
+  <!-- Result Entity (tax calculation results and audit trail) -->
+  <entity name="result">
+    <!-- Federal Income -->
+    <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
+
+    <!-- Federal Deductions -->
+    <field name='compensation' type='double' default_value='0.0' comment='Compensation of officers (Form 1120 line 12)'/>
+    <field name='salaries_and_wages' type='double' default_value='0.0' comment='Salaries and wages (Form 1120 line 13)'/>
+    <field name='repairs_and_maintenance' type='double' default_value='0.0' comment='Repairs and maintenance (Form 1120 line 14)'/>
+    <field name='bad_debts' type='double' default_value='0.0' comment='Bad debts (Form 1120 line 15)'/>
+    <field name='rents' type='double' default_value='0.0' comment='Rents (Form 1120 line 16)'/>
+    <field name='taxes_and_licenses' type='double' default_value='0.0' comment='Taxes and licenses (Form 1120 line 17)'/>
+    <field name='interest_expense' type='double' default_value='0.0' comment='Interest expense (Form 1120 line 18)'/>
+    <field name='charitable_contributions' type='double' default_value='0.0' comment='Charitable contributions (Form 1120 line 19)'/>
+    <field name='depreciation' type='double' default_value='0.0' comment='Depreciation (Form 1120 line 20)'/>
+    <field name='depletion' type='double' default_value='0.0' comment='Depletion (Form 1120 line 21)'/>
+    <field name='advertising' type='double' default_value='0.0' comment='Advertising (Form 1120 line 22)'/>
+    <field name='pension_profit_sharing' type='double' default_value='0.0' comment='Pension, profit-sharing plans (Form 1120 line 23)'/>
+    <field name='employee_benefit_programs' type='double' default_value='0.0' comment='Employee benefit programs (Form 1120 line 24)'/>
+    <field name='other_deductions' type='double' default_value='0.0' comment='Other deductions (Form 1120 line 26)'/>
+    <field name='total_deductions' type='double' default_value='0.0' comment='Total deductions (Form 1120 line 27)'/>
+
+    <!-- Taxable Income and Tax -->
+    <field name='taxable_income' type='double' default_value='0.0' comment='Taxable income (Form 1120 line 28 = 11 - 27)'/>
+    <field name='federal_tax_rate' type='double' default_value='0.21' comment='Federal corporate tax rate (21% flat rate)'/>
+    <field name='federal_tax' type='double' default_value='0.0' comment='Federal income tax (Form 1120 line 31 = 28 × 21%)'/>
+
+    <!-- Credits and Payments -->
+    <field name='total_credits' type='double' default_value='0.0' comment='Total tax credits (Form 1120)'/>
+    <field name='estimated_tax_payments' type='double' default_value='0.0' comment='Estimated tax payments'/>
+    <field name='total_payments' type='double' default_value='0.0' comment='Total payments and credits'/>
+
+    <!-- Final Amount -->
+    <field name='refund_or_owed' type='double' default_value='0.0' comment='Refund (positive) or amount owed (negative)'/>
+
+    <!-- Audit Trail -->
+    <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
+  </entity>
+
+  <!-- Job Entity (execution metadata) -->
+  <entity name="job">
+    <field name='test_case_name' type='string' comment='Name of test case'/>
+    <field name='execution_date' type='date' comment='Date of execution'/>
+    <field name='dtrules_version' type='string' comment='DTRules version'/>
+  </entity>
+
+
+</entity_dictionary>

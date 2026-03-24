@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Corporate Tax Core Decision Tables (Federal)
+
+  This file contains federal corporate tax decision tables only.
+  State-specific tables are in xml/states/*_corp_dt.xml
+
+  The merge-states.sh script combines this file with all state files
+  to produce the final CorporateTax_dt.xml
+
+  Table Numbering:
+  - 1000-1999: Orchestration
+  - 2000-2999: Income calculation
+  - 3000-3999: Deduction calculation
+  - 4000-4999: Tax calculation
+  - 5000-5999: Credits (Phase 2)
+  - 6000-6999: Depreciation/Assets (Phase 2)
+  - 7000-7999: Apportionment (Phase 3)
+  - 8000-8999: Schedules M-1, M-2, L (Phase 4)
+  - 9000-9999: Advanced (NOL, foreign tax credit) (Phase 4)
+-->
+<decision_tables name="CorporateTax_Core_Tables">
+
+  <!--
+    ================================================================
+    INCOME CALCULATION TABLES (2000-2999)
+    ================================================================
+  -->
+
+  <!--
+    Table 2000: Calculate Net Receipts
+
+    Calculates net receipts (Form 1120 line 1c = 1a - 1b)
+
+    Reference: Form 1120 Line 1a-1c
+  -->
+  <decision_table name="Calculate_Net_Receipts" number="2000">
+    <description>
+      Calculate net receipts from gross receipts minus returns and allowances.
+      Form 1120 line 1c = 1a - 1b
+    </description>
+
+    <conditions>
+      <condition name="has_gross_receipts">
+        <expression>revenue.gross_receipts > 0</expression>
+        <comment>Has gross receipts from sales</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_gross_receipts>Y</has_gross_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.net_receipts = revenue.gross_receipts - revenue.returns_and_allowances;
+          </action>
+        </actions>
+        <policy>
+          Net receipts = Gross receipts - Returns and allowances.
+          Reference: Form 1120 Instructions, Line 1c
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_gross_receipts>N</has_gross_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.net_receipts = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No gross receipts = zero net receipts.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 2100: Calculate Gross Profit
+
+    Calculates gross profit (Form 1120 line 3 = 1c - 2)
+
+    Reference: Form 1120 Line 3, Schedule A (Cost of Goods Sold)
+  -->
+  <decision_table name="Calculate_Gross_Profit" number="2100">
+    <description>
+      Calculate gross profit from net receipts minus cost of goods sold.
+      Form 1120 line 3 = 1c - 2
+    </description>
+
+    <conditions>
+      <condition name="has_net_receipts">
+        <expression>revenue.net_receipts > 0</expression>
+        <comment>Has net receipts from sales</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_net_receipts>Y</has_net_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.gross_profit = revenue.net_receipts - revenue.cost_of_goods_sold;
+          </action>
+        </actions>
+        <policy>
+          Gross profit = Net receipts - Cost of goods sold.
+          Reference: Form 1120 Instructions, Line 3
+          Reference: Schedule A - Cost of Goods Sold
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_net_receipts>N</has_net_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.gross_profit = 0.0 - revenue.cost_of_goods_sold;
+          </action>
+        </actions>
+        <policy>
+          No receipts: gross profit = negative COGS (loss from inventory).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 2600: Calculate Total Income
+
+    Calculates total income (Form 1120 line 11)
+    Sum of: gross profit + dividends + interest + rents + royalties + capital gains + other
+
+    Reference: Form 1120 Line 11
+  -->
+  <decision_table name="Calculate_Total_Income" number="2600">
+    <description>
+      Calculate total income (sum of all income sources).
+      Form 1120 line 11
+    </description>
+
+    <conditions>
+      <condition name="always_calculate">
+        <expression>true</expression>
+        <comment>Always calculate total income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_calculate>Y</always_calculate>
+        </conditions>
+        <actions>
+          <action>
+            revenue.total_income =
+              revenue.gross_profit +
+              revenue.dividends_received +
+              revenue.interest_income +
+              revenue.gross_rents +
+              revenue.gross_royalties +
+              revenue.capital_gain_net_income +
+              revenue.net_gain_loss_4797 +
+              revenue.other_income;
+
+            // Copy to result entity for tax calculation
+            result.total_income = revenue.total_income;
+          </action>
+        </actions>
+        <policy>
+          Total income = Gross profit (line 3) + Dividends (line 4) + Interest (line 5) +
+                        Rents (line 6) + Royalties (line 7) + Capital gain (line 8) +
+                        Net gain/loss Form 4797 (line 9) + Other income (line 10).
+          Reference: Form 1120 Instructions, Line 11
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    DEDUCTION CALCULATION TABLES (3000-3999)
+    ================================================================
+  -->
+
+  <!--
+    Table 3000: Calculate Compensation Deduction
+
+    Deduction for compensation of officers (Form 1120 line 12)
+
+    Reference: Form 1120 Line 12, Schedule E
+  -->
+  <decision_table name="Calculate_Compensation_Deduction" number="3000">
+    <description>
+      Calculate deduction for officer compensation.
+      Form 1120 line 12
+    </description>
+
+    <conditions>
+      <condition name="has_officer_compensation">
+        <expression>result.compensation > 0</expression>
+        <comment>Has officer compensation expense</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_officer_compensation>Y</has_officer_compensation>
+        </conditions>
+        <actions>
+          <action>
+            // Officer compensation is fully deductible (subject to reasonableness test)
+            // Reasonableness test is typically applied during audit, not in calculation
+          </action>
+        </actions>
+        <policy>
+          Compensation paid to officers is deductible under IRC Section 162(a)(1).
+          Must be reasonable in amount and for services actually performed.
+          Reference: Form 1120 Instructions, Line 12
+          Reference: IRC Section 162(a)(1)
+          Reference: Reg. Section 1.162-7 (Compensation for personal services)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_officer_compensation>N</has_officer_compensation>
+        </conditions>
+        <actions>
+          <action>
+            result.compensation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No officer compensation to deduct.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 3200: Calculate Interest Deduction with IRC 163(j) Limitation
+
+    Business interest expense deduction limited to:
+    - Business interest income +
+    - 30% of adjusted taxable income (ATI) +
+    - Floor plan financing interest
+
+    Reference: Form 1120 Line 18, IRC Section 163(j), Form 8990
+  -->
+  <decision_table name="Calculate_Interest_Deduction" number="3200">
+    <description>
+      Calculate interest expense deduction with IRC 163(j) limitation.
+      Form 1120 line 18
+    </description>
+
+    <conditions>
+      <condition name="has_interest_expense">
+        <expression>result.interest_expense > 0</expression>
+        <comment>Has interest expense</comment>
+      </condition>
+
+      <condition name="exceeds_30pct_ati">
+        <expression>result.interest_expense > (0.30 * result.taxable_income)</expression>
+        <comment>Interest expense exceeds 30% of adjusted taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_interest_expense>Y</has_interest_expense>
+          <exceeds_30pct_ati>N</exceeds_30pct_ati>
+        </conditions>
+        <actions>
+          <action>
+            // Interest expense is fully deductible (under 163(j) limit)
+          </action>
+        </actions>
+        <policy>
+          Business interest expense is fully deductible when it does not exceed
+          business interest income plus 30% of adjusted taxable income.
+          Reference: Form 1120 Instructions, Line 18
+          Reference: IRC Section 163(j)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_interest_expense>Y</has_interest_expense>
+          <exceeds_30pct_ati>Y</exceeds_30pct_ati>
+        </conditions>
+        <actions>
+          <action>
+            // Limit interest deduction to 30% of ATI
+            // Excess carried forward (not implemented in Phase 1)
+            result.interest_expense = 0.30 * result.taxable_income;
+          </action>
+        </actions>
+        <policy>
+          Business interest expense limited to 30% of adjusted taxable income per IRC 163(j).
+          Excess interest carried forward indefinitely.
+          Reference: Form 1120 Instructions, Line 18
+          Reference: IRC Section 163(j)
+          Reference: Form 8990 - Limitation on Business Interest Expense
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_interest_expense>N</has_interest_expense>
+        </conditions>
+        <actions>
+          <action>
+            result.interest_expense = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No interest expense to deduct.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 3500: Calculate Charitable Contributions with 10% Limitation
+
+    Charitable contributions limited to 10% of taxable income (computed without
+    regard to charitable contributions deduction, NOL, capital loss carryback, etc.)
+
+    Reference: Form 1120 Line 19, IRC Section 170(b)(2)
+  -->
+  <decision_table name="Calculate_Charitable_Contributions" number="3500">
+    <description>
+      Calculate charitable contributions deduction with 10% limitation.
+      Form 1120 line 19
+    </description>
+
+    <conditions>
+      <condition name="has_charitable_contributions">
+        <expression>result.charitable_contributions > 0</expression>
+        <comment>Has charitable contributions</comment>
+      </condition>
+
+      <condition name="exceeds_10pct_limit">
+        <expression>result.charitable_contributions > (0.10 * result.taxable_income)</expression>
+        <comment>Contributions exceed 10% of taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_charitable_contributions>Y</has_charitable_contributions>
+          <exceeds_10pct_limit>N</exceeds_10pct_limit>
+        </conditions>
+        <actions>
+          <action>
+            // Charitable contributions fully deductible (under 10% limit)
+          </action>
+        </actions>
+        <policy>
+          Charitable contributions are fully deductible when they do not exceed
+          10% of taxable income (computed without the charitable deduction).
+          Reference: Form 1120 Instructions, Line 19
+          Reference: IRC Section 170(b)(2)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_charitable_contributions>Y</has_charitable_contributions>
+          <exceeds_10pct_limit>Y</exceeds_10pct_limit>
+        </conditions>
+        <actions>
+          <action>
+            // Limit charitable contributions to 10% of taxable income
+            // Excess carried forward 5 years (not implemented in Phase 1)
+            result.charitable_contributions = 0.10 * result.taxable_income;
+          </action>
+        </actions>
+        <policy>
+          Charitable contributions limited to 10% of taxable income per IRC 170(b)(2).
+          Excess contributions carried forward 5 years.
+          Reference: Form 1120 Instructions, Line 19
+          Reference: IRC Section 170(b)(2)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_charitable_contributions>N</has_charitable_contributions>
+        </conditions>
+        <actions>
+          <action>
+            result.charitable_contributions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No charitable contributions to deduct.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 3600: Calculate Total Deductions
+
+    Sum all deductions (Form 1120 line 27)
+
+    Reference: Form 1120 Line 27
+  -->
+  <decision_table name="Calculate_Total_Deductions" number="3600">
+    <description>
+      Calculate total deductions (sum of all deduction line items).
+      Form 1120 line 27
+    </description>
+
+    <conditions>
+      <condition name="always_calculate">
+        <expression>true</expression>
+        <comment>Always calculate total deductions</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_calculate>Y</always_calculate>
+        </conditions>
+        <actions>
+          <action>
+            result.total_deductions =
+              result.compensation +
+              result.salaries_and_wages +
+              result.repairs_and_maintenance +
+              result.bad_debts +
+              result.rents +
+              result.taxes_and_licenses +
+              result.interest_expense +
+              result.charitable_contributions +
+              result.depreciation +
+              result.depletion +
+              result.advertising +
+              result.pension_profit_sharing +
+              result.employee_benefit_programs +
+              result.other_deductions;
+          </action>
+        </actions>
+        <policy>
+          Total deductions = Sum of lines 12-26 (all deduction categories).
+          Reference: Form 1120 Instructions, Line 27
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    TAX CALCULATION TABLES (4000-4999)
+    ================================================================
+  -->
+
+  <!--
+    Table 4000: Calculate Taxable Income
+
+    Taxable income = Total income - Total deductions
+    (Form 1120 line 28 = line 11 - line 27)
+
+    Reference: Form 1120 Line 28
+  -->
+  <decision_table name="Calculate_Taxable_Income" number="4000">
+    <description>
+      Calculate taxable income (total income minus total deductions).
+      Form 1120 line 28 = 11 - 27
+    </description>
+
+    <conditions>
+      <condition name="has_positive_income">
+        <expression>result.total_income > result.total_deductions</expression>
+        <comment>Income exceeds deductions</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_positive_income>Y</has_positive_income>
+        </conditions>
+        <actions>
+          <action>
+            result.taxable_income = result.total_income - result.total_deductions;
+          </action>
+        </actions>
+        <policy>
+          Taxable income = Total income - Total deductions.
+          Reference: Form 1120 Instructions, Line 28
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_positive_income>N</has_positive_income>
+        </conditions>
+        <actions>
+          <action>
+            result.taxable_income = 0.0;
+            // Net operating loss (NOL) - Phase 4
+          </action>
+        </actions>
+        <policy>
+          Deductions exceed income: taxable income is zero.
+          Net operating loss (NOL) may be available for carryforward/carryback.
+          Reference: Form 1120 Instructions, Line 28
+          Reference: IRC Section 172 (NOL deduction)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 4100: Apply Corporate Tax Rate
+
+    Federal corporate tax is a flat 21% rate per IRC Section 11 (TCJA 2017).
+    No brackets, no AMT for corporations (repealed by TCJA).
+
+    Reference: Form 1120 Line 31, IRC Section 11(b)
+  -->
+  <decision_table name="Apply_Corporate_Tax_Rate" number="4100">
+    <description>
+      Calculate federal corporate income tax at 21% flat rate.
+      Form 1120 line 31 = line 28 × 21%
+    </description>
+
+    <conditions>
+      <condition name="has_taxable_income">
+        <expression>result.taxable_income > 0</expression>
+        <comment>Has positive taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_taxable_income>Y</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            result.federal_tax = result.taxable_income * result.federal_tax_rate;
+          </action>
+        </actions>
+        <policy>
+          Federal corporate income tax = Taxable income × 21% (flat rate).
+          Rate established by Tax Cuts and Jobs Act (TCJA) of 2017, effective 2018+.
+          No progressive brackets. No Alternative Minimum Tax (AMT repealed for corporations).
+          Reference: Form 1120 Instructions, Schedule J Line 2
+          Reference: IRC Section 11(b) - Tax imposed on corporations
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_taxable_income>N</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            result.federal_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No taxable income = no tax liability.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 4300: Calculate Refund or Amount Owed
+
+    Final calculation: payments + credits - tax = refund (positive) or owed (negative)
+
+    Reference: Form 1120 Lines 32-35
+  -->
+  <decision_table name="Calculate_Refund_Or_Owed" number="4300">
+    <description>
+      Calculate final refund or amount owed.
+      Payments + Credits - Tax
+    </description>
+
+    <conditions>
+      <condition name="always_calculate">
+        <expression>true</expression>
+        <comment>Always calculate final amount</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_calculate>Y</always_calculate>
+        </conditions>
+        <actions>
+          <action>
+            // Total payments includes estimated payments + prior year overpayment credits
+            result.total_payments = result.estimated_tax_payments + result.total_credits;
+
+            // Refund (positive) or owed (negative)
+            result.refund_or_owed = result.total_payments - result.federal_tax;
+          </action>
+        </actions>
+        <policy>
+          If (Payments + Credits) > Tax: Refund
+          If (Payments + Credits) < Tax: Amount owed
+          Reference: Form 1120 Instructions, Lines 32-35
+          Line 32: Total payments and refundable credits
+          Line 33: Estimated tax penalty (not implemented Phase 1)
+          Line 34: Amount owed = Tax - Payments (if positive)
+          Line 35: Overpayment = Payments - Tax (if positive)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    ORCHESTRATION TABLE (1000-1999)
+    ================================================================
+  -->
+
+  <!--
+    Table 1000: Compute Corporate Tax Return
+
+    Main orchestration table that calls all subtables in correct order.
+
+    Execution flow:
+    1. Income calculation (2000-2600)
+    2. Deduction calculation (3000-3600)
+    3. Tax calculation (4000-4300)
+
+    Reference: Form 1120 (entire form)
+  -->
+  <decision_table name="Compute_Corporate_Tax_Return" number="1000">
+    <description>
+      Main orchestration table for corporate tax calculation.
+      Calls all income, deduction, and tax calculation tables in sequence.
+    </description>
+
+    <conditions>
+      <condition name="always_execute">
+        <expression>true</expression>
+        <comment>Always execute full tax calculation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_execute>Y</always_execute>
+        </conditions>
+        <actions>
+          <action>
+            // ===== INCOME CALCULATION =====
+            execute(2000);  // Calculate_Net_Receipts
+            execute(2100);  // Calculate_Gross_Profit
+            execute(2600);  // Calculate_Total_Income
+
+            // ===== DEDUCTION CALCULATION =====
+            execute(3000);  // Calculate_Compensation_Deduction
+            execute(3200);  // Calculate_Interest_Deduction (IRC 163j)
+            execute(3500);  // Calculate_Charitable_Contributions (10% limit)
+            execute(3600);  // Calculate_Total_Deductions
+
+            // ===== TAX CALCULATION =====
+            execute(4000);  // Calculate_Taxable_Income
+            execute(4100);  // Apply_Corporate_Tax_Rate (21%)
+            execute(4300);  // Calculate_Refund_Or_Owed
+          </action>
+        </actions>
+        <policy>
+          Corporate tax calculation flow:
+          1. Calculate income (Form 1120 lines 1-11)
+          2. Calculate deductions (Form 1120 lines 12-27)
+          3. Calculate taxable income (Form 1120 line 28)
+          4. Apply 21% tax rate (Schedule J)
+          5. Apply credits and payments
+          6. Determine refund or amount owed
+
+          Reference: Form 1120 - U.S. Corporation Income Tax Return
+          Reference: Form 1120 Instructions (all sections)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>
