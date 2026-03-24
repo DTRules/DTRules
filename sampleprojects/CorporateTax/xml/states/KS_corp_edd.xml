@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Kansas Corporate Tax Entity Data Dictionary
+
+  KS has a two-tier corporate income tax structure:
+  - 4.0% base rate (3.5% + 0.5% temporary increase)
+  - 3.0% surtax on income over $50,000
+  - Effective rate: 7.0% on income above $50,000
+
+  Key Features:
+  - Two-tier rate structure: 4.0% base + 3.0% surtax over $50,000
+  - Three-factor apportionment formula (property, payroll, sales)
+  - Optional two-factor formula (sales and property) if payroll exceeds 200% of average
+  - Future: Single-sales factor for tax years beginning after Dec. 31, 2026
+  - Economic nexus: $100,000 threshold (standard post-Wayfair)
+
+  References:
+  - K.S.A. 79-32,110 (Tax rate and surtax)
+  - Kansas Form K-120 (Corporation Income Tax Return)
+  - Kansas Department of Revenue Corporate Tax Booklet 2025
+  - House Bill 2231 (2025) - Single sales factor for 2027+
+-->
+<entity_dictionary name="CorporateTax_KS_Constants">
+
+  <!--
+    Apportionment Entity: Kansas Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and KS-specific tables 52900-52999.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='KS'
+           comment='Kansas state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='KS economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='KS economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='three_factor'
+           comment='KS uses three-factor apportionment (property, payroll, sales) with optional two-factor'/>
+
+    <!-- State Tax Rate - Two-Tier Structure -->
+    <field name='state_tax_base_rate' type='double' default_value='0.04'
+           comment='KS corporate income tax base rate: 4.0% (includes 0.5% temporary increase)'/>
+
+    <field name='state_tax_surtax_rate' type='double' default_value='0.03'
+           comment='KS corporate income tax surtax: 3.0% on income over $50,000'/>
+
+    <field name='surtax_threshold' type='double' default_value='50000.0'
+           comment='KS surtax threshold: $50,000 - surtax applies to income above this amount'/>
+
+    <!-- Effective Combined Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.07'
+           comment='KS effective combined rate: 7.0% (4.0% base + 3.0% surtax) on income over $50,000'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='KS additions: federal interest income, state income tax refunds, IRC 163(j) adjustments, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='KS subtractions: Kansas municipal bond interest, state income taxes paid, Kansas NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='KS tax credits: job creation, film production, historic preservation, community service contribution, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: KS-specific fields for two-tier tax calculation
+  -->
+  <entity name="result">
+
+    <!-- KS Two-Tier Tax Calculation Fields -->
+    <field name='ks_income_below_threshold' type='double' default_value='0.0'
+           comment='KS taxable income below $50,000 surtax threshold'/>
+
+    <field name='ks_income_above_threshold' type='double' default_value='0.0'
+           comment='KS taxable income above $50,000 surtax threshold (subject to surtax)'/>
+
+    <field name='ks_base_tax' type='double' default_value='0.0'
+           comment='KS base tax at 4.0% on all income'/>
+
+    <field name='ks_surtax' type='double' default_value='0.0'
+           comment='KS surtax at 3.0% on income above $50,000'/>
+
+  </entity>
+
+</entity_dictionary>

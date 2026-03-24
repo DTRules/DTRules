@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Indiana Corporate Tax Entity Data Dictionary
+
+  Indiana has a 4.9% flat corporate income tax rate (2025).
+
+  Key Features:
+  - Flat 4.9% corporate income tax rate
+  - Single-sales apportionment formula
+  - Economic nexus: $100,000 gross receipts threshold (transaction threshold eliminated Jan 1, 2024)
+  - Taxes corporations "to the fullest extent permitted by federal law" (post-Wayfair)
+  - No alternative minimum tax
+
+  References:
+  - Indiana Code § 6-3-2-1 (Tax rate)
+  - Indiana Form IT-20 (Corporation Income Tax Return)
+  - Indiana Department of Revenue Corporate Tax Guidance
+-->
+<entity_dictionary name="CorporateTax_IN_Constants">
+
+  <!--
+    Apportionment Entity: Indiana Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and IN-specific tables 52800-52899.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='IN'
+           comment='Indiana state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='IN economic nexus gross receipts threshold: $100,000 (transaction threshold removed Jan 1, 2024)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='IN transaction threshold eliminated as of January 1, 2024 (previously 200)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='IN uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.049'
+           comment='IN corporate income tax rate: 4.9% flat rate (2025) - Indiana Code § 6-3-2-1'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='IN additions: out-of-state municipal bond interest (acquired after 12/31/2011), certain expenses, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='IN subtractions: IN municipal bond interest, state income taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='IN tax credits: economic development, R&D, headquarters relocation, neighborhood assistance, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: IN does not require special state-specific fields
+
+    Indiana uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+  -->
+  <entity name="result">
+    <!-- No IN-specific fields required -->
+  </entity>
+
+</entity_dictionary>

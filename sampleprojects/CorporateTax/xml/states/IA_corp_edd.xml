@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Iowa Corporate Tax Entity Data Dictionary
+
+  IA has a graduated corporate income tax with rates from 5.5% to 7.1%.
+  The state is transitioning toward a flat 5.5% rate in future years.
+
+  Key Features:
+  - Graduated corporate income tax rates (5.5% to 7.1% for 2025)
+  - Single-sales apportionment formula (100% sales factor)
+  - Economic nexus: $100,000 gross receipts threshold (no transaction count as of 7/1/2023)
+  - Federal interest income is subtracted from Iowa taxable income
+  - No conformity to IRC 199A deduction limitations
+
+  References:
+  - Iowa Code § 422.33 (Tax rates)
+  - Iowa Form IA 1120 (Corporation Income Tax Return)
+  - Iowa Department of Revenue Corporate Income Tax Instructions
+  - https://revenue.iowa.gov/taxes/tax-guidance/business-income-tax/iowa-corporate-income-tax-rates
+-->
+<entity_dictionary name="CorporateTax_IA_Constants">
+
+  <!--
+    Apportionment Entity: Iowa Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and IA-specific tables 52600-52699.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='IA'
+           comment='Iowa state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='IA economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='IA eliminated transaction count threshold as of 7/1/2023'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='IA uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate - Graduated System -->
+    <field name='state_tax_rate_bracket_1' type='double' default_value='0.055'
+           comment='IA corporate income tax rate bracket 1: 5.5% on income up to $100,000'/>
+
+    <field name='state_tax_rate_bracket_2' type='double' default_value='0.071'
+           comment='IA corporate income tax rate bracket 2: 7.1% on income over $100,000'/>
+
+    <field name='state_tax_bracket_threshold' type='double' default_value='100000.0'
+           comment='IA tax bracket threshold: $100,000'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='IA additions: state income taxes deducted federally, certain expenses, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='IA subtractions: federal interest income (U.S. Treasury bonds, notes, bills), IA municipal bond interest, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='IA tax credits: research activities, high quality jobs, renewable energy, historic preservation, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: IA-specific fields for graduated tax calculation
+
+    Iowa uses a graduated rate system requiring separate calculation
+    for different income brackets.
+  -->
+  <entity name="result">
+    <field name='ia_tax_bracket_1' type='double' default_value='0.0'
+           comment='IA tax on first $100,000 at 5.5%'/>
+
+    <field name='ia_tax_bracket_2' type='double' default_value='0.0'
+           comment='IA tax on income over $100,000 at 7.1%'/>
+  </entity>
+
+</entity_dictionary>
