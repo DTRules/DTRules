@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8606 - Nondeductible IRA Contribution Tracking -->
+<!-- Scenario: High earner makes nondeductible IRA contribution -->
+<!-- Form 8606 tracks basis for future distributions -->
+<!-- Expected: $7,000 nondeductible IRA contribution tracked as basis -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Form 8606: Nondeductible IRA Contributions (2025) -->
+   <!-- Single taxpayer earning $150k (covered by employer plan) -->
+   <!-- IRA deduction phases out completely above $89,000 for 2025 -->
+   <!-- Taxpayer makes $7,000 nondeductible IRA contribution -->
+   <!-- Form 8606 Part I: Records $7,000 as basis -->
+   <!-- This basis will reduce taxable amount on future distributions -->
+
+   <id>Retirement-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $150,000 W-2 -->
+   <!-- AGI: $150,000 (no IRA deduction, above phaseout) -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $135,000 -->
+   <!-- Form 8606 Basis: $7,000 (nondeductible contribution) -->
+   <expected_agi>150000</expected_agi>
+   <expected_taxable_income>135000</expected_taxable_income>
+   <expected_ira_basis>7000</expected_ira_basis>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alexandra Chen</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>6/18/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>32000</w2_withholding>
+         <traditional_ira_contribution>7000</traditional_ira_contribution>
+         <ira_nondeductible_amount>7000</ira_nondeductible_amount>
+         <covered_by_employer_plan>true</covered_by_employer_plan>
+         <age_50_or_over>false</age_50_or_over>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

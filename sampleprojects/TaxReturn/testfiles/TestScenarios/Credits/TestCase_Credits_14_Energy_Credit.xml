@@ -1,0 +1,84 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Residential Energy Credit Test: Solar panels (Form 5695) -->
+   <!-- 2025 Residential Clean Energy Credit: 30% of costs -->
+   <!-- Applies to solar electric, solar water heating, geothermal, etc. -->
+   <!-- No cap on credit amount through 2032 -->
+   <!-- This scenario: $25,000 solar panel installation -->
+   <!-- Expected credit: $25,000 × 30% = $7,500 -->
+
+   <id>Credits-14</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $180,000 combined W-2 -->
+   <!-- AGI: $180,000 -->
+   <!-- Solar installation cost: $25,000 -->
+   <!-- Energy credit: $7,500 (30% of cost) -->
+   <!-- Credit reduces tax liability (non-refundable but can carry forward) -->
+   <expected_agi>180000</expected_agi>
+   <expected_energy_credit>7500</expected_energy_credit>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Christopher Taylor</name>
+         <ssn>777-99-1111</ssn>
+         <date_of_birth>4/5/1982</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Amy Taylor</name>
+         <ssn>777-99-2222</ssn>
+         <date_of_birth>9/18/1984</date_of_birth>
+         <occupation>Graphic Designer</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Matthew Taylor</name>
+         <ssn>888-11-2222</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>3/12/2012</date_of_birth>
+         <age>13</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>456 Solar Lane, Austin, TX 78704</address>
+         <purchase_date>5/1/2019</purchase_date>
+         <purchase_price>380000</purchase_price>
+         <current_fmv>520000</current_fmv>
+         <improvements>
+            <improvement id="1">
+               <type>solar_panels</type>
+               <description>Residential solar electric system</description>
+               <installation_date>3/15/2025</installation_date>
+               <cost>25000</cost>
+               <energy_credit_eligible>true</energy_credit_eligible>
+            </improvement>
+         </improvements>
+      </property>
+   </properties>
+
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

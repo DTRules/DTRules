@@ -146,4 +146,73 @@ nd_tax /result.state_tax_liability xdef
 
 </decision_table>
 
+<!-- ====================================================================== -->
+<!-- TABLE 43201: Calculate_ND_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ND_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>North Dakota military retirement pay exclusion. Full exemption for all military retirement income (Group B). MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
+<TABLE_NUMBER>43201</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize ND military retirement exclusion calculation</action_description>
+<action_postfix>
+"ND Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has military retirement pay</condition_comment>
+<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_postfix>
+taxpayer.military_retirement_pay get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Full exclusion - 100% of military retirement pay excluded from ND taxable income</action_comment>
+<action_postfix>
+<!-- North Dakota provides full exemption for military retirement pay -->
+<!-- Store full amount as exclusion (subtract from state AGI) -->
+taxpayer.military_retirement_pay get
+/result.nd_military_retirement_exclusion xdef
+
+<!-- Add to state subtractions -->
+result.nd_subtractions get
+result.nd_military_retirement_exclusion get add
+/result.nd_subtractions xdef
+
+"ND Military Retirement Exclusion (Full): $" result.nd_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No military retirement pay - no exclusion</action_comment>
+<action_postfix>
+0 /result.nd_military_retirement_exclusion xdef
+"ND Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
 </decision_tables>

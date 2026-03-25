@@ -2191,8 +2191,8 @@ func TestDaysOperator(t *testing.T) {
 		t.Fatalf("DataPop failed: %v", err)
 	}
 
-	interval := dtrules.AsInterval(result)
-	if interval == nil {
+	interval, ok := dtrules.AsInterval(result)
+	if !ok {
 		t.Fatal("Result is not an interval")
 	}
 
@@ -2224,8 +2224,8 @@ func TestMonthsOperator(t *testing.T) {
 		t.Fatalf("DataPop failed: %v", err)
 	}
 
-	interval := dtrules.AsInterval(result)
-	if interval == nil {
+	interval, ok := dtrules.AsInterval(result)
+	if !ok {
 		t.Fatal("Result is not an interval")
 	}
 
@@ -2257,8 +2257,8 @@ func TestYearsOperator(t *testing.T) {
 		t.Fatalf("DataPop failed: %v", err)
 	}
 
-	interval := dtrules.AsInterval(result)
-	if interval == nil {
+	interval, ok := dtrules.AsInterval(result)
+	if !ok {
 		t.Fatal("Result is not an interval")
 	}
 

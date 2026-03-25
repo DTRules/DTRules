@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 12: Form 461 - At-Risk Recapture -->
+<!-- Triggers: Form 461, Schedule K-1, Schedule E Part II -->
+<!-- Tests: At-risk recapture when at-risk amount becomes negative -->
+<job>
+    <id>BUS12-FORM461-RECAPTURE</id>
+    <tax_year>2025</tax_year>
+    <filing_status>SINGLE</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $75,000 W2 + $8,000 K-1 income + $3,000 recapture = $86,000 -->
+    <!-- Prior year losses exceeded at-risk basis by $3,000 -->
+    <!-- This year's income triggers recapture of prior disallowed loss -->
+    <!-- AGI: $86,000 -->
+    <!-- Standard Deduction: $15,000 -->
+    <!-- Taxable: $71,000 -->
+    <!-- Tax: ~$10,164 -->
+    <expected_agi>86000</expected_agi>
+    <expected_taxable_income>71000</expected_taxable_income>
+    <expected_total_tax>10164</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Jessica Moore</name>
+            <ssn>400-22-0001</ssn>
+            <date_of_birth>4/8/1983</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Accountant</occupation>
+            <w2_wages>75000</w2_wages>
+            <w2_withholding>11000</w2_withholding>
+            <w2_ss_wages>75000</w2_ss_wages>
+            <w2_medicare_wages>75000</w2_medicare_wages>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - At-Risk Recapture -->
+    <!-- IRC 465(e): Recapture rule when at-risk amount goes negative -->
+    <!-- Prior years: Partner took $28,000 in losses against $25,000 at-risk basis -->
+    <!-- At-risk deficit: $3,000 -->
+    <!-- Current year: Partnership has $8,000 income -->
+    <!-- Must recapture prior excess loss ($3,000) as ordinary income -->
+    <!-- Reportable income: $8,000 K-1 + $3,000 recapture = $11,000 -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Moore Investments LLC</entity_name>
+            <entity_ein>78-9012345</entity_ein>
+            <!-- Box 1: Ordinary business income (current year) -->
+            <ordinary_income>8000</ordinary_income>
+            <!-- At-risk recapture from prior years -->
+            <!-- Prior at-risk deficit: $3,000 -->
+            <!-- This is reported as additional ordinary income -->
+            <qbi_income>8000</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

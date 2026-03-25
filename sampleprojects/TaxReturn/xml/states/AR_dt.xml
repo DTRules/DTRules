@@ -332,4 +332,80 @@ ar_tax /result.state_tax_liability xdef
 
 </decision_table>
 
+<!-- ====================================================================== -->
+<!-- TABLE 40401: Calculate_AR_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AR_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arkansas military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per AR Code § 26-51-426 (2025).</COMMENTS>
+<TABLE_NUMBER>40401</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Arkansas military retirement exclusion calculation</action_description>
+<action_postfix>
+"Arkansas Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+0 /result.ar_military_retirement_exclusion xdef
+0 /result.ar_sbp_exclusion xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has military retirement income</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
+<action_postfix>
+<!-- Arkansas provides 100% exclusion for military retirement income -->
+taxpayer.military_retirement_pay /result.ar_military_retirement_exclusion xdef
+
+<!-- SBP payments are also fully exempt in Arkansas -->
+taxpayer.sbp_payments 0 gt
+{
+  taxpayer.sbp_payments /result.ar_sbp_exclusion xdef
+} if
+
+<!-- Calculate total military exclusion -->
+result.ar_military_retirement_exclusion result.ar_sbp_exclusion add
+/result.ar_total_military_exclusion xdef
+
+<!-- Reduce Arkansas taxable income by the exclusion -->
+result.agi result.ar_total_military_exclusion sub 0 max
+/result.ar_adjusted_agi xdef
+
+<!-- Audit trail -->
+"Arkansas military retirement exclusion: $" result.ar_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
+result.ar_sbp_exclusion 0 gt
+{
+  "Arkansas SBP exclusion: $" result.ar_sbp_exclusion cvs strconcat job.audit_trail swap addto
+} if
+"Arkansas total military exclusion: $" result.ar_total_military_exclusion cvs strconcat job.audit_trail swap addto
+
+<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
+<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
 </decision_tables>

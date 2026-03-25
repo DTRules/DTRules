@@ -7,6 +7,13 @@
   This file documents the absence of state income tax with a boolean flag
   and zero tax rate for consistency with other states.
 
+  Military Tax Provisions:
+    - NV has no state income tax
+    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
+    - MSRRA: N/A (no income tax)
+    - SCRA: N/A (no income tax)
+    - Military spouses and service members have no state income tax burden
+
   This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
 -->
 <entity_data_dictionary version="1.0">

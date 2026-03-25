@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Kentucky Military Retirement Test Case -->
+   <!-- Test Case KY-Military-01: Military retirement (first $31,110 exempt) -->
+   <!-- KY provides flat $31,110 exemption for military retirement (2025) -->
+
+   <id>KY-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>KY</state>
+   <city>Louisville</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $45,000 military retirement + $35,000 W2 = $80,000 -->
+   <!-- AGI: $80,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $65,000 -->
+   <!-- Federal Tax: ~$8,700 -->
+   <!-- KY: Flat 4.0% tax rate (2025) -->
+   <!-- KY Military Retirement Exemption: $31,110 -->
+   <!-- KY Taxable Retirement: $45,000 - $31,110 = $13,890 -->
+   <!-- KY Taxable Income: $13,890 + $35,000 = $48,890 -->
+   <!-- KY Tax: $48,890 * 0.04 = $1,956 -->
+   <!-- Total Tax: $10,656 -->
+   <!-- Withholding: $11,500 -->
+   <!-- Refund: $844 -->
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>65000</expected_taxable_income>
+   <expected_total_tax>10656</expected_total_tax>
+   <expected_state_tax>1956</expected_state_tax>
+   <expected_refund>844</expected_refund>
+
+   <!-- Retired Military Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Christopher</name>
+         <last_name>Brown</last_name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>11/14/1964</date_of_birth>
+         <occupation>Military Retiree - Operations Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>11500</w2_withholding>
+         <military_retirement_pay>45000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,51 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Single restaurant server with significant tip income -->
+   <!-- Tests the "No Tax on Tips" provision from OBBBA 2025 -->
+   <!-- Max deduction: $25,000, Phase-out starts at $150,000 MAGI -->
+
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Wages: $30,000 base -->
+   <!-- Tip Income: $35,000 (eligible for deduction) -->
+   <!-- Total Income: $65,000 -->
+   <!-- Tips Deduction: $25,000 (capped at max) -->
+   <!-- AGI: $65,000 - $25,000 = $40,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $40,000 - $15,000 = $25,000 -->
+   <!-- Tax: 10% of $11,600 = $1,160 + 12% of $13,400 = $1,608 = $2,768 -->
+   <expected_agi>40000</expected_agi>
+   <expected_taxable_income>25000</expected_taxable_income>
+   <expected_total_tax>2768</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Maria Rodriguez</name>
+      <ssn>111-22-3333</ssn>
+      <date_of_birth>1990-05-15</date_of_birth>
+      <occupation>Restaurant Server</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>30000</w2_wages>
+      <w2_withholding>3500</w2_withholding>
+      <tip_income>35000</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+</job>

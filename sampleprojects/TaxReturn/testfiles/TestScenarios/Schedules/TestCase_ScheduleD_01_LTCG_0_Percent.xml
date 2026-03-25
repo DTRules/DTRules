@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule D - Long-Term Capital Gains at 0% Bracket -->
+<!-- Scenario: Low income taxpayer with LTCG within 0% bracket threshold -->
+<!-- LTCG: $15,000, W-2: $30,000, Total AGI: $45,000 -->
+<!-- Expected: 0% capital gains tax (within 0% bracket for single < $48,350) -->
+<job>
+    <id>10011</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>FL</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $45,000 -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- Taxable: $30,000 (with $15,000 LTCG at 0%) -->
+    <!-- Tax: ~$1,698 ordinary income, $0 LTCG = $1,698 -->
+    <expected_agi>45000</expected_agi>
+    <expected_taxable_income>30000</expected_taxable_income>
+    <expected_total_tax>1698</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Rachel Green</name>
+            <ssn>890-12-3456</ssn>
+            <date_of_birth>05/15/1995</date_of_birth>
+            <occupation>Retail Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>30000</w2_wages>
+            <w2_withholding>3000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock sale - Amazon</source>
+            <gross_amount>15000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>long_term</holding_period>
+        </income>
+    </incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <expenses></expenses>
+</job>
