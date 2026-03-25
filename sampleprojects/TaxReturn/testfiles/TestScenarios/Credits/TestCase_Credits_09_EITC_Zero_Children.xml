@@ -1,0 +1,44 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- EITC Test: 0 children (single, low income) -->
+   <!-- 2025 EITC 0 children: max $632 -->
+   <!-- Income range: $8,260 - $18,591 for Single -->
+   <!-- This scenario: $12,000 income (in phase-in range) -->
+   <!-- Expected EITC: ~$632 (max credit for 0 children) -->
+
+   <id>Credits-09</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $12,000 W-2 (in EITC range for 0 children) -->
+   <!-- AGI: $12,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $0 (deduction exceeds income) -->
+   <!-- Tax: $0 -->
+   <!-- EITC: $632 (refundable) -->
+   <expected_agi>12000</expected_agi>
+   <expected_taxable_income>0</expected_taxable_income>
+   <expected_eitc>632</expected_eitc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Tyler Brooks</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>9/3/1995</date_of_birth>
+         <occupation>Part-time Cashier</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>12000</w2_wages>
+         <w2_withholding>600</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

@@ -1,0 +1,113 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 7: Military Retirement with State Tax Exemption -->
+   <!-- Tests: State exemption for military retirement pay -->
+   <!-- Scenario: Military retiree in state that exempts military retirement -->
+   <!-- Many states (AZ, FL, NC, VA, etc.) partially or fully exempt military retirement -->
+   <id>MIL-07</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NC</state>
+   <city>Fayetteville</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Military retirement: $42,000 (federally taxable) -->
+   <!-- Social Security: $28,000 (partially taxable federally) -->
+   <!-- Spouse W-2: $30,000 -->
+   <!-- Federal AGI includes retirement + portion of SS + W-2 -->
+   <!-- NC state: Military retirement typically exempt (verify state rules) -->
+   <expected_agi>72000</expected_agi>
+   <expected_taxable_income>42000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Retired military member -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Master Sergeant John Davis (Ret.)</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>6/30/1963</date_of_birth>
+         <occupation>Retired Military (26 years service)</occupation>
+         <is_military>false</is_military>
+         <military_retirement_pay>42000</military_retirement_pay>
+         <va_disability_compensation>12000</va_disability_compensation>
+         <social_security_benefits>28000</social_security_benefits>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>1500</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse (part-time) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Karen Davis</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>8/15/1965</date_of_birth>
+         <occupation>Part-time Librarian</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>retirement_income</type>
+         <gross_amount>42000</gross_amount>
+         <withholding>4800</withholding>
+         <description>Military retirement pension (Form 1099-R)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>social_security</type>
+         <gross_amount>28000</gross_amount>
+         <withholding>0</withholding>
+         <description>Social Security benefits (Form SSA-1099)</description>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>30000</gross_amount>
+         <withholding>3200</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
