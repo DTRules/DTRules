@@ -106,12 +106,12 @@ func TestTaxReturnResults(t *testing.T) {
 	// Expected values based on test data (2025 tax constants per Rev. Proc. 2024-40):
 	// Income: W-2 $125k + SE net $128.2k + Rental net $4.2k = $257.4k
 	// AGI: $257.4k - $9,057 SE deduction = $248,343
-	// Taxable: AGI - $30k std deduction (2025 MFJ) - $25.6k QBI = $192,703
-	// Tax: $32,223 regular + $18,114 SE + $29 Add Medicare - $7,100 credits = $43,265
+	// Taxable: AGI - $31.5k std deduction (2025 MFJ updated) - $25.6k QBI = $191,203
+	// Tax: $31,893 regular + $18,114 SE + $29 Add Medicare - $7,100 credits = $42,935
 	//   Credits: 3 × $2,200 CTC (2025 OBBBA) + $500 ODC = $7,100
 	expectedAGI := 248343.0
-	expectedTaxable := 192703.0
-	expectedTax := 43265.0
+	expectedTaxable := 191203.0
+	expectedTax := 42935.0
 	expectedRefund := 0.0
 
 	// Get computed results
