@@ -964,9 +964,9 @@
 		<field name='QSS' type='string' subtype='' access='r' input='' default_value='QSS' comment='Qualifying Surviving Spouse'></field>
 
 		<!-- Standard Deduction (2025 per Rev. Proc. 2024-40) -->
-		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
-		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for Single (2025)'></field>
-		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Standard deduction for HOH (2025)'></field>
+		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
+		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='Standard deduction for Single (2025)'></field>
+		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='Standard deduction for HOH (2025)'></field>
 		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for MFS (2025)'></field>
 		<field name='additional_std_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='Additional std deduction per senior/blind for Single/HOH (2025 est.)'></field>
 		<field name='additional_std_deduction_married' type='double' subtype='' access='r' input='' default_value='1600' comment='Additional std deduction per senior/blind for MFJ/MFS (2025 est.)'></field>
@@ -984,6 +984,12 @@
 
 		<!-- SALT Cap (TCJA) -->
 		<field name='salt_cap' type='double' subtype='' access='r' input='' default_value='40000' comment='SALT deduction cap $40k per OBBBA 2025 (was $10k under TCJA)'></field>
+
+		<!-- SALT Phaseout for High-Income Taxpayers (2025) -->
+		<field name='salt_phaseout_start' type='double' subtype='' access='r' input='' default_value='500000' comment='SALT cap phaseout start threshold'></field>
+		<field name='salt_phaseout_end' type='double' subtype='' access='r' input='' default_value='600000' comment='SALT cap phaseout end threshold'></field>
+		<field name='salt_phaseout_rate' type='double' subtype='' access='r' input='' default_value='0.30' comment='SALT cap phaseout rate (30%)'></field>
+		<field name='salt_reduced_cap' type='double' subtype='' access='r' input='' default_value='10000' comment='SALT cap after full phaseout'></field>
 
 		<!-- Mortgage Interest Limits -->
 		<field name='mortgage_limit_pre_tcja' type='double' subtype='' access='r' input='' default_value='1000000' comment='Pre-TCJA mortgage limit (before 12/15/2017)'></field>
@@ -1026,6 +1032,7 @@
 		<field name='bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.35' comment='35% bracket rate'></field>
 		<field name='bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='751600' comment='35% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.37' comment='37% top bracket rate'></field>
+		<field name='bracket_7_mfj' type='double' subtype='' access='r' input='' default_value='999999999' comment='37% top bracket (no ceiling) MFJ (2025)'></field>
 
 		<!-- Tax Brackets Single 2025 (per Rev. Proc. 2024-40) -->
 		<field name='bracket_1_single' type='double' subtype='' access='r' input='' default_value='11925' comment='10% bracket ceiling Single (2025)'></field>
@@ -1034,6 +1041,7 @@
 		<field name='bracket_4_single' type='double' subtype='' access='r' input='' default_value='197300' comment='24% bracket ceiling Single (2025)'></field>
 		<field name='bracket_5_single' type='double' subtype='' access='r' input='' default_value='250525' comment='32% bracket ceiling Single (2025)'></field>
 		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='626350' comment='35% bracket ceiling Single (2025)'></field>
+		<field name='bracket_7_single' type='double' subtype='' access='r' input='' default_value='999999999' comment='37% top bracket (no ceiling) Single (2025)'></field>
 
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
@@ -1178,12 +1186,13 @@
 		<field name='amt_exemption_single' type='double' subtype='' access='r' input='' default_value='88100' comment='AMT exemption Single (2025)'></field>
 		<field name='amt_exemption_mfj' type='double' subtype='' access='r' input='' default_value='137000' comment='AMT exemption MFJ (2025)'></field>
 		<field name='amt_exemption_mfs' type='double' subtype='' access='r' input='' default_value='68500' comment='AMT exemption MFS (2025)'></field>
-		<field name='amt_phaseout_single' type='double' subtype='' access='r' input='' default_value='609350' comment='AMT exemption phaseout start Single (2025)'></field>
-		<field name='amt_phaseout_mfj' type='double' subtype='' access='r' input='' default_value='1218700' comment='AMT exemption phaseout start MFJ (2025)'></field>
-		<field name='amt_phaseout_mfs' type='double' subtype='' access='r' input='' default_value='609350' comment='AMT exemption phaseout start MFS (2025)'></field>
+		<field name='amt_phaseout_single' type='double' subtype='' access='r' input='' default_value='626350' comment='AMT exemption phaseout start Single (2025)'></field>
+		<field name='amt_phaseout_mfj' type='double' subtype='' access='r' input='' default_value='1252700' comment='AMT exemption phaseout start MFJ (2025)'></field>
+		<field name='amt_phaseout_mfs' type='double' subtype='' access='r' input='' default_value='626350' comment='AMT exemption phaseout start MFS (2025)'></field>
 		<field name='amt_rate_low' type='double' subtype='' access='r' input='' default_value='0.26' comment='AMT 26% rate'></field>
 		<field name='amt_rate_high' type='double' subtype='' access='r' input='' default_value='0.28' comment='AMT 28% rate'></field>
-		<field name='amt_28_percent_threshold' type='double' subtype='' access='r' input='' default_value='232600' comment='AMTI threshold for 28% rate (2025)'></field>
+		<field name='amt_rate_threshold' type='double' subtype='' access='r' input='' default_value='239100' comment='AMTI threshold for 28% rate (2025)'></field>
+		<field name='amt_28_percent_threshold' type='double' subtype='' access='r' input='' default_value='239100' comment='AMTI threshold for 28% rate (2025) - deprecated, use amt_rate_threshold'></field>
 
 		<!-- Residential Energy Credits (Form 5695, IRC 25C/25D) -->
 		<field name='energy_efficiency_rate' type='double' subtype='' access='r' input='' default_value='0.30' comment='Energy Efficient Home Improvement Credit rate (30%)'></field>
