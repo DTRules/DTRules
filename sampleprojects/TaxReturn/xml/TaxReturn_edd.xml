@@ -1123,8 +1123,10 @@
 		<!-- Capital Gains Brackets (2025 per Rev. Proc. 2024-40) -->
 		<field name='cg_0_percent_single' type='double' subtype='' access='r' input='' default_value='48350' comment='0% LTCG bracket ceiling Single (2025)'></field>
 		<field name='cg_0_percent_mfj' type='double' subtype='' access='r' input='' default_value='96700' comment='0% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_0_percent_hoh' type='double' subtype='' access='r' input='' default_value='63000' comment='0% LTCG bracket ceiling HOH (2025)'></field>
 		<field name='cg_15_percent_single' type='double' subtype='' access='r' input='' default_value='533400' comment='15% LTCG bracket ceiling Single (2025)'></field>
 		<field name='cg_15_percent_mfj' type='double' subtype='' access='r' input='' default_value='600050' comment='15% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_15_percent_hoh' type='double' subtype='' access='r' input='' default_value='551350' comment='15% LTCG bracket ceiling HOH (2025)'></field>
 
 		<!-- Net Investment Income Tax (IRC 1411, Form 8960) -->
 		<field name='niit_rate' type='double' subtype='' access='r' input='' default_value='0.038' comment='3.8% NIIT rate (IRC 1411)'></field>
@@ -1302,6 +1304,13 @@
 		<field name='total_other_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Other income'></field>
 		<field name='gross_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total gross income (Form 1040 Line 9)'></field>
 
+		<!-- Additional Income Types -->
+		<field name='unemployment_compensation' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unemployment compensation (Form 1040 Line 7). Source: IRC 85'></field>
+		<field name='gambling_winnings' type='double' subtype='' access='rw' input='main' default_value='0' comment='Gambling winnings (Form 1040 Line 8b). Source: IRC 61'></field>
+		<field name='alimony_received' type='double' subtype='' access='rw' input='main' default_value='0' comment='Alimony received pre-2019 (Form 1040 Line 2a). Source: IRC 71'></field>
+		<field name='state_tax_refund' type='double' subtype='' access='rw' input='main' default_value='0' comment='State tax refund (Form 1040 Line 1). Source: IRC 111'></field>
+		<field name='has_cryptocurrency' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Digital asset question (Form 1040 top). Source: Form 1040 instructions'></field>
+
 		<!-- Adjustments -->
 		<field name='total_adjustments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total adjustments to income (Schedule 1 Part II)'></field>
 		<field name='agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income (Form 1040 Line 11)'></field>
@@ -1404,6 +1413,8 @@
 		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
 		<field name='eitc' type='double' subtype='' access='rw' input='' default_value='0' comment='Earned Income Tax Credit'></field>
 		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credits (AOTC/LLC)'></field>
+		<field name='total_aotc_refundable' type='double' subtype='' access='rw' input='' default_value='0' comment='AOTC refundable portion (40%, max $1,000) per IRC 25A(i)(5)'></field>
+		<field name='total_aotc_nonrefundable' type='double' subtype='' access='rw' input='' default_value='0' comment='AOTC nonrefundable portion (60%) per IRC 25A(i)(6)'></field>
 		<field name='cdcc_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Child and Dependent Care Credit (Form 2441)'></field>
 		<field name='savers_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit (Form 8880)'></field>
 		<field name='savers_credit_rate' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit rate (0.50, 0.20, 0.10, or 0)'></field>
