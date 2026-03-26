@@ -111,6 +111,21 @@ Calculate_Gross_Income
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+<!-- VALIDATION CHECKPOINT: AGI -->
+<action_details>
+<action_number>5a</action_number>
+<action_comment>Validate AGI if expected values exist (validation checkpoint)</action_comment>
+<action_description>Validate_AGI (if job.expected_agi exists)</action_description>
+<action_postfix>
+job.expected_agi null neq if
+  Validate_AGI
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate deductions (Form 1040 Line 12)</action_comment>
@@ -135,12 +150,42 @@ Calculate_Taxable_Income
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+<!-- VALIDATION CHECKPOINT: Taxable Income -->
+<action_details>
+<action_number>7a</action_number>
+<action_comment>Validate taxable income if expected values exist (validation checkpoint)</action_comment>
+<action_description>Validate_Taxable_Income (if job.expected_taxable_income exists)</action_description>
+<action_postfix>
+job.expected_taxable_income null neq if
+  Validate_Taxable_Income
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
 <action_details>
 <action_number>8</action_number>
 <action_comment>Calculate tax liability (Form 1040 Lines 16-24)</action_comment>
 <action_description>Calculate_Tax_Liability</action_description>
 <action_postfix>
 Calculate_Tax_Liability
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<!-- VALIDATION CHECKPOINT: Total Tax -->
+<action_details>
+<action_number>8a</action_number>
+<action_comment>Validate total tax if expected values exist (validation checkpoint)</action_comment>
+<action_description>Validate_Total_Tax (if job.expected_total_tax exists)</action_description>
+<action_postfix>
+job.expected_total_tax null neq if
+  Validate_Total_Tax
+endif
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -208,6 +253,19 @@ endif
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+</action_details>
+<!-- VALIDATION SUMMARY: Run all validations and report results -->
+<action_details>
+<action_number>13</action_number>
+<action_comment>Run validation framework to verify calculations against expected values</action_comment>
+<action_description>Validate_Results (master validation coordinator)</action_description>
+<action_postfix>
+Validate_Results
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -361,19 +419,40 @@ Calculate_Section_1231
 Process_Foreign_Income
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-</action_details>
-<action_details>
+</action_details><action_details>
 <action_number>11</action_number>
-<action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
-<action_description>set result.gross_income = result.total_w2_wages + result.total_se_income + result.total_rental_income + result.total_other_income</action_description>
+<action_comment>Process installment sales (Form 6252) - gain recognized in current year per IRC 453</action_comment>
+<action_description>Process_Installment_Sales</action_description>
 <action_postfix>
-result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.total_tip_income f+ result.total_overtime_income f+ result.total_social_security f+ result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_k1_ordinary_income f+ result.total_k1_rental_income f+ result.net_farm_profit f+ result.total_depreciation_recapture f+ result.total_foreign_income f+ /result.gross_income xdef
-"Line 9 - Total Income: $" result.gross_income cvs strconcat " per Form 1040 Line 9" strconcat job.audit_trail swap addto
+job.installment_sales length 0 > if
+  /Process_Installment_Sales executetable
+endif
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>12</action_number>
+<action_comment>Process like-kind exchanges (Form 8824) - recognized gain from boot per IRC 1031</action_comment>
+<action_description>Process_Like_Kind_Exchanges</action_description>
+<action_postfix>
+job.like_kind_exchanges length 0 > if
+  /Process_Like_Kind_Exchanges executetable
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
+<action_description>set result.gross_income = result.total_w2_wages + result.total_se_income + result.total_rental_income + result.total_other_income</action_description>
+<action_postfix>
+result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.total_tip_income f+ result.total_overtime_income f+ result.total_social_security f+ result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_k1_ordinary_income f+ result.total_k1_rental_income f+ result.net_farm_profit f+ result.total_depreciation_recapture f+ result.total_foreign_income f+ result.total_installment_gain f+ result.total_like_kind_recognized f+ /result.gross_income xdef
+"Line 9 - Total Income: $" result.gross_income cvs strconcat " per Form 1040 Line 9" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>14</action_number>
 <action_comment>Calculate AGI adjustments (Schedule 1 Part II)</action_comment>
 <action_description>Calculate_AGI_Adjustments</action_description>
 <action_postfix>
@@ -382,7 +461,7 @@ Calculate_AGI_Adjustments
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>13</action_number>
+<action_number>15</action_number>
 <action_comment>Calculate AGI</action_comment>
 <action_description>set result.agi = result.gross_income - result.total_adjustments</action_description>
 <action_postfix>
@@ -392,7 +471,7 @@ result.gross_income result.total_adjustments f- /result.agi xdef
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>14</action_number>
+<action_number>16</action_number>
 <action_comment>Calculate Social Security taxability after AGI is known</action_comment>
 <action_description>Calculate_SS_Taxability</action_description>
 <action_postfix>
@@ -669,7 +748,7 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 2b1: Calculate_Vehicle_Deduction                                -->
+<!-- TABLE 2215 (was 2210): Calculate_Vehicle_Deduction                                -->
 <!-- IRS Reference: Publication 463 Chapter 4, IRC 162, 274(d)             -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -677,8 +756,8 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 <xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile.</COMMENTS>
-<TABLE_NUMBER>2210</TABLE_NUMBER>
+<COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile. TABLE RENUMBERED: 2210 → 2215 to resolve duplicate with Calculate_SE_Tax.</COMMENTS>
+<TABLE_NUMBER>2215</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
@@ -984,9 +1063,9 @@ income.tax_withheld result.total_payments f+ /result.total_payments xdef
 { /Calculate_AGI_Adjustments executetable } job.taxpayers forall
 { /Calculate_Educator_Expenses executetable } job.taxpayers forall
 Calculate_OBBBA_Deductions
-Calculate_IRA_Deduction
-Calculate_HSA_Deduction
-Calculate_Student_Loan_Deduction
+Calculate_IRA_Deduction          { Schedule 1 Line 20 - IRA deduction per Publication 590-A, IRC 219 }
+Calculate_HSA_Deduction          { Schedule 1 Line 13 - HSA deduction per Form 8889, IRC 223 }
+Calculate_Student_Loan_Deduction { Schedule 1 Line 21 - Student loan interest per Publication 970, IRC 221 }
 result.total_obbba_deductions result.ira_deduction f+ result.hsa_deduction f+ result.student_loan_deduction f+ result.educator_expense_deduction f+ result.total_adjustments f+ /result.total_adjustments xdef
 </context_postfix>
 </context_details>
@@ -1322,9 +1401,23 @@ Calculate_Charitable_Deduction
 /Calculate_Noncash_Charitable executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
+</action_details><action_details>
+<action_number>6</action_number>
+<action_comment>Process casualty and theft losses (Form 4684) - deductible only for federally declared disasters per IRC 165</action_comment>
+<action_description>Process_Casualty_Losses</action_description>
+<action_postfix>
+job.casualty_losses length 0 > if
+  /Process_Casualty_Losses executetable
+  result.is_disaster_loss if
+    result.total_casualty_loss result.agi casualty_loss_agi_percent f* f- 0 fmax /result.casualty_loss_deduction xdef
+    result.casualty_loss_deduction result.total_itemized f+ /result.total_itemized xdef
+  endif
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>6</action_number>
+<action_number>7</action_number>
 <action_comment>Log total itemized</action_comment>
 <action_description>add "Total Itemized Deductions: $" + result.total_itemized to job.audit_trail</action_description>
 <action_postfix>
@@ -2006,49 +2099,34 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has self-employment income for QBI</condition_comment>
-<condition_description>result.total_se_income &gt; 0</condition_description>
+<condition_comment>Always execute</condition_comment>
+<condition_description>perform when called</condition_description>
 <condition_postfix>
-result.total_se_income 0 >
+perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="*"></condition_column>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate QBI deduction</action_comment>
-<action_description>set result.qbi_deduction = the minimum of (result.total_se_income * qbi_rate) and ((result.agi - result.total_deduction) * qbi_rate)</action_description>
+<action_comment>Calculate QBI deduction (Form 8995/8995-A, IRC 199A)</action_comment>
+<action_description>Calculate_QBI_Deduction</action_description>
 <action_postfix>
-result.total_se_income qbi_rate f* /result.qbi_from_income xdef
-result.agi result.total_deduction f- qbi_rate f* /result.qbi_taxable_limit xdef
-result.qbi_from_income result.qbi_taxable_limit fmin /result.qbi_deduction xdef
 "TAXABLE INCOME CALCULATION" job.audit_trail swap addto
-"  Line 13 - QBI Deduction: $" result.qbi_deduction cvs strconcat " (IRC 199A, Form 8995)" strconcat job.audit_trail swap addto
+Calculate_QBI_Deduction { Form 8995/8995-A - QBI deduction calculated AFTER AGI but BEFORE taxable income per IRC 199A }
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>No QBI deduction</action_comment>
-<action_description>set result.qbi_deduction = 0</action_description>
-<action_postfix>
-0.0 /result.qbi_deduction xdef
-"TAXABLE INCOME CALCULATION" job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate taxable income (floor at zero)</action_comment>
+<action_comment>Calculate taxable income (floor at zero per IRC 63)</action_comment>
 <action_description>set result.taxable_income = the maximum of (result.agi - result.total_deduction - result.qbi_deduction) and 0</action_description>
 <action_postfix>
 result.agi result.total_deduction f- result.qbi_deduction f- 0.0 fmax /result.taxable_income xdef
 "  Line 15 - Taxable Income: $" result.taxable_income cvs strconcat " per Form 1040 Line 15" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -2141,9 +2219,19 @@ Calculate_NIIT
 Calculate_Additional_Medicare_Tax
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
+</action_details><action_details>
+<action_number>6</action_number>
+<action_comment>Calculate early distribution penalty (Form 5329) - 10% penalty on early retirement withdrawals per IRC 72(t)</action_comment>
+<action_description>Process_Early_Distributions</action_description>
+<action_postfix>
+job.early_distributions length 0 > if
+  /Process_Early_Distributions executetable
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>6</action_number>
+<action_number>7</action_number>
 <action_comment>Calculate Schedule H (household employment taxes)</action_comment>
 <action_description>Calculate_Schedule_H</action_description>
 <action_postfix>
@@ -2152,11 +2240,11 @@ Calculate_Schedule_H
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>7</action_number>
+<action_number>8</action_number>
 <action_comment>Calculate total tax before credits</action_comment>
 <action_description>set result.total_tax_before_credits = result.regular_tax + result.capital_gains_tax + result.se_tax + result.niit_tax + result.additional_medicare_tax</action_description>
 <action_postfix>
-result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax f+ result.additional_medicare_tax f+ result.schedule_h_total_tax f+ /result.total_tax_before_credits xdef
+result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax f+ result.additional_medicare_tax f+ result.schedule_h_total_tax f+ result.total_early_withdrawal_penalty f+ /result.total_tax_before_credits xdef
 "  Total Tax Before Credits: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -2636,7 +2724,7 @@ result.taxable_income bracket_6_single f- bracket_7_rate f* f+
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 6: Calculate_Credits                                            -->
+<!-- TABLE 6010 (was 6000): Calculate_Credits                                            -->
 <!-- IRS Reference: Form 1040 Lines 19-21, Schedule 8812                   -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -2644,8 +2732,8 @@ result.taxable_income bracket_6_single f- bracket_7_rate f* f+
 <xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24.</COMMENTS>
-<TABLE_NUMBER>6000</TABLE_NUMBER>
+<COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24. TABLE RENUMBERED: 6000 → 6010 to resolve duplicate with Calculate_AMT.</COMMENTS>
+<TABLE_NUMBER>6010</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -2792,6 +2880,42 @@ Calculate_Energy_Appliance_Credit
 </action_details>
 <action_details>
 <action_number>14</action_number>
+<action_comment>Calculate Prior Year AMT Credit (Form 8801) - Schedule 3 Line 6b</action_comment>
+<action_description>Calculate_Prior_Year_AMT_Credit</action_description>
+<action_postfix>
+/Calculate_Prior_Year_AMT_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>15</action_number>
+<action_comment>Process Adoption Credit (Form 8839) - Schedule 3 Line 6c</action_comment>
+<action_description>Process_Adoption_Credit</action_description>
+<action_postfix>
+/Process_Adoption_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>16</action_number>
+<action_comment>Calculate Elderly/Disabled Credit (Schedule R) - Schedule 3 Line 6d</action_comment>
+<action_description>Calculate_Elderly_Disabled_Credit</action_description>
+<action_postfix>
+/Calculate_Elderly_Disabled_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>17</action_number>
+<action_comment>Process Clean Vehicle Credit (Form 8936) - Nonrefundable</action_comment>
+<action_description>Process_Clean_Vehicle_Credit</action_description>
+<action_postfix>
+/Process_Clean_Vehicle_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>18</action_number>
 <action_comment>Sum total credits</action_comment>
 <action_description>set result.total_credits = sum of all credit amounts</action_description>
 <action_postfix>
@@ -2799,7 +2923,9 @@ result.total_ctc result.total_odc f+ result.education_credit f+
 result.cdcc_credit f+ result.savers_credit f+ result.energy_efficiency_credit f+ result.clean_energy_credit f+
 result.premium_tax_credit f+ result.foreign_tax_credit f+
 result.dc_homebuyer_credit f+ result.mortgage_interest_credit f+ result.energy_appliance_credit f+
-result.general_business_credit_used f+ /result.total_credits xdef
+result.general_business_credit_used f+
+result.prior_year_amt_credit f+ result.total_adoption_credit f+ result.elderly_disabled_credit f+
+result.total_clean_vehicle_credit f+ /result.total_credits xdef
 "  Total Child Tax Credit: $" result.total_ctc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total Other Dependent Credit: $" result.total_odc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total EITC: $" result.eitc cvs strconcat " (Schedule EIC)" strconcat job.audit_trail swap addto
@@ -2814,6 +2940,10 @@ result.general_business_credit_used f+ /result.total_credits xdef
 "  Mortgage Interest Credit: $" result.mortgage_interest_credit cvs strconcat " (Form 8396)" strconcat job.audit_trail swap addto
 "  Energy Appliance Credit: $" result.energy_appliance_credit cvs strconcat " (Form 8909)" strconcat job.audit_trail swap addto
 "  General Business Credit: $" result.general_business_credit_used cvs strconcat " (Form 3800)" strconcat job.audit_trail swap addto
+"  Prior Year AMT Credit: $" result.prior_year_amt_credit cvs strconcat " (Form 8801 - Schedule 3 Line 6b)" strconcat job.audit_trail swap addto
+"  Adoption Credit: $" result.total_adoption_credit cvs strconcat " (Form 8839 - Schedule 3 Line 6c)" strconcat job.audit_trail swap addto
+"  Elderly/Disabled Credit: $" result.elderly_disabled_credit cvs strconcat " (Schedule R - Schedule 3 Line 6d)" strconcat job.audit_trail swap addto
+"  Clean Vehicle Credit: $" result.total_clean_vehicle_credit cvs strconcat " (Form 8936)" strconcat job.audit_trail swap addto
 "  Total Credits: $" result.total_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -3830,7 +3960,7 @@ Validate_Summary
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 8a: Validate_AGI                                                 -->
+<!-- TABLE 8010 (was 8100/8150): Validate_AGI                                                 -->
 <!-- Validation sub-table for AGI                                           -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -3838,8 +3968,8 @@ Validate_Summary
 <xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch.</COMMENTS>
-<TABLE_NUMBER>8100</TABLE_NUMBER>
+<COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch. TABLE RENUMBERED: 8150 → 8010 to resolve duplicate with Calculate_Kiddie_Tax_For_Dependent.</COMMENTS>
+<TABLE_NUMBER>8010</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -3930,7 +4060,7 @@ false /result.validation_passed xdef
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 8c: Validate_Total_Tax                                           -->
+<!-- TABLE 8030 (was 8300): Validate_Total_Tax                                           -->
 <!-- Validation sub-table for Total Tax                                     -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -3938,8 +4068,8 @@ false /result.validation_passed xdef
 <xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Validates total tax against expected value.</COMMENTS>
-<TABLE_NUMBER>8300</TABLE_NUMBER>
+<COMMENTS>Validates total tax against expected value. TABLE RENUMBERED: 8300 → 8030 to resolve duplicate with Calculate_DC_Homebuyer_Credit.</COMMENTS>
+<TABLE_NUMBER>8030</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -3980,7 +4110,7 @@ false /result.validation_passed xdef
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 8d: Validate_Summary                                             -->
+<!-- TABLE 8040 (was 8400): Validate_Summary                                             -->
 <!-- Validation summary - log overall pass/fail                             -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -3988,8 +4118,8 @@ false /result.validation_passed xdef
 <xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Logs overall validation summary.</COMMENTS>
-<TABLE_NUMBER>8400</TABLE_NUMBER>
+<COMMENTS>Logs overall validation summary. TABLE RENUMBERED: 8400 → 8040 to resolve duplicate with Calculate_Mortgage_Interest_Credit.</COMMENTS>
+<TABLE_NUMBER>8040</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -7135,15 +7265,15 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 </decision_table>
 
 <!-- ================================================================== -->
-<!-- Calculate_Premium_Tax_Credit - Form 8962 (IRC 36B)                -->
+<!-- TABLE 6110 (was 6100): Calculate_Premium_Tax_Credit - Form 8962 (IRC 36B)                -->
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Premium_Tax_Credit</table_name>
 <xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculate Premium Tax Credit per Form 8962, IRC 36B</COMMENTS>
-<TABLE_NUMBER>6100</TABLE_NUMBER>
+<COMMENTS>Calculate Premium Tax Credit per Form 8962, IRC 36B TABLE RENUMBERED: 6100 → 6110 to resolve duplicate with Calculate_Child_Tax_Credit.</COMMENTS>
+<TABLE_NUMBER>6110</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -8692,7 +8822,7 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 25000: Process_Household_Employment - Schedule H                -->
+<!-- TABLE 25200 (was 25000): Process_Household_Employment - Schedule H                -->
 <!-- IRS Reference: Schedule H, IRC Sections 3101, 3111, 3301              -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -8700,8 +8830,8 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 <xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Process Schedule H Household Employment Taxes. FICA and FUTA taxes for household employees.</COMMENTS>
-<TABLE_NUMBER>25000</TABLE_NUMBER>
+<COMMENTS>Process Schedule H Household Employment Taxes. FICA and FUTA taxes for household employees. TABLE RENUMBERED: 25000 → 25200 to resolve duplicate with Calculate_Combat_Zone_Pay_Exclusion.</COMMENTS>
+<TABLE_NUMBER>25200</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
@@ -8754,7 +8884,7 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 25100: Process_NOL_Carryover - Net Operating Loss               -->
+<!-- TABLE 25300 (was 25100): Process_NOL_Carryover - Net Operating Loss               -->
 <!-- IRS Reference: IRC Section 172                                        -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -8762,8 +8892,8 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 <xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Process Net Operating Loss carryovers per IRC 172. NOLs limited to 80% of taxable income for post-2017 losses.</COMMENTS>
-<TABLE_NUMBER>25100</TABLE_NUMBER>
+<COMMENTS>Process Net Operating Loss carryovers per IRC 172. NOLs limited to 80% of taxable income for post-2017 losses. TABLE RENUMBERED: 25100 → 25300 to resolve duplicate with Calculate_Military_Moving_Expenses.</COMMENTS>
+<TABLE_NUMBER>25300</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
