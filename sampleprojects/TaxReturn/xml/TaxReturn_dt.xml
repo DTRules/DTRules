@@ -6398,7 +6398,7 @@ result.cdcc_credit result.total_credits f+ /result.total_credits xdef
 <condition_number>3</condition_number>
 <condition_comment>Has work-related care expenses</condition_comment>
 <condition_description>dependent.care_expenses &gt; 0</condition_description>
-<condition_postfix>dependent.care_expenses 0 f&gt;</condition_postfix>
+<condition_postfix>dependent.care_expenses 0 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="-"></condition_column>
@@ -6990,7 +6990,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <condition_number>2</condition_number>
 <condition_comment>Property has loss (negative net income)</condition_comment>
 <condition_description>property.rental_net_income &lt; 0</condition_description>
-<condition_postfix>property.rental_net_income 0 f&lt;</condition_postfix>
+<condition_postfix>property.rental_net_income 0 &lt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="-"></condition_column>
 </condition_details>
@@ -10639,15 +10639,9 @@ and
 <action_postfix>
 "  Scenario: Military member in combat zone + spouse working abroad" job.audit_trail swap addto
 "  " job.audit_trail swap addto
-
-% Combat zone pay exclusion already applied to military member
 "  Military member combat zone exclusion: $" result.total_combat_zone_exclusion cvs strconcat job.audit_trail swap addto
-
-% Spouse's foreign earned income can still qualify for FEIE (Form 2555)
-% This is the scenario user asked about: military + wife working in foreign country, filing jointly
 "  Spouse foreign earned income exclusion (Form 2555): $" result.foreign_earned_income_exclusion cvs strconcat job.audit_trail swap addto
 
-% Total exclusions (no overlap - different income sources)
 result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
 /result.combined_military_foreign_exclusion xdef
 
