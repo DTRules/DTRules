@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Territory-specific constants for American Samoa (AS)
+
+  American Samoa uses a "frozen" version of the Internal Revenue Code as of year 2000.
+  US nationals from American Samoa (not US citizens) have special filing requirements.
+  Bona fide residents file only with American Samoa Government (ASG), but must pay
+  US self-employment tax if self-employment income >= $400.
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+    <!-- US National status (not citizen) -->
+    <field name="as_us_national" type="boolean" default_value="false"
+           comment="True if taxpayer is US national (not US citizen) from American Samoa"/>
+    <field name="as_us_citizen" type="boolean" default_value="false"
+           comment="True if taxpayer is US citizen"/>
+
+    <!-- Bona fide residence test -->
+    <field name="as_bona_fide_resident" type="boolean" default_value="false"
+           comment="True if taxpayer meets bona fide resident test for American Samoa"/>
+    <field name="as_days_present" type="integer" default_value="0"
+           comment="Number of days present in American Samoa during tax year"/>
+    <field name="as_has_tax_home" type="boolean" default_value="false"
+           comment="True if taxpayer has tax home in American Samoa"/>
+    <field name="as_closer_connection" type="boolean" default_value="false"
+           comment="True if taxpayer has closer connection to AS than US"/>
+
+    <!-- Self-employment rules -->
+    <field name="as_self_employment_income" type="double" default_value="0.0"
+           comment="Self-employment income (subject to US SE tax if >= $400)"/>
+    <field name="as_requires_us_se_tax" type="boolean" default_value="false"
+           comment="True if subject to US self-employment tax (>= $400)"/>
+
+    <!-- Income sourcing -->
+    <field name="as_source_income" type="double" default_value="0.0"
+           comment="Income sourced from American Samoa"/>
+    <field name="as_us_source_income" type="double" default_value="0.0"
+           comment="Income sourced from US mainland"/>
+    <field name="as_only_as_income" type="boolean" default_value="false"
+           comment="True if taxpayer has only AS-source income"/>
+
+    <!-- Filing requirements -->
+    <field name="as_files_with_asg" type="boolean" default_value="false"
+           comment="True if taxpayer files with American Samoa Government"/>
+    <field name="as_files_with_irs" type="boolean" default_value="false"
+           comment="True if taxpayer also files with IRS (for SE tax or US income)"/>
+
+    <!-- Frozen IRC 2000 -->
+    <field name="as_uses_frozen_irc_2000" type="boolean" default_value="true"
+           comment="American Samoa uses IRC as of year 2000 (frozen)"/>
+
+    <!-- Calculated tax -->
+    <field name="as_income_tax" type="double" default_value="0.0"
+           comment="Calculated American Samoa income tax liability"/>
+    <field name="as_se_tax" type="double" default_value="0.0"
+           comment="US self-employment tax (if >= $400 SE income)"/>
+  </entity>
+</entity_data_dictionary>

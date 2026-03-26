@@ -7736,7 +7736,36 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 <condition_description>job.dc_home_purchase_price &gt; 0</condition_description>
 <condition_postfix>job.dc_home_purchase_price 0 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate DC homebuyer credit</action_comment>
+<action_description>Calculate DC credit (lesser of $5,000 or purchase price)</action_description>
+<action_postfix>
+"Calculating DC First-Time Homebuyer Credit (Form 8859)" job.audit_trail swap addto
+5000.0 job.dc_home_purchase_price fmin /result.dc_homebuyer_credit xdef
+"  Purchase price: $" job.dc_home_purchase_price cvs strconcat job.audit_trail swap addto
+"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No DC homebuyer credit</action_comment>
+<action_description>DC homebuyer credit not applicable</action_description>
+<action_postfix>
+"DC Homebuyer Credit not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 24000: Process_Foreign_Earned_Income - Form 2555                -->
 <!-- IRS Reference: Form 2555, IRC Section 911                             -->
 <!-- ====================================================================== -->
@@ -7778,13 +7807,7 @@ foreign_earned_income.bona_fide_resident foreign_earned_income.physical_presence
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_description>Calculate DC homebuyer credit (lesser of $5,000 or purchase price)</action_description>
-<action_postfix>
-"Calculating DC First-Time Homebuyer Credit (Form 8859)" job.audit_trail swap addto
-5000.0 job.dc_home_purchase_price fmin /result.dc_homebuyer_credit xdef
-"  Purchase price: $" job.dc_home_purchase_price cvs strconcat job.audit_trail swap addto
-"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat job.audit_trail swap addto
-<action_description>set result.feie_exclusion = the minimum of foreign_earned_income and feie_limit</action_description>
+<action_description>Calculate FEIE exclusion and housing exclusion</action_description>
 <action_postfix>
 foreign_earned_income.foreign_wages foreign_earned_income.foreign_se_income f+ result.total_foreign_earned_income f+ /result.total_foreign_earned_income xdef
 result.total_foreign_earned_income feie_max_exclusion fmin result.foreign_earned_income_exclusion f+ /result.foreign_earned_income_exclusion xdef
@@ -7798,10 +7821,7 @@ foreign_earned_income.housing_exclusion result.foreign_housing_exclusion f+ /res
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_description>No DC home purchase</action_description>
-<action_postfix>
-"DC Homebuyer Credit not applicable" job.audit_trail swap addto
-<action_description>set result.feie_exclusion = 0</action_description>
+<action_description>Does not qualify for FEIE</action_description>
 <action_postfix>
 false /foreign_earned_income.qualifies_exclusion xdef
 "  Does not qualify for FEIE - did not meet residence or presence test" job.audit_trail swap addto
@@ -7822,16 +7842,6 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <Type>ALL</Type>
 <COMMENTS>Calculates Mortgage Interest Credit for holders of Mortgage Credit Certificates (MCC). Credit = mortgage interest paid x MCC rate. Limited to $2,000. Reduces Schedule A mortgage interest deduction. Excess carries forward per Form 8396.</COMMENTS>
 <TABLE_NUMBER>8400</TABLE_NUMBER>
-<!-- TABLE 24100: Process_Installment_Sales - Form 6252                    -->
-<!-- IRS Reference: Form 6252, IRC Section 453                             -->
-<!-- ====================================================================== -->
-<decision_table>
-<table_name>Process_Installment_Sales</table_name>
-<xls_file>SpecialForms.xls</xls_file>
-<attribute_fields>
-<Type>ALL</Type>
-<COMMENTS>Process Form 6252 Installment Sale Income. Allows gain recognition to be spread over payment period per IRC 453.</COMMENTS>
-<TABLE_NUMBER>24100</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
@@ -7860,6 +7870,7 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <condition_description>property.has_mortgage_credit_certificate equals true</condition_description>
 <condition_postfix>property.has_mortgage_credit_certificate</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -7867,13 +7878,62 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <condition_description>property.mcc_rate &gt; 0 and &lt;= 0.50</condition_description>
 <condition_postfix>property.mcc_rate 0 &gt; property.mcc_rate 0.50 &lt;= and</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has mortgage interest paid</condition_comment>
-<condition_description>Mortgage interest paid &gt; 0 (use mortgage_interest_paid if set, else mortgage_interest)</condition_description>
+<condition_description>Mortgage interest paid &gt; 0</condition_description>
 <condition_postfix>
 property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate mortgage interest credit</action_comment>
+<action_description>Calculate MCC credit and adjust deduction</action_description>
+<action_postfix>
+property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if local@ interest_paid &gt;
+interest_paid property.mcc_rate f* /property.mcc_credit xdef
+property.mcc_credit 2000 fmin /property.mcc_credit_allowed xdef
+property.mcc_credit_allowed result.mortgage_interest_credit f+ /result.mortgage_interest_credit xdef
+property.mcc_credit_allowed /result.mortgage_interest_deduction_reduction xdef
+"  MCC credit calculated: $" property.mcc_credit_allowed cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No MCC credit</action_comment>
+<action_description>Property does not qualify for MCC</action_description>
+<action_postfix>
+0.0 /property.mcc_credit_allowed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 24100: Process_Installment_Sales - Form 6252                    -->
+<!-- IRS Reference: Form 6252, IRC Section 453                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Process_Installment_Sales</table_name>
+<xls_file>SpecialForms.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process Form 6252 Installment Sale Income. Allows gain recognition to be spread over payment period per IRC 453.</COMMENTS>
+<TABLE_NUMBER>24100</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
 <context_comment>Process each installment sale</context_comment>
 <context_description>for all installment sales</context_description>
 <context_postfix>
@@ -7890,7 +7950,7 @@ property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.
 <condition_number>1</condition_number>
 <condition_comment>Has payments this year</condition_comment>
 <condition_description>result.payments_received &gt; 0</condition_description>
-<condition_postfix>installment_sale.payments_received 0 ></condition_postfix>
+<condition_postfix>installment_sale.payments_received 0 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
@@ -7912,6 +7972,7 @@ installment_sale.interest_received result.total_installment_interest f+ /result.
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -8692,22 +8753,7 @@ partnership_audit.rental_adjustment f+ partnership_audit.other_adjustment f+ 0 !
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_description>Calculate mortgage interest credit</action_description>
-<action_postfix>
-"Calculating Mortgage Interest Credit (Form 8396)" job.audit_trail swap addto
-property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if /mortgage_int_amt xdef
-mortgage_int_amt property.mcc_rate f* /tentative_credit xdef
-tentative_credit 2000.0 fmin /allowed_credit xdef
-allowed_credit result.mortgage_interest_credit f+ /result.mortgage_interest_credit xdef
-tentative_credit allowed_credit f- result.carryforward_mortgage_credit f+ /result.carryforward_mortgage_credit xdef
-allowed_credit result.mortgage_interest_deduction_reduction f+ /result.mortgage_interest_deduction_reduction xdef
-"  Property: " property.address strconcat job.audit_trail swap addto
-"  Mortgage interest paid: $" mortgage_int_amt cvs strconcat job.audit_trail swap addto
-"  MCC rate: " property.mcc_rate cvs strconcat job.audit_trail swap addto
-"  Tentative credit: $" tentative_credit cvs strconcat job.audit_trail swap addto
-"  Credit allowed: $" allowed_credit cvs strconcat " (limited to $2,000)" strconcat job.audit_trail swap addto
-tentative_credit allowed_credit f- 0 &gt; { "  Carryforward: $" tentative_credit allowed_credit f- cvs strconcat job.audit_trail swap addto } if
-<action_description>set result.additional_tax = adjustments * applicable_rate</action_description>
+<action_description>Calculate partnership audit additional tax</action_description>
 <action_postfix>
 partnership_audit.ordinary_income_adjustment partnership_audit.capital_gain_adjustment f+
 partnership_audit.dividend_adjustment f+ partnership_audit.interest_adjustment f+
@@ -8737,6 +8783,48 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <Type>ALL</Type>
 <COMMENTS>Calculates Energy Efficient Appliance Credit for MANUFACTURERS. Credit varies by appliance type: dishwasher ($25-$75), clothes_washer ($75-$175), refrigerator ($50-$200) per unit. Subject to annual caps. Not for individual homeowners per Form 8909.</COMMENTS>
 <TABLE_NUMBER>8350</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each taxpayer for energy appliance credit</context_comment>
+<context_description>for all taxpayers</context_description>
+<context_postfix>
+{ /Calculate_Energy_Appliance_Credit executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize energy appliance credit</action_description>
+<action_postfix>
+0.0 /result.energy_appliance_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Manufacturer has appliance production</condition_comment>
+<condition_description>Has energy efficient appliances produced</condition_description>
+<condition_postfix>
+taxpayer.appliances_produced 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate energy appliance credit</action_description>
+<action_postfix>
+0.0 /taxpayer.appliance_credit xdef
+"  Energy appliance credit placeholder" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -8754,18 +8842,6 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <contexts>
 <context_details>
 <context_number>1</context_number>
-<context_comment>Process each taxpayer for energy appliance credit</context_comment>
-<context_description>for all taxpayers</context_description>
-<context_postfix>
-{ /Calculate_Energy_Appliance_Credit executetable } job.taxpayers forall
-</context_postfix>
-</context_details>
-</contexts>
-<initial_actions>
-<initial_action>
-<action_description>Initialize energy appliance credit</action_description>
-<action_postfix>
-0.0 /result.energy_appliance_credit xdef
 <context_comment>Process unreported tips</context_comment>
 <context_description>for all unreported tips records</context_description>
 <context_postfix>
@@ -8904,15 +8980,12 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Produced energy efficient appliances</condition_comment>
-<condition_description>taxpayer.energy_efficient_appliances_produced &gt; 0</condition_description>
-<condition_postfix>taxpayer.energy_efficient_appliances_produced 0 &gt;</condition_postfix>
-<condition_comment>State period exists</condition_comment>
-<condition_description>state_period is not null</condition_description>
+<condition_comment>Always execute for each state period</condition_comment>
+<condition_description>Always allocate income for each state period in the iteration</condition_description>
 <condition_postfix>
-state_period isnull not
+perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="*"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -8979,7 +9052,7 @@ done
 <table_name>Dispatch_State_Tax</table_name>
 <xls_file>State.xls</xls_file>
 <attribute_fields>
-<Type>ITERATIVE</Type>
+<Type>FIRST</Type>
 <COMMENTS>Dispatches to state-specific tax calculation for each state_period or falls back to job.state for single-state returns. Supports multi-state allocation for taxpayers who moved between states.</COMMENTS>
 <TABLE_NUMBER>40000</TABLE_NUMBER>
 </attribute_fields>
@@ -9017,26 +9090,6 @@ then
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Appliance type is dishwasher</condition_comment>
-<condition_description>taxpayer.appliance_type equals dishwasher</condition_description>
-<condition_postfix>taxpayer.appliance_type "dishwasher" streq</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Appliance type is clothes washer</condition_comment>
-<condition_description>taxpayer.appliance_type equals clothes_washer</condition_description>
-<condition_postfix>taxpayer.appliance_type "clothes_washer" streq</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>4</condition_number>
-<condition_comment>Appliance type is refrigerator</condition_comment>
-<condition_description>taxpayer.appliance_type equals refrigerator</condition_description>
-<condition_postfix>taxpayer.appliance_type "refrigerator" streq</condition_postfix>
 <condition_column column_number="5" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
@@ -9174,6 +9227,199 @@ then
 <policy_statement column="5">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 40100: Dispatch_Territory_Tax - US Territory Tax Dispatcher     -->
+<!-- Reference: Territory-specific income tax forms and rules              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Dispatch_Territory_Tax</table_name>
+<xls_file>Territory.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Dispatches to US territory-specific tax calculation. Territories have special tax systems: PR (separate progressive), VI/GU (mirror code), AS (frozen IRC 2000 + SE tax), MP/CNMI (mirror + rebate). Bona fide residence test determines filing authority.</COMMENTS>
+<TABLE_NUMBER>40100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log territory tax calculation start</action_description>
+<action_postfix>
+job.territory isnull not if
+  "US Territory Tax Calculation for " job.territory strconcat job.audit_trail swap addto
+then
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Puerto Rico territory</condition_comment>
+<condition_description>job.territory equals "PR"</condition_description>
+<condition_postfix>
+job.territory PR streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>US Virgin Islands territory</condition_comment>
+<condition_description>job.territory equals "VI"</condition_description>
+<condition_postfix>
+job.territory VI streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Guam territory</condition_comment>
+<condition_description>job.territory equals "GU"</condition_description>
+<condition_postfix>
+job.territory GU streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>American Samoa territory</condition_comment>
+<condition_description>job.territory equals "AS"</condition_description>
+<condition_postfix>
+job.territory AS streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Northern Mariana Islands territory</condition_comment>
+<condition_description>job.territory equals "MP" or "CNMI"</condition_description>
+<condition_postfix>
+job.territory MP streq job.territory CNMI streq or
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>No territory or not applicable</condition_comment>
+<condition_description>No territory tax calculation needed</condition_description>
+<condition_postfix>
+job.territory isnull job.territory "" streq or
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Puerto Rico territory tax</action_comment>
+<action_description>Calculate_PR_Tax</action_description>
+<action_postfix>
+Calculate_PR_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate US Virgin Islands territory tax</action_comment>
+<action_description>Calculate_VI_Tax</action_description>
+<action_postfix>
+Calculate_VI_Tax
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate Guam territory tax</action_comment>
+<action_description>Calculate_GU_Tax</action_description>
+<action_postfix>
+Calculate_GU_Tax
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate American Samoa territory tax</action_comment>
+<action_description>Calculate_AS_Tax</action_description>
+<action_postfix>
+Calculate_AS_Tax
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate Northern Mariana Islands territory tax</action_comment>
+<action_description>Calculate_MP_Tax</action_description>
+<action_postfix>
+Calculate_MP_Tax
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>No territory tax</action_comment>
+<action_description>log "No territory tax calculation needed"</action_description>
+<action_postfix>
+"  No US territory tax calculation needed" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Puerto Rico territory tax</policy_description>
+<policy_statement_postfix>"Calculate Puerto Rico territory tax per PR Internal Revenue Code. Bona fide residents exempt from US tax on PR-source income per IRC 933. Act 60 provides 0% capital gains, 4% business tax. Form 8898 required."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Calculate US Virgin Islands territory tax</policy_description>
+<policy_statement_postfix>"Calculate USVI territory tax per IRC 932. Mirror code system uses federal rates. Bona fide residents file with VI Bureau of Internal Revenue. EDC benefits up to 90% reduction. Form 8689 for non-residents."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Calculate Guam territory tax</policy_description>
+<policy_statement_postfix>"Calculate Guam territory tax per IRC 935. Mirror code system uses federal rates. Bona fide residents file with Guam DRT. Form 5074 for non-residents."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Calculate American Samoa territory tax</policy_description>
+<policy_statement_postfix>"Calculate American Samoa territory tax per IRC 931. Uses frozen IRC as of 2000. Bona fide residents with only AS-source income file only with ASG. SPECIAL RULE: Must pay US self-employment tax if SE income &gt;= $400."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Calculate Northern Mariana Islands territory tax</policy_description>
+<policy_statement_postfix>"Calculate CNMI territory tax per IRC 935. Mirror code with tiered rebate: 90% if tax &lt;= $20k, 70% on excess over $20k, 50% on excess over $100k. Bona fide residents file with CNMI Division of Revenue and Tax. Form 5074 for non-residents."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>No territory tax</policy_description>
+<policy_statement_postfix>"No US territory tax calculation needed for non-territory taxpayers"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -9442,14 +9688,6 @@ job.filing_status head_of_household streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_description>Calculate credit for dishwashers ($50 per unit)</action_description>
-<action_postfix>
-"Calculating Energy Efficient Appliance Credit - Dishwasher (Form 8909)" job.audit_trail swap addto
-taxpayer.energy_efficient_appliances_produced 50.0 f* /credit_amt xdef
-credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
-"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
-"  Credit per unit: $50" job.audit_trail swap addto
-"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
 <action_comment>Calculate MT tax MFJ</action_comment>
 <action_description>Calculate MT tax with MFJ standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -9474,14 +9712,6 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_description>Calculate credit for clothes washers ($125 per unit)</action_description>
-<action_postfix>
-"Calculating Energy Efficient Appliance Credit - Clothes Washer (Form 8909)" job.audit_trail swap addto
-taxpayer.energy_efficient_appliances_produced 125.0 f* /credit_amt xdef
-credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
-"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
-"  Credit per unit: $125" job.audit_trail swap addto
-"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
 <action_comment>Calculate MT tax Single</action_comment>
 <action_description>Calculate MT tax with Single standard deduction and progressive brackets</action_description>
 <action_postfix>
@@ -9506,27 +9736,43 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_description>Calculate credit for refrigerators ($100 per unit)</action_description>
+<action_comment>Calculate MT tax HOH</action_comment>
+<action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
 <action_postfix>
-"Calculating Energy Efficient Appliance Credit - Refrigerator (Form 8909)" job.audit_trail swap addto
-taxpayer.energy_efficient_appliances_produced 100.0 f* /credit_amt xdef
-credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
-"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
-"  Credit per unit: $100" job.audit_trail swap addto
-"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
+"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mt_standard_deduction_hoh /result.mt_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
+  mt_bracket_2_threshold_hoh mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  result.mt_taxable_income mt_bracket_2_threshold_hoh f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
+  "  Bracket 1 (4.7% on $0-$31,700): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.9% above $31,700): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
-<action_details>
-<action_number>4</action_number>
-<action_description>No qualifying appliances</action_description>
-<action_postfix>
-"Energy Appliance Credit not applicable (Form 8909 - manufacturers only)" job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
-</action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Montana state income tax for MFJ</policy_description>
+<policy_statement_postfix>"Calculate Montana state income tax per Form 2 for Married Filing Jointly with progressive brackets 4.7%/5.9%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Calculate Montana state income tax for Single</policy_description>
+<policy_statement_postfix>"Calculate Montana state income tax per Form 2 for Single filers with progressive brackets 4.7%/5.9%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Calculate Montana state income tax for HOH</policy_description>
+<policy_statement_postfix>"Calculate Montana state income tax per Form 2 for Head of Household with progressive brackets 4.7%/5.9%"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -9794,25 +10040,6 @@ result.total_tax_before_credits dependent.kiddie_tax_amount f+ /result.total_tax
 <action_postfix>
 false /dependent.subject_to_kiddie_tax xdef
 0.0 /dependent.kiddie_tax_amount xdef
-<action_comment>Calculate MT tax HOH</action_comment>
-<action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
-<action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_single /result.mt_standard_deduction xdef
-"  Standard Deduction (HOH uses Single): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
-"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
-  mt_bracket_2_threshold_hoh mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  result.mt_taxable_income mt_bracket_2_threshold_hoh f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
-  "  Bracket 1 (4.7% on $0-$31,700): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.9% above $31,700): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
-"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -9909,21 +10136,6 @@ result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.s
 </action_details>
 </actions>
 <policy_statements></policy_statements>
-</decision_table>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>MT progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"Montana progressive tax for MFJ per Montana Form 2"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>MT progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"Montana progressive tax for Single per Montana Form 2"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>MT progressive tax HOH with standard deduction</policy_description>
-<policy_statement_postfix>"Montana progressive tax for HOH per Montana Form 2"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
