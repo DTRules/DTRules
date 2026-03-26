@@ -7073,13 +7073,9 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 result.amti amt_phaseout_mfj f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_mfj result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
 result.amti result.amt_exemption f- 0 fmax /result.amt_base xdef
-result.amt_base amt_rate_threshold f&lt;= {
-  result.amt_base amt_rate_low f* /result.amt_tax xdef
-} {
-  amt_rate_threshold amt_rate_low f*
-  result.amt_base amt_rate_threshold f- amt_rate_high f* f+
-  /result.amt_tax xdef
-} ifelse
+result.amt_base constants.amt_rate_threshold fmin constants.amt_rate_low f*
+result.amt_base constants.amt_rate_threshold f- 0 fmax constants.amt_rate_high f* f+
+/result.amt_tax xdef
 result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 "  Exemption: $" result.amt_exemption cvs strconcat " (reduced by $" strconcat result.amt_exemption_reduction cvs strconcat ")" strconcat job.audit_trail swap addto
 "  Tentative Minimum Tax: $" result.amt_tax cvs strconcat job.audit_trail swap addto
@@ -7094,13 +7090,9 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 result.amti amt_phaseout_mfs f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_mfs result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
 result.amti result.amt_exemption f- 0 fmax /result.amt_base xdef
-result.amt_base amt_rate_threshold f&lt;= {
-  result.amt_base amt_rate_low f* /result.amt_tax xdef
-} {
-  amt_rate_threshold amt_rate_low f*
-  result.amt_base amt_rate_threshold f- amt_rate_high f* f+
-  /result.amt_tax xdef
-} ifelse
+result.amt_base constants.amt_rate_threshold fmin constants.amt_rate_low f*
+result.amt_base constants.amt_rate_threshold f- 0 fmax constants.amt_rate_high f* f+
+/result.amt_tax xdef
 result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 "  Exemption: $" result.amt_exemption cvs strconcat " (reduced by $" strconcat result.amt_exemption_reduction cvs strconcat ")" strconcat job.audit_trail swap addto
 "  Tentative Minimum Tax: $" result.amt_tax cvs strconcat job.audit_trail swap addto
@@ -7115,13 +7107,9 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 result.amti amt_phaseout_single f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_single result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
 result.amti result.amt_exemption f- 0 fmax /result.amt_base xdef
-result.amt_base amt_rate_threshold f&lt;= {
-  result.amt_base amt_rate_low f* /result.amt_tax xdef
-} {
-  amt_rate_threshold amt_rate_low f*
-  result.amt_base amt_rate_threshold f- amt_rate_high f* f+
-  /result.amt_tax xdef
-} ifelse
+result.amt_base constants.amt_rate_threshold fmin constants.amt_rate_low f*
+result.amt_base constants.amt_rate_threshold f- 0 fmax constants.amt_rate_high f* f+
+/result.amt_tax xdef
 result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 "  Exemption: $" result.amt_exemption cvs strconcat " (reduced by $" strconcat result.amt_exemption_reduction cvs strconcat ")" strconcat job.audit_trail swap addto
 "  Tentative Minimum Tax: $" result.amt_tax cvs strconcat job.audit_trail swap addto
@@ -9044,7 +9032,7 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <condition_comment>Manufacturer has appliance production</condition_comment>
 <condition_description>Has energy efficient appliances produced</condition_description>
 <condition_postfix>
-taxpayer.appliances_produced 0 &gt;
+taxpayer.energy_efficient_appliances_produced 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
