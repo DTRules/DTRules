@@ -1004,7 +1004,7 @@
 		<field name='se_threshold' type='double' subtype='' access='r' input='' default_value='400' comment='Minimum SE income to file SE tax'></field>
 
 		<!-- Schedule H - Household Employment Taxes -->
-		<field name='household_wage_threshold' type='double' subtype='' access='r' input='' default_value='2700' comment='Household employee wage threshold for FICA (2025)'></field>
+		<field name='household_wage_threshold' type='double' subtype='' access='r' input='' default_value='2800' comment='Household employee wage threshold for FICA (2025)'></field>
 		<field name='futa_wage_threshold' type='double' subtype='' access='r' input='' default_value='1000' comment='FUTA wage threshold per employee (2025)'></field>
 		<field name='social_security_rate' type='double' subtype='' access='r' input='' default_value='0.062' comment='Social Security tax rate 6.2% (employer share)'></field>
 		<field name='medicare_rate' type='double' subtype='' access='r' input='' default_value='0.0145' comment='Medicare tax rate 1.45% (employer share)'></field>
@@ -1167,7 +1167,7 @@
 		<field name='cdcc_rate_reduction_increment' type='double' subtype='' access='r' input='' default_value='2000' comment='AGI increment for 1% rate reduction'></field>
 
 		<!-- Kiddie Tax (Form 8615, IRC 1(g)) -->
-		<field name='kiddie_tax_threshold' type='double' subtype='' access='r' input='' default_value='2500' comment='2025 threshold for unearned income subject to kiddie tax (IRC 1(g)(4)(A))'></field>
+		<field name='kiddie_tax_threshold' type='double' subtype='' access='r' input='' default_value='2700' comment='2025 threshold for unearned income subject to kiddie tax (IRC 1(g)(4)(A))'></field>
 		<field name='kiddie_tax_standard_deduction' type='double' subtype='' access='r' input='' default_value='1300' comment='2025 standard deduction for dependents with unearned income (Rev. Proc. 2024-40)'></field>
 
 		<!-- Saver's Credit (Form 8880, IRC 25B) -->
@@ -1273,7 +1273,7 @@
 		<field name='clean_vehicle_magi_hoh' type='double' subtype='' access='r' input='' default_value='225000' comment='MAGI limit HOH'></field>
 
 		<!-- Form 8839 - Adoption Credit -->
-		<field name='adoption_credit_max' type='double' subtype='' access='r' input='' default_value='16810' comment='Max adoption credit per child (2024)'></field>
+		<field name='adoption_credit_max' type='double' subtype='' access='r' input='' default_value='17280' comment='Max adoption credit per child (2025)'></field>
 		<field name='adoption_phaseout_start' type='double' subtype='' access='r' input='' default_value='252150' comment='MAGI phase-out start (2024)'></field>
 		<field name='adoption_phaseout_end' type='double' subtype='' access='r' input='' default_value='292150' comment='MAGI phase-out end (2024)'></field>
 
