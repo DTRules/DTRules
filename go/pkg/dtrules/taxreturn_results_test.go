@@ -693,28 +693,28 @@ func Test2025Constants(t *testing.T) {
 			name:            "Single_W2_Standard",
 			file:            "Level1_Simple/TestCase_L1_01_Single_W2_Standard.xml",
 			expectedAGI:     65000,
-			expectedTaxable: 50000,  // 65000 - 15000 std ded
-			expectedTax:     5914,   // 2025 brackets: 10% on $11,925 + 12% on $36,550 + 22% on $1,525
-			expectedStdDed:  15000,  // 2025 Single std ded per Rev. Proc. 2024-40
-			description:     "Verifies Single standard deduction $15,000",
+			expectedTaxable: 49250,  // 65000 - 15750 std ded
+			expectedTax:     5749,   // 2025 brackets: 10% on $11,925 + 12% on $36,550 + 22% on $775
+			expectedStdDed:  15750,  // 2025 Single std ded per Rev. Proc. 2024-40
+			description:     "Verifies Single standard deduction $15,750",
 		},
 		{
 			name:            "MFJ_W2_Standard",
 			file:            "Level1_Simple/TestCase_L1_03_MFJ_W2_Standard.xml",
 			expectedAGI:     150000, // $90k + $60k W-2 wages
-			expectedTaxable: 120000, // 150000 - 30000 std ded
-			expectedTax:     16228,  // 2025 MFJ brackets: 10% on $23,850 + 12% on $73,100 + 22% on $23,050
-			expectedStdDed:  30000,  // 2025 MFJ std ded per Rev. Proc. 2024-40
-			description:     "Verifies MFJ standard deduction $30,000",
+			expectedTaxable: 118500, // 150000 - 31500 std ded
+			expectedTax:     15898,  // 2025 MFJ brackets: 10% on $23,850 + 12% on $73,100 + 22% on $21,550
+			expectedStdDed:  31500,  // 2025 MFJ std ded per Rev. Proc. 2024-40
+			description:     "Verifies MFJ standard deduction $31,500",
 		},
 		{
 			name:            "HOH_W2_One_Child",
 			file:            "Level1_Simple/TestCase_L1_04_HOH_W2_One_Child.xml",
 			expectedAGI:     70000,
-			expectedTaxable: 47500,  // 70000 - 22500 std ded
-			expectedTax:     3262,   // HOH brackets - CTC $2,200
-			expectedStdDed:  22500,  // 2025 HOH std ded per Rev. Proc. 2024-40
-			description:     "Verifies HOH standard deduction $22,500",
+			expectedTaxable: 46375,  // 70000 - 23625 std ded
+			expectedTax:     3127,   // HOH brackets - credits
+			expectedStdDed:  23625,  // 2025 HOH std ded per Rev. Proc. 2024-40
+			description:     "Verifies HOH standard deduction $23,625",
 		},
 	}
 
