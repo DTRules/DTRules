@@ -113,11 +113,11 @@ Calculate_Gross_Income
 </action_details>
 <!-- VALIDATION CHECKPOINT: AGI -->
 <action_details>
-<action_number>5a</action_number>
+<action_number>6</action_number>
 <action_comment>Validate AGI if expected values exist (validation checkpoint)</action_comment>
 <action_description>Validate_AGI (if job.expected_agi exists)</action_description>
 <action_postfix>
-job.expected_agi null neq if
+job.expected_agi isnull not if
   Validate_AGI
 endif
 </action_postfix>
@@ -152,11 +152,11 @@ Calculate_Taxable_Income
 </action_details>
 <!-- VALIDATION CHECKPOINT: Taxable Income -->
 <action_details>
-<action_number>7a</action_number>
+<action_number>7</action_number>
 <action_comment>Validate taxable income if expected values exist (validation checkpoint)</action_comment>
 <action_description>Validate_Taxable_Income (if job.expected_taxable_income exists)</action_description>
 <action_postfix>
-job.expected_taxable_income null neq if
+job.expected_taxable_income isnull not if
   Validate_Taxable_Income
 endif
 </action_postfix>
@@ -179,11 +179,11 @@ Calculate_Tax_Liability
 </action_details>
 <!-- VALIDATION CHECKPOINT: Total Tax -->
 <action_details>
-<action_number>8a</action_number>
+<action_number>9</action_number>
 <action_comment>Validate total tax if expected values exist (validation checkpoint)</action_comment>
 <action_description>Validate_Total_Tax (if job.expected_total_tax exists)</action_description>
 <action_postfix>
-job.expected_total_tax null neq if
+job.expected_total_tax isnull not if
   Validate_Total_Tax
 endif
 </action_postfix>
@@ -424,9 +424,7 @@ Process_Foreign_Income
 <action_comment>Process installment sales (Form 6252) - gain recognized in current year per IRC 453</action_comment>
 <action_description>Process_Installment_Sales</action_description>
 <action_postfix>
-job.installment_sales length 0 > if
-  /Process_Installment_Sales executetable
-endif
+/Process_Installment_Sales executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -435,9 +433,7 @@ endif
 <action_comment>Process like-kind exchanges (Form 8824) - recognized gain from boot per IRC 1031</action_comment>
 <action_description>Process_Like_Kind_Exchanges</action_description>
 <action_postfix>
-job.like_kind_exchanges length 0 > if
-  /Process_Like_Kind_Exchanges executetable
-endif
+/Process_Like_Kind_Exchanges executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -9484,17 +9480,28 @@ then
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
-<condition_comment>No state income tax (TX, FL, etc.)</condition_comment>
-<condition_description>state_period has no income tax or job.state has no income tax</condition_description>
+<condition_comment>No state income tax (AK, FL, NV, SD, TN, TX, WA, WY)</condition_comment>
+<condition_description>State has no state income tax</condition_description>
 <condition_postfix>
 state_period isnull not
 if
-  state_period.state_code TX streq
+  state_period.state_code AK streq
   state_period.state_code FL streq or
-  state_period.state_code WA streq or
   state_period.state_code NV streq or
+  state_period.state_code SD streq or
+  state_period.state_code TN streq or
+  state_period.state_code TX streq or
+  state_period.state_code WA streq or
+  state_period.state_code WY streq or
 else
-  job.has_state_income_tax not
+  job.state AK streq
+  job.state FL streq or
+  job.state NV streq or
+  job.state SD streq or
+  job.state TN streq or
+  job.state TX streq or
+  job.state WA streq or
+  job.state WY streq or
 then
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
@@ -9548,14 +9555,21 @@ then
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>State tax calculation not implemented</action_comment>
-<action_description>log "State tax calculation not implemented for this state"</action_description>
+<action_comment>Dynamically dispatch to state tax table</action_comment>
+<action_description>Construct table name Calculate_XX_Tax and execute</action_description>
 <action_postfix>
 state_period isnull not
 if
-  "  State tax calculation not yet implemented for " state_period.state_code strconcat job.audit_trail swap addto
+  state_period.state_code /state_code xdef
 else
-  "  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
+  job.state /state_code xdef
+then
+Calculate_ state_code strconcat _Tax strconcat /table_name xdef
+table_name lookupEntity isnull
+if
+  "  State tax calculation not yet implemented for " state_code strconcat job.audit_trail swap addto
+else
+  table_name execute
 then
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
