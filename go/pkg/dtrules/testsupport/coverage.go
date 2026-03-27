@@ -444,4 +444,3 @@ func escapeXML(s string) string {
 	s = strings.ReplaceAll(s, "\"", "&quot;")
 	return s
 }
-
