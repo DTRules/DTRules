@@ -1,0 +1,131 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 9: MSRRA - Joint Return with Different State Situations -->
+   <!-- Tests: Military member and spouse in different states, complex MSRRA application -->
+   <!-- Scenario: Military member domiciled in FL (no tax), stationed in VA, -->
+   <!-- spouse maintains FL domicile but works in VA (protected by MSRRA) -->
+   <id>MIL-09</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Tampa</city>
+
+   <!-- Expected values for validation -->
+   <!-- Service member W-2: $68,000 (stationed in VA, FL domicile) -->
+   <!-- Spouse W-2: $48,000 (works in VA, FL domicile, MSRRA protected) -->
+   <!-- FL has no state income tax -->
+   <!-- Under MSRRA: Spouse's VA income not taxable by VA -->
+   <!-- Federal AGI: $116,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $86,000 -->
+   <expected_agi>116000</expected_agi>
+   <expected_taxable_income>86000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Active duty military member -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Lieutenant Daniel White</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/18/1994</date_of_birth>
+         <occupation>Marine Corps Officer (O-2)</occupation>
+         <is_military>true</is_military>
+         <military_rank>commissioned_officer</military_rank>
+         <servicemember_domicile_state>FL</servicemember_domicile_state>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>68000</w2_wages>
+         <w2_withholding>8800</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Military spouse (protected by MSRRA) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Amanda White</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>6/5/1995</date_of_birth>
+         <occupation>Physical Therapist</occupation>
+         <is_military_spouse>true</is_military_spouse>
+         <spouse_same_domicile>true</spouse_same_domicile>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>48000</w2_wages>
+         <w2_withholding>6200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>68000</gross_amount>
+         <withholding>8800</withholding>
+         <description>Military pay (stationed VA, FL domicile)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>48000</gross_amount>
+         <withholding>6200</withholding>
+         <description>VA employment (FL domicile, MSRRA protected from VA tax)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Ethan White</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>12/3/2019</date_of_birth>
+         <age>6</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Sophia White</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>8/22/2022</date_of_birth>
+         <age>3</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

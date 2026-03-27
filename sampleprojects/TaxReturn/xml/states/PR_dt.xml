@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Decision tables for Puerto Rico (PR) Territory Tax
+
+  Puerto Rico has a separate tax system. Bona fide residents are generally exempt from
+  US federal income tax on PR-source income but pay PR tax. Act 60 provides special incentives.
+
+  FILE_PATH: sampleprojects/TaxReturn/xml/states/PR_dt.xml
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 50000: Calculate_PR_Tax - Puerto Rico Territory Income Tax      -->
+<!-- Reference: PR Internal Revenue Code, Act 60, Form 8898                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_PR_Tax</table_name>
+<xls_file>Territory.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Puerto Rico territory income tax calculation. Implements separate PR tax system with progressive rates. Bona fide residents exempt from US tax on PR-source income. Act 60 provides 0% capital gains for investors, 4% business tax. Form 8898 required for bona fide residents.</COMMENTS>
+<TABLE_NUMBER>50000</TABLE_NUMBER>
+<FILE_PATH>sampleprojects/TaxReturn/xml/states/PR_dt.xml</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize PR tax calculation</action_description>
+<action_postfix>
+"PUERTO RICO TERRITORY TAX - Separate Tax System" job.audit_trail swap addto
+"  Act 60 Tax Incentives and Bona Fide Residence Test" job.audit_trail swap addto
+0.0 /result.pr_income_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Bona fide resident of PR</condition_comment>
+<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_postfix>
+result.pr_days_present 183 &gt;=
+result.pr_has_tax_home and
+result.pr_closer_connection and
+dup /result.pr_bona_fide_resident xdef
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Qualifies for Act 60 investor benefits</condition_comment>
+<condition_description>Act 60 investor (0% capital gains)</condition_description>
+<condition_postfix>
+result.pr_act60_investor
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Qualifies for Act 60 business benefits</condition_comment>
+<condition_description>Act 60 business (4% rate)</condition_description>
+<condition_postfix>
+result.pr_act60_business
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate PR tax for bona fide resident with Act 60 benefits</action_comment>
+<action_postfix>
+true /result.pr_requires_form_8898 xdef
+true /result.pr_files_with_hacienda xdef
+
+result.agi result.pr_standard_deduction_single sub 0 fmax local@ pr_taxable_income &gt;
+
+result.pr_act60_investor if
+  0.0 /result.pr_income_tax xdef
+  "  Act 60 Investor: 0% capital gains rate applied" job.audit_trail swap addto
+else
+  result.pr_act60_business if
+    pr_taxable_income 0.04 f* /result.pr_income_tax xdef
+    "  Act 60 Business: 4% flat rate applied" job.audit_trail swap addto
+  else
+    pr_taxable_income result.pr_bracket_1_limit fmin result.pr_bracket_1_rate f* local@ tax1 &gt;
+    pr_taxable_income result.pr_bracket_1_limit f- 0 fmax result.pr_bracket_2_limit result.pr_bracket_1_limit f- fmin result.pr_bracket_2_rate f* local@ tax2 &gt;
+    pr_taxable_income result.pr_bracket_2_limit f- 0 fmax result.pr_bracket_3_limit result.pr_bracket_2_limit f- fmin result.pr_bracket_3_rate f* local@ tax3 &gt;
+    pr_taxable_income result.pr_bracket_3_limit f- 0 fmax result.pr_bracket_4_limit result.pr_bracket_3_limit f- fmin result.pr_bracket_4_rate f* local@ tax4 &gt;
+    pr_taxable_income result.pr_bracket_4_limit f- 0 fmax result.pr_bracket_5_rate f* local@ tax5 &gt;
+    tax1 tax2 f+ tax3 f+ tax4 f+ tax5 f+ /result.pr_income_tax xdef
+    "  PR progressive tax calculated (0-33% brackets)" job.audit_trail swap addto
+  then
+then
+
+"  Bona fide PR resident - Form 8898 required" job.audit_trail swap addto
+"  PR-source income exempt from US federal tax" job.audit_trail swap addto
+"  PR tax liability: $" result.pr_income_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Not bona fide resident - subject to US tax</action_comment>
+<action_postfix>
+false /result.pr_bona_fide_resident xdef
+false /result.pr_requires_form_8898 xdef
+0.0 /result.pr_income_tax xdef
+"  Not bona fide PR resident - subject to US federal income tax" job.audit_trail swap addto
+"  Does not meet 183-day presence test or other bona fide resident requirements" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate PR territory tax for bona fide residents with Act 60 benefits</policy_description>
+<policy_statement_postfix>"Bona fide PR residents are exempt from US federal tax on PR-source income per IRC 933. Act 60 provides 0% capital gains for investors, 4% business tax. Progressive rates 0-33% apply to ordinary income. Form 8898 required."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Not bona fide resident - US tax applies</policy_description>
+<policy_statement_postfix>"Non-bona fide residents of PR are subject to US federal income tax on worldwide income. Must meet 183-day presence test, tax home in PR, and closer connection test to qualify as bona fide resident."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+</decision_tables>

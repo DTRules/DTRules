@@ -128,6 +128,7 @@ var (
 	TypeDouble        *RType
 	TypeName          *RType
 	TypeDate          *RType
+	TypeInterval      *RType
 	TypeBoolean       *RType
 	TypeNull          *RType
 	TypeArray         *RType
@@ -135,6 +136,7 @@ var (
 	TypeEntity        *RType
 	TypeDecisionTable *RType
 	TypeMark          *RType
+	TypeInterval      *RType
 )
 
 func init() {
@@ -145,6 +147,7 @@ func init() {
 	TypeDouble = NewType("double")
 	TypeName = NewType("name")
 	TypeDate = NewType("date")
+	TypeInterval = NewType("interval")
 	TypeBoolean = NewType("boolean")
 	TypeNull = NewType("null")
 	TypeArray = NewType("array")
@@ -152,6 +155,7 @@ func init() {
 	TypeEntity = NewType("entity")
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
+	TypeInterval = NewType("interval")
 
 	// Register common type aliases
 	registerTypeAlias("float", TypeDouble)

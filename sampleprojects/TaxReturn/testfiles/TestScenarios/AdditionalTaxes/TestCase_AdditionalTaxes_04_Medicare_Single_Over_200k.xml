@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8959 - Additional Medicare Tax (Single Over $200k) -->
+<!-- Scenario: Single filer with W-2 wages exceeding $200k threshold -->
+<!-- Wages: $235,000 -->
+<!-- Expected: 0.9% Additional Medicare Tax on $35,000 ($235k - $200k) = $315 -->
+<job>
+    <id>AdditionalTaxes_04</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>CA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $235,000 -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- Taxable: $220,000 -->
+    <!-- Income tax: ~$46,617 (2025 brackets) -->
+    <!-- Additional Medicare: $315 (0.9% on $35,000 over $200k threshold) -->
+    <!-- Total tax: $46,932 -->
+    <expected_agi>235000</expected_agi>
+    <expected_taxable_income>220000</expected_taxable_income>
+    <expected_total_tax>46932</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Katherine Morgan</name>
+            <ssn>567-89-0123</ssn>
+            <date_of_birth>11/22/1983</date_of_birth>
+            <occupation>Senior Software Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>235000</w2_wages>
+            <w2_withholding>48000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>
