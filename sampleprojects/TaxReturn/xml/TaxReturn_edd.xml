@@ -260,6 +260,8 @@
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
 		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
+		<!-- Non-resident state tax -->
+		<field name='state_location' type='string' subtype='' access='r' input='main' default_value='' comment='State where property is located (for non-resident tax on rental income)'></field>
 		<!-- Form 8396 - Mortgage Interest Credit -->
 		<field name='has_mortgage_credit_certificate' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Has MCC from state/local government (Form 8396)'></field>
 		<field name='mcc_rate' type='double' subtype='' access='r' input='main' default_value='0' comment='Certificate credit rate, usually 10%-50% (Form 8396)'></field>
@@ -1044,6 +1046,8 @@
 		<field name='bracket_7_single' type='double' subtype='' access='r' input='' default_value='999999999' comment='37% top bracket (no ceiling) Single (2025)'></field>
 
 		<!-- States without income tax -->
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
+
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "SD" "WY" "AK" }' comment='States with no income tax'></field>
 
 <!-- Alabama State Tax Constants (2025) -->
@@ -1095,6 +1099,15 @@
 		<field name='tn_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0600' comment='TN tax rate bracket 3 (6.0%)'></field>
 		<field name='tn_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='50000' comment='TN bracket 2 threshold (above this uses 4%)'></field>
 		<field name='tn_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='TN bracket 3 threshold (above this uses 6%)'></field>
+
+		<!-- South Dakota State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='sd_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='5000' comment='SD standard deduction Single (2025)'></field>
+		<field name='sd_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='10000' comment='SD standard deduction MFJ (2025)'></field>
+		<field name='sd_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0350' comment='SD tax rate bracket 1 (3.5%)'></field>
+		<field name='sd_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0500' comment='SD tax rate bracket 2 (5.0%)'></field>
+		<field name='sd_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='25000' comment='SD bracket 2 threshold Single/MFS (above this uses 5.0%)'></field>
+		<field name='sd_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='50000' comment='SD bracket 2 threshold MFJ (above this uses 5.0%)'></field>
+		<field name='sd_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='37500' comment='SD bracket 2 threshold HOH (above this uses 5.0%)'></field>
 
 		<!-- Nevada State Tax Constants (2025) - Hypothetical Progressive Tax -->
 		<field name='nv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='7500' comment='NV standard deduction Single (2025)'></field>
@@ -1716,6 +1729,15 @@
 		<field name='tn_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='TN bracket 3 tax (6%)'></field>
 		<field name='tn_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Tennessee state income tax'></field>
 
+		<!-- South Dakota State Tax Results -->
+		<field name='sd_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='South Dakota AGI (federal AGI + adjustments)'></field>
+		<field name='sd_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='SD standard deduction amount'></field>
+		<field name='sd_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='South Dakota taxable income'></field>
+		<field name='sd_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='SD bracket 1 tax (3.5%)'></field>
+		<field name='sd_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='SD bracket 2 tax (5.0%)'></field>
+		<field name='sd_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='South Dakota state income tax'></field>
+
+
 		<!-- Nevada State Tax Results -->
 		<field name='nv_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Nevada AGI (federal AGI + adjustments)'></field>
 		<field name='nv_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NV standard deduction amount'></field>
@@ -1825,7 +1847,7 @@
 		<field name='ca_mhst_threshold' type='double' subtype='' access='r' input='' default_value='1000000' comment='MHST threshold $1M+ (all filing statuses)'></field>
 		<field name='ca_mhst' type='double' subtype='' access='rw' input='' default_value='0' comment='CA Mental Health Services Tax (1% on $1M+)'></field>
 		<field name='ca_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='CA standard deduction (computed)'></field>
-		<field name='ca_regular_tax' type='double' subtype='' access='rw' input= ' default_value='0' comment='CA regular tax (before MHST)'></field>
+		<field name='ca_regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='CA regular tax (before MHST)'></field>
 
 		<!-- Colorado state tax fields -->
 		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='CO flat tax rate 4.40% (2025). Source: Colorado DOR'></field>
@@ -1849,6 +1871,8 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is resident (vs non-resident) - used by non-resident tax calculation'></field>
+		<field name='state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in this state (for non-residents) - used by non-resident tax calculation'></field>
 		<field name='residency_status' type='string' subtype='' access='rw' input='main' default_value='full_year_resident' comment='Residency status: full_year_resident, part_year_resident, non_resident'></field>
 		<field name='residency_start_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency began (for part-year residents)'></field>
 		<field name='residency_end_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency ended (for part-year residents)'></field>
