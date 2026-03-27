@@ -1067,6 +1067,21 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- Maine State Tax Constants (2025) - Form 1040ME -->
+		<field name='me_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.058' comment='Maine 5.8% bracket rate'></field>
+		<field name='me_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.0675' comment='Maine 6.75% bracket rate'></field>
+		<field name='me_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.0715' comment='Maine 7.15% top bracket rate'></field>
+		<field name='me_bracket_1_single' type='double' subtype='' access='r' input='' default_value='26800' comment='ME 5.8% bracket ceiling Single'></field>
+		<field name='me_bracket_2_single' type='double' subtype='' access='r' input='' default_value='63450' comment='ME 6.75% bracket ceiling Single'></field>
+		<field name='me_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='53600' comment='ME 5.8% bracket ceiling MFJ'></field>
+		<field name='me_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='126900' comment='ME 6.75% bracket ceiling MFJ'></field>
+		<field name='me_std_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='ME standard deduction Single'></field>
+		<field name='me_std_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='ME standard deduction MFJ'></field>
+		<field name='me_std_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='ME standard deduction MFS'></field>
+		<field name='me_std_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='ME standard deduction HOH'></field>
+		<field name='me_personal_exemption' type='double' subtype='' access='r' input='' default_value='5150' comment='ME personal exemption per person (2025)'></field>
+		<field name='me_pension_deduction_max' type='double' subtype='' access='r' input='' default_value='48216' comment='ME maximum pension deduction (2025)'></field>
+
 
 		<!-- Iowa State Tax Constants (2025) - Flat Tax with Federal Standard Deduction -->
 		<field name='ia_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0380' comment='Iowa flat tax rate (3.8%)'></field>
@@ -1914,6 +1929,14 @@
 		<field name='il_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total IL personal exemptions'></field>
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
+
+		<!-- Maine State Tax Results -->
+		<field name='me_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Maine AGI (Form 1040ME)'></field>
+		<field name='me_pension_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='Maine pension income subtraction'></field>
+		<field name='me_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total ME personal exemptions'></field>
+		<field name='me_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Maine standard deduction'></field>
+		<field name='me_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Maine taxable income'></field>
+		<field name='me_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Maine state income tax'></field>
 
 
 		<!-- Iowa State Tax Results -->

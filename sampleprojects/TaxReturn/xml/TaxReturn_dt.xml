@@ -15435,6 +15435,265 @@ Apply_NY_Tax_Brackets_MFJ
 </decision_table>
 
 
+<!-- TABLE 42500: Calculate_ME_Tax - Maine State Income Tax               -->
+<!-- Reference: Maine Form 1040ME (2025)                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ME_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Maine state income tax per Form 1040ME. Maine uses progressive tax rates (5.8%, 6.75%, 7.15%) with standard deductions and personal exemptions. Starting with federal AGI, subtracts pension/SS income (Maine exempts SS and allows pension deduction up to $48,216), applies standard deduction and personal exemptions, then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>42500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize ME tax calculation</action_description>
+<action_postfix>
+"MAINE FORM 1040ME - State Income Tax Calculation" job.audit_trail swap addto
+0 local@ num_people >
+result.agi /result.me_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing status is Single</condition_description>
+<condition_postfix>
+job.filing_status Single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is MFJ</condition_comment>
+<condition_description>Filing status is MFJ</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Filing status is MFS</condition_comment>
+<condition_description>Filing status is MFS</condition_description>
+<condition_postfix>
+job.filing_status MFS streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Filing status is HOH</condition_comment>
+<condition_description>Filing status is HOH</condition_description>
+<condition_postfix>
+job.filing_status HOH streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate ME tax for Single filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using Single brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_single /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (Single)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_single f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_single f&lt;= if
+    me_bracket_1_single me_tax_rate_1 f* result.me_taxable_income me_bracket_1_single f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_single me_tax_rate_1 f* me_bracket_2_single me_bracket_1_single f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_single f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate ME tax for MFJ filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using MFJ brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_mfj /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (MFJ)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_mfj f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_mfj f&lt;= if
+    me_bracket_1_mfj me_tax_rate_1 f* result.me_taxable_income me_bracket_1_mfj f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_mfj me_tax_rate_1 f* me_bracket_2_mfj me_bracket_1_mfj f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_mfj f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate ME tax for MFS filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using Single brackets (MFS uses same as Single)</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_mfs /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (MFS)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_single f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_single f&lt;= if
+    me_bracket_1_single me_tax_rate_1 f* result.me_taxable_income me_bracket_1_single f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_single me_tax_rate_1 f* me_bracket_2_single me_bracket_1_single f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_single f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate ME tax for HOH filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using MFJ brackets (HOH uses same as MFJ)</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_hoh /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (HOH)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_mfj f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_mfj f&lt;= if
+    me_bracket_1_mfj me_tax_rate_1 f* result.me_taxable_income me_bracket_1_mfj f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_mfj me_tax_rate_1 f* me_bracket_2_mfj me_bracket_1_mfj f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_mfj f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Maine progressive tax for Single filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for Single filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Maine progressive tax for MFJ filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for MFJ filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Maine progressive tax for MFS filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for MFS filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Maine progressive tax for HOH filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for HOH filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+
 <!-- ====================================================================== -->
 <!-- TABLE 44600: Calculate_ND_Tax - North Dakota State Income Tax        -->
 <!-- Reference: North Dakota Form ND-1 (2025)                              -->
