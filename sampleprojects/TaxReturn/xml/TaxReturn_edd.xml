@@ -1091,6 +1091,10 @@
 		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
 
+		<!-- Florida State Tax Constants (2025) -->
+		<!-- Florida has NO state income tax (constitutionally prohibited). Tax rate is 0% for all residents. -->
+		<field name='fl_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0' comment='Florida has no state income tax (0%)'></field>
+
 		<!-- Mississippi State Tax Constants (2025) -->
 		<field name='ms_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2300' comment='MS standard deduction Single (2025)'></field>
 		<field name='ms_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='4600' comment='MS standard deduction MFJ (2025)'></field>
@@ -1759,6 +1763,10 @@
 		<field name='mt_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 1 tax (4.7%)'></field>
 		<field name='mt_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 2 tax (5.9%)'></field>
 		<field name='mt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana state income tax'></field>
+
+		<!-- Florida State Tax Results -->
+		<field name='fl_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Florida AGI (same as federal AGI)'></field>
+		<field name='fl_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Florida state income tax (always $0)'></field>
 
 		<!-- Mississippi State Tax Results -->
 		<field name='ms_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Mississippi AGI (federal AGI)'></field>
