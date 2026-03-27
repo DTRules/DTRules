@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 09: Form 8582 - Passive Loss with Active Participation -->
+<!-- Triggers: Form 8582, Schedule K-1, Schedule E Part II -->
+<!-- Tests: $25,000 active participation allowance for rental real estate (IRC 469(i)) -->
+<job>
+    <id>BUS09-FORM8582-ACTIVE-PARTICIPATION</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $85,000 W2 - $18,000 K-1 rental loss (allowed due to active participation) = $67,000 -->
+    <!-- Active participation allows up to $25,000 loss deduction if AGI < $100,000 -->
+    <!-- AGI: $67,000 -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable: $37,000 -->
+    <!-- Tax: ~$4,164 -->
+    <expected_agi>67000</expected_agi>
+    <expected_taxable_income>37000</expected_taxable_income>
+    <expected_total_tax>4164</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Elizabeth Miller</name>
+            <ssn>400-19-0001</ssn>
+            <date_of_birth>5/20/1979</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Teacher</occupation>
+            <w2_wages>48000</w2_wages>
+            <w2_withholding>5500</w2_withholding>
+            <w2_ss_wages>48000</w2_ss_wages>
+            <w2_medicare_wages>48000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Michael Miller</name>
+            <ssn>400-19-0002</ssn>
+            <date_of_birth>11/8/1978</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Active Partner in Miller Rentals LLC</occupation>
+            <w2_wages>37000</w2_wages>
+            <w2_withholding>4200</w2_withholding>
+            <w2_ss_wages>37000</w2_ss_wages>
+            <w2_medicare_wages>37000</w2_medicare_wages>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - Active Participation -->
+    <!-- Partner actively participates in rental real estate business -->
+    <!-- IRC 469(i): Up to $25,000 rental loss allowed if actively participate -->
+    <!-- Phaseout starts at $100,000 AGI, complete at $150,000 AGI (MFJ) -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Miller Rentals LLC</entity_name>
+            <entity_ein>45-6789012</entity_ein>
+            <!-- Box 2: Net rental real estate loss -->
+            <rental_income>-18000</rental_income>
+            <!-- Active participation - loss allowed up to $25,000 -->
+            <!-- Since AGI ($85k) < $100k, full loss is allowed -->
+            <qbi_income>0</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <ordinary_income>0</ordinary_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

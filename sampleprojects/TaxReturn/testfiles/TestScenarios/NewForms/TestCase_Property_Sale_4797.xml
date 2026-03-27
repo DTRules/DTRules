@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 4797 Business Property Sale -->
+   <!-- Sale of business equipment with Section 1245 depreciation recapture -->
+
+   <id>4797-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+   <city>Miami</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Wages: $75,000 -->
+   <!-- Equipment Sale: -->
+   <!--   Sales Price: $40,000 -->
+   <!--   Cost Basis: $50,000 -->
+   <!--   Depreciation Taken: $30,000 -->
+   <!--   Adjusted Basis: $50,000 - $30,000 = $20,000 -->
+   <!--   Total Gain: $40,000 - $20,000 = $20,000 -->
+   <!--   Section 1245 Recapture (ordinary): min($30,000, $20,000) = $20,000 -->
+   <!--   Section 1231 Gain: $0 -->
+   <!-- Gross Income: $75,000 + $20,000 (recapture) = $95,000 -->
+   <!-- AGI: $95,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable: $95,000 - $15,000 = $80,000 -->
+   <expected_agi>95000</expected_agi>
+   <expected_taxable_income>80000</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Carlos</name>
+         <ssn>901-01-1121</ssn>
+         <date_of_birth>9/5/1970</date_of_birth>
+         <occupation>Contractor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>10000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 4797 Property Sale -->
+   <property_sales>
+      <property_sale id="1">
+         <id>1</id>
+         <description>Construction Equipment - Excavator</description>
+         <property_type>1245</property_type>
+         <is_real_property>false</is_real_property>
+         <date_acquired>1/15/2020</date_acquired>
+         <date_sold>6/30/2025</date_sold>
+         <sales_price>40000</sales_price>
+         <selling_expenses>0</selling_expenses>
+         <cost_basis>50000</cost_basis>
+         <improvements>0</improvements>
+         <depreciation_allowed>30000</depreciation_allowed>
+      </property_sale>
+   </property_sales>
+</job>

@@ -38,10 +38,10 @@ echo ""
 echo -n "  Usage message... "
 if "$PROJECT_DIR/dtrules-asm" 2>&1 | grep -q "Usage:"; then
     echo "PASS"
-    ((TOTAL_PASS++))
+    TOTAL_PASS=$((TOTAL_PASS + 1))
 else
     echo "FAIL"
-    ((TOTAL_FAIL++))
+    TOTAL_FAIL=$((TOTAL_FAIL + 1))
 fi
 
 echo ""
@@ -66,9 +66,9 @@ if [ -f "$SCRIPT_DIR/unit/Makefile" ]; then
                 name=$(basename "$test_exe")
                 echo "Running $name..."
                 if "$test_exe"; then
-                    ((TOTAL_PASS++))
+                    TOTAL_PASS=$((TOTAL_PASS + 1))
                 else
-                    ((TOTAL_FAIL++))
+                    TOTAL_FAIL=$((TOTAL_FAIL + 1))
                 fi
                 echo ""
             fi
@@ -91,9 +91,9 @@ echo ""
 
 if [ -f "$SCRIPT_DIR/integration/run_tests.sh" ]; then
     if "$SCRIPT_DIR/integration/run_tests.sh"; then
-        ((TOTAL_PASS++))
+        TOTAL_PASS=$((TOTAL_PASS + 1))
     else
-        ((TOTAL_FAIL++))
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
     fi
 else
     echo "  No integration tests found (skipping)"

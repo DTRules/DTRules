@@ -16,18 +16,20 @@
 package loader
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/decisiontable"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/decisiontable"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
-// DTLoader loads Decision Table XML files.
+// DTLoader loads Decision Table files (XML or JSON).
 type DTLoader struct {
 	session  dtrules.Session
 	factory  *entity.Factory
@@ -45,117 +47,140 @@ func NewDTLoader(session dtrules.Session, factory *entity.Factory) *DTLoader {
 	}
 }
 
-// XML structures matching the actual DTRules decision table format
+// Structures matching the DTRules decision table format (XML and JSON)
 
 // DTFile represents the root decision_tables element
 type DTFile struct {
-	XMLName xml.Name  `xml:"decision_tables"`
-	Tables  []DTTable `xml:"decision_table"`
+	XMLName xml.Name  `xml:"decision_tables" json:"-"`
+	Tables  []DTTable `xml:"decision_table" json:"decision_tables"`
 }
 
 // DTTable represents a single decision table
 type DTTable struct {
-	TableName        string             `xml:"table_name"`
-	XlsFile          string             `xml:"xls_file"`
-	AttributeFields  DTAttributeFields  `xml:"attribute_fields"`
-	Contexts         DTContexts         `xml:"contexts"`
-	InitialActions   DTInitialActions   `xml:"initial_actions"`
-	Conditions       DTConditions       `xml:"conditions"`
-	Actions          DTActions          `xml:"actions"`
-	PolicyStatements DTPolicyStatements `xml:"policy_statements"`
+	TableName        string             `xml:"table_name" json:"table_name"`
+	XlsFile          string             `xml:"xls_file" json:"xls_file,omitempty"`
+	AttributeFields  DTAttributeFields  `xml:"attribute_fields" json:"attribute_fields"`
+	Contexts         DTContexts         `xml:"contexts" json:"contexts"`
+	InitialActions   DTInitialActions   `xml:"initial_actions" json:"initial_actions"`
+	Conditions       DTConditions       `xml:"conditions" json:"conditions"`
+	Actions          DTActions          `xml:"actions" json:"actions"`
+	PolicyStatements DTPolicyStatements `xml:"policy_statements" json:"policy_statements"`
 }
 
 // DTAttributeFields represents metadata about the table
+// Note: Type can be <Type>, <TYPE>, or <type> depending on the XML source
 type DTAttributeFields struct {
-	Type        string `xml:"Type"`
-	Comments    string `xml:"COMMENTS"`
-	FileName    string `xml:"File_Name"`
-	TableNumber string `xml:"TABLE_NUMBER"`
+	Type          string `xml:"Type" json:"type"`
+	TypeUppercase string `xml:"TYPE" json:"-"`
+	TypeLowercase string `xml:"type" json:"-"`
+	Comments      string `xml:"COMMENTS" json:"comments,omitempty"`
+	CommentsLower string `xml:"comments" json:"-"`
+	FileName      string `xml:"File_Name" json:"file_name,omitempty"`
+	TableNumber   string `xml:"TABLE_NUMBER" json:"table_number,omitempty"`
+	FilePath      string `xml:"FILE_PATH" json:"file_path,omitempty"`
+}
+
+// GetType returns the type field, checking all case variants
+func (f *DTAttributeFields) GetType() string {
+	if f.Type != "" {
+		return f.Type
+	}
+	if f.TypeUppercase != "" {
+		return f.TypeUppercase
+	}
+	return f.TypeLowercase
 }
 
 // DTContexts represents the context section
 type DTContexts struct {
-	Contexts []DTContextDetail `xml:"context_details"`
+	Contexts []DTContextDetail `xml:"context_details" json:"context_details"`
 }
 
 // DTContextDetail represents a single context entry
 type DTContextDetail struct {
-	Number      int    `xml:"context_number"`
-	Comment     string `xml:"context_comment"`
-	Description string `xml:"context_description"`
-	Postfix     string `xml:"context_postfix"`
+	Number      int    `xml:"context_number" json:"context_number"`
+	Comment     string `xml:"context_comment" json:"context_comment,omitempty"`
+	Description string `xml:"context_description" json:"context_description"`
+	Postfix     string `xml:"context_postfix" json:"context_postfix"`
 }
 
 // DTInitialActions represents the initial actions section
 type DTInitialActions struct {
-	Actions []DTInitialAction `xml:"initial_action_details"`
+	Actions []DTInitialAction `xml:"initial_action_details" json:"initial_action_details"`
 }
 
 // DTInitialAction represents a single initial action
 type DTInitialAction struct {
-	Number      int    `xml:"initial_action_number"`
-	Comment     string `xml:"initial_action_comment"`
-	Description string `xml:"initial_action_description"`
-	Postfix     string `xml:"initial_action_postfix"`
+	Number      int    `xml:"initial_action_number" json:"initial_action_number"`
+	Comment     string `xml:"initial_action_comment" json:"initial_action_comment,omitempty"`
+	Description string `xml:"initial_action_description" json:"initial_action_description"`
+	Postfix     string `xml:"initial_action_postfix" json:"initial_action_postfix"`
 }
 
 // DTConditions represents the conditions section
 type DTConditions struct {
-	Conditions []DTConditionDetail `xml:"condition_details"`
+	Conditions []DTConditionDetail `xml:"condition_details" json:"condition_details"`
 }
 
 // DTConditionDetail represents a single condition
 type DTConditionDetail struct {
-	Number      int              `xml:"condition_number"`
-	Comment     string           `xml:"condition_comment"`
-	Requirement string           `xml:"condition_requirement"`
-	Description string           `xml:"condition_description"`
-	Postfix     string           `xml:"condition_postfix"`
-	Columns     []DTConditionCol `xml:"condition_column"`
+	Number      int              `xml:"condition_number" json:"condition_number"`
+	Comment     string           `xml:"condition_comment" json:"condition_comment,omitempty"`
+	Requirement string           `xml:"condition_requirement" json:"condition_requirement,omitempty"`
+	Description string           `xml:"condition_description" json:"condition_description"`
+	Postfix     string           `xml:"condition_postfix" json:"condition_postfix"`
+	Columns     []DTConditionCol `xml:"condition_column" json:"condition_columns"`
 }
 
 // DTConditionCol represents a condition column entry
 type DTConditionCol struct {
-	ColumnNumber int    `xml:"column_number,attr"`
-	ColumnValue  string `xml:"column_value,attr"`
+	ColumnNumber int    `xml:"column_number,attr" json:"column_number"`
+	ColumnValue  string `xml:"column_value,attr" json:"column_value"`
 }
 
 // DTActions represents the actions section
 type DTActions struct {
-	Actions []DTActionDetail `xml:"action_details"`
+	Actions []DTActionDetail `xml:"action_details" json:"action_details"`
 }
 
 // DTActionDetail represents a single action
 type DTActionDetail struct {
-	Number      int           `xml:"action_number"`
-	Comment     string        `xml:"action_comment"`
-	Requirement string        `xml:"initial_action_requirement"`
-	Description string        `xml:"action_description"`
-	Postfix     string        `xml:"action_postfix"`
-	Columns     []DTActionCol `xml:"action_column"`
+	Number      int           `xml:"action_number" json:"action_number"`
+	Comment     string        `xml:"action_comment" json:"action_comment,omitempty"`
+	Requirement string        `xml:"initial_action_requirement" json:"action_requirement,omitempty"`
+	Description string        `xml:"action_description" json:"action_description"`
+	Postfix     string        `xml:"action_postfix" json:"action_postfix"`
+	Columns     []DTActionCol `xml:"action_column" json:"action_columns"`
 }
 
 // DTActionCol represents an action column entry
 type DTActionCol struct {
-	ColumnNumber int    `xml:"column_number,attr"`
-	ColumnValue  string `xml:"column_value,attr"`
+	ColumnNumber int    `xml:"column_number,attr" json:"column_number"`
+	ColumnValue  string `xml:"column_value,attr" json:"column_value"`
 }
 
 // DTPolicyStatements represents policy statements
 type DTPolicyStatements struct {
-	Statements []DTPolicyStatement `xml:"policy_statement"`
+	Statements []DTPolicyStatement `xml:"policy_statement" json:"policy_statements"`
 }
 
 // DTPolicyStatement represents a single policy statement
 type DTPolicyStatement struct {
-	Column      int    `xml:"column,attr"`
-	Description string `xml:"policy_description"`
-	Postfix     string `xml:"policy_statement_postfix"`
+	Column      int    `xml:"column,attr" json:"column"`
+	Description string `xml:"policy_description" json:"policy_description"`
+	Postfix     string `xml:"policy_statement_postfix" json:"policy_statement_postfix"`
 }
 
-// Load loads decision tables from an io.Reader.
+// Load loads decision tables from an io.Reader. The input may be XML or JSON;
+// the format is detected automatically from the content.
 // The input size is limited by MaxXMLSize (default 10 MB) to prevent memory exhaustion.
 func (l *DTLoader) Load(r io.Reader) error {
+	// Detect format
+	format, r, err := DetectFormat(r)
+	if err != nil {
+		return fmt.Errorf("failed to read decision tables: %w", err)
+	}
+
 	// Apply size limit if configured
 	if MaxXMLSize > 0 {
 		r = io.LimitReader(r, MaxXMLSize+1) // +1 to detect overflow
@@ -168,12 +193,19 @@ func (l *DTLoader) Load(r io.Reader) error {
 
 	// Check if we hit the size limit
 	if MaxXMLSize > 0 && int64(len(data)) > MaxXMLSize {
-		return fmt.Errorf("decision tables XML exceeds maximum size limit of %d bytes", MaxXMLSize)
+		return fmt.Errorf("decision tables input exceeds maximum size limit of %d bytes", MaxXMLSize)
 	}
 
 	var dtFile DTFile
-	if err := xml.Unmarshal(data, &dtFile); err != nil {
-		return fmt.Errorf("failed to parse decision tables XML: %w", err)
+	switch format {
+	case FormatJSON:
+		if err := json.Unmarshal(data, &dtFile); err != nil {
+			return fmt.Errorf("failed to parse decision tables JSON: %w", err)
+		}
+	default:
+		if err := xml.Unmarshal(data, &dtFile); err != nil {
+			return fmt.Errorf("failed to parse decision tables XML: %w", err)
+		}
 	}
 
 	for _, table := range dtFile.Tables {
@@ -183,6 +215,9 @@ func (l *DTLoader) Load(r io.Reader) error {
 	}
 
 	if len(l.errors) > 0 {
+		for i, err := range l.errors {
+			log.Printf("DT Load Error %d: %v", i+1, err)
+		}
 		return fmt.Errorf("decision table loading completed with %d errors", len(l.errors))
 	}
 	return nil
@@ -199,12 +234,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	builder := decisiontable.NewBuilder(name.StringValue(), l.session)
 
 	// Set table type
-	builder.SetTypeFromString(table.AttributeFields.Type)
+	builder.SetTypeFromString(table.AttributeFields.GetType())
 
 	// Set metadata fields
 	builder.SetField("TABLE_NUMBER", table.AttributeFields.TableNumber)
 	builder.SetField("COMMENTS", table.AttributeFields.Comments)
-	builder.SetFilename(table.AttributeFields.FileName)
+	builder.SetFilename(table.XlsFile)
+
+	// Set FILE_PATH if present (with fallback to xls_file)
+	if table.AttributeFields.FilePath != "" {
+		builder.SetFilePath(table.AttributeFields.FilePath)
+	}
 
 	// Process contexts - use postfix if available
 	contexts := make([]string, len(table.Contexts.Contexts))
@@ -402,10 +442,12 @@ func (l *DTLoader) compileContextsPostfix(tableName string, contexts []string) (
 		return nil, nil
 	}
 
-	// Check if any contexts have content
+	// Check if any contexts have meaningful content
+	// Skip contexts that are just "execute" (placeholder for "no longer supported")
 	hasContent := false
 	for _, ctx := range contexts {
-		if strings.TrimSpace(ctx) != "" {
+		ctx = strings.TrimSpace(ctx)
+		if ctx != "" && ctx != "execute" {
 			hasContent = true
 			break
 		}
@@ -420,7 +462,8 @@ func (l *DTLoader) compileContextsPostfix(tableName string, contexts []string) (
 	// Wrap with each context postfix (in reverse order, like Java)
 	for i := len(contexts) - 1; i >= 0; i-- {
 		ctx := strings.TrimSpace(contexts[i])
-		if ctx != "" {
+		// Skip empty contexts and placeholder "execute" (used for "no longer supported" entries)
+		if ctx != "" && ctx != "execute" {
 			contextsrc = "{ " + contextsrc + " } " + ctx
 		}
 	}

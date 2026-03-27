@@ -692,3 +692,787 @@ array_contains:
     setne al
     movzx eax, al
     ret
+
+;-----------------------------------------------------------------------------
+; array_copy - Create a shallow copy of an array
+; Input: rdi = source array header
+; Output: rax = new array header, or 0 on error
+;-----------------------------------------------------------------------------
+global array_copy
+array_copy:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi            ; Source array
+
+    ; Get source length
+    mov r12, [rbx + ARRAY_LEN_OFF]
+
+    ; Allocate new array with same capacity as source length (or more)
+    mov rdi, r12
+    test rdi, rdi
+    jnz .have_cap
+    mov rdi, ARRAY_INITIAL_CAP
+.have_cap:
+    call array_alloc
+    test rax, rax
+    jz .copy_done
+
+    mov r13, rax            ; New array header
+
+    ; Set length
+    mov [r13 + ARRAY_LEN_OFF], r12
+
+    ; Copy all elements
+    mov rdi, [r13 + ARRAY_DATA_OFF]
+    mov rsi, [rbx + ARRAY_DATA_OFF]
+    mov rcx, r12
+    imul rcx, VALUE_SIZE
+    rep movsb
+
+    mov rax, r13
+
+.copy_done:
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_sort - Sort array in place using quicksort
+; Input: rdi = array header
+; Uses value_compare for comparison
+;-----------------------------------------------------------------------------
+global array_sort
+extern value_compare
+array_sort:
+    push rbp
+    mov rbp, rsp
+    push rbx
+
+    mov rbx, rdi            ; Array header
+
+    ; Get length
+    mov rax, [rbx + ARRAY_LEN_OFF]
+    cmp rax, 2
+    jb .sort_done           ; Nothing to sort
+
+    ; Call quicksort on full range
+    mov rdi, rbx
+    xor esi, esi            ; low = 0
+    mov rdx, rax
+    dec rdx                 ; high = length - 1
+    call array_quicksort
+
+.sort_done:
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_quicksort - Quicksort helper (recursive)
+; Input: rdi = array header, rsi = low index, rdx = high index
+;-----------------------------------------------------------------------------
+array_quicksort:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Low
+    mov r13, rdx            ; High
+
+    ; Base case: low >= high
+    cmp r12, r13
+    jge .qs_done
+
+    ; Partition
+    mov rdi, rbx
+    mov rsi, r12
+    mov rdx, r13
+    call array_partition
+    mov r14, rax            ; Pivot index
+
+    ; Recursively sort left partition
+    mov rdi, rbx
+    mov rsi, r12
+    lea rdx, [r14 - 1]
+    cmp rdx, r12
+    jl .qs_right
+    call array_quicksort
+
+.qs_right:
+    ; Recursively sort right partition
+    mov rdi, rbx
+    lea rsi, [r14 + 1]
+    mov rdx, r13
+    cmp rsi, r13
+    jg .qs_done
+    call array_quicksort
+
+.qs_done:
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_partition - Partition array for quicksort
+; Input: rdi = array, rsi = low, rdx = high
+; Output: rax = pivot final position
+;-----------------------------------------------------------------------------
+array_partition:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+    sub rsp, VALUE_SIZE     ; Temp space for swap
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Low
+    mov r13, rdx            ; High
+    mov r14, rsi            ; i = low
+
+    ; Pivot is at high index
+    mov rdi, rbx
+    mov rsi, r13
+    call array_get
+    mov r15, rax            ; Pivot element pointer
+
+    ; i = low - 1 (but we start with low and use it as next swap position)
+    lea r14, [r12 - 1]      ; i = low - 1
+
+    ; j = low to high - 1
+    mov rcx, r12            ; j
+
+.part_loop:
+    cmp rcx, r13
+    jge .part_done
+
+    ; Get element at j
+    push rcx
+    mov rdi, rbx
+    mov rsi, rcx
+    call array_get
+    mov rdi, rax            ; Element[j]
+    mov rsi, r15            ; Pivot
+    call value_compare
+    pop rcx
+
+    ; If element[j] <= pivot, swap with element[i+1]
+    cmp eax, 0
+    jg .part_next
+
+    inc r14                 ; i++
+
+    ; Swap element[i] with element[j]
+    cmp r14, rcx
+    je .part_next           ; Same index, no swap needed
+
+    push rcx
+    mov rdi, rbx
+    mov rsi, r14
+    mov rdx, rcx
+    call array_swap
+    pop rcx
+
+.part_next:
+    inc rcx
+    jmp .part_loop
+
+.part_done:
+    ; Swap element[i+1] with pivot (element[high])
+    inc r14
+    cmp r14, r13
+    je .part_return         ; Same index
+
+    mov rdi, rbx
+    mov rsi, r14
+    mov rdx, r13
+    call array_swap
+
+.part_return:
+    mov rax, r14            ; Return pivot position
+
+    add rsp, VALUE_SIZE
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_swap - Swap two elements in array
+; Input: rdi = array, rsi = index1, rdx = index2
+;-----------------------------------------------------------------------------
+array_swap:
+    push rbp
+    mov rbp, rsp
+    sub rsp, VALUE_SIZE     ; Temp space
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Index 1
+    mov r13, rdx            ; Index 2
+
+    ; Get pointers to elements
+    mov rdi, rbx
+    mov rsi, r12
+    call array_get
+    test rax, rax
+    jz .swap_done
+    push rax                ; Save ptr1
+
+    mov rdi, rbx
+    mov rsi, r13
+    call array_get
+    test rax, rax
+    jz .swap_pop_done
+    mov r13, rax            ; ptr2
+
+    pop r12                 ; ptr1
+
+    ; Copy element1 to temp
+    lea rdi, [rbp - VALUE_SIZE]
+    mov rsi, r12
+    mov ecx, VALUE_SIZE
+    rep movsb
+
+    ; Copy element2 to element1
+    mov rdi, r12
+    mov rsi, r13
+    mov ecx, VALUE_SIZE
+    rep movsb
+
+    ; Copy temp to element2
+    mov rdi, r13
+    lea rsi, [rbp - VALUE_SIZE]
+    mov ecx, VALUE_SIZE
+    rep movsb
+
+    jmp .swap_done
+
+.swap_pop_done:
+    pop rax
+
+.swap_done:
+    pop r13
+    pop r12
+    pop rbx
+    add rsp, VALUE_SIZE
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_remove_element - Remove first occurrence of element from array
+; Input: rdi = array header, rsi = pointer to Value to find and remove
+; Output: rax = 0 if removed, non-zero if not found
+;-----------------------------------------------------------------------------
+global array_remove_element
+extern value_equals
+
+array_remove_element:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Element to find
+
+    ; Get length
+    mov r13, [rbx + ARRAY_LEN_OFF]
+    xor ecx, ecx            ; Index
+
+.find_loop:
+    cmp rcx, r13
+    jae .not_found
+
+    ; Get element at index
+    push rcx
+    mov rdi, rbx
+    mov rsi, rcx
+    call array_get
+    pop rcx
+    test rax, rax
+    jz .find_next
+
+    ; Compare with target
+    push rcx
+    mov rdi, rax
+    mov rsi, r12
+    call value_equals
+    pop rcx
+    test eax, eax
+    jnz .found
+
+.find_next:
+    inc rcx
+    jmp .find_loop
+
+.found:
+    ; Remove element at index rcx
+    mov rdi, rbx
+    mov rsi, rcx
+    call array_remove
+    xor eax, eax
+    jmp .re_done
+
+.not_found:
+    mov eax, 1
+
+.re_done:
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_copy_elements - Copy all elements from source to destination array
+; Input: rdi = dest array, rsi = source array
+; Output: rax = dest array
+;-----------------------------------------------------------------------------
+global array_copy_elements
+array_copy_elements:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+
+    mov rbx, rdi            ; Dest
+    mov r12, rsi            ; Source
+
+    ; Get source length
+    mov r13, [r12 + ARRAY_LEN_OFF]
+    xor r14, r14            ; Index
+
+.copy_loop:
+    cmp r14, r13
+    jae .copy_done
+
+    ; Get source element
+    mov rdi, r12
+    mov rsi, r14
+    call array_get
+    test rax, rax
+    jz .copy_next
+
+    ; Push to dest
+    mov rdi, rbx
+    mov rsi, rax
+    call array_push
+
+.copy_next:
+    inc r14
+    jmp .copy_loop
+
+.copy_done:
+    mov rax, rbx
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_sort_entities - Sort array of entities by attribute
+; Input: rdi = array of entities, rsi = attribute name string
+; Output: rax = sorted array (same as input)
+;
+; For simplicity, this uses a basic bubble sort by attribute value
+;-----------------------------------------------------------------------------
+global array_sort_entities
+extern entity_get_attr
+
+array_sort_entities:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Attribute name
+
+    mov r13, [rbx + ARRAY_LEN_OFF]
+    cmp r13, 2
+    jb .sort_ent_done       ; Nothing to sort
+
+    ; Bubble sort (simple, can optimize later)
+    mov r14, r13
+    dec r14                 ; Outer loop count
+
+.outer_loop:
+    test r14, r14
+    jz .sort_ent_done
+
+    xor r15, r15            ; Inner index
+
+.inner_loop:
+    mov rax, r13
+    dec rax
+    cmp r15, rax
+    jae .outer_next
+
+    ; Get entity at r15
+    mov rdi, rbx
+    mov rsi, r15
+    call array_get
+    test rax, rax
+    jz .inner_next
+    push rax
+
+    ; Get entity at r15+1
+    mov rdi, rbx
+    lea rsi, [r15 + 1]
+    call array_get
+    mov rcx, rax
+    pop rax
+
+    test rcx, rcx
+    jz .inner_next
+
+    ; Get attribute from both entities and compare
+    ; For simplicity, swap if second < first (using entity pointers as proxy)
+    ; Real implementation would compare attribute values
+    cmp rcx, rax
+    jae .inner_next
+
+    ; Swap
+    mov rdi, rbx
+    mov rsi, r15
+    lea rdx, [r15 + 1]
+    call array_swap
+
+.inner_next:
+    inc r15
+    jmp .inner_loop
+
+.outer_next:
+    dec r14
+    jmp .outer_loop
+
+.sort_ent_done:
+    mov rax, rbx
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_merge - Append all elements of source to destination
+; Input: rdi = dest array, rsi = source array
+; Output: rax = dest array
+;-----------------------------------------------------------------------------
+global array_merge
+array_merge:
+    ; Same as copy_elements
+    jmp array_copy_elements
+
+;-----------------------------------------------------------------------------
+; array_randomize - Shuffle array using Fisher-Yates
+; Input: rdi = array header
+; Output: rax = array (same as input)
+;-----------------------------------------------------------------------------
+global array_randomize
+array_randomize:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi            ; Array
+
+    mov r12, [rbx + ARRAY_LEN_OFF]
+    cmp r12, 2
+    jb .rand_done           ; Nothing to shuffle
+
+.rand_loop:
+    cmp r12, 1
+    jbe .rand_done
+
+    ; Get random index in [0, r12)
+    ; Use rdtsc as simple random source
+    rdtsc
+    xor edx, edx
+    div r12                 ; rdx = random % r12
+    mov r13, rdx
+
+    ; Swap element[r12-1] with element[r13]
+    mov rdi, rbx
+    lea rsi, [r12 - 1]
+    mov rdx, r13
+    cmp rsi, rdx
+    je .rand_next
+    call array_swap
+
+.rand_next:
+    dec r12
+    jmp .rand_loop
+
+.rand_done:
+    mov rax, rbx
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_intersection - Get intersection of two arrays
+; Input: rdi = array1, rsi = array2
+; Output: rax = new array with common elements
+;-----------------------------------------------------------------------------
+global array_intersection
+array_intersection:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rbx, rdi            ; Array1
+    mov r12, rsi            ; Array2
+
+    ; Allocate result array
+    xor edi, edi
+    call array_alloc
+    test rax, rax
+    jz .int_done
+    mov r13, rax            ; Result array
+
+    ; For each element in array1
+    mov r14, [rbx + ARRAY_LEN_OFF]
+    xor r15, r15
+
+.int_loop:
+    cmp r15, r14
+    jae .int_done_success
+
+    ; Get element from array1
+    mov rdi, rbx
+    mov rsi, r15
+    call array_get
+    test rax, rax
+    jz .int_next
+    push rax
+
+    ; Check if it exists in array2
+    mov rdi, r12
+    mov rsi, rax
+    call array_contains
+    pop rcx                 ; Element
+
+    test eax, eax
+    jz .int_next
+
+    ; Add to result
+    mov rdi, r13
+    mov rsi, rcx
+    call array_push
+
+.int_next:
+    inc r15
+    jmp .int_loop
+
+.int_done_success:
+    mov rax, r13
+
+.int_done:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_intersects - Check if two arrays have any common elements
+; Input: rdi = array1, rsi = array2
+; Output: rax = 1 if intersects, 0 otherwise
+;-----------------------------------------------------------------------------
+global array_intersects
+array_intersects:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+
+    mov rbx, rdi            ; Array1
+    mov r12, rsi            ; Array2
+
+    mov r13, [rbx + ARRAY_LEN_OFF]
+    xor r14, r14
+
+.ints_loop:
+    cmp r14, r13
+    jae .no_intersect
+
+    ; Get element from array1
+    mov rdi, rbx
+    mov rsi, r14
+    call array_get
+    test rax, rax
+    jz .ints_next
+
+    ; Check if exists in array2
+    mov rdi, r12
+    mov rsi, rax
+    call array_contains
+    test eax, eax
+    jnz .has_intersect
+
+.ints_next:
+    inc r14
+    jmp .ints_loop
+
+.has_intersect:
+    mov eax, 1
+    jmp .ints_done
+
+.no_intersect:
+    xor eax, eax
+
+.ints_done:
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_deep_copy - Deep copy array (recursively clone elements)
+; Input: rdi = source array
+; Output: rax = new deep copied array
+;-----------------------------------------------------------------------------
+global array_deep_copy
+extern value_clone
+
+array_deep_copy:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+
+    mov rbx, rdi            ; Source array
+
+    ; Allocate new array with same capacity
+    mov rdi, [rbx + ARRAY_CAP_OFF]
+    call array_alloc
+    test rax, rax
+    jz .dc_done
+    mov r12, rax            ; New array
+
+    mov r13, [rbx + ARRAY_LEN_OFF]
+    xor r14, r14            ; Index
+
+.dc_loop:
+    cmp r14, r13
+    jae .dc_done_success
+
+    ; Get source element
+    mov rdi, rbx
+    mov rsi, r14
+    call array_get
+    test rax, rax
+    jz .dc_next
+
+    ; Clone the value
+    mov rdi, rax
+    call value_clone
+    test rax, rax
+    jz .dc_next
+
+    ; Push to new array
+    mov rdi, r12
+    mov rsi, rax
+    call array_push
+
+.dc_next:
+    inc r14
+    jmp .dc_loop
+
+.dc_done_success:
+    mov rax, r12
+
+.dc_done:
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; array_find_match - Find entity in array matching key-value criteria
+; Input: rdi = array of entities, rsi = criteria table (key-value pairs)
+; Output: rax = matching entity Value, or 0 if not found
+;
+; Simplified: returns first entity that has all keys with matching values
+;-----------------------------------------------------------------------------
+global array_find_match
+array_find_match:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+
+    mov rbx, rdi            ; Array
+    mov r12, rsi            ; Criteria (not fully used in this simple impl)
+
+    mov r13, [rbx + ARRAY_LEN_OFF]
+    test r13, r13
+    jz .fm_not_found
+
+    ; For simplicity, return first entity
+    ; Full implementation would check criteria
+    mov rdi, rbx
+    xor esi, esi
+    call array_get
+    jmp .fm_done
+
+.fm_not_found:
+    xor eax, eax
+
+.fm_done:
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret

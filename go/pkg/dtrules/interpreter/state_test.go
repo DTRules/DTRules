@@ -17,7 +17,7 @@ package interpreter
 import (
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // mockSession implements minimal Session for testing
@@ -969,18 +969,23 @@ func TestBytecodeActionEvaluation(t *testing.T) {
 		t.Fatalf("EvaluateBytecodeAction failed: %v", err)
 	}
 
-	// Test action that leaves stack unbalanced
+	// Test action that leaves extra values on stack - should be cleaned up
 	bc = dtrules.NewBytecodeChunk()
 	bc.EmitPushConstant(dtrules.NewValueInteger(1))
-	// Don't pop - stack is unbalanced
+	// Don't pop - this value should be cleaned up automatically
 
 	for state.ValueStackDepth() > 0 {
 		state.ValuePop()
 	}
 
+	initialDepth := state.ValueStackDepth()
 	err = state.EvaluateBytecodeAction(bc)
-	if err == nil {
-		t.Error("Expected error for unbalanced stack")
+	if err != nil {
+		t.Errorf("EvaluateBytecodeAction should not error for unbalanced stack: %v", err)
+	}
+	// Stack should be cleaned up to initial depth
+	if state.ValueStackDepth() != initialDepth {
+		t.Errorf("Stack depth should be restored to %d, got %d", initialDepth, state.ValueStackDepth())
 	}
 }
 

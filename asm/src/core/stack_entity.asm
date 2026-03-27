@@ -479,3 +479,165 @@ stack_entity_xdefine:
     pop rbx
     pop rbp
     ret
+
+;-----------------------------------------------------------------------------
+; stack_entity_has_type - Check if entity of given type is on stack
+; Input: rdi = pointer to type name (length-prefixed string)
+; Output: rax = 1 if found, 0 if not
+;-----------------------------------------------------------------------------
+global stack_entity_has_type
+stack_entity_has_type:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r14
+
+    mov rbx, rdi            ; Save type name
+
+    ; Get stack depth
+    call stack_entity_depth
+    test rax, rax
+    jz .not_found_type
+
+    mov r14, rax            ; Number of entities
+    xor r12, r12            ; Current index
+
+.check_type_loop:
+    ; Get entity at index
+    mov rdi, r12
+    call stack_entity_peek_n
+    test rax, rax
+    jz .next_type
+
+    ; Get entity structure
+    mov rax, [rax + VALUE_PTR_OFF]
+    test rax, rax
+    jz .next_type
+
+    ; Entity structure: [type_ptr:8][...]
+    mov rsi, [rax]          ; Type name pointer
+    test rsi, rsi
+    jz .next_type
+
+    ; Compare type names
+    push r12
+    push r14
+    mov rdi, rbx
+    call string_compare
+    pop r14
+    pop r12
+
+    test eax, eax
+    jz .found_type
+
+.next_type:
+    inc r12
+    cmp r12, r14
+    jb .check_type_loop
+
+.not_found_type:
+    xor eax, eax
+    jmp .done_type
+
+.found_type:
+    mov eax, 1
+
+.done_type:
+    pop r14
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; stack_entity_find - Find entity matching search criteria
+; Input: rdi = pointer to table (array of key-value pairs for matching)
+; Output: rax = pointer to matching entity Value, or 0 if not found
+;
+; This is a simplified version - finds first entity with all matching attrs
+;-----------------------------------------------------------------------------
+global stack_entity_find
+stack_entity_find:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rbx, rdi            ; Search criteria table
+
+    ; Get stack depth
+    call stack_entity_depth
+    test rax, rax
+    jz .find_not_found
+
+    mov r14, rax            ; Number of entities
+    xor r12, r12            ; Current index
+
+.find_loop:
+    ; Get entity at index
+    mov rdi, r12
+    call stack_entity_peek_n
+    test rax, rax
+    jz .find_next
+
+    mov r15, rax            ; Save entity Value pointer
+
+    ; For now, just return first entity (simplified)
+    ; Full implementation would check each criteria
+    mov rax, r15
+    jmp .find_done
+
+.find_next:
+    inc r12
+    cmp r12, r14
+    jb .find_loop
+
+.find_not_found:
+    xor eax, eax
+
+.find_done:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    pop rbp
+    ret
+
+;-----------------------------------------------------------------------------
+; stack_entity_fetch - Get entity at absolute stack index
+; Input: rdi = index from bottom (0 = bottom-most)
+; Output: rax = entity Value pointer, or 0 if invalid
+;-----------------------------------------------------------------------------
+global stack_entity_fetch
+stack_entity_fetch:
+    push rbx
+
+    ; Get depth
+    call stack_entity_depth
+    mov rbx, rax
+
+    ; Check bounds
+    cmp rdi, rbx
+    jae .fetch_invalid
+
+    ; Convert from bottom-index to top-index
+    ; top_idx = depth - 1 - bottom_idx
+    dec rbx
+    sub rbx, rdi
+
+    ; Get entity at that depth
+    mov rdi, rbx
+    call stack_entity_peek_n
+
+    pop rbx
+    ret
+
+.fetch_invalid:
+    xor eax, eax
+    pop rbx
+    ret

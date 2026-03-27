@@ -17,7 +17,7 @@ package entity
 import (
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // mockSession implements minimal Session for testing

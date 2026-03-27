@@ -1,0 +1,11 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# IRS Downloads (PDFs are large, keep gitignored)
+irs/downloads/
+
+# Meta debugger runtime
+meta_debugger/.venv/
+meta_debugger/orchestrator/__pycache__/

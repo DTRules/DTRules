@@ -1,0 +1,119 @@
+{
+  "name": "Control Flow Operations",
+  "description": "Test vectors for control flow operators (if, ifelse, while, for, forall)",
+  "tests": [
+    {
+      "name": "if_true_executes",
+      "description": "If executes body when condition is true",
+      "operator": "if",
+      "condition": true,
+      "body": "executed",
+      "expected": "executed",
+      "type": "control"
+    },
+    {
+      "name": "if_false_skips",
+      "description": "If skips body when condition is false",
+      "operator": "if",
+      "condition": false,
+      "body": "executed",
+      "expected": null,
+      "type": "control"
+    },
+    {
+      "name": "ifelse_true_branch",
+      "description": "Ifelse executes true branch",
+      "operator": "ifelse",
+      "condition": true,
+      "true_body": "yes",
+      "false_body": "no",
+      "expected": "yes",
+      "type": "control"
+    },
+    {
+      "name": "ifelse_false_branch",
+      "description": "Ifelse executes false branch",
+      "operator": "ifelse",
+      "condition": false,
+      "true_body": "yes",
+      "false_body": "no",
+      "expected": "no",
+      "type": "control"
+    },
+    {
+      "name": "for_basic",
+      "description": "For loop counts iterations",
+      "operator": "for",
+      "start": 1,
+      "end": 5,
+      "increment": 1,
+      "expected_iterations": 5,
+      "type": "control"
+    },
+    {
+      "name": "for_by_two",
+      "description": "For loop increments by 2",
+      "operator": "for",
+      "start": 0,
+      "end": 10,
+      "increment": 2,
+      "expected_iterations": 5,
+      "type": "control"
+    },
+    {
+      "name": "for_zero_iterations",
+      "description": "For loop with no iterations",
+      "operator": "for",
+      "start": 5,
+      "end": 0,
+      "increment": 1,
+      "expected_iterations": 0,
+      "type": "control"
+    },
+    {
+      "name": "forall_array",
+      "description": "Forall iterates over array elements",
+      "operator": "forall",
+      "array": [1, 2, 3, 4, 5],
+      "expected_iterations": 5,
+      "expected_sum": 15,
+      "type": "control"
+    },
+    {
+      "name": "forall_empty",
+      "description": "Forall on empty array has no iterations",
+      "operator": "forall",
+      "array": [],
+      "expected_iterations": 0,
+      "type": "control"
+    },
+    {
+      "name": "forall_single",
+      "description": "Forall on single element array",
+      "operator": "forall",
+      "array": [42],
+      "expected_iterations": 1,
+      "type": "control"
+    },
+    {
+      "name": "while_count_down",
+      "description": "While counts down to zero",
+      "operator": "while",
+      "initial": 5,
+      "condition": "> 0",
+      "action": "decrement",
+      "expected_iterations": 5,
+      "type": "control"
+    },
+    {
+      "name": "while_false_initially",
+      "description": "While with false condition never executes",
+      "operator": "while",
+      "initial": 0,
+      "condition": "> 0",
+      "action": "decrement",
+      "expected_iterations": 0,
+      "type": "control"
+    }
+  ]
+}

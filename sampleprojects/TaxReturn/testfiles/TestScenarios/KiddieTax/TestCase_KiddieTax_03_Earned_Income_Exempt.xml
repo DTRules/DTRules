@@ -1,0 +1,74 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Dependent with Earned Income - NO Kiddie Tax -->
+   <!-- Scenario: 17-year-old with part-time job and minimal investment income -->
+   <!-- Earned income is NOT subject to kiddie tax -->
+
+   <!-- Income Breakdown: -->
+   <!-- W-2 Earnings (part-time job): $8,000 (NOT subject to kiddie tax) -->
+   <!-- Unearned Income (savings interest): $600 (below $2,500 threshold) -->
+   <!-- Total Income: $8,600 -->
+
+   <!-- Standard Deduction for Dependent: Greater of $1,300 or (earned income + $450) -->
+   <!-- Calculation: $8,000 + $450 = $8,450 -->
+   <!-- Standard Deduction: $8,450 (higher than $1,300) -->
+
+   <!-- Kiddie Tax: NONE (unearned income $600 < $2,500 threshold) -->
+   <!-- Regular Tax: ($8,600 - $8,450) x 10% = $150 x 10% = $15 -->
+
+   <id>KIDDIE-EARNED-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+
+   <expected_agi>8600</expected_agi>
+   <expected_total_kiddie_tax>0</expected_total_kiddie_tax>
+   <expected_child_standard_deduction>8450</expected_child_standard_deduction>
+   <expected_total_tax>15</expected_total_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Martinez</name>
+         <ssn>401-33-4444</ssn>
+         <date_of_birth>1/10/2008</date_of_birth>
+         <occupation>Student/Retail Worker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>8000</w2_wages>
+         <w2_withholding>200</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Investment Income (below kiddie tax threshold) -->
+   <income>
+      <income_item id="1">
+         <id>1</id>
+         <type>interest</type>
+         <description>Savings Account Interest</description>
+         <amount>600</amount>
+         <payer>First National Bank</payer>
+      </income_item>
+   </income>
+</job>

@@ -1,0 +1,123 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Wisconsin Test Case 03: Family with High Income -->
+   <!-- Tests higher brackets including top rates -->
+   <id>WI-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_joint</filing_status>
+   <state>WI</state>
+   <city>Milwaukee</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $180,000 W-2 + $70,000 W-2 + $5,000 interest = $255,000 -->
+   <!-- WI AGI: $255,000 (no adjustments) -->
+   <!-- Standard Deduction: $26,510 -->
+   <!-- Taxable Income: $228,490 -->
+   <!-- Tax Calculation (MFJ brackets):
+        - First $10,000 at 3.5% = $350
+        - Next $10,000 ($10k-$20k) at 4.4% = $440
+        - Remaining $208,490 at 5.3% = $11,049.97
+        - Total: $11,839.97 -->
+   <expected_agi>255000</expected_agi>
+   <expected_wi_agi>255000</expected_wi_agi>
+   <expected_wi_taxable_income>228490</expected_wi_taxable_income>
+   <expected_wi_tax>11840</expected_wi_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Davis</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>4/12/1982</date_of_birth>
+         <age>43</age>
+         <occupation>Doctor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>David Davis</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>9/28/1980</date_of_birth>
+         <age>45</age>
+         <occupation>Attorney</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophie Davis</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>5/15/2012</date_of_birth>
+         <age>13</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Nathan Davis</name>
+         <ssn>789-01-2345</ssn>
+         <date_of_birth>11/3/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Income -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2</type>
+         <payer>Aurora Healthcare</payer>
+         <gross_amount>180000</gross_amount>
+         <federal_withholding>35000</federal_withholding>
+         <state_withholding>8500</state_withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2</type>
+         <payer>Smith &amp; Associates Law</payer>
+         <gross_amount>70000</gross_amount>
+         <federal_withholding>12000</federal_withholding>
+         <state_withholding>3500</state_withholding>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>interest</type>
+         <payer>Bank of Wisconsin</payer>
+         <gross_amount>5000</gross_amount>
+         <federal_withholding>0</federal_withholding>
+         <state_withholding>0</state_withholding>
+      </income>
+   </incomes>
+</job>

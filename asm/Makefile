@@ -30,7 +30,8 @@ CORE_SRC = \
 	$(SRC_DIR)/core/value.asm \
 	$(SRC_DIR)/core/stack_data.asm \
 	$(SRC_DIR)/core/stack_entity.asm \
-	$(SRC_DIR)/core/stack_control.asm
+	$(SRC_DIR)/core/stack_control.asm \
+	$(SRC_DIR)/core/stack_return.asm
 
 MEMORY_SRC = \
 	$(SRC_DIR)/memory/heap.asm \
@@ -41,7 +42,9 @@ TYPES_SRC = \
 	$(SRC_DIR)/types/double.asm \
 	$(SRC_DIR)/types/string.asm \
 	$(SRC_DIR)/types/array.asm \
-	$(SRC_DIR)/types/entity.asm
+	$(SRC_DIR)/types/entity.asm \
+	$(SRC_DIR)/types/date.asm \
+	$(SRC_DIR)/types/hashtable.asm
 
 VM_SRC = \
 	$(SRC_DIR)/vm/bytecode.asm
@@ -104,6 +107,7 @@ dirs:
 	@mkdir -p $(BUILD_DIR)/dt
 	@mkdir -p $(BUILD_DIR)/xml
 	@mkdir -p $(BUILD_DIR)/io
+	@mkdir -p $(BUILD_DIR)/lib
 
 #------------------------------------------------------------------------------
 # Testing
@@ -122,6 +126,53 @@ test-integration: $(TARGET)
 test-comparison: $(TARGET)
 	@echo "Running comparison tests..."
 	@./$(TEST_DIR)/comparison/runner.sh
+
+#------------------------------------------------------------------------------
+# Shared Library (for CGO integration)
+#------------------------------------------------------------------------------
+
+# For shared library, exclude boot/start.asm (has _start which conflicts with Go runtime)
+LIB_SRC = $(CORE_SRC) $(MEMORY_SRC) $(TYPES_SRC) $(VM_SRC) $(DT_SRC) $(XML_SRC) $(IO_SRC)
+
+# Library build directory (separate from main build for PIC objects)
+LIB_BUILD_DIR = $(BUILD_DIR)/pic
+LIB_OBJ = $(patsubst $(SRC_DIR)/%.asm,$(LIB_BUILD_DIR)/%.o,$(LIB_SRC))
+
+# Library targets
+LIB_SHARED = $(BUILD_DIR)/libdtrules_vm.so
+LIB_STATIC = $(BUILD_DIR)/libdtrules_vm.a
+LIB_INIT = $(LIB_BUILD_DIR)/lib/init.o
+
+# PIC flags for shared library (use GOT for external references)
+ASMFLAGS_PIC = $(ASMFLAGS_BASE) -O3 -DNDEBUG -DRELEASE -DPIC
+
+.PHONY: lib libstatic libdirs
+
+# Create PIC build directories
+libdirs: dirs
+	@mkdir -p $(LIB_BUILD_DIR)/core
+	@mkdir -p $(LIB_BUILD_DIR)/memory
+	@mkdir -p $(LIB_BUILD_DIR)/types
+	@mkdir -p $(LIB_BUILD_DIR)/vm
+	@mkdir -p $(LIB_BUILD_DIR)/dt
+	@mkdir -p $(LIB_BUILD_DIR)/xml
+	@mkdir -p $(LIB_BUILD_DIR)/io
+	@mkdir -p $(LIB_BUILD_DIR)/lib
+
+# Pattern rule for PIC objects
+$(LIB_BUILD_DIR)/%.o: $(SRC_DIR)/%.asm $(INC_DIR)/*.inc | libdirs
+	@mkdir -p $(dir $@)
+	$(ASM) $(ASMFLAGS_PIC) -o $@ $<
+
+# Build shared library for CGO
+lib: libdirs $(LIB_OBJ) $(LIB_INIT)
+	$(LD) -shared -o $(LIB_SHARED) $(LIB_OBJ) $(LIB_INIT)
+	@echo "Built shared library: $(LIB_SHARED)"
+
+# Build static library for CGO
+libstatic: libdirs $(LIB_OBJ) $(LIB_INIT)
+	ar rcs $(LIB_STATIC) $(LIB_OBJ) $(LIB_INIT)
+	@echo "Built static library: $(LIB_STATIC)"
 
 #------------------------------------------------------------------------------
 # Benchmarking

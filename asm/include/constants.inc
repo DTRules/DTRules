@@ -12,6 +12,11 @@ VTAG_STRING     equ 4
 VTAG_NAME       equ 5
 VTAG_ARRAY      equ 6
 VTAG_ENTITY     equ 7
+VTAG_BYTECODE   equ 8
+VTAG_DATE       equ 9
+VTAG_TABLE      equ 10
+VTAG_MARK       equ 11
+VTAG_OPERATOR   equ 12
 
 ;-----------------------------------------------------------------------------
 ; Value structure (24 bytes, matching Go)
@@ -29,138 +34,164 @@ BOOL_FALSE      equ 0
 BOOL_TRUE       equ 1
 
 ;-----------------------------------------------------------------------------
-; Opcodes (matches Go's bytecode.go)
+; Opcodes (matches Go's bytecode.go exactly)
 ;-----------------------------------------------------------------------------
-; Stack operations (0x00-0x0F)
-OP_NOP          equ 0x00
-OP_PUSH_NULL    equ 0x01
-OP_PUSH_TRUE    equ 0x02
-OP_PUSH_FALSE   equ 0x03
-OP_PUSH_INT     equ 0x04    ; Followed by varint
-OP_PUSH_DOUBLE  equ 0x05    ; Followed by 8 bytes
-OP_PUSH_STRING  equ 0x06    ; Followed by length + bytes
-OP_PUSH_NAME    equ 0x07    ; Followed by name reference
-OP_DUP          equ 0x08
-OP_SWAP         equ 0x09
-OP_POP          equ 0x0A
-OP_ROT          equ 0x0B
-OP_OVER         equ 0x0C
-OP_PICK         equ 0x0D    ; Followed by index
-OP_ROLL         equ 0x0E    ; Followed by index
-OP_CLEAR        equ 0x0F
 
-; Arithmetic operations (0x10-0x1F)
-OP_ADD          equ 0x10
-OP_SUB          equ 0x11
-OP_MUL          equ 0x12
-OP_DIV          equ 0x13
-OP_MOD          equ 0x14
-OP_NEG          equ 0x15
-OP_ABS          equ 0x16
-OP_MIN          equ 0x17
-OP_MAX          equ 0x18
-OP_FLOOR        equ 0x19
-OP_CEIL         equ 0x1A
-OP_ROUND        equ 0x1B
-OP_TRUNCATE     equ 0x1C
-OP_POW          equ 0x1D
+; Stack operations (0-10)
+OP_NOP          equ 0
+OP_PUSH         equ 1       ; Push constant from pool (followed by varint index)
+OP_PUSH_INT     equ 2       ; Push immediate integer (followed by varint)
+OP_POP          equ 3       ; Pop and discard
+OP_DUP          equ 4       ; Duplicate top
+OP_SWAP         equ 5       ; Swap top two
+OP_ROT          equ 6       ; Rotate top three
+OP_ROLL         equ 7       ; Roll n items
+OP_INDEX        equ 8       ; Copy nth item to top (pick)
+OP_CLEAR        equ 9       ; Clear stack to mark
+OP_MARK         equ 10      ; Push mark
 
-; Comparison operations (0x20-0x2F)
-OP_EQ           equ 0x20
-OP_NE           equ 0x21
-OP_LT           equ 0x22
-OP_LE           equ 0x23
-OP_GT           equ 0x24
-OP_GE           equ 0x25
-OP_AND          equ 0x26
-OP_OR           equ 0x27
-OP_NOT          equ 0x28
-OP_XOR          equ 0x29
+; Arithmetic operations (20-28)
+OP_ADD          equ 20
+OP_SUB          equ 21
+OP_MUL          equ 22
+OP_DIV          equ 23
+OP_MOD          equ 24
+OP_NEG          equ 25
+OP_ABS          equ 26
+OP_INC          equ 27
+OP_DEC          equ 28
 
-; String operations (0x30-0x4F)
-OP_CONCAT       equ 0x30
-OP_LENGTH       equ 0x31
-OP_SUBSTRING    equ 0x32
-OP_INDEXOF      equ 0x33
-OP_LASTINDEXOF  equ 0x34
-OP_STARTSWITH   equ 0x35
-OP_ENDSWITH     equ 0x36
-OP_CONTAINS     equ 0x37
-OP_REPLACE      equ 0x38
-OP_REPLACEALL   equ 0x39
-OP_SPLIT        equ 0x3A
-OP_JOIN         equ 0x3B
-OP_TRIM         equ 0x3C
-OP_TRIMLEFT     equ 0x3D
-OP_TRIMRIGHT    equ 0x3E
-OP_TOUPPER      equ 0x3F
-OP_TOLOWER      equ 0x40
-OP_TOSTRING     equ 0x41
-OP_TOINTEGER    equ 0x42
-OP_TODOUBLE     equ 0x43
-OP_MATCH        equ 0x44
-OP_FORMAT       equ 0x45
+; Comparison operations (30-35)
+OP_EQ           equ 30
+OP_NE           equ 31
+OP_LT           equ 32
+OP_LE           equ 33
+OP_GT           equ 34
+OP_GE           equ 35
 
-; Array operations (0x50-0x5F)
-OP_NEWARRAY     equ 0x50
-OP_ARRAYGET     equ 0x51
-OP_ARRAYSET     equ 0x52
-OP_ARRAYLEN     equ 0x53
-OP_ARRAYPUSH    equ 0x54
-OP_ARRAYPOP     equ 0x55
-OP_ARRAYCONCAT  equ 0x56
-OP_ARRAYSLICE   equ 0x57
-OP_ARRAYCOPY    equ 0x58
-OP_ARRAYCLEAR   equ 0x59
-OP_ARRAYREMOVE  equ 0x5A
-OP_ARRAYINSERT  equ 0x5B
-OP_ARRAYREVERSE equ 0x5C
-OP_ARRAYSORT    equ 0x5D
-OP_ARRAYCONTAINS equ 0x5E
-OP_ARRAYINDEXOF equ 0x5F
+; Logical operations (40-43)
+OP_AND          equ 40
+OP_OR           equ 41
+OP_NOT          equ 42
+OP_XOR          equ 43
 
-; Control flow (0x60-0x6F)
-OP_IF           equ 0x60
-OP_IFELSE       equ 0x61
-OP_WHILE        equ 0x62
-OP_FOR          equ 0x63
-OP_FORALL       equ 0x64
-OP_BREAK        equ 0x65
-OP_CONTINUE     equ 0x66
-OP_RETURN       equ 0x67
-OP_EXEC         equ 0x68
-OP_CALL         equ 0x69
-OP_JUMP         equ 0x6A    ; Followed by offset
-OP_JUMPIF       equ 0x6B    ; Followed by offset
-OP_JUMPIFNOT    equ 0x6C    ; Followed by offset
+; Control flow (50-59)
+OP_EXEC         equ 50      ; Execute top of stack
+OP_IF           equ 51      ; Conditional execution
+OP_IFELSE       equ 52      ; if-else
+OP_WHILE        equ 53      ; while loop
+OP_FOR          equ 54      ; for loop
+OP_FORALL       equ 55      ; iterate array
+OP_RETURN       equ 56      ; Return from procedure
+OP_JUMP         equ 57      ; Unconditional jump (followed by offset)
+OP_JUMPIF       equ 58      ; Conditional jump if true
+OP_CALL         equ 59      ; Call operator by index
 
-; Entity operations (0x70-0x7F)
-OP_NEWENTITY    equ 0x70
-OP_GETATTR      equ 0x71
-OP_SETATTR      equ 0x72
-OP_HASATTR      equ 0x73
-OP_DELATTR      equ 0x74
-OP_GETATTRS     equ 0x75
-OP_ENTITYTYPE   equ 0x76
-OP_PUSHENTITY   equ 0x77
-OP_POPENTITY    equ 0x78
-OP_PEEKENTITY   equ 0x79
-OP_DEF          equ 0x7A
-OP_XDEF         equ 0x7B
-OP_LOOKUP       equ 0x7C
-OP_GETENTITY    equ 0x7D
-OP_BIND         equ 0x7E
+; Entity operations (60-64)
+OP_ENTITYPUSH   equ 60      ; Push entity onto entity stack
+OP_ENTITYPOP    equ 61      ; Pop entity from entity stack
+OP_DEF          equ 62      ; Define variable
+OP_LOOKUP       equ 63      ; Lookup name in context
+OP_NEWENTITY    equ 64      ; Create new entity
 
-; Decision table operations (0x80-0x8F)
-OP_EXECUTETABLE equ 0x80
-OP_CNODE        equ 0x81
-OP_ANODE        equ 0x82
+; Array operations (70-74)
+OP_NEWARRAY     equ 70      ; Create new array
+OP_ADDTO        equ 71      ; Add to array (push)
+OP_LENGTH       equ 72      ; Get array/string length
+OP_GET          equ 73      ; Get array element
+OP_PUT          equ 74      ; Put array element
 
-; Debug/utility (0xF0-0xFF)
-OP_PRINT        equ 0xF0
-OP_TRACE        equ 0xF1
-OP_DEBUG        equ 0xF2
-OP_HALT         equ 0xFF
+; Table operations (80-82)
+OP_NEWTABLE     equ 80      ; Create new table/map
+OP_TABLEGET     equ 81      ; Get table value
+OP_TABLEPUT     equ 82      ; Put table value
+
+; String operations (90-91)
+OP_CONCAT       equ 90      ; String concatenation
+OP_SUBSTRING    equ 91      ; Substring
+
+; Constant shortcuts (100-104)
+OP_PUSH_TRUE    equ 100
+OP_PUSH_FALSE   equ 101
+OP_PUSH_NULL    equ 102
+OP_PUSH_ZERO    equ 103
+OP_PUSH_ONE     equ 104
+
+; Extended opcodes (200-202)
+OP_OPERATOR     equ 200     ; Call operator by index (followed by varint)
+OP_CONSTANT     equ 201     ; Push constant by index (followed by varint)
+OP_NAME         equ 202     ; Push name by index (followed by varint)
+
+;-----------------------------------------------------------------------------
+; ASM-specific extended opcodes (210+)
+; These are not in Go but useful for direct execution
+;-----------------------------------------------------------------------------
+
+; Extended arithmetic (210-219)
+OP_MIN          equ 210
+OP_MAX          equ 211
+OP_FLOOR        equ 212
+OP_CEIL         equ 213
+OP_ROUND        equ 214
+OP_TRUNCATE     equ 215
+OP_POW          equ 216
+
+; Extended stack (220-229)
+OP_OVER         equ 220     ; Copy second item to top
+OP_PICK         equ 221     ; Copy nth item (alias for INDEX)
+OP_DEPTH        equ 222     ; Push stack depth
+
+; Extended string (230-249)
+OP_INDEXOF      equ 230
+OP_LASTINDEXOF  equ 231
+OP_STARTSWITH   equ 232
+OP_ENDSWITH     equ 233
+OP_CONTAINS     equ 234
+OP_REPLACE      equ 235
+OP_REPLACEALL   equ 236
+OP_SPLIT        equ 237
+OP_JOIN         equ 238
+OP_TRIM         equ 239
+OP_TRIMLEFT     equ 240
+OP_TRIMRIGHT    equ 241
+OP_TOUPPER      equ 242
+OP_TOLOWER      equ 243
+OP_TOSTRING     equ 244
+OP_TOINTEGER    equ 245
+OP_TODOUBLE     equ 246
+OP_MATCH        equ 247
+OP_FORMAT       equ 248
+
+; Debug/utility (250-255)
+OP_PRINT        equ 250
+OP_TRACE        equ 251
+OP_DEBUG        equ 252
+OP_HALT         equ 255
+
+;-----------------------------------------------------------------------------
+; Legacy opcode aliases (for compatibility during transition)
+;-----------------------------------------------------------------------------
+OP_PUSH_DOUBLE  equ OP_CONSTANT     ; Use constant pool
+OP_PUSH_STRING  equ OP_CONSTANT     ; Use constant pool
+OP_PUSH_NAME    equ OP_NAME
+OP_ARRAYGET     equ OP_GET
+OP_ARRAYSET     equ OP_PUT
+OP_ARRAYLEN     equ OP_LENGTH
+OP_ARRAYPUSH    equ OP_ADDTO
+OP_ARRAYPOP     equ 75              ; Extended array op
+OP_ARRAYCONCAT  equ 76
+OP_ARRAYSLICE   equ 77
+OP_ARRAYCOPY    equ 78
+OP_ARRAYCLEAR   equ 79
+OP_ARRAYREMOVE  equ 85
+OP_ARRAYINSERT  equ 86
+OP_ARRAYREVERSE equ 87
+OP_ARRAYSORT    equ 88
+OP_ARRAYCONTAINS equ 89
+OP_ARRAYINDEXOF equ OP_INDEXOF
+OP_PUSHENTITY   equ OP_ENTITYPUSH
+OP_POPENTITY    equ OP_ENTITYPOP
+OP_JUMPIFNOT    equ 110             ; Extended control
 
 ;-----------------------------------------------------------------------------
 ; Stack limits

@@ -32,6 +32,7 @@
 		<module>KidAid_Application</module>
 		<module>StateTax</module>
 		<module>SyntaxTests</module>
+		<module>TaxReturn</module>
 		<module>TestProject</module>
 	</modules>
 

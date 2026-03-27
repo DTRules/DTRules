@@ -128,6 +128,23 @@ anode_execute:
     ret
 
 ;-----------------------------------------------------------------------------
+; anode_add_action - Add action bytecode to ANode
+; Input: rdi = ANode pointer, rsi = bytecode pointer, rdx = length
+; Output: rax = 0 on success, non-zero on error
+;
+; Note: This is a simple implementation that just sets the actions.
+; For multiple actions, use chained ANodes.
+;-----------------------------------------------------------------------------
+global anode_add_action
+anode_add_action:
+    ; For now, just set the actions (same as anode_set_actions)
+    ; A more complete implementation would chain multiple ANodes
+    mov [rdi + ANode.actions], rsi
+    mov [rdi + ANode.actions_len], rdx
+    xor eax, eax
+    ret
+
+;-----------------------------------------------------------------------------
 ; anode_chain_length - Get length of ANode chain
 ; Input: rdi = ANode pointer
 ; Output: rax = number of nodes in chain

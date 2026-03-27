@@ -1,0 +1,72 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>NJ_SINGLE_LOW</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>NJ</state>
+   <city>Newark</city>
+
+   <!-- Test Case: Single Filer with Low Income -->
+   <!-- Income: $35,000 W2 -->
+   <!-- AGI: $35,000 -->
+   <!-- NJ Gross Income: $35,000 -->
+   <!-- NJ Exemption: $1,000 (1 taxpayer) -->
+   <!-- NJ Taxable Income: $34,000 -->
+   <!-- NJ Tax: ($20,000 × 1.4%) + ($14,000 × 1.75%) = $280 + $245 = $525 -->
+   <expected_agi>35000</expected_agi>
+   <expected_nj_taxable_income>34000</expected_nj_taxable_income>
+   <expected_nj_tax>525</expected_nj_tax>
+
+   <!-- Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>John Smith</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>6/10/1995</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>2500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No Dependents -->
+   <dependents></dependents>
+
+   <!-- Income (W-2) -->
+   <incomes>
+      <income>
+         <type>wages</type>
+         <gross_amount>35000</gross_amount>
+         <federal_withholding>2500</federal_withholding>
+         <state_withholding>600</state_withholding>
+         <description>Teaching salary</description>
+      </income>
+   </incomes>
+
+   <!-- Deductions (Standard) -->
+   <deductions></deductions>
+
+   <!-- No Credits -->
+   <credits></credits>
+</job>

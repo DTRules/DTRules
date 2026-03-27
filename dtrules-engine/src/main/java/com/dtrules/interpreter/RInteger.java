@@ -118,10 +118,10 @@ public class RInteger extends ARObject {
 	}
 
     /**
-     * returns 0 if both are equal. -1 if this object is less than the argument. 
+     * returns 0 if both are equal. -1 if this object is less than the argument.
      * 1 if this object is greater than the argument
-     */	
+     */
 	public int compare(IRObject irObject) throws RulesException {
-		return (this.value==irObject.intValue())?0:((this.value<irObject.intValue())?-1:0);	
+		return (this.value==irObject.intValue())?0:((this.value<irObject.intValue())?-1:1);
 	}
 }

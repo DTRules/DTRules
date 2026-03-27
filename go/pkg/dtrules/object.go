@@ -234,6 +234,18 @@ type State interface {
 
 	// SetCurrentTableSection sets the current section for tracing
 	SetCurrentTableSection(section string, number int)
+
+	// GetCurrentTable returns the current decision table being executed
+	GetCurrentTable() interface{}
+
+	// SetCurrentTable sets the current decision table being executed
+	SetCurrentTable(table interface{})
+
+	// GetANode returns the current action node being executed
+	GetANode() interface{}
+
+	// SetANode sets the current action node being executed
+	SetANode(anode interface{})
 }
 
 // Session represents an execution context.
@@ -330,4 +342,12 @@ type DateParser interface {
 type RuleSet interface {
 	// NewSession creates a new session for this rule set
 	NewSession() (Session, error)
+}
+
+// RuntimeFactory creates State instances for different runtime implementations.
+type RuntimeFactory interface {
+	// Name returns the runtime name
+	Name() string
+	// CreateState creates a new State for the given session
+	CreateState(session Session) (State, error)
 }

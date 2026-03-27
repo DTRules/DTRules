@@ -1,0 +1,66 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Wisconsin Test Case 01: Single W-2 Earner -->
+   <!-- Tests basic single filer with W-2 income in first bracket -->
+   <id>WI-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>WI</state>
+   <city>Madison</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $45,000 W-2 -->
+   <!-- WI AGI: $45,000 (no adjustments) -->
+   <!-- Standard Deduction: $13,255 -->
+   <!-- Taxable Income: $31,745 -->
+   <!-- Tax Calculation (Single brackets):
+        - First $14,679 at 3.5% = $514.77
+        - Remaining $17,066 at 4.4% = $750.90
+        - Total: $1,265.67 -->
+   <expected_agi>45000</expected_agi>
+   <expected_wi_agi>45000</expected_wi_agi>
+   <expected_wi_taxable_income>31745</expected_wi_taxable_income>
+   <expected_wi_tax>1266</expected_wi_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alex Johnson</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/15/1990</date_of_birth>
+         <age>35</age>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Income -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2</type>
+         <payer>Madison Public Schools</payer>
+         <gross_amount>45000</gross_amount>
+         <federal_withholding>5000</federal_withholding>
+         <state_withholding>1500</state_withholding>
+      </income>
+   </incomes>
+</job>

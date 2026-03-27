@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- WA Test Case 1: Single W-2 Earner in Bracket 1 -->
+   <id>WA-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>WA</state>
+   <city>Seattle</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $45,000 -->
+   <!-- WA AGI: $45,000 -->
+   <!-- WA Standard Deduction: $15,000 (Single) -->
+   <!-- WA Taxable Income: $30,000 -->
+   <!-- WA Tax: $30,000 × 2.5% = $750 (all in bracket 1) -->
+   <expected_agi>45000</expected_agi>
+   <expected_wa_agi>45000</expected_wa_agi>
+   <expected_wa_taxable_income>30000</expected_wa_taxable_income>
+   <expected_wa_tax>750</expected_wa_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah Johnson</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>7/22/1995</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>45000</gross_amount>
+         <withholding>6000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

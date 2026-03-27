@@ -1,0 +1,74 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 8606 Roth Conversion with Pro-Rata Rule -->
+   <!-- Traditional IRA with mixed basis converted to Roth -->
+
+   <id>IRA-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>CA</state>
+   <city>San Francisco</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Wages: $90,000 -->
+   <!-- IRA Total Balance: $100,000 -->
+   <!-- IRA Basis (non-deductible): $20,000 -->
+   <!-- Roth Conversion: $50,000 -->
+   <!-- Taxable % = ($100,000 - $20,000) / $100,000 = 80% -->
+   <!-- Taxable Conversion: $50,000 x 80% = $40,000 -->
+   <!-- Gross Income: $90,000 + $40,000 = $130,000 -->
+   <!-- AGI: $130,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable: $130,000 - $15,000 = $115,000 -->
+   <expected_agi>130000</expected_agi>
+   <expected_taxable_income>115000</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer</name>
+         <ssn>701-80-9010</ssn>
+         <date_of_birth>8/25/1980</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+         <w2_withholding>15000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- IRA Account with Roth Conversion -->
+   <ira_accounts>
+      <ira_account id="1">
+         <id>1</id>
+         <account_type>traditional</account_type>
+         <institution>Fidelity</institution>
+         <account_number>1234</account_number>
+         <year_end_balance>100000</year_end_balance>
+         <prior_year_basis>20000</prior_year_basis>
+         <contribution_amount>0</contribution_amount>
+         <conversion_to_roth>50000</conversion_to_roth>
+         <distribution_amount>0</distribution_amount>
+      </ira_account>
+   </ira_accounts>
+</job>

@@ -15,11 +15,12 @@
 package session
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func TestNewRuleSet(t *testing.T) {
@@ -307,5 +308,403 @@ func TestSessionGetRuleSet(t *testing.T) {
 
 	if retrievedRS.(*RuleSet) != rs {
 		t.Error("GetRuleSet returned different rule set")
+	}
+}
+
+// JSON loading tests (from PR #159)
+
+func TestLoadEDDJSON(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "customer",
+				"access": "rw",
+				"fields": [
+					{"name": "name", "type": "string", "access": "rw"},
+					{"name": "age", "type": "integer", "access": "rw"},
+					{"name": "balance", "type": "double", "access": "rw"},
+					{"name": "active", "type": "boolean", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := rs.LoadEDDJSON(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	// Verify entity was created
+	names := rs.GetEntityNames()
+	found := false
+	for _, name := range names {
+		if name.StringValue() == "customer" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Expected 'customer' entity to be created via JSON")
+	}
+}
+
+func TestLoadEDDJSONMultipleEntities(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "order",
+				"access": "rw",
+				"fields": [
+					{"name": "order_id", "type": "integer", "access": "rw"},
+					{"name": "total", "type": "double", "access": "rw"}
+				]
+			},
+			{
+				"name": "item",
+				"access": "rw",
+				"fields": [
+					{"name": "item_id", "type": "integer", "access": "rw"},
+					{"name": "description", "type": "string", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := rs.LoadEDDJSON(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	names := rs.GetEntityNames()
+	if len(names) < 2 {
+		t.Errorf("Expected at least 2 entities, got %d", len(names))
+	}
+
+	entityNames := make(map[string]bool)
+	for _, name := range names {
+		entityNames[name.StringValue()] = true
+	}
+	if !entityNames["order"] {
+		t.Error("Expected 'order' entity")
+	}
+	if !entityNames["item"] {
+		t.Error("Expected 'item' entity")
+	}
+}
+
+func TestLoadEDDJSONInvalid(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	err := rs.LoadEDDJSON(strings.NewReader(`{invalid json`))
+	if err == nil {
+		t.Fatal("Expected error for invalid JSON")
+	}
+}
+
+func TestLoadEDDJSONEmpty(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	err := rs.LoadEDDJSON(strings.NewReader(`{"entities": []}`))
+	if err != nil {
+		t.Fatalf("Empty JSON EDD should succeed: %v", err)
+	}
+}
+
+func TestLoadEDDJSONThenCreateSession(t *testing.T) {
+	rs := NewRuleSet("test")
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "widget",
+				"access": "rw",
+				"fields": [
+					{"name": "label", "type": "string", "access": "rw"},
+					{"name": "count", "type": "integer", "access": "rw"}
+				]
+			}
+		]
+	}`
+
+	err := rs.LoadEDDJSON(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	// Create session and entity from JSON-loaded EDD
+	session, err := rs.NewSession()
+	if err != nil {
+		t.Fatalf("NewSession failed: %v", err)
+	}
+
+	rsession := session.(*RSession)
+	entity, err := rsession.CreateEntity(dtrules.GetRName("widget"))
+	if err != nil {
+		t.Fatalf("CreateEntity failed: %v", err)
+	}
+	if entity == nil {
+		t.Fatal("Entity is nil")
+	}
+
+	// Set and get a value
+	err = entity.Put(dtrules.GetRName("label"), dtrules.NewRString("test-widget"))
+	if err != nil {
+		t.Fatalf("Put failed: %v", err)
+	}
+
+	value, err := entity.Get(dtrules.GetRName("label"))
+	if err != nil {
+		t.Fatalf("Get failed: %v", err)
+	}
+	if value.StringValue() != "test-widget" {
+		t.Errorf("Expected 'test-widget', got %s", value.StringValue())
+	}
+}
+
+func TestLoadEDDJSONMatchesXMLEntities(t *testing.T) {
+	// Load same entity structure via both XML and JSON, compare
+	rsXML := NewRuleSet("xml")
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="person" access="rw" comment="">
+		<field name="name" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="age" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+	</entity>
+</entity_data_dictionary>`
+
+	if err := rsXML.LoadEDD(strings.NewReader(eddXML)); err != nil {
+		t.Fatalf("LoadEDD failed: %v", err)
+	}
+
+	rsJSON := NewRuleSet("json")
+	eddJSON := `{
+		"entities": [
+			{
+				"name": "person",
+				"access": "rw",
+				"fields": [
+					{"name": "name", "type": "string", "access": "rw"},
+					{"name": "age", "type": "integer", "access": "rw", "defaultValue": "0"}
+				]
+			}
+		]
+	}`
+
+	if err := rsJSON.LoadEDDJSON(strings.NewReader(eddJSON)); err != nil {
+		t.Fatalf("LoadEDDJSON failed: %v", err)
+	}
+
+	xmlNames := rsXML.GetEntityNames()
+	jsonNames := rsJSON.GetEntityNames()
+
+	if len(xmlNames) != len(jsonNames) {
+		t.Errorf("Entity count mismatch: XML=%d, JSON=%d", len(xmlNames), len(jsonNames))
+	}
+
+	// Both should have "person"
+	xmlHasPerson := false
+	jsonHasPerson := false
+	for _, name := range xmlNames {
+		if name.StringValue() == "person" {
+			xmlHasPerson = true
+		}
+	}
+	for _, name := range jsonNames {
+		if name.StringValue() == "person" {
+			jsonHasPerson = true
+		}
+	}
+	if !xmlHasPerson || !jsonHasPerson {
+		t.Error("Both XML and JSON should produce a 'person' entity")
+	}
+}
+
+func TestNewRuleSetInvalidName(t *testing.T) {
+	rs := NewRuleSet(".invalid")
+	if rs != nil {
+		t.Error("Expected nil for invalid rule set name")
+	}
+}
+
+// File loading tests (from 5.0-SNAPSHOT)
+
+func TestLoadEDDFile(t *testing.T) {
+	// Create a temporary EDD file
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="testentity" access="rw" comment="">
+		<field name="testentity" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference"></field>
+		<field name="value" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+	</entity>
+</entity_data_dictionary>`
+
+	tmpFile := "/tmp/test_edd.xml"
+	err := os.WriteFile(tmpFile, []byte(eddXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile)
+
+	rs := NewRuleSet("test")
+	err = rs.LoadEDDFile(tmpFile)
+	if err != nil {
+		t.Fatalf("LoadEDDFile failed: %v", err)
+	}
+
+	// Verify entity was loaded
+	names := rs.GetEntityNames()
+	found := false
+	for _, name := range names {
+		if name.StringValue() == "testentity" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Expected 'testentity' to be loaded")
+	}
+}
+
+func TestLoadDecisionTablesFile(t *testing.T) {
+	// Create a simple decision table
+	dtXML := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+	<decision_table>
+		<table_name>TestTable</table_name>
+		<attribute_fields>
+			<TABLE_NUMBER>1000</TABLE_NUMBER>
+		</attribute_fields>
+		<initial_actions></initial_actions>
+		<conditions></conditions>
+		<actions></actions>
+	</decision_table>
+</decision_tables>`
+
+	tmpFile := "/tmp/test_dt.xml"
+	err := os.WriteFile(tmpFile, []byte(dtXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile)
+
+	rs := NewRuleSet("test")
+
+	// Need minimal EDD for DT to work
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="result" access="rw" comment="">
+		<field name="result" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference"></field>
+	</entity>
+</entity_data_dictionary>`
+	rs.LoadEDD(strings.NewReader(eddXML))
+
+	err = rs.LoadDecisionTablesFile(tmpFile)
+	if err != nil {
+		t.Fatalf("LoadDecisionTablesFile failed: %v", err)
+	}
+
+	// Verify DT was loaded
+	dtNames := rs.GetDecisionTableNames()
+	if len(dtNames) == 0 {
+		t.Error("No decision tables loaded")
+		return
+	}
+	found := false
+	for _, name := range dtNames {
+		if name.StringValue() == "TestTable" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Expected 'TestTable' to be loaded")
+	}
+}
+
+func TestLoadRulesFromFiles(t *testing.T) {
+	// Create EDD file
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="item" access="rw" comment="">
+		<field name="item" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference"></field>
+		<field name="count" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+	</entity>
+</entity_data_dictionary>`
+
+	eddFile := "/tmp/test_edd2.xml"
+	err := os.WriteFile(eddFile, []byte(eddXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create EDD file: %v", err)
+	}
+	defer os.Remove(eddFile)
+
+	// Create DT file
+	dtXML := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+	<decision_table>
+		<table_name>TestTable2</table_name>
+		<attribute_fields>
+			<TABLE_NUMBER>1000</TABLE_NUMBER>
+		</attribute_fields>
+		<initial_actions></initial_actions>
+		<conditions></conditions>
+		<actions></actions>
+	</decision_table>
+</decision_tables>`
+
+	dtFile := "/tmp/test_dt2.xml"
+	err = os.WriteFile(dtFile, []byte(dtXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create DT file: %v", err)
+	}
+	defer os.Remove(dtFile)
+
+	// Load using convenience function
+	rs, err := LoadRulesFromFiles("test", eddFile, dtFile)
+	if err != nil {
+		t.Fatalf("LoadRulesFromFiles failed: %v", err)
+	}
+
+	if rs == nil {
+		t.Fatal("LoadRulesFromFiles returned nil")
+	}
+
+	// Verify name
+	if rs.GetName().StringValue() != "test" {
+		t.Errorf("Expected name 'test', got '%s'", rs.GetName().StringValue())
+	}
+
+	// Verify entity loaded
+	names := rs.GetEntityNames()
+	foundEntity := false
+	for _, name := range names {
+		if name.StringValue() == "item" {
+			foundEntity = true
+			break
+		}
+	}
+	if !foundEntity {
+		t.Error("Expected 'item' entity to be loaded")
+	}
+
+	// Verify DT loaded
+	dtNames := rs.GetDecisionTableNames()
+	if len(dtNames) == 0 {
+		t.Error("No decision tables loaded")
+		return
+	}
+	foundDT := false
+	for _, name := range dtNames {
+		if name.StringValue() == "TestTable2" {
+			foundDT = true
+			break
+		}
+	}
+	if !foundDT {
+		t.Error("Expected 'TestTable2' to be loaded")
 	}
 }

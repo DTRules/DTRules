@@ -1,0 +1,125 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>NJ_MFJ_MIDDLE</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NJ</state>
+   <city>Princeton</city>
+
+   <!-- Test Case: Married Filing Jointly with Middle Income and 2 Dependents -->
+   <!-- Income: $90,000 W2 (primary) + $35,000 W2 (spouse) = $125,000 -->
+   <!-- AGI: $125,000 -->
+   <!-- NJ Gross Income: $125,000 -->
+   <!-- NJ Exemptions: $2,000 (2 taxpayers × $1,000) + $3,000 (2 dependents × $1,500) = $5,000 -->
+   <!-- NJ Taxable Income: $120,000 -->
+   <!-- NJ Tax (MFJ brackets):
+        $20,000 × 1.4% = $280
+        $30,000 × 1.75% = $525
+        $20,000 × 2.45% = $490
+        $10,000 × 3.5% = $350
+        $40,000 × 5.525% = $2,210
+        Total = $3,855 -->
+   <expected_agi>125000</expected_agi>
+   <expected_nj_taxable_income>120000</expected_nj_taxable_income>
+   <expected_nj_tax>3855</expected_nj_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jane Davis</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>4/15/1985</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Robert Davis</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>7/22/1983</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents (2 children) -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Davis</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>2/10/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Daniel Davis</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>9/18/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Income (W-2s) -->
+   <incomes>
+      <income>
+         <type>wages</type>
+         <gross_amount>90000</gross_amount>
+         <federal_withholding>12000</federal_withholding>
+         <state_withholding>3200</state_withholding>
+         <description>Accountant salary</description>
+      </income>
+      <income>
+         <type>wages</type>
+         <gross_amount>35000</gross_amount>
+         <federal_withholding>3500</federal_withholding>
+         <state_withholding>1200</state_withholding>
+         <description>Nurse salary</description>
+      </income>
+   </incomes>
+
+   <!-- Deductions (Standard) -->
+   <deductions></deductions>
+
+   <!-- Credits (CTC for 2 children) -->
+   <credits></credits>
+</job>

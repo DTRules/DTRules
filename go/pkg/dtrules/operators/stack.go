@@ -16,7 +16,7 @@
 package operators
 
 import (
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func init() {
@@ -117,7 +117,16 @@ func opPolicyStatements(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(arr)
+
+	// Push the array first (matches Java behavior)
+	if err := state.DataPush(arr); err != nil {
+		return err
+	}
+
+	// NOTE: Policy statements feature not yet implemented in Go
+	// TODO: Implement policy statements feature when ActionNode and DecisionTable interfaces are ready
+	// For now, just return the empty array that was already pushed
+	return nil
 }
 
 // opPop: ( a -- ) removes top element
@@ -201,31 +210,15 @@ func opPick(state dtrules.State) error {
 		return err
 	}
 
-	// Get element at position n from top (0 = new top after pop)
 	depth := state.DataStackDepth()
 	if n < 0 || n >= depth {
 		return dtrules.OutOfBoundsError("pick", "Index out of bounds")
 	}
 
-	// Pop elements to get to the one we want, then restore
-	temp := make([]dtrules.Object, n)
-	for i := 0; i < n; i++ {
-		temp[i], err = state.DataPop()
-		if err != nil {
-			return err
-		}
-	}
-
-	picked, err := state.DataPeek()
+	// GetDataStack uses 0 = bottom, so convert from top-relative
+	picked, err := state.GetDataStack(depth - 1 - n)
 	if err != nil {
 		return err
-	}
-
-	// Restore
-	for i := n - 1; i >= 0; i-- {
-		if err := state.DataPush(temp[i]); err != nil {
-			return err
-		}
 	}
 	return state.DataPush(picked)
 }

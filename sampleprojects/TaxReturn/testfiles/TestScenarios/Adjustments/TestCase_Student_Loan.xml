@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Student Loan Interest Deduction -->
+<!-- Scenario: Single taxpayer with student loan interest -->
+<!-- Expected: Full $2,500 student loan interest deduction -->
+<job>
+    <id>9009</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>MA</state>
+
+    <!-- Expected results -->
+    <expected_agi>52500</expected_agi>
+    <expected_taxable_income>37500</expected_taxable_income>
+    <expected_total_tax>4200</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Amanda Foster</name>
+            <ssn>555-55-6666</ssn>
+            <date_of_birth>11/08/1995</date_of_birth>
+            <occupation>Marketing Associate</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>55000</w2_wages>
+            <w2_withholding>7000</w2_withholding>
+            <student_loan_interest_paid>3000</student_loan_interest_paid>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>
