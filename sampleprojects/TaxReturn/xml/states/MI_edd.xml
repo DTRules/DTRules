@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Michigan (MI)
+
+  Michigan Income Tax (2025):
+  - Flat tax rate: 4.25%
+  - Personal exemption: $5,800 per taxpayer, spouse, and dependent
+  - Special exemption: $3,400 (for certain situations)
+  - Qualified disabled veteran exemption: $500
+  - Starting point: Federal AGI
+  - Military retirement: 100% exclusion
+  - MSRRA compliant: Military spouse income exempt if different domicile
+  - SCRA compliant: Active duty pay exempt if different state of residence
+
+  Sources:
+  - Michigan Department of Treasury (https://www.michigan.gov/taxes/)
+  - MCL § 206.30 - Personal exemptions
+  - MCL § 206.30(1)(f) - Military retirement exclusion
+  - MOAA State Report Card: Grade A for military retirement tax treatment
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/MI/42200_MI_constants</file_path>
+  </file_metadata>
+  <!-- Michigan state tax constants -->
+  <entity name="result">
+    <!-- Tax rate -->
+    <field name="mi_tax_rate" type="double" default_value="0.0425"
+           comment="MI flat tax rate 4.25% (2025)"/>
+
+    <!-- Personal exemptions -->
+    <field name="mi_exemption_single" type="double" default_value="5800.0"
+           comment="MI personal exemption single (2025)"/>
+    <field name="mi_exemption_married" type="double" default_value="11600.0"
+           comment="MI personal exemption married filing jointly - 2 x $5,800 (2025)"/>
+    <field name="mi_exemption_dependent" type="double" default_value="5800.0"
+           comment="MI personal exemption per dependent (2025)"/>
+
+    <!-- Special exemptions -->
+    <field name="mi_special_exemption" type="double" default_value="3400.0"
+           comment="MI special exemption (2025)"/>
+    <field name="mi_disabled_veteran_exemption" type="double" default_value="500.0"
+           comment="MI qualified disabled veteran exemption (2025)"/>
+
+    <!-- Calculated exemption total -->
+    <field name="mi_total_exemption" type="double" default_value="0.0"
+           comment="MI total personal exemptions based on filing status and dependents"/>
+
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="mi_military_retirement_exclusion" type="double" default_value="0.0"
+           comment="MI military retirement exclusion (computed). 100% of military retirement pay exempt per MCL § 206.30. MOAA Grade A"/>
+
+    <field name="mi_sbp_exclusion" type="double" default_value="0.0"
+           comment="MI Survivor Benefit Plan (SBP) exclusion (computed). 100% of SBP payments exempt"/>
+
+    <field name="mi_total_military_exclusion" type="double" default_value="0.0"
+           comment="Total MI military income exclusion (computed). Sum of military retirement and SBP exclusions"/>
+
+    <!-- MSRRA and SCRA Compliance -->
+    <field name="mi_msrra_compliant" type="boolean" default_value="true"
+           comment="MI honors MSRRA (Military Spouses Residency Relief Act). Military spouse income exempt if different domicile"/>
+
+    <field name="mi_scra_compliant" type="boolean" default_value="true"
+           comment="MI honors SCRA (Servicemembers Civil Relief Act). Active duty pay exempt if different state of residence"/>
+
+    <!-- MI taxable income and tax liability -->
+    <field name="mi_adjusted_agi" type="double" default_value="0.0"
+           comment="MI AGI after military exclusions (computed from federal AGI)"/>
+
+    <field name="mi_taxable_income" type="double" default_value="0.0"
+           comment="MI taxable income (AGI minus exemptions)"/>
+
+    <field name="state_tax_liability" type="double" default_value="0.0"
+           comment="MI state income tax liability"/>
+  </entity>
+</entity_data_dictionary>

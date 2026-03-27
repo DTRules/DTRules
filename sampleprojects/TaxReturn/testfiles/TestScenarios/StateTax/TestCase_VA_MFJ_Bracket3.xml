@@ -1,0 +1,103 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Virginia State Tax Test Case - Married Filing Jointly, Bracket 3 -->
+   <!-- Test that MFJ filers with dependents spanning multiple brackets are taxed correctly -->
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>VA</state>
+   <city>Virginia Beach</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $55,000 ($28,000 + $27,000) -->
+   <!-- Standard deduction: $17,500 (MFJ) -->
+   <!-- Personal exemptions: 4 persons × $930 = $3,720 -->
+   <!-- VA Taxable income: $55,000 - $17,500 - $3,720 = $33,780 -->
+   <!-- Tax calculation (VA brackets):
+        - Bracket 1 ($0-$3,000 @ 2%): $3,000 × 0.02 = $60.00
+        - Bracket 2 ($3,000-$5,000 @ 3%): ($5,000 - $3,000) × 0.03 = $60.00
+        - Bracket 3 ($5,000-$17,000 @ 5%): ($17,000 - $5,000) × 0.05 = $600.00
+        - Bracket 4 (>$17,000 @ 5.75%): ($33,780 - $17,000) × 0.0575 = $964.85
+        - Total: $60.00 + $60.00 + $600.00 + $964.85 = $1,684.85
+   -->
+   <expected_agi>55000</expected_agi>
+   <expected_taxable_income>33780</expected_taxable_income>
+   <expected_va_state_tax>1684.85</expected_va_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Primary taxpayer -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Mitchell</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>3/22/1988</date_of_birth>
+         <occupation>Electrician</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>28000</w2_wages>
+         <w2_withholding>2100</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Mitchell</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>9/5/1990</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>27000</w2_wages>
+         <w2_withholding>2000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <!-- Child 1 -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma Mitchell</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>5/12/2015</date_of_birth>
+         <relationship>Daughter</relationship>
+         <months_lived>12</months_lived>
+         <is_student>true</is_student>
+         <is_disabled>false</is_disabled>
+         <childcare_expenses>0</childcare_expenses>
+      </dependent>
+
+      <!-- Child 2 -->
+      <dependent id="2">
+         <id>2</id>
+         <name>Liam Mitchell</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>11/8/2018</date_of_birth>
+         <relationship>Son</relationship>
+         <months_lived>12</months_lived>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <childcare_expenses>0</childcare_expenses>
+      </dependent>
+   </dependents>
+</job>

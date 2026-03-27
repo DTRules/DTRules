@@ -1,0 +1,29 @@
+<job>
+   <copyright>Copyright 2025 DTRules.com</copyright>
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>NC</state>
+   <city>Test City</city>
+   
+   <!-- Scenario 1: Single filer, $75k W2 income -->
+   <expected_agi>75000</expected_agi>
+   <expected_taxable_income>60200</expected_taxable_income>
+   
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>1/1/1985</date_of_birth>
+         <occupation>Employee</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+   <dependents></dependents>
+</job>

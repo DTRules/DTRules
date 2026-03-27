@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Colorado corporate tax
+
+  Colorado corporate tax structure:
+  - Flat rate: 4.55%
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts
+
+  Table Number Range: 51400-51499 (Colorado corporate allocation)
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51400: Determine_CO_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_CO_Corporate_Filing_Requirement</table_name>
+<xls_file>CO_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Colorado corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>51400</TABLE_NUMBER>
+<FILE_PATH>states/CO/51400_Determine_CO_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Colorado filing requirement check</action_description>
+<action_postfix>
+"Colorado Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.co_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Colorado</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_co
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold</condition_comment>
+<condition_description>co_gross_receipts >= co_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.co_gross_receipts result.co_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.co_has_nexus xdef
+"Colorado filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+true /result.co_has_nexus xdef
+"Colorado filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.co_has_nexus xdef
+0.0 /result.co_tax_liability xdef
+"Colorado filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51420: Calculate_CO_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CO_Corporate_Income_Adjustments</table_name>
+<xls_file>CO_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Colorado state-specific additions and subtractions to federal taxable income. Colorado generally conforms to federal IRC with some modifications.</COMMENTS>
+<TABLE_NUMBER>51420</TABLE_NUMBER>
+<FILE_PATH>states/CO/51420_Calculate_CO_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Colorado income adjustments</action_description>
+<action_postfix>
+"Colorado Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.co_state_additions xdef
+0.0 /result.co_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Colorado nexus</condition_comment>
+<condition_description>co_has_nexus == true</condition_description>
+<condition_postfix>
+result.co_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Colorado state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Colorado state additions -->
+0.0 /co_additions xdef
+
+<!-- Common Colorado additions: -->
+<!-- - Interest on U.S. government obligations (not taxable federally but taxable to CO) -->
+<!-- - IRC 199A deduction addback (if applicable) -->
+<!-- - Bonus depreciation addback (if applicable) -->
+<!-- For basic implementation, these would be provided as input fields -->
+
+result.co_us_interest_income 0.0 ne
+{
+  co_additions result.co_us_interest_income add /co_additions xdef
+} if
+
+co_additions /result.co_state_additions xdef
+
+<!-- Calculate Colorado state subtractions -->
+0.0 /co_subtractions xdef
+
+<!-- Common Colorado subtractions: -->
+<!-- - State income taxes deducted on federal return (post-TCJA) -->
+<!-- - Colorado NOL deduction (if different from federal) -->
+<!-- For basic implementation, these would be provided as input fields -->
+
+result.co_state_tax_deduction 0.0 ne
+{
+  co_subtractions result.co_state_tax_deduction add /co_subtractions xdef
+} if
+
+co_subtractions /result.co_state_subtractions xdef
+
+"Colorado additions: $" result.co_state_additions cvs strconcat ", subtractions: $" strconcat result.co_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.co_state_additions xdef
+0.0 /result.co_state_subtractions xdef
+"Colorado adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51480: Calculate_CO_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CO_Corporate_Tax</table_name>
+<xls_file>CO_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Colorado corporate income tax. Applies Colorado flat rate (4.55%) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>51480</TABLE_NUMBER>
+<FILE_PATH>states/CO/51480_Calculate_CO_Corporate_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Colorado tax calculation</action_description>
+<action_postfix>
+"Colorado Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.co_taxable_income xdef
+0.0 /result.co_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Colorado nexus</condition_comment>
+<condition_description>co_has_nexus == true</condition_description>
+<condition_postfix>
+result.co_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>co_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.co_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Colorado corporate tax (flat rate 4.55%)</action_comment>
+<action_postfix>
+<!-- Calculate Colorado taxable income -->
+<!-- Federal taxable income apportioned to CO + additions - subtractions -->
+result.co_apportioned_income
+result.co_state_additions add
+result.co_state_subtractions sub
+0.0 max
+/result.co_taxable_income xdef
+
+<!-- Calculate Colorado tax using flat rate: 4.55% -->
+result.co_taxable_income result.co_corp_tax_rate mul
+/co_tax_before_credits xdef
+
+<!-- Subtract Colorado state credits -->
+co_tax_before_credits result.co_state_credits sub 0.0 max
+/result.co_tax_liability xdef
+
+<!-- Calculate refund or amount owed -->
+result.co_estimated_payments result.co_tax_liability sub
+/result.co_refund_or_owed xdef
+
+"Colorado taxable income: $" result.co_taxable_income cvs strconcat job.audit_trail swap addto
+"Colorado tax liability (4.55%): $" result.co_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.co_taxable_income xdef
+0.0 /result.co_tax_liability xdef
+result.co_estimated_payments /result.co_refund_or_owed xdef
+"Colorado tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.co_taxable_income xdef
+0.0 /result.co_tax_liability xdef
+result.co_estimated_payments /result.co_refund_or_owed xdef
+"Colorado tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

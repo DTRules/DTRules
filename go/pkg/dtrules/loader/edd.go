@@ -51,11 +51,17 @@ func NewEDDLoader(session dtrules.Session, factory *entity.Factory) *EDDLoader {
 
 // XML structures matching the actual DTRules EDD format
 
+// FileMetadata represents the file_metadata element in EDD files
+type FileMetadata struct {
+	FilePath string `xml:"file_path"`
+}
+
 // EDDFile represents the root entity_data_dictionary element
 type EDDFile struct {
-	XMLName  xml.Name    `xml:"entity_data_dictionary"`
-	Version  string      `xml:"version,attr"`
-	Entities []EDDEntity `xml:"entity"`
+	XMLName      xml.Name     `xml:"entity_data_dictionary"`
+	Version      string       `xml:"version,attr"`
+	FileMetadata FileMetadata `xml:"file_metadata"`
+	Entities     []EDDEntity  `xml:"entity"`
 }
 
 // EDDEntity represents an entity definition
@@ -101,9 +107,12 @@ func (l *EDDLoader) Load(r io.Reader) error {
 		return fmt.Errorf("failed to parse EDD XML: %w", err)
 	}
 
+	// Capture file-level path from metadata
+	fileLevelPath := edd.FileMetadata.FilePath
+
 	// Process each entity
 	for _, ent := range edd.Entities {
-		if err := l.processEntity(&ent); err != nil {
+		if err := l.processEntity(&ent, fileLevelPath); err != nil {
 			l.errors = append(l.errors, err)
 		}
 	}
@@ -136,7 +145,7 @@ func (e *EDDLoadError) Unwrap() error {
 }
 
 // processEntity processes a single entity definition.
-func (l *EDDLoader) processEntity(ent *EDDEntity) error {
+func (l *EDDLoader) processEntity(ent *EDDEntity, fileLevelPath string) error {
 	entityName := dtrules.GetRName(strings.TrimSpace(ent.Name))
 	if entityName == nil {
 		return fmt.Errorf("invalid entity name syntax: %s", ent.Name)
@@ -154,6 +163,11 @@ func (l *EDDLoader) processEntity(ent *EDDEntity) error {
 	}
 	if ent.XlsFile != "" {
 		refEntity.SetXlsFile(ent.XlsFile)
+	}
+
+	// Set file path from file-level metadata
+	if fileLevelPath != "" {
+		refEntity.SetFilePath(fileLevelPath)
 	}
 
 	// Process each field
