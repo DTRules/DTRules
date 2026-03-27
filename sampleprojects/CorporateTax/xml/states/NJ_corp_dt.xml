@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  New Jersey Corporate Tax Decision Tables
+
+  New Jersey Corporation Business Tax (CBT)
+  Tables 50400-50499 (NJ allocation)
+
+  Table Structure:
+  - 50400: Determine NJ Filing Requirement
+  - 50420: Calculate NJ Income Adjustments
+  - 50480: Calculate NJ State Tax
+  - 50490: Calculate NJ Surtax
+
+  Tax Rate: 9% base + 2.5% surtax (total 11.5% for income > $1M)
+  Economic Nexus: $100,000 in NJ receipts
+-->
+<decision_tables name="CorporateTax_NJ_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 50400: Determine NJ Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file NJ state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in state
+    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
+  -->
+  <decision_table>
+    <table_name>Determine_NJ_Filing_Requirement</table_name>
+    <xls_file>NJ_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine if corporation must file NJ state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+      <TABLE_NUMBER>50400</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Has physical presence in NJ (office, employees, property)</condition_comment>
+        <condition_description>apportionment.has_physical_presence is true AND apportionment.state_code is equal to 'NJ'</condition_description>
+        <condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code NJ streq and
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Meets NJ economic nexus threshold ($100K)</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is true AND apportionment.state_code is equal to 'NJ'</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code NJ streq and
+        </condition_postfix>
+        <condition_column column_number="1" column_value="*"></condition_column>
+        <condition_column column_number="2" column_value="Y"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Physical nexus established - filing required</action_comment>
+        <action_description>Physical nexus established - apportionment calculated by tables 7000-7500</action_description>
+        <action_postfix>
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
+        </action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>Economic nexus established - filing required</action_comment>
+        <action_description>Economic nexus established per Wayfair - filing required</action_description>
+        <action_postfix>
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
+        </action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>No nexus - no filing required</action_comment>
+        <action_description>No nexus - zero tax and refund payments</action_description>
+        <action_postfix>
+// No nexus - no filing required
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+        </action_postfix>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>NJ filing required due to physical presence</policy_description>
+        <policy_statement_postfix>"NJ filing required due to physical presence (office, employees, or property in state). Reference: NJ Rev. Stat. § 54:10A-2 (Imposition of tax), NJ Division of Taxation Technical Bulletin TB-78, NJ P.L. 2018, c.48 (Corporation Business Tax Act amendments)"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>NJ filing required due to economic nexus</policy_description>
+        <policy_statement_postfix>"NJ filing required due to economic nexus (post-Wayfair). Threshold: $100,000 in NJ gross receipts OR 200 transactions. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NJ Rev. Stat. § 54:10A-2, NJ Division of Taxation Economic Nexus Guidance (2018)"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="3">
+        <policy_description>No NJ nexus - no filing requirement</policy_description>
+        <policy_statement_postfix>"No NJ nexus - no filing requirement. Any estimated payments would be refunded."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50420: Calculate NJ State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates state additions and subtractions to federal taxable income.
+
+    NJ-specific additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - IRC Section 199A qualified business income deduction addback
+    - Certain depreciation adjustments
+
+    NJ-specific subtractions:
+    - Interest on NJ and local government bonds
+    - Net operating loss deduction (NJ NOL rules)
+  -->
+  <decision_table>
+    <table_name>Calculate_NJ_Income_Adjustments</table_name>
+    <xls_file>NJ_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate NJ state-specific additions and subtractions to federal taxable income. Result is NJ "entire net income" (NJ's term for taxable income base).</COMMENTS>
+      <TABLE_NUMBER>50420</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Must have nexus to calculate adjustments</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Calculate NJ state additions and subtractions</action_comment>
+        <action_description>Calculate NJ state-specific income adjustments</action_description>
+        <action_postfix>
+// Calculate NJ state additions
+0.0 /additions xdef
+
+// NJ adds back interest on U.S. government obligations
+// (exempt from federal tax but taxable to NJ)
+// revenue.federal_bond_interest additions add /additions xdef
+
+// NJ adds back IRC 199A deduction (state doesn't conform)
+// result.section_199a_deduction additions add /additions xdef
+
+// NJ may require depreciation adjustments
+// result.nj_depreciation_addback additions add /additions xdef
+
+additions /apportionment.state_additions xdef
+
+// Calculate NJ state subtractions
+0.0 /subtractions xdef
+
+// NJ allows subtraction for interest on NJ government bonds
+// revenue.nj_municipal_interest subtractions add /subtractions xdef
+
+// NJ NOL deduction (different rules from federal)
+// result.nj_nol_deduction subtractions add /subtractions xdef
+
+subtractions /apportionment.state_subtractions xdef
+
+// Store NJ entire net income for surtax calculation
+apportionment.state_taxable_income /result.nj_entire_net_income xdef
+        </action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No nexus - zero adjustments</action_comment>
+        <action_description>No nexus - no state adjustments calculated</action_description>
+        <action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+0.0 /result.nj_entire_net_income xdef
+        </action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>NJ state-specific income adjustments</policy_description>
+        <policy_statement_postfix>"NJ state-specific income adjustments to federal taxable income. Result is NJ 'entire net income' - the base for Corporation Business Tax. Additions may include: Interest on U.S. government obligations (NJ Rev. Stat. § 54:10A-4(k)), IRC Section 199A qualified business income deduction addback, Certain depreciation adjustments. Subtractions may include: Interest on NJ state and local government bonds, NJ net operating loss deduction (separate from federal NOL). Reference: NJ Form CBT-100 Instructions, NJ Rev. Stat. § 54:10A-4, NJ Technical Bulletin TB-65"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>No nexus - no state adjustments</policy_description>
+        <policy_statement_postfix>"No nexus - no state adjustments calculated."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50480: Calculate NJ State Tax
+    ============================================================================
+
+    Calculates final NJ state corporate income tax.
+
+    Process:
+    1. Federal taxable income apportioned to NJ (done by table 7500)
+    2. Add state-specific additions (done by table 50420)
+    3. Subtract state-specific subtractions (done by table 50420)
+    4. Calculate NJ entire net income
+    5. Apply NJ tax rate (9% base rate)
+    6. Subtract NJ state credits
+    7. Surtax calculated separately in table 50490 (if income > $1M)
+    8. Calculate refund or amount owed
+  -->
+  <decision_table>
+    <table_name>Calculate_NJ_State_Tax</table_name>
+    <xls_file>NJ_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate NJ state corporate income tax. Applies NJ 9% base tax rate to apportioned and adjusted taxable income.</COMMENTS>
+      <TABLE_NUMBER>50480</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Must have nexus to owe tax</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="Y"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Has positive state taxable income</condition_comment>
+        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+        <condition_postfix>
+apportionment.state_taxable_income 0 gt
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="*"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Calculate NJ tax at 9% base rate</action_comment>
+        <action_description>Calculate NJ state tax at 9% base rate, subtract credits</action_description>
+        <action_postfix>
+// NJ uses 9% base rate (NJ Rev. Stat. § 54:10A-5)
+// Additional 2.5% surtax applies to income > $1M (table 50490)
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/apportionment.state_tax xdef
+
+// Subtract NJ state credits
+0.0 apportionment.state_tax apportionment.state_credits sub max
+/apportionment.state_tax xdef
+
+// Surtax will be added in table 50490 if income > $1M
+// For now, calculate base refund/owed (will be adjusted by surtax)
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+        </action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No nexus - no tax</action_comment>
+        <action_description>No NJ nexus - zero tax and refund payments</action_description>
+        <action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+        </action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>Nexus but no taxable income</action_comment>
+        <action_description>No NJ taxable income - zero tax and refund payments</action_description>
+        <action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+        </action_postfix>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>NJ state corporate income tax calculation</policy_description>
+        <policy_statement_postfix>"NJ state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to NJ: × [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. NJ entire net income: = [Result], 6. NJ base tax rate: × 9%, 7. NJ income tax: = [Tax before credits], 8. NJ credits: - [Credits], 9. NJ tax liability (before surtax): = [Tax]. Note: 2.5% surtax calculated separately if entire net income > $1,000,000. Total effective rate for large corporations: 11.5% (9% + 2.5% surtax). For corporations with allocated net income between $50K-$100K, rates are 6.5% or 7.5%. This implementation uses the standard 9% rate for income > $100K. Reference: NJ Form CBT-100 Instructions, NJ Rev. Stat. § 54:10A-5, NJ Rev. Stat. § 54:10A-5.5"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>No NJ nexus - no tax liability</policy_description>
+        <policy_statement_postfix>"No NJ nexus - no tax liability. Any estimated payments are refunded."</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="3">
+        <policy_description>No NJ taxable income - no tax liability</policy_description>
+        <policy_statement_postfix>"No NJ taxable income - no tax liability. NJ NOL rules may apply (not implemented)."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50490: Calculate NJ Surtax
+    ============================================================================
+
+    Calculates NJ Corporation Business Tax surtax.
+
+    The surtax is 2.5% of entire net income (NJ's taxable income base)
+    for corporations with entire net income exceeding $1,000,000.
+
+    This makes the total effective rate:
+    - 9% base + 2.5% surtax = 11.5% for income > $1M
+  -->
+  <decision_table>
+    <table_name>Calculate_NJ_Surtax</table_name>
+    <xls_file>NJ_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate NJ Corporation Business Tax surtax for large corporations. Surtax is 2.5% of entire net income for income > $1M.</COMMENTS>
+      <TABLE_NUMBER>50490</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Must have NJ nexus</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="Y"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="4" column_value="Y"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Entire net income exceeds $1,000,000 surtax threshold</condition_comment>
+        <condition_description>result.nj_entire_net_income is greater than result.nj_surtax_threshold</condition_description>
+        <condition_postfix>
+result.nj_entire_net_income result.nj_surtax_threshold gt
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="*"></condition_column>
+        <condition_column column_number="4" column_value="Y"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>3</condition_number>
+        <condition_comment>Has positive tax base for surtax calculation</condition_comment>
+        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+        <condition_postfix>
+apportionment.state_taxable_income 0 gt
+        </condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="*"></condition_column>
+        <condition_column column_number="3" column_value="*"></condition_column>
+        <condition_column column_number="4" column_value="N"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Calculate NJ surtax for large corporations</action_comment>
+        <action_description>Calculate NJ surtax at 2.5% for income > $1M</action_description>
+        <action_postfix>
+// NJ surtax is 2.5% of entire net income for income > $1M
+result.nj_entire_net_income result.nj_surtax_rate mul
+/result.nj_surtax xdef
+
+// Add surtax to total state tax
+apportionment.state_tax result.nj_surtax add
+/apportionment.state_tax xdef
+
+// Recalculate refund or amount owed including surtax
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+        </action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No surtax - below threshold</action_comment>
+        <action_description>No NJ surtax - income below threshold</action_description>
+        <action_postfix>
+0.0 /result.nj_surtax xdef
+// State tax and refund/owed already calculated in table 50480
+        </action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>No surtax - no nexus</action_comment>
+        <action_description>No NJ surtax - no NJ nexus</action_description>
+        <action_postfix>
+0.0 /result.nj_surtax xdef
+        </action_postfix>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>4</action_number>
+        <action_comment>No surtax - no positive tax base</action_comment>
+        <action_description>No NJ surtax - no positive tax base</action_description>
+        <action_postfix>
+0.0 /result.nj_surtax xdef
+        </action_postfix>
+        <action_column column_number="4" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>NJ Corporation Business Tax surtax for large corporations</policy_description>
+        <policy_statement_postfix>"NJ Corporation Business Tax surtax applies to large corporations. Surtax Calculation: NJ entire net income: [State taxable income], Surtax threshold: $1,000,000, Surtax rate: × 2.5%, Surtax amount: = [Surtax], Total NJ tax: Base tax (9%) + Surtax (2.5%) = 11.5% effective rate. The surtax applies to the ENTIRE net income, not just the amount over $1M. Example: Entire net income: $2,000,000, Base tax (9%): $180,000, Surtax (2.5%): $50,000, Total tax: $230,000 (11.5% effective rate). Reference: NJ Rev. Stat. § 54:10A-5.5, NJ Form CBT-100 Schedule A, NJ P.L. 2018, c.48"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>No NJ surtax - below threshold</policy_description>
+        <policy_statement_postfix>"No NJ surtax - entire net income does not exceed $1,000,000 threshold. Only the 9% base rate applies."</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="3">
+        <policy_description>No NJ surtax - no nexus</policy_description>
+        <policy_statement_postfix>"No NJ surtax - no NJ nexus or no taxable income."</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="4">
+        <policy_description>No NJ surtax - no positive tax base</policy_description>
+        <policy_statement_postfix>"No NJ surtax - no positive tax base."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
+  </decision_table>
+
+</decision_tables>

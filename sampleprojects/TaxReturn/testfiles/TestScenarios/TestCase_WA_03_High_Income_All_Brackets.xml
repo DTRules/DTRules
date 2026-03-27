@@ -1,0 +1,85 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- WA Test Case 3: High Income Using All 4 Brackets -->
+   <id>WA-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>WA</state>
+   <city>Bellevue</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $350,000 -->
+   <!-- WA AGI: $350,000 -->
+   <!-- WA Standard Deduction: $15,000 (Single) -->
+   <!-- WA Taxable Income: $335,000 -->
+   <!-- WA Tax: -->
+   <!--   Bracket 1 (2.5% on $0-$50,000): $50,000 × 2.5% = $1,250 -->
+   <!--   Bracket 2 (4.0% on $50,000-$100,000): $50,000 × 4.0% = $2,000 -->
+   <!--   Bracket 3 (6.5% on $100,000-$250,000): $150,000 × 6.5% = $9,750 -->
+   <!--   Bracket 4 (8.5% on $250,000-$335,000): $85,000 × 8.5% = $7,225 -->
+   <!--   Total: $20,225 -->
+   <expected_agi>350000</expected_agi>
+   <expected_wa_agi>350000</expected_wa_agi>
+   <expected_wa_taxable_income>335000</expected_wa_taxable_income>
+   <expected_wa_bracket_1_tax>1250</expected_wa_bracket_1_tax>
+   <expected_wa_bracket_2_tax>2000</expected_wa_bracket_2_tax>
+   <expected_wa_bracket_3_tax>9750</expected_wa_bracket_3_tax>
+   <expected_wa_bracket_4_tax>7225</expected_wa_bracket_4_tax>
+   <expected_wa_tax>20225</expected_wa_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Williams</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>11/3/1978</date_of_birth>
+         <occupation>Tech Executive</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>350000</w2_wages>
+         <w2_withholding>80000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>350000</gross_amount>
+         <withholding>80000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,96 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Schedule H Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Basic Nanny Tax - Single household employee over threshold -->
+   <!-- Tests Schedule H household employment tax calculation -->
+   <!-- Cash wages: $35,000 (above $2,700 threshold) -->
+   <!-- FICA employer portion: 7.65% ($2,677.50) -->
+   <!-- FUTA: 0.6% on first $7,000 ($42.00) -->
+   <!-- Total Schedule H tax: $2,719.50 -->
+
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Married Filing Jointly</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <!-- Expected values for validation -->
+   <!-- Taxpayer W-2 Wages: $120,000 -->
+   <!-- AGI: $120,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $90,000 -->
+   <!-- Regular Tax: ~$10,494 -->
+   <!-- Schedule H Tax: $2,719.50 -->
+   <!-- Total Tax: ~$13,213.50 -->
+   <expected_agi>120000</expected_agi>
+   <expected_taxable_income>90000</expected_taxable_income>
+   <expected_schedule_h_social_security_tax>2170.00</expected_schedule_h_social_security_tax>
+   <expected_schedule_h_medicare_tax>507.50</expected_schedule_h_medicare_tax>
+   <expected_schedule_h_futa_tax>42.00</expected_schedule_h_futa_tax>
+   <expected_schedule_h_total_tax>2719.50</expected_schedule_h_total_tax>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Sarah Johnson</name>
+      <ssn>111-22-3333</ssn>
+      <date_of_birth>1985-03-15</date_of_birth>
+      <occupation>Software Engineer</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>120000</w2_wages>
+      <w2_withholding>15000</w2_withholding>
+   </taxpayer>
+
+   <spouse>
+      <id>2</id>
+      <name>Michael Johnson</name>
+      <ssn>444-55-6666</ssn>
+      <date_of_birth>1983-07-22</date_of_birth>
+      <occupation>Teacher</occupation>
+      <is_self_employed>false</is_self_employed>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+   </spouse>
+
+   <!-- Household Employee: Nanny -->
+   <household_employee>
+      <id>1</id>
+      <name>Maria Garcia</name>
+      <ssn>777-88-9999</ssn>
+      <!-- Cash wages paid to nanny -->
+      <cash_wages>35000</cash_wages>
+      <federal_withholding>2500</federal_withholding>
+      <!-- Social Security wages (same as cash wages) -->
+      <ss_wages>35000</ss_wages>
+      <!-- Medicare wages (same as cash wages) -->
+      <medicare_wages>35000</medicare_wages>
+      <!-- FUTA wages (capped at $7,000) -->
+      <futa_wages>7000</futa_wages>
+      <!-- State unemployment tax paid (enables FUTA credit) -->
+      <state_unemployment_paid>378</state_unemployment_paid>
+   </household_employee>
+
+   <!-- W-2 issued to household employee -->
+   <!-- Box 1 (Wages): $35,000 -->
+   <!-- Box 2 (Federal withholding): $2,500 -->
+   <!-- Box 3 (SS wages): $35,000 -->
+   <!-- Box 4 (SS tax withheld): $2,170 (employee portion 6.2%) -->
+   <!-- Box 5 (Medicare wages): $35,000 -->
+   <!-- Box 6 (Medicare tax withheld): $507.50 (employee portion 1.45%) -->
+   <!-- Box 13: Household employee checkbox marked -->
+
+   <!-- Employer responsibilities (Schedule H): -->
+   <!-- Social Security employer portion: $35,000 × 6.2% = $2,170.00 -->
+   <!-- Medicare employer portion: $35,000 × 1.45% = $507.50 -->
+   <!-- FICA total: $2,677.50 -->
+   <!-- FUTA: $7,000 × 0.6% = $42.00 (after 5.4% state credit) -->
+   <!-- Total Schedule H: $2,719.50 -->
+</job>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule D - Long-Term Capital Gains at 20% Bracket -->
+<!-- Scenario: High income taxpayer with LTCG in 20% bracket -->
+<!-- LTCG: $100,000, W-2: $550,000, Total AGI: $650,000 -->
+<!-- Expected: 20% capital gains tax rate plus 3.8% NIIT -->
+<job>
+    <id>10013</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>WA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $650,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $620,000 (includes $100,000 LTCG at 20%) -->
+    <!-- Tax: ~$134,180 ordinary + $20,000 LTCG + $3,800 NIIT = ~$157,980 -->
+    <expected_agi>650000</expected_agi>
+    <expected_taxable_income>620000</expected_taxable_income>
+    <expected_total_tax>157980</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>William Chang</name>
+            <ssn>123-45-6789</ssn>
+            <date_of_birth>04/15/1970</date_of_birth>
+            <occupation>Executive</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>400000</w2_wages>
+            <w2_withholding>100000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Catherine Chang</name>
+            <ssn>234-56-7890</ssn>
+            <date_of_birth>06/20/1972</date_of_birth>
+            <occupation>Physician</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>150000</w2_wages>
+            <w2_withholding>35000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock sale - Investment portfolio</source>
+            <gross_amount>100000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>long_term</holding_period>
+        </income>
+    </incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <expenses></expenses>
+</job>
