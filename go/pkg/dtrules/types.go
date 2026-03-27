@@ -136,6 +136,7 @@ var (
 	TypeEntity        *RType
 	TypeDecisionTable *RType
 	TypeMark          *RType
+	TypeInterval      *RType
 )
 
 func init() {
@@ -154,6 +155,7 @@ func init() {
 	TypeEntity = NewType("entity")
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
+	TypeInterval = NewType("interval")
 
 	// Register common type aliases
 	registerTypeAlias("float", TypeDouble)

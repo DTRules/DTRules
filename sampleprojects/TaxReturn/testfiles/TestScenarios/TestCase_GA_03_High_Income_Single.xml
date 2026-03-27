@@ -15,37 +15,37 @@
       limitations under the License.
    </copyright>
 
-   <!-- GA Test Case 1: Single W-2 Earner -->
-   <id>GA-01</id>
+   <!-- GA Test Case 3: High Income Single Filer -->
+   <id>GA-03</id>
    <tax_year>2025</tax_year>
    <filing_status>single</filing_status>
    <state>GA</state>
-   <city>Atlanta</city>
+   <city>Columbus</city>
    <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
-   <!-- Federal AGI: $50,000 -->
-   <!-- GA AGI: $50,000 -->
+   <!-- Federal AGI: $200,000 -->
+   <!-- GA AGI: $200,000 -->
    <!-- GA Standard Deduction: $12,000 (Single) -->
-   <!-- GA Taxable Income: $38,000 -->
-   <!-- GA Tax: $38,000 × 5.19% = $1,972.20 -->
-   <expected_agi>50000</expected_agi>
-   <expected_ga_agi>50000</expected_ga_agi>
-   <expected_ga_taxable_income>38000</expected_ga_taxable_income>
-   <expected_ga_tax>1972.20</expected_ga_tax>
+   <!-- GA Taxable Income: $188,000 -->
+   <!-- GA Tax: $188,000 × 5.19% = $9,757.20 -->
+   <expected_agi>200000</expected_agi>
+   <expected_ga_agi>200000</expected_ga_agi>
+   <expected_ga_taxable_income>188000</expected_ga_taxable_income>
+   <expected_ga_tax>9757.20</expected_ga_tax>
 
    <!-- Taxpayers -->
    <taxpayers>
       <taxpayer id="1">
          <id>1</id>
-         <name>Sarah Johnson</name>
-         <ssn>222-33-4444</ssn>
-         <date_of_birth>5/20/1995</date_of_birth>
-         <occupation>Nurse</occupation>
+         <name>Robert Davis</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>2/8/1985</date_of_birth>
+         <occupation>Software Architect</occupation>
          <is_self_employed>false</is_self_employed>
          <is_primary>true</is_primary>
-         <w2_wages>50000</w2_wages>
-         <w2_withholding>7500</w2_withholding>
+         <w2_wages>200000</w2_wages>
+         <w2_withholding>40000</w2_withholding>
          <se_gross_income>0</se_gross_income>
          <estimated_payments>0</estimated_payments>
       </taxpayer>
@@ -57,8 +57,8 @@
          <id>1</id>
          <taxpayer_id>1</taxpayer_id>
          <type>w2_wages</type>
-         <gross_amount>50000</gross_amount>
-         <withholding>7500</withholding>
+         <gross_amount>200000</gross_amount>
+         <withholding>40000</withholding>
       </income>
    </incomes>
 
