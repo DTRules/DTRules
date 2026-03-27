@@ -4,5 +4,6 @@ build/
 *.a
 
 # Editor files
-*.swp
 *~
+*.swp
+.vscode/
