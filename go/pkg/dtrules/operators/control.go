@@ -614,7 +614,7 @@ func opExecuteTable(state dtrules.State) error {
 		return err
 	}
 	// Get the decision table from the entity factory
-	dtObj, err := state.GetEntityProvider().GetEntityFactory().GetDecisionTable(name)
+	dtObj, err := state.GetSession().GetEntityFactory().GetDecisionTable(name)
 	if err != nil {
 		return err
 	}

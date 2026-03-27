@@ -1,0 +1,51 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: High-income server - tests phase-out of tips deduction -->
+   <!-- Phase-out begins at $150,000 MAGI for Single filers -->
+   <!-- This server works at a high-end restaurant with significant income -->
+
+   <id>5</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>CA</state>
+   <city>San Francisco</city>
+
+   <!-- Expected values for validation -->
+   <!-- Base W-2: $80,000 -->
+   <!-- Tip Income: $90,000 -->
+   <!-- Total Income: $170,000 (above $150k phase-out threshold) -->
+   <!-- Tips Deduction: $0 (PHASED OUT - income exceeds $150k threshold) -->
+   <!-- AGI: $170,000 (no deduction) -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $170,000 - $15,000 = $155,000 -->
+   <!-- Tax: 10%(11,600)+12%(35,550)+22%(53,375)+24%(54,475) = $30,243 -->
+   <expected_agi>170000</expected_agi>
+   <expected_taxable_income>155000</expected_taxable_income>
+   <expected_total_tax>30243</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Jennifer Chen</name>
+      <ssn>555-66-7777</ssn>
+      <date_of_birth>1988-04-18</date_of_birth>
+      <occupation>Fine Dining Server</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>80000</w2_wages>
+      <w2_withholding>18000</w2_withholding>
+      <tip_income>90000</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+</job>
