@@ -1,0 +1,72 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Minnesota Test Case 02: Single filer with mid income (Bracket 2) -->
+   <!-- Tests MN progressive brackets: 5.35% + 6.80% -->
+
+   <id>MN-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>MN</state>
+   <city>Saint Paul</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $85,000 W2 -->
+   <!-- Federal AGI: $85,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $70,000 -->
+   <!-- MN AGI: $85,000 -->
+   <!-- MN Standard Deduction: $14,950 -->
+   <!-- MN Taxable: $70,050 -->
+   <!-- MN Tax Calculation: -->
+   <!--   Bracket 1: $32,570 * 5.35% = $1,742.50 -->
+   <!--   Bracket 2: ($70,050 - $32,570) * 6.80% = $2,548.64 -->
+   <!--   Total: $4,291.14 -->
+   <expected_agi>85000</expected_agi>
+   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_state_tax>4291</expected_state_tax>
+
+   <!-- Single Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Chen</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>7/22/1985</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <state_withholding>4500</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

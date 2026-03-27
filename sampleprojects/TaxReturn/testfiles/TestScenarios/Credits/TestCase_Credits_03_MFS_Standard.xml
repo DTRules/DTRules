@@ -1,0 +1,42 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Filing Status Test: Married Filing Separately -->
+   <!-- 2025 Standard Deduction MFS: $15,000 -->
+   <!-- Tests MFS filing status (often less advantageous) -->
+
+   <id>Credits-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFS</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $60,000 W-2 (one spouse only) -->
+   <!-- AGI: $60,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $45,000 -->
+   <!-- Tax (2025 MFS brackets - same as Single): $5,407 -->
+   <!-- Note: MFS has limited credits and higher phaseouts -->
+   <expected_agi>60000</expected_agi>
+   <expected_standard_deduction>15000</expected_standard_deduction>
+   <expected_taxable_income>45000</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Davis</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>11/8/1983</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

@@ -1,0 +1,142 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 3: NYC Worker Living in NJ (Commuter) -->
+   <!-- Classic commuter scenario: Work in NYC, live in NJ -->
+   <!-- Tests: NY nonresident tax on NY wages, NJ resident credit for taxes paid to NY -->
+   <!-- NJ resident gets credit for taxes paid to NY on NY-source income -->
+   <id>MS-03-NYC-NJ</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NJ</state>
+   <city>Jersey City</city>
+
+   <!-- Expected values for validation -->
+   <!-- Taxpayer 1: Works in NYC, earns $140,000 -->
+   <!-- Taxpayer 2: Works in NJ, earns $85,000 -->
+   <!-- Total Income: $225,000 -->
+   <!-- NY Nonresident Tax: On $140,000 (NYC wages only) -->
+   <!-- NJ Resident Tax: On full $225,000 -->
+   <!-- NJ Credit: For NY taxes paid on $140,000 -->
+   <expected_agi>225000</expected_agi>
+   <expected_taxable_income>195000</expected_taxable_income>
+   <expected_ny_nonresident_income>140000</expected_ny_nonresident_income>
+   <expected_nj_resident_income>225000</expected_nj_resident_income>
+   <expected_nj_credit_for_ny_tax>true</expected_nj_credit_for_ny_tax>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>NY</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+         <days_worked_in_state>240</days_worked_in_state>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>NJ</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+         <days_in_state>365</days_in_state>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael O'Brien</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>6/8/1985</date_of_birth>
+         <occupation>Financial Analyst</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>140000</w2_wages>
+         <w2_withholding>28000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Patricia O'Brien</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>9/14/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>14000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Financial Services NYC</source>
+         <gross_amount>140000</gross_amount>
+         <withholding>28000</withholding>
+         <state_code>NY</state_code>
+         <state_period_id>1</state_period_id>
+         <work_location>NYC</work_location>
+         <days_worked>240</days_worked>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Hospital NJ</source>
+         <gross_amount>85000</gross_amount>
+         <withholding>14000</withholding>
+         <state_code>NJ</state_code>
+         <state_period_id>2</state_period_id>
+         <work_location>Jersey City</work_location>
+         <days_worked>240</days_worked>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Ryan O'Brien</name>
+         <ssn>789-01-2345</ssn>
+         <date_of_birth>2/20/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

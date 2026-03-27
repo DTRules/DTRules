@@ -1,0 +1,70 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Utah Test Case 01: Single filer with moderate income -->
+   <!-- Tests Utah flat 4.5% tax with Taxpayer Tax Credit -->
+
+   <id>UT-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>UT</state>
+   <city>Salt Lake City</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $60,000 W2 -->
+   <!-- Federal AGI: $60,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable: $45,000 -->
+   <!-- UT Taxable: $45,000 (same as federal) -->
+   <!-- UT Base Tax: $2,025 (4.5% of $45,000) -->
+   <!-- UT Taxpayer Credit: $945 (6% of $15,750 standard deduction) -->
+   <!-- UT Final Tax: $1,080 ($2,025 - $945) -->
+   <!-- Withholding: $9,000 federal + $1,200 state -->
+   <expected_agi>60000</expected_agi>
+   <expected_taxable_income>45000</expected_taxable_income>
+   <expected_state_tax>1080</expected_state_tax>
+
+   <!-- Single Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Emily Parker</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>3/15/1990</date_of_birth>
+         <occupation>Software Developer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+         <state_withholding>1200</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

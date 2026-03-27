@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 07: Multi-State Professional -->
+<!-- Tests: Income allocation across 3 states, part-year resident, credit for taxes to other states -->
+<!-- Scenario: Consultant working in NY, NJ, CT with income from each -->
+<!-- Expected: Proper income allocation, state tax credits, no double taxation -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-07-MULTI-STATE</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NY</state>
+   <city>New York</city>
+
+   <!-- Expected values -->
+   <!-- Total W-2 income: $145,000 -->
+   <!-- NY source: $65,000 -->
+   <!-- NJ source: $42,000 -->
+   <!-- CT source: $38,000 -->
+   <!-- Spouse W-2 (NY only): $72,000 -->
+   <!-- Total income: $217,000 -->
+   <!-- AGI: $217,000 -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable: $187,000 -->
+   <!-- Federal tax: ~$30,000 -->
+   <!-- NY resident tax: ~$14,000 (on all income) -->
+   <!-- NJ nonresident tax: ~$2,100 (on NJ source) -->
+   <!-- CT nonresident tax: ~$2,280 (on CT source) -->
+   <!-- NY credit for taxes to NJ and CT: ~$4,380 -->
+   <!-- Net state tax: ~$14,000 (after credits) -->
+   <expected_agi>217000</expected_agi>
+   <expected_taxable_income>187000</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Christine Reynolds</name>
+         <ssn>300-17-7001</ssn>
+         <date_of_birth>2/28/1983</date_of_birth>
+         <occupation>Management Consultant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>145000</w2_wages>
+         <w2_withholding>28000</w2_withholding>
+         <w2_ss_wages>145000</w2_ss_wages>
+         <w2_ss_withheld>8990</w2_ss_withheld>
+         <w2_medicare_wages>145000</w2_medicare_wages>
+         <w2_medicare_withheld>2103</w2_medicare_withheld>
+         <employer_name>McKinsey & Company</employer_name>
+         <employer_ein>13-5556106</employer_ein>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Andrew Reynolds</name>
+         <ssn>300-17-7002</ssn>
+         <date_of_birth>9/5/1981</date_of_birth>
+         <occupation>Financial Analyst</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>72000</w2_wages>
+         <w2_withholding>11000</w2_withholding>
+         <w2_ss_wages>72000</w2_ss_wages>
+         <w2_ss_withheld>4464</w2_ss_withheld>
+         <w2_medicare_wages>72000</w2_medicare_wages>
+         <w2_medicare_withheld>1044</w2_medicare_withheld>
+         <employer_name>Goldman Sachs</employer_name>
+         <employer_ein>13-5659191</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- Multi-state income allocation -->
+   <state_income_allocation>
+      <!-- NY income -->
+      <state_allocation id="1">
+         <id>1</id>
+         <state>NY</state>
+         <taxpayer_id>1</taxpayer_id>
+         <income_amount>65000</income_amount>
+         <work_days>140</work_days>
+         <source_type>wages</source_type>
+         <state_withholding>6500</state_withholding>
+      </state_allocation>
+
+      <state_allocation id="2">
+         <id>2</id>
+         <state>NY</state>
+         <taxpayer_id>2</taxpayer_id>
+         <income_amount>72000</income_amount>
+         <work_days>220</work_days>
+         <source_type>wages</source_type>
+         <state_withholding>5400</state_withholding>
+      </state_allocation>
+
+      <!-- NJ income -->
+      <state_allocation id="3">
+         <id>3</id>
+         <state>NJ</state>
+         <taxpayer_id>1</taxpayer_id>
+         <income_amount>42000</income_amount>
+         <work_days>90</work_days>
+         <source_type>wages</source_type>
+         <state_withholding>2940</state_withholding>
+      </state_allocation>
+
+      <!-- CT income -->
+      <state_allocation id="4">
+         <id>4</id>
+         <state>CT</state>
+         <taxpayer_id>1</taxpayer_id>
+         <income_amount>38000</income_amount>
+         <work_days>82</work_days>
+         <source_type>wages</source_type>
+         <state_withholding>2660</state_withholding>
+      </state_allocation>
+   </state_income_allocation>
+
+   <!-- Properties -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>250 West 81st Street, New York, NY 10024</address>
+         <purchase_date>9/1/2021</purchase_date>
+         <purchase_price>925000</purchase_price>
+         <current_fmv>1100000</current_fmv>
+         <mortgage_balance>780000</mortgage_balance>
+         <mortgage_origination_date>9/1/2021</mortgage_origination_date>
+         <mortgage_interest>35100</mortgage_interest>
+         <property_taxes>14500</property_taxes>
+      </property>
+   </properties>
+
+   <!-- Deductions -->
+   <deductions>
+      <!-- SALT cap applies -->
+      <deduction id="1">
+         <id>1</id>
+         <category>state_income_tax</category>
+         <description>NY state income tax paid (via withholding and estimated)</description>
+         <amount>17500</amount>
+      </deduction>
+
+      <deduction id="2">
+         <id>2</id>
+         <category>charity</category>
+         <description>New York Public Library</description>
+         <amount>5000</amount>
+      </deduction>
+
+      <deduction id="3">
+         <id>3</id>
+         <category>charity</category>
+         <description>Metropolitan Museum of Art</description>
+         <amount>3000</amount>
+      </deduction>
+   </deductions>
+
+   <!-- State tax credits -->
+   <state_tax_credits>
+      <state_tax_credit id="1">
+         <id>1</id>
+         <credit_state>NY</credit_state>
+         <tax_paid_to_state>NJ</tax_paid_to_state>
+         <amount>2100</amount>
+         <description>Credit for taxes paid to NJ</description>
+      </state_tax_credit>
+
+      <state_tax_credit id="2">
+         <id>2</id>
+         <credit_state>NY</credit_state>
+         <tax_paid_to_state>CT</tax_paid_to_state>
+         <amount>2280</amount>
+         <description>Credit for taxes paid to CT</description>
+      </state_tax_credit>
+   </state_tax_credits>
+</job>

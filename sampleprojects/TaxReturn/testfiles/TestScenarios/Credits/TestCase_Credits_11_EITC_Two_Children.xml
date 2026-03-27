@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- EITC Test: 2 children (maximum credit) -->
+   <!-- 2025 EITC 2 children: max $7,152 -->
+   <!-- Income range: $16,370 - $55,768 for MFJ -->
+   <!-- This scenario: $32,000 income (near plateau for max credit) -->
+   <!-- Expected EITC: $7,152 (maximum) -->
+
+   <id>Credits-11</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $32,000 combined W-2 (in EITC max range for 2 children) -->
+   <!-- AGI: $32,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $2,000 -->
+   <!-- Tax: $200 -->
+   <!-- EITC: $7,152 (maximum for 2 children, refundable) -->
+   <!-- CTC: $4,000 -->
+   <!-- Substantial refund expected -->
+   <expected_agi>32000</expected_agi>
+   <expected_taxable_income>2000</expected_taxable_income>
+   <expected_eitc>7152</expected_eitc>
+   <expected_ctc>4000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Marcus Washington</name>
+         <ssn>111-33-5555</ssn>
+         <date_of_birth>5/22/1989</date_of_birth>
+         <occupation>Warehouse Worker</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>20000</w2_wages>
+         <w2_withholding>1200</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Keisha Washington</name>
+         <ssn>111-33-6666</ssn>
+         <date_of_birth>8/15/1991</date_of_birth>
+         <occupation>Childcare Worker</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>12000</w2_wages>
+         <w2_withholding>800</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Jayla Washington</name>
+         <ssn>222-44-5555</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>6/10/2015</date_of_birth>
+         <age>10</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Malik Washington</name>
+         <ssn>222-44-6666</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>11/28/2017</date_of_birth>
+         <age>8</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
