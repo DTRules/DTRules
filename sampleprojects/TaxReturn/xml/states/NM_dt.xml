@@ -23,6 +23,7 @@
 <Type>FIRST</Type>
 <COMMENTS>New Mexico state income tax calculation. Implements progressive tax structure per NM tax code (2025).</COMMENTS>
 <TABLE_NUMBER>43100</TABLE_NUMBER>
+<FILE_PATH>states/NM/43100_Calculate_NM_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

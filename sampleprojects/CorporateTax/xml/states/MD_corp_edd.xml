@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Maryland (MD) Corporate Tax
+
+  Maryland Corporate Income Tax:
+  - Tax Rate: 8.25% flat rate
+  - Apportionment: Single-sales factor (100% sales)
+  - Economic Nexus: $100,000 gross receipts threshold
+  - Form: MD Form 500 (Corporation Income Tax Return)
+
+  This file contains Maryland-specific constants for corporate income tax.
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/MD/51700_MD_corp_constants</file_path>
+  </file_metadata>
+
+  <!-- Maryland corporate tax constants -->
+  <entity name="result">
+    <!-- Tax Rate -->
+    <field name="md_corp_tax_rate" type="double" default_value="0.0825"
+           comment="MD corporate income tax rate - 8.25% flat rate (MD Tax-General Code § 10-105)"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="md_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="MD economic nexus threshold - $100,000 gross receipts"/>
+
+    <field name="md_transaction_threshold" type="integer" default_value="200"
+           comment="MD economic nexus transaction count threshold - 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="md_apportionment_formula" type="string" default_value="single_sales"
+           comment="MD uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="md_state_additions" type="double" default_value="0.0"
+           comment="MD-specific additions: federal interest, state tax refunds, bonus depreciation addback, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="md_state_subtractions" type="double" default_value="0.0"
+           comment="MD-specific subtractions: municipal interest, NOL modifications, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="md_state_credits" type="double" default_value="0.0"
+           comment="MD tax credits: R&D, job creation, biotechnology investment, etc."/>
+
+  </entity>
+</entity_data_dictionary>

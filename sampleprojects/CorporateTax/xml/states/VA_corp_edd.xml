@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Virginia Corporate Tax Entity Data Dictionary
+
+  Virginia uses:
+  - Flat rate: 6% (VA Code § 58.1-400)
+  - Apportionment: Single-sales factor (100% sales apportionment)
+  - Economic nexus: $100,000 in gross receipts
+
+  VA Form 500: Corporation Income Tax Return
+
+  Table range: 50900-50999 (Virginia allocation)
+-->
+<entity_dictionary name="CorporateTax_VA_Constants">
+  <file_metadata>
+    <file_path>states/VA/50900_VA_corporate_constants</file_path>
+  </file_metadata>
+
+  <!--
+    Apportionment Entity: Virginia State Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='VA'
+           comment='Virginia two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='VA economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='VA economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Virginia uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.060'
+           comment='Virginia flat corporate income tax rate: 6% (VA Code § 58.1-400)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, state income tax, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, affiliated dividends, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, historic rehabilitation, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Virginia does not require special state-specific fields for basic corporate tax.
+    The standard apportionment entity fields are sufficient.
+  -->
+  <entity name="result">
+    <!-- No special Virginia-specific fields required for basic implementation -->
+  </entity>
+
+</entity_dictionary>
