@@ -1722,6 +1722,13 @@
 		<field name="wv_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="West Virginia state income tax calculated"></field>
 		<field name='ca_mental_health_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA Mental Health Services Tax (1% surtax on income > $1M, computed)'></field>
 		<field name='ca_total_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA total tax liability including Mental Health Services Tax (computed)'></field>
+		<!-- CA AGI Calculation Fields (from CA AGI PR) -->
+		<field name='ca_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='California AGI (CA adjustments per Schedule CA)'></field>
+		<field name='ca_conformity_date' type='string' subtype='' access='r' input='' default_value='2025-01-01' comment='CA IRC conformity date (SB 711, Jan 1, 2025)'></field>
+		<field name='ca_mhst_threshold' type='double' subtype='' access='r' input='' default_value='1000000' comment='MHST threshold $1M+ (all filing statuses)'></field>
+		<field name='ca_mhst' type='double' subtype='' access='rw' input='' default_value='0' comment='CA Mental Health Services Tax (1% on $1M+)'></field>
+		<field name='ca_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='CA standard deduction (computed)'></field>
+		<field name='ca_regular_tax' type='double' subtype='' access='rw' input= ' default_value='0' comment='CA regular tax (before MHST)'></field>
 
 		<!-- Colorado state tax fields -->
 		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='CO flat tax rate 4.40% (2025). Source: Colorado DOR'></field>
