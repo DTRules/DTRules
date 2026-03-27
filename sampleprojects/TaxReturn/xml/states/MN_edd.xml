@@ -24,23 +24,31 @@
            comment="MN standard deduction head of household (2025)"/>
 
     <!-- Progressive tax brackets for single filers -->
-    <field name="mn_bracket_1_limit" type="double" default_value="32570"
-           comment="MN tax bracket 1 upper limit (2025)"/>
+    <field name="mn_bracket_1_limit_single" type="double" default_value="32570"
+           comment="MN tax bracket 1 upper limit single: $0-$32,570 (2025)"/>
     <field name="mn_bracket_1_rate" type="double" default_value="0.0535"
            comment="MN tax rate for bracket 1: 5.35% (2025)"/>
 
-    <field name="mn_bracket_2_limit" type="double" default_value="106990"
-           comment="MN tax bracket 2 upper limit (2025)"/>
+    <field name="mn_bracket_2_limit_single" type="double" default_value="106990"
+           comment="MN tax bracket 2 upper limit single: $32,571-$106,990 (2025)"/>
     <field name="mn_bracket_2_rate" type="double" default_value="0.0680"
            comment="MN tax rate for bracket 2: 6.80% (2025)"/>
 
-    <field name="mn_bracket_3_limit" type="double" default_value="198630"
-           comment="MN tax bracket 3 upper limit (2025)"/>
+    <field name="mn_bracket_3_limit_single" type="double" default_value="198630"
+           comment="MN tax bracket 3 upper limit single: $106,991-$198,630 (2025)"/>
     <field name="mn_bracket_3_rate" type="double" default_value="0.0785"
            comment="MN tax rate for bracket 3: 7.85% (2025)"/>
 
     <field name="mn_bracket_4_rate" type="double" default_value="0.0985"
-           comment="MN tax rate for bracket 4: 9.85% (2025)"/>
+           comment="MN tax rate for bracket 4 (over $198,630): 9.85% (2025)"/>
+
+    <!-- Progressive tax brackets for married filing jointly -->
+    <field name="mn_bracket_1_limit_joint" type="double" default_value="47620"
+           comment="MN tax bracket 1 upper limit MFJ: $0-$47,620 (2025)"/>
+    <field name="mn_bracket_2_limit_joint" type="double" default_value="189180"
+           comment="MN tax bracket 2 upper limit MFJ: $47,621-$189,180 (2025)"/>
+    <field name="mn_bracket_3_limit_joint" type="double" default_value="330410"
+           comment="MN tax bracket 3 upper limit MFJ: $189,181-$330,410 (2025)"/>
 
     <!-- Calculated fields -->
     <field name="mn_taxable_income" type="double" default_value="0.0"

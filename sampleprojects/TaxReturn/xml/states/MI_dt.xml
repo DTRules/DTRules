@@ -185,9 +185,9 @@ result.agi result.mi_total_exemption sub 0 max
 <action_comment>Calculate MI tax: taxable income × 4.25%</action_comment>
 <action_postfix>
 result.mi_taxable_income result.mi_tax_rate mul
-/result.mi_tax_liability xdef
+/result.state_tax_liability xdef
 
-"Michigan tax calculated: $" result.mi_tax_liability cvs strconcat job.audit_trail swap addto
+"Michigan tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value="X"></action_column>

@@ -1068,6 +1068,23 @@
 		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
 
+		<!-- Pennsylvania State Tax Constants (2025) -->
+		<field name='pa_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0307' comment='PA flat tax rate 3.07% (2025). Source: 72 P.S. § 7302'></field>
+		<field name='pa_taxable_compensation' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 1: Compensation (W-2 wages excluding military retirement). Source: 72 P.S. § 7303(a)(1)'></field>
+		<field name='pa_taxable_interest' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 2: Interest income. Source: 72 P.S. § 7303(a)(2)'></field>
+		<field name='pa_taxable_dividends' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 3: Dividends. Source: 72 P.S. § 7303(a)(3)'></field>
+		<field name='pa_taxable_net_profits' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 4: Net profits from business (Schedule C/F). Source: 72 P.S. § 7303(a)(4)'></field>
+		<field name='pa_taxable_gains' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 5: Net gains (Schedule D). Source: 72 P.S. § 7303(a)(5)'></field>
+		<field name='pa_taxable_rents_royalties' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 6: Rents and royalties (Schedule E). Source: 72 P.S. § 7303(a)(6)'></field>
+		<field name='pa_taxable_estate_trust' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 7: Estate or trust income (K-1). Source: 72 P.S. § 7303(a)(7)'></field>
+		<field name='pa_taxable_gambling' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 8: Gambling and lottery winnings. Source: 72 P.S. § 7303(a)(8)'></field>
+		<field name='pa_total_income' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Total PA taxable income (sum of 8 classes). Source: PA-40 Line 7'></field>
+		<field name='pa_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA income tax (pa_total_income × 3.07%). Source: PA-40 Line 13'></field>
+		<field name='pa_military_retirement_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA military retirement exclusion (100%)'></field>
+		<field name='pa_social_security_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Social Security exclusion (100%)'></field>
+		<field name='pa_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA pension exclusion (100%)'></field>
+		<field name='pa_ira_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA IRA distribution exclusion (100%)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1123,8 +1140,10 @@
 		<!-- Capital Gains Brackets (2025 per Rev. Proc. 2024-40) -->
 		<field name='cg_0_percent_single' type='double' subtype='' access='r' input='' default_value='48350' comment='0% LTCG bracket ceiling Single (2025)'></field>
 		<field name='cg_0_percent_mfj' type='double' subtype='' access='r' input='' default_value='96700' comment='0% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_0_percent_hoh' type='double' subtype='' access='r' input='' default_value='63000' comment='0% LTCG bracket ceiling HOH (2025)'></field>
 		<field name='cg_15_percent_single' type='double' subtype='' access='r' input='' default_value='533400' comment='15% LTCG bracket ceiling Single (2025)'></field>
 		<field name='cg_15_percent_mfj' type='double' subtype='' access='r' input='' default_value='600050' comment='15% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_15_percent_hoh' type='double' subtype='' access='r' input='' default_value='551350' comment='15% LTCG bracket ceiling HOH (2025)'></field>
 
 		<!-- Net Investment Income Tax (IRC 1411, Form 8960) -->
 		<field name='niit_rate' type='double' subtype='' access='r' input='' default_value='0.038' comment='3.8% NIIT rate (IRC 1411)'></field>
@@ -1302,6 +1321,13 @@
 		<field name='total_other_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Other income'></field>
 		<field name='gross_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total gross income (Form 1040 Line 9)'></field>
 
+		<!-- Additional Income Types -->
+		<field name='unemployment_compensation' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unemployment compensation (Form 1040 Line 7). Source: IRC 85'></field>
+		<field name='gambling_winnings' type='double' subtype='' access='rw' input='main' default_value='0' comment='Gambling winnings (Form 1040 Line 8b). Source: IRC 61'></field>
+		<field name='alimony_received' type='double' subtype='' access='rw' input='main' default_value='0' comment='Alimony received pre-2019 (Form 1040 Line 2a). Source: IRC 71'></field>
+		<field name='state_tax_refund' type='double' subtype='' access='rw' input='main' default_value='0' comment='State tax refund (Form 1040 Line 1). Source: IRC 111'></field>
+		<field name='has_cryptocurrency' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Digital asset question (Form 1040 top). Source: Form 1040 instructions'></field>
+
 		<!-- Adjustments -->
 		<field name='total_adjustments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total adjustments to income (Schedule 1 Part II)'></field>
 		<field name='agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income (Form 1040 Line 11)'></field>
@@ -1404,6 +1430,8 @@
 		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
 		<field name='eitc' type='double' subtype='' access='rw' input='' default_value='0' comment='Earned Income Tax Credit'></field>
 		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credits (AOTC/LLC)'></field>
+		<field name='total_aotc_refundable' type='double' subtype='' access='rw' input='' default_value='0' comment='AOTC refundable portion (40%, max $1,000) per IRC 25A(i)(5)'></field>
+		<field name='total_aotc_nonrefundable' type='double' subtype='' access='rw' input='' default_value='0' comment='AOTC nonrefundable portion (60%) per IRC 25A(i)(6)'></field>
 		<field name='cdcc_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Child and Dependent Care Credit (Form 2441)'></field>
 		<field name='savers_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit (Form 8880)'></field>
 		<field name='savers_credit_rate' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit rate (0.50, 0.20, 0.10, or 0)'></field>
@@ -1594,6 +1622,74 @@
 		<!-- Audit Trail -->
 		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed calculation notes'></field>
+
+		<!-- California State Tax Fields -->
+		<!-- Standard Deductions (2025) -->
+		<field name='ca_standard_deduction_single' type='double' subtype='' access='rw' input='' default_value='5363.0' comment='CA standard deduction single/married filing separately $5,363 (2025). Source: CA FTB'></field>
+		<field name='ca_standard_deduction_joint' type='double' subtype='' access='rw' input='' default_value='10726.0' comment='CA standard deduction married filing jointly $10,726 (2025). Source: CA FTB'></field>
+		<field name='ca_standard_deduction_hoh' type='double' subtype='' access='rw' input='' default_value='10726.0' comment='CA standard deduction head of household $10,726 (2025). Source: CA FTB'></field>
+
+		<!-- Progressive Tax Brackets - Single Filers (2025 estimates) -->
+		<field name='ca_bracket_1_limit_single' type='double' subtype='' access='rw' input='' default_value='10412.0' comment='CA tax bracket 1 upper limit single $10,412 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_1_rate' type='double' subtype='' access='rw' input='' default_value='0.01' comment='CA tax rate for bracket 1 - 1.0% (2025)'></field>
+		<field name='ca_bracket_2_limit_single' type='double' subtype='' access='rw' input='' default_value='24684.0' comment='CA tax bracket 2 upper limit single $24,684 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_2_rate' type='double' subtype='' access='rw' input='' default_value='0.02' comment='CA tax rate for bracket 2 - 2.0% (2025)'></field>
+		<field name='ca_bracket_3_limit_single' type='double' subtype='' access='rw' input='' default_value='38959.0' comment='CA tax bracket 3 upper limit single $38,959 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_3_rate' type='double' subtype='' access='rw' input='' default_value='0.04' comment='CA tax rate for bracket 3 - 4.0% (2025)'></field>
+		<field name='ca_bracket_4_limit_single' type='double' subtype='' access='rw' input='' default_value='54081.0' comment='CA tax bracket 4 upper limit single $54,081 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_4_rate' type='double' subtype='' access='rw' input='' default_value='0.06' comment='CA tax rate for bracket 4 - 6.0% (2025)'></field>
+		<field name='ca_bracket_5_limit_single' type='double' subtype='' access='rw' input='' default_value='68350.0' comment='CA tax bracket 5 upper limit single $68,350 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_5_rate' type='double' subtype='' access='rw' input='' default_value='0.08' comment='CA tax rate for bracket 5 - 8.0% (2025)'></field>
+		<field name='ca_bracket_6_limit_single' type='double' subtype='' access='rw' input='' default_value='349137.0' comment='CA tax bracket 6 upper limit single $349,137 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_6_rate' type='double' subtype='' access='rw' input='' default_value='0.093' comment='CA tax rate for bracket 6 - 9.3% (2025)'></field>
+		<field name='ca_bracket_7_limit_single' type='double' subtype='' access='rw' input='' default_value='418961.0' comment='CA tax bracket 7 upper limit single $418,961 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_7_rate' type='double' subtype='' access='rw' input='' default_value='0.103' comment='CA tax rate for bracket 7 - 10.3% (2025)'></field>
+		<field name='ca_bracket_8_limit_single' type='double' subtype='' access='rw' input='' default_value='698271.0' comment='CA tax bracket 8 upper limit single $698,271 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_8_rate' type='double' subtype='' access='rw' input='' default_value='0.113' comment='CA tax rate for bracket 8 - 11.3% (2025)'></field>
+		<field name='ca_bracket_9_limit_single' type='double' subtype='' access='rw' input='' default_value='1000000.0' comment='CA tax bracket 9 upper limit single $1,000,000 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_9_rate' type='double' subtype='' access='rw' input='' default_value='0.123' comment='CA tax rate for bracket 9 - 12.3% (2025)'></field>
+		<field name='ca_bracket_10_rate' type='double' subtype='' access='rw' input='' default_value='0.133' comment='CA tax rate for bracket 10 (income > $1,000,000) - 13.3% (2025). Highest state marginal rate in the nation.'></field>
+
+		<!-- Progressive Tax Brackets - Married Filing Jointly (2025 estimates) -->
+		<field name='ca_bracket_1_limit_joint' type='double' subtype='' access='rw' input='' default_value='20824.0' comment='CA tax bracket 1 upper limit joint $20,824 (2025). Approximately double single filer brackets.'></field>
+		<field name='ca_bracket_2_limit_joint' type='double' subtype='' access='rw' input='' default_value='49368.0' comment='CA tax bracket 2 upper limit joint $49,368 (2025)'></field>
+		<field name='ca_bracket_3_limit_joint' type='double' subtype='' access='rw' input='' default_value='77918.0' comment='CA tax bracket 3 upper limit joint $77,918 (2025)'></field>
+		<field name='ca_bracket_4_limit_joint' type='double' subtype='' access='rw' input='' default_value='108162.0' comment='CA tax bracket 4 upper limit joint $108,162 (2025)'></field>
+		<field name='ca_bracket_5_limit_joint' type='double' subtype='' access='rw' input='' default_value='136700.0' comment='CA tax bracket 5 upper limit joint $136,700 (2025)'></field>
+		<field name='ca_bracket_6_limit_joint' type='double' subtype='' access='rw' input='' default_value='698274.0' comment='CA tax bracket 6 upper limit joint $698,274 (2025)'></field>
+		<field name='ca_bracket_7_limit_joint' type='double' subtype='' access='rw' input='' default_value='837922.0' comment='CA tax bracket 7 upper limit joint $837,922 (2025)'></field>
+		<field name='ca_bracket_8_limit_joint' type='double' subtype='' access='rw' input='' default_value='1396542.0' comment='CA tax bracket 8 upper limit joint $1,396,542 (2025)'></field>
+		<field name='ca_bracket_9_limit_joint' type='double' subtype='' access='rw' input='' default_value='1000000.0' comment='CA tax bracket 9 upper limit joint $1,000,000 (2025). Mental health surtax threshold is same for all filing statuses.'></field>
+
+		<!-- Mental Health Services Tax (2025) -->
+		<field name='ca_mental_health_tax_threshold' type='double' subtype='' access='rw' input='' default_value='1000000.0' comment='CA Mental Health Services Tax threshold $1,000,000 (2025). Additional 1% tax on taxable income > $1M. Source: CA FTB'></field>
+		<field name='ca_mental_health_tax_rate' type='double' subtype='' access='rw' input='' default_value='0.01' comment='CA Mental Health Services Tax rate - 1.0% on income > $1M (2025)'></field>
+
+		<!-- Military Retirement Provisions (2025) -->
+		<field name='ca_military_retirement_exemption_amount' type='double' subtype='' access='rw' input='' default_value='20000.0' comment='CA military retirement exemption amount - $20,000 (2025). Source: MOAA'></field>
+		<field name='ca_military_agi_limit_single' type='double' subtype='' access='rw' input='' default_value='125000.0' comment='CA AGI limit for military retirement exemption - single filers (2025)'></field>
+		<field name='ca_military_agi_limit_joint' type='double' subtype='' access='rw' input='' default_value='250000.0' comment='CA AGI limit for military retirement exemption - joint filers (2025)'></field>
+		<field name='ca_military_retirement_exemption' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA military retirement exemption (computed based on AGI and filing status)'></field>
+		<field name='ca_military_retirement_taxable' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA taxable military retirement after exemption (computed)'></field>
+
+		<!-- State tax result fields -->
+		<field name='ca_state_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA state income tax liability before Mental Health Services Tax (computed)'></field>
+		<field name='ca_mental_health_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA Mental Health Services Tax (1% surtax on income > $1M, computed)'></field>
+		<field name='ca_total_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA total tax liability including Mental Health Services Tax (computed)'></field>
+
+		<!-- Colorado state tax fields -->
+		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='CO flat tax rate 4.40% (2025). Source: Colorado DOR'></field>
+		<field name='co_pension_subtraction_55_to_64' type='double' subtype='' access='r' input='' default_value='20000.0' comment='CO pension/annuity subtraction for taxpayers age 55-64 (2025). Source: Colorado DOR'></field>
+		<field name='co_pension_subtraction_65_plus' type='double' subtype='' access='r' input='' default_value='24000.0' comment='CO pension/annuity subtraction for taxpayers age 65+ (2025). Source: Colorado DOR'></field>
+		<field name='co_pension_subtraction' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO pension/annuity subtraction (computed based on age)'></field>
+		<field name='co_military_exemption_under_55' type='double' subtype='' access='r' input='' default_value='15000.0' comment='CO military retirement exemption for taxpayers under 55 (2025). Source: MOAA'></field>
+		<field name='co_military_exemption_55_to_64' type='double' subtype='' access='r' input='' default_value='20000.0' comment='CO military retirement exemption for taxpayers age 55-64 (2025). Source: MOAA'></field>
+		<field name='co_military_exemption_65_plus' type='double' subtype='' access='r' input='' default_value='24000.0' comment='CO military retirement exemption for taxpayers age 65+ (2025). Source: MOAA'></field>
+		<field name='co_military_retirement_exemption' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO military retirement exemption (computed based on age)'></field>
+		<field name='co_military_retirement_taxable' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO taxable military retirement after exemption (computed)'></field>
+		<field name='co_taxable_income' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO taxable income after all adjustments'></field>
+		<field name='co_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO state tax liability'></field>
+
 	</entity>
 
 	<!-- ================================================================== -->

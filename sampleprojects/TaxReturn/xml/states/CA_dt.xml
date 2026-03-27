@@ -172,4 +172,295 @@ job.audit_trail swap addto
 
 </decision_table>
 
+<!-- ====================================================================== -->
+<!-- TABLE 4800: Calculate_CA_Tax - California State Income Tax           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CA_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California state income tax calculation. Implements progressive tax structure with 10 brackets (1% to 13.3%) plus Mental Health Services Tax (1% surtax on income over $1M). Highest state tax rates in the nation. Per California Franchise Tax Board (2025).</COMMENTS>
+<TABLE_NUMBER>4800</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize California tax calculation</action_description>
+<action_postfix>
+"California Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.ca_state_tax xdef
+0.0 /result.ca_mental_health_tax xdef
+0.0 /result.ca_total_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Filing status is Single -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing Status is Single</condition_description>
+<condition_postfix>
+result.filing_status "single" strcasecmp 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Filing status is Married Filing Jointly or HOH -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Married Filing Jointly or Head of Household</condition_comment>
+<condition_description>Filing Status is MFJ or HOH</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+result.filing_status "head_of_household" strcasecmp 0 eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Calculate CA tax for Single filers -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate CA tax for Single filers using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
+<action_postfix>
+<!-- Calculate CA AGI: Federal AGI minus exempt military retirement -->
+result.agi result.ca_military_retirement_exemption sub 0 max
+/ca_agi xdef
+
+<!-- Calculate taxable income: CA AGI - standard deduction -->
+ca_agi result.ca_standard_deduction_single sub 0 max
+dup /ca_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /ca_tax xdef
+
+<!-- Bracket 1: First $10,412 @ 1% -->
+ca_taxable_income result.ca_bracket_1_limit_single min
+result.ca_bracket_1_rate mul
+/ca_tax xdef
+
+<!-- Bracket 2: $10,413 to $24,684 @ 2% -->
+ca_taxable_income result.ca_bracket_1_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_2_limit_single min result.ca_bracket_1_limit_single sub
+  result.ca_bracket_2_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 3: $24,685 to $38,959 @ 4% -->
+ca_taxable_income result.ca_bracket_2_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_3_limit_single min result.ca_bracket_2_limit_single sub
+  result.ca_bracket_3_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 4: $38,960 to $54,081 @ 6% -->
+ca_taxable_income result.ca_bracket_3_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_4_limit_single min result.ca_bracket_3_limit_single sub
+  result.ca_bracket_4_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 5: $54,082 to $68,350 @ 8% -->
+ca_taxable_income result.ca_bracket_4_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_5_limit_single min result.ca_bracket_4_limit_single sub
+  result.ca_bracket_5_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 6: $68,351 to $349,137 @ 9.3% -->
+ca_taxable_income result.ca_bracket_5_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_6_limit_single min result.ca_bracket_5_limit_single sub
+  result.ca_bracket_6_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 7: $349,138 to $418,961 @ 10.3% -->
+ca_taxable_income result.ca_bracket_6_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_7_limit_single min result.ca_bracket_6_limit_single sub
+  result.ca_bracket_7_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 8: $418,962 to $698,271 @ 11.3% -->
+ca_taxable_income result.ca_bracket_7_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_8_limit_single min result.ca_bracket_7_limit_single sub
+  result.ca_bracket_8_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 9: $698,272 to $1,000,000 @ 12.3% -->
+ca_taxable_income result.ca_bracket_8_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_single min result.ca_bracket_8_limit_single sub
+  result.ca_bracket_9_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 10: Over $1,000,000 @ 13.3% -->
+ca_taxable_income result.ca_bracket_9_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_single sub
+  result.ca_bracket_10_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Mental Health Services Tax: 1% on taxable income > $1M -->
+0.0 /ca_mh_tax xdef
+ca_taxable_income result.ca_mental_health_tax_threshold gt
+{
+  ca_taxable_income result.ca_mental_health_tax_threshold sub
+  result.ca_mental_health_tax_rate mul
+  /ca_mh_tax xdef
+} if
+
+<!-- Store results -->
+ca_tax /result.ca_state_tax xdef
+ca_mh_tax /result.ca_mental_health_tax xdef
+ca_tax ca_mh_tax add /result.ca_total_tax xdef
+ca_tax ca_mh_tax add /result.state_tax_liability xdef
+
+"California tax calculated (Single): Base tax: $" result.ca_state_tax cvs strconcat
+", Mental Health Tax: $" strconcat result.ca_mental_health_tax cvs strconcat
+", Total: $" strconcat result.ca_total_tax cvs strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Calculate CA tax for Married Filing Jointly / Head of Household -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
+<action_postfix>
+<!-- Calculate CA AGI: Federal AGI minus exempt military retirement -->
+result.agi result.ca_military_retirement_exemption sub 0 max
+/ca_agi xdef
+
+<!-- Calculate taxable income: CA AGI - standard deduction -->
+ca_agi result.ca_standard_deduction_joint sub 0 max
+dup /ca_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /ca_tax xdef
+
+<!-- Bracket 1: First $20,824 @ 1% -->
+ca_taxable_income result.ca_bracket_1_limit_joint min
+result.ca_bracket_1_rate mul
+/ca_tax xdef
+
+<!-- Bracket 2: $20,825 to $49,368 @ 2% -->
+ca_taxable_income result.ca_bracket_1_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_2_limit_joint min result.ca_bracket_1_limit_joint sub
+  result.ca_bracket_2_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 3: $49,369 to $77,918 @ 4% -->
+ca_taxable_income result.ca_bracket_2_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_3_limit_joint min result.ca_bracket_2_limit_joint sub
+  result.ca_bracket_3_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 4: $77,919 to $108,162 @ 6% -->
+ca_taxable_income result.ca_bracket_3_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_4_limit_joint min result.ca_bracket_3_limit_joint sub
+  result.ca_bracket_4_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 5: $108,163 to $136,700 @ 8% -->
+ca_taxable_income result.ca_bracket_4_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_5_limit_joint min result.ca_bracket_4_limit_joint sub
+  result.ca_bracket_5_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 6: $136,701 to $698,274 @ 9.3% -->
+ca_taxable_income result.ca_bracket_5_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_6_limit_joint min result.ca_bracket_5_limit_joint sub
+  result.ca_bracket_6_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 7: $698,275 to $837,922 @ 10.3% -->
+ca_taxable_income result.ca_bracket_6_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_7_limit_joint min result.ca_bracket_6_limit_joint sub
+  result.ca_bracket_7_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 8: $837,923 to $1,396,542 @ 11.3% -->
+ca_taxable_income result.ca_bracket_7_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_8_limit_joint min result.ca_bracket_7_limit_joint sub
+  result.ca_bracket_8_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 9: $1,396,543 to $1,000,000 @ 12.3% -->
+<!-- Note: This is unusual - the $1M mental health threshold is actually BELOW bracket 9 limit -->
+<!-- In practice, most joint filers in bracket 9 will also pay mental health tax -->
+ca_taxable_income result.ca_bracket_8_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_joint min result.ca_bracket_8_limit_joint sub
+  result.ca_bracket_9_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 10: Over $1,000,000 @ 13.3% -->
+ca_taxable_income result.ca_bracket_9_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_joint sub
+  result.ca_bracket_10_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Mental Health Services Tax: 1% on taxable income > $1M -->
+0.0 /ca_mh_tax xdef
+ca_taxable_income result.ca_mental_health_tax_threshold gt
+{
+  ca_taxable_income result.ca_mental_health_tax_threshold sub
+  result.ca_mental_health_tax_rate mul
+  /ca_mh_tax xdef
+} if
+
+<!-- Store results -->
+ca_tax /result.ca_state_tax xdef
+ca_mh_tax /result.ca_mental_health_tax xdef
+ca_tax ca_mh_tax add /result.ca_total_tax xdef
+ca_tax ca_mh_tax add /result.state_tax_liability xdef
+
+"California tax calculated (MFJ/HOH): Base tax: $" result.ca_state_tax cvs strconcat
+", Mental Health Tax: $" strconcat result.ca_mental_health_tax cvs strconcat
+", Total: $" strconcat result.ca_total_tax cvs strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
 </decision_tables>

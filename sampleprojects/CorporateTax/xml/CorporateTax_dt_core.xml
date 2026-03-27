@@ -1352,6 +1352,32 @@
             // ===== FOREIGN TAX CREDIT (Form 1118) =====
             execute(9100);  // Calculate_Foreign_Tax_Credit (IRC 901)
 
+            // ===== IRC §6651 PENALTIES =====
+            // Apply payment credits first (reduces penalty base per Treas. Reg. §301.6651-1(a)(2))
+            execute(4945);  // Apply_Payment_Credits
+
+            // Calculate penalties (tables 4800, 4850, 4900 to be implemented in separate phase)
+            execute(4960);  // Calculate_SFR_Penalties (IRC §6651(g)(2))
+            execute(4970);  // Calculate_Installment_Default_Penalty (IRC §6651(h))
+
+            // Apply First-Time Penalty Abatement if eligible
+            execute(4950);  // Evaluate_First_Time_Abatement (IRM 20.1.1.3.3.2.1)
+
+            // ===== IRC §6662 ACCURACY-RELATED PENALTIES (Phases 3-4) =====
+            execute(16550);  // Calculate_Pension_Overstatement_Penalty (IRC §6662(f))
+            execute(16600);  // Evaluate_Charitable_Appraisal_Requirements (IRC §6664(c)(2))
+            execute(16650);  // Evaluate_Professional_Advice_Reliance (Treas. Reg. §1.6664-4(c))
+            execute(16700);  // Evaluate_Form_8275_Disclosure (Treas. Reg. §1.6662-4(f))
+            execute(16750);  // Coordinate_Fraud_Penalty (IRC §6662(b) flush language, IRC §6663)
+
+            // Calculate total penalties with fraud coordination
+            result.total_all_penalties =
+              result.total_form_2220_penalty +
+              result.total_6651_penalty +
+              result.total_6662_penalty +
+              result.reportable_transaction_penalty_amount +
+              result.fraud_penalty_amount;
+
             // ===== FINAL CALCULATION =====
             execute(4300);  // Calculate_Refund_Or_Owed
 
@@ -11342,12 +11368,825 @@
 
           All basket amounts remain at zero.
           Carryovers from prior years remain available.
+
+  <!-- IRC §6651: Bankruptcy Automatic Stay (11 USC §362) -->
+  <decision_table name="Apply_Bankruptcy_Automatic_Stay" number="4980">
+    <description>
+      Implements 11 USC §362(a) automatic stay provisions for bankruptcy. When taxpayer
+      files bankruptcy, automatic stay goes into effect immediately, suspending all
+      collection activities including penalty accrual. Penalties resume when stay is
+      lifted or case is dismissed/closed.
+
+      **Bankruptcy Chapters**:
+      - Chapter 7: Liquidation (individual/corporate)
+      - Chapter 11: Reorganization (primarily corporate)
+      - Chapter 13: Individual debt adjustment (not applicable to corporations)
+
+      **Penalty Treatment**:
+      1. Period BEFORE bankruptcy filing: Penalties accrue normally
+      2. Period DURING automatic stay: Penalties do NOT accrue (11 USC §362(a))
+      3. Period AFTER stay lifted: Penalties resume at normal rates
+
+      Reference: 11 USC §362, IRM 20.1.2.3.8.6
+    </description>
+
+    <conditions>
+      <condition name="bankruptcy_filed">
+        <expression>result.bankruptcy_filed == true</expression>
+        <comment>Bankruptcy petition was filed</comment>
+      </condition>
+
+      <condition name="stay_lifted">
+        <expression>result.stay_lifted_date != null</expression>
+        <comment>Automatic stay has been lifted by court or case closed</comment>
+      </condition>
+
+      <condition name="stay_in_effect">
+        <expression>result.automatic_stay_in_effect == true</expression>
+        <comment>Automatic stay is currently in effect</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <bankruptcy_filed>Y</bankruptcy_filed>
+          <stay_lifted>Y</stay_lifted>
+          <stay_in_effect>N</stay_in_effect>
+        </conditions>
+        <actions>
+          <action>
+            // Bankruptcy filed and stay has been lifted - calculate three periods
+            result.setPenalty_during_bankruptcy(0.0);
+            result.setAutomatic_stay_in_effect(false);
+
+            result.setAudit_trail(result.getAudit_trail() +
+              "\n\n=== Bankruptcy Automatic Stay Applied ===" +
+              "\n  11 USC §362: Automatic stay suspended penalty accrual during bankruptcy" +
+              "\n  Chapter: " + result.getBankruptcy_chapter() +
+              "\n  Case: " + result.getBankruptcy_case_number() +
+              "\n  Reference: 11 USC §362(a), IRM 20.1.2.3.8.6"
+            );
+          </action>
+        </actions>
+        <policy>
+          Bankruptcy Automatic Stay: Stay lifted, penalties calculated for three periods.
+
+          When bankruptcy stay is lifted, penalties are calculated for three distinct periods:
+          1. BEFORE bankruptcy: Normal penalty accrual from due date to filing date
+          2. DURING bankruptcy: ZERO penalties (automatic stay suspends accrual)
+          3. AFTER stay lifted: Normal penalty accrual resumes
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <bankruptcy_filed>Y</bankruptcy_filed>
+          <stay_in_effect>Y</stay_in_effect>
+          <stay_lifted>N</stay_lifted>
+        </conditions>
+        <actions>
+          <action>
+            // Bankruptcy filed, stay still in effect
+            result.setPenalty_during_bankruptcy(0.0);
+            result.setPenalty_after_bankruptcy(0.0);
+
+            result.setAudit_trail(result.getAudit_trail() +
+              "\n\n=== Bankruptcy Automatic Stay In Effect ===" +
+              "\n  11 USC §362: Automatic stay is currently in effect" +
+              "\n  Chapter: " + result.getBankruptcy_chapter() +
+              "\n  Penalty accrual: SUSPENDED" +
+              "\n  Reference: 11 USC §362(a)"
+            );
+          </action>
+        </actions>
+        <policy>
+          Bankruptcy Automatic Stay: Stay currently in effect, penalties frozen.
+
+          While bankruptcy automatic stay is in effect, NO penalties accrue beyond
+          those already accrued before the bankruptcy filing date.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <bankruptcy_filed>N</bankruptcy_filed>
+        </conditions>
+        <actions>
+          <action>
+            // No bankruptcy - normal penalty calculation applies
+            result.setPenalty_before_bankruptcy(0.0);
+            result.setPenalty_during_bankruptcy(0.0);
+            result.setPenalty_after_bankruptcy(0.0);
+          </action>
+        </actions>
+        <policy>
+          No bankruptcy filed - standard penalty calculations apply.
         </policy>
       </rule>
     </rules>
   </decision_table>
 
-  <!-- Additional tables 13100-13600 would follow here -->
+
+  <!--
+    ================================================================
+    IRC §6662 PENALTY TABLES - PHASE 3 (16550-16650)
+    ================================================================
+  -->
+
+  <!--
+    Table 16550: Calculate Pension Overstatement Penalty (IRC §6662(f))
+
+    IRC §6662(f) imposes a 20% penalty for substantial overstatement of
+    pension liabilities. Penalty applies if:
+    - Actuarial determination is 200%+ of correct amount, AND
+    - Underpayment attributable to overstatement exceeds $1,000
+
+    Reference: IRC §6662(f) - Substantial overstatement of pension liabilities
+    Reference: IRC §404(a) - Pension deduction rules
+  -->
+  <decision_table name="Calculate_Pension_Overstatement_Penalty" number="16550">
+    <description>
+      Implements IRC §6662(f) penalty for pension liability overstatements. Penalty applies
+      if actuarial determination is 200%+ of correct amount AND underpayment exceeds $1,000.
+    </description>
+
+    <conditions>
+      <condition name="has_pension_claim">
+        <expression>result.pension_liabilities_claimed &gt; 0</expression>
+        <comment>Pension liabilities claimed</comment>
+      </condition>
+      <condition name="ratio_200pct">
+        <expression>result.pension_overstatement_ratio &gt;= 2.0</expression>
+        <comment>Overstatement ratio ≥ 200%</comment>
+      </condition>
+      <condition name="exceeds_1000">
+        <expression>result.pension_underpayment_amount &gt; 1000</expression>
+        <comment>Underpayment exceeds $1,000</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!--
+        Rule 1: Calculate overstatement ratio
+      -->
+      <rule number="1">
+        <conditions>
+          <has_pension_claim>Y</has_pension_claim>
+          <ratio_200pct>-</ratio_200pct>
+          <exceeds_1000>-</exceeds_1000>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate ratio of claimed to correct
+            if (result.pension_liabilities_correct > 0) {
+              result.pension_overstatement_ratio =
+                result.pension_liabilities_claimed / result.pension_liabilities_correct;
+            }
+
+            result.audit_trail += "\n\nIRC §6662(f) Pension Overstatement Analysis:";
+            result.audit_trail += "\n  Pension liabilities claimed: $" + result.pension_liabilities_claimed;
+            result.audit_trail += "\n  Correct actuarial amount: $" + result.pension_liabilities_correct;
+            result.audit_trail += "\n  Overstatement ratio: " + result.pension_overstatement_ratio;
+            result.audit_trail += "\n  Underpayment amount: $" + result.pension_underpayment_amount;
+          </action>
+        </actions>
+        <policy>
+          IRC §6662(f) Pension Overstatement - Calculate Ratio.
+
+          **Calculation**:
+          Ratio = Claimed / Correct
+
+          **Threshold for Penalty**:
+          - Must be 200% or higher (ratio ≥ 2.0)
+          - AND underpayment must exceed $1,000
+
+          **Example**:
+          - Claimed: $2,000,000
+          - Correct: $900,000
+          - Ratio: 2.22 (222%)
+          - Triggers penalty if underpayment > $1,000
+
+          Reference: IRC §6662(f)
+        </policy>
+      </rule>
+
+      <!--
+        Rule 2: Penalty applies - 200%+ overstatement and >$1K underpayment
+      -->
+      <rule number="2">
+        <conditions>
+          <has_pension_claim>Y</has_pension_claim>
+          <ratio_200pct>Y</ratio_200pct>
+          <exceeds_1000>Y</exceeds_1000>
+        </conditions>
+        <actions>
+          <action>
+            // IRC §6662(f): 20% penalty applies
+            result.pension_overstatement_penalty = true;
+            result.pension_penalty_amount = result.pension_underpayment_amount * 0.20;
+            result.total_6662_penalty = result.total_6662_penalty + result.pension_penalty_amount;
+
+            result.audit_trail += "\n  Penalty threshold met: YES (≥200% AND >$1,000)";
+            result.audit_trail += "\n  Penalty rate: 20%";
+            result.audit_trail += "\n  Penalty amount: $" + result.pension_penalty_amount;
+            result.audit_trail += "\n  Reference: IRC §6662(f)";
+          </action>
+        </actions>
+        <policy>
+          IRC §6662(f) Pension Overstatement Penalty - APPLIES.
+
+          **Both Requirements Met**:
+          1. Overstatement ≥ 200% of correct amount
+          2. Underpayment exceeds $1,000
+
+          **Penalty Rate**: 20% of underpayment
+
+          **Context**:
+          - Applies to IRC §404(a) pension deductions
+          - Based on actuarial determinations
+          - Intended to prevent inflated pension deductions
+          - No reasonable cause exception for substantial overstatements
+
+          **Example**:
+          - Claimed: $2M, Correct: $900K (222% overstatement)
+          - Underpayment: $50,000
+          - Penalty: $10,000 (20% × $50,000)
+
+          Reference: IRC §6662(f)
+          Reference: IRC §404(a) - Pension deduction rules
+        </policy>
+      </rule>
+
+      <!--
+        Rule 3: No penalty - below threshold or de minimis
+      -->
+      <rule number="3">
+        <conditions>
+          <has_pension_claim>Y</has_pension_claim>
+          <ratio_200pct>N</ratio_200pct>
+          <exceeds_1000>-</exceeds_1000>
+        </conditions>
+        <actions>
+          <action>
+            // Overstatement less than 200% - no penalty
+            result.pension_overstatement_penalty = false;
+            result.pension_penalty_amount = 0.0;
+
+            result.audit_trail += "\n  Penalty threshold met: NO (ratio < 200%)";
+            result.audit_trail += "\n  Penalty amount: $0";
+          </action>
+        </actions>
+        <policy>
+          IRC §6662(f) - NO PENALTY (Below 200% Threshold).
+
+          **Requirement Not Met**: Overstatement is less than 200%
+
+          **No Penalty Applies** even if underpayment exceeds $1,000.
+
+          **Example**:
+          - Claimed: $1.8M, Correct: $1M (180% overstatement)
+          - Underpayment: $50,000
+          - Penalty: $0 (below 200% threshold)
+
+          Reference: IRC §6662(f)
+        </policy>
+      </rule>
+
+      <!--
+        Rule 4: No penalty - underpayment ≤ $1,000 (de minimis)
+      -->
+      <rule number="4">
+        <conditions>
+          <has_pension_claim>Y</has_pension_claim>
+          <ratio_200pct>Y</ratio_200pct>
+          <exceeds_1000>N</exceeds_1000>
+        </conditions>
+        <actions>
+          <action>
+            // Underpayment ≤ $1,000 - de minimis exception
+            result.pension_overstatement_penalty = false;
+            result.pension_penalty_amount = 0.0;
+
+            result.audit_trail += "\n  Penalty threshold met: NO (underpayment ≤ $1,000)";
+            result.audit_trail += "\n  De minimis exception applies";
+            result.audit_trail += "\n  Penalty amount: $0";
+          </action>
+        </actions>
+        <policy>
+          IRC §6662(f) - NO PENALTY (De Minimis Exception).
+
+          **Requirement Not Met**: Underpayment does not exceed $1,000
+
+          **De Minimis Rule**: No penalty if underpayment ≤ $1,000,
+          even if overstatement ratio ≥ 200%.
+
+          **Example**:
+          - Overstatement: 250% (meets threshold)
+          - Underpayment: $800
+          - Penalty: $0 (de minimis exception)
+
+          Reference: IRC §6662(f)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 16600: Evaluate Charitable Appraisal Requirements (IRC §6664(c)(2))
+
+    IRC §6664(c)(2) provides special rules for charitable property valuation.
+    Reasonable cause exists ONLY IF:
+    - Qualified appraisal by qualified appraiser, AND
+    - Good faith investigation of value
+    For gross valuation overstatements (200%+), NO reasonable cause allowed.
+
+    Reference: IRC §6664(c)(2) - Special rules for charitable property
+    Reference: IRC §170(f)(11)(E) - Qualified appraisal requirements
+  -->
+  <decision_table name="Evaluate_Charitable_Appraisal_Requirements" number="16600">
+    <description>
+      Implements IRC §6664(c)(2) special rules for charitable property. Reasonable cause
+      exists ONLY IF: (1) qualified appraisal by qualified appraiser, AND (2) good faith
+      investigation. For gross valuation overstatements (200%+), NO reasonable cause allowed.
+    </description>
+
+    <conditions>
+      <condition name="has_charitable">
+        <expression>result.charitable_property_deduction &gt; 0</expression>
+        <comment>Has charitable property deduction</comment>
+      </condition>
+      <condition name="has_appraisal">
+        <expression>result.has_qualified_appraisal</expression>
+        <comment>Has qualified appraisal</comment>
+      </condition>
+      <condition name="has_appraiser">
+        <expression>result.has_qualified_appraiser</expression>
+        <comment>Has qualified appraiser</comment>
+      </condition>
+      <condition name="good_faith">
+        <expression>result.made_good_faith_investigation</expression>
+        <comment>Made good faith investigation</comment>
+      </condition>
+      <condition name="has_overstatement">
+        <expression>result.charitable_valuation_overstatement</expression>
+        <comment>Valuation overstatement exists</comment>
+      </condition>
+      <condition name="gross_overstatement">
+        <expression>(result.charitable_property_fmv_claimed / result.charitable_property_fmv_correct) &gt;= 2.0</expression>
+        <comment>Gross overstatement (200%+)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!--
+        Rule 1: Gross overstatement - NO reasonable cause allowed
+      -->
+      <rule number="1">
+        <conditions>
+          <has_charitable>Y</has_charitable>
+          <has_appraisal>-</has_appraisal>
+          <has_appraiser>-</has_appraiser>
+          <good_faith>-</good_faith>
+          <has_overstatement>Y</has_overstatement>
+          <gross_overstatement>Y</gross_overstatement>
+        </conditions>
+        <actions>
+          <action>
+            // Gross overstatement (200%+) - no reasonable cause defense
+            result.charitable_reasonable_cause_available = false;
+
+            result.audit_trail += "\n\nIRC §6664(c)(2) Charitable Property Analysis:";
+            result.audit_trail += "\n  Property FMV claimed: $" + result.charitable_property_fmv_claimed;
+            result.audit_trail += "\n  Correct FMV: $" + result.charitable_property_fmv_correct;
+            double ratio = result.charitable_property_fmv_claimed / result.charitable_property_fmv_correct;
+            result.audit_trail += "\n  Overstatement ratio: " + ratio + " (" + (ratio * 100) + "%)";
+            result.audit_trail += "\n  Gross overstatement (≥200%): YES";
+            result.audit_trail += "\n  Reasonable cause available: NO";
+            result.audit_trail += "\n  Penalty: 40% (gross valuation misstatement)";
+            result.audit_trail += "\n  Reference: IRC §6664(c)(2)";
+          </action>
+        </actions>
+        <policy>
+          IRC §6664(c)(2) Charitable Property - GROSS OVERSTATEMENT (≥200%).
+
+          **Result**: NO REASONABLE CAUSE DEFENSE AVAILABLE
+
+          **Penalty**: 40% (gross valuation misstatement per IRC §6662(h))
+
+          **Statutory Rule**:
+          IRC §6664(c)(2) states that for gross valuation overstatements
+          (200% or more), the reasonable cause exception does NOT apply,
+          even if taxpayer has qualified appraisal and good faith investigation.
+
+          **Policy Rationale**:
+          - Extreme overvaluations are inexcusable
+          - Protects charitable deduction integrity
+          - Encourages accurate appraisals
+          - Prevents abuse of charitable contribution rules
+
+          **Example**:
+          - Claimed FMV: $1,000,000
+          - Correct FMV: $400,000
+          - Ratio: 250% (gross overstatement)
+          - Has qualified appraisal: YES
+          - Reasonable cause: NO (statute bars defense)
+          - Penalty: 40% of underpayment
+
+          Reference: IRC §6664(c)(2) - No reasonable cause for gross overstatement
+          Reference: IRC §6662(h) - Gross valuation misstatement (40% rate)
+        </policy>
+      </rule>
+
+      <!--
+        Rule 2: Substantial overstatement - reasonable cause if qualified appraisal
+      -->
+      <rule number="2">
+        <conditions>
+          <has_charitable>Y</has_charitable>
+          <has_appraisal>Y</has_appraisal>
+          <has_appraiser>Y</has_appraiser>
+          <good_faith>Y</good_faith>
+          <has_overstatement>Y</has_overstatement>
+          <gross_overstatement>N</gross_overstatement>
+        </conditions>
+        <actions>
+          <action>
+            // Substantial (but not gross) + qualified appraisal = reasonable cause
+            result.charitable_reasonable_cause_available = true;
+
+            result.audit_trail += "\n\nIRC §6664(c)(2) Charitable Property Analysis:";
+            result.audit_trail += "\n  Property FMV claimed: $" + result.charitable_property_fmv_claimed;
+            result.audit_trail += "\n  Correct FMV: $" + result.charitable_property_fmv_correct;
+            double ratio = result.charitable_property_fmv_claimed / result.charitable_property_fmv_correct;
+            result.audit_trail += "\n  Overstatement ratio: " + ratio + " (" + (ratio * 100) + "%)";
+            result.audit_trail += "\n  Gross overstatement (≥200%): NO";
+            result.audit_trail += "\n  Has qualified appraisal: YES";
+            result.audit_trail += "\n  Has qualified appraiser: YES";
+            result.audit_trail += "\n  Good faith investigation: YES";
+            result.audit_trail += "\n  Reasonable cause available: YES";
+            result.audit_trail += "\n  Penalty: $0 (reasonable cause defense successful)";
+            result.audit_trail += "\n  Reference: IRC §6664(c)(2)";
+          </action>
+        </actions>
+        <policy>
+          IRC §6664(c)(2) Charitable Property - REASONABLE CAUSE EXISTS.
+
+          **All Requirements Met**:
+          1. Qualified appraisal obtained
+          2. Qualified appraiser (IRC §170(f)(11)(E)(ii) and (iii))
+          3. Good faith investigation of value
+          4. Overstatement is substantial (≥150%) but NOT gross (&lt;200%)
+
+          **Result**: NO PENALTY (reasonable cause defense successful)
+
+          **Qualified Appraisal Requirements** (IRC §170(f)(11)(E)):
+          - Conducted by qualified appraiser
+          - Made not more than 60 days before contribution
+          - Includes detailed description of property
+          - Method of valuation clearly stated
+          - Specific basis for valuation
+
+          **Qualified Appraiser Requirements**:
+          - Has recognized credentials (certification)
+          - Regularly performs appraisals for compensation
+          - Meets education and experience requirements
+          - Not donor, donee, or related party
+          - Complies with IRS appraisal standards
+
+          **Example**:
+          - Claimed FMV: $750,000
+          - Correct FMV: $500,000
+          - Ratio: 150% (substantial, not gross)
+          - Has qualified appraisal: YES
+          - Good faith investigation: YES
+          - Penalty: $0 (reasonable cause applies)
+
+          Reference: IRC §6664(c)(2)
+          Reference: IRC §170(f)(11)(E) - Qualified appraisal defined
+          Reference: Treas. Reg. §1.170A-13(c)(3) - Appraisal requirements
+        </policy>
+      </rule>
+
+      <!--
+        Rule 3: Substantial overstatement - NO qualified appraisal - penalty applies
+      -->
+      <rule number="3">
+        <conditions>
+          <has_charitable>Y</has_charitable>
+          <has_appraisal>N</has_appraisal>
+          <has_appraiser>-</has_appraiser>
+          <good_faith>-</good_faith>
+          <has_overstatement>Y</has_overstatement>
+          <gross_overstatement>N</gross_overstatement>
+        </conditions>
+        <actions>
+          <action>
+            // Substantial overstatement without qualified appraisal - penalty applies
+            result.charitable_reasonable_cause_available = false;
+
+            result.audit_trail += "\n\nIRC §6664(c)(2) Charitable Property Analysis:";
+            result.audit_trail += "\n  Property FMV claimed: $" + result.charitable_property_fmv_claimed;
+            result.audit_trail += "\n  Correct FMV: $" + result.charitable_property_fmv_correct;
+            double ratio = result.charitable_property_fmv_claimed / result.charitable_property_fmv_correct;
+            result.audit_trail += "\n  Overstatement ratio: " + ratio + " (" + (ratio * 100) + "%)";
+            result.audit_trail += "\n  Gross overstatement (≥200%): NO";
+            result.audit_trail += "\n  Has qualified appraisal: NO";
+            result.audit_trail += "\n  Reasonable cause available: NO";
+            result.audit_trail += "\n  Penalty: 20% (substantial valuation misstatement)";
+            result.audit_trail += "\n  Reference: IRC §6662(e)";
+          </action>
+        </actions>
+        <policy>
+          IRC §6664(c)(2) Charitable Property - NO QUALIFIED APPRAISAL.
+
+          **Failure Reason**: Missing qualified appraisal or good faith investigation
+
+          **Result**: PENALTY APPLIES (20% substantial valuation misstatement)
+
+          **Special Rule for Charitable Property**:
+          IRC §6664(c)(2) provides that reasonable cause is available ONLY IF
+          the taxpayer obtained a qualified appraisal AND made good faith investigation.
+
+          Without both elements, no reasonable cause defense is available.
+
+          **Penalty Rate**: 20% (substantial valuation misstatement per IRC §6662(e))
+
+          **Example**:
+          - Overstatement: 175% (substantial)
+          - Has qualified appraisal: NO
+          - Penalty: 20% of underpayment
+
+          Reference: IRC §6664(c)(2)
+          Reference: IRC §6662(e) - Substantial valuation misstatement
+        </policy>
+      </rule>
+
+      <!--
+        Rule 4: No charitable property deduction or no overstatement
+      -->
+      <rule number="4">
+        <conditions>
+          <has_charitable>N</has_charitable>
+          <has_appraisal>-</has_appraisal>
+          <has_appraiser>-</has_appraiser>
+          <good_faith>-</good_faith>
+          <has_overstatement>-</has_overstatement>
+          <gross_overstatement>-</gross_overstatement>
+        </conditions>
+        <actions>
+          <action>
+            // No charitable property deduction - rule not applicable
+            result.charitable_reasonable_cause_available = false;
+          </action>
+        </actions>
+        <policy>
+          No charitable property deduction claimed.
+
+          IRC §6664(c)(2) special rules only apply when taxpayer claims
+          charitable deduction for property (non-cash contributions).
+
+          Cash contributions not subject to qualified appraisal requirement.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 16650: Evaluate Professional Advice Reliance (Treas. Reg. §1.6664-4(c))
+
+    Treas. Reg. §1.6664-4(c) provides that reliance on professional advice
+    constitutes reasonable cause if ALL 4 criteria are met:
+    1. Advisor was qualified
+    2. All relevant facts disclosed to advisor
+    3. Advice was not based on unreasonable assumptions
+    4. Taxpayer relied on advice in good faith
+
+    Reference: Treas. Reg. §1.6664-4(c) - Professional advice
+    Reference: IRC §6664(c)(1) - Reasonable cause exception
+  -->
+  <decision_table name="Evaluate_Professional_Advice_Reliance" number="16650">
+    <description>
+      Implements Treas. Reg. §1.6664-4(c) professional advice reliance defense. Reasonable
+      cause exists if ALL 4 criteria met: (1) advisor qualified, (2) all facts disclosed,
+      (3) advice not unreasonable, (4) good faith reliance.
+    </description>
+
+    <conditions>
+      <condition name="relied_on_advice">
+        <expression>result.relied_on_professional_advice</expression>
+        <comment>Relied on professional advice</comment>
+      </condition>
+      <condition name="advisor_qualified">
+        <expression>result.advisor_was_qualified</expression>
+        <comment>Advisor was qualified</comment>
+      </condition>
+      <condition name="facts_disclosed">
+        <expression>result.all_facts_disclosed_to_advisor</expression>
+        <comment>All facts disclosed</comment>
+      </condition>
+      <condition name="advice_reasonable">
+        <expression>result.advice_not_based_on_unreasonable_assumptions</expression>
+        <comment>Advice not unreasonable</comment>
+      </condition>
+      <condition name="good_faith">
+        <expression>result.taxpayer_relied_in_good_faith</expression>
+        <comment>Good faith reliance</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!--
+        Rule 1: All 4 criteria met - reasonable cause exists
+      -->
+      <rule number="1">
+        <conditions>
+          <relied_on_advice>Y</relied_on_advice>
+          <advisor_qualified>Y</advisor_qualified>
+          <facts_disclosed>Y</facts_disclosed>
+          <advice_reasonable>Y</advice_reasonable>
+          <good_faith>Y</good_faith>
+        </conditions>
+        <actions>
+          <action>
+            // All 4 criteria met - reasonable cause exists
+            result.professional_advice_reasonable_cause = true;
+
+            result.audit_trail += "\n\nTreas. Reg. §1.6664-4(c) Professional Advice Analysis:";
+            result.audit_trail += "\n  Relied on professional advice: YES";
+            result.audit_trail += "\n  Advisor was qualified: YES";
+            result.audit_trail += "\n  All facts disclosed: YES";
+            result.audit_trail += "\n  Advice not unreasonable: YES";
+            result.audit_trail += "\n  Good faith reliance: YES";
+            result.audit_trail += "\n  All 4 criteria met: YES";
+            result.audit_trail += "\n  Reasonable cause exists: YES";
+            result.audit_trail += "\n  Penalty waived: Accuracy-related penalty does not apply";
+            result.audit_trail += "\n  Reference: Treas. Reg. §1.6664-4(c)";
+          </action>
+        </actions>
+        <policy>
+          Treas. Reg. §1.6664-4(c) Professional Advice - REASONABLE CAUSE EXISTS.
+
+          **All 4 Requirements Met**:
+          1. **Advisor was qualified**: CPA, attorney, enrolled agent, or other
+             competent professional with expertise in relevant tax area
+          2. **All facts disclosed**: Taxpayer provided advisor with all
+             relevant facts affecting tax treatment
+          3. **Advice not unreasonable**: Advice was not based on unreasonable
+             factual or legal assumptions
+          4. **Good faith reliance**: Taxpayer actually relied on advice in
+             good faith
+
+          **Result**: NO PENALTY (reasonable cause exception applies)
+
+          **Qualified Advisor Examples**:
+          - Certified Public Accountant (CPA)
+          - Tax attorney
+          - Enrolled agent
+          - Enrolled actuary (for pension issues)
+          - Return preparer with requisite knowledge
+
+          **Advisor Must Have Competence in Relevant Area**:
+          General tax knowledge insufficient. Advisor must have expertise
+          in specific area of tax law at issue (e.g., international tax,
+          pension law, transfer pricing).
+
+          **Good Faith Reliance**:
+          - Taxpayer must actually rely on advice
+          - Cannot "shop" for desired opinion
+          - Advice must be contemporaneous
+          - Taxpayer cannot ignore red flags
+
+          **Examples of Reasonable Reliance**:
+          - Relied on CPA's advice regarding IRC §199A deduction calculation
+          - Followed tax attorney's opinion on merger tax treatment
+          - Used enrolled agent's guidance on foreign tax credit
+          - Applied actuary's pension liability determination
+
+          **Examples of Unreasonable Reliance (No Defense)**:
+          - Advisor lacked expertise in relevant area
+          - Taxpayer withheld key facts from advisor
+          - Advice based on hypothetical facts
+          - Taxpayer knew or should have known advice was wrong
+
+          Reference: Treas. Reg. §1.6664-4(c)
+          Reference: IRC §6664(c)(1) - Reasonable cause exception
+        </policy>
+      </rule>
+
+      <!--
+        Rule 2: Not all criteria met - penalty applies
+      -->
+      <rule number="2">
+        <conditions>
+          <relied_on_advice>Y</relied_on_advice>
+          <advisor_qualified>-</advisor_qualified>
+          <facts_disclosed>-</facts_disclosed>
+          <advice_reasonable>-</advice_reasonable>
+          <good_faith>-</good_faith>
+        </conditions>
+        <actions>
+          <action>
+            // Not all criteria met - reliance defense fails
+            result.professional_advice_reasonable_cause = false;
+
+            result.audit_trail += "\n\nTreas. Reg. §1.6664-4(c) Professional Advice Analysis:";
+            result.audit_trail += "\n  Relied on professional advice: YES";
+            result.audit_trail += "\n  Advisor was qualified: " + (result.advisor_was_qualified ? "YES" : "NO");
+            result.audit_trail += "\n  All facts disclosed: " + (result.all_facts_disclosed_to_advisor ? "YES" : "NO");
+            result.audit_trail += "\n  Advice not unreasonable: " + (result.advice_not_based_on_unreasonable_assumptions ? "YES" : "NO");
+            result.audit_trail += "\n  Good faith reliance: " + (result.taxpayer_relied_in_good_faith ? "YES" : "NO");
+            result.audit_trail += "\n  All 4 criteria met: NO";
+            result.audit_trail += "\n  Reasonable cause exists: NO";
+            result.audit_trail += "\n  Penalty applies: 20% accuracy-related penalty";
+            result.audit_trail += "\n  Reference: Treas. Reg. §1.6664-4(c)";
+          </action>
+        </actions>
+        <policy>
+          Treas. Reg. §1.6664-4(c) Professional Advice - DEFENSE FAILS.
+
+          **Failure Reason**: Not all 4 criteria were met
+
+          **Result**: PENALTY APPLIES (20% accuracy-related penalty)
+
+          **Common Failures**:
+
+          **1. Advisor Not Qualified**:
+          - Advisor lacked expertise in relevant area
+          - Not a CPA, attorney, or enrolled agent
+          - Insufficient experience or education
+
+          **2. Facts Not Fully Disclosed**:
+          - Taxpayer withheld material information
+          - Incomplete disclosure of transaction details
+          - Facts presented were hypothetical, not actual
+
+          **3. Advice Based on Unreasonable Assumptions**:
+          - Legal assumptions contrary to clear authority
+          - Factual assumptions not supported by evidence
+          - Ignored relevant facts or law
+
+          **4. Lack of Good Faith Reliance**:
+          - Taxpayer "opinion shopped" until finding favorable advice
+          - Taxpayer knew or should have known advice was incorrect
+          - Advice obtained after taking position on return
+          - Taxpayer ignored advisor's warnings or caveats
+
+          **Effect**:
+          Partial compliance with requirements is insufficient.
+          ALL 4 criteria must be met for reasonable cause defense.
+
+          **Examples of Failed Reliance**:
+          - CPA advised on complex international tax, but lacked
+            international expertise → advisor not qualified
+          - Taxpayer failed to disclose related party status →
+            facts not fully disclosed
+          - Advice based on assumption transaction was arms-length
+            when it clearly was not → unreasonable assumption
+          - Taxpayer received opinion AFTER filing return →
+            no good faith reliance
+
+          Reference: Treas. Reg. §1.6664-4(c)
+          Reference: IRC §6662 - Accuracy-related penalty
+        </policy>
+      </rule>
+
+      <!--
+        Rule 3: Did not rely on professional advice
+      -->
+      <rule number="3">
+        <conditions>
+          <relied_on_advice>N</relied_on_advice>
+          <advisor_qualified>-</advisor_qualified>
+          <facts_disclosed>-</facts_disclosed>
+          <advice_reasonable>-</advice_reasonable>
+          <good_faith>-</good_faith>
+        </conditions>
+        <actions>
+          <action>
+            // No professional advice reliance - defense not available
+            result.professional_advice_reasonable_cause = false;
+          </action>
+        </actions>
+        <policy>
+          No professional advice relied upon.
+
+          Professional advice reliance defense under Treas. Reg. §1.6664-4(c)
+          requires that taxpayer actually relied on advice of competent professional.
+
+          If taxpayer did not obtain or rely on professional advice, this
+          defense is not available.
+
+          Taxpayer may still have reasonable cause under other theories
+          (complexity of law, reliance on IRS guidance, etc.).
+
+          Reference: Treas. Reg. §1.6664-4(c)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  </decision_table>
 
   <!-- For brevity in this draft file, see full implementation in final merged file -->
 </decision_tables>

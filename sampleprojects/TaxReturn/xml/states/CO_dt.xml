@@ -2,13 +2,16 @@
 <!--
   State-specific decision tables for Colorado (CO)
 
-  Colorado Income Tax (2025):
-  - Flat tax rate: 4.40%
+Colorado Tax Law (2025):
+  - Flat rate: 4.40%
   - Starting point: Federal taxable income
   - Credits: EITC (35-50%), child care credits
+  - Key adjustments:
+    * SUBTRACT: Social Security benefits
+    * SUBTRACT: Military retirement (age-based)
+    * SUBTRACT: Pension/annuity subtraction (age-based)
 
   Military Retirement Provisions (2025):
-  - Age-based exemptions
   - Under 55: $15,000
   - Age 55-64: $20,000
   - Age 65+: $24,000
@@ -360,6 +363,228 @@ job.audit_trail swap addto
 "No CO military retirement pay - exemption not applicable" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 5791: Calculate_CO_Pension_Subtraction                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CO_Pension_Subtraction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Colorado pension/annuity subtraction (2025). Age-based: 55-64 = $20k, 65+ = $24k. Applies to pension and annuity income not already excluded (e.g., not military retirement which has separate exemption). Source: Colorado DOR Form DR 0104.</COMMENTS>
+<TABLE_NUMBER>5791</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize CO pension/annuity subtraction calculation</action_description>
+<action_postfix>
+"CO Pension/Annuity Subtraction Calculation Started" job.audit_trail swap addto
+0.0 /result.co_pension_subtraction xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has pension/annuity income -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has pension or annuity income</condition_comment>
+<condition_description>pension_profit_sharing > 0</condition_description>
+<condition_postfix>
+result.pension_profit_sharing 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Age 55-64 -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Age 55 to 64</condition_comment>
+<condition_description>age >= 55 AND age &lt; 65</condition_description>
+<condition_postfix>
+result.age 55 ge
+result.age 65 lt
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Age 65+ -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Age 65 or older</condition_comment>
+<condition_description>age >= 65</condition_description>
+<condition_postfix>
+result.age 65 ge
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Age 55-64 - $20,000 subtraction -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply CO $20,000 pension/annuity subtraction (age 55-64)</action_comment>
+<action_postfix>
+<!-- Subtraction is lesser of $20,000 or actual pension income -->
+result.pension_profit_sharing
+result.co_pension_subtraction_55_to_64
+min
+/result.co_pension_subtraction xdef
+
+"CO pension/annuity subtraction (age 55-64): $"
+result.co_pension_subtraction cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Pension: $" strconcat result.pension_profit_sharing cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Age 65+ - $24,000 subtraction -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Apply CO $24,000 pension/annuity subtraction (age 65+)</action_comment>
+<action_postfix>
+<!-- Subtraction is lesser of $24,000 or actual pension income -->
+result.pension_profit_sharing
+result.co_pension_subtraction_65_plus
+min
+/result.co_pension_subtraction xdef
+
+"CO pension/annuity subtraction (age 65+): $"
+result.co_pension_subtraction cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Pension: $" strconcat result.pension_profit_sharing cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: No pension income or under age 55 -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No pension/annuity subtraction applicable</action_comment>
+<action_postfix>
+0.0 /result.co_pension_subtraction xdef
+"No CO pension/annuity subtraction - not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 5792: Calculate_CO_Tax - Colorado State Income Tax              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CO_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Colorado state income tax calculation (2025). Flat 4.40% rate applied to federal AGI with Colorado-specific adjustments: add state tax refunds, subtract Social Security, military retirement, and pension/annuity subtractions. Source: Colorado DOR Form DR 0104.</COMMENTS>
+<TABLE_NUMBER>5792</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Colorado tax calculation</action_description>
+<action_postfix>
+"Colorado Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute</condition_comment>
+<condition_description>true</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Colorado tax (flat 4.40%)</action_comment>
+<action_postfix>
+<!-- Start with federal AGI (Colorado uses federal AGI as starting point) -->
+result.agi /result.co_taxable_income xdef
+
+<!-- ADD: State tax refund (if itemized federally and received refund) -->
+result.state_tax_refund 0 gt
+{
+  result.co_taxable_income result.state_tax_refund add
+  /result.co_taxable_income xdef
+
+  "CO: Added state tax refund: $" result.state_tax_refund cvs strconcat job.audit_trail swap addto
+} if
+
+<!-- SUBTRACT: Social Security benefits (exempt in Colorado) -->
+result.total_social_security 0 gt
+{
+  result.co_taxable_income result.total_social_security sub
+  0 max
+  /result.co_taxable_income xdef
+
+  "CO: Subtracted Social Security: $" result.total_social_security cvs strconcat job.audit_trail swap addto
+} if
+
+<!-- SUBTRACT: Military retirement exemption (already calculated) -->
+result.co_military_retirement_exemption 0 gt
+{
+  result.co_taxable_income result.co_military_retirement_exemption sub
+  0 max
+  /result.co_taxable_income xdef
+
+  "CO: Subtracted military retirement exemption: $" result.co_military_retirement_exemption cvs strconcat job.audit_trail swap addto
+} if
+
+<!-- SUBTRACT: Pension/annuity subtraction (already calculated) -->
+result.co_pension_subtraction 0 gt
+{
+  result.co_taxable_income result.co_pension_subtraction sub
+  0 max
+  /result.co_taxable_income xdef
+
+  "CO: Subtracted pension/annuity subtraction: $" result.co_pension_subtraction cvs strconcat job.audit_trail swap addto
+} if
+
+<!-- Apply 4.40% flat tax rate -->
+result.co_taxable_income result.co_tax_rate mul
+/result.co_tax xdef
+
+<!-- Update state_tax_liability for consistency -->
+result.co_tax /result.state_tax_liability xdef
+
+"Colorado taxable income: $" result.co_taxable_income cvs strconcat job.audit_trail swap addto
+"Colorado tax calculated (4.40%): $" result.co_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
 </action_details>
 </actions>
 

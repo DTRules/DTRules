@@ -113,6 +113,158 @@
     <!-- Final Amount -->
     <field name='refund_or_owed' type='double' default_value='0.0' comment='Refund (positive) or amount owed (negative)'/>
 
+    <!-- IRC §6662A: Reportable Transaction Understatements -->
+    <field name='has_reportable_transaction' type='boolean' default_value='false'
+           comment='IRC §6662A(b)(1): Return includes reportable transaction as defined in IRC §6707A(c). Separate penalty regime (20% or 30%).'/>
+    <field name='reportable_transaction_type' type='string'
+           comment='Type: LISTED (IRS notice), CONFIDENTIAL (confidentiality condition), CONTRACTUAL_PROTECTION (money-back guarantee), LOSS (exceeds threshold), TRANSACTION_OF_INTEREST (IRS notice).'/>
+    <field name='reportable_transaction_disclosed' type='boolean' default_value='false'
+           comment='IRC §6662A(e)(2)(C): Transaction disclosed on Form 8886. If disclosed, penalty is 20%; if not disclosed, penalty is 30%.'/>
+    <field name='reportable_transaction_understatement' type='double' default_value='0.0'
+           comment='IRC §6662A(b)(1): Amount of understatement attributable to reportable transaction.'/>
+    <field name='reportable_transaction_penalty_rate' type='double' default_value='0.20'
+           comment='IRC §6662A(c): 20% if disclosed, 30% if not disclosed (IRC §6662A(c) increased rate).'/>
+    <field name='reportable_transaction_penalty_amount' type='double' default_value='0.0'
+           comment='IRC §6662A penalty amount. This is separate from §6662 penalty (no stacking).'/>
+    <field name='form_8886_filed' type='boolean' default_value='false'
+           comment='Form 8886 (Reportable Transaction Disclosure Statement) was filed with return.'/>
+
+    <!-- Tax Shelter Items - "More Likely Than Not" Standard -->
+    <field name='has_tax_shelter_item' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-4(g): Tax shelter item as defined. Higher standard applies (more likely than not >50%).'/>
+    <field name='tax_shelter_type' type='string'
+           comment='Type: CORPORATE_TAX_SHELTER, LISTED_TRANSACTION, SIGNIFICANT_PURPOSE, PRINCIPAL_PURPOSE.'/>
+    <field name='has_substantial_authority' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-4(d): Substantial authority exists for tax treatment (weight of authorities test).'/>
+    <field name='reasonable_belief_more_likely_than_not' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-4(g)(4): Taxpayer reasonably believed treatment was more likely than not (>50%) proper. HIGHER than substantial authority.'/>
+    <field name='tax_shelter_penalty_avoided' type='boolean' default_value='false'
+           comment='True if both substantial authority AND more likely than not belief exist (avoids penalty for tax shelter items).'/>
+
+    <!-- Form 8275/8275-R Disclosure Standards -->
+    <field name='form_8275_filed' type='boolean' default_value='false'
+           comment='Form 8275 (Disclosure Statement) filed with return to disclose positions contrary to regulations.'/>
+    <field name='form_8275r_filed' type='boolean' default_value='false'
+           comment='Form 8275-R (Regulation Disclosure Statement) filed to disclose positions contrary to regulations (not revenue rulings).'/>
+    <field name='disclosure_adequate' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-4(f): Disclosure is adequate per current year Rev. Proc. standards. If true, avoids substantial understatement penalty.'/>
+    <field name='disclosure_rev_proc_year' type='string'
+           comment='Revenue Procedure governing disclosure adequacy for tax year (e.g., "Rev. Proc. 2025-14"). Updated annually.'/>
+    <field name='disclosure_item_description' type='string'
+           comment='Description of disclosed item per Form 8275 Line 1.'/>
+    <field name='disclosure_facts' type='string'
+           comment='Statement of facts per Form 8275 Line 2.'/>
+    <field name='disclosure_authority' type='string'
+           comment='Legal authority for position per Form 8275 Line 3.'/>
+
+    <!-- Coordination with Fraud Penalty (IRC §6663) -->
+    <field name='fraud_penalty_assessed' type='boolean' default_value='false'
+           comment='IRC §6663: IRS assessed 75% fraud penalty on portion of underpayment.'/>
+    <field name='fraud_portion_of_underpayment' type='double' default_value='0.0'
+           comment='IRC §6663: Portion of underpayment attributable to fraud (75% penalty rate).'/>
+    <field name='non_fraud_portion_of_underpayment' type='double' default_value='0.0'
+           comment='Portion of underpayment NOT attributable to fraud (subject to §6662 if applicable).'/>
+    <field name='fraud_penalty_amount' type='double' default_value='0.0'
+           comment='IRC §6663(a): 75% penalty on fraud portion.'/>
+    <field name='accuracy_penalty_reduced_for_fraud' type='boolean' default_value='false'
+           comment='IRC §6662(b) flush language: §6662 does NOT apply to fraud portion. Accuracy penalty reduced accordingly.'/>
+
+    <!-- IRC §6662(e): Valuation Misstatement Penalties and De Minimis Thresholds -->
+    <field name='valuation_underpayment_amount' type='double' default_value='0.0'
+           comment='IRC §6662(e)(2): Portion of underpayment attributable to valuation misstatements. No penalty unless exceeds $5,000 (individuals) or $10,000 (corporations).'/>
+    <field name='de_minimis_threshold_corporate' type='double' default_value='10000.0'
+           comment='IRC §6662(e)(2): $10,000 de minimis threshold for corporations. No valuation penalty if underpayment ≤ $10,000.'/>
+    <field name='valuation_penalty_applies' type='boolean' default_value='false'
+           comment='True if valuation underpayment exceeds de minimis threshold. If false, no §6662(e) penalty.'/>
+
+    <!-- IRC §482 Transfer Pricing Documentation Defense -->
+    <field name='has_transfer_pricing_adjustment' type='boolean' default_value='false'
+           comment='IRC §482: IRS made transfer pricing adjustment (related party transactions). Triggers potential §6662(e) or §6662(h) penalty.'/>
+    <field name='has_transfer_pricing_documentation' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-6(d): Taxpayer has contemporaneous documentation establishing transfer pricing method reasonableness.'/>
+    <field name='transfer_pricing_method' type='string'
+           comment='Transfer pricing method used: CUP (Comparable Uncontrolled Price), RPM (Resale Price Method), CPM (Comparable Profits Method), PSM (Profit Split Method), TNMM (Transactional Net Margin Method).'/>
+    <field name='transfer_pricing_docs_timely' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-6(d)(2)(iii): Documentation provided to IRS within 30 days of request.'/>
+    <field name='transfer_pricing_method_reasonable' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6662-6(d)(2)(ii): Selected transfer pricing method was reasonable under the circumstances.'/>
+    <field name='transfer_pricing_penalty_avoided' type='boolean' default_value='false'
+           comment='True if transfer pricing documentation defense successful (avoids transactional penalty per Reg. §1.6662-6(d)).'/>
+    <field name='transfer_pricing_penalty_amount' type='double' default_value='0.0'
+           comment='Penalty amount for transfer pricing adjustment (if documentation defense fails).'/>
+
+    <!-- IRC §6662(f): Pension Liabilities Overstatement -->
+    <field name='pension_liabilities_claimed' type='double' default_value='0.0'
+           comment='IRC §6662(f): Actuarial determination of pension liabilities used for IRC §404(a) deduction (claimed on return).'/>
+    <field name='pension_liabilities_correct' type='double' default_value='0.0'
+           comment='IRC §6662(f): Correct actuarial determination of pension liabilities per IRS examination.'/>
+    <field name='pension_overstatement_ratio' type='double' default_value='0.0'
+           comment='IRC §6662(f): Ratio of claimed to correct (200%+ triggers penalty). Formula: claimed / correct.'/>
+    <field name='pension_overstatement_penalty' type='boolean' default_value='false'
+           comment='IRC §6662(f): True if pension liabilities overstatement ≥200% AND underpayment >$1,000.'/>
+    <field name='pension_underpayment_amount' type='double' default_value='0.0'
+           comment='Underpayment attributable to pension overstatement. Must exceed $1,000 for penalty.'/>
+    <field name='pension_penalty_amount' type='double' default_value='0.0'
+           comment='20% penalty on pension underpayment per IRC §6662(f).'/>
+
+    <!-- Charitable Contribution - Qualified Appraisal Requirement -->
+    <field name='charitable_property_deduction' type='double' default_value='0.0'
+           comment='IRC §170: Charitable contribution deduction for property (non-cash).'/>
+    <field name='charitable_property_fmv_claimed' type='double' default_value='0.0'
+           comment='Fair market value of charitable property claimed on return.'/>
+    <field name='charitable_property_fmv_correct' type='double' default_value='0.0'
+           comment='Correct fair market value per IRS examination.'/>
+    <field name='has_qualified_appraisal' type='boolean' default_value='false'
+           comment='IRC §6664(c)(2), IRC §170(f)(11)(E): Deduction based on qualified appraisal by qualified appraiser.'/>
+    <field name='has_qualified_appraiser' type='boolean' default_value='false'
+           comment='Appraiser meets IRC §170(f)(11)(E)(ii) and (iii) requirements (credentials, independence, IRS-compliant).'/>
+    <field name='made_good_faith_investigation' type='boolean' default_value='false'
+           comment='IRC §6664(c)(2): Taxpayer made good faith investigation of property value.'/>
+    <field name='charitable_valuation_overstatement' type='boolean' default_value='false'
+           comment='Claimed FMV is 150%+ of correct FMV (substantial) or 200%+ (gross).'/>
+    <field name='charitable_reasonable_cause_available' type='boolean' default_value='false'
+           comment='IRC §6664(c)(2): Reasonable cause available ONLY if qualified appraisal + good faith investigation. NOT available for gross (200%+).'/>
+
+    <!-- Professional Advice Reliance -->
+    <field name='relied_on_professional_advice' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6664-4(c): Taxpayer relied on advice from competent professional (CPA, attorney, enrolled agent).'/>
+    <field name='advisor_was_qualified' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6664-4(c)(1): Advisor had necessary expertise and competence in relevant area of law.'/>
+    <field name='all_facts_disclosed_to_advisor' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6664-4(c)(1): Taxpayer provided all relevant facts to advisor.'/>
+    <field name='advice_not_based_on_unreasonable_assumptions' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6664-4(c)(1): Advice was not based on unreasonable factual or legal assumptions.'/>
+    <field name='taxpayer_relied_in_good_faith' type='boolean' default_value='false'
+           comment='Treas. Reg. §1.6664-4(c)(1): Taxpayer actually relied on advice in good faith.'/>
+    <field name='professional_advice_reasonable_cause' type='boolean' default_value='false'
+           comment='True if all 4 professional advice criteria met (constitutes reasonable cause per Reg. §1.6664-4(c)).'/>
+
+    <!-- Total Penalties -->
+    <field name='total_6662_penalty' type='double' default_value='0.0'
+           comment='IRC §6662: Total accuracy-related penalties (excluding §6662A).'/>
+    <field name='total_all_penalties' type='double' default_value='0.0'
+           comment='Total of all penalties including §6662 and §6662A.'/>
+
+    <!-- IRC §6651: Bankruptcy Automatic Stay (11 USC §362) -->
+    <field name='bankruptcy_filed' type='boolean' default_value='false'
+           comment='11 USC §362: Taxpayer filed bankruptcy petition. Automatic stay suspends penalty accrual.'/>
+    <field name='bankruptcy_filing_date' type='date'
+           comment='Date bankruptcy petition was filed. Penalties suspend on this date.'/>
+    <field name='bankruptcy_case_number' type='string'
+           comment='Bankruptcy case number (for IRS records).'/>
+    <field name='bankruptcy_chapter' type='string'
+           comment='Bankruptcy chapter: CHAPTER_7 (liquidation), CHAPTER_11 (reorganization), CHAPTER_13 (individual repayment).'/>
+    <field name='automatic_stay_in_effect' type='boolean' default_value='false'
+           comment='11 USC §362(a): Automatic stay is in effect. While true, penalties do not accrue.'/>
+    <field name='stay_lifted_date' type='date'
+           comment='Date automatic stay was lifted by court or case dismissed/closed.'/>
+    <field name='penalty_before_bankruptcy' type='double' default_value='0.0'
+           comment='IRC §6651 penalties accrued from due date to bankruptcy filing date.'/>
+    <field name='penalty_during_bankruptcy' type='double' default_value='0.0'
+           comment='Penalties during bankruptcy (should be $0 due to automatic stay).'/>
+    <field name='penalty_after_bankruptcy' type='double' default_value='0.0'
+           comment='Penalties accrued from stay lifted to payment date.'/>
+
     <!-- Audit Trail -->
     <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
 
@@ -742,8 +894,83 @@
            comment='Total income sourced to U.S. territories (GU + AS + MP + VI)'/>
     <field name='total_territorial_tax_liability' type='double' default_value='0.0'
            comment='Total tax liability to all territories'/>
-    <field name='total_us_tax_on_territorial_income' type='double' default_value='0.0'
            comment='Total U.S. tax on territorial income (if not bona fide resident)'/>
+
+    <!-- IRC §6651(g)(2) - Substitute for Return (SFR) -->
+    <field name='is_substitute_for_return' type='boolean' default_value='false'
+           comment='IRC §6651(g)(2): IRS prepared return under IRC §6020(b) (Substitute for Return). Special penalty treatment applies.'/>
+    <field name='sfr_prepared_date' type='date'
+           comment='Date IRS prepared Substitute for Return under §6020(b).'/>
+    <field name='taxpayer_filed_after_sfr' type='boolean' default_value='false'
+           comment='Taxpayer filed actual return after IRS prepared SFR.'/>
+    <field name='sfr_failure_to_file_penalty' type='double' default_value='0.0'
+           comment='IRC §6651(g)(2): For SFR, failure-to-file penalty calculated from original due date to SFR date (max 25%).'/>
+    <field name='sfr_failure_to_pay_penalty' type='double' default_value='0.0'
+           comment='IRC §6651(g)(2): For SFR, failure-to-pay penalty calculated on tax shown on SFR (SFR treated as return filed by taxpayer for FTP purposes).'/>
+
+    <!-- IRC §6651(h) - Installment Agreement Default -->
+    <field name='has_installment_agreement' type='boolean' default_value='false'
+           comment='IRC §6651(h): Taxpayer has installment agreement with IRS for payment of tax.'/>
+    <field name='installment_agreement_date' type='date'
+           comment='Date installment agreement was established with IRS.'/>
+    <field name='installment_agreement_defaulted' type='boolean' default_value='false'
+           comment='Taxpayer defaulted on installment agreement (missed payment).'/>
+    <field name='installment_default_date' type='date'
+           comment='Date taxpayer defaulted on installment agreement.'/>
+    <field name='rate_before_installment' type='double' default_value='0.005'
+           comment='Normal failure-to-pay rate (0.5% per month) before installment agreement.'/>
+    <field name='rate_during_installment' type='double' default_value='0.0025'
+           comment='Reduced rate (0.25% per month) during installment agreement per IRC §6651(h).'/>
+    <field name='rate_after_default' type='double' default_value='0.005'
+           comment='Rate reverts to 0.5% after installment agreement default.'/>
+    <field name='months_at_reduced_rate' type='int' default_value='0'
+           comment='Number of months at 0.25% reduced rate (before default).'/>
+    <field name='months_after_default' type='int' default_value='0'
+           comment='Number of months at 0.5% rate after default.'/>
+
+    <!-- IRC §6651 Penalty Tracking Fields -->
+    <field name='failure_to_file_penalty' type='double' default_value='0.0'
+           comment='IRC §6651(a)(1): Failure to file penalty (5% per month, max 25%).'/>
+    <field name='failure_to_pay_penalty' type='double' default_value='0.0'
+           comment='IRC §6651(a)(2): Failure to pay penalty (0.5% per month, max 25%).'/>
+    <field name='total_6651_penalty' type='double' default_value='0.0'
+           comment='Total IRC §6651 penalties (failure to file + failure to pay).'/>
+    <field name='tax_not_paid_on_time' type='double' default_value='0.0'
+           comment='Amount of tax not paid by original due date (for penalty calculation).'/>
+    <field name='original_due_date' type='date'
+           comment='Original due date of return (April 15 for calendar year).'/>
+    <field name='extended_due_date' type='date'
+           comment='Extended due date of return (if extension filed, otherwise same as original).'/>
+    <field name='return_filed_date' type='date'
+           comment='Date return was actually filed.'/>
+    <field name='payment_date' type='date'
+           comment='Date tax was paid in full.'/>
+
+    <!-- First-Time Penalty Abatement (FTA) - IRM 20.1.1.3.3.2.1 -->
+    <field name='eligible_for_fta' type='boolean' default_value='false'
+           comment='IRM 20.1.1.3.3.2.1: Eligible for First-Time Penalty Abatement. Requires: (1) no penalties in prior 3 years, (2) all returns filed, (3) tax paid or arranged.'/>
+    <field name='no_penalties_prior_3_years' type='boolean' default_value='false'
+           comment='No §6651, §6656, or §6698 penalties assessed for 3 prior tax years (administrative waiver requirement).'/>
+    <field name='all_required_returns_filed' type='boolean' default_value='false'
+           comment='All currently required returns have been filed or valid extensions obtained.'/>
+    <field name='tax_paid_or_arranged' type='boolean' default_value='false'
+           comment='Tax has been paid, or taxpayer has arrangement to pay (installment agreement, etc.).'/>
+    <field name='fta_applied' type='boolean' default_value='false'
+           comment='First-Time Abatement was applied to penalties. If true, §6651 penalties waived administratively.'/>
+    <field name='fta_eligible_penalties' type='double' default_value='0.0'
+           comment='Amount of §6651 penalties eligible for FTA abatement.'/>
+
+    <!-- Payment Crediting - Treas. Reg. §301.6651-1(a)(2) -->
+    <field name='estimated_tax_payments_total' type='double' default_value='0.0'
+           comment='Total estimated tax payments made (Form 2220 payments Q1-Q4).'/>
+    <field name='withholding_credits' type='double' default_value='0.0'
+           comment='Tax withheld at source (Form 1042-S, backup withholding, etc.).'/>
+    <field name='prior_year_overpayment_applied' type='double' default_value='0.0'
+           comment='Prior year overpayment applied to current year (Form 1120 Line 31).'/>
+    <field name='total_credits_and_payments' type='double' default_value='0.0'
+           comment='Total: estimated tax + withholding + overpayment applied. Reduces tax for penalty calculation per Treas. Reg. §301.6651-1(a)(2).'/>
+    <field name='net_tax_for_penalty_calculation' type='double' default_value='0.0'
+           comment='Tax shown on return minus payments/credits. Used for §6651 penalty base per IRC §6651(a).'/>
   </entity>
 
   <!-- Foreign Branch (QBU) Entity - IRC Section 987 -->
