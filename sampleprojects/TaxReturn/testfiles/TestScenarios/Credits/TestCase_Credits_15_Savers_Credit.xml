@@ -1,0 +1,73 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Saver's Credit Test: Retirement contributions -->
+   <!-- Retirement Savings Contributions Credit (Saver's Credit) -->
+   <!-- 2025 rates: 50%, 20%, or 10% of contributions based on AGI -->
+   <!-- Max contribution eligible: $2,000 per person -->
+   <!-- AGI thresholds MFJ: $46,000 (50%), $50,000 (20%), $76,500 (10%) -->
+   <!-- This scenario: $42,000 AGI = 50% credit -->
+   <!-- Contributions: $4,000 (capped at $2,000 per person) -->
+   <!-- Expected credit: ($2,000 + $2,000) × 50% = $2,000 -->
+
+   <id>Credits-15</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $42,000 combined W-2 (qualifies for 50% Saver's Credit) -->
+   <!-- AGI: $42,000 -->
+   <!-- IRA contributions: $4,000 total ($2,000 each) -->
+   <!-- Saver's Credit: $2,000 (50% × $4,000) -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $12,000 -->
+   <expected_agi>42000</expected_agi>
+   <expected_taxable_income>12000</expected_taxable_income>
+   <expected_savers_credit>2000</expected_savers_credit>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Kevin Morris</name>
+         <ssn>999-22-3333</ssn>
+         <date_of_birth>5/30/1988</date_of_birth>
+         <occupation>Electrician</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>26000</w2_wages>
+         <w2_withholding>2000</w2_withholding>
+         <ira_contributions>2000</ira_contributions>
+         <ira_type>traditional</ira_type>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Michelle Morris</name>
+         <ssn>999-22-4444</ssn>
+         <date_of_birth>8/12/1990</date_of_birth>
+         <occupation>Medical Assistant</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>16000</w2_wages>
+         <w2_withholding>1200</w2_withholding>
+         <ira_contributions>2000</ira_contributions>
+         <ira_type>traditional</ira_type>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Kyle Morris</name>
+         <ssn>111-33-4444</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>12/8/2016</date_of_birth>
+         <age>9</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

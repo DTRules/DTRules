@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8801 - Prior Year Minimum Tax Credit -->
+<!-- Scenario: Taxpayer paid AMT in prior year (2024) due to ISO exercise -->
+<!-- In 2025, no AMT liability, eligible to claim minimum tax credit -->
+<!-- Expected: Credit of $25,000 from prior year AMT reduces current tax -->
+<job>
+    <id>AdditionalTaxes_12</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>CA</state>
+
+    <!-- Prior year (2024) background: -->
+    <!-- Paid AMT of $35,000 due to ISO exercise -->
+    <!-- ISO bargain element was $150,000 (deferral preference) -->
+    <!-- Minimum tax credit carryforward: $25,000 (excludes permanent preferences) -->
+
+    <!-- Current year (2025): -->
+    <!-- AGI: $185,000 (normal W-2, no ISO exercise) -->
+    <!-- Regular tax: ~$35,617 -->
+    <!-- AMT: $0 (no preferences this year) -->
+    <!-- Since regular tax > AMT, can use minimum tax credit -->
+    <!-- Credit reduces tax by $25,000 -->
+    <!-- Net tax: $10,617 -->
+
+    <expected_agi>185000</expected_agi>
+    <expected_taxable_income>170000</expected_taxable_income>
+    <expected_total_tax>10617</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Brian Foster</name>
+            <ssn>678-90-1234</ssn>
+            <date_of_birth>05/22/1982</date_of_birth>
+            <occupation>Software Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>185000</w2_wages>
+            <w2_withholding>38000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+            <prior_year_amt_credit>25000</prior_year_amt_credit>
+        </taxpayer>
+    </taxpayers>
+
+    <credits>
+        <!-- Prior year AMT credit from Form 8801 -->
+        <credit>
+            <id>1</id>
+            <type>minimum_tax_credit</type>
+            <description>Prior year AMT credit (2024 ISO exercise)</description>
+            <amount>25000</amount>
+            <carryforward_from_year>2024</carryforward_from_year>
+        </credit>
+    </credits>
+
+    <incomes></incomes>
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

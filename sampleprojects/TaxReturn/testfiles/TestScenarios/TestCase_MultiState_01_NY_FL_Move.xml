@@ -1,0 +1,106 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 1: NY to FL Move (Part-Year Resident) -->
+   <!-- Taxpayer worked in NY from Jan 1 to July 31 (212 days), then moved to FL -->
+   <!-- FL has no state income tax, so only NY portion is taxed -->
+   <id>MS-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>FL</state>
+   <city>Miami</city>
+   <has_state_income_tax>false</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Total Annual Income: $90,000 -->
+   <!-- NY Period: Jan 1 - July 31 (212 days) = 58.1% of year -->
+   <!-- NY Allocated Income: $90,000 × 58.1% = $52,290 -->
+   <!-- FL has no state income tax, so no FL tax -->
+   <expected_agi>90000</expected_agi>
+   <expected_ny_allocated_income>52290</expected_ny_allocated_income>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>NY</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>7/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>FL</state_code>
+         <start_date>8/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah Johnson</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>5/20/1988</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Tech Corp NYC</source>
+         <gross_amount>52290</gross_amount>
+         <withholding>7000</withholding>
+         <state_code>NY</state_code>
+         <state_period_id>1</state_period_id>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Tech Corp Miami</source>
+         <gross_amount>37710</gross_amount>
+         <withholding>5000</withholding>
+         <state_code>FL</state_code>
+         <state_period_id>2</state_period_id>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,150 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Partnership Audit Adjustment (BBA - Bipartisan Budget Act)
+
+      IRC Section 6221-6241 - Partnership Audit Rules
+
+      Rules Tested:
+      - BBA centralized partnership audit regime (effective 2018+)
+      - Partnership is entity for audit purposes (not individual partners)
+      - Imputed underpayment calculated at partnership level
+      - Partnership pays tax on audit adjustments at highest rate
+      - Partners can elect to file Amended Return/AAR (Form 8082)
+      - Form 8986 - Partner's Share of Adjustment
+      - Partner reports adjustment as "other income" or takes deduction
+
+      Test Scenario:
+      - Partner received Form 8986 for partnership audit adjustment
+      - Partnership: Tech Ventures LP (EIN: 45-6789012)
+      - Audit year: 2023
+      - Adjustment year (reporting): 2025
+      - Partner's share of increase in partnership income: $15,000
+      - Partner elected to report on individual return (not partnership payment)
+      - Partner's tax rate: 24%
+      - Additional tax due: $15,000 × 24% = $3,600
+      - Interest on underpayment: $450 (from 2023 to 2025)
+
+      Expected Results:
+      - Partner reports $15,000 additional income on 2025 return
+      - Form 8986 attached to return
+      - Interest expense NOT deductible (personal interest)
+      - Total additional tax and interest: $4,050
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_08</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>CA</state>
+   <city>San Francisco</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $120,000 W-2 + $15,000 partnership adjustment + $8,000 K-1 -->
+   <!-- AGI: $143,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $143,000 - $15,000 = $128,000 -->
+   <!-- Tax: $22,934 (2025 Single rates) -->
+   <!-- Withholding: $12,000 -->
+   <!-- Estimated: $8,000 -->
+   <!-- Total payments: $20,000 -->
+   <!-- Owed: $2,934 + $450 interest = $3,384 -->
+   <expected_agi>143000</expected_agi>
+   <expected_taxable_income>128000</expected_taxable_income>
+   <expected_total_tax>22934</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Zhang</name>
+         <ssn>890-12-3456</ssn>
+         <date_of_birth>10/25/1980</date_of_birth>
+         <occupation>Software Engineer / Angel Investor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>8000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Partnership Income (K-1) -->
+   <partnership_income>
+      <!-- Current year K-1 -->
+      <k1 id="1">
+         <id>1</id>
+         <partnership_name>Tech Ventures LP</partnership_name>
+         <partnership_ein>45-6789012</partnership_ein>
+         <ordinary_income>8000</ordinary_income>
+         <guaranteed_payment>0</guaranteed_payment>
+         <capital_gain>0</capital_gain>
+         <section_179_deduction>0</section_179_deduction>
+         <ownership_percentage>5</ownership_percentage>
+      </k1>
+   </partnership_income>
+
+   <!-- Partnership Audit Adjustment (BBA) -->
+   <partnership_audit_adjustments>
+      <!-- Form 8986 - Partner's Share of Adjustment -->
+      <adjustment id="1">
+         <id>1</id>
+         <partnership_name>Tech Ventures LP</partnership_name>
+         <partnership_ein>45-6789012</partnership_ein>
+         <form_8986_received>true</form_8986_received>
+         <audit_year>2023</audit_year>
+         <reporting_year>2025</reporting_year>
+         <adjustment_type>income_increase</adjustment_type>
+         <description>Audit adjustment - disallowed deductions for meals and entertainment</description>
+         <!-- Partner's share of adjustment -->
+         <partners_share_ordinary_income_increase>15000</partners_share_ordinary_income_increase>
+         <partners_share_capital_gain_increase>0</partners_share_capital_gain_increase>
+         <partners_ownership_percentage>5</partners_ownership_percentage>
+         <!-- Tax calculation -->
+         <partners_tax_rate>0.24</partners_tax_rate>
+         <additional_tax_from_adjustment>3600</additional_tax_from_adjustment>
+         <!-- Interest on underpayment (not deductible - personal interest) -->
+         <interest_on_underpayment>450</interest_on_underpayment>
+         <interest_period>2023-2025</interest_period>
+         <interest_deductible>false</interest_deductible>
+         <!-- Total amount due from adjustment -->
+         <total_due_from_adjustment>4050</total_due_from_adjustment>
+         <!-- Election made -->
+         <partner_elected_reporting>true</partner_elected_reporting>
+         <partnership_paid_imputed_underpayment>false</partnership_paid_imputed_underpayment>
+      </adjustment>
+   </partnership_audit_adjustments>
+
+   <!-- No other deductions -->
+   <deductions>
+   </deductions>
+</job>
