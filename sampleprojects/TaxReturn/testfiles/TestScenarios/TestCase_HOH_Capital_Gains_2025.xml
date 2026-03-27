@@ -1,0 +1,100 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>TX</state>
+   <city>Dallas</city>
+
+   <!-- Expected values for validation -->
+   <!-- Test: HOH Capital Gains Tax Brackets -->
+   <!-- Income: $50,000 W2 wages + $20,000 long-term capital gains = $70,000 -->
+   <!-- AGI: $70,000 -->
+   <!-- Deduction: $22,500 standard (HOH) -->
+   <!-- Taxable: $47,500 -->
+   <!-- Regular income: $47,500 (fills 10% + 12% brackets) -->
+   <!-- Capital gains: $20,000 -->
+   <!--   - HOH 0% threshold: $63,000 -->
+   <!--   - Since taxable income ($47,500) < $63,000, all $20,000 gains at 0% -->
+   <!--   - Remaining room in 0% bracket: $63,000 - $47,500 = $15,500 -->
+   <!--   - First $15,500 of gains: 0% -->
+   <!--   - Next $4,500 of gains: 15% = $675 -->
+   <!-- Regular tax: ~$5,075 (10% on $16,550 + 12% on $30,950) -->
+   <!-- Capital gains tax: $675 -->
+   <!-- Total tax: $5,750 -->
+   <!-- Child Tax Credit: $2,000 -->
+   <!-- Net tax: $3,750 -->
+   <!-- Withholding: $7,500 -->
+   <!-- Refund: $3,750 -->
+   <expected_agi>70000</expected_agi>
+   <expected_taxable_income>47500</expected_taxable_income>
+   <expected_total_tax>3750</expected_total_tax>
+   <expected_refund>3750</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Head of Household with investment income -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Maria</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>6/8/1988</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <long_term_capital_gains>20000</long_term_capital_gains>
+         <qualified_dividends>0</qualified_dividends>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <!-- Qualifying child for HOH status -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Isabella</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>2/20/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>public</school_type>
+         <tuition_paid>0</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties>
+   </properties>
+
+   <!-- Vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Deductions -->
+   <deductions>
+   </deductions>
+</job>

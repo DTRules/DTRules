@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8960 - Net Investment Income Tax (Dividends & Interest) -->
+<!-- Scenario: Single filer with substantial dividend and interest income -->
+<!-- AGI over $200k threshold, NII = $45,000 -->
+<!-- Expected: 3.8% NIIT on lesser of NII ($45k) or excess MAGI ($30k) = $1,140 -->
+<job>
+    <id>AdditionalTaxes_06</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>NY</state>
+
+    <!-- Expected results -->
+    <!-- W-2: $185,000 + Interest: $12,000 + Dividends: $33,000 = $230,000 AGI -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- Taxable: $215,000 -->
+    <!-- Income tax: ~$44,987 -->
+    <!-- NIIT: $1,140 (3.8% on $30,000 - excess MAGI over $200k threshold) -->
+    <!-- Total tax: $46,127 -->
+    <expected_agi>230000</expected_agi>
+    <expected_taxable_income>215000</expected_taxable_income>
+    <expected_total_tax>46127</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Jennifer Adams</name>
+            <ssn>890-12-3456</ssn>
+            <date_of_birth>02/10/1975</date_of_birth>
+            <occupation>Investment Analyst</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>185000</w2_wages>
+            <w2_withholding>38000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- Investment income -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>interest</type>
+            <source>Savings and Money Market</source>
+            <gross_amount>12000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+        </income>
+        <income>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>dividend</type>
+            <source>Stock Portfolio - Qualified</source>
+            <gross_amount>28000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <is_qualified_dividend>true</is_qualified_dividend>
+        </income>
+        <income>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>dividend</type>
+            <source>Stock Portfolio - Ordinary</source>
+            <gross_amount>5000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <is_qualified_dividend>false</is_qualified_dividend>
+        </income>
+    </incomes>
+
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

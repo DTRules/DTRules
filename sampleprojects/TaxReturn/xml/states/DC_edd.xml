@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Washington DC
+
+  DC has progressive tax brackets (7 brackets) ranging from 4% to 10.75%.
+
+  2025 Tax Year (filed in 2026)
+  Standard Deduction: $15,750 (single), $31,500 (married filing jointly), $23,625 (HOH)
+
+  Source: DC Office of Tax and Revenue (OTR)
+  https://otr.cfo.dc.gov/page/dc-individual-and-fiduciary-income-tax-rates
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+
+    <!-- Standard deductions -->
+    <field name="dc_standard_deduction_single" type="double" default_value="15750.0"
+           comment="DC standard deduction single (2025)"/>
+    <field name="dc_standard_deduction_joint" type="double" default_value="31500.0"
+           comment="DC standard deduction married filing jointly (2025)"/>
+    <field name="dc_standard_deduction_hoh" type="double" default_value="23625.0"
+           comment="DC standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets - All Filing Statuses (DC uses same brackets for all) -->
+    <!-- Bracket 1: $0 to $10,000 @ 4% -->
+    <field name="dc_bracket_1_limit" type="double" default_value="10000.0"
+           comment="DC tax bracket 1 upper limit (2025)"/>
+    <field name="dc_bracket_1_rate" type="double" default_value="0.04"
+           comment="DC tax rate for bracket 1 - 4% (2025)"/>
+
+    <!-- Bracket 2: $10,000 to $40,000 @ 6% -->
+    <field name="dc_bracket_2_limit" type="double" default_value="40000.0"
+           comment="DC tax bracket 2 upper limit (2025)"/>
+    <field name="dc_bracket_2_rate" type="double" default_value="0.06"
+           comment="DC tax rate for bracket 2 - 6% (2025)"/>
+
+    <!-- Bracket 3: $40,000 to $60,000 @ 6.5% -->
+    <field name="dc_bracket_3_limit" type="double" default_value="60000.0"
+           comment="DC tax bracket 3 upper limit (2025)"/>
+    <field name="dc_bracket_3_rate" type="double" default_value="0.065"
+           comment="DC tax rate for bracket 3 - 6.5% (2025)"/>
+
+    <!-- Bracket 4: $60,000 to $250,000 @ 8.5% -->
+    <field name="dc_bracket_4_limit" type="double" default_value="250000.0"
+           comment="DC tax bracket 4 upper limit (2025)"/>
+    <field name="dc_bracket_4_rate" type="double" default_value="0.085"
+           comment="DC tax rate for bracket 4 - 8.5% (2025)"/>
+
+    <!-- Bracket 5: $250,000 to $500,000 @ 9.25% -->
+    <field name="dc_bracket_5_limit" type="double" default_value="500000.0"
+           comment="DC tax bracket 5 upper limit (2025)"/>
+    <field name="dc_bracket_5_rate" type="double" default_value="0.0925"
+           comment="DC tax rate for bracket 5 - 9.25% (2025)"/>
+
+    <!-- Bracket 6: $500,000 to $1,000,000 @ 9.75% -->
+    <field name="dc_bracket_6_limit" type="double" default_value="1000000.0"
+           comment="DC tax bracket 6 upper limit (2025)"/>
+    <field name="dc_bracket_6_rate" type="double" default_value="0.0975"
+           comment="DC tax rate for bracket 6 - 9.75% (2025)"/>
+
+    <!-- Bracket 7: Over $1,000,000 @ 10.75% -->
+    <field name="dc_bracket_7_rate" type="double" default_value="0.1075"
+           comment="DC tax rate for bracket 7 - 10.75% (2025)"/>
+
+    <!-- Military Retirement Provisions (2025) -->
+    <!-- DC has very limited exemption: only $3,000 if age 62+, otherwise fully taxable -->
+    <field name="dc_military_retirement_exemption_amount" type="double" default_value="3000.0"
+           comment="DC military retirement exemption - $3,000 only if age 62+ (2025). Source: MOAA"/>
+    <field name="dc_military_age_requirement" type="double" default_value="62.0"
+           comment="DC minimum age for military retirement exemption (62)"/>
+    <field name="dc_military_retirement_exemption" type="double" default_value="0.0"
+           comment="DC military retirement exemption (computed based on age)"/>
+    <field name="dc_military_retirement_taxable" type="double" default_value="0.0"
+           comment="DC taxable military retirement after exemption (computed)"/>
+
+    <!-- State tax result field -->
+    <field name="dc_state_tax" type="double" default_value="0.0"
+           comment="DC state income tax liability (2025)"/>
+
+  </entity>
+</entity_data_dictionary>

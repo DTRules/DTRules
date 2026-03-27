@@ -1,0 +1,93 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 2: Form 2555 - FEIE with Partial Exclusion -->
+   <!-- Tests: Process_Foreign_Earned_Income -->
+   <!-- Scenario: US citizen with income over $126,500 limit -->
+   <!-- Partial exclusion: $126,500 excluded, remainder taxable -->
+   <id>FOREIGN-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <!-- Expected values for validation -->
+   <!-- Foreign earned income: $165,000 -->
+   <!-- Days outside US: 340 (meets 330-day physical presence test) -->
+   <!-- FEIE max exclusion (2025): $126,500 -->
+   <!-- FEIE exclusion: $126,500 (maxed out) -->
+   <!-- Taxable foreign income: $165,000 - $126,500 = $38,500 -->
+   <!-- AGI: $38,500 -->
+   <!-- Standard deduction: $15,000 (Single) -->
+   <!-- Taxable: $23,500 -->
+   <!-- Tax: $2,550 (10% bracket $0-$11,925 = $1,192.50, 12% bracket $11,925-$23,500 = $1,357.50) -->
+   <expected_agi>38500</expected_agi>
+   <expected_foreign_earned_income>165000</expected_foreign_earned_income>
+   <expected_foreign_earned_income_exclusion>126500</expected_foreign_earned_income_exclusion>
+   <expected_days_outside_us>340</expected_days_outside_us>
+   <expected_taxable_income>23500</expected_taxable_income>
+   <expected_total_tax>2550</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Chen</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>3/22/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <foreign_earned_income>165000</foreign_earned_income>
+         <foreign_country>Singapore</foreign_country>
+         <days_outside_us>340</days_outside_us>
+         <foreign_residence_start>1/15/2025</foreign_residence_start>
+         <foreign_residence_end>12/31/2025</foreign_residence_end>
+         <physical_presence_test>true</physical_presence_test>
+         <bona_fide_residence>false</bona_fide_residence>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_earned_income</type>
+         <gross_amount>165000</gross_amount>
+         <withholding>0</withholding>
+         <description>Tech company salary in Singapore (Form 2555)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
