@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: property
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 6 entities categorized as 'property'.
+-->
+	<file_metadata>
+		<file_path>core/03000_property_entities</file_path>
+	</file_metadata>
+	<entity name="property" xls_file="Property.xls" access="rw" comment="Real estate property">
+		<field name="property" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Property ID" />
+		<field name="type" type="string" subtype="" access="r" input="main" default_value="primary_residence" comment="Type: primary_residence, rental, second_home" />
+		<field name="address" type="string" subtype="" access="r" input="main" default_value="" comment="Property address" />
+		<field name="purchase_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date purchased" />
+		<field name="purchase_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Purchase price" />
+		<field name="current_fmv" type="double" subtype="" access="r" input="main" default_value="0" comment="Current fair market value" />
+		<field name="mortgage_balance" type="double" subtype="" access="r" input="main" default_value="0" comment="Outstanding mortgage balance" />
+		<field name="mortgage_origination_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date mortgage originated" />
+		<field name="mortgage_interest" type="double" subtype="" access="r" input="main" default_value="0" comment="Annual mortgage interest paid (Form 1098)" />
+		<field name="property_taxes" type="double" subtype="" access="r" input="main" default_value="0" comment="Annual property taxes paid" />
+		<field name="rental_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross rental income (Schedule E)" />
+		<field name="rental_expenses" type="double" subtype="" access="rw" input="main" default_value="0" comment="Total rental expenses" />
+		<field name="rental_advertising" type="double" subtype="" access="r" input="main" default_value="0" comment="Advertising expense" />
+		<field name="rental_insurance" type="double" subtype="" access="r" input="main" default_value="0" comment="Insurance expense" />
+		<field name="rental_repairs" type="double" subtype="" access="r" input="main" default_value="0" comment="Repairs and maintenance" />
+		<field name="rental_utilities" type="double" subtype="" access="r" input="main" default_value="0" comment="Utilities expense" />
+		<field name="rental_management" type="double" subtype="" access="r" input="main" default_value="0" comment="Property management fees" />
+		<field name="depreciation" type="double" subtype="" access="rw" input="main" default_value="0" comment="Annual depreciation" />
+		<field name="rental_net_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net rental income (computed)" />
+		<field name="is_qualified_residence" type="boolean" subtype="" access="rw" input="" default_value="true" comment="Meets qualified residence definition (computed)" />
+		<field name="mortgage_interest_deductible" type="double" subtype="" access="rw" input="" default_value="0" comment="Deductible mortgage interest (computed)" />
+		<field name="active_participation" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Taxpayer actively participates in rental (PAL exception)" />
+		<field name="has_mortgage_credit_certificate" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Has MCC from state/local government (Form 8396)" />
+		<field name="mcc_rate" type="double" subtype="" access="r" input="main" default_value="0" comment="Certificate credit rate, usually 10%-50% (Form 8396)" />
+		<field name="mortgage_interest_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Mortgage interest paid this year (overrides mortgage_interest if set)" />
+	</entity>
+	<entity name="vehicle" xls_file="Property.xls" access="rw" comment="Business vehicle">
+		<field name="vehicle" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Vehicle ID" />
+		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID" />
+		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Vehicle description (year, make, model)" />
+		<field name="purchase_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date purchased" />
+		<field name="purchase_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Purchase price" />
+		<field name="total_miles" type="integer" subtype="" access="r" input="main" default_value="0" comment="Total miles driven during year" />
+		<field name="business_miles" type="integer" subtype="" access="r" input="main" default_value="0" comment="Business miles driven" />
+		<field name="business_use_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Business use percentage (computed)" />
+		<field name="method" type="string" subtype="" access="r" input="main" default_value="standard_mileage" comment="Deduction method: standard_mileage, actual_expense" />
+		<field name="standard_mileage_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Standard mileage deduction (computed)" />
+		<field name="actual_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Actual vehicle expenses if using actual method" />
+		<field name="vehicle_depreciation" type="double" subtype="" access="rw" input="main" default_value="0" comment="Vehicle depreciation" />
+		<field name="vehicle_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Final vehicle deduction amount (computed)" />
+	</entity>
+	<entity name="property_sale" xls_file="Property.xls" access="rw" comment="Sale of business property (Form 4797)">
+		<field name="property_sale" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Sale ID" />
+		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Property description" />
+		<field name="property_type" type="string" subtype="" access="r" input="main" default_value="1231" comment="Type: 1231, 1245, 1250" />
+		<field name="is_real_property" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Is real property (building, land)" />
+		<field name="date_acquired" type="date" subtype="" access="r" input="main" default_value="" comment="Date acquired" />
+		<field name="date_sold" type="date" subtype="" access="r" input="main" default_value="" comment="Date sold" />
+		<field name="sales_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross sales price" />
+		<field name="selling_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Cost of sale (commissions, etc.)" />
+		<field name="cost_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Original cost basis" />
+		<field name="improvements" type="double" subtype="" access="r" input="main" default_value="0" comment="Cost of improvements" />
+		<field name="depreciation_allowed" type="double" subtype="" access="r" input="main" default_value="0" comment="Total depreciation taken" />
+		<field name="adjusted_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Adjusted basis (cost + improvements - depreciation)" />
+		<field name="amount_realized" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount realized (sales price - expenses)" />
+		<field name="total_gain_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Total gain or loss" />
+		<field name="ordinary_income_recapture" type="double" subtype="" access="rw" input="" default_value="0" comment="Section 1245/1250 recapture (ordinary income)" />
+		<field name="section_1231_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Section 1231 gain/loss portion" />
+		<field name="unrecaptured_1250_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Unrecaptured Section 1250 gain (25% rate)" />
+	</entity>
+	<entity name="installment_sale" xls_file="Property.xls" access="rw" comment="Form 6252 Installment Sale">
+		<field name="installment_sale" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Sale ID" />
+		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Property description" />
+		<field name="date_sold" type="date" subtype="" access="r" input="main" default_value="" comment="Date of sale" />
+		<field name="is_related_party" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Sale to related party (IRC 453(e))" />
+		<field name="selling_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Total selling price" />
+		<field name="adjusted_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjusted basis in property" />
+		<field name="depreciation_recapture" type="double" subtype="" access="r" input="main" default_value="0" comment="Section 1245/1250 recapture" />
+		<field name="selling_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Selling expenses" />
+		<field name="payments_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Payments received this year" />
+		<field name="interest_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Interest portion of payments" />
+		<field name="prior_payments" type="double" subtype="" access="r" input="main" default_value="0" comment="Payments received in prior years" />
+		<field name="gross_profit" type="double" subtype="" access="rw" input="" default_value="0" comment="Gross profit (selling price - basis - expenses)" />
+		<field name="contract_price" type="double" subtype="" access="rw" input="" default_value="0" comment="Contract price for GP ratio" />
+		<field name="gross_profit_ratio" type="double" subtype="" access="rw" input="" default_value="0" comment="Gross profit ratio (GP/Contract Price)" />
+		<field name="installment_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Gain recognized this year" />
+	</entity>
+	<entity name="like_kind_exchange" xls_file="Property.xls" access="rw" comment="Form 8824 Like-Kind Exchange">
+		<field name="like_kind_exchange" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Exchange ID" />
+		<field name="relinquished_description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of property given up" />
+		<field name="relinquished_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date relinquished" />
+		<field name="relinquished_fmv" type="double" subtype="" access="r" input="main" default_value="0" comment="FMV of relinquished property" />
+		<field name="relinquished_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjusted basis of relinquished property" />
+		<field name="mortgage_relieved" type="double" subtype="" access="r" input="main" default_value="0" comment="Mortgage debt relieved" />
+		<field name="replacement_description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of property received" />
+		<field name="replacement_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date replacement acquired" />
+		<field name="replacement_fmv" type="double" subtype="" access="r" input="main" default_value="0" comment="FMV of replacement property" />
+		<field name="mortgage_assumed" type="double" subtype="" access="r" input="main" default_value="0" comment="Mortgage debt assumed" />
+		<field name="cash_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash boot paid" />
+		<field name="cash_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash boot received" />
+		<field name="other_property_fmv" type="double" subtype="" access="r" input="main" default_value="0" comment="FMV of non-like-kind property received" />
+		<field name="boot_received" type="double" subtype="" access="rw" input="" default_value="0" comment="Total boot received" />
+		<field name="realized_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Realized gain on exchange" />
+		<field name="recognized_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Recognized gain (lesser of boot or realized)" />
+		<field name="deferred_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Deferred gain" />
+		<field name="new_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Basis in replacement property" />
+	</entity>
+	<entity name="casualty_loss" xls_file="Property.xls" access="rw" comment="Form 4684 Casualty or Theft Loss">
+		<field name="casualty_loss" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Loss ID" />
+		<field name="property_description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of property" />
+		<field name="property_type" type="string" subtype="" access="r" input="main" default_value="personal" comment="Type: personal, business, income_producing" />
+		<field name="loss_type" type="string" subtype="" access="r" input="main" default_value="casualty" comment="Type: casualty, theft" />
+		<field name="loss_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date of casualty/theft" />
+		<field name="disaster_designation" type="string" subtype="" access="r" input="main" default_value="" comment="Federal disaster declaration number (if applicable)" />
+		<field name="cost_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Cost or adjusted basis" />
+		<field name="fmv_before" type="double" subtype="" access="r" input="main" default_value="0" comment="FMV before casualty" />
+		<field name="fmv_after" type="double" subtype="" access="r" input="main" default_value="0" comment="FMV after casualty" />
+		<field name="insurance_reimbursement" type="double" subtype="" access="r" input="main" default_value="0" comment="Insurance or other reimbursement" />
+		<field name="decrease_in_fmv" type="double" subtype="" access="rw" input="" default_value="0" comment="Decrease in FMV" />
+		<field name="loss_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Loss (smaller of basis or FMV decrease)" />
+		<field name="net_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Net loss after insurance" />
+		<field name="deductible_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Deductible loss (after $100 floor for personal)" />
+	</entity>
+</entity_data_dictionary>

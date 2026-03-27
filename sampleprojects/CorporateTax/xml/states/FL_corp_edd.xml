@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_dictionary name="CorporateTax_FL_Constants">
+
+  <!--
+    Florida Corporate Income Tax - Entity Data Dictionary
+
+    Florida has a flat 5.5% corporate income tax rate (FL Statute § 220.11).
+    Uses single-sales factor apportionment.
+    Economic nexus threshold: $50,000 (lower than typical $100K).
+  -->
+  <entity name="apportionment" xls_file='FL_Corp.xls'>
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='FL'
+           comment='Florida two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='50000.0'
+           comment='FL economic nexus gross receipts threshold - $50K (lower than typical $100K threshold)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='FL economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='FL uses single-sales factor apportionment (FL Statute § 220.15)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.055'
+           comment='FL corporate income tax rate: 5.5% flat rate (FL Statute § 220.11)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='FL additions: federal interest, state tax refunds included in federal income, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='FL subtractions: municipal interest from other states, state income taxes paid, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='FL tax credits: enterprise zone, R&D, community contribution, capital investment, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Florida-Specific Extensions
+
+    Florida does not require special state-specific fields beyond the standard
+    apportionment entity. FL uses a simple flat-rate tax structure.
+  -->
+  <entity name="result" xls_file='FL_Corp.xls'>
+    <!-- No FL-specific result fields needed -->
+  </entity>
+
+</entity_dictionary>
