@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Traditional IRA with Phaseout -->
+<!-- Scenario: MFJ, both have workplace plans, AGI in phaseout range -->
+<!-- Expected: Partial IRA deduction due to phaseout -->
+<!-- 2025 MFJ phaseout: $123,000 - $143,000 -->
+<!-- At $133,000 AGI (midpoint), 50% phaseout = $3,500 deductible per person -->
+<job>
+    <id>3531</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Income: $75,000 + $58,000 = $133,000 W2 -->
+    <!-- IRA phaseout: $133k - $123k = $10k into $20k range = 50% phaseout -->
+    <!-- Deductible: $7,000 * 50% = $3,500 per person = $7,000 total -->
+    <!-- AGI: $133,000 - $7,000 (partial IRA) = $126,000 -->
+    <!-- Standard deduction: $30,000 -->
+    <!-- Taxable: $96,000 -->
+    <expected_agi>126000</expected_agi>
+    <expected_taxable_income>96000</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Robert Martinez</name>
+            <ssn>222-33-4444</ssn>
+            <date_of_birth>5/20/1982</date_of_birth>
+            <occupation>Project Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>75000</w2_wages>
+            <w2_withholding>11000</w2_withholding>
+            <has_workplace_retirement_plan>true</has_workplace_retirement_plan>
+            <traditional_ira_contribution>7000</traditional_ira_contribution>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Jennifer Martinez</name>
+            <ssn>333-44-5555</ssn>
+            <date_of_birth>8/15/1984</date_of_birth>
+            <occupation>Accountant</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>58000</w2_wages>
+            <w2_withholding>8000</w2_withholding>
+            <has_workplace_retirement_plan>true</has_workplace_retirement_plan>
+            <traditional_ira_contribution>7000</traditional_ira_contribution>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

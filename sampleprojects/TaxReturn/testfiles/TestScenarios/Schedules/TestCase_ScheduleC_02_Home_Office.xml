@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule C - Business with Home Office Deduction -->
+<!-- Scenario: Graphic designer working from home with dedicated office space -->
+<!-- Home office: 200 sq ft of 2000 sq ft home = 10% business use -->
+<!-- Gross: $95,000, Regular expenses: $12,000, Home office: $3,500, Net: $79,500 -->
+<job>
+    <id>10007</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>CA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $95,000 - $15,500 total expenses - $5,617 SE deduction = $73,883 -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- QBI: ~$15,900 (20% of $79,500) -->
+    <!-- Taxable: $73,883 - $15,000 - $15,900 = ~$42,983 -->
+    <!-- Tax: ~$5,377 income + $11,234 SE = ~$16,611 -->
+    <expected_agi>73883</expected_agi>
+    <expected_taxable_income>42983</expected_taxable_income>
+    <expected_total_tax>16611</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Kevin Park</name>
+            <ssn>234-56-7890</ssn>
+            <date_of_birth>04/20/1990</date_of_birth>
+            <occupation>Graphic Designer</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>95000</se_gross_income>
+            <estimated_payments>14000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <expenses>
+        <!-- Regular business expenses -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Design software licenses</description>
+            <amount>6000</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Computer equipment</description>
+            <amount>4000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Internet and phone</description>
+            <amount>2000</amount>
+        </expense>
+
+        <!-- Home office expenses (10% of home costs) -->
+        <expense>
+            <id>4</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>home_office</category>
+            <description>Home office - mortgage interest portion</description>
+            <amount>1500</amount>
+        </expense>
+        <expense>
+            <id>5</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>home_office</category>
+            <description>Home office - utilities portion</description>
+            <amount>1200</amount>
+        </expense>
+        <expense>
+            <id>6</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>home_office</category>
+            <description>Home office - insurance portion</description>
+            <amount>800</amount>
+        </expense>
+    </expenses>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+</job>

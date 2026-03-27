@@ -1,0 +1,86 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Wisconsin Test Case 02: Retirement Income (Age 67+) -->
+   <!-- Tests retirement income exclusion for seniors -->
+   <id>WI-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_joint</filing_status>
+   <state>WI</state>
+   <city>Green Bay</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $60,000 (pension) + $35,000 (SS) = $95,000 -->
+   <!-- WI AGI: $95,000 - $48,000 (retirement exclusion) = $47,000 -->
+   <!-- Standard Deduction: $26,510 -->
+   <!-- Taxable Income: $20,490 -->
+   <!-- Tax Calculation (MFJ brackets):
+        - First $10,000 at 3.5% = $350
+        - Remaining $10,490 at 4.4% = $461.56
+        - Total: $811.56 -->
+   <expected_agi>95000</expected_agi>
+   <expected_wi_agi>47000</expected_wi_agi>
+   <expected_wi_taxable_income>20490</expected_wi_taxable_income>
+   <expected_wi_tax>812</expected_wi_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Williams</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>6/10/1955</date_of_birth>
+         <age>70</age>
+         <occupation>Retired</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Mary Williams</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>8/22/1957</date_of_birth>
+         <age>68</age>
+         <occupation>Retired</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Income -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>pension</type>
+         <payer>Wisconsin State Pension</payer>
+         <gross_amount>60000</gross_amount>
+         <federal_withholding>8000</federal_withholding>
+         <state_withholding>2000</state_withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>social_security</type>
+         <payer>Social Security Administration</payer>
+         <gross_amount>35000</gross_amount>
+         <taxable_amount>29750</taxable_amount>
+         <federal_withholding>0</federal_withholding>
+         <state_withholding>0</state_withholding>
+      </income>
+   </incomes>
+</job>

@@ -1,0 +1,140 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Net Operating Loss (NOL) Carryforward
+
+      IRC Section 172 - Net Operating Loss Deduction
+
+      Rules Tested:
+      - Post-TCJA NOL rules (losses arising after 2017):
+      -   NOL carryforward is UNLIMITED (no expiration)
+      -   NOL carryback ELIMINATED (except farming losses, certain disasters)
+      -   NOL deduction limited to 80% of taxable income (before NOL deduction)
+      -   Excess NOL carries forward indefinitely
+      - NOL arises when deductions exceed gross income
+      - Common sources: Business losses, casualty losses, theft losses
+      - Cannot create or increase an NOL with personal/dependency exemptions
+
+      Test Scenario:
+      - Taxpayer had business loss in 2024, creating NOL
+      - 2024 NOL: $120,000 (from failed business venture)
+      - 2025 income: $180,000 W-2 wages
+      - 2025 taxable income before NOL: $180,000 - $30,000 std ded = $150,000
+      - 80% limitation: $150,000 × 80% = $120,000
+      - NOL deduction allowed: Lesser of ($120,000 available NOL, $120,000 limit) = $120,000
+      - Taxable income after NOL: $150,000 - $120,000 = $30,000
+      - Remaining NOL to carry forward: $0
+
+      Expected Results:
+      - NOL deduction: $120,000 (fully utilized due to 80% limit aligning with NOL amount)
+      - Taxable income reduced from $150,000 to $30,000
+      - Significant tax savings from NOL utilization
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_07</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NY</state>
+   <city>New York</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $180,000 W-2 -->
+   <!-- AGI: $180,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable before NOL: $150,000 -->
+   <!-- NOL deduction: $120,000 (80% of $150k = $120k, which equals available NOL) -->
+   <!-- Taxable Income: $150,000 - $120,000 = $30,000 -->
+   <!-- Tax: $3,224 (2025 MFJ rates) -->
+   <!-- Withholding: $18,000 -->
+   <!-- Refund: $14,776 -->
+   <expected_agi>180000</expected_agi>
+   <expected_taxable_income>30000</expected_taxable_income>
+   <expected_total_tax>3224</expected_total_tax>
+   <expected_refund>14776</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Steven Goldberg</name>
+         <ssn>789-01-2345</ssn>
+         <date_of_birth>6/8/1975</date_of_birth>
+         <occupation>Financial Analyst</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>180000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Rachel Goldberg</name>
+         <ssn>890-12-3456</ssn>
+         <date_of_birth>9/15/1977</date_of_birth>
+         <occupation>Attorney (on sabbatical)</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Net Operating Loss Carryforward -->
+   <nol_carryforwards>
+      <!-- NOL from 2024 business failure -->
+      <nol id="1">
+         <id>1</id>
+         <nol_year>2024</nol_year>
+         <nol_amount>120000</nol_amount>
+         <nol_source>Business loss - failed restaurant venture</nol_source>
+         <nol_type>post_tcja</nol_type>
+         <carryback_years>0</carryback_years>
+         <carryforward_unlimited>true</carryforward_unlimited>
+         <!-- 2024 calculation (for reference) -->
+         <year_2024_gross_income>85000</year_2024_gross_income>
+         <year_2024_business_loss>205000</year_2024_business_loss>
+         <year_2024_nol_calculated>120000</year_2024_nol_calculated>
+         <!-- 2025 utilization -->
+         <year_2025_taxable_before_nol>150000</year_2025_taxable_before_nol>
+         <year_2025_80_percent_limit>120000</year_2025_80_percent_limit>
+         <year_2025_nol_deduction>120000</year_2025_nol_deduction>
+         <remaining_nol_after_2025>0</remaining_nol_after_2025>
+      </nol>
+   </nol_carryforwards>
+
+   <!-- No other deductions -->
+   <deductions>
+   </deductions>
+</job>

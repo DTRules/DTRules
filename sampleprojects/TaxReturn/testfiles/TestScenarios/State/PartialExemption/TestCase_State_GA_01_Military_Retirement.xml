@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Georgia Military Retirement Test Case -->
+   <!-- Test Case GA-Military-01: Military retiree age 62+ ($35,000 exemption) -->
+   <!-- GA provides age-based retirement income exclusions: -->
+   <!-- Age 62-64: $35,000 -->
+   <!-- Age 65+: $65,000 -->
+   <!-- This test uses age 63 (born 1962) = $35,000 exemption -->
+
+   <id>GA-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>GA</state>
+   <city>Atlanta</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $40,000 military retirement + $30,000 W2 = $70,000 -->
+   <!-- AGI: $70,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $55,000 -->
+   <!-- Federal Tax: ~$6,800 -->
+   <!-- GA: Progressive tax (5.49% flat for 2025) -->
+   <!-- GA Military Retirement Exemption: $35,000 (age 62-64) -->
+   <!-- GA Taxable Retirement: $40,000 - $35,000 = $5,000 -->
+   <!-- GA Taxable Income: $5,000 + $30,000 = $35,000 -->
+   <!-- GA Tax: $35,000 * 0.0549 = $1,922 -->
+   <!-- Total Tax: $8,722 -->
+   <!-- Withholding: $9,500 -->
+   <!-- Refund: $778 -->
+   <expected_agi>70000</expected_agi>
+   <expected_taxable_income>55000</expected_taxable_income>
+   <expected_total_tax>8722</expected_total_tax>
+   <expected_state_tax>1922</expected_state_tax>
+   <expected_refund>778</expected_refund>
+
+   <!-- Retired Military Taxpayer (Age 63) -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>William</name>
+         <last_name>Anderson</last_name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>4/25/1962</date_of_birth>
+         <occupation>Military Retiree - Logistics Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>9500</w2_withholding>
+         <military_retirement_pay>40000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

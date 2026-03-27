@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 10: Parents with College Students -->
+<!-- Tests: AOTC, LLC, student loan interest, 529 plans, education expenses -->
+<!-- Scenario: MFJ with 2 college students, maximizing education benefits -->
+<!-- Expected: AOTC for both students, proper coordination with 529 distributions -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-10-COLLEGE-PARENT</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>PA</state>
+   <city>Philadelphia</city>
+
+   <!-- Expected values -->
+   <!-- W-2 income: $105,000 + $87,000 = $192,000 -->
+   <!-- Student loan interest: $2,500 (capped) -->
+   <!-- AGI: $192,000 - $2,500 = $189,500 -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable: $159,500 -->
+   <!-- Tax: ~$24,800 -->
+   <!-- AOTC: $2,500 * 2 = $5,000 (2 students, both in first 4 years) -->
+   <!-- Net tax: $19,800 -->
+   <!-- 40% of AOTC refundable: $1,000 * 2 = $2,000 -->
+   <expected_agi>189500</expected_agi>
+   <expected_taxable_income>159500</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Williams</name>
+         <ssn>300-20-0001</ssn>
+         <date_of_birth>4/3/1972</date_of_birth>
+         <occupation>Pharmacist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>105000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+         <w2_ss_wages>105000</w2_ss_wages>
+         <w2_ss_withheld>6510</w2_ss_withheld>
+         <w2_medicare_wages>105000</w2_medicare_wages>
+         <w2_medicare_withheld>1523</w2_medicare_withheld>
+         <employer_name>CVS Pharmacy</employer_name>
+         <employer_ein>05-0494040</employer_ein>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Linda Williams</name>
+         <ssn>300-20-0002</ssn>
+         <date_of_birth>8/19/1974</date_of_birth>
+         <occupation>Physical Therapist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>87000</w2_wages>
+         <w2_withholding>13500</w2_withholding>
+         <w2_ss_wages>87000</w2_ss_wages>
+         <w2_ss_withheld>5394</w2_ss_withheld>
+         <w2_medicare_wages>87000</w2_medicare_wages>
+         <w2_medicare_withheld>1262</w2_medicare_withheld>
+         <employer_name>Jefferson Health</employer_name>
+         <employer_ein>23-1234567</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two college students -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Williams</name>
+         <ssn>300-20-0003</ssn>
+         <date_of_birth>6/15/2006</date_of_birth>
+         <age>19</age>
+         <relationship>child</relationship>
+         <months_lived_with>8</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>true</is_college_student>
+         <has_ssn>true</has_ssn>
+         <college_year>sophomore</college_year>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Ryan Williams</name>
+         <ssn>300-20-0004</ssn>
+         <date_of_birth>11/22/2007</date_of_birth>
+         <age>18</age>
+         <relationship>child</relationship>
+         <months_lived_with>7</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>true</is_college_student>
+         <has_ssn>true</has_ssn>
+         <college_year>freshman</college_year>
+      </dependent>
+   </dependents>
+
+   <!-- Primary residence -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>1234 Chestnut Street, Philadelphia, PA 19107</address>
+         <purchase_date>7/1/2010</purchase_date>
+         <purchase_price>325000</purchase_price>
+         <current_fmv>485000</current_fmv>
+         <mortgage_balance>185000</mortgage_balance>
+         <mortgage_origination_date>7/1/2010</mortgage_origination_date>
+         <mortgage_interest>8325</mortgage_interest>
+         <property_taxes>7200</property_taxes>
+      </property>
+   </properties>
+
+   <!-- Education expenses -->
+   <education_expenses>
+      <!-- Emily - Sophomore (AOTC eligible, year 2 of 4) -->
+      <education_expense id="1">
+         <id>1</id>
+         <student_name>Emily Williams</student_name>
+         <student_ssn>300-20-0003</student_ssn>
+         <institution>Penn State University</institution>
+         <institution_ein>24-0795852</institution_ein>
+         <qualified_tuition>18500</qualified_tuition>
+         <qualified_books>1200</qualified_books>
+         <room_and_board>14000</room_and_board>
+         <is_first_four_years>true</is_first_four_years>
+         <academic_period>Full Year</academic_period>
+         <enrolled_half_time>true</enrolled_half_time>
+         <form_1098t_received>true</form_1098t_received>
+         <scholarships_received>5000</scholarships_received>
+      </education_expense>
+
+      <!-- Ryan - Freshman (AOTC eligible, year 1 of 4) -->
+      <education_expense id="2">
+         <id>2</id>
+         <student_name>Ryan Williams</student_name>
+         <student_ssn>300-20-0004</student_ssn>
+         <institution>Temple University</institution>
+         <institution_ein>23-1365971</institution_ein>
+         <qualified_tuition>16200</qualified_tuition>
+         <qualified_books>900</qualified_books>
+         <room_and_board>12500</room_and_board>
+         <is_first_four_years>true</is_first_four_years>
+         <academic_period>Full Year</academic_period>
+         <enrolled_half_time>true</enrolled_half_time>
+         <form_1098t_received>true</form_1098t_received>
+         <scholarships_received>3500</scholarships_received>
+      </education_expense>
+   </education_expenses>
+
+   <!-- 529 Plan distributions -->
+   <plan_529_distributions>
+      <plan_529_distribution id="1">
+         <id>1</id>
+         <beneficiary_name>Emily Williams</beneficiary_name>
+         <beneficiary_ssn>300-20-0003</beneficiary_ssn>
+         <distribution_amount>15000</distribution_amount>
+         <earnings_portion>3200</earnings_portion>
+         <qualified_expenses>18500</qualified_expenses>
+         <taxable_amount>0</taxable_amount>
+      </plan_529_distribution>
+
+      <plan_529_distribution id="2">
+         <id>2</id>
+         <beneficiary_name>Ryan Williams</beneficiary_name>
+         <beneficiary_ssn>300-20-0004</beneficiary_ssn>
+         <distribution_amount>13000</distribution_amount>
+         <earnings_portion>2800</earnings_portion>
+         <qualified_expenses>16200</qualified_expenses>
+         <taxable_amount>0</taxable_amount>
+      </plan_529_distribution>
+   </plan_529_distributions>
+
+   <!-- Student loans -->
+   <student_loans>
+      <student_loan id="1">
+         <id>1</id>
+         <borrower_name>Robert Williams</borrower_name>
+         <borrower_ssn>300-20-0001</borrower_ssn>
+         <lender>Nelnet</lender>
+         <interest_paid>3200</interest_paid>
+         <deductible_amount>2500</deductible_amount>
+         <loan_purpose>Graduate degree (prior education)</loan_purpose>
+      </student_loan>
+   </student_loans>
+
+   <!-- Deductions -->
+   <deductions>
+      <!-- Student loan interest (above-the-line) -->
+      <deduction id="1">
+         <id>1</id>
+         <category>student_loan_interest</category>
+         <description>Federal student loan interest</description>
+         <amount>2500</amount>
+      </deduction>
+
+      <!-- Charity -->
+      <deduction id="2">
+         <id>2</id>
+         <category>charity</category>
+         <description>Church donations</description>
+         <amount>4800</amount>
+      </deduction>
+
+      <deduction id="3">
+         <id>3</id>
+         <category>charity</category>
+         <description>United Way</description>
+         <amount>1200</amount>
+      </deduction>
+   </deductions>
+</job>

@@ -1,0 +1,57 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Filing Status Test: Qualifying Widow(er) -->
+   <!-- 2025 Standard Deduction QW: $30,000 (same as MFJ) -->
+   <!-- Available for 2 years after spouse's death with dependent child -->
+   <!-- Uses MFJ tax brackets - most favorable rates -->
+
+   <id>Credits-05</id>
+   <tax_year>2025</tax_year>
+   <filing_status>QW</filing_status>
+   <state>TX</state>
+   <spouse_date_of_death>7/15/2023</spouse_date_of_death>
+
+   <!-- Income: $70,000 W-2 -->
+   <!-- AGI: $70,000 -->
+   <!-- Standard Deduction: $30,000 (MFJ rate) -->
+   <!-- Taxable Income: $40,000 -->
+   <!-- Tax (2025 MFJ brackets): $4,294 -->
+   <!-- Also qualifies for Child Tax Credit: $2,000 -->
+   <expected_agi>70000</expected_agi>
+   <expected_standard_deduction>30000</expected_standard_deduction>
+   <expected_taxable_income>40000</expected_taxable_income>
+   <expected_ctc>2000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Elizabeth Thompson</name>
+         <ssn>555-66-8888</ssn>
+         <date_of_birth>5/10/1986</date_of_birth>
+         <occupation>Financial Analyst</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>70000</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sarah Thompson</name>
+         <ssn>666-77-8888</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>11/22/2016</date_of_birth>
+         <age>9</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

@@ -1,0 +1,115 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- North Carolina Military Retirement Full Exemption Test Case -->
+   <!-- Test Case NC-Military-01: Military retiree with full exemption -->
+   <!-- NC provides 100% exemption for military retirement pay (changed from partial to full in 2021) -->
+   <!-- NC has flat 4.25% state income tax rate (2025) -->
+   <!-- This test verifies that military retirement is fully excluded from NC taxable income -->
+
+   <id>NC-MIL-FULL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>NC</state>
+   <city>Raleigh</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $52,000 military retirement (100% exempt in NC) + $12,000 investment income (taxable) = $64,000 AGI -->
+   <!-- Federal AGI: $64,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $49,000 -->
+   <!-- Federal Tax: $11,925 @ 10% = $1,192.50 + $37,075 @ 12% = $4,449.00 = $5,641.50 -->
+   <!--
+   NC Calculation:
+   - NC AGI starts with Federal AGI: $64,000
+   - NC Military Retirement Exclusion: $52,000 (100% exempt - full exemption since 2021 for 20+ years service)
+   - NC Adjusted AGI: $64,000 - $52,000 = $12,000
+   - NC Standard Deduction: $12,750 (Single, 2025)
+   - NC Taxable Income: $12,000 - $12,750 = $0 (cannot be negative)
+   - NC Tax: $0 * 0.0425 = $0
+   - Total Tax: $5,641.50 + $0 = $5,641.50
+   - Withholding: $6,800
+   - Refund: $1,158.50
+   -->
+   <expected_agi>64000</expected_agi>
+   <expected_taxable_income>49000</expected_taxable_income>
+   <expected_total_tax>5641.50</expected_total_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_refund>1158.50</expected_refund>
+
+   <!-- Retired Military Taxpayer with investment income -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David</name>
+         <last_name>Thompson</last_name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>9/18/1976</date_of_birth>
+         <occupation>Military Retiree - Investor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>6800</w2_withholding>
+         <military_retirement_pay>52000</military_retirement_pay>
+         <dividend_income>8000</dividend_income>
+         <interest_income>4000</interest_income>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+
+   <!--
+   MSRRA Compliance Notes:
+   - Military Servicemembers Civil Relief Act (SCRA) and Military Spouses Residency Relief Act (MSRRA)
+     protect service members from dual state taxation
+   - NC honors these federal protections
+   - Military retirement pay earned through federal service is 100% exempt in NC
+
+   SCRA Compliance:
+   - Service members stationed in NC but domiciled elsewhere can exclude military pay from NC taxation
+   - This test case shows NC resident receiving full exemption on military retirement
+
+   NC Military Retirement Policy Change (2021):
+   - Prior to 2021, NC provided partial exemption with age/service requirements
+   - Starting in 2021, NC provides FULL (100%) exemption for military retirement
+   - Requirement: 20+ years of service OR medical retirement (Group B retirement)
+   - SBP (Survivor Benefit Plan) payments also fully exempt
+
+   Test Coverage:
+   - This test validates that $52,000 military retirement pay is fully excluded from NC state AGI
+   - Only the $12,000 investment income (dividends + interest) is potentially subject to NC income tax
+   - After military retirement exclusion ($52,000), remaining income ($12,000) is below NC standard deduction ($12,750)
+   - Result: $0 NC state tax owed
+   - NC provides this exemption for qualifying retirees (20+ years or medical retirement)
+   - Representative of flat-rate state with full military retirement exemption
+   - Tests combination of tax-exempt military retirement and taxable investment income
+   - Demonstrates NC's 2021 policy change from partial to full exemption
+   -->
+</job>

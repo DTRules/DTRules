@@ -204,32 +204,39 @@ func testSampleProject(t *testing.T, baseDir string, project SampleProject) {
 	// Create RuleSet
 	rs := session.NewRuleSet(project.Name)
 
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, project.EDDFile)
-	eddFile, err := os.Open(eddPath)
+	// Try loading from directory first (multi-file structure)
+	// If that fails, fall back to individual files (monolithic structure)
+	err := rs.LoadFromDirectory(xmlDir)
 	if err != nil {
-		t.Fatalf("Failed to open EDD file %s: %v", eddPath, err)
-	}
-	defer eddFile.Close()
+		t.Logf("Directory loading failed, trying individual files: %v", err)
 
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-	t.Logf("EDD loaded: %d entities", len(rs.GetEntityNames()))
+		// Load EDD
+		eddPath := filepath.Join(xmlDir, project.EDDFile)
+		eddFile, err := os.Open(eddPath)
+		if err != nil {
+			t.Fatalf("Failed to open EDD file %s: %v", eddPath, err)
+		}
+		defer eddFile.Close()
 
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, project.DTFile)
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT file %s: %v", dtPath, err)
-	}
-	defer dtFile.Close()
+		err = rs.LoadEDD(eddFile)
+		if err != nil {
+			t.Fatalf("Failed to load EDD: %v", err)
+		}
 
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load decision tables: %v", err)
+		// Load Decision Tables
+		dtPath := filepath.Join(xmlDir, project.DTFile)
+		dtFile, err := os.Open(dtPath)
+		if err != nil {
+			t.Fatalf("Failed to open DT file %s: %v", dtPath, err)
+		}
+		defer dtFile.Close()
+
+		err = rs.LoadDecisionTables(dtFile)
+		if err != nil {
+			t.Fatalf("Failed to load decision tables: %v", err)
+		}
 	}
+	t.Logf("Rules loaded: %d entities", len(rs.GetEntityNames()))
 
 	dtNames := rs.GetDecisionTableNames()
 	t.Logf("Decision tables loaded: %d tables", len(dtNames))
@@ -413,33 +420,42 @@ func TestSampleProjectsCompileOnly(t *testing.T) {
 			// Create RuleSet
 			rs := session.NewRuleSet(project.Name)
 
-			// Load EDD
-			eddPath := filepath.Join(xmlDir, project.EDDFile)
-			eddFile, err := os.Open(eddPath)
+			// Try loading from directory first (multi-file structure)
+			// If that fails, fall back to individual files (monolithic structure)
+			err := rs.LoadFromDirectory(xmlDir)
 			if err != nil {
-				t.Fatalf("Failed to open EDD: %v", err)
-			}
-			defer eddFile.Close()
+				t.Logf("Directory loading failed, trying individual files: %v", err)
 
-			err = rs.LoadEDD(eddFile)
-			if err != nil {
-				t.Fatalf("Failed to load EDD: %v", err)
-			}
-			t.Logf("EDD compiled: %d entities", len(rs.GetEntityNames()))
+				// Load EDD
+				eddPath := filepath.Join(xmlDir, project.EDDFile)
+				eddFile, err := os.Open(eddPath)
+				if err != nil {
+					t.Fatalf("Failed to open EDD: %v", err)
+				}
+				defer eddFile.Close()
 
-			// Load Decision Tables
-			dtPath := filepath.Join(xmlDir, project.DTFile)
-			dtFile, err := os.Open(dtPath)
-			if err != nil {
-				t.Fatalf("Failed to open DT: %v", err)
-			}
-			defer dtFile.Close()
+				err = rs.LoadEDD(eddFile)
+				if err != nil {
+					t.Fatalf("Failed to load EDD: %v", err)
+				}
 
-			err = rs.LoadDecisionTables(dtFile)
-			if err != nil {
-				t.Fatalf("Failed to load DT: %v", err)
+				// Load Decision Tables
+				dtPath := filepath.Join(xmlDir, project.DTFile)
+				dtFile, err := os.Open(dtPath)
+				if err != nil {
+					t.Fatalf("Failed to open DT: %v", err)
+				}
+				defer dtFile.Close()
+
+				err = rs.LoadDecisionTables(dtFile)
+				if err != nil {
+					t.Fatalf("Failed to load DT: %v", err)
+				}
 			}
-			t.Logf("DT compiled: %d tables", len(rs.GetDecisionTableNames()))
+
+			t.Logf("Rules compiled: %d entities, %d tables",
+				len(rs.GetEntityNames()),
+				len(rs.GetDecisionTableNames()))
 		})
 	}
 }

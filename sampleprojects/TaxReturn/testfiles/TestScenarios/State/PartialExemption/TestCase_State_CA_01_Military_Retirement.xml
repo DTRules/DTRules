@@ -1,0 +1,83 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- California Military Retirement Test Case -->
+   <!-- Test Case CA-Military-01: Military retiree with AGI under $126,260 (fully exempt) -->
+   <!-- CA excludes military retirement if AGI < $126,260 (2025) -->
+
+   <id>CA-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>CA</state>
+   <city>San Diego</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $35,000 military retirement + $45,000 W2 = $80,000 -->
+   <!-- AGI: $80,000 (no adjustments) -->
+   <!-- AGI is under $126,260 threshold, so full military retirement exclusion applies -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $65,000 -->
+   <!-- Federal Tax: ~$8,700 -->
+   <!-- CA Standard Deduction: $5,706 -->
+   <!-- CA Military Retirement Exclusion: $35,000 (full exclusion due to AGI < $126,260) -->
+   <!-- CA Taxable Income: $45,000 - $5,706 = $39,294 -->
+   <!-- CA Tax Calculation (progressive brackets): -->
+   <!--   $0-$11,079 @ 1%: $110.79 -->
+   <!--   $11,079-$26,295 @ 2%: $304.32 -->
+   <!--   $26,295-$39,294 @ 4%: $520 -->
+   <!--   Total CA Tax: ~$935 -->
+   <!-- Total Tax: $9,635 -->
+   <!-- Withholding: $11,000 -->
+   <!-- Refund: $1,365 -->
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>65000</expected_taxable_income>
+   <expected_total_tax>9635</expected_total_tax>
+   <expected_state_tax>935</expected_state_tax>
+   <expected_refund>1365</expected_refund>
+
+   <!-- Retired Military Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>James</name>
+         <last_name>Martinez</last_name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>5/10/1960</date_of_birth>
+         <occupation>Military Retiree - Part Time Consultant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>11000</w2_withholding>
+         <military_retirement_pay>35000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>
