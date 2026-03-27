@@ -1046,6 +1046,8 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
+
 <!-- Alabama State Tax Constants (2025) -->
 		<field name='al_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.02' comment='Alabama tax rate bracket 1: 2%'></field>
 		<field name='al_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.04' comment='Alabama tax rate bracket 2: 4%'></field>
@@ -1072,6 +1074,12 @@
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+		<!-- Georgia State Tax Constants (2025) -->
+		<field name='ga_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0519' comment='Georgia flat tax rate (5.19%)'></field>
+		<field name='ga_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='12000' comment='GA standard deduction Single (2025)'></field>
+		<field name='ga_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='24000' comment='GA standard deduction MFJ (2025)'></field>
+		<field name='ga_dependent_exemption' type='double' subtype='' access='r' input='' default_value='4000' comment='GA dependent exemption per dependent (2025)'></field>
+
 		<!-- Montana State Tax Constants (2025) -->
 		<field name='mt_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='4500' comment='MT standard deduction Single (2025)'></field>
 		<field name='mt_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='11500' comment='MT standard deduction MFJ (2025)'></field>
@@ -1089,6 +1097,20 @@
 		<field name='sd_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='25000' comment='SD bracket 2 threshold Single/MFS (above this uses 5.0%)'></field>
 		<field name='sd_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='50000' comment='SD bracket 2 threshold MFJ (above this uses 5.0%)'></field>
 		<field name='sd_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='37500' comment='SD bracket 2 threshold HOH (above this uses 5.0%)'></field>
+
+		<!-- Nevada State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='nv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='7500' comment='NV standard deduction Single (2025)'></field>
+		<field name='nv_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='15000' comment='NV standard deduction MFJ (2025)'></field>
+		<field name='nv_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='11250' comment='NV standard deduction HOH (2025)'></field>
+		<field name='nv_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0250' comment='NV tax rate bracket 1 (2.5%)'></field>
+		<field name='nv_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='NV tax rate bracket 2 (4.0%)'></field>
+		<field name='nv_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0600' comment='NV tax rate bracket 3 (6.0%)'></field>
+		<field name='nv_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='50000' comment='NV bracket 2 threshold Single/MFS (above this uses 4.0%)'></field>
+		<field name='nv_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='100000' comment='NV bracket 2 threshold MFJ (above this uses 4.0%)'></field>
+		<field name='nv_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='75000' comment='NV bracket 2 threshold HOH (above this uses 4.0%)'></field>
+		<field name='nv_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='120000' comment='NV bracket 3 threshold Single/MFS (above this uses 6.0%)'></field>
+		<field name='nv_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='240000' comment='NV bracket 3 threshold MFJ (above this uses 6.0%)'></field>
+		<field name='nv_bracket_3_threshold_hoh' type='double' subtype='' access='r' input='' default_value='180000' comment='NV bracket 3 threshold HOH (above this uses 6.0%)'></field>
 
 
 		<!-- Ohio State Tax Constants (2025) -->
@@ -1672,6 +1694,13 @@
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
 
+		<!-- Georgia State Tax Results -->
+		<field name='ga_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia AGI (federal AGI + adjustments)'></field>
+		<field name='ga_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='GA standard deduction amount'></field>
+		<field name='ga_dependent_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='GA total dependent exemptions'></field>
+		<field name='ga_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia taxable income'></field>
+		<field name='ga_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia state income tax'></field>
+
 		<!-- Montana State Tax Results -->
 		<field name='mt_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana AGI (federal AGI + adjustments)'></field>
 		<field name='mt_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MT standard deduction amount'></field>
@@ -1688,6 +1717,15 @@
 		<field name='sd_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='SD bracket 2 tax (5.0%)'></field>
 		<field name='sd_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='South Dakota state income tax'></field>
 
+
+		<!-- Nevada State Tax Results -->
+		<field name='nv_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Nevada AGI (federal AGI + adjustments)'></field>
+		<field name='nv_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NV standard deduction amount'></field>
+		<field name='nv_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Nevada taxable income'></field>
+		<field name='nv_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NV bracket 1 tax (2.5%)'></field>
+		<field name='nv_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NV bracket 2 tax (4.0%)'></field>
+		<field name='nv_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NV bracket 3 tax (6.0%)'></field>
+		<field name='nv_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Nevada state income tax'></field>
 
 		<!-- Ohio State Tax Results -->
 		<field name='oh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio AGI (federal AGI + adjustments)'></field>
