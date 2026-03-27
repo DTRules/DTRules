@@ -1730,7 +1730,15 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='residency_status' type='string' subtype='' access='rw' input='main' default_value='full_year_resident' comment='Residency status: full_year_resident, part_year_resident, non_resident'></field>
+		<field name='residency_start_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency began (for part-year residents)'></field>
+		<field name='residency_end_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency ended (for part-year residents)'></field>
+		<field name='resident_months' type='integer' subtype='' access='rw' input='' default_value='12' comment='Number of months as resident (computed)'></field>
+		<field name='resident_ratio' type='double' subtype='' access='rw' input='' default_value='1.0' comment='Ratio of resident months to 12 (computed)'></field>
 		<field name='state_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='State adjusted gross income'></field>
+		<field name='resident_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned during resident period'></field>
+		<field name='non_resident_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income sourced to state during non-resident period'></field>
+		<field name='allocated_deductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductions allocated to state (computed)'></field>
 		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income after deductions'></field>
 		<field name='state_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax before credits'></field>
 		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total state tax credits'></field>
