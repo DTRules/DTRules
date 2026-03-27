@@ -1103,6 +1103,20 @@
 		<field name='pa_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA pension exclusion (100%)'></field>
 		<field name='pa_ira_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA IRA distribution exclusion (100%)'></field>
 
+		<!-- West Virginia State Income Tax (2025) -->
+		<field name='wv_rate_1' type='double' subtype='' access='r' input='' default_value='0.0222' comment='WV rate bracket 1 (2.22%)'></field>
+		<field name='wv_rate_2' type='double' subtype='' access='r' input='' default_value='0.0296' comment='WV rate bracket 2 (2.96%)'></field>
+		<field name='wv_rate_3' type='double' subtype='' access='r' input='' default_value='0.0333' comment='WV rate bracket 3 (3.33%)'></field>
+		<field name='wv_rate_4' type='double' subtype='' access='r' input='' default_value='0.0444' comment='WV rate bracket 4 (4.44%)'></field>
+		<field name='wv_rate_5' type='double' subtype='' access='r' input='' default_value='0.0482' comment='WV rate bracket 5 (4.82%)'></field>
+		<field name='wv_bracket_1' type='double' subtype='' access='r' input='' default_value='10000' comment='WV bracket 1 ceiling ($10,000)'></field>
+		<field name='wv_bracket_2' type='double' subtype='' access='r' input='' default_value='25000' comment='WV bracket 2 ceiling ($25,000)'></field>
+		<field name='wv_bracket_3' type='double' subtype='' access='r' input='' default_value='40000' comment='WV bracket 3 ceiling ($40,000)'></field>
+		<field name='wv_bracket_4' type='double' subtype='' access='r' input='' default_value='60000' comment='WV bracket 4 ceiling ($60,000)'></field>
+		<field name='wv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='WV standard deduction Single (2025)'></field>
+		<field name='wv_standard_deduction_joint' type='double' subtype='' access='r' input='' default_value='4000' comment='WV standard deduction MFJ (2025)'></field>
+		<field name='wv_personal_exemption' type='double' subtype='' access='r' input='' default_value='2000' comment='WV personal exemption per person (2025)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 
@@ -1705,6 +1719,7 @@
 
 		<!-- State tax result fields -->
 		<field name='ca_state_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA state income tax liability before Mental Health Services Tax (computed)'></field>
+		<field name="wv_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="West Virginia state income tax calculated"></field>
 		<field name='ca_mental_health_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA Mental Health Services Tax (1% surtax on income > $1M, computed)'></field>
 		<field name='ca_total_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA total tax liability including Mental Health Services Tax (computed)'></field>
 
