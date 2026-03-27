@@ -25,24 +25,43 @@ import (
 	"github.com/DTRules/DTRules/go/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/testsupport"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/trace"
 )
 
 var (
-	eddFile      = flag.String("edd", "", "Path to EDD XML file")
-	dtFile       = flag.String("dt", "", "Path to Decision Tables XML file")
-	rulesDir     = flag.String("rules", "", "Directory containing EDD.xml and DecisionTables.xml")
-	entryPoint   = flag.String("entry", "", "Decision table entry point to execute")
-	validate     = flag.Bool("validate", false, "Validate rules without executing")
-	listTables   = flag.Bool("list", false, "List all decision tables")
+	// Basic options
+	eddFile    = flag.String("edd", "", "Path to EDD XML file")
+	dtFile     = flag.String("dt", "", "Path to Decision Tables XML file")
+	rulesDir   = flag.String("rules", "", "Directory containing EDD.xml and DecisionTables.xml")
+	entryPoint = flag.String("entry", "", "Decision table entry point to execute")
+	validate   = flag.Bool("validate", false, "Validate rules without executing")
+	listTables = flag.Bool("list", false, "List all decision tables")
+	verbose    = flag.Bool("v", false, "Verbose output")
+	traceFlag  = flag.Bool("trace", false, "Enable trace output during execution")
+	debug      = flag.Bool("debug", false, "Enable debug output during execution")
+
+	// Trace analysis options
+	traceFile = flag.String("trace-file", "", "Analyze a trace file")
+	traceNode = flag.Int("trace-node", 0, "Set state to specific node number in trace")
+
+	// Coverage options
+	coverageDir = flag.String("coverage", "", "Generate coverage report from trace files in directory")
+
+	// Test harness options
+	testDir       = flag.String("test", "", "Run tests from directory")
+	testOutputDir = flag.String("test-output", "", "Test output directory")
+
+	// Change report options
+	comparePath = flag.String("compare", "", "Compare with reference rules at path")
+
+	// Compile and export options
 	compile      = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
 	exportXLS    = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix, deprecated)")
 	exportDT     = flag.String("export-dt", "", "Export decision tables to Excel file (.xlsx)")
 	exportEDD    = flag.String("export-edd", "", "Export EDD to Excel file (.xlsx)")
 	exportDTDir  = flag.String("export-dt-dir", "", "Export decision tables to directory (grouped by xls_file)")
 	exportEDDDir = flag.String("export-edd-dir", "", "Export EDD to directory (grouped by xls_file)")
-	verbose      = flag.Bool("v", false, "Verbose output")
-	trace        = flag.Bool("trace", false, "Enable trace output during execution")
-	debug        = flag.Bool("debug", false, "Enable debug output during execution")
 )
 
 func main() {
@@ -58,11 +77,35 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -entry Main -trace\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -edd ./EDD.xml -dt ./DecisionTables.xml -entry Main\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -edd ./EDD.xml -dt ./DecisionTables.xml -export ./output\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "\nTrace Analysis:\n")
+		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -trace-file trace.xml -trace-node 428\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "\nCoverage:\n")
+		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -coverage ./output/\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "\nTesting:\n")
+		fmt.Fprintf(os.Stderr, "  %s -rules ./rules -test ./testfiles/ -test-output ./output/ -entry Main\n", os.Args[0])
 	}
 
 	flag.Parse()
 
-	// Determine EDD and DT file paths
+	// Handle trace analysis mode
+	if *traceFile != "" {
+		handleTraceAnalysis()
+		return
+	}
+
+	// Handle coverage mode
+	if *coverageDir != "" {
+		handleCoverage()
+		return
+	}
+
+	// Handle test mode
+	if *testDir != "" {
+		handleTest()
+		return
+	}
+
+	// Standard execution mode requires rules
 	eddPath, dtPath, err := resolveFilePaths()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -85,6 +128,12 @@ func main() {
 	// Handle validate mode
 	if *validate {
 		validateRules(rs)
+		return
+	}
+
+	// Handle compare mode
+	if *comparePath != "" {
+		handleCompare(rs)
 		return
 	}
 
@@ -130,7 +179,7 @@ func main() {
 	state := rsess.GetState().(*interpreter.DTState)
 
 	// Enable trace/debug modes
-	if *trace {
+	if *traceFlag {
 		state.EnableTrace()
 		if *verbose {
 			fmt.Println("Trace mode enabled")
@@ -155,6 +204,173 @@ func main() {
 	if *verbose {
 		fmt.Println("Execution completed successfully")
 	}
+}
+
+func handleTraceAnalysis() {
+	// Load trace file
+	t := trace.NewTrace()
+	root, err := t.Load(*traceFile)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading trace file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Loaded trace with %d nodes\n", root.Count())
+
+	// If no node specified, just print summary
+	if *traceNode == 0 {
+		t.Print(os.Stdout)
+		return
+	}
+
+	// Find the specified node
+	node := t.Find(*traceNode)
+	if node == nil {
+		fmt.Fprintf(os.Stderr, "Node %d not found in trace\n", *traceNode)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Found node %d: %s\n", *traceNode, node.Name)
+
+	// If rules are specified, reconstruct state
+	if *rulesDir != "" || (*eddFile != "" && *dtFile != "") {
+		eddPath, dtPath, err := resolveFilePaths()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		rs, err := loadRuleSet(eddPath, dtPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
+			os.Exit(1)
+		}
+
+		sess, err := t.SetState(rs, node)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error setting state: %v\n", err)
+			os.Exit(1)
+		}
+
+		if sess != nil {
+			fmt.Println("\nState reconstructed successfully")
+			fmt.Printf("Entities created: %d\n", len(t.GetEntityTable()))
+			fmt.Printf("Arrays created: %d\n", len(t.GetArrayTable()))
+			fmt.Printf("Changes tracked: %d\n", len(t.GetChanges()))
+
+			// Print entity info
+			if *verbose {
+				fmt.Println("\nEntities:")
+				for id, entity := range t.GetEntityTable() {
+					fmt.Printf("  %s: %s (id=%s)\n",
+						entity.GetName().StringValue(),
+						entity.GetName().StringValue(),
+						id)
+				}
+
+				fmt.Println("\nChanges:")
+				for _, change := range t.GetChanges() {
+					tableNum := -1
+					if change.ExecuteTable != nil {
+						tableNum = change.ExecuteTable.Number
+					}
+					fmt.Printf("  Entity %d, attr %s changed at node %d\n",
+						change.EntityID, change.AttributeKey, tableNum)
+				}
+			}
+		}
+	}
+
+	// Print actions at this position
+	actions := node.GetActions()
+	if actions != nil {
+		fmt.Printf("\nActions at position: %v\n", actions)
+	}
+}
+
+func handleCoverage() {
+	// Need rules for coverage
+	eddPath, dtPath, err := resolveFilePaths()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	rs, err := loadRuleSet(eddPath, dtPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create coverage analyzer
+	cov, err := testsupport.NewCoverage(rs, *coverageDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating coverage analyzer: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Compute coverage
+	if err := cov.Compute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error computing coverage: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Print report
+	cov.PrintReport(os.Stdout)
+
+	fmt.Printf("\nProcessed %d trace files\n", len(cov.GetTraceFilesProcessed()))
+	fmt.Printf("Total column executions: %d\n", cov.GetTotalColumns())
+	fmt.Printf("Minimum files for coverage: %d\n", len(cov.GetMinFilesNeeded()))
+}
+
+func handleTest() {
+	// Need rules for testing
+	eddPath, dtPath, err := resolveFilePaths()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	rs, err := loadRuleSet(eddPath, dtPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create test harness
+	harness := testsupport.NewTestHarness()
+	harness.SetTestDirectory(*testDir)
+	if *testOutputDir != "" {
+		harness.SetOutputDirectory(*testOutputDir)
+	}
+	harness.Trace = *traceFlag
+	harness.Verbose = *verbose
+
+	if *entryPoint != "" {
+		harness.DecisionTableName = *entryPoint
+	}
+
+	// Set rule set
+	err = harness.LoadRuleSet(eddPath, dtPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading rules into harness: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Run tests
+	if err := harness.RunTests(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error running tests: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Suppress unused warning
+	_ = rs
+}
+
+func handleCompare(_ *session.RuleSet) {
+	// For now, just report that compare would happen
+	fmt.Printf("Would compare rules with reference at: %s\n", *comparePath)
+	fmt.Println("(Full comparison functionality requires DTRules.xml configuration)")
 }
 
 func resolveFilePaths() (eddPath, dtPath string, err error) {
@@ -327,16 +543,6 @@ func compileRules(rs *session.RuleSet, outFile string) {
 		}
 		fmt.Println()
 	}
-}
-
-func writeVarint(f *os.File, v int) {
-	buf := make([]byte, 0, 10)
-	for v >= 0x80 {
-		buf = append(buf, byte(v)|0x80)
-		v >>= 7
-	}
-	buf = append(buf, byte(v))
-	f.Write(buf)
 }
 
 func exportToExcel(rs *session.RuleSet, prefix string) {

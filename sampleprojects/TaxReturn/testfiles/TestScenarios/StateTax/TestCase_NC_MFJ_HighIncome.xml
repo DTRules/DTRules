@@ -1,0 +1,114 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- North Carolina State Tax Test Case -->
+   <!-- Married Filing Jointly with high income -->
+
+   <!-- Tax Return Configuration -->
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NC</state>
+   <city>Charlotte</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Income: $150,000 (spouse 1) + $120,000 (spouse 2) = $270,000 -->
+   <!-- AGI: $270,000 -->
+   <!-- Federal Standard Deduction: $30,000 -->
+   <!-- Federal Taxable Income: $240,000 -->
+   <!-- Federal Tax: ~$38,000 (progressive brackets) -->
+   <!-- NC Standard Deduction: $5,500 -->
+   <!-- NC Taxable Income: $264,500 ($270,000 - $5,500) -->
+   <!-- NC State Tax: $11,902 ($264,500 × 4.50%) -->
+   <!-- Total Payments: $50,000 (federal withholding) -->
+   <expected_agi>270000</expected_agi>
+   <expected_taxable_income>240000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Spouse 1 - Software Engineer -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Chen</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/20/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>30000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse 2 - Project Manager -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Chen</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>7/12/1987</date_of_birth>
+         <occupation>Project Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>20000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents (2 children) -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Chen</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>5/10/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Ryan Chen</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>9/22/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No other income sources -->
+   <incomes></incomes>
+
+   <!-- No deductions -->
+   <deductions></deductions>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+</job>

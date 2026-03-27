@@ -1,0 +1,106 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OR-03: High Income MFJ (Oregon Top Bracket) -->
+   <!-- Test Case: MFJ filers hitting the top 9.9% bracket -->
+
+   <!-- Tax Return Configuration -->
+   <id>1003</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Married_Filing_Jointly</filing_status>
+   <state>OR</state>
+   <city>Bend</city>
+
+   <!-- Oregon Tax Calculation:
+        Federal AGI: $300,000
+        OR Standard Deduction (MFJ): $5,670
+        OR Taxable Income: $294,330
+
+        Bracket 1: $8,800 × 4.75% = $418.00
+        Bracket 2: ($22,200 - $8,800) = $13,400 × 6.75% = $904.50
+        Bracket 3: ($250,000 - $22,200) = $227,800 × 8.75% = $19,932.50
+        Bracket 4: ($294,330 - $250,000) = $44,330 × 9.9% = $4,388.67
+        Total Tax Before Credits: $25,643.67
+        Personal Exemption Credits: 3 × $256 = $768
+        Oregon Tax After Credits: $24,875.67
+   -->
+
+   <!-- Expected values for validation -->
+   <expected_agi>300000</expected_agi>
+   <expected_taxable_income>273200</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Riley Anderson</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>10/8/1978</date_of_birth>
+         <occupation>Physician</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>220000</w2_wages>
+         <w2_withholding>45000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Quinn Anderson</name>
+         <ssn>789-01-2345</ssn>
+         <date_of_birth>4/16/1980</date_of_birth>
+         <occupation>Attorney</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>80000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents (1 child) -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Avery Anderson</name>
+         <ssn>890-12-3456</ssn>
+         <date_of_birth>11/20/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>private</school_type>
+         <tuition_paid>25000</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- No additional deductions -->
+   <deductions>
+   </deductions>
+</job>
