@@ -1,77 +1,103 @@
 # DTRules NASM VM - Makefile
-# Copyright 2024 Paul Snow - Apache License 2.0
+# Copyright 2024 Paul Snow
+# Licensed under the Apache License, Version 2.0
 
-NASM = nasm
-NASMFLAGS = -f elf64 -g -F dwarf -I include/
-LD = ld
-AR = ar
+# Assembler and compiler
+NASM := nasm
+CC := gcc
 
-SRCDIR = src
-INCDIR = include
-TESTDIR = test
-BUILDDIR = build
+# Flags - include both root and src/include directories
+NASM_FLAGS := -f elf64 -g -F dwarf -I. -I include/
+CFLAGS := -Wall -Wextra -g -O2
 
-# Source files
-SRCS = $(SRCDIR)/vm_core.asm \
-       $(SRCDIR)/vm_entry.asm \
-       $(SRCDIR)/vm_jump_table.asm \
-       $(SRCDIR)/vm_trace.asm
+# Directories
+SRC_DIR := src
+TEST_DIR := test
+BUILD_DIR := build
+OBJ_DIR := $(BUILD_DIR)/obj
+
+# Source files - both root level and src/ directory
+ROOT_ASM_SOURCES := $(wildcard *.asm)
+SRC_ASM_SOURCES := $(wildcard $(SRC_DIR)/*.asm)
+ASM_SOURCES := $(ROOT_ASM_SOURCES) $(SRC_ASM_SOURCES)
 
 # Object files
-OBJS = $(BUILDDIR)/vm_core.o \
-       $(BUILDDIR)/vm_entry.o \
-       $(BUILDDIR)/vm_jump_table.o \
-       $(BUILDDIR)/vm_trace.o
+ROOT_ASM_OBJECTS := $(patsubst %.asm,$(OBJ_DIR)/%.o,$(ROOT_ASM_SOURCES))
+SRC_ASM_OBJECTS := $(patsubst $(SRC_DIR)/%.asm,$(OBJ_DIR)/src_%.o,$(SRC_ASM_SOURCES))
+ASM_OBJECTS := $(ROOT_ASM_OBJECTS) $(SRC_ASM_OBJECTS)
 
-# Library output
-LIB = $(BUILDDIR)/libdtrules_vm.a
+# Test sources - support both test/ and tests/ directories
+TEST_C_SOURCES := $(wildcard $(TEST_DIR)/*.c) $(wildcard tests/*.c)
+TEST_C_OBJECTS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(TEST_C_SOURCES)))
 
-# Test files
-TEST_SRCS = $(wildcard $(TESTDIR)/*.asm)
-TEST_OBJS = $(TEST_SRCS:$(TESTDIR)/%.asm=$(BUILDDIR)/test_%.o)
-TEST_BINS = $(TEST_SRCS:$(TESTDIR)/%.asm=$(BUILDDIR)/test_%)
+# Output
+VM_LIB := $(BUILD_DIR)/libdtrules_vm.a
+TEST_BIN := $(BUILD_DIR)/test_vm
 
-.PHONY: all clean test
+# Default target
+.PHONY: all
+all: dirs $(VM_LIB)
 
-all: $(BUILDDIR) $(LIB)
+# Create directories
+.PHONY: dirs
+dirs:
+	@mkdir -p $(BUILD_DIR) $(OBJ_DIR)
 
-$(BUILDDIR):
-	mkdir -p $(BUILDDIR)
+# Assemble root-level NASM sources
+$(OBJ_DIR)/%.o: %.asm vm_constants.inc vm_state.inc | dirs
+	$(NASM) $(NASM_FLAGS) -o $@ $<
 
-$(LIB): $(OBJS)
-	$(AR) rcs $@ $^
+# Assemble src/ directory NASM sources
+$(OBJ_DIR)/src_%.o: $(SRC_DIR)/%.asm | dirs
+	$(NASM) $(NASM_FLAGS) -o $@ $<
 
-$(BUILDDIR)/vm_core.o: $(SRCDIR)/vm_core.asm $(INCDIR)/dtrules.inc
-	$(NASM) $(NASMFLAGS) -o $@ $<
+# Compile C test sources from test/
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c | dirs
+	$(CC) $(CFLAGS) -I. -c -o $@ $<
 
-$(BUILDDIR)/vm_entry.o: $(SRCDIR)/vm_entry.asm $(INCDIR)/dtrules.inc
-	$(NASM) $(NASMFLAGS) -o $@ $<
+# Compile C test sources from tests/
+$(OBJ_DIR)/%.o: tests/%.c | dirs
+	$(CC) $(CFLAGS) -I. -c -o $@ $<
 
-$(BUILDDIR)/vm_jump_table.o: $(SRCDIR)/vm_jump_table.asm $(INCDIR)/dtrules.inc
-	$(NASM) $(NASMFLAGS) -o $@ $<
+# Create static library
+$(VM_LIB): $(ASM_OBJECTS) | dirs
+	ar rcs $@ $^
 
-$(BUILDDIR)/vm_trace.o: $(SRCDIR)/vm_trace.asm $(INCDIR)/dtrules.inc
-	$(NASM) $(NASMFLAGS) -o $@ $<
+# Build test binary
+$(TEST_BIN): $(TEST_C_OBJECTS) $(VM_LIB) | dirs
+	$(CC) $(CFLAGS) -o $@ $(TEST_C_OBJECTS) $(VM_LIB)
 
-# Test targets
-test: $(BUILDDIR) $(TEST_BINS)
-	@echo "Running tests..."
-	@for test in $(TEST_BINS); do \
-		echo "  Running $$test"; \
-		$$test && echo "    PASS" || echo "    FAIL"; \
-	done
+# Run tests
+.PHONY: test
+test: $(TEST_BIN)
+	./$(TEST_BIN)
 
-$(BUILDDIR)/test_%: $(BUILDDIR)/test_%.o $(LIB)
-	$(LD) -o $@ $< $(LIB) -lc --dynamic-linker /lib64/ld-linux-x86-64.so.2
-
-$(BUILDDIR)/test_%.o: $(TESTDIR)/%.asm $(INCDIR)/dtrules.inc
-	$(NASM) $(NASMFLAGS) -o $@ $<
-
+# Clean build artifacts
+.PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)
+	rm -rf $(BUILD_DIR)
 
-# Show info
-info:
-	@echo "Sources: $(SRCS)"
-	@echo "Objects: $(OBJS)"
-	@echo "Library: $(LIB)"
+# Show assembly listing
+%.lst: %.asm
+	$(NASM) $(NASM_FLAGS) -l $@ $<
+
+# Show object files (for debugging)
+.PHONY: show
+show:
+	@echo "Root ASM sources: $(ROOT_ASM_SOURCES)"
+	@echo "Src ASM sources: $(SRC_ASM_SOURCES)"
+	@echo "All ASM objects: $(ASM_OBJECTS)"
+	@echo "Test sources: $(TEST_C_SOURCES)"
+	@echo "Test objects: $(TEST_C_OBJECTS)"
+
+# Help
+.PHONY: help
+help:
+	@echo "DTRules NASM VM Build System"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all     - Build the VM library (default)"
+	@echo "  test    - Build and run tests"
+	@echo "  clean   - Remove build artifacts"
+	@echo "  show    - Show source/object files"
+	@echo "  help    - Show this help"
