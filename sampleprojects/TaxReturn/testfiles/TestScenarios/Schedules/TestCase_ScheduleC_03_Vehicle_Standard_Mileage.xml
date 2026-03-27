@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule C - Vehicle Expenses (Standard Mileage) -->
+<!-- Scenario: Real estate agent using standard mileage rate -->
+<!-- Business miles: 18,000, Rate: $0.70/mile (2025), Deduction: $12,600 -->
+<!-- Gross: $120,000, Total expenses: $25,100, Net: $94,900 -->
+<job>
+    <id>10008</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $120,000 - $25,100 expenses - $6,704 SE deduction + $45,000 spouse = $133,196 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- QBI: ~$18,980 (20% of $94,900) -->
+    <!-- Taxable: $133,196 - $30,000 - $18,980 = ~$84,216 -->
+    <!-- Tax: ~$9,863 income + $13,409 SE = ~$23,272 -->
+    <expected_agi>133196</expected_agi>
+    <expected_taxable_income>84216</expected_taxable_income>
+    <expected_total_tax>23272</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Maria Gonzalez</name>
+            <ssn>345-67-8901</ssn>
+            <date_of_birth>08/10/1982</date_of_birth>
+            <occupation>Real Estate Agent</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>120000</se_gross_income>
+            <estimated_payments>18000</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Carlos Gonzalez</name>
+            <ssn>456-78-9012</ssn>
+            <date_of_birth>10/05/1980</date_of_birth>
+            <occupation>Teacher</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>45000</w2_wages>
+            <w2_withholding>5000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <vehicles>
+        <vehicle>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <description>2023 Honda CR-V</description>
+            <purchase_date>1/10/2023</purchase_date>
+            <purchase_price>35000</purchase_price>
+            <total_miles>20000</total_miles>
+            <business_miles>18000</business_miles>
+            <method>standard_mileage</method>
+            <actual_expenses>0</actual_expenses>
+            <vehicle_depreciation>0</vehicle_depreciation>
+        </vehicle>
+    </vehicles>
+
+    <expenses>
+        <!-- Other Schedule C expenses -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>MLS fees and licensing</description>
+            <amount>3500</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Marketing and advertising</description>
+            <amount>8000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Client entertainment</description>
+            <amount>1000</amount>
+        </expense>
+    </expenses>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+    <incomes></incomes>
+</job>

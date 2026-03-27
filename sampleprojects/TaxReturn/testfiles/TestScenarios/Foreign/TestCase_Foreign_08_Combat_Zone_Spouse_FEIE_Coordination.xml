@@ -1,0 +1,147 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 8: Coordination - Combat Zone + Spouse FEIE -->
+   <!-- Tests: Table 25400 - Coordinate_Military_And_Foreign_Income -->
+   <!-- Scenario: Military member in combat zone + civilian spouse with FEIE -->
+   <!-- No overlap of exclusions - combat zone exclusion and FEIE both apply -->
+   <!-- References Military test case TestCase_Military_10 for coordination logic -->
+   <id>FOREIGN-08</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Jacksonville</city>
+
+   <!-- Expected values for validation -->
+   <!-- Service member W-2: $75,000 -->
+   <!-- Combat zone pay: $55,000 (enlisted, fully excludable) -->
+   <!-- IDP: $2,200 (also excludable) -->
+   <!-- Taxable military wages: $75,000 - $55,000 - $2,200 = $17,800 -->
+   <!-- Spouse foreign earned income: $102,000 -->
+   <!-- FEIE max exclusion (2025): $126,500 -->
+   <!-- Spouse FEIE exclusion: $102,000 (all excludable) -->
+   <!-- Combined exclusions (no overlap): $57,200 (combat) + $102,000 (FEIE) = $159,200 -->
+   <!-- AGI: $17,800 + $0 = $17,800 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $0 (negative becomes zero) -->
+   <!-- Tax: $0 -->
+   <!-- Child Tax Credit: $2,000 (non-refundable, no tax to offset) -->
+   <expected_agi>17800</expected_agi>
+   <expected_total_combat_zone_exclusion>57200</expected_total_combat_zone_exclusion>
+   <expected_foreign_earned_income_exclusion>102000</expected_foreign_earned_income_exclusion>
+   <expected_combined_military_foreign_exclusion>159200</expected_combined_military_foreign_exclusion>
+   <expected_taxable_income>0</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>2200</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Enlisted member in combat zone -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Staff Sergeant Marcus Lee</name>
+         <ssn>901-88-9999</ssn>
+         <date_of_birth>2/14/1992</date_of_birth>
+         <occupation>Marine Corps Staff Sergeant (E-6)</occupation>
+         <is_military>true</is_military>
+         <military_rank>enlisted</military_rank>
+         <combat_zone_service>true</combat_zone_service>
+         <combat_zone_location>iraq</combat_zone_location>
+         <combat_zone_months>12</combat_zone_months>
+         <combat_zone_start_date>1/1/2025</combat_zone_start_date>
+         <combat_zone_end_date>12/31/2025</combat_zone_end_date>
+         <combat_zone_pay>55000</combat_zone_pay>
+         <imminent_danger_pay>2200</imminent_danger_pay>
+         <bah_amount>18000</bah_amount>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>2200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <servicemember_domicile_state>FL</servicemember_domicile_state>
+      </taxpayer>
+
+      <!-- Civilian spouse working abroad (qualifies for FEIE) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Dr. Christina Lee</name>
+         <ssn>012-99-0000</ssn>
+         <date_of_birth>5/8/1993</date_of_birth>
+         <occupation>Medical Doctor - WHO Mission</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <foreign_earned_income>102000</foreign_earned_income>
+         <foreign_earned_income_exclusion>102000</foreign_earned_income_exclusion>
+         <foreign_country>Kenya</foreign_country>
+         <foreign_residence_start>6/1/2024</foreign_residence_start>
+         <foreign_residence_end>5/31/2026</foreign_residence_end>
+         <days_outside_us>365</days_outside_us>
+         <bona_fide_residence>true</bona_fide_residence>
+         <physical_presence_test>true</physical_presence_test>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>75000</gross_amount>
+         <withholding>2200</withholding>
+         <description>Military pay (includes combat zone pay)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>foreign_earned_income</type>
+         <gross_amount>102000</gross_amount>
+         <withholding>0</withholding>
+         <description>WHO medical mission in Kenya (Form 2555)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Isabella Lee</name>
+         <ssn>123-00-1111</ssn>
+         <date_of_birth>9/22/2021</date_of_birth>
+         <age>4</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

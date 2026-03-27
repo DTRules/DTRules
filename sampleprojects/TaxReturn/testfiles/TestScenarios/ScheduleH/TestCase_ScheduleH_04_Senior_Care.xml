@@ -1,0 +1,107 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Schedule H Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Live-in Senior Care Provider -->
+   <!-- Tests Schedule H for elder care household employee -->
+   <!-- Live-in caregiver for elderly parent -->
+   <!-- Wages: $45,000 annually -->
+   <!-- Medicare/Social Security taxes apply -->
+   <!-- Tests household employment vs independent contractor distinction -->
+
+   <id>4</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Married Filing Jointly</filing_status>
+   <state>FL</state>
+   <city>Miami</city>
+
+   <!-- Expected values for validation -->
+   <!-- Taxpayer W-2 Wages: $95,000 -->
+   <!-- Spouse W-2 Wages: $88,000 -->
+   <!-- AGI: $183,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $153,000 -->
+   <!-- Caregiver FICA: $45,000 × 7.65% = $3,442.50 -->
+   <!-- Caregiver FUTA: $7,000 × 0.6% = $42.00 -->
+   <!-- Total Schedule H: $3,484.50 -->
+   <expected_agi>183000</expected_agi>
+   <expected_taxable_income>153000</expected_taxable_income>
+   <expected_schedule_h_social_security_tax>2790.00</expected_schedule_h_social_security_tax>
+   <expected_schedule_h_medicare_tax>652.50</expected_schedule_h_medicare_tax>
+   <expected_schedule_h_futa_tax>42.00</expected_schedule_h_futa_tax>
+   <expected_schedule_h_total_tax>3484.50</expected_schedule_h_total_tax>
+
+   <taxpayer>
+      <id>1</id>
+      <name>David Anderson</name>
+      <ssn>111-22-3333</ssn>
+      <date_of_birth>1965-04-12</date_of_birth>
+      <occupation>Accountant</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>95000</w2_wages>
+      <w2_withholding>14000</w2_withholding>
+   </taxpayer>
+
+   <spouse>
+      <id>2</id>
+      <name>Susan Anderson</name>
+      <ssn>444-55-6666</ssn>
+      <date_of_birth>1968-09-25</date_of_birth>
+      <occupation>Nurse</occupation>
+      <is_self_employed>false</is_self_employed>
+      <w2_wages>88000</w2_wages>
+      <w2_withholding>13000</w2_withholding>
+   </spouse>
+
+   <!-- Household Employee: Live-in Caregiver for elderly parent -->
+   <household_employee>
+      <id>1</id>
+      <name>Patricia Brown</name>
+      <ssn>777-88-9999</ssn>
+      <!-- Annual wages for live-in caregiver -->
+      <cash_wages>45000</cash_wages>
+      <federal_withholding>3500</federal_withholding>
+      <ss_wages>45000</ss_wages>
+      <medicare_wages>45000</medicare_wages>
+      <futa_wages>7000</futa_wages>
+      <state_unemployment_paid>378</state_unemployment_paid>
+   </household_employee>
+
+   <!-- Schedule H Calculation: -->
+   <!-- Social Security employer: $45,000 × 6.2% = $2,790.00 -->
+   <!-- Medicare employer: $45,000 × 1.45% = $652.50 -->
+   <!-- FICA total: $3,442.50 -->
+   <!-- FUTA: $7,000 × 0.6% = $42.00 -->
+   <!-- Total Schedule H: $3,484.50 -->
+
+   <!-- W-2 issued to household employee -->
+   <!-- Box 1 (Wages): $45,000 -->
+   <!-- Box 2 (Federal withholding): $3,500 -->
+   <!-- Box 3 (SS wages): $45,000 -->
+   <!-- Box 4 (SS tax withheld): $2,790 (employee portion 6.2%) -->
+   <!-- Box 5 (Medicare wages): $45,000 -->
+   <!-- Box 6 (Medicare tax withheld): $652.50 (employee portion 1.45%) -->
+   <!-- Box 13: Household employee checkbox -->
+
+   <!-- Household Employee vs Independent Contractor: -->
+   <!-- This is a HOUSEHOLD EMPLOYEE because: -->
+   <!-- - Employer controls work hours and duties -->
+   <!-- - Live-in arrangement with set schedule -->
+   <!-- - Not operating own business -->
+   <!-- - Not hiring own substitutes -->
+   <!-- - Employer provides work location -->
+
+   <!-- If this were an independent contractor (1099-NEC): -->
+   <!-- - No Schedule H required -->
+   <!-- - No employer FICA taxes -->
+   <!-- - Caregiver would pay self-employment tax -->
+   <!-- - Would issue 1099-NEC instead of W-2 -->
+</job>

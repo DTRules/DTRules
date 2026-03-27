@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Solo 401(k) Contribution -->
+<!-- Scenario: Self-employed with Solo 401(k) (employee + employer portions) -->
+<!-- Expected: Full Solo 401(k) deduction (employee deferral + employer contribution) -->
+<!-- 2025 limits: $23,500 employee deferral + up to 25% employer contribution -->
+<!-- Combined limit: $70,000 (or $77,500 if age 50+) -->
+<job>
+    <id>3537</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- SE gross income: $150,000 -->
+    <!-- SE business expenses: $25,000 -->
+    <!-- Net SE income: $125,000 -->
+    <!-- SE tax: $17,663 (92.35% * $125k * 15.3%) -->
+    <!-- SE tax deduction: $8,832 (50% of SE tax) -->
+    <!-- Net earnings for Solo 401k: $125,000 - $8,832 = $116,168 -->
+    <!-- Employee deferral: $23,500 (max for 2025) -->
+    <!-- Employer contribution: $116,168 * 0.20 = $23,234 -->
+    <!-- Total Solo 401k: $23,500 + $23,234 = $46,734 -->
+    <!-- AGI: $125,000 - $8,832 (SE tax adj) - $46,734 (Solo 401k) = $69,434 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $54,434 -->
+    <expected_agi>69434</expected_agi>
+    <expected_taxable_income>54434</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Richard Lee</name>
+            <ssn>111-22-3344</ssn>
+            <date_of_birth>1/15/1978</date_of_birth>
+            <occupation>Business Consultant</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>150000</se_gross_income>
+            <se_business_expenses>25000</se_business_expenses>
+            <solo_401k_employee_deferral>23500</solo_401k_employee_deferral>
+            <solo_401k_employer_contribution>23234</solo_401k_employer_contribution>
+            <estimated_payments>22000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

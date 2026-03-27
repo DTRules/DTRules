@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for South Carolina
+
+  South Carolina has progressive tax brackets (2025):
+  - 0% on income up to $3,560
+  - 3% on income $3,561 to $17,830
+  - 6% on income over $17,830
+
+  Standard deduction: $15,750 (single), $31,500 (MFJ), $23,625 (HOH)
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- South Carolina state tax constants -->
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="sc_standard_deduction_single" type="double" default_value="15750"
+           comment="SC standard deduction single (2025)"/>
+    <field name="sc_standard_deduction_joint" type="double" default_value="31500"
+           comment="SC standard deduction married filing jointly (2025)"/>
+    <field name="sc_standard_deduction_hoh" type="double" default_value="23625"
+           comment="SC standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets -->
+    <field name="sc_bracket_1_limit" type="double" default_value="3560"
+           comment="SC tax bracket 1 upper limit (2025)"/>
+    <field name="sc_bracket_1_rate" type="double" default_value="0.00"
+           comment="SC tax rate for bracket 1: 0% (2025)"/>
+
+    <field name="sc_bracket_2_limit" type="double" default_value="17830"
+           comment="SC tax bracket 2 upper limit (2025)"/>
+    <field name="sc_bracket_2_rate" type="double" default_value="0.03"
+           comment="SC tax rate for bracket 2: 3% (2025)"/>
+
+    <field name="sc_bracket_3_rate" type="double" default_value="0.06"
+           comment="SC tax rate for bracket 3: 6% (2025)"/>
+
+    <!-- Calculated fields -->
+    <field name="sc_taxable_income" type="double" default_value="0.0"
+           comment="SC taxable income after standard deduction"/>
+
+  </entity>
+</entity_data_dictionary>

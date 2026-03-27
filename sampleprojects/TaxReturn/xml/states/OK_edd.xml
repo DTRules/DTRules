@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Oklahoma
+
+  Oklahoma has progressive tax brackets:
+  - $0 to $1,000: 0.25%
+  - $1,000 to $2,500: 0.75%
+  - $2,500 to $3,750: 1.75%
+  - $3,750 to $4,900: 2.75%
+  - $4,900 to $7,200: 3.75%
+  - Over $7,200: 4.75%
+
+  Standard deductions (2025):
+  - Single: $6,350
+  - MFJ: $12,700
+  - HOH: $9,350
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="ok_standard_deduction_single" type="double" default_value="6350.0"
+           comment="OK standard deduction single (2025)"/>
+    <field name="ok_standard_deduction_joint" type="double" default_value="12700.0"
+           comment="OK standard deduction married filing jointly (2025)"/>
+    <field name="ok_standard_deduction_hoh" type="double" default_value="9350.0"
+           comment="OK standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets (same for all filing statuses) -->
+    <field name="ok_bracket_1_limit" type="double" default_value="1000.0"
+           comment="OK tax bracket 1 upper limit (2025)"/>
+    <field name="ok_bracket_1_rate" type="double" default_value="0.0025"
+           comment="OK tax rate for bracket 1 - 0.25% (2025)"/>
+
+    <field name="ok_bracket_2_limit" type="double" default_value="2500.0"
+           comment="OK tax bracket 2 upper limit (2025)"/>
+    <field name="ok_bracket_2_rate" type="double" default_value="0.0075"
+           comment="OK tax rate for bracket 2 - 0.75% (2025)"/>
+
+    <field name="ok_bracket_3_limit" type="double" default_value="3750.0"
+           comment="OK tax bracket 3 upper limit (2025)"/>
+    <field name="ok_bracket_3_rate" type="double" default_value="0.0175"
+           comment="OK tax rate for bracket 3 - 1.75% (2025)"/>
+
+    <field name="ok_bracket_4_limit" type="double" default_value="4900.0"
+           comment="OK tax bracket 4 upper limit (2025)"/>
+    <field name="ok_bracket_4_rate" type="double" default_value="0.0275"
+           comment="OK tax rate for bracket 4 - 2.75% (2025)"/>
+
+    <field name="ok_bracket_5_limit" type="double" default_value="7200.0"
+           comment="OK tax bracket 5 upper limit (2025)"/>
+    <field name="ok_bracket_5_rate" type="double" default_value="0.0375"
+           comment="OK tax rate for bracket 5 - 3.75% (2025)"/>
+
+    <field name="ok_bracket_6_rate" type="double" default_value="0.0475"
+           comment="OK tax rate for bracket 6 - 4.75% (2025)"/>
+
+  </entity>
+</entity_data_dictionary>
