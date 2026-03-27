@@ -1,0 +1,88 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>NJ_SINGLE_HIGH_RETIREMENT</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>NJ</state>
+   <city>Jersey City</city>
+
+   <!-- Test Case: Single Filer with High Income -->
+   <!-- Income: $600,000 W2 + $50,000 Social Security (exempt for NJ) -->
+   <!-- Federal AGI: $650,000 -->
+   <!-- NJ Gross Income: $650,000 - $50,000 (SS exempt) = $600,000 -->
+   <!-- NJ Exemption: $1,000 (1 taxpayer) -->
+   <!-- NJ Taxable Income: $599,000 -->
+   <!-- NJ Tax (Single brackets):
+        $20,000 × 1.4% = $280
+        $15,000 × 1.75% = $262.50
+        $5,000 × 3.5% = $175
+        $35,000 × 5.525% = $1,933.75
+        $425,000 × 6.37% = $27,072.50
+        $99,000 × 8.97% = $8,880.30
+        Total = $38,604.05 -->
+   <expected_agi>650000</expected_agi>
+   <expected_nj_gross_income>600000</expected_nj_gross_income>
+   <expected_nj_taxable_income>599000</expected_nj_taxable_income>
+   <expected_nj_tax>38604</expected_nj_tax>
+
+   <!-- Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Patricia Wilson</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>3/5/1960</date_of_birth>
+         <occupation>Corporate Executive</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>600000</w2_wages>
+         <w2_withholding>150000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No Dependents -->
+   <dependents></dependents>
+
+   <!-- Income (W-2 + Social Security) -->
+   <incomes>
+      <income>
+         <type>wages</type>
+         <gross_amount>600000</gross_amount>
+         <federal_withholding>150000</federal_withholding>
+         <state_withholding>35000</state_withholding>
+         <description>Executive compensation</description>
+      </income>
+      <income>
+         <type>social_security</type>
+         <gross_amount>50000</gross_amount>
+         <taxable_amount>42500</taxable_amount>
+         <federal_withholding>0</federal_withholding>
+         <state_withholding>0</state_withholding>
+         <description>Social Security benefits (exempt for NJ)</description>
+      </income>
+   </incomes>
+
+   <!-- Deductions (Standard) -->
+   <deductions></deductions>
+
+   <!-- No Credits -->
+   <credits></credits>
+</job>
