@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Nevada (NV)
+
+  Nevada has NO state income tax.
+
+  This decision table is a simple passthrough that sets state_tax_liability to 0.
+
+  Table Numbering Convention:
+    - 40000-49999: State tax calculations
+    - Nevada is state #28 alphabetically: 42800
+
+  Military Tax Provisions:
+    - NV has no state income tax
+    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
+    - MSRRA: N/A (no income tax)
+    - SCRA: N/A (no income tax)
+    - Military spouses and service members have no state income tax burden
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42800: Calculate_NV_Tax - Nevada State Income Tax (None)        -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NV_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Nevada state income tax calculation. Nevada has no state income tax, so this table sets liability to $0.</COMMENTS>
+<TABLE_NUMBER>42800</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Nevada tax calculation</action_description>
+<action_postfix>
+"Nevada Tax Calculation Started (No State Income Tax)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Always execute - Nevada has no income tax -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute</condition_comment>
+<condition_description>true</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Set state tax liability to $0 -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Set state tax liability to $0 (NV has no income tax)</action_comment>
+<action_postfix>
+0.0 /result.state_tax_liability xdef
+
+"Nevada tax calculated: $0.00 (no state income tax)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

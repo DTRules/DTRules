@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Arkansas
+
+  Arkansas has progressive tax brackets (same for all filing statuses):
+  - 0% on $0 - $5,499
+  - 2% on $5,500 - $10,999
+  - 3% on $11,000 - $16,999
+  - 3.4% on $17,000 - $25,699
+  - 3.9% on $25,700+
+
+  Standard deductions:
+  - Single: $2,410
+  - MFJ: $4,820
+  - HOH: $2,410 (same as single)
+  - MFS: $2,410 (same as single)
+
+  Top rate reduced from 4.4% to 3.9% effective January 1, 2025 per Act 1 of Second Extraordinary Session of 2024.
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="ar_standard_deduction_single" type="double" default_value="2410.0"
+           comment="AR standard deduction single (2025)"/>
+    <field name="ar_standard_deduction_joint" type="double" default_value="4820.0"
+           comment="AR standard deduction married filing jointly (2025)"/>
+    <field name="ar_standard_deduction_hoh" type="double" default_value="2410.0"
+           comment="AR standard deduction head of household (2025)"/>
+    <field name="ar_standard_deduction_mfs" type="double" default_value="2410.0"
+           comment="AR standard deduction married filing separately (2025)"/>
+
+    <!-- Tax brackets (same for all filing statuses) -->
+    <field name="ar_bracket_1_limit" type="double" default_value="5499.0"
+           comment="AR tax bracket 1 upper limit - 0% rate (2025)"/>
+    <field name="ar_bracket_1_rate" type="double" default_value="0.00"
+           comment="AR tax rate for bracket 1 - 0% (2025)"/>
+
+    <field name="ar_bracket_2_limit" type="double" default_value="10999.0"
+           comment="AR tax bracket 2 upper limit (2025)"/>
+    <field name="ar_bracket_2_rate" type="double" default_value="0.02"
+           comment="AR tax rate for bracket 2 - 2% (2025)"/>
+
+    <field name="ar_bracket_3_limit" type="double" default_value="16999.0"
+           comment="AR tax bracket 3 upper limit (2025)"/>
+    <field name="ar_bracket_3_rate" type="double" default_value="0.03"
+           comment="AR tax rate for bracket 3 - 3% (2025)"/>
+
+    <field name="ar_bracket_4_limit" type="double" default_value="25699.0"
+           comment="AR tax bracket 4 upper limit (2025)"/>
+    <field name="ar_bracket_4_rate" type="double" default_value="0.034"
+           comment="AR tax rate for bracket 4 - 3.4% (2025)"/>
+
+    <field name="ar_bracket_5_rate" type="double" default_value="0.039"
+           comment="AR tax rate for bracket 5 - 3.9% on income over $25,700 (2025)"/>
+
+  </entity>
+</entity_data_dictionary>

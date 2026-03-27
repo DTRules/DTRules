@@ -1,0 +1,123 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 3: Traveling Consultant (3 States) -->
+   <!-- Scenario: Consultant worked in IL (120 days), NH (150 days), MT (95 days) -->
+   <!-- All three states have different tax structures -->
+   <id>MultiState-03-Traveling</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>IL</state>
+   <city>Chicago</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Total Federal AGI: $150,000 -->
+
+   <!-- IL Period: 120 days / 365 = 32.88% -->
+   <!-- IL Allocated Income: $150,000 × 32.88% = $49,320 -->
+   <!-- IL Personal Exemption: $2,775 (1 person) -->
+   <!-- IL Taxable Income: $49,320 - $2,775 = $46,545 -->
+   <!-- IL Tax: $46,545 × 4.95% = $2,303.98 -->
+
+   <!-- NH Period: 150 days / 365 = 41.10% -->
+   <!-- NH Allocated Income: $150,000 × 41.10% = $61,650 -->
+   <!-- NH Standard Deduction: $8,000 (Single) -->
+   <!-- NH Taxable Income: $53,650 -->
+   <!-- NH Tax: $53,650 × 3% = $1,609.50 (all in bracket 1) -->
+
+   <!-- MT Period: 95 days / 365 = 26.03% -->
+   <!-- MT Allocated Income: $150,000 × 26.03% = $39,045 -->
+   <!-- MT Standard Deduction Single: $5,460 -->
+   <!-- MT Taxable Income: $33,585 -->
+   <!-- MT Tax: Bracket 1: $23,600 × 4.7% = $1,109.20 -->
+   <!--        Bracket 2: ($33,585 - $23,600) × 5.9% = $589.12 -->
+   <!--        Total: $1,698.32 -->
+
+   <expected_agi>150000</expected_agi>
+   <expected_il_agi>49320</expected_il_agi>
+   <expected_il_tax>2303.98</expected_il_tax>
+   <expected_nh_agi>61650</expected_nh_agi>
+   <expected_nh_tax>1609.50</expected_nh_tax>
+   <expected_mt_agi>39045</expected_mt_agi>
+   <expected_mt_tax>1698.32</expected_mt_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Chen</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>4/18/1990</date_of_birth>
+         <occupation>Management Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>150000</se_gross_income>
+         <estimated_payments>25000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>self_employment</type>
+         <gross_amount>150000</gross_amount>
+         <withholding>0</withholding>
+      </income>
+   </incomes>
+
+   <!-- State Periods - Multi-State Allocation -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>IL</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>4/30/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>NH</state_code>
+         <start_date>5/1/2025</start_date>
+         <end_date>9/27/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+      <state_period id="3">
+         <id>3</id>
+         <state_code>MT</state_code>
+         <start_date>9/28/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,64 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Single nurse with overtime and shift differential pay -->
+   <!-- Tests overtime deduction when combined with shift differential -->
+   <!-- Shift differential is NOT overtime (regular pay enhancement) -->
+   <!-- Only true overtime (time-and-a-half or double-time) qualifies -->
+
+   <id>10</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>CA</state>
+   <city>Los Angeles</city>
+
+   <!-- Expected values for validation -->
+   <!-- Base W-2: $68,000 -->
+   <!-- Shift Differential: $8,000 (NOT overtime - night shift premium) -->
+   <!-- Overtime Pay: $22,000 (time-and-a-half for extra hours) -->
+   <!-- Total Income: $98,000 -->
+   <!-- Overtime Deduction: $22,000 (only true overtime, not shift differential) -->
+   <!-- AGI: $98,000 - $22,000 = $76,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $76,000 - $15,000 = $61,000 -->
+   <!-- Tax: 10%(11,600)+12%(35,550)+22%(13,850) = $8,855 -->
+   <expected_agi>76000</expected_agi>
+   <expected_taxable_income>61000</expected_taxable_income>
+   <expected_total_tax>8855</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Patricia Nguyen</name>
+      <ssn>333-55-7777</ssn>
+      <date_of_birth>1988-06-12</date_of_birth>
+      <occupation>Registered Nurse</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>68000</w2_wages>
+      <w2_withholding>12000</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>22000</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+
+   <!-- Shift differential modeled as additional income -->
+   <income>
+      <id>1</id>
+      <taxpayer_id>1</taxpayer_id>
+      <type>shift_differential</type>
+      <source>Night Shift Premium</source>
+      <gross_amount>8000</gross_amount>
+      <tax_withheld>0</tax_withheld>
+      <is_earned>true</is_earned>
+   </income>
+</job>

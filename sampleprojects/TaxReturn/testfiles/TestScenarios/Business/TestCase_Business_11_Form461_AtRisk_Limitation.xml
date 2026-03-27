@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 11: Form 461 - At-Risk Limitation on Partnership Loss -->
+<!-- Triggers: Form 461, Schedule K-1, Schedule E Part II -->
+<!-- Tests: At-risk rules limit loss deduction to amount partner has at risk (IRC 465) -->
+<job>
+    <id>BUS11-FORM461-ATRISK</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $95,000 W2 - $20,000 K-1 loss (limited by at-risk amount) -->
+    <!-- At-risk amount: $15,000 (cash invested) -->
+    <!-- Loss allowed: $15,000, Disallowed: $5,000 -->
+    <!-- AGI: $80,000 ($95k - $15k allowed loss) -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable: $50,000 -->
+    <!-- Tax: ~$5,684 -->
+    <expected_agi>80000</expected_agi>
+    <expected_taxable_income>50000</expected_taxable_income>
+    <expected_total_tax>5684</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Daniel Taylor</name>
+            <ssn>400-21-0001</ssn>
+            <date_of_birth>9/5/1981</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Pharmacist</occupation>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>14000</w2_withholding>
+            <w2_ss_wages>95000</w2_ss_wages>
+            <w2_medicare_wages>95000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Nicole Taylor</name>
+            <ssn>400-21-0002</ssn>
+            <date_of_birth>12/18/1982</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Partner in Tech Ventures LLC</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - At-Risk Limitation -->
+    <!-- IRC 465: Loss deduction limited to amount partner has "at risk" -->
+    <!-- At-risk = Cash invested + share of partnership debt (qualified) -->
+    <!-- Non-recourse debt NOT at risk -->
+    <!-- Partner invested $15,000 cash, no qualified debt -->
+    <!-- Loss $20,000 limited to $15,000 at-risk amount -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Tech Ventures LLC</entity_name>
+            <entity_ein>56-7890123</entity_ein>
+            <!-- Box 1: Ordinary business loss -->
+            <ordinary_income>-20000</ordinary_income>
+            <!-- At-risk limitation applies before passive activity rules -->
+            <!-- At-risk basis: $15,000 -->
+            <!-- Loss allowed: $15,000, Disallowed: $5,000 -->
+            <qbi_income>0</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>
