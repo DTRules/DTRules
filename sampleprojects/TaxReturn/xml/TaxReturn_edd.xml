@@ -1050,7 +1050,20 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
-		<!-- Illinois State Tax Constants (2025) -->
+<!-- Alabama State Tax Constants (2025) -->
+		<field name='al_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.02' comment='Alabama tax rate bracket 1: 2%'></field>
+		<field name='al_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.04' comment='Alabama tax rate bracket 2: 4%'></field>
+		<field name='al_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.05' comment='Alabama tax rate bracket 3: 5%'></field>
+		<field name='al_bracket_1_single' type='double' subtype='' access='r' input='' default_value='500' comment='Alabama bracket 1 ceiling Single/MFS: $500'></field>
+		<field name='al_bracket_2_single' type='double' subtype='' access='r' input='' default_value='3000' comment='Alabama bracket 2 ceiling Single/MFS: $3,000'></field>
+		<field name='al_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='1000' comment='Alabama bracket 1 ceiling MFJ: $1,000'></field>
+		<field name='al_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='6000' comment='Alabama bracket 2 ceiling MFJ: $6,000'></field>
+		<field name='al_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='4500' comment='Alabama standard deduction Single/MFS (2025)'></field>
+		<field name='al_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='11500' comment='Alabama standard deduction MFJ/HOH (2025)'></field>
+		<field name='al_personal_exemption_single' type='double' subtype='' access='r' input='' default_value='1500' comment='Alabama personal exemption Single/MFS (2025)'></field>
+		<field name='al_personal_exemption_mfj' type='double' subtype='' access='r' input='' default_value='3000' comment='Alabama personal exemption MFJ/HOH (2025)'></field>
+
+<!-- Illinois State Tax Constants (2025) -->
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
@@ -1062,6 +1075,12 @@
 		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
+
+		<!-- Georgia State Tax Constants (2025) -->
+		<field name='ga_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0519' comment='Georgia flat tax rate (5.19%)'></field>
+		<field name='ga_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='12000' comment='GA standard deduction Single (2025)'></field>
+		<field name='ga_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='24000' comment='GA standard deduction MFJ (2025)'></field>
+		<field name='ga_dependent_exemption' type='double' subtype='' access='r' input='' default_value='4000' comment='GA dependent exemption per dependent (2025)'></field>
 
 		<!-- Montana State Tax Constants (2025) -->
 		<field name='mt_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='4500' comment='MT standard deduction Single (2025)'></field>
@@ -1112,6 +1131,39 @@
 		<field name='az_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='14600' comment='AZ standard deduction Single (follows federal 2025)'></field>
 		<field name='az_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='29200' comment='AZ standard deduction MFJ (follows federal 2025)'></field>
 
+
+		<!-- Ohio State Tax Constants (2025) -->
+		<field name='oh_bracket_1_threshold' type='double' subtype='' access='r' input='' default_value='26050' comment='OH bracket 1 ceiling - 0% tax (2025)'></field>
+		<field name='oh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='OH bracket 2 ceiling - 2.75% tax (2025)'></field>
+		<field name='oh_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='OH tax rate bracket 1 (0.0%)'></field>
+		<field name='oh_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0275' comment='OH tax rate bracket 2 (2.75%)'></field>
+		<field name='oh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.03125' comment='OH tax rate bracket 3 (3.125%)'></field>
+		<field name='oh_exemption_low' type='double' subtype='' access='r' input='' default_value='2350' comment='OH personal exemption (AGI up to $40,000)'></field>
+		<field name='oh_exemption_mid' type='double' subtype='' access='r' input='' default_value='2100' comment='OH personal exemption (AGI $40,001 to $80,000)'></field>
+		<field name='oh_exemption_high' type='double' subtype='' access='r' input='' default_value='1850' comment='OH personal exemption (AGI over $80,000)'></field>
+		<field name='oh_exemption_threshold_low' type='double' subtype='' access='r' input='' default_value='40000' comment='OH exemption tier 1 threshold'></field>
+		<field name='oh_exemption_threshold_high' type='double' subtype='' access='r' input='' default_value='80000' comment='OH exemption tier 2 threshold'></field>
+		<field name='oh_exemption_phaseout_threshold' type='double' subtype='' access='r' input='' default_value='750000' comment='OH exemption phaseout starts at $750,000 MAGI'></field>
+
+
+		<!-- Delaware State Tax Constants (2025) -->
+		<field name='de_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='3250' comment='DE standard deduction Single (2025)'></field>
+		<field name='de_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='6500' comment='DE standard deduction MFJ (2025)'></field>
+		<field name='de_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='DE tax rate bracket 1 (0.0%) on $0-$2,000'></field>
+		<field name='de_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0220' comment='DE tax rate bracket 2 (2.2%) on $2,000-$5,000'></field>
+		<field name='de_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0390' comment='DE tax rate bracket 3 (3.9%) on $5,000-$10,000'></field>
+		<field name='de_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0480' comment='DE tax rate bracket 4 (4.8%) on $10,000-$20,000'></field>
+		<field name='de_bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='DE tax rate bracket 5 (5.2%) on $20,000-$25,000'></field>
+		<field name='de_bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.0555' comment='DE tax rate bracket 6 (5.55%) on $25,000-$60,000'></field>
+		<field name='de_bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.0660' comment='DE tax rate bracket 7 (6.6%) on income over $60,000'></field>
+		<field name='de_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='2000' comment='DE bracket 2 threshold (2.2% starts here)'></field>
+		<field name='de_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='5000' comment='DE bracket 3 threshold (3.9% starts here)'></field>
+		<field name='de_bracket_4_threshold' type='double' subtype='' access='r' input='' default_value='10000' comment='DE bracket 4 threshold (4.8% starts here)'></field>
+		<field name='de_bracket_5_threshold' type='double' subtype='' access='r' input='' default_value='20000' comment='DE bracket 5 threshold (5.2% starts here)'></field>
+		<field name='de_bracket_6_threshold' type='double' subtype='' access='r' input='' default_value='25000' comment='DE bracket 6 threshold (5.55% starts here)'></field>
+		<field name='de_bracket_7_threshold' type='double' subtype='' access='r' input='' default_value='60000' comment='DE bracket 7 threshold (6.6% starts here)'></field>
+
+
 		<!-- Pennsylvania State Tax Constants (2025) -->
 		<field name='pa_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0307' comment='PA flat tax rate 3.07% (2025). Source: 72 P.S. § 7302'></field>
 		<field name='pa_taxable_compensation' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 1: Compensation (W-2 wages excluding military retirement). Source: 72 P.S. § 7303(a)(1)'></field>
@@ -1128,6 +1180,20 @@
 		<field name='pa_social_security_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Social Security exclusion (100%)'></field>
 		<field name='pa_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA pension exclusion (100%)'></field>
 		<field name='pa_ira_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA IRA distribution exclusion (100%)'></field>
+
+		<!-- West Virginia State Income Tax (2025) -->
+		<field name='wv_rate_1' type='double' subtype='' access='r' input='' default_value='0.0222' comment='WV rate bracket 1 (2.22%)'></field>
+		<field name='wv_rate_2' type='double' subtype='' access='r' input='' default_value='0.0296' comment='WV rate bracket 2 (2.96%)'></field>
+		<field name='wv_rate_3' type='double' subtype='' access='r' input='' default_value='0.0333' comment='WV rate bracket 3 (3.33%)'></field>
+		<field name='wv_rate_4' type='double' subtype='' access='r' input='' default_value='0.0444' comment='WV rate bracket 4 (4.44%)'></field>
+		<field name='wv_rate_5' type='double' subtype='' access='r' input='' default_value='0.0482' comment='WV rate bracket 5 (4.82%)'></field>
+		<field name='wv_bracket_1' type='double' subtype='' access='r' input='' default_value='10000' comment='WV bracket 1 ceiling ($10,000)'></field>
+		<field name='wv_bracket_2' type='double' subtype='' access='r' input='' default_value='25000' comment='WV bracket 2 ceiling ($25,000)'></field>
+		<field name='wv_bracket_3' type='double' subtype='' access='r' input='' default_value='40000' comment='WV bracket 3 ceiling ($40,000)'></field>
+		<field name='wv_bracket_4' type='double' subtype='' access='r' input='' default_value='60000' comment='WV bracket 4 ceiling ($60,000)'></field>
+		<field name='wv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='WV standard deduction Single (2025)'></field>
+		<field name='wv_standard_deduction_joint' type='double' subtype='' access='r' input='' default_value='4000' comment='WV standard deduction MFJ (2025)'></field>
+		<field name='wv_personal_exemption' type='double' subtype='' access='r' input='' default_value='2000' comment='WV personal exemption per person (2025)'></field>
 
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
@@ -1620,6 +1686,10 @@
 		<field name='nol_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL deduction used this year'></field>
 		<field name='nol_carryforward_remaining' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL carryforward to future years'></field>
 
+		<!-- State Tax -->
+		<field name='al_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Alabama taxable income after state deductions/exemptions'></field>
+		<field name='al_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Alabama state income tax'></field>
+
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
 		<field name='total_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total payments and credits (Form 1040 Line 33)'></field>
@@ -1643,6 +1713,13 @@
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
 
+		<!-- Georgia State Tax Results -->
+		<field name='ga_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia AGI (federal AGI + adjustments)'></field>
+		<field name='ga_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='GA standard deduction amount'></field>
+		<field name='ga_dependent_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='GA total dependent exemptions'></field>
+		<field name='ga_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia taxable income'></field>
+		<field name='ga_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia state income tax'></field>
+
 		<!-- Montana State Tax Results -->
 		<field name='mt_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana AGI (federal AGI + adjustments)'></field>
 		<field name='mt_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MT standard deduction amount'></field>
@@ -1650,6 +1727,31 @@
 		<field name='mt_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 1 tax (4.7%)'></field>
 		<field name='mt_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 2 tax (5.9%)'></field>
 		<field name='mt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana state income tax'></field>
+
+
+		<!-- Ohio State Tax Results -->
+		<field name='oh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio AGI (federal AGI + adjustments)'></field>
+		<field name='oh_exemption_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='OH personal exemption amount'></field>
+		<field name='oh_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total OH exemptions (all persons)'></field>
+		<field name='oh_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio taxable income after exemptions'></field>
+		<field name='oh_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 1 tax (0%)'></field>
+		<field name='oh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 2 tax (2.75%)'></field>
+		<field name='oh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 3 tax (3.125%)'></field>
+		<field name='oh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio state income tax'></field>
+
+		<!-- Delaware State Tax Results -->
+		<field name='de_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware AGI (federal AGI + adjustments)'></field>
+		<field name='de_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='DE standard deduction amount'></field>
+		<field name='de_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware taxable income'></field>
+		<field name='de_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 1 tax (0%)'></field>
+		<field name='de_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 2 tax (2.2%)'></field>
+		<field name='de_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 3 tax (3.9%)'></field>
+		<field name='de_bracket_4_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 4 tax (4.8%)'></field>
+		<field name='de_bracket_5_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 5 tax (5.2%)'></field>
+		<field name='de_bracket_6_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 6 tax (5.55%)'></field>
+		<field name='de_bracket_7_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 7 tax (6.6%)'></field>
+		<field name='de_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware state income tax'></field>
+
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
@@ -1718,8 +1820,16 @@
 
 		<!-- State tax result fields -->
 		<field name='ca_state_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA state income tax liability before Mental Health Services Tax (computed)'></field>
+		<field name="wv_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="West Virginia state income tax calculated"></field>
 		<field name='ca_mental_health_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA Mental Health Services Tax (1% surtax on income > $1M, computed)'></field>
 		<field name='ca_total_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA total tax liability including Mental Health Services Tax (computed)'></field>
+		<!-- CA AGI Calculation Fields (from CA AGI PR) -->
+		<field name='ca_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='California AGI (CA adjustments per Schedule CA)'></field>
+		<field name='ca_conformity_date' type='string' subtype='' access='r' input='' default_value='2025-01-01' comment='CA IRC conformity date (SB 711, Jan 1, 2025)'></field>
+		<field name='ca_mhst_threshold' type='double' subtype='' access='r' input='' default_value='1000000' comment='MHST threshold $1M+ (all filing statuses)'></field>
+		<field name='ca_mhst' type='double' subtype='' access='rw' input='' default_value='0' comment='CA Mental Health Services Tax (1% on $1M+)'></field>
+		<field name='ca_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='CA standard deduction (computed)'></field>
+		<field name='ca_regular_tax' type='double' subtype='' access='rw' input= ' default_value='0' comment='CA regular tax (before MHST)'></field>
 
 		<!-- Colorado state tax fields -->
 		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='CO flat tax rate 4.40% (2025). Source: Colorado DOR'></field>
@@ -1743,7 +1853,15 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='residency_status' type='string' subtype='' access='rw' input='main' default_value='full_year_resident' comment='Residency status: full_year_resident, part_year_resident, non_resident'></field>
+		<field name='residency_start_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency began (for part-year residents)'></field>
+		<field name='residency_end_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency ended (for part-year residents)'></field>
+		<field name='resident_months' type='integer' subtype='' access='rw' input='' default_value='12' comment='Number of months as resident (computed)'></field>
+		<field name='resident_ratio' type='double' subtype='' access='rw' input='' default_value='1.0' comment='Ratio of resident months to 12 (computed)'></field>
 		<field name='state_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='State adjusted gross income'></field>
+		<field name='resident_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned during resident period'></field>
+		<field name='non_resident_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income sourced to state during non-resident period'></field>
+		<field name='allocated_deductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductions allocated to state (computed)'></field>
 		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income after deductions'></field>
 		<field name='state_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax before credits'></field>
 		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total state tax credits'></field>

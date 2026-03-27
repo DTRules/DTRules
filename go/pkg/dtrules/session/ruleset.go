@@ -19,8 +19,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
@@ -94,88 +92,115 @@ func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 }
 
 // LoadFromDirectory loads all XML files from a directory.
-// This method loads both EDD and DT files found in the directory.
+// EDDs are loaded first (ordered by their numbering), then decision tables.
+// This method scans the directory recursively for *.xml files and loads them
+// in the correct order based on TABLE_NUMBER (for DTs) and file_path numbering (for EDDs).
+//
+// Example:
+//   rs := session.NewRuleSet("TaxReturn")
+//   err := rs.LoadFromDirectory("./sampleprojects/TaxReturn/xml")
 func (rs *RuleSet) LoadFromDirectory(dirPath string) error {
-	// Verify directory exists
-	info, err := os.Stat(dirPath)
+	return loader.LoadRulesFromDirectory(rs, dirPath)
+}
+
+// LoadEDDFile loads an EDD from a file path.
+func (rs *RuleSet) LoadEDDFile(filePath string) error {
+	f, err := os.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("cannot access directory %s: %w", dirPath, err)
+		return fmt.Errorf("failed to open EDD file %s: %w", filePath, err)
 	}
-	if !info.IsDir() {
-		return fmt.Errorf("%s is not a directory", dirPath)
-	}
+	defer f.Close()
+	return rs.LoadEDD(f)
+}
 
-	// Create a temporary session for loading
-	tempSession := &loadSession{
-		factory:    rs.entityFactory,
-		dateParser: NewDateParser(),
+// LoadDecisionTablesFile loads decision tables from a file path.
+func (rs *RuleSet) LoadDecisionTablesFile(filePath string) error {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open DT file %s: %w", filePath, err)
 	}
+	defer f.Close()
+	return rs.LoadDecisionTables(f)
+}
 
-	// Find all XML files in directory (including subdirectories)
-	var eddFiles, dtFiles []string
-	err = filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
+// LoadFromPath loads rules from a path (either a directory or individual files).
+// If the path is a directory, it loads all XML files recursively.
+// If the path is a file, it determines whether it's an EDD or DT and loads it.
+// If eddPath and dtPath are both provided, they are loaded as individual files.
+//
+// Examples:
+//   // Load from directory
+//   rs.LoadFromPath("./sampleprojects/TaxReturn/xml", "", "")
+//
+//   // Load from individual files
+//   rs.LoadFromPath("", "./xml/TaxReturn_edd.xml", "./xml/TaxReturn_dt.xml")
+//
+//   // Auto-detect from directory
+//   rs.LoadFromPath("./xml", "", "")
+func (rs *RuleSet) LoadFromPath(path, eddPath, dtPath string) error {
+	// If individual files are specified, load them
+	if eddPath != "" && dtPath != "" {
+		if err := rs.LoadEDDFile(eddPath); err != nil {
 			return err
 		}
+		return rs.LoadDecisionTablesFile(dtPath)
+	}
+
+	// If only path is specified, check if it's a directory or file
+	if path != "" {
+		info, err := os.Stat(path)
+		if err != nil {
+			return fmt.Errorf("failed to stat path %s: %w", path, err)
+		}
+
 		if info.IsDir() {
-			return nil
-		}
-		if !strings.HasSuffix(strings.ToLower(path), ".xml") {
-			return nil
+			// Load from directory
+			return rs.LoadFromDirectory(path)
 		}
 
-		// Read first few lines to determine file type
-		f, err := os.Open(path)
-		if err != nil {
-			return nil // Skip files we can't read
-		}
-		defer f.Close()
+		// It's a file - try to determine type and load
+		return fmt.Errorf("single file loading requires both -edd and -dt paths, or use a directory path")
+	}
 
-		buf := make([]byte, 1024)
-		n, _ := f.Read(buf)
-		content := string(buf[:n])
+	return fmt.Errorf("must specify either path or both eddPath and dtPath")
+}
 
-		if strings.Contains(content, "<entity_data_dictionary") {
-			eddFiles = append(eddFiles, path)
-		} else if strings.Contains(content, "<decision_tables") {
-			dtFiles = append(dtFiles, path)
-		}
-
-		return nil
-	})
+// LoadRulesFromDirectory is a package-level convenience function for loading
+// rules from a directory into a new RuleSet.
+//
+// Example:
+//   rs, err := session.LoadRulesFromDirectory("TaxReturn", "./sampleprojects/TaxReturn/xml")
+func LoadRulesFromDirectory(name, dirPath string) (*RuleSet, error) {
+	rs := NewRuleSet(name)
+	if rs == nil {
+		return nil, fmt.Errorf("invalid rule set name: %s", name)
+	}
+	err := rs.LoadFromDirectory(dirPath)
 	if err != nil {
-		return fmt.Errorf("error walking directory: %w", err)
+		return nil, err
 	}
+	return rs, nil
+}
 
-	// Load EDD files first
-	for _, eddPath := range eddFiles {
-		f, err := os.Open(eddPath)
-		if err != nil {
-			return fmt.Errorf("failed to open EDD file %s: %w", eddPath, err)
-		}
-		eddLoader := loader.NewEDDLoader(tempSession, rs.entityFactory)
-		err = eddLoader.Load(f)
-		f.Close()
-		if err != nil {
-			return fmt.Errorf("failed to load EDD from %s: %w", eddPath, err)
-		}
+// LoadRulesFromFiles is a package-level convenience function for loading
+// rules from EDD and DT files into a new RuleSet.
+//
+// Example:
+//   rs, err := session.LoadRulesFromFiles("TaxReturn",
+//       "./xml/TaxReturn_edd.xml",
+//       "./xml/TaxReturn_dt.xml")
+func LoadRulesFromFiles(name, eddPath, dtPath string) (*RuleSet, error) {
+	rs := NewRuleSet(name)
+	if rs == nil {
+		return nil, fmt.Errorf("invalid rule set name: %s", name)
 	}
-
-	// Load DT files
-	for _, dtPath := range dtFiles {
-		f, err := os.Open(dtPath)
-		if err != nil {
-			return fmt.Errorf("failed to open DT file %s: %w", dtPath, err)
-		}
-		dtLoader := loader.NewDTLoader(tempSession, rs.entityFactory)
-		err = dtLoader.Load(f)
-		f.Close()
-		if err != nil {
-			return fmt.Errorf("failed to load DT from %s: %w", dtPath, err)
-		}
+	if err := rs.LoadEDDFile(eddPath); err != nil {
+		return nil, err
 	}
-
-	return nil
+	if err := rs.LoadDecisionTablesFile(dtPath); err != nil {
+		return nil, err
+	}
+	return rs, nil
 }
 
 // NewSession creates a new session for this rule set.

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Connecticut Corporate Tax
+
+  CT Corporate Tax Overview:
+  - Flat rate: 7.5% (CT General Statutes § 12-214)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $500,000 (higher than typical $100K threshold)
+  - No transaction count threshold
+  - Form: CT-1120 (Corporation Business Tax Return)
+
+  Table Number: 51800 (CT Corporate Tax)
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/CT/51800_CT_corp_constants</file_path>
+  </file_metadata>
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="CT"
+           comment="Connecticut state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="500000.0"
+           comment="CT economic nexus threshold: $500,000 gross receipts (higher than typical)"/>
+
+    <field name="transaction_threshold" type="integer" default_value="0"
+           comment="CT has no transaction count threshold (only receipts-based)"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="CT uses single-sales factor apportionment"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.075"
+           comment="CT corporate tax rate: 7.5% flat rate (CT Gen. Stat. § 12-214)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="CT additions: federal interest, bonus depreciation addback, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="CT subtractions: municipal interest, CT NOL, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="CT tax credits: R&amp;D, jobs, film, manufacturing credits, etc."/>
+
+  </entity>
+
+  <!--
+    Result Entity: CT-Specific Extensions
+
+    Connecticut does not require special state-specific fields beyond
+    the standard apportionment entity. CT uses a straightforward
+    flat-rate tax with standard single-sales apportionment.
+  -->
+  <entity name="result">
+    <!-- No CT-specific fields required -->
+  </entity>
+
+</entity_data_dictionary>

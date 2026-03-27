@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Nebraska Corporate Tax Constants
+
+  Nebraska Corporate Income Tax:
+  - Flat rate: 5.20% for 2025 (Neb. Rev. Stat. § 77-2734.02)
+  - Future reductions: 4.55% (2026), 3.99% (2027)
+  - Apportionment: Single-sales factor
+  - Economic nexus: No fixed dollar threshold; subject to PL 86-272 protections
+  - Form: Nebraska Form 1120N (Corporation Income Tax Return)
+
+  This file will be merged into CorporateTax_edd.xml by merge script
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/NE/53700_NE_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Nebraska Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="NE"
+           comment="Nebraska state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="NE economic nexus threshold: $100,000 (for sales tax); income tax subject to PL 86-272"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="NE transaction threshold: 200 transactions (sales tax threshold)"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="NE uses single-sales factor apportionment (100% sales factor)"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.052"
+           comment="NE corporate income tax rate: 5.20% for 2025 (Neb. Rev. Stat. § 77-2734.02). Future: 4.55% (2026), 3.99% (2027)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="NE additions: interest on non-NE state/local bonds, federal interest income, etc. (Neb. Rev. Stat. § 77-2716)"/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="NE subtractions: federal interest (U.S. obligations), NE Build America Bond interest, etc. (Neb. Rev. Stat. § 77-2716)"/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="NE tax credits: jobs creation, R&amp;D, renewable energy, etc."/>
+
+  </entity>
+
+</entity_data_dictionary>
