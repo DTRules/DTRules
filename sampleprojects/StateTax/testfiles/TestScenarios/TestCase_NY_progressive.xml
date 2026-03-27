@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: New York - Progressive Tax (9 brackets)
+  State: NY, tax_type: progressive
+  std_ded: 8000/16050/11200, exemption: 0
+  Taxpayer: $120,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 120000
+    stdDeduction   = 8000
+    exemptions     = (1 + 0) * 0 = 0
+    taxableIncome  = 120000 - 8000 - 0 = 112000
+
+  Bracket base_tax computation (integer arithmetic):
+    B1: [0, 8500]          rate=400  base=0      width=8500   tax=8500*400/10000=340
+    B2: [8500, 11700]      rate=450  base=340    width=3200   tax=3200*450/10000=144
+    B3: [11700, 13900]     rate=525  base=484    width=2200   tax=2200*525/10000=115
+    B4: [13900, 80650]     rate=550  base=599    width=66750  tax=66750*550/10000=3671
+    B5: [80650, 215400]    rate=600  base=4270   width=134750 tax=134750*600/10000=8085
+    B6: [215400, 1077550]  rate=685  base=12355  width=862150 tax=862150*685/10000=59057
+    B7: [1077550, 5000000] rate=965  base=71412  width=3922450 tax=3922450*965/10000=378516
+    B8: [5000000, 25000000] rate=1030 base=449928 width=20000000 tax=20000000*1030/10000=2060000
+    B9: [25000000, 999999999] rate=1090 base=2509928
+
+  taxableIncome=112000 falls in B5 [80650, 215400, 600, 4270]:
+    tax = 4270 + (112000 - 80650) * 600 / 10000
+        = 4270 + 31350 * 600 / 10000
+        = 4270 + 18810000 / 10000
+        = 4270 + 1881
+        = 6151
+  Expected: taxOwed = 6151
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>NY</state>
+  <state_config>
+    <state_code>NY</state_code>
+    <state_name>New York</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>8000</standard_deduction_single>
+    <standard_deduction_mfj>16050</standard_deduction_mfj>
+    <standard_deduction_hoh>11200</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>8500</ceiling><rate_bps>400</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>8500</floor><ceiling>11700</ceiling><rate_bps>450</rate_bps><base_tax>340</base_tax></bracket_s>
+      <bracket_s><floor>11700</floor><ceiling>13900</ceiling><rate_bps>525</rate_bps><base_tax>484</base_tax></bracket_s>
+      <bracket_s><floor>13900</floor><ceiling>80650</ceiling><rate_bps>550</rate_bps><base_tax>599</base_tax></bracket_s>
+      <bracket_s><floor>80650</floor><ceiling>215400</ceiling><rate_bps>600</rate_bps><base_tax>4270</base_tax></bracket_s>
+      <bracket_s><floor>215400</floor><ceiling>1077550</ceiling><rate_bps>685</rate_bps><base_tax>12355</base_tax></bracket_s>
+      <bracket_s><floor>1077550</floor><ceiling>5000000</ceiling><rate_bps>965</rate_bps><base_tax>71412</base_tax></bracket_s>
+      <bracket_s><floor>5000000</floor><ceiling>25000000</ceiling><rate_bps>1030</rate_bps><base_tax>449928</base_tax></bracket_s>
+      <bracket_s><floor>25000000</floor><ceiling>999999999</ceiling><rate_bps>1090</rate_bps><base_tax>2509928</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>NY01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>120000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

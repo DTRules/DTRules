@@ -38,6 +38,7 @@ func (m *mockSession) CreateEntity(name *dtrules.RName) (dtrules.Entity, error) 
 func (m *mockSession) Compile(expr string) (dtrules.Object, error) {
 	return nil, nil
 }
+func (m *mockSession) GetEntityByID(id int) dtrules.Entity { return nil }
 
 func newTestCompiler() *Compiler {
 	factory := entity.NewFactory(nil)

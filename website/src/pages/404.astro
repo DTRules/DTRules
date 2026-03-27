@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Home, BookOpen, Gamepad2, ArrowLeft } from 'lucide-react';
+---
+
+<BaseLayout title="Page Not Found - DTRules" description="The page you're looking for doesn't exist.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- Error Code -->
+      <div class="mb-8">
+        <span class="text-8xl sm:text-9xl font-bold gradient-text">404</span>
+      </div>
+
+      <!-- Message -->
+      <h1 class="text-3xl sm:text-4xl font-bold mb-4">Page Not Found</h1>
+      <p class="text-lg text-muted-foreground mb-8">
+        The page you're looking for doesn't exist or has been moved.
+        Let's get you back on track.
+      </p>
+
+      <!-- Back Button -->
+      <button
+        onclick="history.back()"
+        class="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors mb-12"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Go Back
+      </button>
+
+      <!-- Quick Links -->
+      <div class="glass rounded-2xl p-8">
+        <h2 class="text-xl font-semibold mb-6">Popular Pages</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <a
+            href="/"
+            class="flex flex-col items-center gap-3 p-4 rounded-lg border border-border hover:border-purple-500/30 hover:bg-accent/50 transition-colors"
+          >
+            <div class="p-3 bg-purple-500/10 rounded-lg">
+              <Home className="h-6 w-6 text-purple-400" />
+            </div>
+            <div>
+              <div class="font-semibold">Home</div>
+              <div class="text-sm text-muted-foreground">Back to start</div>
+            </div>
+          </a>
+          <a
+            href="/docs/getting-started"
+            class="flex flex-col items-center gap-3 p-4 rounded-lg border border-border hover:border-blue-500/30 hover:bg-accent/50 transition-colors"
+          >
+            <div class="p-3 bg-blue-500/10 rounded-lg">
+              <BookOpen className="h-6 w-6 text-blue-400" />
+            </div>
+            <div>
+              <div class="font-semibold">Documentation</div>
+              <div class="text-sm text-muted-foreground">Learn DTRules</div>
+            </div>
+          </a>
+          <a
+            href="/demo"
+            class="flex flex-col items-center gap-3 p-4 rounded-lg border border-border hover:border-green-500/30 hover:bg-accent/50 transition-colors"
+          >
+            <div class="p-3 bg-green-500/10 rounded-lg">
+              <Gamepad2 className="h-6 w-6 text-green-400" />
+            </div>
+            <div>
+              <div class="font-semibold">Demo</div>
+              <div class="text-sm text-muted-foreground">Try it out</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Search Suggestion -->
+      <p class="mt-8 text-sm text-muted-foreground">
+        Looking for something specific? Try the <a href="/docs/getting-started" class="text-purple-400 hover:text-purple-300 underline">documentation</a> or <a href="/faq" class="text-purple-400 hover:text-purple-300 underline">FAQ</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

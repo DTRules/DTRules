@@ -1,0 +1,55 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='tax_year' RAttribute='tax_year' enclosure='job' type='string'></setattribute>
+			<setattribute tag='state' RAttribute='state' enclosure='job' type='string'></setattribute>
+
+			<setattribute tag='taxpayer_ID' RAttribute='taxpayer_ID' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='filing_status' RAttribute='filing_status' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='num_dependents' RAttribute='num_dependents' enclosure='taxpayer' type='integer'></setattribute>
+
+			<setattribute tag='type' RAttribute='type' enclosure='income' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='income' type='integer'></setattribute>
+
+			<setattribute tag='type' RAttribute='type' enclosure='adjustment' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='adjustment' type='integer'></setattribute>
+
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='state_config' type='string'></setattribute>
+			<setattribute tag='state_name' RAttribute='state_name' enclosure='state_config' type='string'></setattribute>
+			<setattribute tag='tax_type' RAttribute='tax_type' enclosure='state_config' type='string'></setattribute>
+			<setattribute tag='flat_rate_bps' RAttribute='flat_rate_bps' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='standard_deduction_single' RAttribute='standard_deduction_single' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='standard_deduction_mfj' RAttribute='standard_deduction_mfj' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='standard_deduction_hoh' RAttribute='standard_deduction_hoh' enclosure='state_config' type='integer'></setattribute>
+			<setattribute tag='exemption_amount' RAttribute='exemption_amount' enclosure='state_config' type='integer'></setattribute>
+
+			<setattribute tag='floor' RAttribute='floor' enclosure='bracket' type='integer'></setattribute>
+			<setattribute tag='ceiling' RAttribute='ceiling' enclosure='bracket' type='integer'></setattribute>
+			<setattribute tag='rate_bps' RAttribute='rate_bps' enclosure='bracket' type='integer'></setattribute>
+			<setattribute tag='base_tax' RAttribute='base_tax' enclosure='bracket' type='integer'></setattribute>
+
+			<createentity entity='job' 			tag='job' 			id='id'></createentity>
+			<createentity entity='taxpayer' 	tag='taxpayer' 		id='id'></createentity>
+			<createentity entity='income' 		tag='income' 		id='id'></createentity>
+			<createentity entity='adjustment' 	tag='adjustment' 	id='id'></createentity>
+			<createentity entity='state_config' tag='state_config' 	id='id'></createentity>
+			<createentity entity='bracket' 		tag='bracket_s' 	id='id' list='brackets_single'></createentity>
+			<createentity entity='bracket' 		tag='bracket_m' 	id='id' list='brackets_mfj'></createentity>
+			<createentity entity='bracket' 		tag='bracket_h' 	id='id' list='brackets_hoh'></createentity>
+			<createentity entity='result' 		tag='result' 		id='id'></createentity>
+        </map>
+		<entities>
+			<entity name='state_config' number='1'></entity>
+			<entity name='job'		 	number='1'></entity>
+			<entity name='taxpayer' 	number='1'></entity>
+
+			<entity name='income' 		number='*'></entity>
+			<entity name='adjustment' 	number='*'></entity>
+			<entity name='bracket' 		number='*'></entity>
+			<entity name='result' 		number='*'></entity>
+        </entities>
+
+		<initialization>
+        </initialization>
+    </XMLtoEDD>
+</mapping>

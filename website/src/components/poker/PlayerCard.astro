@@ -1,0 +1,127 @@
+---
+// PlayerCard.astro - Compact player display component
+interface Props {
+  name: string;
+  chips: number;
+  archetype?: string;
+  isDealer?: boolean;
+  isSmallBlind?: boolean;
+  isBigBlind?: boolean;
+  isActive?: boolean;
+  isFolded?: boolean;
+  isAllIn?: boolean;
+  isHuman?: boolean;
+  currentBet?: number;
+  handName?: string;
+  showHand?: boolean;
+  variant?: 'compact' | 'normal' | 'large';
+  className?: string;
+}
+
+const {
+  name,
+  chips,
+  archetype,
+  isDealer = false,
+  isSmallBlind = false,
+  isBigBlind = false,
+  isActive = false,
+  isFolded = false,
+  isAllIn = false,
+  isHuman = false,
+  currentBet = 0,
+  handName,
+  showHand = false,
+  variant = 'normal',
+  className = ''
+} = Astro.props;
+
+const archetypeColors: Record<string, string> = {
+  'TAG': 'bg-blue-600',
+  'LAG': 'bg-orange-600',
+  'Rock': 'bg-gray-600',
+  'Calling': 'bg-green-600'
+};
+
+const badgeColor = archetype ? archetypeColors[archetype] || 'bg-gray-600' : '';
+
+const variantClasses: Record<string, string> = {
+  compact: 'p-2 text-xs',
+  normal: 'p-2.5 md:p-3',
+  large: 'p-3 md:p-4'
+};
+---
+
+<div
+  class:list={[
+    'rounded-lg transition-all',
+    variantClasses[variant],
+    isHuman ? 'bg-blue-900/80' : 'bg-gray-800/80',
+    isFolded ? 'opacity-50' : '',
+    isActive ? 'ring-2 ring-yellow-400 player-active' : '',
+    className
+  ]}
+>
+  {/* Archetype badge */}
+  {archetype && !isHuman && (
+    <div class:list={[
+      badgeColor,
+      'text-white text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded mb-1 inline-block'
+    ]}>
+      {archetype}
+    </div>
+  )}
+
+  {/* Name with dealer button */}
+  <div class="text-white text-sm md:text-base font-semibold flex items-center gap-1 flex-wrap">
+    {isDealer && (
+      <span class="bg-yellow-500 text-black px-1 md:px-1.5 py-0.5 rounded text-[10px] md:text-xs">D</span>
+    )}
+    {isSmallBlind && !isDealer && (
+      <span class="bg-gray-500 text-white px-1 py-0.5 rounded text-[10px]">SB</span>
+    )}
+    {isBigBlind && (
+      <span class="bg-gray-500 text-white px-1 py-0.5 rounded text-[10px]">BB</span>
+    )}
+    <span class:list={[variant === 'compact' ? 'truncate max-w-[60px]' : '']}>{name}</span>
+  </div>
+
+  {/* Chips */}
+  <div class="text-yellow-400 text-sm md:text-base font-medium">
+    ${chips.toLocaleString()}
+  </div>
+
+  {/* Current bet */}
+  {currentBet > 0 && (
+    <div class="text-green-400 text-xs md:text-sm">
+      Bet: ${currentBet.toLocaleString()}
+    </div>
+  )}
+
+  {/* Status badges */}
+  {isFolded && (
+    <div class="text-red-400 text-xs md:text-sm font-semibold">FOLDED</div>
+  )}
+  {isAllIn && !isFolded && (
+    <div class="text-purple-400 text-xs md:text-sm font-semibold">ALL-IN</div>
+  )}
+
+  {/* Hand name (showdown) */}
+  {showHand && handName && !isFolded && (
+    <div class="text-purple-300 text-xs md:text-sm mt-1">{handName}</div>
+  )}
+
+  {/* Slot for cards */}
+  <slot />
+</div>
+
+<style>
+  .player-active {
+    animation: playerPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes playerPulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.5); }
+    50% { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.8); }
+  }
+</style>

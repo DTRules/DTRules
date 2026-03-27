@@ -258,6 +258,16 @@ func (dt *RDecisionTable) SetRActions(a []dtrules.Object) {
 	dt.ractions = a
 }
 
+// GetRPolicyStatements returns the compiled policy statements
+func (dt *RDecisionTable) GetRPolicyStatements() []dtrules.Object {
+	return dt.rpolicyStatements
+}
+
+// GetPolicyStatements returns the policy statement strings
+func (dt *RDecisionTable) GetPolicyStatements() []string {
+	return dt.policyStatements
+}
+
 // GetDecisionTree returns the compiled decision tree
 func (dt *RDecisionTable) GetDecisionTree() DTNode {
 	return dt.decisionTree
@@ -852,11 +862,6 @@ func (dt *RDecisionTable) GetConditionsComment() []string {
 // GetActionsComment returns the action comments
 func (dt *RDecisionTable) GetActionsComment() []string {
 	return dt.actionsComment
-}
-
-// GetPolicyStatements returns the policy statements
-func (dt *RDecisionTable) GetPolicyStatements() []string {
-	return dt.policyStatements
 }
 
 // GetFields returns all metadata fields

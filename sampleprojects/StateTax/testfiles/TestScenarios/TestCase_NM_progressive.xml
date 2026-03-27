@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- New Mexico - Progressive brackets
+     Single, $76,000 wages, 0 dependents
+     Taxable = 76000 - 15000 - 0 = 61000
+     Falls in bracket [33500, 66500, 470, 1165]
+     Tax = 1165 + (61000 - 33500) * 470 / 10000 = 1165 + 27500 * 470 / 10000 = 1165 + 1292 = 2457
+     (27500 * 470 = 12925000 / 10000 = 1292)
+     Expected: taxOwed = $2,457
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>NM</state>
+  <state_config>
+    <state_code>NM</state_code>
+    <state_name>New Mexico</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>5500</ceiling><rate_bps>150</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>5500</floor><ceiling>16500</ceiling><rate_bps>320</rate_bps><base_tax>82</base_tax></bracket_s>
+      <bracket_s><floor>16500</floor><ceiling>33500</ceiling><rate_bps>430</rate_bps><base_tax>434</base_tax></bracket_s>
+      <bracket_s><floor>33500</floor><ceiling>66500</ceiling><rate_bps>470</rate_bps><base_tax>1165</base_tax></bracket_s>
+      <bracket_s><floor>66500</floor><ceiling>210000</ceiling><rate_bps>490</rate_bps><base_tax>2716</base_tax></bracket_s>
+      <bracket_s><floor>210000</floor><ceiling>999999999</ceiling><rate_bps>590</rate_bps><base_tax>9747</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>NM01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>76000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

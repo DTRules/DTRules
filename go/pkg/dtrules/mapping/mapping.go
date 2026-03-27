@@ -138,6 +138,24 @@ func (m *Mapping) LoadData(r io.Reader) error {
 	return loader.Load(r)
 }
 
+// LoadDataAndPush loads data and pushes singleton entities onto the entity stack.
+// Use this for projects where singleton entities get their data from the input XML
+// rather than being initialized with defaults. Entities are pushed in the order
+// specified by pushOrder (e.g., []string{"state_config", "job", "taxpayer"}).
+func (m *Mapping) LoadDataAndPush(r io.Reader, pushOrder []string) error {
+	loader := newDataLoader(m)
+	if err := loader.Load(r); err != nil {
+		return err
+	}
+	// Push singleton entities onto the entity stack in the specified order
+	for _, name := range pushOrder {
+		if entity, ok := loader.entities[name]; ok {
+			m.state.EntityPush(entity)
+		}
+	}
+	return nil
+}
+
 // LoadDataJSON loads data from a JSON reader into entities.
 // Unlike LoadData (XML), this does not require mapping definitions.
 // Instead, it uses the EDD entity definitions directly for type information.

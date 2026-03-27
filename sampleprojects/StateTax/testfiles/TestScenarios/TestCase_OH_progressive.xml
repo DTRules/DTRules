@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Ohio - Progressive Tax (first $26,050 exempt)
+  State: OH, tax_type: progressive
+  std_ded: 0/0/0, exemption: 2400
+  Taxpayer: $60,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 60000
+    stdDeduction   = 0
+    exemptions     = (1 + 0) * 2400 = 2400
+    taxableIncome  = 60000 - 0 - 2400 = 57600
+
+  Bracket base_tax computation (integer arithmetic):
+    B1: [0, 26050]          rate=0   base=0    width=26050 tax=26050*0/10000=0
+    B2: [26050, 100000]     rate=275 base=0    width=73950 tax=73950*275/10000=2033
+    B3: [100000, 999999999] rate=313 base=2033
+
+  taxableIncome=57600 falls in B2 [26050, 100000, 275, 0]:
+    tax = 0 + (57600 - 26050) * 275 / 10000
+        = 31550 * 275 / 10000
+        = 8676250 / 10000
+        = 867
+  Expected: taxOwed = 867
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>OH</state>
+  <state_config>
+    <state_code>OH</state_code>
+    <state_name>Ohio</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>0</standard_deduction_single>
+    <standard_deduction_mfj>0</standard_deduction_mfj>
+    <standard_deduction_hoh>0</standard_deduction_hoh>
+    <exemption_amount>2400</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>26050</ceiling><rate_bps>0</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>26050</floor><ceiling>100000</ceiling><rate_bps>275</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>100000</floor><ceiling>999999999</ceiling><rate_bps>313</rate_bps><base_tax>2033</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>OH01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>60000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Alabama - Progressive brackets
+     Single, $55,000 wages, 0 dependents
+     Taxable = 55000 - 3000 - (1*1500) = 50500
+     Bracket [3000, 999999999, 500, 110]: tax = 110 + (50500-3000)*500/10000 = 110 + 47500*500/10000 = 110 + 2375 = 2485
+     Expected: taxOwed = $2,485
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>AL</state>
+  <state_config>
+    <state_code>AL</state_code>
+    <state_name>Alabama</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>3000</standard_deduction_single>
+    <standard_deduction_mfj>8500</standard_deduction_mfj>
+    <standard_deduction_hoh>5200</standard_deduction_hoh>
+    <exemption_amount>1500</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>500</ceiling><rate_bps>200</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>500</floor><ceiling>3000</ceiling><rate_bps>400</rate_bps><base_tax>10</base_tax></bracket_s>
+      <bracket_s><floor>3000</floor><ceiling>999999999</ceiling><rate_bps>500</rate_bps><base_tax>110</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>AL01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>55000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ChevronDown } from 'lucide-react';
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+const faqs: FAQ[] = [
+  {
+    question: "What is DTRules?",
+    answer: "DTRules is a decision table rules engine that lets you express complex business logic using spreadsheet-like tables. Instead of writing if-else chains in code, you define your rules in Excel or a visual editor, making them readable and maintainable by both developers and business analysts."
+  },
+  {
+    question: "How does DTRules compare to other rule engines?",
+    answer: "Unlike BRMS systems that use forward-chaining inference (like Drools), DTRules uses decision tables for deterministic rule execution. This means rules execute in a predictable, top-to-bottom order. The result is faster execution, easier debugging, and rules that business people can actually read and understand."
+  },
+  {
+    question: "What programming languages are supported?",
+    answer: "DTRules has native implementations in Java and Go. The Java implementation is the original, with 20+ years of production use. The Go implementation provides 130x faster operator lookup and includes a REST API for language-agnostic integration."
+  },
+  {
+    question: "Is DTRules open source?",
+    answer: "Yes! DTRules is released under the Apache License 2.0. You can use it freely in commercial and non-commercial projects, modify the source code, and distribute your modifications. The only requirement is to include the license notice in distributions."
+  },
+  {
+    question: "How do I get started?",
+    answer: "Start with the quickstart guide for your preferred language (Java or Go). You'll create a simple decision table, define your data model using EDD (Entity Description Dictionary), and execute your first rules in about 10 minutes."
+  },
+  {
+    question: "Can business users edit the rules?",
+    answer: "Yes! Decision tables can be authored in Excel, making them accessible to business analysts and policy experts. The visual UI also provides a user-friendly interface for creating and editing rules without writing code."
+  },
+  {
+    question: "How do decision tables work?",
+    answer: "A decision table is like a spreadsheet where columns represent different scenarios and rows represent conditions and actions. The engine evaluates conditions from top to bottom, finds matching columns, and executes the corresponding actions. This tabular format makes complex logic easy to visualize and verify."
+  },
+  {
+    question: "What's the Expression Language?",
+    answer: "DTRules includes a human-readable expression language for writing conditions and actions. Instead of code like 'if (age >= 18 && status == \"active\")', you write 'age >= 18 and status = \"active\"'. The language includes 75+ operators for arithmetic, comparisons, strings, arrays, dates, and more."
+  },
+  {
+    question: "Is DTRules suitable for high-performance applications?",
+    answer: "Yes. The Go implementation is highly optimized for performance, with benchmarks showing 130x faster operator lookup compared to map-based approaches. DTRules has been used in production systems processing millions of eligibility determinations."
+  },
+  {
+    question: "How do I test my decision tables?",
+    answer: "DTRules supports multiple testing approaches: unit tests with expected inputs/outputs, test scenarios defined in Excel alongside your rules, and programmatic testing through the API. The deterministic execution model makes testing straightforward - the same inputs always produce the same outputs."
+  },
+  {
+    question: "Where can I see DTRules in action?",
+    answer: "Check out the interactive poker demo on this site! It showcases DTRules decision tables controlling AI player behavior in a Texas Hold'em game. The Decision Theater shows exactly how the AI makes decisions based on hand strength, position, and table dynamics."
+  },
+  {
+    question: "How do I get help or report issues?",
+    answer: "For questions and discussions, open an issue on the GitHub repository. For bugs, please include steps to reproduce, expected vs actual behavior, and your environment details. The community is responsive and contributions are welcome!"
+  }
+];
+---
+
+<BaseLayout title="FAQ - DTRules" description="Frequently asked questions about DTRules decision table rules engine.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+          Frequently Asked <span class="gradient-text">Questions</span>
+        </h1>
+        <p class="text-xl text-muted-foreground">
+          Common questions about DTRules and decision tables.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        {faqs.map((faq, index) => (
+          <details class="group glass rounded-xl">
+            <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+              <h2 class="text-lg font-semibold pr-4">{faq.question}</h2>
+              <ChevronDown className="h-5 w-5 text-muted-foreground flex-shrink-0 transition-transform group-open:rotate-180" />
+            </summary>
+            <div class="px-6 pb-6">
+              <p class="text-muted-foreground leading-relaxed">{faq.answer}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <!-- Call to Action -->
+      <div class="mt-16 text-center">
+        <p class="text-muted-foreground mb-6">
+          Still have questions? We're here to help.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="https://github.com/dtrules/dtrules/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-border hover:border-purple-500/30 hover:bg-accent/50 transition-colors"
+          >
+            Ask on GitHub
+          </a>
+          <a
+            href="/docs/getting-started"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg gradient-button text-white font-semibold"
+          >
+            Read the Docs
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

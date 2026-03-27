@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Idaho - Flat tax 5.30%
+     Single, $68,000 wages, 0 dependents
+     Taxable = 68000 - 15750 - (0) = 52250
+     Tax = 52250 * 530 / 10000 = 2769  (integer arithmetic: 52250*530=27692500, /10000=2769)
+     Expected: taxOwed = $2,769
+     Note: ID technically has a 0% bracket below $4,811 but modeled as flat
+     since the std deduction exceeds this threshold for most filers.
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>ID</state>
+  <state_config>
+    <state_code>ID</state_code>
+    <state_name>Idaho</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>530</flat_rate_bps>
+    <standard_deduction_single>15750</standard_deduction_single>
+    <standard_deduction_mfj>31500</standard_deduction_mfj>
+    <standard_deduction_hoh>23625</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>ID01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>68000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

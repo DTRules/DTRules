@@ -1,0 +1,94 @@
+---
+// CardDisplay.astro - Reusable card component with size variants
+interface Props {
+  card?: {
+    rank: number;
+    suit: string;
+    rankName?: string;
+  } | null;
+  faceDown?: boolean;
+  size?: 'tiny' | 'small' | 'medium' | 'large' | 'default';
+  highlight?: boolean;
+  className?: string;
+}
+
+const { card, faceDown = false, size = 'default', highlight = false, className = '' } = Astro.props;
+
+const SUIT_SYMBOLS: Record<string, string> = {
+  hearts: '\u2665',
+  diamonds: '\u2666',
+  clubs: '\u2663',
+  spades: '\u2660'
+};
+
+const SUIT_COLORS: Record<string, string> = {
+  hearts: '#e53935',
+  diamonds: '#e53935',
+  clubs: '#1a1a1a',
+  spades: '#1a1a1a'
+};
+
+const RANK_DISPLAY: Record<number, string> = {
+  2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
+  10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A'
+};
+
+const sizeClasses: Record<string, string> = {
+  tiny: 'w-5 h-7 text-[8px]',
+  small: 'w-6 h-8 text-[10px]',
+  medium: 'w-10 h-14 text-sm',
+  large: 'w-14 h-20 text-lg',
+  default: 'w-12 h-[4.5rem] text-base'
+};
+
+const sizeClass = sizeClasses[size] || sizeClasses.default;
+const showCard = !faceDown && card;
+const suitSymbol = card ? SUIT_SYMBOLS[card.suit] || '' : '';
+const suitColor = card ? SUIT_COLORS[card.suit] || '#1a1a1a' : '';
+const rankDisplay = card ? (RANK_DISPLAY[card.rank] || card.rankName || '?') : '?';
+---
+
+<div
+  class:list={[
+    sizeClass,
+    'rounded-md flex items-center justify-center font-bold shadow-md transition-all',
+    showCard ? '' : 'bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-blue-700',
+    highlight ? 'ring-2 ring-purple-500 shadow-purple-500/50' : '',
+    className
+  ]}
+  style={showCard ? `background-color: white; color: ${suitColor};` : ''}
+>
+  {showCard ? (
+    <span class="flex flex-col items-center leading-tight">
+      <span>{rankDisplay}</span>
+      <span>{suitSymbol}</span>
+    </span>
+  ) : (
+    <span class:list={[
+      'text-blue-400',
+      size === 'tiny' ? 'text-xs' : size === 'small' ? 'text-sm' : size === 'large' ? 'text-2xl' : 'text-lg'
+    ]}>?</span>
+  )}
+</div>
+
+<style>
+  /* Card flip animation */
+  .card-reveal {
+    animation: flipIn 0.25s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes flipIn {
+    0% {
+      transform: rotateY(90deg) scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: rotateY(0deg) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .card-delayed-1 { animation-delay: 0.1s; }
+  .card-delayed-2 { animation-delay: 0.2s; }
+</style>

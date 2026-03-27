@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Oregon - Progressive brackets
+     Single, $82,000 wages, 0 dependents
+     Taxable = 82000 - 2835 - 0 = 79165
+     Falls in bracket [11050, 125000, 875, 657]
+     Tax = 657 + (79165 - 11050) * 875 / 10000 = 657 + 68115 * 875 / 10000 = 657 + 5960 = 6617
+     (68115 * 875 = 59600625 / 10000 = 5960)
+     Expected: taxOwed = $6,617
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>OR</state>
+  <state_config>
+    <state_code>OR</state_code>
+    <state_name>Oregon</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>2835</standard_deduction_single>
+    <standard_deduction_mfj>5670</standard_deduction_mfj>
+    <standard_deduction_hoh>4560</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>4400</ceiling><rate_bps>475</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>4400</floor><ceiling>11050</ceiling><rate_bps>675</rate_bps><base_tax>209</base_tax></bracket_s>
+      <bracket_s><floor>11050</floor><ceiling>125000</ceiling><rate_bps>875</rate_bps><base_tax>657</base_tax></bracket_s>
+      <bracket_s><floor>125000</floor><ceiling>999999999</ceiling><rate_bps>990</rate_bps><base_tax>10627</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>OR01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>82000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

@@ -1,146 +1,1339 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { ExternalLink, Monitor, Terminal, BookOpen } from 'lucide-react';
+import DecisionTheater from '../components/poker/DecisionTheater.astro';
+import CompactPokerTable from '../components/poker/CompactPokerTable.astro';
+import BettingControls from '../components/poker/BettingControls.astro';
 ---
 
-<BaseLayout title="Interactive Demo - DTRules" description="Try DTRules with an interactive demo of the visual UI.">
-  <section class="py-16 lg:py-24">
+<BaseLayout title="Interactive Demo - DTRules" description="Interactive Texas Hold'em poker game showcasing DTRules decision tables for hand evaluation, betting validation, and game flow.">
+  <section class="py-6 lg:py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+      <!-- Header -->
+      <div class="text-center mb-4 md:mb-6">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
           Interactive <span class="gradient-text">Demo</span>
         </h1>
-        <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Experience DTRules with the visual UI. Edit decision tables, explore entities, and run tests.
+        <p class="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
+          Texas Hold'em poker powered by DTRules decision tables. <span class="text-purple-400">Watch the AI think!</span>
         </p>
       </div>
 
-      <!-- Demo Options -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <!-- Run Locally -->
-        <div class="glass rounded-2xl p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="p-2 bg-blue-500/10 rounded-lg">
-              <Monitor className="h-6 w-6 text-blue-400" />
-            </div>
-            <h2 class="text-xl font-semibold">Run Locally</h2>
-          </div>
-          <p class="text-muted-foreground mb-6">
-            The best way to experience DTRules is to run the UI locally with the Go backend.
-            This gives you full access to edit and test decision tables.
-          </p>
-
-          <div class="space-y-4 mb-6">
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">1. Start the Backend</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd go
-go run ./cmd/api</code></pre>
-            </div>
-
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">2. Start the Frontend</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd ui
-npm install
-npm run dev</code></pre>
-            </div>
-
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">3. Open Browser</div>
-              <p class="text-xs text-muted-foreground">Navigate to <code class="text-blue-400">http://localhost:5173</code></p>
-            </div>
-          </div>
-
-          <a
-            href="/docs/getting-started/quickstart-ui"
-            class="w-full px-6 py-3 gradient-button text-white font-semibold rounded-lg flex items-center justify-center gap-2"
-          >
-            <BookOpen className="h-5 w-5" />
-            Full Setup Guide
-          </a>
+      <!-- Main Layout: Decision Theater (hero) + Compact Game -->
+      <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
+        <!-- Decision Theater (40% on desktop) -->
+        <div class="w-full lg:w-2/5 order-1 lg:order-2">
+          <DecisionTheater />
         </div>
 
-        <!-- CLI Demo -->
-        <div class="glass rounded-2xl p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="p-2 bg-purple-500/10 rounded-lg">
-              <Terminal className="h-6 w-6 text-purple-400" />
+        <!-- Poker Table + Controls (60% on desktop) -->
+        <div class="w-full lg:w-3/5 order-2 lg:order-1 flex flex-col gap-4">
+          <!-- Game Controls -->
+          <div class="glass rounded-xl p-4">
+            <div class="flex items-center gap-4">
+              <button id="btn-play" class="flex-1 px-4 py-3 gradient-button text-white font-bold text-lg rounded-lg touch-manipulation">
+                Play Game
+              </button>
+              <!-- Stats Toggle -->
+              <button id="stats-toggle" class="p-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-colors" aria-label="Toggle game statistics" title="Game Statistics">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              </button>
             </div>
-            <h2 class="text-xl font-semibold">CLI Demo</h2>
+            <p class="text-gray-300 text-xs mt-2 text-center">4 players, $1,000 starting chips</p>
+            <!-- Stats Panel (hidden by default) -->
+            <div id="stats-panel" class="hidden mt-3 pt-3 border-t border-gray-700">
+              <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                <div>
+                  <div class="text-gray-400">Hands</div>
+                  <div id="stat-hands" class="text-white font-semibold">0</div>
+                </div>
+                <div>
+                  <div class="text-gray-400">Wins</div>
+                  <div id="stat-wins" class="text-green-400 font-semibold">0</div>
+                </div>
+                <div>
+                  <div class="text-gray-400">Losses</div>
+                  <div id="stat-losses" class="text-red-400 font-semibold">0</div>
+                </div>
+                <div>
+                  <div class="text-gray-400">Best Pot</div>
+                  <div id="stat-best-pot" class="text-yellow-400 font-semibold">$0</div>
+                </div>
+              </div>
+              <button id="reset-stats" class="w-full mt-2 py-1 text-xs text-gray-400 hover:text-white transition-colors">Reset Stats</button>
+            </div>
           </div>
-          <p class="text-muted-foreground mb-6">
-            Use the Go CLI to validate and execute decision tables directly from the command line.
-          </p>
 
-          <div class="space-y-4 mb-6">
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">Build the CLI</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>cd go
-go build -o dtrules ./cmd/dtrules</code></pre>
+          <!-- Hand History (collapsible) -->
+          <details id="hand-history-panel" class="glass rounded-xl">
+            <summary class="p-3 cursor-pointer flex items-center justify-between list-none">
+              <span class="text-sm font-semibold text-gray-300">Hand History</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 transition-transform details-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div id="hand-history-list" class="px-3 pb-3 space-y-2 max-h-48 overflow-y-auto">
+              <p class="text-xs text-gray-500 text-center py-2">No hands played yet</p>
             </div>
+          </details>
 
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">List Decision Tables</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>./dtrules -rules ../sampleprojects/CHIP/xml -list</code></pre>
-            </div>
+          <!-- Compact Poker Table -->
+          <CompactPokerTable />
 
-            <div class="glass rounded-lg p-4">
-              <div class="text-sm font-medium mb-2">Execute with Trace</div>
-              <pre class="text-xs bg-background/50 rounded p-2 overflow-x-auto"><code>./dtrules -rules ../sampleprojects/CHIP/xml \
-  -entry Compute_Eligibility -trace</code></pre>
-            </div>
-          </div>
-
-          <a
-            href="/docs/getting-started/quickstart-go"
-            class="w-full px-6 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
-          >
-            <BookOpen className="h-5 w-5" />
-            Go Quick Start
-          </a>
+          <!-- Betting Controls (desktop only - mobile is fixed at bottom) -->
+          <BettingControls />
         </div>
-      </div>
-
-      <!-- Sample Project Info -->
-      <div class="mt-16 max-w-4xl mx-auto">
-        <div class="glass rounded-2xl p-8">
-          <h2 class="text-2xl font-bold mb-4 text-center">CHIP Sample Project</h2>
-          <p class="text-muted-foreground text-center mb-8">
-            The demo uses the CHIP (Children's Health Insurance Program) sample project,
-            which demonstrates real-world eligibility determination logic.
-          </p>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center">
-              <div class="text-3xl font-bold gradient-text mb-2">7</div>
-              <div class="text-sm text-muted-foreground">Decision Tables</div>
-            </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold gradient-text mb-2">7</div>
-              <div class="text-sm text-muted-foreground">Entities</div>
-            </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold gradient-text mb-2">40+</div>
-              <div class="text-sm text-muted-foreground">Business Rules</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- GitHub Link -->
-      <div class="mt-12 text-center">
-        <p class="text-muted-foreground mb-4">
-          Want to explore the full source code?
-        </p>
-        <a
-          href="https://github.com/dtrules/dtrules"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors"
-        >
-          View on GitHub
-          <ExternalLink className="h-4 w-4" />
-        </a>
       </div>
     </div>
   </section>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="keyboard-shortcuts-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm" role="dialog" aria-labelledby="keyboard-modal-title" aria-modal="true">
+    <div class="glass rounded-2xl p-6 max-w-sm mx-4 animate-in fade-in zoom-in duration-200">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="keyboard-modal-title" class="text-xl font-bold">Keyboard Shortcuts</h2>
+        <button id="close-keyboard-modal" class="p-1 hover:bg-white/10 rounded-lg transition-colors" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Fold</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">F</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Check / Call</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">C</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Focus raise slider</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">R</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">All-in</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">A</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Confirm raise</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">Enter</kbd>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground">Close modal / Next hand</span>
+          <kbd class="px-2 py-1 bg-gray-700 rounded text-sm font-mono">Esc</kbd>
+        </div>
+      </div>
+      <p class="mt-4 text-xs text-muted-foreground text-center">
+        Shortcuts active during your turn
+      </p>
+    </div>
+  </div>
+
+  <style>
+    html { scroll-behavior: auto !important; }
+    .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
+    .touch-manipulation { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+    /* Ensure mobile has space for fixed bottom controls */
+    @media (max-width: 767px) {
+      section { padding-bottom: 140px; }
+    }
+
+    /* Details chevron rotation */
+    details[open] .details-chevron {
+      transform: rotate(180deg);
+    }
+  </style>
+
+  <script>
+    import {
+      dealNewPokerHand,
+      processPokerAction,
+      clearPendingReveal,
+      continueRunOut,
+      awardPot,
+      processAllAITurns,
+      processAITurnsSync,
+      secureRandom,
+      CARD_RANK_NAMES,
+      generateDecisionExplanation,
+      getDecisionTable,
+      ARCHETYPE_STRATEGIES,
+    } from '../lib/poker/index';
+    import type { PokerGame, PokerPlayer, PokerCard, AIActionResult } from '../lib/poker/index';
+    import { GAME_CONFIG } from '../lib/poker/gameConfig';
+
+    // Game statistics tracking
+    interface GameStats {
+      handsPlayed: number;
+      wins: number;
+      losses: number;
+      biggestPot: number;
+    }
+
+    const STATS_KEY = 'dtrules-poker-stats';
+
+    function loadStats(): GameStats {
+      try {
+        const saved = localStorage.getItem(STATS_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        // localStorage not available or corrupted
+      }
+      return { handsPlayed: 0, wins: 0, losses: 0, biggestPot: 0 };
+    }
+
+    function saveStats(stats: GameStats): void {
+      try {
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      } catch (e) {
+        // localStorage not available
+      }
+    }
+
+    function updateStatsDisplay(stats: GameStats): void {
+      const handsEl = document.getElementById('stat-hands');
+      const winsEl = document.getElementById('stat-wins');
+      const lossesEl = document.getElementById('stat-losses');
+      const bestPotEl = document.getElementById('stat-best-pot');
+
+      if (handsEl) handsEl.textContent = stats.handsPlayed.toString();
+      if (winsEl) winsEl.textContent = stats.wins.toString();
+      if (lossesEl) lossesEl.textContent = stats.losses.toString();
+      if (bestPotEl) bestPotEl.textContent = `$${stats.biggestPot}`;
+    }
+
+    // Hand history tracking
+    interface HandHistoryEntry {
+      handNumber: number;
+      winnerName: string;
+      humanWon: boolean;
+      pot: number;
+      humanCards: string;
+      handType: string;
+    }
+
+    const HISTORY_KEY = 'dtrules-poker-history';
+    const MAX_HISTORY = 10;
+
+    function loadHistory(): HandHistoryEntry[] {
+      try {
+        const saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        // localStorage not available or corrupted
+      }
+      return [];
+    }
+
+    function saveHistory(history: HandHistoryEntry[]): void {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      } catch (e) {
+        // localStorage not available
+      }
+    }
+
+    function addToHistory(entry: HandHistoryEntry): void {
+      const history = loadHistory();
+      history.unshift(entry); // Add to beginning
+      if (history.length > MAX_HISTORY) {
+        history.pop(); // Remove oldest
+      }
+      saveHistory(history);
+      updateHistoryDisplay(history);
+    }
+
+    function updateHistoryDisplay(history: HandHistoryEntry[]): void {
+      const container = document.getElementById('hand-history-list');
+      if (!container) return;
+
+      if (history.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No hands played yet</p>';
+        return;
+      }
+
+      container.innerHTML = history.map(entry => `
+        <div class="flex items-center justify-between text-xs p-2 rounded ${entry.humanWon ? 'bg-green-900/30' : 'bg-gray-800/50'}">
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500">#${entry.handNumber}</span>
+            <span class="text-white font-medium">${entry.humanCards}</span>
+            <span class="text-gray-400">${entry.handType}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="${entry.humanWon ? 'text-green-400' : 'text-gray-400'}">${entry.winnerName}</span>
+            <span class="text-yellow-400">$${entry.pot}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    let handHistory = loadHistory();
+    let gameStats = loadStats();
+
+    // Card display utilities
+    const SUIT_SYMBOLS: Record<string, string> = { hearts: '\u2665', diamonds: '\u2666', clubs: '\u2663', spades: '\u2660' };
+    const SUIT_COLORS: Record<string, string> = { hearts: '#e53935', diamonds: '#e53935', clubs: '#1a1a1a', spades: '#1a1a1a' };
+    const RANK_DISPLAY: Record<number, string> = { 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
+
+    // Player positions for table layout
+    const PLAYER_POSITIONS: Record<number, Array<{x: number, y: number}>> = {
+      2: [{ x: 50, y: 85 }, { x: 50, y: 15 }],
+      3: [{ x: 50, y: 85 }, { x: 15, y: 35 }, { x: 85, y: 35 }],
+      4: [{ x: 50, y: 85 }, { x: 15, y: 50 }, { x: 50, y: 15 }, { x: 85, y: 50 }],
+    };
+
+    // Game state
+    let gameState: PokerGame | null = null;
+    let isRevealingCards = false;
+    let showdownModalShown = false;
+    let isAIThinking = false;
+
+    // Error boundary - wrap async operations
+    async function withErrorBoundary<T>(fn: () => Promise<T>, context: string): Promise<T | null> {
+      try {
+        return await fn();
+      } catch (error) {
+        // Error logged for debugging during development
+        if (import.meta.env.DEV) console.error(`Error in ${context}:`, error);
+        showGameError(`An error occurred: ${context}. Please try starting a new game.`);
+        return null;
+      }
+    }
+
+    function showGameError(message: string) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg';
+      errorDiv.textContent = message;
+      errorDiv.setAttribute('role', 'alert');
+      document.body.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    // AI thinking indicator
+    function setAIThinking(thinking: boolean) {
+      isAIThinking = thinking;
+      const badge = document.getElementById('active-player-badge');
+      if (badge) {
+        if (thinking) {
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+    }
+
+    // Screen reader announcement function
+    function announceToScreenReader(message: string) {
+      const announcer = document.getElementById('game-announcer');
+      if (announcer) {
+        // Clear and set new message to ensure it's announced
+        announcer.textContent = '';
+        setTimeout(() => {
+          announcer.textContent = message;
+        }, 50);
+      }
+    }
+
+    // Breakpoint detection
+    function getBreakpoint(): 'mobile' | 'tablet' | 'desktop' {
+      const w = window.innerWidth;
+      if (w < 768) return 'mobile';
+      if (w < 1024) return 'tablet';
+      return 'desktop';
+    }
+
+    // Suit names for accessibility
+    const SUIT_NAMES: Record<string, string> = { hearts: 'Hearts', diamonds: 'Diamonds', clubs: 'Clubs', spades: 'Spades' };
+    const RANK_NAMES: Record<number, string> = { 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', 11: 'Jack', 12: 'Queen', 13: 'King', 14: 'Ace' };
+
+    // Create card element with ARIA labels
+    function createCardElement(card: PokerCard | null, faceDown = false, size = 'default'): HTMLDivElement {
+      const cardEl = document.createElement('div');
+      const sizeClasses: Record<string, string> = {
+        tiny: 'w-5 h-7 text-[8px]',
+        small: 'w-6 h-8 text-[10px]',
+        medium: 'w-10 h-14 text-sm',
+        large: 'w-14 h-20 text-lg',
+        default: 'w-10 h-14 lg:w-12 lg:h-[4.5rem] text-sm lg:text-base'
+      };
+
+      cardEl.className = `${sizeClasses[size] || sizeClasses.default} rounded-md flex items-center justify-center font-bold shadow-md`;
+      cardEl.setAttribute('role', 'img');
+
+      if (faceDown || !card) {
+        cardEl.className += ' bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-blue-700';
+        cardEl.innerHTML = `<span class="text-blue-400">?</span>`;
+        cardEl.setAttribute('aria-label', 'Face-down card');
+      } else {
+        cardEl.style.backgroundColor = 'white';
+        cardEl.style.color = SUIT_COLORS[card.suit];
+        cardEl.innerHTML = `<span class="flex flex-col items-center leading-tight"><span>${RANK_DISPLAY[card.rank] || card.rankName}</span><span>${SUIT_SYMBOLS[card.suit]}</span></span>`;
+        const rankName = RANK_NAMES[card.rank] || card.rankName;
+        const suitName = SUIT_NAMES[card.suit] || card.suit;
+        cardEl.setAttribute('aria-label', `${rankName} of ${suitName}`);
+      }
+      return cardEl;
+    }
+
+    // Show round transition banner
+    function showRoundTransition(roundName: string) {
+      const isMobile = getBreakpoint() === 'mobile';
+      const banner = document.getElementById(isMobile ? 'round-banner-mobile' : 'round-banner');
+      const bannerText = document.getElementById(isMobile ? 'round-banner-text-mobile' : 'round-banner-text');
+
+      if (banner && bannerText) {
+        bannerText.textContent = roundName.toUpperCase();
+        banner.classList.add('round-banner-show');
+        banner.querySelector('div')?.classList.add('round-banner-animate');
+        setTimeout(() => {
+          banner.classList.remove('round-banner-show');
+          banner.querySelector('div')?.classList.remove('round-banner-animate');
+        }, 800);
+      }
+
+      // Announce to screen readers
+      const roundNames: Record<string, string> = {
+        'flop': 'Flop dealt: three community cards',
+        'turn': 'Turn dealt: fourth community card',
+        'river': 'River dealt: fifth community card',
+        'showdown': 'Showdown: revealing hands'
+      };
+      announceToScreenReader(roundNames[roundName] || `${roundName} round`);
+    }
+
+    // Update AI decision display in Decision Theater
+    function updateAIDecisionDisplay(result: AIActionResult) {
+      const { player, action, handStrength, decisionContext } = result;
+      if (!player.archetype || !decisionContext) return;
+
+      // Show the table for this archetype
+      window.decisionTheater?.showTable(player.archetype, decisionContext.matchedColumnId);
+
+      // Build explanation data for the explainer component
+      const table = getDecisionTable(player.archetype);
+      if (!table) return;
+
+      const handNicknames: Record<string, string> = {};
+      if (player.holeCards?.length === 2) {
+        const ranks = player.holeCards.map(c => c.rank).sort((a, b) => b - a);
+        if (ranks[0] === 14 && ranks[1] === 14) handNicknames.current = 'Pocket Rockets';
+        else if (ranks[0] === 13 && ranks[1] === 13) handNicknames.current = 'Cowboys';
+        else if (ranks[0] === 14 && ranks[1] === 13) handNicknames.current = 'Big Slick';
+      }
+
+      const positionLabels: Record<string, string> = {
+        'button': 'Button (Best)',
+        'small_blind': 'Small Blind',
+        'big_blind': 'Big Blind',
+        'early': 'Early Position',
+        'middle': 'Middle Position',
+        'late': 'Late Position',
+      };
+
+      const holeCardsDisplay = player.holeCards?.map(c =>
+        `${RANK_DISPLAY[c.rank] || c.rankName}${SUIT_SYMBOLS[c.suit]}`
+      ).join(' ') || '??';
+
+      // Build decision path based on conditions
+      const decisionPath: Array<{text: string, type: 'passed' | 'failed' | 'arrow' | 'info'}> = [];
+
+      // Add condition evaluations based on archetype
+      const strengthPercent = Math.round(handStrength * 100);
+      for (const condition of table.conditions) {
+        let passed = false;
+        let valueDisplay = '';
+
+        if (condition.id.startsWith('str')) {
+          const threshold = condition.threshold || 0;
+          passed = handStrength >= threshold;
+          valueDisplay = `${strengthPercent}%`;
+        } else if (condition.id === 'canCheck') {
+          passed = decisionContext.canCheck;
+          valueDisplay = passed ? 'Yes' : 'No';
+        } else if (condition.id === 'position') {
+          passed = decisionContext.position === 'late' || decisionContext.position === 'button';
+          valueDisplay = decisionContext.position;
+        } else if (condition.id === 'potOdds') {
+          const threshold = handStrength * 0.8;
+          passed = decisionContext.potOdds < threshold;
+          valueDisplay = `${Math.round(decisionContext.potOdds * 100)}%`;
+        } else if (condition.id === 'smallBet') {
+          passed = decisionContext.toCall <= 40; // 2x big blind
+          valueDisplay = `$${decisionContext.toCall}`;
+        }
+
+        decisionPath.push({
+          text: `${passed ? '\u2713' : '\u2717'} ${condition.label}: ${valueDisplay}`,
+          type: passed ? 'passed' : 'failed'
+        });
+      }
+
+      decisionPath.push({
+        text: `\u2192 Column ${decisionContext.matchedColumnId} matched`,
+        type: 'arrow'
+      });
+
+      const strategyNote = ARCHETYPE_STRATEGIES[player.archetype] || '';
+
+      window.updateDecisionExplainer?.({
+        playerName: player.name,
+        archetype: player.archetype,
+        action: action.actionType,
+        actionAmount: action.amount || undefined,
+        handStrengthPercent: `${strengthPercent}%`,
+        holeCardsDisplay,
+        handNickname: handNicknames.current,
+        position: decisionContext.position,
+        positionLabel: positionLabels[decisionContext.position] || decisionContext.position,
+        potOddsPercent: `${Math.round(decisionContext.potOdds * 100)}%`,
+        pot: gameState?.pot || 0,
+        decisionPath,
+        matchedColumnId: decisionContext.matchedColumnId,
+        strategyNote,
+      });
+
+      // Announce AI action to screen readers
+      const actionDesc = action.amount && action.amount > 0
+        ? `${player.name} ${action.actionType}s $${action.amount}`
+        : `${player.name} ${action.actionType}s`;
+      announceToScreenReader(actionDesc);
+    }
+
+    // Handle pending reveal (flop, turn, river, showdown)
+    async function handlePendingReveal(game: PokerGame) {
+      if (!game.pendingReveal || isRevealingCards) return;
+      isRevealingCards = true;
+
+      gameState = game;
+      renderPlayers();
+      updatePotDisplay();
+      showRoundTransition(game.pendingReveal);
+
+      await new Promise(resolve => setTimeout(resolve, 600));
+      updateCommunityCardsWithAnimation(game);
+
+      const numNewCards = game.newCommunityCards?.length || 0;
+      await new Promise(resolve => setTimeout(resolve, 300 + numNewCards * 100));
+
+      clearPendingReveal(game);
+      isRevealingCards = false;
+
+      if (game.round === 'showdown') {
+        game.runningOutBoard = false;
+        if (!game.handComplete) awardPot(game);
+        showShowdownResults(game);
+        return;
+      }
+
+      if (game.runningOutBoard) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        continueRunOut(game);
+        if (game.pendingReveal) {
+          await handlePendingReveal(game);
+        } else if (game.handComplete) {
+          showShowdownResults(game);
+        }
+        return;
+      }
+
+      await runAITurns();
+    }
+
+    // Run AI turns
+    async function runAITurns() {
+      if (!gameState || gameState.handComplete) return;
+
+      setAIThinking(true);
+      try {
+        await processAllAITurns(gameState, (result) => {
+          updateAIDecisionDisplay(result);
+          updateGameDisplay();
+        }, { min: 200, max: 500 });
+
+        if (gameState.pendingReveal) {
+          await handlePendingReveal(gameState);
+        } else if (gameState.handComplete && gameState.winners) {
+          if (gameState.showdownResults && gameState.showdownResults.length > 1) {
+            showShowdownResults(gameState);
+          } else {
+            // Everyone folded - show win message
+            showWinMessage(gameState);
+          }
+          updateGameDisplay();
+        } else {
+          updateGameDisplay();
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Error during AI turns:', error);
+        showGameError('An error occurred during AI turns. Please start a new game.');
+      } finally {
+        setAIThinking(false);
+      }
+    }
+
+    // Validate raise amount to prevent corrupt game state
+    function validateRaiseAmount(amount: number, player: PokerPlayer, game: PokerGame): { valid: boolean; error?: string } {
+      if (isNaN(amount) || amount < 0) {
+        return { valid: false, error: 'Invalid raise amount' };
+      }
+      const maxAmount = player.chips + player.currentBet;
+      if (amount > maxAmount) {
+        return { valid: false, error: `Cannot raise more than ${maxAmount}` };
+      }
+      const minRaise = game.currentBet + game.minRaise;
+      // Allow all-in even if less than min raise
+      if (amount < minRaise && amount < maxAmount) {
+        return { valid: false, error: `Minimum raise is ${minRaise}` };
+      }
+      return { valid: true };
+    }
+
+    // Handle player action
+    async function handleAction(actionType: string, amount = 0) {
+      if (!gameState) return;
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      if (!humanPlayer) return;
+
+      if (actionType === 'raise') {
+        const isMobile = getBreakpoint() === 'mobile';
+        const slider = document.getElementById(isMobile ? 'raise-slider-m' : 'raise-slider') as HTMLInputElement;
+        const rawAmount = parseInt(slider?.value || '0', 10);
+
+        // Validate raise amount
+        const validation = validateRaiseAmount(rawAmount, humanPlayer, gameState);
+        if (!validation.valid) {
+          if (import.meta.env.DEV) console.warn('Invalid raise:', validation.error);
+          return;
+        }
+        amount = rawAmount;
+      }
+
+      const result = processPokerAction(gameState, {
+        playerId: humanPlayer.id,
+        actionType,
+        amount
+      });
+
+      if (result.success && result.valid) {
+        if (gameState.pendingReveal) {
+          await handlePendingReveal(gameState);
+        } else if (gameState.handComplete) {
+          if (gameState.showdownResults?.length && gameState.showdownResults.length > 1) {
+            showShowdownResults(gameState);
+          } else if (gameState.winners?.length) {
+            // Everyone folded - show win message
+            showWinMessage(gameState);
+          }
+          updateGameDisplay();
+        } else {
+          updateGameDisplay();
+          await runAITurns();
+        }
+      }
+    }
+
+    // Deal new hand
+    async function dealNewHand() {
+      hideShowdownModal();
+      showdownModalShown = false;
+      isRevealingCards = false;
+      window.decisionTheater?.reset();
+
+      gameState = dealNewPokerHand({
+        playerCount: GAME_CONFIG.playerCount,
+        humanPosition: GAME_CONFIG.humanPosition,
+        smallBlind: GAME_CONFIG.smallBlind,
+        bigBlind: GAME_CONFIG.bigBlind,
+        startingChips: GAME_CONFIG.startingChips,
+        dealerPosition: secureRandom(GAME_CONFIG.playerCount)
+      });
+
+      processAITurnsSync(gameState);
+
+      if (gameState.pendingReveal) {
+        updateGameDisplay();
+        renderPlayers();
+        await handlePendingReveal(gameState);
+      } else {
+        updateGameDisplay();
+        renderPlayers();
+      }
+    }
+
+    // Continue to next hand
+    async function dealContinueHand() {
+      if (!gameState) { dealNewHand(); return; }
+
+      const currentChips = gameState.players.map(p => p.chips);
+      const handNumber = (gameState.handNumber || 1) + 1;
+      const newDealerPos = (gameState.dealerPosition + 1) % GAME_CONFIG.playerCount;
+
+      hideShowdownModal();
+      showdownModalShown = false;
+      isRevealingCards = false;
+      window.decisionTheater?.reset();
+
+      gameState = dealNewPokerHand({
+        playerCount: GAME_CONFIG.playerCount,
+        humanPosition: GAME_CONFIG.humanPosition,
+        smallBlind: GAME_CONFIG.smallBlind,
+        bigBlind: GAME_CONFIG.bigBlind,
+        startingChips: GAME_CONFIG.startingChips,
+        dealerPosition: newDealerPos
+      });
+
+      // Preserve chips from previous hand
+      gameState.players.forEach((p, i) => {
+        if (currentChips[i] !== undefined) {
+          let blindDeduction = 0;
+          if (p.isSmallBlind) blindDeduction = GAME_CONFIG.smallBlind;
+          if (p.isBigBlind) blindDeduction = GAME_CONFIG.bigBlind;
+          p.chips = currentChips[i] - blindDeduction;
+        }
+      });
+      gameState.pot = GAME_CONFIG.smallBlind + GAME_CONFIG.bigBlind;
+      gameState.handNumber = handNumber;
+
+      processAITurnsSync(gameState);
+
+      if (gameState.pendingReveal) {
+        updateGameDisplay();
+        renderPlayers();
+        await handlePendingReveal(gameState);
+      } else {
+        updateGameDisplay();
+        renderPlayers();
+      }
+    }
+
+    // Render players
+    function renderPlayers() {
+      if (!gameState) return;
+      getBreakpoint() === 'mobile' ? renderMobilePlayers() : renderDesktopPlayers();
+    }
+
+    function renderMobilePlayers() {
+      if (!gameState) return;
+
+      const opponentsGrid = document.getElementById('opponents-grid');
+      const yourCardsContainer = document.getElementById('your-cards-mobile');
+      const yourChipsEl = document.getElementById('your-chips-mobile');
+      const yourSection = document.getElementById('your-section');
+
+      if (!opponentsGrid) return;
+      opponentsGrid.innerHTML = '';
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const humanIndex = gameState.players.findIndex(p => p.isHuman);
+      const opponents = gameState.players.filter(p => !p.isHuman);
+
+      opponents.forEach((player) => {
+        const playerIndex = gameState!.players.findIndex(p => p.id === player.id);
+        const isActive = playerIndex === gameState!.currentPlayerIndex && !gameState!.handComplete;
+
+        const archetypeColors: Record<string, string> = { 'TAG': 'bg-blue-600', 'LAG': 'bg-orange-600', 'Rock': 'bg-gray-600', 'Calling': 'bg-green-600' };
+
+        const playerCard = document.createElement('div');
+        playerCard.className = `bg-gray-800/90 rounded-lg p-2 flex items-center gap-2 border border-gray-700 ${player.folded ? 'opacity-50' : ''} ${isActive ? 'ring-2 ring-yellow-400 player-active' : ''}`;
+
+        playerCard.innerHTML = `
+          <span class="${archetypeColors[player.archetype || ''] || 'bg-gray-600'} text-white text-[10px] font-bold px-1.5 py-0.5 rounded">${player.archetype}</span>
+          <div class="flex-1 min-w-0">
+            <div class="text-white text-xs font-medium truncate">${player.isDealer ? '<span class="bg-yellow-500 text-black px-1 rounded text-[8px]">D</span> ' : ''}${player.name}</div>
+            <div class="text-yellow-400 text-[10px]">$${player.chips}</div>
+            ${player.currentBet > 0 ? `<div class="text-green-400 text-[10px]">$${player.currentBet}</div>` : ''}
+            ${player.folded ? '<span class="text-red-400 text-[10px]">FOLD</span>' : player.allIn ? '<span class="text-purple-400 text-[10px]">ALL-IN</span>' : ''}
+          </div>
+          <div class="flex gap-0.5" id="opp-cards-${player.id}"></div>
+        `;
+        opponentsGrid.appendChild(playerCard);
+
+        const cardsContainer = document.getElementById(`opp-cards-${player.id}`);
+        if (cardsContainer && !player.folded && player.holeCards?.length) {
+          const showCards = gameState!.handComplete;
+          player.holeCards.forEach(card => cardsContainer.appendChild(createCardElement(card, !showCards, 'small')));
+        }
+      });
+
+      if (humanPlayer && yourCardsContainer) {
+        yourCardsContainer.innerHTML = '';
+        if (!humanPlayer.folded && humanPlayer.holeCards?.length) {
+          humanPlayer.holeCards.forEach(card => yourCardsContainer.appendChild(createCardElement(card, false, 'large')));
+        }
+        if (yourChipsEl) yourChipsEl.textContent = `$${humanPlayer.chips}`;
+
+        if (yourSection) {
+          const isHumanTurn = humanIndex === gameState.currentPlayerIndex && !gameState.handComplete;
+          yourSection.classList.toggle('ring-2', isHumanTurn);
+          yourSection.classList.toggle('ring-yellow-400', isHumanTurn);
+          yourSection.classList.toggle('player-active', isHumanTurn);
+          yourSection.classList.toggle('opacity-50', humanPlayer.folded);
+        }
+      }
+    }
+
+    function renderDesktopPlayers() {
+      const container = document.getElementById('players-container');
+      if (!container || !gameState) return;
+
+      container.innerHTML = '';
+      const positions = PLAYER_POSITIONS[gameState.players.length] || PLAYER_POSITIONS[4];
+
+      gameState.players.forEach((player, index) => {
+        const pos = positions[index];
+        const isActive = index === gameState!.currentPlayerIndex && !gameState!.handComplete;
+
+        const playerEl = document.createElement('div');
+        playerEl.className = 'absolute transform -translate-x-1/2 -translate-y-1/2 text-center z-10';
+        playerEl.style.left = `${pos.x}%`;
+        playerEl.style.top = `${pos.y}%`;
+
+        const archetypeColors: Record<string, string> = { 'TAG': 'bg-blue-600', 'LAG': 'bg-orange-600', 'Rock': 'bg-gray-600', 'Calling': 'bg-green-600' };
+
+        let html = `<div class="p-2 rounded-lg ${player.isHuman ? 'bg-blue-900/80' : 'bg-gray-800/80'} ${player.folded ? 'opacity-50' : ''} ${isActive ? 'ring-2 ring-yellow-400 player-active' : ''}">`;
+
+        if (player.archetype && !player.isHuman) {
+          html += `<div class="${archetypeColors[player.archetype] || 'bg-gray-600'} text-white text-[10px] font-bold px-1.5 py-0.5 rounded mb-1 inline-block">${player.archetype}</div>`;
+        }
+
+        html += `<div class="text-white text-xs font-semibold">${player.isDealer ? '<span class="bg-yellow-500 text-black px-1 rounded text-[8px]">D</span> ' : ''}${player.name}</div>`;
+        html += `<div class="text-yellow-400 text-xs">$${player.chips}</div>`;
+        if (player.currentBet > 0) html += `<div class="text-green-400 text-[10px]">Bet: $${player.currentBet}</div>`;
+        if (player.folded) html += `<div class="text-red-400 text-[10px]">FOLDED</div>`;
+        else if (player.allIn) html += `<div class="text-purple-400 text-[10px]">ALL-IN</div>`;
+        if (gameState!.handComplete && player.handName && !player.folded) html += `<div class="text-purple-300 text-[10px]">${player.handName}</div>`;
+        html += `</div><div class="flex gap-1 mt-1 justify-center" id="player-cards-${index}"></div>`;
+
+        playerEl.innerHTML = html;
+        container.appendChild(playerEl);
+
+        const cardsContainer = document.getElementById(`player-cards-${index}`);
+        if (cardsContainer && !player.folded && player.holeCards?.length) {
+          const showCards = player.isHuman || gameState!.handComplete;
+          player.holeCards.forEach(card => cardsContainer.appendChild(createCardElement(card, !showCards, 'default')));
+        }
+      });
+    }
+
+    // Update community cards
+    function updateCommunityCards() {
+      const isMobile = getBreakpoint() === 'mobile';
+      const container = document.getElementById(isMobile ? 'community-cards-mobile' : 'community-cards');
+      if (!container || !gameState) return;
+
+      container.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        if (gameState.communityCards?.[i]) {
+          container.appendChild(createCardElement(gameState.communityCards[i], false, 'default'));
+        } else {
+          const empty = document.createElement('div');
+          empty.className = 'w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40';
+          container.appendChild(empty);
+        }
+      }
+    }
+
+    function updateCommunityCardsWithAnimation(game: PokerGame) {
+      const isMobile = getBreakpoint() === 'mobile';
+      const container = document.getElementById(isMobile ? 'community-cards-mobile' : 'community-cards');
+      if (!container) return;
+
+      const newCards = game.newCommunityCards || [];
+      const allCards = game.communityCards || [];
+      const firstNewIdx = allCards.length - newCards.length;
+
+      container.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        if (allCards[i]) {
+          const cardEl = createCardElement(allCards[i], false, 'default');
+          if (i >= firstNewIdx) {
+            cardEl.classList.add('card-reveal');
+            if (i - firstNewIdx === 1) cardEl.classList.add('card-delayed-1');
+            if (i - firstNewIdx === 2) cardEl.classList.add('card-delayed-2');
+          }
+          container.appendChild(cardEl);
+        } else {
+          const empty = document.createElement('div');
+          empty.className = 'w-10 h-14 lg:w-12 lg:h-[4.5rem] rounded border-2 border-dashed border-green-600/40 bg-green-950/40';
+          container.appendChild(empty);
+        }
+      }
+    }
+
+    function updatePotDisplay() {
+      if (!gameState) return;
+      const potDesktop = document.querySelector('#pot-display span:last-child');
+      const potMobile = document.querySelector('#pot-display-mobile span:last-child');
+      if (potDesktop) potDesktop.textContent = `$${gameState.pot}`;
+      if (potMobile) potMobile.textContent = `$${gameState.pot}`;
+    }
+
+    function updateGameDisplay() {
+      if (!gameState) return;
+
+      updatePotDisplay();
+      updateCommunityCards();
+      renderPlayers();
+
+      const handNum = document.getElementById('hand-number');
+      if (handNum) handNum.textContent = (gameState.handNumber || 1).toString();
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const toCall = gameState.currentBet - (humanPlayer?.currentBet || 0);
+
+      document.getElementById('call-amount')?.textContent && (document.getElementById('call-amount')!.textContent = toCall.toString());
+
+      if (humanPlayer) {
+        const minRaise = gameState.currentBet + (gameState.minRaise || gameState.bigBlind);
+        const maxRaise = humanPlayer.chips + humanPlayer.currentBet;
+
+        ['', '-m'].forEach(suffix => {
+          const slider = document.getElementById(`raise-slider${suffix}`) as HTMLInputElement;
+          if (slider) {
+            slider.min = minRaise.toString();
+            slider.max = maxRaise.toString();
+            slider.value = Math.min(minRaise * 2, maxRaise).toString();
+          }
+        });
+
+        const raiseAmount = document.getElementById('raise-amount');
+        const raiseAmountMobile = document.getElementById('raise-amount-mobile');
+        const defaultVal = Math.min(minRaise * 2, maxRaise).toString();
+        if (raiseAmount) raiseAmount.textContent = defaultVal;
+        if (raiseAmountMobile) raiseAmountMobile.textContent = defaultVal;
+      }
+
+      updateBettingControls();
+    }
+
+    let lastAnnouncedTurn = false;
+
+    function updateBettingControls() {
+      if (!gameState) return;
+
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const humanIndex = gameState.players.findIndex(p => p.isHuman);
+      const isHumanTurn = gameState.currentPlayerIndex === humanIndex && !gameState.handComplete;
+      const canCheck = gameState.currentBet === (humanPlayer?.currentBet || 0);
+      const disableAll = !isHumanTurn || gameState.handComplete || humanPlayer?.folded || humanPlayer?.allIn || isRevealingCards || !!gameState.pendingReveal;
+
+      // Announce when it becomes the player's turn
+      if (isHumanTurn && !lastAnnouncedTurn && !disableAll) {
+        const toCall = gameState.currentBet - (humanPlayer?.currentBet || 0);
+        if (canCheck) {
+          announceToScreenReader(`Your turn. You can check, raise, or fold. Pot is $${gameState.pot}.`);
+        } else {
+          announceToScreenReader(`Your turn. You can call $${toCall}, raise, or fold. Pot is $${gameState.pot}.`);
+        }
+      }
+      lastAnnouncedTurn = isHumanTurn && !disableAll;
+
+      ['', '-m'].forEach(suffix => {
+        const btnFold = document.getElementById(`btn-fold${suffix}`) as HTMLButtonElement;
+        const btnCheck = document.getElementById(`btn-check${suffix}`) as HTMLButtonElement;
+        const btnCall = document.getElementById(`btn-call${suffix}`) as HTMLButtonElement;
+        const btnRaise = document.getElementById(`btn-raise${suffix}`) as HTMLButtonElement;
+        const btnAllin = document.getElementById(`btn-allin${suffix}`) as HTMLButtonElement;
+        const slider = document.getElementById(`raise-slider${suffix}`) as HTMLInputElement;
+
+        if (btnFold) btnFold.disabled = disableAll;
+        if (btnCheck) { btnCheck.disabled = disableAll || !canCheck; btnCheck.style.display = canCheck ? 'block' : 'none'; }
+        if (btnCall) { btnCall.disabled = disableAll || canCheck; btnCall.style.display = !canCheck ? 'block' : 'none'; }
+        if (btnRaise) btnRaise.disabled = disableAll;
+        if (btnAllin) btnAllin.disabled = disableAll;
+        if (slider) slider.disabled = disableAll;
+      });
+    }
+
+    // Showdown results
+    function showShowdownResults(game: PokerGame) {
+      if (!game.showdownResults?.length || showdownModalShown) return;
+      showdownModalShown = true;
+
+      // Track statistics
+      const humanPlayer = game.players.find(p => p.isHuman);
+      const humanResult = game.showdownResults.find(r => r.playerName === humanPlayer?.name);
+      gameStats.handsPlayed++;
+      if (humanResult?.won) {
+        gameStats.wins++;
+        if (humanResult.wonAmount && humanResult.wonAmount > gameStats.biggestPot) {
+          gameStats.biggestPot = humanResult.wonAmount;
+        }
+      } else if (humanPlayer && !humanPlayer.folded) {
+        gameStats.losses++;
+      }
+      saveStats(gameStats);
+      updateStatsDisplay(gameStats);
+
+      // Track hand history
+      const winner = game.showdownResults.find(r => r.won);
+      const humanCards = humanPlayer?.holeCards?.map(c =>
+        `${RANK_DISPLAY[c.rank] || c.rankName}${SUIT_SYMBOLS[c.suit]}`
+      ).join(' ') || '??';
+      addToHistory({
+        handNumber: game.handNumber || gameStats.handsPlayed,
+        winnerName: winner?.playerName || 'Unknown',
+        humanWon: !!humanResult?.won,
+        pot: winner?.wonAmount || game.pot,
+        humanCards,
+        handType: humanResult?.handName || (humanPlayer?.folded ? 'Folded' : 'Unknown')
+      });
+
+      const modal = document.getElementById('showdown-modal');
+      const resultsContainer = document.getElementById('showdown-results');
+      const modalTitle = document.getElementById('showdown-title');
+      if (!modal || !resultsContainer) return;
+
+      // Set title for showdown
+      if (modalTitle) modalTitle.textContent = 'Showdown Results';
+
+      resultsContainer.innerHTML = '';
+      const sorted = [...game.showdownResults].sort((a, b) => a.rank - b.rank);
+
+      sorted.forEach((result, idx) => {
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-xl ${result.won ? 'bg-green-900/50 border border-green-500 winner-highlight' : 'bg-gray-800/50'}`;
+
+        const badge = result.rank <= 3
+          ? `<span class="px-2 py-0.5 rounded-full text-xs font-bold ${result.rank === 1 ? 'bg-yellow-500 text-black' : result.rank === 2 ? 'bg-gray-300 text-black' : 'bg-orange-600 text-white'}">${result.rank}${result.rank === 1 ? 'st' : result.rank === 2 ? 'nd' : 'rd'}</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-xs bg-gray-600 text-white">${result.rank}th</span>`;
+
+        div.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">${badge}<span class="font-semibold text-white">${result.playerName}</span></div>
+            ${result.won ? `<span class="text-green-400 font-bold">+$${result.wonAmount}</span>` : ''}
+          </div>
+          <div class="text-purple-400 text-sm mb-2">${result.handName}</div>
+          <div class="flex gap-1" id="showdown-cards-${idx}"></div>
+        `;
+        resultsContainer.appendChild(div);
+
+        const cardsContainer = document.getElementById(`showdown-cards-${idx}`);
+        if (cardsContainer && result.holeCards) {
+          result.holeCards.forEach(card => {
+            const cardEl = createCardElement(card, false, 'small');
+            if (result.bestHand?.some(bc => bc.rank === card.rank && bc.suit === card.suit)) {
+              cardEl.classList.add('best-hand-card');
+            }
+            cardsContainer.appendChild(cardEl);
+          });
+        }
+      });
+
+      const playersWithChips = game.players.filter(p => p.chips > 0);
+      const closeBtn = document.getElementById('btn-close-showdown');
+      if (closeBtn) {
+        if (playersWithChips.length === 1) {
+          const banner = document.createElement('div');
+          banner.className = 'mt-4 p-3 bg-yellow-500/20 border-2 border-yellow-500 rounded-xl text-center';
+          banner.innerHTML = `<div class="text-xl font-bold text-yellow-400">GAME OVER</div><div class="text-white">${playersWithChips[0].name} wins!</div>`;
+          resultsContainer.appendChild(banner);
+          closeBtn.textContent = 'New Game';
+        } else {
+          closeBtn.textContent = 'Next Hand';
+        }
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function hideShowdownModal() {
+      document.getElementById('showdown-modal')?.classList.add('hidden');
+    }
+
+    // Show win message when everyone folds (using showdown modal)
+    function showWinMessage(game: PokerGame) {
+      if (!game.winners?.length || showdownModalShown) return;
+      showdownModalShown = true;
+
+      const winnerId = game.winners[0];
+      const winner = game.players.find(p => p.id === winnerId);
+      if (!winner) return;
+
+      const wonAmount = game.winAmount || game.pot;
+
+      // Track statistics for fold wins
+      const humanPlayer = game.players.find(p => p.isHuman);
+      gameStats.handsPlayed++;
+      if (winner.isHuman) {
+        gameStats.wins++;
+        if (wonAmount > gameStats.biggestPot) {
+          gameStats.biggestPot = wonAmount;
+        }
+      } else {
+        // Human lost (either folded or was out-folded)
+        if (humanPlayer?.folded) {
+          gameStats.losses++;
+        }
+      }
+      saveStats(gameStats);
+      updateStatsDisplay(gameStats);
+
+      // Track hand history
+      const humanCards = humanPlayer?.holeCards?.map(c =>
+        `${RANK_DISPLAY[c.rank] || c.rankName}${SUIT_SYMBOLS[c.suit]}`
+      ).join(' ') || '??';
+      addToHistory({
+        handNumber: game.handNumber || gameStats.handsPlayed,
+        winnerName: winner.isHuman ? 'You' : winner.name,
+        humanWon: winner.isHuman,
+        pot: wonAmount,
+        humanCards,
+        handType: humanPlayer?.folded ? 'Folded' : 'Everyone Folded'
+      });
+
+      const message = winner.isHuman
+        ? `You win $${wonAmount}! Everyone folded.`
+        : `${winner.name} wins $${wonAmount}. Everyone folded.`;
+
+      announceToScreenReader(message);
+
+      const modal = document.getElementById('showdown-modal');
+      const resultsContainer = document.getElementById('showdown-results');
+      const modalTitle = document.getElementById('showdown-title');
+      if (!modal || !resultsContainer) return;
+
+      // Update title for fold win
+      if (modalTitle) modalTitle.textContent = 'Winner';
+
+      resultsContainer.innerHTML = '';
+
+      // Create a result entry for the winner
+      const div = document.createElement('div');
+      div.className = 'p-4 rounded-xl bg-green-900/50 border border-green-500 winner-highlight';
+
+      div.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-500 text-black">Winner</span>
+            <span class="font-semibold text-white text-lg">${winner.isHuman ? 'You' : winner.name}</span>
+          </div>
+          <span class="text-green-400 font-bold text-xl">+$${wonAmount}</span>
+        </div>
+        <div class="text-purple-400 text-sm mb-3">Everyone Folded</div>
+        <div class="flex gap-2 justify-center" id="fold-win-cards"></div>
+      `;
+      resultsContainer.appendChild(div);
+
+      // Show winner's hole cards
+      const cardsContainer = document.getElementById('fold-win-cards');
+      if (cardsContainer && winner.holeCards?.length) {
+        winner.holeCards.forEach(card => {
+          cardsContainer.appendChild(createCardElement(card, false, 'medium'));
+        });
+      }
+
+      // Check if game is over (only one player with chips)
+      const playersWithChips = game.players.filter(p => p.chips > 0);
+      const closeBtn = document.getElementById('btn-close-showdown');
+      if (closeBtn) {
+        if (playersWithChips.length === 1) {
+          const banner = document.createElement('div');
+          banner.className = 'mt-4 p-3 bg-yellow-500/20 border-2 border-yellow-500 rounded-xl text-center';
+          banner.innerHTML = `<div class="text-xl font-bold text-yellow-400">GAME OVER</div><div class="text-white">${playersWithChips[0].name} wins!</div>`;
+          resultsContainer.appendChild(banner);
+          closeBtn.textContent = 'New Game';
+        } else {
+          closeBtn.textContent = 'Next Hand';
+        }
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    // Keyboard navigation handler
+    function handleKeyboardShortcut(e: KeyboardEvent) {
+      // Don't trigger shortcuts when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Check if it's the human player's turn
+      if (!gameState) return;
+      const humanPlayer = gameState.players.find(p => p.isHuman);
+      const humanIndex = gameState.players.findIndex(p => p.isHuman);
+      const isHumanTurn = gameState.currentPlayerIndex === humanIndex && !gameState.handComplete;
+
+      // Handle showdown modal escape
+      const modal = document.getElementById('showdown-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+          e.preventDefault();
+          document.getElementById('btn-close-showdown')?.click();
+          return;
+        }
+      }
+
+      // Game keyboard shortcuts (only when it's player's turn)
+      if (isHumanTurn && humanPlayer && !humanPlayer.folded && !humanPlayer.allIn) {
+        const key = e.key.toLowerCase();
+        switch (key) {
+          case 'f':
+            e.preventDefault();
+            handleAction('fold');
+            break;
+          case 'c':
+            e.preventDefault();
+            const canCheck = gameState.currentBet === humanPlayer.currentBet;
+            if (canCheck) {
+              handleAction('check');
+            } else {
+              handleAction('call');
+            }
+            break;
+          case 'r':
+            e.preventDefault();
+            // Focus the raise slider
+            const isMobile = getBreakpoint() === 'mobile';
+            const slider = document.getElementById(isMobile ? 'raise-slider-m' : 'raise-slider') as HTMLInputElement;
+            if (slider && !slider.disabled) {
+              slider.focus();
+            }
+            break;
+          case 'a':
+            e.preventDefault();
+            handleAction('allin');
+            break;
+          case 'enter':
+            // If slider is focused, execute raise
+            if (document.activeElement?.id?.includes('raise-slider')) {
+              e.preventDefault();
+              handleAction('raise');
+            }
+            break;
+        }
+      }
+
+      // Space or Enter to start new game when not in game
+      if (!gameState && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        dealNewHand();
+      }
+    }
+
+    // Start/restart game with confirmation if game in progress
+    function handlePlayButton() {
+      if (gameState && !gameState.handComplete) {
+        // Game in progress - ask for confirmation
+        if (confirm('A game is in progress. Start a new game?')) {
+          dealNewHand();
+        }
+      } else {
+        dealNewHand();
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-play')?.addEventListener('click', handlePlayButton);
+
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyboardShortcut);
+
+      // Initialize stats display
+      updateStatsDisplay(gameStats);
+
+      // Initialize hand history display
+      updateHistoryDisplay(handHistory);
+
+      // Stats toggle
+      const statsToggle = document.getElementById('stats-toggle');
+      const statsPanel = document.getElementById('stats-panel');
+      statsToggle?.addEventListener('click', () => {
+        statsPanel?.classList.toggle('hidden');
+      });
+
+      // Reset stats
+      document.getElementById('reset-stats')?.addEventListener('click', () => {
+        gameStats = { handsPlayed: 0, wins: 0, losses: 0, biggestPot: 0 };
+        saveStats(gameStats);
+        updateStatsDisplay(gameStats);
+      });
+
+      ['', '-m'].forEach(suffix => {
+        document.getElementById(`btn-fold${suffix}`)?.addEventListener('click', () => handleAction('fold'));
+        document.getElementById(`btn-check${suffix}`)?.addEventListener('click', () => handleAction('check'));
+        document.getElementById(`btn-call${suffix}`)?.addEventListener('click', () => handleAction('call'));
+        document.getElementById(`btn-raise${suffix}`)?.addEventListener('click', () => handleAction('raise'));
+        document.getElementById(`btn-allin${suffix}`)?.addEventListener('click', () => handleAction('allin'));
+
+        const slider = document.getElementById(`raise-slider${suffix}`) as HTMLInputElement;
+        if (slider) {
+          slider.addEventListener('input', () => {
+            const raiseAmount = document.getElementById('raise-amount');
+            const raiseAmountMobile = document.getElementById('raise-amount-mobile');
+            if (raiseAmount) raiseAmount.textContent = slider.value;
+            if (raiseAmountMobile) raiseAmountMobile.textContent = slider.value;
+            // Sync other slider
+            const otherSlider = document.getElementById(suffix ? 'raise-slider' : 'raise-slider-m') as HTMLInputElement;
+            if (otherSlider) otherSlider.value = slider.value;
+            // Update ARIA values
+            slider.setAttribute('aria-valuenow', slider.value);
+          });
+        }
+      });
+
+      document.getElementById('btn-close-showdown')?.addEventListener('click', () => {
+        hideShowdownModal();
+        const playersWithChips = gameState?.players.filter(p => p.chips > 0) || [];
+        if (playersWithChips.length === 1) {
+          dealNewHand();
+        } else {
+          dealContinueHand();
+        }
+      });
+
+      // Keyboard shortcuts modal
+      const keyboardModal = document.getElementById('keyboard-shortcuts-modal');
+      const keyboardHelpBtn = document.getElementById('keyboard-help-btn');
+      const closeKeyboardModal = document.getElementById('close-keyboard-modal');
+
+      function showKeyboardModal() {
+        keyboardModal?.classList.remove('hidden');
+        keyboardModal?.classList.add('flex');
+        closeKeyboardModal?.focus();
+      }
+
+      function hideKeyboardModal() {
+        keyboardModal?.classList.add('hidden');
+        keyboardModal?.classList.remove('flex');
+      }
+
+      keyboardHelpBtn?.addEventListener('click', showKeyboardModal);
+      closeKeyboardModal?.addEventListener('click', hideKeyboardModal);
+      keyboardModal?.addEventListener('click', (e) => {
+        if (e.target === keyboardModal) hideKeyboardModal();
+      });
+
+      // Close keyboard modal with Escape (only if it's open)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && keyboardModal && !keyboardModal.classList.contains('hidden')) {
+          e.preventDefault();
+          hideKeyboardModal();
+        }
+        // Show keyboard shortcuts with ?
+        if (e.key === '?' && !keyboardModal?.classList.contains('hidden') === false) {
+          e.preventDefault();
+          showKeyboardModal();
+        }
+      });
+
+      // Store resize handler for cleanup
+      const handleResize = () => {
+        if (gameState) {
+          renderPlayers();
+          updateCommunityCards();
+        }
+      };
+      window.addEventListener('resize', handleResize);
+
+      // Clean up event listeners on page unload
+      window.addEventListener('beforeunload', () => {
+        window.removeEventListener('resize', handleResize);
+        document.removeEventListener('keydown', handleKeyboardShortcut);
+      });
+    });
+  </script>
 </BaseLayout>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mississippi - Progressive brackets
+     Single, $52,000 wages, 0 dependents
+     Taxable = 52000 - 2300 - (1*6000) = 43700
+     Bracket [10000, 999999999, 440, 0]: tax = 0 + (43700-10000)*440/10000 = 33700*440/10000 = 1482
+     (33700*440=14828000, /10000=1482)
+     Expected: taxOwed = $1,482
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>MS</state>
+  <state_config>
+    <state_code>MS</state_code>
+    <state_name>Mississippi</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>2300</standard_deduction_single>
+    <standard_deduction_mfj>4600</standard_deduction_mfj>
+    <standard_deduction_hoh>3400</standard_deduction_hoh>
+    <exemption_amount>6000</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>10000</ceiling><rate_bps>0</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>10000</floor><ceiling>999999999</ceiling><rate_bps>440</rate_bps><base_tax>0</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>MS01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>52000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

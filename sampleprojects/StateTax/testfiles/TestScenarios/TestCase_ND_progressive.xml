@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- North Dakota - Progressive brackets
+     Single, $83,000 wages, 0 dependents
+     Taxable = 83000 - 15000 - 0 = 68000
+     Falls in bracket [48475, 244825, 195, 0]
+     Tax = 0 + (68000 - 48475) * 195 / 10000 = 19525 * 195 / 10000 = 380
+     (19525 * 195 = 3807375 / 10000 = 380)
+     Expected: taxOwed = $380
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>ND</state>
+  <state_config>
+    <state_code>ND</state_code>
+    <state_name>North Dakota</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>48475</ceiling><rate_bps>0</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>48475</floor><ceiling>244825</ceiling><rate_bps>195</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>244825</floor><ceiling>999999999</ceiling><rate_bps>250</rate_bps><base_tax>3828</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>ND01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>83000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

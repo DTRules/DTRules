@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arkansas - Progressive brackets
+     Single, $48,000 wages, 0 dependents
+     Taxable = 48000 - 2410 - 0 = 45590
+     Bracket [4500, 999999999, 390, 90]: tax = 90 + (45590-4500)*390/10000 = 90 + 41090*390/10000 = 90 + 1602 = 1692
+     (41090*390=16025100, /10000=1602)
+     Expected: taxOwed = $1,692
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>AR</state>
+  <state_config>
+    <state_code>AR</state_code>
+    <state_name>Arkansas</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>2410</standard_deduction_single>
+    <standard_deduction_mfj>4820</standard_deduction_mfj>
+    <standard_deduction_hoh>2410</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>4500</ceiling><rate_bps>200</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>4500</floor><ceiling>999999999</ceiling><rate_bps>390</rate_bps><base_tax>90</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>AR01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>48000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

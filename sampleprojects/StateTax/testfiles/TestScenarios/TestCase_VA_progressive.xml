@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Virginia - Progressive Tax (4 brackets)
+  State: VA, tax_type: progressive
+  std_ded: 8750/17500/8750, exemption: 930
+  Taxpayer: $65,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 65000
+    stdDeduction   = 8750
+    exemptions     = (1 + 0) * 930 = 930
+    taxableIncome  = 65000 - 8750 - 930 = 55320
+
+  Bracket base_tax computation (integer arithmetic):
+    B1: [0, 3000]            rate=200 base=0   width=3000  tax=3000*200/10000=60
+    B2: [3000, 5000]         rate=300 base=60  width=2000  tax=2000*300/10000=60
+    B3: [5000, 17000]        rate=500 base=120 width=12000 tax=12000*500/10000=600
+    B4: [17000, 999999999]   rate=575 base=720
+
+  taxableIncome=55320 falls in B4 [17000, 999999999, 575, 720]:
+    tax = 720 + (55320 - 17000) * 575 / 10000
+        = 720 + 38320 * 575 / 10000
+        = 720 + 22034000 / 10000
+        = 720 + 2203
+        = 2923
+  Expected: taxOwed = 2923
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>VA</state>
+  <state_config>
+    <state_code>VA</state_code>
+    <state_name>Virginia</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>8750</standard_deduction_single>
+    <standard_deduction_mfj>17500</standard_deduction_mfj>
+    <standard_deduction_hoh>8750</standard_deduction_hoh>
+    <exemption_amount>930</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>3000</ceiling><rate_bps>200</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>3000</floor><ceiling>5000</ceiling><rate_bps>300</rate_bps><base_tax>60</base_tax></bracket_s>
+      <bracket_s><floor>5000</floor><ceiling>17000</ceiling><rate_bps>500</rate_bps><base_tax>120</base_tax></bracket_s>
+      <bracket_s><floor>17000</floor><ceiling>999999999</ceiling><rate_bps>575</rate_bps><base_tax>720</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>VA01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>65000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

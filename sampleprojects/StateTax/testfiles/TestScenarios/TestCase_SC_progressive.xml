@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- South Carolina - Progressive brackets
+     Single, $69,000 wages, 0 dependents
+     Taxable = 69000 - 15000 - 0 = 54000
+     Falls in bracket [17830, 999999999, 620, 428]
+     Tax = 428 + (54000 - 17830) * 620 / 10000 = 428 + 36170 * 620 / 10000 = 428 + 2242 = 2670
+     (36170 * 620 = 22425400 / 10000 = 2242)
+     Expected: taxOwed = $2,670
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>SC</state>
+  <state_config>
+    <state_code>SC</state_code>
+    <state_name>South Carolina</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>3560</ceiling><rate_bps>0</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>3560</floor><ceiling>17830</ceiling><rate_bps>300</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>17830</floor><ceiling>999999999</ceiling><rate_bps>620</rate_bps><base_tax>428</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>SC01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>69000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

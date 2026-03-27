@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rhode Island - Progressive brackets
+     Single, $74,000 wages, 0 dependents
+     Taxable = 74000 - 10900 - (1 * 5100) = 58000
+     Falls in bracket [0, 79900, 375, 0]
+     Tax = 0 + 58000 * 375 / 10000 = 2175
+     (58000 * 375 = 21750000 / 10000 = 2175)
+     Expected: taxOwed = $2,175
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>RI</state>
+  <state_config>
+    <state_code>RI</state_code>
+    <state_name>Rhode Island</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>10900</standard_deduction_single>
+    <standard_deduction_mfj>21800</standard_deduction_mfj>
+    <standard_deduction_hoh>16350</standard_deduction_hoh>
+    <exemption_amount>5100</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>79900</ceiling><rate_bps>375</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>79900</floor><ceiling>181650</ceiling><rate_bps>475</rate_bps><base_tax>2996</base_tax></bracket_s>
+      <bracket_s><floor>181650</floor><ceiling>999999999</ceiling><rate_bps>599</rate_bps><base_tax>7829</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>RI01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>74000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

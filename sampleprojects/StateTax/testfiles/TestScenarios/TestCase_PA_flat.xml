@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Pennsylvania - Flat Tax (3.07%)
+  State: PA, tax_type: flat, flat_rate_bps: 307
+  std_ded: 0/0/0, exemption: 0
+  Taxpayer: $85,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 85000
+    stdDeduction   = 0
+    exemptions     = (1 + 0) * 0 = 0
+    taxableIncome  = 85000 - 0 - 0 = 85000
+    tax = 85000 * 307 / 10000 = 26095000 / 10000 = 2609 (integer division)
+  Expected: taxOwed = 2609
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>PA</state>
+  <state_config>
+    <state_code>PA</state_code>
+    <state_name>Pennsylvania</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>307</flat_rate_bps>
+    <standard_deduction_single>0</standard_deduction_single>
+    <standard_deduction_mfj>0</standard_deduction_mfj>
+    <standard_deduction_hoh>0</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>PA01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>85000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

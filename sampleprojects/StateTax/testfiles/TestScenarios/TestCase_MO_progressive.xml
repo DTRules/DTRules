@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Missouri - Progressive brackets
+     Single, $67,000 wages, 0 dependents
+     Taxable = 67000 - 15000 - 0 = 52000
+     Bracket [9191, 999999999, 470, 253]: tax = 253 + (52000-9191)*470/10000 = 253 + 42809*470/10000 = 253 + 2012 = 2265
+     (42809*470=20120230, /10000=2012)
+     Expected: taxOwed = $2,265
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>MO</state>
+  <state_config>
+    <state_code>MO</state_code>
+    <state_name>Missouri</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>1313</ceiling><rate_bps>0</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>1313</floor><ceiling>2626</ceiling><rate_bps>200</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>2626</floor><ceiling>3939</ceiling><rate_bps>250</rate_bps><base_tax>26</base_tax></bracket_s>
+      <bracket_s><floor>3939</floor><ceiling>5252</ceiling><rate_bps>300</rate_bps><base_tax>58</base_tax></bracket_s>
+      <bracket_s><floor>5252</floor><ceiling>6565</ceiling><rate_bps>350</rate_bps><base_tax>97</base_tax></bracket_s>
+      <bracket_s><floor>6565</floor><ceiling>7878</ceiling><rate_bps>400</rate_bps><base_tax>142</base_tax></bracket_s>
+      <bracket_s><floor>7878</floor><ceiling>9191</ceiling><rate_bps>450</rate_bps><base_tax>194</base_tax></bracket_s>
+      <bracket_s><floor>9191</floor><ceiling>999999999</ceiling><rate_bps>470</rate_bps><base_tax>253</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>MO01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>67000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maryland - Progressive brackets
+     Single, $85,000 wages, 0 dependents
+     Taxable = 85000 - 3350 - (1*3200) = 78450
+     Bracket [3000, 100000, 475, 90]: tax = 90 + (78450-3000)*475/10000 = 90 + 75450*475/10000 = 90 + 3583 = 3673
+     (75450*475=35838750, /10000=3583)
+     Expected: taxOwed = $3,673
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>MD</state>
+  <state_config>
+    <state_code>MD</state_code>
+    <state_name>Maryland</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>3350</standard_deduction_single>
+    <standard_deduction_mfj>6700</standard_deduction_mfj>
+    <standard_deduction_hoh>6700</standard_deduction_hoh>
+    <exemption_amount>3200</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>1000</ceiling><rate_bps>200</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>1000</floor><ceiling>2000</ceiling><rate_bps>300</rate_bps><base_tax>20</base_tax></bracket_s>
+      <bracket_s><floor>2000</floor><ceiling>3000</ceiling><rate_bps>400</rate_bps><base_tax>50</base_tax></bracket_s>
+      <bracket_s><floor>3000</floor><ceiling>100000</ceiling><rate_bps>475</rate_bps><base_tax>90</base_tax></bracket_s>
+      <bracket_s><floor>100000</floor><ceiling>125000</ceiling><rate_bps>500</rate_bps><base_tax>4697</base_tax></bracket_s>
+      <bracket_s><floor>125000</floor><ceiling>150000</ceiling><rate_bps>525</rate_bps><base_tax>5947</base_tax></bracket_s>
+      <bracket_s><floor>150000</floor><ceiling>250000</ceiling><rate_bps>550</rate_bps><base_tax>7259</base_tax></bracket_s>
+      <bracket_s><floor>250000</floor><ceiling>500000</ceiling><rate_bps>575</rate_bps><base_tax>12759</base_tax></bracket_s>
+      <bracket_s><floor>500000</floor><ceiling>1000000</ceiling><rate_bps>625</rate_bps><base_tax>27134</base_tax></bracket_s>
+      <bracket_s><floor>1000000</floor><ceiling>999999999</ceiling><rate_bps>650</rate_bps><base_tax>58384</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>MD01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>85000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

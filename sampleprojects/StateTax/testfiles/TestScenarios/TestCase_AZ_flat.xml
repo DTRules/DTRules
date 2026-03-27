@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arizona - Flat tax 2.50%
+     Single, $72,000 wages, 0 dependents
+     Taxable = 72000 - 15000 - (0) = 57000
+     Tax = 57000 * 250 / 10000 = 1425  (integer arithmetic)
+     Expected: taxOwed = $1,425
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>AZ</state>
+  <state_config>
+    <state_code>AZ</state_code>
+    <state_name>Arizona</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>250</flat_rate_bps>
+    <standard_deduction_single>15000</standard_deduction_single>
+    <standard_deduction_mfj>30000</standard_deduction_mfj>
+    <standard_deduction_hoh>22500</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>AZ01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>72000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

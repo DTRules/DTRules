@@ -6,7 +6,7 @@
 	<classpathentry kind="src" path="/el"/>
 	<classpathentry kind="var" path="M2_REPO/de/jflex/jflex/1.4.1/jflex-1.4.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/poi/poi/3.7/poi-3.7.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/poi/poi/5.2.5/poi-5.2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>

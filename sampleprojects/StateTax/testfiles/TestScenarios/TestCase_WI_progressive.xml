@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Wisconsin - Progressive brackets
+     Single, $81,000 wages, 0 dependents
+     Taxable = 81000 - 14260 - (1 * 700) = 66040
+     Falls in bracket [29369, 323289, 530, 1159]
+     Tax = 1159 + (66040 - 29369) * 530 / 10000 = 1159 + 36671 * 530 / 10000 = 1159 + 1943 = 3102
+     (36671 * 530 = 19435630 / 10000 = 1943)
+     Expected: taxOwed = $3,102
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>WI</state>
+  <state_config>
+    <state_code>WI</state_code>
+    <state_name>Wisconsin</state_name>
+    <tax_type>progressive</tax_type>
+    <flat_rate_bps>0</flat_rate_bps>
+    <standard_deduction_single>14260</standard_deduction_single>
+    <standard_deduction_mfj>26510</standard_deduction_mfj>
+    <standard_deduction_hoh>14260</standard_deduction_hoh>
+    <exemption_amount>700</exemption_amount>
+    <brackets_single>
+      <bracket_s><floor>0</floor><ceiling>14679</ceiling><rate_bps>350</rate_bps><base_tax>0</base_tax></bracket_s>
+      <bracket_s><floor>14679</floor><ceiling>29369</ceiling><rate_bps>440</rate_bps><base_tax>513</base_tax></bracket_s>
+      <bracket_s><floor>29369</floor><ceiling>323289</ceiling><rate_bps>530</rate_bps><base_tax>1159</base_tax></bracket_s>
+      <bracket_s><floor>323289</floor><ceiling>999999999</ceiling><rate_bps>765</rate_bps><base_tax>16736</base_tax></bracket_s>
+    </brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>WI01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>81000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>

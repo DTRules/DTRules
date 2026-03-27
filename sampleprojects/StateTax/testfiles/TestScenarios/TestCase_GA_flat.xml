@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test Case: Georgia - Flat Tax (5.19%)
+  State: GA, tax_type: flat, flat_rate_bps: 519
+  std_ded: 12000/24000/12000, exemption: 0
+  Taxpayer: $80,000 wages, SINGLE, 0 dependents
+  Computation:
+    totalIncome    = 80000
+    stdDeduction   = 12000
+    exemptions     = (1 + 0) * 0 = 0
+    taxableIncome  = 80000 - 12000 - 0 = 68000
+    tax = 68000 * 519 / 10000 = 35292000 / 10000 = 3529 (integer division)
+  Expected: taxOwed = 3529
+-->
+<job>
+  <tax_year>2025</tax_year>
+  <state>GA</state>
+  <state_config>
+    <state_code>GA</state_code>
+    <state_name>Georgia</state_name>
+    <tax_type>flat</tax_type>
+    <flat_rate_bps>519</flat_rate_bps>
+    <standard_deduction_single>12000</standard_deduction_single>
+    <standard_deduction_mfj>24000</standard_deduction_mfj>
+    <standard_deduction_hoh>12000</standard_deduction_hoh>
+    <exemption_amount>0</exemption_amount>
+    <brackets_single></brackets_single>
+    <brackets_mfj></brackets_mfj>
+    <brackets_hoh></brackets_hoh>
+  </state_config>
+  <taxpayer>
+    <taxpayer_ID>GA01</taxpayer_ID>
+    <filing_status>SINGLE</filing_status>
+    <num_dependents>0</num_dependents>
+    <incomes>
+      <income><type>WA</type><amount>80000</amount></income>
+    </incomes>
+    <adjustments></adjustments>
+  </taxpayer>
+</job>
