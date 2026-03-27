@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Nevada (NV)
+
+  Nevada has NO state income tax.
+
+  This file documents the absence of state income tax with a boolean flag
+  and zero tax rate for consistency with other states.
+
+  Military Tax Provisions:
+    - NV has no state income tax
+    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
+    - MSRRA: N/A (no income tax)
+    - SCRA: N/A (no income tax)
+    - Military spouses and service members have no state income tax burden
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Nevada state constants (no income tax) -->
+  <entity name="result">
+    <!-- Nevada has no state income tax -->
+    <field name="nv_has_income_tax" type="boolean" default_value="false"
+           comment="Nevada has no state income tax"/>
+
+    <field name="nv_tax_rate" type="double" default_value="0.0"
+           comment="NV tax rate (0.0 - no income tax)"/>
+
+  </entity>
+</entity_data_dictionary>

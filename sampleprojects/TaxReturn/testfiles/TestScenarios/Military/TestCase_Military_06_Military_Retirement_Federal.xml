@@ -1,0 +1,117 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 6: Military Retirement Income (Federal Tax) -->
+   <!-- Tests: Military retirement pay is federally taxable -->
+   <!-- Scenario: Retired military member receiving retirement pension -->
+   <id>MIL-06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>AZ</state>
+   <city>Tucson</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Military retirement: $48,000 (federally taxable, Form 1099-R) -->
+   <!-- Spouse W-2: $35,000 -->
+   <!-- VA disability: $18,000 (nontaxable, excluded from income) -->
+   <!-- AGI: $48,000 + $35,000 = $83,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $53,000 -->
+   <expected_agi>83000</expected_agi>
+   <expected_taxable_income>53000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Retired military member -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Colonel Thomas Anderson (Ret.)</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>2/14/1975</date_of_birth>
+         <occupation>Retired Military (22 years service)</occupation>
+         <is_military>false</is_military>
+         <military_retirement_pay>48000</military_retirement_pay>
+         <va_disability_compensation>18000</va_disability_compensation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>2000</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse (civilian) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Patricia Anderson</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>5/22/1977</date_of_birth>
+         <occupation>Administrator</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>retirement_income</type>
+         <gross_amount>48000</gross_amount>
+         <withholding>5500</withholding>
+         <description>Military retirement pension (Form 1099-R)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>35000</gross_amount>
+         <withholding>4000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Brandon Anderson</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>11/18/2007</date_of_birth>
+         <age>18</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>true</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

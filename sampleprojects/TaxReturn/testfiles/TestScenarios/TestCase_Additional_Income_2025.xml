@@ -1,0 +1,115 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>4</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>San Antonio</city>
+
+   <!-- Expected values for validation -->
+   <!-- Test: Additional Income Types (unemployment, gambling, alimony, state tax refund) -->
+   <!-- Income breakdown: -->
+   <!--   W2 wages: $60,000 -->
+   <!--   Unemployment: $5,000 -->
+   <!--   Gambling winnings: $2,000 -->
+   <!--   Alimony received (pre-2019): $3,000 -->
+   <!--   State tax refund: $500 -->
+   <!-- Total income: $70,500 -->
+   <!-- AGI: $70,500 -->
+   <!-- Deduction: $30,000 standard (MFJ) -->
+   <!-- Taxable: $40,500 -->
+   <!-- Tax: ~$4,420 (10% on $23,850 + 12% on $16,650) -->
+   <!-- Child Tax Credit: $2,000 (one child) -->
+   <!-- Net tax: $2,420 -->
+   <!-- Withholding: $8,000 -->
+   <!-- Refund: $5,580 -->
+   <expected_agi>70500</expected_agi>
+   <expected_taxable_income>40500</expected_taxable_income>
+   <expected_total_tax>2420</expected_total_tax>
+   <expected_refund>5580</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Spouse 1 - Lost job mid-year, collected unemployment -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>3/25/1982</date_of_birth>
+         <occupation>Sales Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <unemployment_compensation>5000</unemployment_compensation>
+         <gambling_winnings>2000</gambling_winnings>
+      </taxpayer>
+
+      <!-- Spouse 2 - Steady job, received alimony from prior marriage -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>7/10/1984</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>25000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <alimony_received>3000</alimony_received>
+         <alimony_divorce_date>6/15/2017</alimony_divorce_date>
+         <state_tax_refund>500</state_tax_refund>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <!-- One qualifying child -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophie</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>11/12/2018</date_of_birth>
+         <age>6</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>public</school_type>
+         <tuition_paid>0</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties>
+   </properties>
+
+   <!-- Vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Deductions -->
+   <deductions>
+   </deductions>
+</job>
