@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 01: Family with All Major Credits -->
+<!-- Tests: CTC, EITC, CDCC, Education Credits, Multiple Credits Interaction -->
+<!-- Scenario: MFJ with 3 children, both spouses work, qualifies for multiple credits -->
+<!-- Expected: Proper coordination and phaseout interactions -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-01-FAMILY-ALL-CREDITS</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>OH</state>
+   <city>Columbus</city>
+
+   <!-- Expected values -->
+   <!-- Income: $48,000 W2 + $28,000 W2 = $76,000 -->
+   <!-- AGI: $76,000 - $300 educator - $2,500 student loan = $73,200 -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable: $43,200 -->
+   <!-- Tax: $4,712 (10% on $23,850 + 12% on $19,350) -->
+   <!-- CTC: $6,000 (3 qualifying children) -->
+   <!-- EITC: ~$6,000 (3 children, $73,200 AGI) -->
+   <!-- CDCC: ~$1,800 (2 kids under 13, $6,000 expenses, 30% rate) -->
+   <!-- Education: $2,000 AOTC (first 2 years college) -->
+   <!-- Total credits exceed tax - refundable portion applies -->
+   <expected_agi>73200</expected_agi>
+   <expected_taxable_income>43200</expected_taxable_income>
+   <expected_total_tax>4712</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Martinez</name>
+         <ssn>300-11-1001</ssn>
+         <date_of_birth>6/12/1985</date_of_birth>
+         <occupation>School Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>48000</w2_wages>
+         <w2_withholding>5200</w2_withholding>
+         <w2_ss_wages>48000</w2_ss_wages>
+         <w2_ss_withheld>2976</w2_ss_withheld>
+         <w2_medicare_wages>48000</w2_medicare_wages>
+         <w2_medicare_withheld>696</w2_medicare_withheld>
+         <employer_name>Columbus City Schools</employer_name>
+         <employer_ein>31-0987654</employer_ein>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Robert Martinez</name>
+         <ssn>300-11-1002</ssn>
+         <date_of_birth>3/20/1983</date_of_birth>
+         <occupation>Retail Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>28000</w2_wages>
+         <w2_withholding>2800</w2_withholding>
+         <w2_ss_wages>28000</w2_ss_wages>
+         <w2_ss_withheld>1736</w2_ss_withheld>
+         <w2_medicare_wages>28000</w2_medicare_wages>
+         <w2_medicare_withheld>406</w2_medicare_withheld>
+         <employer_name>Target Corporation</employer_name>
+         <employer_ein>41-0215170</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Three children: ages 5, 10, 15 -->
+   <dependents>
+      <!-- Child 1 - Age 15, High School -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Martinez</name>
+         <ssn>300-11-1003</ssn>
+         <date_of_birth>2/14/2010</date_of_birth>
+         <age>15</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <!-- Child 2 - Age 10 (qualifies for CDCC) -->
+      <dependent id="2">
+         <id>2</id>
+         <name>Diego Martinez</name>
+         <ssn>300-11-1004</ssn>
+         <date_of_birth>7/8/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <!-- Child 3 - Age 5 (qualifies for CDCC) -->
+      <dependent id="3">
+         <id>3</id>
+         <name>Isabella Martinez</name>
+         <ssn>300-11-1005</ssn>
+         <date_of_birth>11/22/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Primary residence with mortgage -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>567 Maple Drive, Columbus, OH 43085</address>
+         <purchase_date>4/1/2019</purchase_date>
+         <purchase_price>185000</purchase_price>
+         <current_fmv>225000</current_fmv>
+         <mortgage_balance>155000</mortgage_balance>
+         <mortgage_origination_date>4/1/2019</mortgage_origination_date>
+         <mortgage_interest>8200</mortgage_interest>
+         <property_taxes>3200</property_taxes>
+      </property>
+   </properties>
+
+   <!-- Deductions and credits -->
+   <deductions>
+      <!-- Educator expense (Jennifer is teacher) -->
+      <deduction id="1">
+         <id>1</id>
+         <category>educator_expense</category>
+         <taxpayer_id>1</taxpayer_id>
+         <description>Classroom supplies</description>
+         <amount>300</amount>
+      </deduction>
+
+      <!-- Student loan interest -->
+      <deduction id="2">
+         <id>2</id>
+         <category>student_loan_interest</category>
+         <description>Federal student loan</description>
+         <amount>2500</amount>
+      </deduction>
+
+      <!-- Charitable contributions -->
+      <deduction id="3">
+         <id>3</id>
+         <category>charity</category>
+         <description>Church donations</description>
+         <amount>2400</amount>
+      </deduction>
+   </deductions>
+
+   <!-- Child care expenses for 2 younger children -->
+   <child_care_expenses>6000</child_care_expenses>
+   <child_care_provider_name>Sunshine Daycare</child_care_provider_name>
+   <child_care_provider_ein>31-1234567</child_care_provider_ein>
+
+   <!-- Education expenses -->
+   <education_expenses>
+      <education_expense id="1">
+         <id>1</id>
+         <student_name>Sofia Martinez</student_name>
+         <student_ssn>300-11-1003</student_ssn>
+         <institution>Columbus Community College</institution>
+         <institution_ein>31-2345678</institution_ein>
+         <qualified_tuition>4500</qualified_tuition>
+         <qualified_books>600</qualified_books>
+         <room_and_board>0</room_and_board>
+         <is_first_four_years>true</is_first_four_years>
+         <academic_period>Full Year</academic_period>
+      </education_expense>
+   </education_expenses>
+</job>

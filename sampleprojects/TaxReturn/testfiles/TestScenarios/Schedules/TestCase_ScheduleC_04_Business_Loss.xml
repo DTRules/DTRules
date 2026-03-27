@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule C - Business with Significant Loss -->
+<!-- Scenario: New startup business in first year with loss -->
+<!-- Gross: $25,000, Expenses: $45,000, Net loss: ($20,000) -->
+<!-- Expected: Loss reduces other income, no SE tax on loss -->
+<job>
+    <id>10009</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>FL</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $80,000 spouse W-2 - $20,000 business loss = $60,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $60,000 - $30,000 = $30,000 -->
+    <!-- Tax: ~$3,180 (no SE tax on loss) -->
+    <expected_agi>60000</expected_agi>
+    <expected_taxable_income>30000</expected_taxable_income>
+    <expected_total_tax>3180</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Thomas Anderson</name>
+            <ssn>567-89-0123</ssn>
+            <date_of_birth>03/15/1985</date_of_birth>
+            <occupation>Startup Founder</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>25000</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Rebecca Anderson</name>
+            <ssn>678-90-1234</ssn>
+            <date_of_birth>07/22/1987</date_of_birth>
+            <occupation>Nurse</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>80000</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <expenses>
+        <!-- Startup business expenses exceeding income -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Equipment and technology</description>
+            <amount>15000</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Marketing and website</description>
+            <amount>10000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Legal and professional fees</description>
+            <amount>8000</amount>
+        </expense>
+        <expense>
+            <id>4</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Office rent and utilities</description>
+            <amount>9000</amount>
+        </expense>
+        <expense>
+            <id>5</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Supplies and materials</description>
+            <amount>3000</amount>
+        </expense>
+    </expenses>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+</job>

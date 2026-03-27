@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule C - Simple Sole Proprietor Business -->
+<!-- Scenario: Freelance consultant with straightforward income and expenses -->
+<!-- Gross: $85,000, Expenses: $15,000, Net: $70,000 -->
+<!-- Expected: SE tax ~$9,891, SE deduction ~$4,946, QBI deduction ~$14,000 -->
+<job>
+    <id>10006</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $85,000 - $15,000 expenses - $4,946 SE deduction = $65,054 -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- QBI: ~$14,000 (20% of $70,000 net SE income) -->
+    <!-- Taxable: $65,054 - $15,000 - $14,000 = ~$36,054 -->
+    <!-- Tax: ~$4,087 income + $9,891 SE = ~$13,978 -->
+    <expected_agi>65054</expected_agi>
+    <expected_taxable_income>36054</expected_taxable_income>
+    <expected_total_tax>13978</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Jessica Rodriguez</name>
+            <ssn>123-45-6789</ssn>
+            <date_of_birth>06/15/1988</date_of_birth>
+            <occupation>Marketing Consultant</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>85000</se_gross_income>
+            <estimated_payments>12000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <expenses>
+        <!-- Schedule C business expenses -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Office supplies</description>
+            <amount>2000</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Software subscriptions</description>
+            <amount>3000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Professional development</description>
+            <amount>4000</amount>
+        </expense>
+        <expense>
+            <id>4</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Advertising and marketing</description>
+            <amount>5000</amount>
+        </expense>
+        <expense>
+            <id>5</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Professional insurance</description>
+            <amount>1000</amount>
+        </expense>
+    </expenses>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+</job>
