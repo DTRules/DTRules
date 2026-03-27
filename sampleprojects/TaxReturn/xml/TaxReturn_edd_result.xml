@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: result
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 1 entity categorized as 'result'.
+-->
+	<file_metadata>
+		<file_path>core/07000_result_entities</file_path>
+	</file_metadata>
+	<entity name="result" xls_file="Core.xls" access="rw" comment="Tax calculation results">
+		<field name="result" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="rw" input="main" default_value="" comment="Result ID" />
+		<field name="total_w2_wages" type="double" subtype="" access="rw" input="" default_value="0" comment="Total W-2 wages (Form 1040 Line 1a)" />
+		<field name="total_se_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net self-employment income (Schedule C)" />
+		<field name="total_rental_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net rental income (Schedule E)" />
+		<field name="total_other_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Other income" />
+		<field name="gross_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total gross income (Form 1040 Line 9)" />
+		<field name="total_adjustments" type="double" subtype="" access="rw" input="" default_value="0" comment="Total adjustments to income (Schedule 1 Part II)" />
+		<field name="agi" type="double" subtype="" access="rw" input="" default_value="0" comment="Adjusted Gross Income (Form 1040 Line 11)" />
+		<field name="total_itemized" type="double" subtype="" access="rw" input="" default_value="0" comment="Total itemized deductions" />
+		<field name="total_noncash_charitable" type="double" subtype="" access="rw" input="" default_value="0" comment="Total noncash charitable contributions (Form 8283)" />
+		<field name="salt_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT deduction amount (for AMT add-back)" />
+		<field name="standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Standard deduction amount" />
+		<field name="deduction_used" type="string" subtype="" access="rw" input="" default_value="standard" comment="Which deduction used: standard or itemized" />
+		<field name="total_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Total deduction (Form 1040 Line 12)" />
+		<field name="qbi_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="QBI deduction (Form 1040 Line 13)" />
+		<field name="qbi_from_income" type="double" subtype="" access="rw" input="" default_value="0" comment="20% of qualified business income" />
+		<field name="qbi_taxable_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="20% of taxable income limit for QBI" />
+		<field name="total_tip_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total tip income across all taxpayers" />
+		<field name="total_overtime_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total overtime income across all taxpayers" />
+		<field name="senior_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of seniors (65+) for deduction" />
+		<field name="tips_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="No Tax on Tips deduction (OBBBA 2025, max $25k)" />
+		<field name="overtime_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="No Tax on Overtime deduction (OBBBA 2025, max $12.5k/$25k)" />
+		<field name="senior_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Senior Additional deduction (OBBBA 2025, $6k per senior)" />
+		<field name="total_obbba_deductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total OBBBA deductions (tips + overtime + senior)" />
+		<field name="total_social_security" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Social Security income" />
+		<field name="taxable_social_security" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of Social Security" />
+		<field name="provisional_income" type="double" subtype="" access="rw" input="" default_value="0" comment="AGI + 50% SS + tax-exempt interest (Pub 915)" />
+		<field name="ss_taxable_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="0, 0.50, or 0.85 SS taxable rate" />
+		<field name="total_long_term_gains" type="double" subtype="" access="rw" input="" default_value="0" comment="Total long-term capital gains (Schedule D)" />
+		<field name="total_short_term_gains" type="double" subtype="" access="rw" input="" default_value="0" comment="Total short-term capital gains (Schedule D)" />
+		<field name="total_qualified_dividends" type="double" subtype="" access="rw" input="" default_value="0" comment="Total qualified dividends (Form 1040 Line 3a)" />
+		<field name="capital_gains_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Capital gains tax at preferential rates" />
+		<field name="ordinary_income_for_cg" type="double" subtype="" access="rw" input="" default_value="0" comment="Ordinary taxable income for CG bracket calc" />
+		<field name="net_investment_income" type="double" subtype="" access="rw" input="" default_value="0" comment="NII for NIIT (interest+dividends+CG+rental)" />
+		<field name="magi_for_niit" type="double" subtype="" access="rw" input="" default_value="0" comment="MAGI for NIIT calculation" />
+		<field name="niit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Investment Income Tax (Form 8960)" />
+		<field name="wages_for_additional_medicare" type="double" subtype="" access="rw" input="" default_value="0" comment="Wages subject to Additional Medicare" />
+		<field name="additional_medicare_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional Medicare Tax (Form 8959)" />
+		<field name="ira_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Traditional IRA deduction (Schedule 1 Line 20)" />
+		<field name="hsa_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="HSA deduction (Schedule 1 Line 13)" />
+		<field name="student_loan_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Student loan interest deduction (Schedule 1 Line 21)" />
+		<field name="educator_expense_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Educator expense deduction (Schedule 1 Line 11)" />
+		<field name="total_rental_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Total rental losses before PAL limits" />
+		<field name="rental_loss_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Rental loss allowed after PAL rules (Form 8582)" />
+		<field name="pal_phaseout_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="PAL phaseout reduction amount" />
+		<field name="pal_reduced_allowance" type="double" subtype="" access="rw" input="" default_value="0" comment="PAL allowance after phaseout" />
+		<field name="suspended_passive_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Suspended passive loss carryforward" />
+		<field name="total_medical_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="Total unreimbursed medical expenses" />
+		<field name="medical_expense_floor" type="double" subtype="" access="rw" input="" default_value="0" comment="7.5% AGI floor amount" />
+		<field name="medical_expense_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Deductible medical expenses (Schedule A Line 4)" />
+		<field name="qualifying_care_persons" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of qualifying persons for CDCC" />
+		<field name="total_care_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="Total childcare expenses claimed" />
+		<field name="cdcc_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC credit rate based on AGI" />
+		<field name="cdcc_expense_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC expense limit based on qualifying persons" />
+		<field name="cdcc_allowed_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC allowed expenses (lesser of actual or limit)" />
+		<field name="cdcc_rate_reductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Number of rate reduction steps for CDCC" />
+		<field name="fpl_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Federal Poverty Level for household" />
+		<field name="fpl_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Household income as % of FPL" />
+		<field name="applicable_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="PTC applicable percentage" />
+		<field name="annual_contribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Expected annual contribution" />
+		<field name="max_ptc" type="double" subtype="" access="rw" input="" default_value="0" comment="Maximum PTC available" />
+		<field name="net_ptc" type="double" subtype="" access="rw" input="" default_value="0" comment="Net PTC (max PTC minus advance received)" />
+		<field name="taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable income (Form 1040 Line 15)" />
+		<field name="regular_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Regular tax (Form 1040 Line 16)" />
+		<field name="se_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Self-employment tax (Schedule SE)" />
+		<field name="amti" type="double" subtype="" access="rw" input="" default_value="0" comment="Alternative Minimum Taxable Income" />
+		<field name="amt_exemption" type="double" subtype="" access="rw" input="" default_value="0" comment="AMT exemption amount" />
+		<field name="amt_exemption_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="AMT exemption reduction due to phase-out" />
+		<field name="amt_base" type="double" subtype="" access="rw" input="" default_value="0" comment="AMT base (AMTI minus exemption)" />
+		<field name="amt_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Tentative minimum tax" />
+		<field name="amt_owed" type="double" subtype="" access="rw" input="" default_value="0" comment="AMT owed (excess over regular tax)" />
+		<field name="total_tax_before_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total tax before credits" />
+		<field name="total_ctc" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Child Tax Credit" />
+		<field name="total_odc" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Other Dependent Credit" />
+		<field name="ctc_phase_out_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC/ODC phase-out reduction per IRC 24(b)" />
+		<field name="ctc_before_phaseout" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC+ODC before phase-out" />
+		<field name="ctc_after_phaseout" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC+ODC after phase-out" />
+		<field name="ctc_threshold" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC phase-out threshold (working variable)" />
+		<field name="agi_over_threshold" type="double" subtype="" access="rw" input="" default_value="0" comment="AGI amount over phase-out threshold (working variable)" />
+		<field name="total_actc" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional Child Tax Credit (refundable)" />
+		<field name="eitc" type="double" subtype="" access="rw" input="" default_value="0" comment="Earned Income Tax Credit" />
+		<field name="education_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Education credits (AOTC/LLC)" />
+		<field name="cdcc_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Child and Dependent Care Credit (Form 2441)" />
+		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)" />
+		<field name="savers_credit_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit rate (0.50, 0.20, 0.10, or 0)" />
+		<field name="total_savers_contribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Total eligible retirement contributions for Saver Credit" />
+		<field name="energy_efficiency_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Energy Efficient Home Improvement Credit (Form 5695 Part II)" />
+		<field name="clean_energy_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Residential Clean Energy Credit (Form 5695 Part I)" />
+		<field name="premium_tax_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Premium Tax Credit (Form 8962)" />
+		<field name="ptc_repayment" type="double" subtype="" access="rw" input="" default_value="0" comment="Excess APTC repayment" />
+		<field name="dc_homebuyer_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="DC First-Time Homebuyer Credit (Form 8859)" />
+		<field name="mortgage_interest_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Mortgage Interest Credit (Form 8396)" />
+		<field name="carryforward_mortgage_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused mortgage credit to carry forward (Form 8396)" />
+		<field name="mortgage_interest_deduction_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction to mortgage interest deduction due to MCC" />
+		<field name="energy_appliance_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Energy Efficient Appliance Credit (Form 8909 - manufacturers only)" />
+		<field name="total_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total credits" />
+		<field name="tax_before_nonrefundable_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Tax before non-refundable credits" />
+		<field name="other_nonrefundable_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Non-refundable credits excluding CTC" />
+		<field name="tax_for_ctc" type="double" subtype="" access="rw" input="" default_value="0" comment="Tax available for CTC" />
+		<field name="ctc_used" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC used against tax (non-refundable)" />
+		<field name="total_nonrefundable_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total non-refundable credits applied" />
+		<field name="total_k1_ordinary_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 ordinary business income" />
+		<field name="total_k1_rental_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 rental income" />
+		<field name="total_k1_interest" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 interest income" />
+		<field name="total_k1_dividends" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 ordinary dividends" />
+		<field name="total_k1_qualified_dividends" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 qualified dividends" />
+		<field name="total_k1_short_term_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 short-term capital gains" />
+		<field name="total_k1_long_term_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 long-term capital gains" />
+		<field name="total_k1_1231_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 Section 1231 gain" />
+		<field name="total_k1_se_earnings" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 self-employment earnings (Box 14)" />
+		<field name="total_k1_foreign_taxes" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 foreign taxes paid" />
+		<field name="total_k1_qbi" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 QBI (Section 199A)" />
+		<field name="total_ira_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Total non-deductible IRA basis" />
+		<field name="total_ira_balance" type="double" subtype="" access="rw" input="" default_value="0" comment="Total traditional IRA balance for pro-rata" />
+		<field name="total_roth_conversions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total converted to Roth IRA" />
+		<field name="taxable_conversions" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of Roth conversions" />
+		<field name="total_ira_distributions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total IRA distributions" />
+		<field name="taxable_distributions" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of IRA distributions" />
+		<field name="total_farm_gross_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total farm gross income" />
+		<field name="total_farm_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="Total farm expenses" />
+		<field name="net_farm_profit" type="double" subtype="" access="rw" input="" default_value="0" comment="Net farm profit/loss (Schedule F Line 34)" />
+		<field name="farm_se_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Farm self-employment tax" />
+		<field name="total_1231_gains" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Section 1231 gains" />
+		<field name="total_1231_losses" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Section 1231 losses" />
+		<field name="net_1231_gain_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Section 1231 gain/loss" />
+		<field name="total_depreciation_recapture" type="double" subtype="" access="rw" input="" default_value="0" comment="Total depreciation recapture (ordinary income)" />
+		<field name="total_unrecaptured_1250" type="double" subtype="" access="rw" input="" default_value="0" comment="Total unrecaptured Section 1250 gain (25% rate)" />
+		<field name="total_foreign_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total foreign source income" />
+		<field name="total_foreign_taxes_paid" type="double" subtype="" access="rw" input="" default_value="0" comment="Total foreign taxes paid or accrued" />
+		<field name="foreign_tax_credit_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="FTC limitation (US tax × foreign/total income)" />
+		<field name="foreign_tax_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign Tax Credit allowed (Form 1116)" />
+		<field name="work_opportunity_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Work Opportunity Credit (Form 5884)" />
+		<field name="research_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Research Credit (Form 6765)" />
+		<field name="low_income_housing_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Low-Income Housing Credit (Form 8586)" />
+		<field name="disabled_access_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Disabled Access Credit (Form 8826)" />
+		<field name="small_employer_pension_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Pension Plan Startup Credit (Form 8881)" />
+		<field name="small_employer_health_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Health Insurance Credit (Form 8941)" />
+		<field name="employer_credit_paid_family_leave" type="double" subtype="" access="rw" input="main" default_value="0" comment="Employer Credit for Paid Family Leave (Form 8994)" />
+		<field name="general_business_credit_total" type="double" subtype="" access="rw" input="" default_value="0" comment="Total General Business Credit from Form 3800 Part I" />
+		<field name="general_business_credit_used" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount of GBC used against current year tax" />
+		<field name="general_business_credit_carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused GBC to carry forward to next year" />
+		<field name="schedule_h_social_security_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Social Security tax on household employees (Schedule H)" />
+		<field name="schedule_h_medicare_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Medicare tax on household employees (Schedule H)" />
+		<field name="schedule_h_futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax on household employees (Schedule H)" />
+		<field name="schedule_h_total_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment tax (Schedule H)" />
+		<field name="total_foreign_earned_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total foreign earned income" />
+		<field name="foreign_earned_income_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign earned income exclusion (Form 2555)" />
+		<field name="foreign_housing_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign housing exclusion (Form 2555)" />
+		<field name="total_installment_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Total installment sale gain recognized" />
+		<field name="total_installment_interest" type="double" subtype="" access="rw" input="" default_value="0" comment="Total interest from installment sales" />
+		<field name="total_like_kind_recognized" type="double" subtype="" access="rw" input="" default_value="0" comment="Total recognized gain from like-kind exchanges" />
+		<field name="total_like_kind_deferred" type="double" subtype="" access="rw" input="" default_value="0" comment="Total deferred gain from like-kind exchanges" />
+		<field name="total_early_withdrawal_penalty" type="double" subtype="" access="rw" input="" default_value="0" comment="Total early withdrawal penalty (Form 5329)" />
+		<field name="total_kiddie_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total kiddie tax (Form 8615)" />
+		<field name="elderly_disabled_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit for elderly or disabled (Schedule R)" />
+		<field name="total_estimated_payments" type="double" subtype="" access="rw" input="" default_value="0" comment="Total estimated tax payments made" />
+		<field name="estimated_tax_penalty" type="double" subtype="" access="rw" input="" default_value="0" comment="Underpayment penalty (Form 2210)" />
+		<field name="safe_harbor_met" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Safe harbor exception met" />
+		<field name="total_casualty_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Total deductible casualty loss (Form 4684)" />
+		<field name="is_disaster_loss" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Loss from federally declared disaster" />
+		<field name="total_clean_vehicle_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Total clean vehicle credit (Form 8936)" />
+		<field name="total_adoption_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Total adoption credit (Form 8839)" />
+		<field name="adoption_credit_carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="Adoption credit carryforward to next year" />
+		<field name="mortgage_interest_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Mortgage interest credit (Form 8396)" />
+		<field name="mortgage_credit_carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="MCC carryforward to next year" />
+		<field name="prior_year_amt_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Prior year AMT credit (Form 8801)" />
+		<field name="amt_credit_carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="AMT credit carryforward" />
+		<field name="partnership_audit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Partnership audit additional tax (Form 8978)" />
+		<field name="unreported_tips_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FICA tax on unreported tips (Form 4137)" />
+		<field name="lihtc_recapture_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="LIHTC recapture tax (Form 8611)" />
+		<field name="total_household_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment tax (Schedule H)" />
+		<field name="nol_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL deduction used this year" />
+		<field name="nol_carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL carryforward to future years" />
+		<field name="total_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total tax after credits (Form 1040 Line 24)" />
+		<field name="total_payments" type="double" subtype="" access="rw" input="" default_value="0" comment="Total payments and credits (Form 1040 Line 33)" />
+		<field name="refund_or_owed" type="double" subtype="" access="rw" input="" default_value="0" comment="Refund (positive) or amount owed (negative)" />
+		<field name="eitc_qualifying_children" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of qualifying children for EITC" />
+		<field name="il_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="Illinois AGI (federal AGI + adjustments)" />
+		<field name="il_exemption_total" type="double" subtype="" access="rw" input="" default_value="0" comment="Total IL personal exemptions" />
+		<field name="il_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Illinois taxable income" />
+		<field name="il_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Illinois state income tax" />
+		<field name="nh_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire AGI (federal AGI + adjustments)" />
+		<field name="nh_standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NH standard deduction amount" />
+		<field name="nh_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire taxable income" />
+		<field name="nh_bracket_1_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 1 tax (3%)" />
+		<field name="nh_bracket_2_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 2 tax (5%)" />
+		<field name="nh_bracket_3_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 3 tax (7.5%)" />
+		<field name="nh_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire state income tax" />
+		<field name="mt_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana AGI (federal AGI + adjustments)" />
+		<field name="mt_standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="MT standard deduction amount" />
+		<field name="mt_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana taxable income" />
+		<field name="mt_bracket_1_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="MT bracket 1 tax (4.7%)" />
+		<field name="mt_bracket_2_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="MT bracket 2 tax (5.9%)" />
+		<field name="mt_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana state income tax" />
+		<field name="validation_passed" type="boolean" subtype="" access="rw" input="" default_value="true" comment="Whether validation passed" />
+		<field name="form_references" type="array" subtype="" access="rw" input="" default_value="" comment="IRS forms used in calculation" />
+		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed calculation notes" />
+	</entity>
+</entity_data_dictionary>

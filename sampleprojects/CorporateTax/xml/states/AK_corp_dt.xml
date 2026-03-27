@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Alaska Corporate Tax Decision Tables
+
+  Table Range: 52300-52399 (allocated to Alaska)
+
+  Implementation:
+  - 52300: Determine_AK_Filing_Requirement (nexus determination)
+  - 52320: Calculate_AK_Income_Adjustments (state additions/subtractions)
+  - 52380: Calculate_AK_State_Tax (tax calculation at 9.3% flat rate)
+
+  References:
+  - AK Stat. § 43.20.011 (Tax rate: 9.3%)
+  - AK Form 6000 (Corporation Net Income Tax Return)
+  - Alaska Department of Revenue - Tax Division
+-->
+<decision_tables name="CorporateTax_AK_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 52300: Determine AK Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Alaska state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in Alaska
+    - Economic nexus (post-Wayfair): $100,000 gross receipts or 200 transactions
+  -->
+  <decision_table name="Determine_AK_Filing_Requirement" number="52300">
+    <description>
+      Determine if corporation must file Alaska state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'AK'</expression>
+        <comment>Has physical presence in Alaska (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'AK'</expression>
+        <comment>Meets Alaska economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Alaska filing required due to physical presence (office, employees, or property in state).
+
+          Physical presence includes:
+          - Office or place of business in Alaska
+          - Employees working in Alaska
+          - Property (real or tangible personal) located in Alaska
+
+          Reference: AK Stat. § 43.20.011 et seq.
+          Reference: Alaska Department of Revenue - Tax Division
+          Reference: AK Form 6000 Instructions
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          Alaska filing required due to economic nexus (post-Wayfair).
+
+          Economic nexus threshold:
+          - $100,000 or more in gross receipts from Alaska sales, OR
+          - 200 or more separate transactions with Alaska customers
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: Alaska Department of Revenue Economic Nexus Guidance
+          Reference: AK Stat. § 43.20.011
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Alaska nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 52320: Calculate AK State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates Alaska additions and subtractions to federal taxable income.
+
+    Alaska generally follows federal taxable income with minimal modifications.
+    Common adjustments may include federal bond interest addback.
+  -->
+  <decision_table name="Calculate_AK_Income_Adjustments" number="52320">
+    <description>
+      Calculate Alaska state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate Alaska additions
+            double additions = 0.0;
+
+            // Alaska generally follows federal taxable income
+            // Add back federal interest if required by Alaska law
+            // (Federal bond interest is exempt federally but may be taxable to states)
+
+            apportionment.state_additions = additions;
+
+            // Calculate Alaska subtractions
+            double subtractions = 0.0;
+
+            // Subtract Alaska-specific items as allowed by statute
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          Alaska state-specific income adjustments to federal taxable income.
+
+          Alaska generally conforms to federal taxable income definitions
+          with minimal state-specific modifications.
+
+          Additions may include:
+          - Interest on U.S. government obligations (if required)
+          - Other Alaska-specific additions as defined by statute
+
+          Subtractions may include:
+          - Alaska-specific deductions as allowed by statute
+          - State NOL deduction (if different from federal)
+
+          Reference: AK Stat. § 43.20.011 through 43.20.144
+          Reference: AK Form 6000 Instructions
+          Reference: Alaska Department of Revenue Publication
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 52380: Calculate AK State Tax
+    ============================================================================
+
+    Calculates final Alaska state corporate income tax.
+
+    Process:
+    1. Federal taxable income apportioned to Alaska (done by table 7500)
+    2. Add Alaska-specific additions (done by table 52320)
+    3. Subtract Alaska-specific subtractions (done by table 52320)
+    4. Calculate Alaska state taxable income
+    5. Apply Alaska tax rate: 9.3% flat rate
+    6. Subtract Alaska state credits
+    7. Calculate refund or amount owed
+  -->
+  <decision_table name="Calculate_AK_State_Tax" number="52380">
+    <description>
+      Calculate Alaska state corporate income tax.
+      Applies 9.3% flat rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: Calculate tax using 9.3% flat rate -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Alaska uses 9.3% flat rate - one of the highest in the nation
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract Alaska state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          Alaska state corporate income tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to Alaska: × [Three-factor apportionment %]
+             - Property factor: AK property / Total property
+             - Payroll factor: AK payroll / Total payroll
+             - Sales factor: AK sales / Total sales
+             - Average of three factors
+          3. State additions: + [Additions per table 52320]
+          4. State subtractions: - [Subtractions per table 52320]
+          5. Alaska taxable income: = [Result]
+          6. Alaska tax rate: × 9.3%
+          7. Alaska income tax: = [Tax before credits]
+          8. Alaska credits: - [Credits]
+          9. Alaska tax liability: = [Final tax]
+
+          Tax Rate: 9.3% flat rate on Alaska taxable income
+          (One of the highest corporate income tax rates in the United States)
+
+          Reference: AK Stat. § 43.20.011 (Tax rate: 9.3%)
+          Reference: AK Form 6000 (Corporation Net Income Tax Return)
+          Reference: AK Stat. § 43.19 (Apportionment)
+          Reference: Alaska Department of Revenue - Tax Division
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Alaska nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: No taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Alaska taxable income - no tax liability.
+          Alaska NOL rules may apply (not implemented).
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

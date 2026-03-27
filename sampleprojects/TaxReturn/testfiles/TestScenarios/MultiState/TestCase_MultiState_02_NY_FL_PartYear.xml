@@ -1,0 +1,124 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 2: NY to FL Move (Part-Year Resident) -->
+   <!-- High-tax state (NY) to no-tax state (FL) mid-year move -->
+   <!-- Tests: NY part-year resident, high bracket transition -->
+   <!-- Move Date: August 15, 2025 (227 days in NY, 138 days in FL) -->
+   <id>MS-02-NY-FL</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+   <city>Miami</city>
+
+   <!-- Expected values for validation -->
+   <!-- Total Income: $250,000 W-2 + $35,000 investment income -->
+   <!-- NY Period: Jan 1 - Aug 15 (227 days) = 62.2% of year -->
+   <!-- NY Allocated Wage Income: $250,000 × 62.2% = $155,500 -->
+   <!-- Investment income: Full year, but taxed based on residency -->
+   <!-- NY Investment Income (resident portion): $35,000 × 62.2% = $21,770 -->
+   <!-- FL has no state income tax -->
+   <expected_agi>285000</expected_agi>
+   <expected_taxable_income>271150</expected_taxable_income>
+   <expected_ny_allocated_wage_income>155500</expected_ny_allocated_wage_income>
+   <expected_ny_allocated_investment_income>21770</expected_ny_allocated_investment_income>
+   <expected_ny_total_allocated_income>177270</expected_ny_total_allocated_income>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>NY</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>8/15/2025</end_date>
+         <resident_status>part_year</resident_status>
+         <days_in_state>227</days_in_state>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>FL</state_code>
+         <start_date>8/16/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+         <days_in_state>138</days_in_state>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Chen</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>11/3/1978</date_of_birth>
+         <occupation>Investment Banker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>250000</w2_wages>
+         <w2_withholding>55000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>12000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Investment Bank NYC</source>
+         <gross_amount>155500</gross_amount>
+         <withholding>35000</withholding>
+         <state_code>NY</state_code>
+         <state_period_id>1</state_period_id>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Investment Bank Miami</source>
+         <gross_amount>94500</gross_amount>
+         <withholding>20000</withholding>
+         <state_code>FL</state_code>
+         <state_period_id>2</state_period_id>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>investment</type>
+         <source>Stock Portfolio Dividends</source>
+         <gross_amount>35000</gross_amount>
+         <withholding>0</withholding>
+         <state_code>multi</state_code>
+         <ny_portion>21770</ny_portion>
+         <fl_portion>13230</fl_portion>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

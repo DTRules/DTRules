@@ -1,0 +1,111 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 2210 - Self-Employed Underpayment Penalty -->
+   <!-- Scenario: Freelancer with inadequate quarterly estimated payments -->
+   <!-- Per IRC 6654: Penalty for underpayment of estimated tax -->
+
+   <id>EST-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+
+   <!-- Expected calculations: -->
+   <!-- Self-employment income: $180,000 -->
+   <!-- SE tax: $180,000 x 0.9235 x 0.153 = $25,430 -->
+   <!-- SE tax deduction: $12,715 (50% of SE tax) -->
+   <!-- AGI: $180,000 - $12,715 = $167,285 -->
+   <!-- QBI Deduction: $180,000 x 0.20 = $36,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable: $167,285 - $15,000 - $36,000 = $116,285 -->
+   <!-- Income Tax: ~$19,350 (10% on $11,925 + 12% on $36,525 + 22% on $67,835) -->
+   <!-- Total tax liability: $19,350 + $25,430 = $44,780 -->
+   <!-- Required annual payment (90% current): $44,780 x 0.90 = $40,302 -->
+   <!-- Required quarterly: $40,302 / 4 = $10,075 -->
+   <!-- Actually paid: $6,000/quarter = $24,000 total -->
+   <!-- Underpayment per quarter: $10,075 - $6,000 = $4,075 -->
+   <!-- Penalty rate (2025 Q1-Q4): 8% (IRS short-term rate 5% + 3%) -->
+   <!-- Penalty calculation by quarter (simplified): -->
+   <!--   Q1: $4,075 x 0.08 x (273/365) = $244 -->
+   <!--   Q2: $4,075 x 0.08 x (182/365) = $163 -->
+   <!--   Q3: $4,075 x 0.08 x (91/365) = $81 -->
+   <!--   Q4: $4,075 x 0.08 x (0/365) = $0 -->
+   <!-- Total penalty: $488 -->
+   <expected_agi>167285</expected_agi>
+   <expected_taxable_income>116285</expected_taxable_income>
+   <expected_total_tax>44780</expected_total_tax>
+   <expected_estimated_penalty>488</expected_estimated_penalty>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Martinez</name>
+         <ssn>801-45-6789</ssn>
+         <date_of_birth>05/12/1985</date_of_birth>
+         <occupation>Freelance Graphic Designer</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>180000</se_gross_income>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Estimated Tax Payments - Underpaid each quarter -->
+   <estimated_payments>
+      <estimated_payment id="1">
+         <id>1</id>
+         <quarter>1</quarter>
+         <due_date>04/15/2025</due_date>
+         <payment_date>04/15/2025</payment_date>
+         <payment_amount>6000</payment_amount>
+      </estimated_payment>
+      <estimated_payment id="2">
+         <id>2</id>
+         <quarter>2</quarter>
+         <due_date>06/15/2025</due_date>
+         <payment_date>06/15/2025</payment_date>
+         <payment_amount>6000</payment_amount>
+      </estimated_payment>
+      <estimated_payment id="3">
+         <id>3</id>
+         <quarter>3</quarter>
+         <due_date>09/15/2025</due_date>
+         <payment_date>09/15/2025</payment_date>
+         <payment_amount>6000</payment_amount>
+      </estimated_payment>
+      <estimated_payment id="4">
+         <id>4</id>
+         <quarter>4</quarter>
+         <due_date>01/15/2026</due_date>
+         <payment_date>01/15/2026</payment_date>
+         <payment_amount>6000</payment_amount>
+      </estimated_payment>
+   </estimated_payments>
+
+   <!-- Prior year tax data for safe harbor calculation -->
+   <prior_year>
+      <tax_year>2024</tax_year>
+      <total_tax>38000</total_tax>
+      <agi>155000</agi>
+   </prior_year>
+</job>

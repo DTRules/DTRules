@@ -1,0 +1,152 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 6: VA Resident with MD Rental Property -->
+   <!-- Resident of VA, owns rental property in MD -->
+   <!-- Tests: VA credit for MD taxes paid on rental income -->
+   <!-- MD taxes rental income (source state), VA provides credit (resident state) -->
+   <id>MS-06-VA-MD</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>VA</state>
+   <city>Arlington</city>
+
+   <!-- Expected values for validation -->
+   <!-- VA Wages: $155,000 -->
+   <!-- MD Rental Net Income: $28,000 -->
+   <!-- Total AGI: $183,000 -->
+   <!-- MD Nonresident Tax: On $28,000 rental income only -->
+   <!-- VA Resident Tax: On full $183,000 -->
+   <!-- VA Credit: For MD taxes paid on $28,000 rental income -->
+   <expected_agi>183000</expected_agi>
+   <expected_taxable_income>153000</expected_taxable_income>
+   <expected_va_resident_income>183000</expected_va_resident_income>
+   <expected_md_nonresident_income>28000</expected_md_nonresident_income>
+   <expected_va_credit_for_md_tax>true</expected_va_credit_for_md_tax>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>VA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+         <days_in_state>365</days_in_state>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MD</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+         <has_rental_property>true</has_rental_property>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Richard Thompson</name>
+         <ssn>345-67-8902</ssn>
+         <date_of_birth>7/7/1975</date_of_birth>
+         <occupation>Government Contractor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>105000</w2_wages>
+         <w2_withholding>19000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Susan Thompson</name>
+         <ssn>456-78-9013</ssn>
+         <date_of_birth>10/22/1977</date_of_birth>
+         <occupation>School Administrator</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Defense Contractor VA</source>
+         <gross_amount>105000</gross_amount>
+         <withholding>19000</withholding>
+         <state_code>VA</state_code>
+         <state_period_id>1</state_period_id>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <source>School District VA</source>
+         <gross_amount>50000</gross_amount>
+         <withholding>8000</withholding>
+         <state_code>VA</state_code>
+         <state_period_id>1</state_period_id>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental_income</type>
+         <source>Rental Property MD</source>
+         <gross_amount>28000</gross_amount>
+         <withholding>0</withholding>
+         <state_code>MD</state_code>
+         <state_period_id>2</state_period_id>
+         <property_id>1</property_id>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>rental</type>
+         <address>123 Main Street, Baltimore, MD 21201</address>
+         <state_code>MD</state_code>
+         <purchase_date>3/1/2018</purchase_date>
+         <purchase_price>320000</purchase_price>
+         <current_fmv>420000</current_fmv>
+         <mortgage_balance>180000</mortgage_balance>
+         <rental_income>42000</rental_income>
+         <rental_expenses>14000</rental_expenses>
+         <depreciation>8000</depreciation>
+         <rental_net_income>28000</rental_net_income>
+      </property>
+   </properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

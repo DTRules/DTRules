@@ -1,0 +1,80 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Montana Military Retirement Test Case -->
+   <!-- Test Case MT-Military-01: National Guard member ($15,000 exemption) -->
+   <!-- MT provides $15,000 exemption for National Guard retirement -->
+   <!-- Different from regular military retirement exemption rules -->
+
+   <id>MT-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>MT</state>
+   <city>Billings</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $25,000 National Guard retirement + $42,000 W2 = $67,000 -->
+   <!-- AGI: $67,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $52,000 -->
+   <!-- Federal Tax: ~$6,100 -->
+   <!-- MT: Progressive tax (up to 5.9%) -->
+   <!-- MT National Guard Retirement Exemption: $15,000 -->
+   <!-- MT Taxable Retirement: $25,000 - $15,000 = $10,000 -->
+   <!-- MT Taxable Income: $10,000 + $42,000 = $52,000 -->
+   <!-- MT Tax (progressive brackets): ~$2,900 -->
+   <!-- Total Tax: $9,000 -->
+   <!-- Withholding: $9,800 -->
+   <!-- Refund: $800 -->
+   <expected_agi>67000</expected_agi>
+   <expected_taxable_income>52000</expected_taxable_income>
+   <expected_total_tax>9000</expected_total_tax>
+   <expected_state_tax>2900</expected_state_tax>
+   <expected_refund>800</expected_refund>
+
+   <!-- National Guard Retiree -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Thomas</name>
+         <last_name>Rodriguez</last_name>
+         <ssn>000-11-2222</ssn>
+         <date_of_birth>1/30/1966</date_of_birth>
+         <occupation>National Guard Retiree - Firefighter</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>42000</w2_wages>
+         <w2_withholding>9800</w2_withholding>
+         <military_retirement_pay>25000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

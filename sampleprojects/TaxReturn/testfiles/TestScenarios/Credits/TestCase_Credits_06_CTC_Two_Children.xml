@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Child Tax Credit Test: 2 children under 17 (full credit) -->
+   <!-- 2025 CTC: $2,000 per qualifying child -->
+   <!-- Phaseout starts at $400,000 MFJ -->
+   <!-- Expected CTC: $4,000 (2 children × $2,000) -->
+
+   <id>Credits-06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $150,000 combined W-2 (well below phaseout) -->
+   <!-- AGI: $150,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $120,000 -->
+   <!-- Tax before credits: $15,739 -->
+   <!-- CTC: $4,000 -->
+   <!-- Net Tax: $11,739 -->
+   <expected_agi>150000</expected_agi>
+   <expected_taxable_income>120000</expected_taxable_income>
+   <expected_ctc>4000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>James Anderson</name>
+         <ssn>111-22-9999</ssn>
+         <date_of_birth>2/14/1984</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>95000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Anderson</name>
+         <ssn>111-22-8888</ssn>
+         <date_of_birth>6/28/1986</date_of_birth>
+         <occupation>Marketing Director</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>5500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma Anderson</name>
+         <ssn>222-33-9999</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>5/10/2014</date_of_birth>
+         <age>11</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Lucas Anderson</name>
+         <ssn>222-33-8888</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>9/18/2016</date_of_birth>
+         <age>9</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

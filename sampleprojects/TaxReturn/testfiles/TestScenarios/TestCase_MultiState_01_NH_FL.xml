@@ -1,0 +1,99 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 1: NH → FL Move (Part-Year Resident) -->
+   <!-- Scenario: Taxpayer lived in NH Jan 1 - Jun 30 (181 days), moved to FL Jul 1 - Dec 31 (184 days) -->
+   <!-- NH has income tax, FL has no income tax -->
+   <id>MultiState-01-NH-FL</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>NH</state>
+   <city>Manchester</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Total Federal AGI: $80,000 -->
+   <!-- NH Period: 181 days / 365 = 49.59% -->
+   <!-- NH Allocated Income: $80,000 × 49.59% = $39,672 -->
+   <!-- NH AGI: $39,672 -->
+   <!-- NH Standard Deduction: $8,000 (Single) -->
+   <!-- NH Taxable Income: $31,672 -->
+   <!-- NH Tax: $31,672 × 3% = $950.16 (all in bracket 1) -->
+   <!-- FL has no state income tax, so no FL tax -->
+   <expected_agi>80000</expected_agi>
+   <expected_nh_agi>39672</expected_nh_agi>
+   <expected_nh_taxable_income>31672</expected_nh_taxable_income>
+   <expected_nh_tax>950.16</expected_nh_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alice Johnson</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>5/10/1988</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>80000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>80000</gross_amount>
+         <withholding>12000</withholding>
+      </income>
+   </incomes>
+
+   <!-- State Periods - Multi-State Allocation -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>NH</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>6/30/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>FL</state_code>
+         <start_date>7/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+   </state_periods>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
