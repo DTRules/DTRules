@@ -14801,6 +14801,639 @@ endif
 </policy_statements>
 </decision_table>
 
+<!-- TABLE 42100: Apply_NY_Tax_Brackets_Single - NY Single Filer Brackets -->
+<!-- Reference: New York Form IT-201 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_NY_Tax_Brackets_Single</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies NY progressive tax brackets for single filers. Nine brackets from 4% to 10.9%.</COMMENTS>
+<TABLE_NUMBER>42100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Income exceeds bracket 8 threshold</condition_comment>
+<condition_description>Taxable income > $25,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket8_single f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Income exceeds bracket 7 threshold</condition_comment>
+<condition_description>Taxable income > $5,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket7_single f>
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income exceeds bracket 6 threshold</condition_comment>
+<condition_description>Taxable income > $1,077,550</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket6_single f>
+</condition_postfix>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Income exceeds bracket 5 threshold</condition_comment>
+<condition_description>Taxable income > $215,400</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket5_single f>
+</condition_postfix>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Income exceeds bracket 4 threshold</condition_comment>
+<condition_description>Taxable income > $80,650</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket4_single f>
+</condition_postfix>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Income exceeds bracket 3 threshold</condition_comment>
+<condition_description>Taxable income > $13,900</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket3_single f>
+</condition_postfix>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Income exceeds bracket 2 threshold</condition_comment>
+<condition_description>Taxable income > $11,700</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket2_single f>
+</condition_postfix>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Income exceeds bracket 1 threshold</condition_comment>
+<condition_description>Taxable income > $8,500</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket1_single f>
+</condition_postfix>
+<condition_column column_number="8" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 9: 10.9% on income over $25M</action_comment>
+<action_description>Calculate tax with 9 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+ny_bracket6_single ny_bracket5_single f- ny_rate6 f* f+
+ny_bracket7_single ny_bracket6_single f- ny_rate7 f* f+
+ny_bracket8_single ny_bracket7_single f- ny_rate8 f* f+
+result.ny_taxable_income ny_bracket8_single f- ny_rate9 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 8: 10.3% on income over $5M</action_comment>
+<action_description>Calculate tax with 8 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+ny_bracket6_single ny_bracket5_single f- ny_rate6 f* f+
+ny_bracket7_single ny_bracket6_single f- ny_rate7 f* f+
+result.ny_taxable_income ny_bracket7_single f- ny_rate8 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 7: 9.65% on income over $1,077,550</action_comment>
+<action_description>Calculate tax with 7 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+ny_bracket6_single ny_bracket5_single f- ny_rate6 f* f+
+result.ny_taxable_income ny_bracket6_single f- ny_rate7 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 6: 6.85% on income over $215,400</action_comment>
+<action_description>Calculate tax with 6 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+result.ny_taxable_income ny_bracket5_single f- ny_rate6 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5: 6% on income over $80,650</action_comment>
+<action_description>Calculate tax with 5 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+result.ny_taxable_income ny_bracket4_single f- ny_rate5 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 4: 5.5% on income over $13,900</action_comment>
+<action_description>Calculate tax with 4 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+result.ny_taxable_income ny_bracket3_single f- ny_rate4 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 3: 5.25% on income over $11,700</action_comment>
+<action_description>Calculate tax with 3 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+result.ny_taxable_income ny_bracket2_single f- ny_rate3 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Bracket 2: 4.5% on income over $8,500</action_comment>
+<action_description>Calculate tax with 2 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+result.ny_taxable_income ny_bracket1_single f- ny_rate2 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Bracket 1: 4% on income up to $8,500</action_comment>
+<action_description>Calculate tax with 1 bracket</action_description>
+<action_postfix>
+result.ny_taxable_income ny_rate1 f* /result.ny_tax xdef
+</action_postfix>
+<action_column column_number="9" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NY single filer - 9 brackets (10.9% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 9 brackets up to 10.9%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NY single filer - 8 brackets (10.3% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 8 brackets up to 10.3%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>NY single filer - 7 brackets (9.65% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 7 brackets up to 9.65%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>NY single filer - 6 brackets (6.85% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 6 brackets up to 6.85%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>NY single filer - 5 brackets (6% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 5 brackets up to 6%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>NY single filer - 4 brackets (5.5% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 4 brackets up to 5.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>NY single filer - 3 brackets (5.25% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 3 brackets up to 5.25%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="8">
+<policy_description>NY single filer - 2 brackets (4.5% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 2 brackets up to 4.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="9">
+<policy_description>NY single filer - 1 bracket (4% rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 1 bracket at 4%"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42200: Apply_NY_Tax_Brackets_MFJ - NY Married Filing Jointly   -->
+<!-- Reference: New York Form IT-201 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_NY_Tax_Brackets_MFJ</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies NY progressive tax brackets for married filing jointly. Nine brackets from 4% to 10.9%.</COMMENTS>
+<TABLE_NUMBER>42200</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Income exceeds bracket 8 threshold</condition_comment>
+<condition_description>Taxable income > $25,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket8_mfj f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Income exceeds bracket 7 threshold</condition_comment>
+<condition_description>Taxable income > $5,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket7_mfj f>
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income exceeds bracket 6 threshold</condition_comment>
+<condition_description>Taxable income > $2,155,350</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket6_mfj f>
+</condition_postfix>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Income exceeds bracket 5 threshold</condition_comment>
+<condition_description>Taxable income > $323,200</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket5_mfj f>
+</condition_postfix>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Income exceeds bracket 4 threshold</condition_comment>
+<condition_description>Taxable income > $161,550</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket4_mfj f>
+</condition_postfix>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Income exceeds bracket 3 threshold</condition_comment>
+<condition_description>Taxable income > $27,900</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket3_mfj f>
+</condition_postfix>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Income exceeds bracket 2 threshold</condition_comment>
+<condition_description>Taxable income > $23,600</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket2_mfj f>
+</condition_postfix>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Income exceeds bracket 1 threshold</condition_comment>
+<condition_description>Taxable income > $17,150</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket1_mfj f>
+</condition_postfix>
+<condition_column column_number="8" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 9: 10.9% on income over $25M</action_comment>
+<action_description>Calculate tax with 9 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+ny_bracket6_mfj ny_bracket5_mfj f- ny_rate6 f* f+
+ny_bracket7_mfj ny_bracket6_mfj f- ny_rate7 f* f+
+ny_bracket8_mfj ny_bracket7_mfj f- ny_rate8 f* f+
+result.ny_taxable_income ny_bracket8_mfj f- ny_rate9 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 8: 10.3% on income over $5M</action_comment>
+<action_description>Calculate tax with 8 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+ny_bracket6_mfj ny_bracket5_mfj f- ny_rate6 f* f+
+ny_bracket7_mfj ny_bracket6_mfj f- ny_rate7 f* f+
+result.ny_taxable_income ny_bracket7_mfj f- ny_rate8 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 7: 9.65% on income over $2,155,350</action_comment>
+<action_description>Calculate tax with 7 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+ny_bracket6_mfj ny_bracket5_mfj f- ny_rate6 f* f+
+result.ny_taxable_income ny_bracket6_mfj f- ny_rate7 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 6: 6.85% on income over $323,200</action_comment>
+<action_description>Calculate tax with 6 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+result.ny_taxable_income ny_bracket5_mfj f- ny_rate6 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5: 6% on income over $161,550</action_comment>
+<action_description>Calculate tax with 5 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+result.ny_taxable_income ny_bracket4_mfj f- ny_rate5 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 4: 5.5% on income over $27,900</action_comment>
+<action_description>Calculate tax with 4 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+result.ny_taxable_income ny_bracket3_mfj f- ny_rate4 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 3: 5.25% on income over $23,600</action_comment>
+<action_description>Calculate tax with 3 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+result.ny_taxable_income ny_bracket2_mfj f- ny_rate3 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Bracket 2: 4.5% on income over $17,150</action_comment>
+<action_description>Calculate tax with 2 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+result.ny_taxable_income ny_bracket1_mfj f- ny_rate2 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Bracket 1: 4% on income up to $17,150</action_comment>
+<action_description>Calculate tax with 1 bracket</action_description>
+<action_postfix>
+result.ny_taxable_income ny_rate1 f* /result.ny_tax xdef
+</action_postfix>
+<action_column column_number="9" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NY MFJ - 9 brackets (10.9% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 9 brackets up to 10.9%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NY MFJ - 8 brackets (10.3% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 8 brackets up to 10.3%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>NY MFJ - 7 brackets (9.65% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 7 brackets up to 9.65%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>NY MFJ - 6 brackets (6.85% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 6 brackets up to 6.85%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>NY MFJ - 5 brackets (6% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 5 brackets up to 6%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>NY MFJ - 4 brackets (5.5% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 4 brackets up to 5.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>NY MFJ - 3 brackets (5.25% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 3 brackets up to 5.25%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="8">
+<policy_description>NY MFJ - 2 brackets (4.5% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 2 brackets up to 4.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="9">
+<policy_description>NY MFJ - 1 bracket (4% rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 1 bracket at 4%"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42000: Calculate_NY_Tax - New York State Income Tax            -->
+<!-- Reference: New York Form IT-201 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NY_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates New York state income tax per Form IT-201. NY uses a progressive tax system with 9 brackets (4% to 10.9%). Starting with federal AGI, subtracts pension income (up to $20,000), applies standard deduction and dependent exemptions, then applies progressive brackets.</COMMENTS>
+<TABLE_NUMBER>42000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize NY tax calculation</action_description>
+<action_postfix>
+"NEW YORK FORM IT-201 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ny_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>job.filing_status is equal to "single"</condition_description>
+<condition_postfix>
+job.filing_status single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NY tax for single filer</action_comment>
+<action_description>Calculate NY AGI, apply single standard deduction and exemptions, apply progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ny_pension_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount ny_pension_subtraction f+ local@ ny_pension_subtraction > endif } job.incomes forall
+ny_pension_subtraction ny_pension_subtraction_max fmin local@ ny_pension_subtraction >
+ny_pension_subtraction 0 f> if
+  "  Subtract Pension Income: -$" ny_pension_subtraction cvs strconcat " (max $20,000)" strconcat job.audit_trail swap addto
+  result.ny_agi ny_pension_subtraction f- /result.ny_agi xdef
+endif
+"  New York AGI: $" result.ny_agi cvs strconcat " (Form IT-201 Line 19)" strconcat job.audit_trail swap addto
+"  Standard Deduction (Single): -$" ny_standard_deduction_single cvs strconcat job.audit_trail swap addto
+result.ny_agi ny_standard_deduction_single f- 0 fmax /result.ny_agi_after_deduction xdef
+job.dependents arraysize local@ num_dependents >
+num_dependents 0 > if
+  num_dependents ny_dependent_exemption f* /result.ny_dependent_exemption_total xdef
+  "  Dependent Exemptions: " num_dependents cvs strconcat " × $" strconcat ny_dependent_exemption cvs strconcat " = -$" strconcat result.ny_dependent_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+  result.ny_agi_after_deduction result.ny_dependent_exemption_total f- 0 fmax /result.ny_taxable_income xdef
+else
+  result.ny_agi_after_deduction /result.ny_taxable_income xdef
+endif
+"  New York Taxable Income: $" result.ny_taxable_income cvs strconcat " (Form IT-201 Line 33)" strconcat job.audit_trail swap addto
+Apply_NY_Tax_Brackets_Single
+"  New York Tax: $" result.ny_tax cvs strconcat " (Form IT-201 Line 39)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate NY tax for married filing jointly</action_comment>
+<action_description>Calculate NY AGI, apply MFJ standard deduction and exemptions, apply progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ny_pension_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount ny_pension_subtraction f+ local@ ny_pension_subtraction > endif } job.incomes forall
+ny_pension_subtraction ny_pension_subtraction_max fmin local@ ny_pension_subtraction >
+ny_pension_subtraction 0 f> if
+  "  Subtract Pension Income: -$" ny_pension_subtraction cvs strconcat " (max $20,000)" strconcat job.audit_trail swap addto
+  result.ny_agi ny_pension_subtraction f- /result.ny_agi xdef
+endif
+"  New York AGI: $" result.ny_agi cvs strconcat " (Form IT-201 Line 19)" strconcat job.audit_trail swap addto
+"  Standard Deduction (MFJ): -$" ny_standard_deduction_mfj cvs strconcat job.audit_trail swap addto
+result.ny_agi ny_standard_deduction_mfj f- 0 fmax /result.ny_agi_after_deduction xdef
+job.dependents arraysize local@ num_dependents >
+num_dependents 0 > if
+  num_dependents ny_dependent_exemption f* /result.ny_dependent_exemption_total xdef
+  "  Dependent Exemptions: " num_dependents cvs strconcat " × $" strconcat ny_dependent_exemption cvs strconcat " = -$" strconcat result.ny_dependent_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+  result.ny_agi_after_deduction result.ny_dependent_exemption_total f- 0 fmax /result.ny_taxable_income xdef
+else
+  result.ny_agi_after_deduction /result.ny_taxable_income xdef
+endif
+"  New York Taxable Income: $" result.ny_taxable_income cvs strconcat " (Form IT-201 Line 33)" strconcat job.audit_trail swap addto
+Apply_NY_Tax_Brackets_MFJ
+"  New York Tax: $" result.ny_tax cvs strconcat " (Form IT-201 Line 39)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NY tax for single filer with progressive brackets</policy_description>
+<policy_statement_postfix>"NY tax for single filer per Form IT-201"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NY tax for married filing jointly with progressive brackets</policy_description>
+<policy_statement_postfix>"NY tax for married filing jointly per Form IT-201"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 
 <!-- TABLE 42500: Calculate_ME_Tax - Maine State Income Tax               -->
 <!-- Reference: Maine Form 1040ME (2025)                                   -->

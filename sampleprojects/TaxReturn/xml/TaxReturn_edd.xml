@@ -1093,6 +1093,43 @@
 		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
+
+		<!-- New York State Tax Constants (2025) -->
+		<field name='ny_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NY standard deduction for single filers (2025)'></field>
+		<field name='ny_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16050' comment='NY standard deduction for married filing jointly (2025)'></field>
+		<field name='ny_dependent_exemption' type='double' subtype='' access='r' input='' default_value='1000' comment='NY dependent exemption per dependent (2025)'></field>
+		<field name='ny_pension_subtraction_max' type='double' subtype='' access='r' input='' default_value='20000' comment='NY maximum pension income subtraction (2025)'></field>
+
+		<!-- New York Tax Brackets - Single Filers (2025) -->
+		<field name='ny_bracket1_single' type='double' subtype='' access='r' input='' default_value='8500' comment='NY bracket 1 threshold single (4%)'></field>
+		<field name='ny_bracket2_single' type='double' subtype='' access='r' input='' default_value='11700' comment='NY bracket 2 threshold single (4.5%)'></field>
+		<field name='ny_bracket3_single' type='double' subtype='' access='r' input='' default_value='13900' comment='NY bracket 3 threshold single (5.25%)'></field>
+		<field name='ny_bracket4_single' type='double' subtype='' access='r' input='' default_value='80650' comment='NY bracket 4 threshold single (5.5%)'></field>
+		<field name='ny_bracket5_single' type='double' subtype='' access='r' input='' default_value='215400' comment='NY bracket 5 threshold single (6%)'></field>
+		<field name='ny_bracket6_single' type='double' subtype='' access='r' input='' default_value='1077550' comment='NY bracket 6 threshold single (6.85%)'></field>
+		<field name='ny_bracket7_single' type='double' subtype='' access='r' input='' default_value='5000000' comment='NY bracket 7 threshold single (9.65%)'></field>
+		<field name='ny_bracket8_single' type='double' subtype='' access='r' input='' default_value='25000000' comment='NY bracket 8 threshold single (10.3%)'></field>
+
+		<!-- New York Tax Brackets - Married Filing Jointly (2025) -->
+		<field name='ny_bracket1_mfj' type='double' subtype='' access='r' input='' default_value='17150' comment='NY bracket 1 threshold MFJ (4%)'></field>
+		<field name='ny_bracket2_mfj' type='double' subtype='' access='r' input='' default_value='23600' comment='NY bracket 2 threshold MFJ (4.5%)'></field>
+		<field name='ny_bracket3_mfj' type='double' subtype='' access='r' input='' default_value='27900' comment='NY bracket 3 threshold MFJ (5.25%)'></field>
+		<field name='ny_bracket4_mfj' type='double' subtype='' access='r' input='' default_value='161550' comment='NY bracket 4 threshold MFJ (5.5%)'></field>
+		<field name='ny_bracket5_mfj' type='double' subtype='' access='r' input='' default_value='323200' comment='NY bracket 5 threshold MFJ (6%)'></field>
+		<field name='ny_bracket6_mfj' type='double' subtype='' access='r' input='' default_value='2155350' comment='NY bracket 6 threshold MFJ (6.85%)'></field>
+		<field name='ny_bracket7_mfj' type='double' subtype='' access='r' input='' default_value='5000000' comment='NY bracket 7 threshold MFJ (9.65%)'></field>
+		<field name='ny_bracket8_mfj' type='double' subtype='' access='r' input='' default_value='25000000' comment='NY bracket 8 threshold MFJ (10.3%)'></field>
+
+		<!-- New York Tax Rates (2025) -->
+		<field name='ny_rate1' type='double' subtype='' access='r' input='' default_value='0.04' comment='NY tax rate 1 (4%)'></field>
+		<field name='ny_rate2' type='double' subtype='' access='r' input='' default_value='0.045' comment='NY tax rate 2 (4.5%)'></field>
+		<field name='ny_rate3' type='double' subtype='' access='r' input='' default_value='0.0525' comment='NY tax rate 3 (5.25%)'></field>
+		<field name='ny_rate4' type='double' subtype='' access='r' input='' default_value='0.055' comment='NY tax rate 4 (5.5%)'></field>
+		<field name='ny_rate5' type='double' subtype='' access='r' input='' default_value='0.06' comment='NY tax rate 5 (6%)'></field>
+		<field name='ny_rate6' type='double' subtype='' access='r' input='' default_value='0.0685' comment='NY tax rate 6 (6.85%)'></field>
+		<field name='ny_rate7' type='double' subtype='' access='r' input='' default_value='0.0965' comment='NY tax rate 7 (9.65%)'></field>
+		<field name='ny_rate8' type='double' subtype='' access='r' input='' default_value='0.103' comment='NY tax rate 8 (10.3%)'></field>
+		<field name='ny_rate9' type='double' subtype='' access='r' input='' default_value='0.109' comment='NY tax rate 9 (10.9%)'></field>
 		<!-- Kansas State Tax Constants (2025) - Senate Bill 1 -->
 		<field name='ks_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='9765' comment='KS standard deduction Single (2025)'></field>
 		<field name='ks_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='26540' comment='KS standard deduction MFJ (2025)'></field>
@@ -1898,6 +1935,14 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- New York State Tax Results -->
+		<field name='ny_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New York AGI (federal AGI + adjustments)'></field>
+		<field name='ny_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NY standard deduction applied'></field>
+		<field name='ny_dependent_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total NY dependent exemptions'></field>
+		<field name='ny_pension_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='NY pension income subtraction applied'></field>
+		<field name='ny_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New York taxable income'></field>
+		<field name='ny_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New York state income tax'></field>
 		<!-- Kansas State Tax Results -->
 		<field name='ks_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Kansas AGI (federal AGI + adjustments)'></field>
 		<field name='ks_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='KS standard deduction amount'></field>
