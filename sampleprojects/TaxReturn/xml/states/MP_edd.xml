@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Territory-specific constants for Northern Mariana Islands (MP/CNMI)
+
+  CNMI operates under a "mirror code plus rebate" system. Uses federal tax rates
+  but provides tiered rebates: 90% rebate if tax <= $20k, 70% on excess over $20k,
+  50% on excess over $100k.
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+    <!-- Bona fide residence test -->
+    <field name="mp_bona_fide_resident" type="boolean" default_value="false"
+           comment="True if taxpayer meets bona fide resident test for CNMI"/>
+    <field name="mp_days_present" type="integer" default_value="0"
+           comment="Number of days present in CNMI during tax year (183+ required)"/>
+    <field name="mp_has_tax_home" type="boolean" default_value="false"
+           comment="True if taxpayer has tax home in CNMI"/>
+    <field name="mp_closer_connection" type="boolean" default_value="false"
+           comment="True if taxpayer has closer connection to CNMI than US"/>
+
+    <!-- Rebate tiers -->
+    <field name="mp_rebate_tier_1_limit" type="double" default_value="20000"
+           comment="First rebate tier limit - 90% rebate if tax <= $20k"/>
+    <field name="mp_rebate_tier_1_rate" type="double" default_value="0.90"
+           comment="Rebate rate for tier 1 (90%)"/>
+    <field name="mp_rebate_tier_2_limit" type="double" default_value="100000"
+           comment="Second rebate tier limit - 70% on excess over $20k"/>
+    <field name="mp_rebate_tier_2_rate" type="double" default_value="0.70"
+           comment="Rebate rate for tier 2 (70%)"/>
+    <field name="mp_rebate_tier_3_rate" type="double" default_value="0.50"
+           comment="Rebate rate for tier 3 - 50% on excess over $100k"/>
+
+    <!-- Income sourcing -->
+    <field name="mp_source_income" type="double" default_value="0.0"
+           comment="Income sourced from CNMI"/>
+    <field name="mp_us_source_income" type="double" default_value="0.0"
+           comment="Income sourced from US mainland"/>
+
+    <!-- Filing requirements -->
+    <field name="mp_requires_form_5074" type="boolean" default_value="false"
+           comment="True if taxpayer must file Form 5074 (income allocation)"/>
+    <field name="mp_files_with_cnmi_dof" type="boolean" default_value="false"
+           comment="True if taxpayer files with CNMI Division of Revenue and Tax"/>
+    <field name="mp_files_with_irs" type="boolean" default_value="false"
+           comment="True if taxpayer also files with IRS (partial-year or non-resident)"/>
+
+    <!-- Mirror code - uses federal rates -->
+    <field name="mp_uses_federal_rates" type="boolean" default_value="true"
+           comment="CNMI uses mirror code (same as federal tax code)"/>
+
+    <!-- Calculated tax and rebate -->
+    <field name="mp_calculated_tax" type="double" default_value="0.0"
+           comment="Tax calculated using federal rates (before rebate)"/>
+    <field name="mp_rebate_amount" type="double" default_value="0.0"
+           comment="Total rebate amount (tiered)"/>
+    <field name="mp_income_tax" type="double" default_value="0.0"
+           comment="Final CNMI income tax after rebate"/>
+  </entity>
+</entity_data_dictionary>

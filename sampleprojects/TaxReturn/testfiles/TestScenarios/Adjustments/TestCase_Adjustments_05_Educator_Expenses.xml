@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Educator Expense Deduction -->
+<!-- Scenario: K-12 teacher with qualifying educator expenses -->
+<!-- Expected: $300 educator expense deduction (2025 limit) -->
+<!-- AGI before adjustments: $52,000 -->
+<!-- AGI after educator expenses: $51,700 -->
+<job>
+    <id>3534</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Income: $52,000 W2 -->
+    <!-- AGI: $52,000 - $300 (educator expenses) = $51,700 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $36,700 -->
+    <expected_agi>51700</expected_agi>
+    <expected_taxable_income>36700</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Maria Rodriguez</name>
+            <ssn>888-99-0000</ssn>
+            <date_of_birth>4/14/1985</date_of_birth>
+            <occupation>Elementary School Teacher</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>52000</w2_wages>
+            <w2_withholding>6500</w2_withholding>
+            <is_educator>true</is_educator>
+            <educator_expenses_paid>450</educator_expenses_paid>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

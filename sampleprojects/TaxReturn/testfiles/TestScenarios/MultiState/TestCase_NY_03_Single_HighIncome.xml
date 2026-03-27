@@ -1,0 +1,75 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- New York Test Case 03: Single filer with very high income -->
+   <!-- Tests NY progressive tax through bracket 7 (9.65%) -->
+
+   <id>NY-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>NY</state>
+   <city>Manhattan</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $2,000,000 W2 -->
+   <!-- Federal AGI: $2,000,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $1,985,000 -->
+   <!-- NY Standard Deduction: $8,000 (Single) -->
+   <!-- NY Taxable: $1,992,000 -->
+   <!-- NY Tax: $159,657 (progressive brackets 1-7) -->
+   <!--   Bracket 1: $8,500 * 4% = $340 -->
+   <!--   Bracket 2: $3,200 * 4.5% = $144 -->
+   <!--   Bracket 3: $2,200 * 5.25% = $115.50 -->
+   <!--   Bracket 4: $66,750 * 5.5% = $3,671.25 -->
+   <!--   Bracket 5: $134,750 * 6% = $8,085 -->
+   <!--   Bracket 6: $862,150 * 6.85% = $59,057.28 -->
+   <!--   Bracket 7: $914,450 * 9.65% = $88,244.43 -->
+   <expected_agi>2000000</expected_agi>
+   <expected_taxable_income>1985000</expected_taxable_income>
+   <expected_state_tax>159657</expected_state_tax>
+
+   <!-- Single Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alexandra Thompson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>11/5/1978</date_of_birth>
+         <occupation>Investment Banker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>2000000</w2_wages>
+         <w2_withholding>450000</w2_withholding>
+         <state_withholding>170000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Social Security 0% Taxable -->
+<!-- Scenario: Low provisional income, no SS benefits taxable -->
+<!-- Expected: $0 of Social Security included in AGI -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Social Security Taxability - 0% Taxable (2025) -->
+   <!-- Publication 915: Social Security and Equivalent Railroad Retirement Benefits -->
+   <!-- Provisional Income = AGI + Tax-exempt interest + 50% of SS benefits -->
+   <!-- 0% taxable if provisional income < $25,000 (Single) or < $32,000 (MFJ) -->
+   <!-- This scenario (Single): -->
+   <!-- - SS benefits: $18,000 -->
+   <!-- - Other income: $5,000 (interest) -->
+   <!-- - Provisional income: $5,000 + ($18,000 × 50%) = $14,000 -->
+   <!-- - $14,000 < $25,000 threshold → 0% of SS taxable -->
+
+   <id>Retirement-07</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+
+   <!-- Income: $5,000 interest + $18,000 SS (0% taxable) -->
+   <!-- Provisional Income: $14,000 ($5k + 50% of $18k) -->
+   <!-- AGI: $5,000 (interest only, no SS included) -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $0 (deduction exceeds AGI) -->
+   <expected_agi>5000</expected_agi>
+   <expected_taxable_income>0</expected_taxable_income>
+   <expected_ss_taxable>0</expected_ss_taxable>
+   <expected_provisional_income>14000</expected_provisional_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Dorothy Williams</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>2/8/1955</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_primary>true</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <social_security_income>18000</social_security_income>
+         <age>70</age>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income>
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>interest</type>
+         <source>Savings Account</source>
+         <gross_amount>5000</gross_amount>
+         <tax_withheld>0</tax_withheld>
+         <is_earned>false</is_earned>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
