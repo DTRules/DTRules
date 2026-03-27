@@ -1,0 +1,67 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Alabama State Tax Test Case: Single Filer, Low Income -->
+   <!-- Tests Alabama Bracket 1 (2% rate) -->
+   <id>101</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>AL</state>
+   <city>Birmingham</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $25,000 W-2 wages -->
+   <!-- AL Taxable Income: $25,000 - $4,500 (std deduction) - $1,500 (exemption) = $19,000 -->
+   <!-- AL Tax Calculation:
+        Bracket 1 (2%): $500 × 0.02 = $10
+        Bracket 2 (4%): ($3,000 - $500) × 0.04 = $2,500 × 0.04 = $100
+        Bracket 3 (5%): ($19,000 - $3,000) × 0.05 = $16,000 × 0.05 = $800
+        Total AL Tax: $10 + $100 + $800 = $910
+   -->
+   <expected_agi>25000</expected_agi>
+   <expected_al_taxable_income>19000</expected_al_taxable_income>
+   <expected_al_state_tax>910</expected_al_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Williams</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>3/15/1992</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>25000</w2_wages>
+         <w2_withholding>2500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No deductions -->
+   <deductions></deductions>
+</job>
