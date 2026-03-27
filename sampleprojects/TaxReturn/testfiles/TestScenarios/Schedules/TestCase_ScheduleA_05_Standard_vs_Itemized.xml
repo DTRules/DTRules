@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule A - Standard vs Itemized Deduction Comparison -->
+<!-- Scenario: Taxpayer where itemized is close to standard deduction -->
+<!-- Itemized: $28,000, Standard: $30,000 (MFJ) -->
+<!-- Expected: Standard deduction should be used (higher) -->
+<job>
+    <id>10005</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $110,000 -->
+    <!-- Deduction: $30,000 standard (higher than itemized $28,000) -->
+    <!-- Taxable: $110,000 - $30,000 = $80,000 -->
+    <!-- Tax: ~$9,180 -->
+    <expected_agi>110000</expected_agi>
+    <expected_taxable_income>80000</expected_taxable_income>
+    <expected_total_tax>9180</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Christopher Brown</name>
+            <ssn>888-99-0000</ssn>
+            <date_of_birth>02/25/1985</date_of_birth>
+            <occupation>Project Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>75000</w2_wages>
+            <w2_withholding>11000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Michelle Brown</name>
+            <ssn>999-00-1111</ssn>
+            <date_of_birth>05/10/1987</date_of_birth>
+            <occupation>Accountant</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>35000</w2_wages>
+            <w2_withholding>4500</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>primary_residence</type>
+            <address>234 Oak Street, Dallas, TX 75201</address>
+            <purchase_date>8/1/2021</purchase_date>
+            <purchase_price>320000</purchase_price>
+            <current_fmv>350000</current_fmv>
+            <mortgage_balance>280000</mortgage_balance>
+            <mortgage_origination_date>8/1/2021</mortgage_origination_date>
+            <mortgage_interest>12000</mortgage_interest>
+            <property_taxes>6000</property_taxes>
+        </property>
+    </properties>
+
+    <deductions>
+        <!-- State income tax -->
+        <deduction>
+            <id>1</id>
+            <category>state_tax</category>
+            <description>State income tax</description>
+            <amount>4000</amount>
+        </deduction>
+
+        <!-- Charitable contributions -->
+        <deduction>
+            <id>2</id>
+            <category>charity</category>
+            <description>Church and charities</description>
+            <amount>6000</amount>
+        </deduction>
+    </deductions>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <incomes></incomes>
+</job>

@@ -24,12 +24,12 @@ import (
 // CNode is a Condition Node that evaluates conditions within a Decision Table.
 // It forms the internal nodes of the decision tree.
 type CNode struct {
-	column          int             // Column that created this node
-	conditionNumber int             // Row number (0-based) of the condition
-	condition       dtrules.Object  // The compiled condition code (Go interpreter)
+	column          int                    // Column that created this node
+	conditionNumber int                    // Row number (0-based) of the condition
+	condition       dtrules.Object         // The compiled condition code (Go interpreter)
 	bytecode        *dtrules.BytecodeChunk // Compiled bytecode (for ASM execution)
-	decisionTable   *RDecisionTable // Pointer back to the Decision Table
-	star            bool            // Whether this column has a star
+	decisionTable   *RDecisionTable        // Pointer back to the Decision Table
+	star            bool                   // Whether this column has a star
 
 	IfTrue  DTNode // Branch taken if condition is true
 	IfFalse DTNode // Branch taken if condition is false
