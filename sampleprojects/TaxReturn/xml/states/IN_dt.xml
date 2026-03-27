@@ -2,7 +2,7 @@
 <!--
   State-specific decision tables for Indiana
 
-  Indiana has a flat 3.05% income tax rate (reduced from 3.15% in 2024).
+  Indiana has a flat 3.00% income tax rate (reduced from 3.05% in 2024).
 
   Table Number: 41500 (IN is 15th state alphabetically)
 
@@ -18,7 +18,7 @@
 <xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Indiana state income tax calculation. Implements flat 3.05% tax structure per IN tax code (2025).</COMMENTS>
+<COMMENTS>Indiana state income tax calculation. Implements flat 3.00% tax structure with personal exemptions per IN tax code (2025).</COMMENTS>
 <TABLE_NUMBER>41500</TABLE_NUMBER>
 </attribute_fields>
 
@@ -48,13 +48,31 @@ true
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Indiana tax (flat 3.05%)</action_comment>
+<action_comment>Calculate Indiana tax with exemptions (flat 3.00%)</action_comment>
 <action_postfix>
-<!-- Placeholder: Full IN tax calculation to be implemented -->
-<!-- For now, basic flat tax on AGI -->
-result.agi 0.0305 mul
+<!-- Calculate total exemptions -->
+<!-- Base: $1,000 per person (taxpayer + spouse) -->
+result.filing_status "married_filing_jointly" ==
+{
+  2000.0 /result.in_total_exemptions xdef
+}
+{
+  1000.0 /result.in_total_exemptions xdef
+} ifelse
+
+<!-- Additional $500 for age 65+ if AGI below threshold -->
+<!-- For simplicity, we're not checking age in this basic implementation -->
+
+<!-- Calculate taxable income (AGI - exemptions, minimum 0) -->
+result.agi result.in_total_exemptions sub 0 max
+/result.in_taxable_income xdef
+
+<!-- Apply 3.00% flat rate -->
+result.in_taxable_income 0.0300 mul
 /result.state_tax_liability xdef
 
+"Indiana exemptions: $" result.in_total_exemptions cvs strconcat job.audit_trail swap addto
+"Indiana taxable income: $" result.in_taxable_income cvs strconcat job.audit_trail swap addto
 "Indiana tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>

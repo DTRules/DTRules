@@ -67,6 +67,9 @@
     <field name="ct_bracket_5_limit_joint" type="double" default_value="500000.0"
            comment="CT tax bracket 5 upper limit - MFJ (2025)"/>
 
+    <field name="ct_bracket_6_limit_joint" type="double" default_value="1000000.0"
+           comment="CT tax bracket 6 upper limit - MFJ (2025)"/>
+
     <!-- State tax result -->
     <field name="ct_state_tax" type="double" default_value="0.0"
            comment="Calculated CT state tax liability (2025)"/>

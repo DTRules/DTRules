@@ -182,10 +182,18 @@ ct_taxable_income result.ct_bracket_4_limit_joint gt
   ct_tax add /ct_tax xdef
 } if
 
-<!-- Bracket 6: Over $500,000 @ 6.99% -->
+<!-- Bracket 6: $500,000 to $1,000,000 @ 6.9% -->
 ct_taxable_income result.ct_bracket_5_limit_joint gt
 {
-  ct_taxable_income result.ct_bracket_5_limit_joint sub
+  ct_taxable_income result.ct_bracket_6_limit_joint min result.ct_bracket_5_limit_joint sub
+  result.ct_bracket_6_rate mul
+  ct_tax add /ct_tax xdef
+} if
+
+<!-- Bracket 7: Over $1,000,000 @ 6.99% -->
+ct_taxable_income result.ct_bracket_6_limit_joint gt
+{
+  ct_taxable_income result.ct_bracket_6_limit_joint sub
   result.ct_bracket_7_rate mul
   ct_tax add /ct_tax xdef
 } if
