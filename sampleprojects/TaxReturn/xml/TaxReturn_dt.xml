@@ -3282,6 +3282,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 "  Line 27 - EITC: $" result.eitc cvs strconcat job.audit_trail swap addto
 "  Line 28 - ACTC (refundable): $" result.total_actc cvs strconcat job.audit_trail swap addto
 "  Line 29 - AOTC (refundable portion): $" result.total_aotc_refundable cvs strconcat " per IRC 25A(i)(5)" strconcat job.audit_trail swap addto
+Calculate_MI_Tax
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -9781,6 +9782,7 @@ then
 <condition_column column_number="7" column_value="N"></condition_column>
 <condition_column column_number="8" column_value="N"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
+<condition_column column_number="10" column_value="N"></condition_column>
 </condition_details>
 
 <condition_details>
@@ -9899,6 +9901,7 @@ then
 <condition_column column_number="7" column_value="N"></condition_column>
 <condition_column column_number="8" column_value="N"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
+<condition_column column_number="10" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -9921,6 +9924,7 @@ then
 <condition_column column_number="7" column_value="Y"></condition_column>
 <condition_column column_number="8" column_value="N"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
+<condition_column column_number="10" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -9959,6 +9963,30 @@ then
 <condition_column column_number="7" column_value="N"></condition_column>
 <condition_column column_number="8" column_value="Y"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
+<condition_column column_number="10" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>10</condition_number>
+<condition_comment>Missouri state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "MO"</condition_description>
+<condition_postfix>
+state_period isnull not
+if
+  state_period.state_code MO streq
+else
+  job.state MO streq
+then
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
+<condition_column column_number="10" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -10076,6 +10104,15 @@ then
 </action_postfix>
 <action_column column_number="7" column_value="X"></action_column>
 </action_details>
+<action_details>
+<action_number>10</action_number>
+<action_comment>Calculate Missouri state tax</action_comment>
+<action_description>Calculate_MO_Tax</action_description>
+<action_postfix>
+Calculate_MO_Tax
+</action_postfix>
+<action_column column_number="10" column_value="X"></action_column>
+</action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
@@ -10109,6 +10146,10 @@ then
 <policy_statement column="6">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="10">
+<policy_description>Calculate Missouri state income tax</policy_description>
+<policy_statement_postfix>"Calculate Missouri state income tax per Form MO-1040"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -14327,5 +14368,437 @@ wi_tax /result.wi_tax xdef
 </policy_statements>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 41300: Calculate_MI_Tax - Michigan State Income Tax             -->
+<!-- Reference: Michigan Form MI-1040, 2025 Tax Year                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MI_Tax</table_name>
+<xls_file>Other.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Michigan state income tax using flat 4.25% rate. Michigan taxable income = Federal AGI - Michigan deductions - Michigan personal exemptions - retirement income subtractions. Michigan follows federal itemization if used.</COMMENTS>
+<TABLE_NUMBER>41300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Michigan tax calculation</action_description>
+<action_postfix>
+0.0 /result.mi_state_tax xdef
+0.0 /result.mi_taxable_income xdef
+0.0 /result.mi_deduction xdef
+0.0 /result.mi_exemptions xdef
+0.0 /result.mi_retirement_subtraction xdef
+"Michigan State Tax Calculation (TABLE 41300)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Not a Michigan resident</condition_comment>
+<condition_description>job.state is not "MI"</condition_description>
+<condition_postfix>
+job.state "MI" streq not
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No Michigan tax (not a MI resident)</action_comment>
+<action_description>set result.mi_state_tax = 0</action_description>
+<action_postfix>
+0.0 /result.mi_state_tax xdef
+"  Not a Michigan resident - no MI state tax" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MI tax with flat 4.25% rate</action_comment>
+<action_description>Calculate Michigan deductions, exemptions, and apply 4.25% flat tax rate</action_description>
+<action_postfix>
+0.0 /result.mi_deduction xdef
+result.deduction_used "itemized" streq {
+  result.total_itemized /result.mi_deduction xdef
+} if
+job.taxpayers {
+  dup .age 67 >= {
+    job.filing_status MFJ streq job.filing_status QSS streq or {
+      mi_standard_deduction_mfj_67 result.mi_deduction fmax /result.mi_deduction xdef
+    } {
+      mi_standard_deduction_single_67 result.mi_deduction fmax /result.mi_deduction xdef
+    } ifelse
+  } if
+  pop
+} forall
+mi_personal_exemption job.taxpayers length i* /result.mi_exemptions xdef
+0.0 /result.mi_retirement_subtraction xdef
+job.taxpayers {
+  dup .retirement_income 0.0 f> {
+    job.filing_status MFJ streq job.filing_status QSS streq or {
+      mi_retirement_tier1_limit_mfj /mi_limit xdef
+    } {
+      mi_retirement_tier1_limit /mi_limit xdef
+    } ifelse
+    dup .retirement_income mi_limit fmin result.mi_retirement_subtraction f+ /result.mi_retirement_subtraction xdef
+  } if
+  pop
+} forall
+result.agi result.mi_deduction f- result.mi_exemptions f- result.mi_retirement_subtraction f- 0 fmax /result.mi_taxable_income xdef
+result.mi_taxable_income mi_tax_rate f* /result.mi_state_tax xdef
+"  Michigan AGI (same as Federal AGI): $" result.agi cvs strconcat job.audit_trail swap addto
+"  Michigan Deduction: $" result.mi_deduction cvs strconcat job.audit_trail swap addto
+"  Michigan Personal Exemptions: $" result.mi_exemptions cvs strconcat job.audit_trail swap addto
+"  Michigan Retirement Subtraction: $" result.mi_retirement_subtraction cvs strconcat job.audit_trail swap addto
+"  Michigan Taxable Income: $" result.mi_taxable_income cvs strconcat job.audit_trail swap addto
+"  MI Tax (4.25% on $" result.mi_taxable_income cvs strconcat "): $" strconcat result.mi_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Not a Michigan resident - no state income tax</policy_description>
+<policy_statement_postfix>"Not a Michigan resident - no state income tax"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Michigan tax calculated using 4.25% flat rate</policy_description>
+<policy_statement_postfix>"Michigan tax calculated using 4.25% flat rate (TABLE 41300)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+
+<!-- ====================================================================== -->
+<!-- TABLE 44300: Calculate_MO_Tax - Missouri State Income Tax             -->
+<!-- Reference: Missouri Form MO-1040 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MO_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Missouri state income tax per Form MO-1040. Missouri uses 8 progressive tax brackets ranging from 0% to 4.7%. Standard deductions: Single $15,750, MFJ $31,500, HOH $23,625. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets with cumulative approach.</COMMENTS>
+<TABLE_NUMBER>44300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize MO tax calculation</action_description>
+<action_postfix>
+"MISSOURI FORM MO-1040 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.mo_agi xdef
+0 /result.mo_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status is equal to "head_of_household"</condition_description>
+<condition_postfix>
+job.filing_status head_of_household streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MO tax MFJ</action_comment>
+<action_description>Calculate MO tax with MFJ standard deduction and 8 progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mo_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mo_standard_deduction_mfj /result.mo_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.mo_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mo_agi result.mo_standard_deduction f- 0 fmax /result.mo_taxable_income xdef
+"  MO Taxable Income: $" result.mo_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+0 local@ cumulative_tax >
+result.mo_taxable_income mo_bracket_7_threshold f> if
+  mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_7_threshold mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+  result.mo_taxable_income mo_bracket_7_threshold f- mo_bracket_8_rate f* cumulative_tax f+ local@ cumulative_tax >
+  cumulative_tax /result.mo_tax xdef
+  "  Bracket 8 (4.7% above $9,191): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mo_taxable_income mo_bracket_6_threshold f> if
+    mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+    result.mo_taxable_income mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+    cumulative_tax /result.mo_tax xdef
+    "  Bracket 7 (4.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.mo_taxable_income mo_bracket_5_threshold f> if
+      mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+      result.mo_taxable_income mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+      cumulative_tax /result.mo_tax xdef
+      "  Bracket 6 (4%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+    else
+      result.mo_taxable_income mo_bracket_4_threshold f> if
+        mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+        result.mo_taxable_income mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+        cumulative_tax /result.mo_tax xdef
+        "  Bracket 5 (3.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+      else
+        result.mo_taxable_income mo_bracket_3_threshold f> if
+          mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+          result.mo_taxable_income mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+          cumulative_tax /result.mo_tax xdef
+          "  Bracket 4 (3%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+        else
+          result.mo_taxable_income mo_bracket_2_threshold f> if
+            mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+            mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+            result.mo_taxable_income mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+            cumulative_tax /result.mo_tax xdef
+            "  Bracket 3 (2.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+          else
+            result.mo_taxable_income mo_bracket_1_threshold f> if
+              mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+              result.mo_taxable_income mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+              cumulative_tax /result.mo_tax xdef
+              "  Bracket 2 (2%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            else
+              result.mo_taxable_income 0 f- mo_bracket_1_rate f* /result.mo_tax xdef
+              "  Bracket 1 (0%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+"  Total MO Tax: $" result.mo_tax cvs strconcat " (Form MO-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MO tax HOH</action_comment>
+<action_description>Calculate MO tax with HOH standard deduction</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mo_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mo_standard_deduction_hoh /result.mo_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.mo_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mo_agi result.mo_standard_deduction f- 0 fmax /result.mo_taxable_income xdef
+"  MO Taxable Income: $" result.mo_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+0 local@ cumulative_tax >
+result.mo_taxable_income mo_bracket_7_threshold f> if
+  mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_7_threshold mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+  result.mo_taxable_income mo_bracket_7_threshold f- mo_bracket_8_rate f* cumulative_tax f+ local@ cumulative_tax >
+  cumulative_tax /result.mo_tax xdef
+  "  Bracket 8 (4.7%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mo_taxable_income mo_bracket_6_threshold f> if
+    mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+    result.mo_taxable_income mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+    cumulative_tax /result.mo_tax xdef
+    "  Bracket 7 (4.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.mo_taxable_income mo_bracket_5_threshold f> if
+      mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+      result.mo_taxable_income mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+      cumulative_tax /result.mo_tax xdef
+      "  Bracket 6 (4%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+    else
+      result.mo_taxable_income mo_bracket_4_threshold f> if
+        mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+        result.mo_taxable_income mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+        cumulative_tax /result.mo_tax xdef
+        "  Bracket 5 (3.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+      else
+        result.mo_taxable_income mo_bracket_3_threshold f> if
+          mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+          result.mo_taxable_income mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+          cumulative_tax /result.mo_tax xdef
+          "  Bracket 4 (3%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+        else
+          result.mo_taxable_income mo_bracket_2_threshold f> if
+            mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+            mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+            result.mo_taxable_income mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+            cumulative_tax /result.mo_tax xdef
+            "  Bracket 3 (2.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+          else
+            result.mo_taxable_income mo_bracket_1_threshold f> if
+              mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+              result.mo_taxable_income mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+              cumulative_tax /result.mo_tax xdef
+              "  Bracket 2 (2%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            else
+              result.mo_taxable_income 0 f- mo_bracket_1_rate f* /result.mo_tax xdef
+              "  Bracket 1 (0%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+"  Total MO Tax: $" result.mo_tax cvs strconcat " (Form MO-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate MO tax Single</action_comment>
+<action_description>Calculate MO tax with Single standard deduction</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mo_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mo_standard_deduction_single /result.mo_standard_deduction xdef
+"  Standard Deduction (Single): $" result.mo_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mo_agi result.mo_standard_deduction f- 0 fmax /result.mo_taxable_income xdef
+"  MO Taxable Income: $" result.mo_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+0 local@ cumulative_tax >
+result.mo_taxable_income mo_bracket_7_threshold f> if
+  mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_7_threshold mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+  result.mo_taxable_income mo_bracket_7_threshold f- mo_bracket_8_rate f* cumulative_tax f+ local@ cumulative_tax >
+  cumulative_tax /result.mo_tax xdef
+  "  Bracket 8 (4.7%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mo_taxable_income mo_bracket_6_threshold f> if
+    mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+    result.mo_taxable_income mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+    cumulative_tax /result.mo_tax xdef
+    "  Bracket 7 (4.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.mo_taxable_income mo_bracket_5_threshold f> if
+      mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+      result.mo_taxable_income mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+      cumulative_tax /result.mo_tax xdef
+      "  Bracket 6 (4%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+    else
+      result.mo_taxable_income mo_bracket_4_threshold f> if
+        mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+        result.mo_taxable_income mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+        cumulative_tax /result.mo_tax xdef
+        "  Bracket 5 (3.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+      else
+        result.mo_taxable_income mo_bracket_3_threshold f> if
+          mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+          result.mo_taxable_income mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+          cumulative_tax /result.mo_tax xdef
+          "  Bracket 4 (3%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+        else
+          result.mo_taxable_income mo_bracket_2_threshold f> if
+            mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+            mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+            result.mo_taxable_income mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+            cumulative_tax /result.mo_tax xdef
+            "  Bracket 3 (2.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+          else
+            result.mo_taxable_income mo_bracket_1_threshold f> if
+              mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+              result.mo_taxable_income mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+              cumulative_tax /result.mo_tax xdef
+              "  Bracket 2 (2%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            else
+              result.mo_taxable_income 0 f- mo_bracket_1_rate f* /result.mo_tax xdef
+              "  Bracket 1 (0%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+"  Total MO Tax: $" result.mo_tax cvs strconcat " (Form MO-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>MO progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"Missouri progressive tax for MFJ per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>MO progressive tax HOH with standard deduction</policy_description>
+<policy_statement_postfix>"Missouri progressive tax for HOH per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>MO progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix>"Missouri progressive tax for Single per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 
 </decision_tables>
