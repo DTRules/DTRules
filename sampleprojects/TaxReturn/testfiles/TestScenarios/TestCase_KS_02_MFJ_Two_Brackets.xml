@@ -1,0 +1,106 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- KS Test Case 2: MFJ with Two Brackets and Dependent -->
+   <id>KS-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>KS</state>
+   <city>Wichita</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $90,000 -->
+   <!-- KS AGI: $90,000 -->
+   <!-- KS Standard Deduction: $26,540 (MFJ) -->
+   <!-- KS Personal Exemption: $18,320 (MFJ) + $2,320 (1 dependent) = $20,640 -->
+   <!-- KS Taxable Income: $90,000 - $26,540 - $20,640 = $42,820 -->
+   <!-- KS Tax: $42,820 × 5.20% = $2,226.64 (all in bracket 1, below $46,000 threshold) -->
+   <expected_agi>90000</expected_agi>
+   <expected_ks_agi>90000</expected_ks_agi>
+   <expected_ks_taxable_income>42820</expected_ks_taxable_income>
+   <expected_ks_tax>2226.64</expected_ks_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Johnson</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>7/20/1985</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>7200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Johnson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>9/15/1987</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3600</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>60000</gross_amount>
+         <withholding>7200</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>30000</gross_amount>
+         <withholding>3600</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma Johnson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>4/12/2018</date_of_birth>
+         <relationship>child</relationship>
+         <months_lived_in_home>12</months_lived_in_home>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

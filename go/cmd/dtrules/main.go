@@ -331,12 +331,6 @@ func handleTest() {
 		os.Exit(1)
 	}
 
-	rs, err := loadRuleSet(eddPath, dtPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
-		os.Exit(1)
-	}
-
 	// Create test harness
 	harness := testsupport.NewTestHarness()
 	harness.SetTestDirectory(*testDir)
@@ -350,10 +344,9 @@ func handleTest() {
 		harness.DecisionTableName = *entryPoint
 	}
 
-	// Set rule set
-	err = harness.LoadRuleSet(eddPath, dtPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading rules into harness: %v\n", err)
+	// Load rule set into harness
+	if err := harness.LoadRuleSet(eddPath, dtPath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -362,9 +355,6 @@ func handleTest() {
 		fmt.Fprintf(os.Stderr, "Error running tests: %v\n", err)
 		os.Exit(1)
 	}
-
-	// Suppress unused warning
-	_ = rs
 }
 
 func handleCompare(_ *session.RuleSet) {
