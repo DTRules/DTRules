@@ -27,7 +27,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DTRules/DTRules/go/pkg/dtrules"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
@@ -178,9 +177,9 @@ func (c *Coverage) Compute() error {
 
 	for _, entry := range entries {
 		if !entry.IsDir() && strings.HasSuffix(entry.Name(), "_trace.xml") {
-			filepath := filepath.Join(c.traceFilesPath, entry.Name())
+			tracePath := filepath.Join(c.traceFilesPath, entry.Name())
 			c.traceFilesProcessed = append(c.traceFilesProcessed, entry.Name())
-			if err := c.processTraceFile(filepath); err != nil {
+			if err := c.processTraceFile(tracePath); err != nil {
 				// Log error but continue processing
 				fmt.Printf("Warning: error processing %s: %v\n", entry.Name(), err)
 			}
@@ -446,49 +445,3 @@ func escapeXML(s string) string {
 	return s
 }
 
-// max returns the larger of two integers.
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// DecisionTable interface represents the methods we need from a decision table.
-// This allows for loose coupling with the actual decision table implementation.
-type DecisionTable interface {
-	GetColumnCount() int
-	GetConditionCount() int
-	GetActionCount() int
-	HasNullColumn() bool
-	GetColumnsSpecified() []bool
-}
-
-// addDecisionTableMethods adds necessary methods to entity.Factory interface
-// These would be implemented as extension methods on the actual types.
-
-// Helper function to get decision table info from the factory
-func getDecisionTableInfo(ef dtrules.EntityFactory, name *dtrules.RName) (columns, conditions, actions int, hasNull bool, columnsSpec []bool, err error) {
-	dt, err := ef.GetDecisionTable(name)
-	if err != nil {
-		return 0, 0, 0, false, nil, err
-	}
-	if dt == nil {
-		return 0, 0, 0, false, nil, fmt.Errorf("decision table not found: %s", name.StringValue())
-	}
-
-	// Type assert to get the concrete type with the methods we need
-	if dtImpl, ok := dt.(interface {
-		GetColumnCount() int
-		GetConditionCount() int
-		GetActionCount() int
-		HasNullColumn() bool
-		GetColumnsSpecified() []bool
-	}); ok {
-		return dtImpl.GetColumnCount(), dtImpl.GetConditionCount(), dtImpl.GetActionCount(),
-			dtImpl.HasNullColumn(), dtImpl.GetColumnsSpecified(), nil
-	}
-
-	// Fallback: return basic info from what we can access
-	return 0, 0, 0, false, nil, nil
-}

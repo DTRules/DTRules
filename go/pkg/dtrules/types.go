@@ -154,7 +154,6 @@ func init() {
 	TypeEntity = NewType("entity")
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
-	TypeInterval = NewType("interval")
 
 	// Register common type aliases
 	registerTypeAlias("float", TypeDouble)
