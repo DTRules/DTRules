@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 01: Schedule K-1 Partnership - Ordinary Business Income (Box 1) -->
+<!-- Triggers: Schedule K-1 (Form 1065), Schedule E Part II, Form 8995 QBI -->
+<!-- Tests: Basic partnership ordinary business income flow to Schedule E -->
+<job>
+    <id>BUS01-K1-PARTNERSHIP-ORDINARY</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $85,000 W2 + $45,000 K-1 ordinary = $130,000 -->
+    <!-- AGI: $130,000 -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- QBI: $9,000 (20% of $45,000 partnership income) -->
+    <!-- Taxable: $91,000 ($130k - $30k - $9k) -->
+    <!-- Tax: ~$10,284 -->
+    <expected_agi>130000</expected_agi>
+    <expected_taxable_income>91000</expected_taxable_income>
+    <expected_total_tax>10284</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Robert Johnson</name>
+            <ssn>400-11-0001</ssn>
+            <date_of_birth>6/10/1975</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Software Engineer</occupation>
+            <w2_wages>85000</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+            <w2_ss_wages>85000</w2_ss_wages>
+            <w2_medicare_wages>85000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Linda Johnson</name>
+            <ssn>400-11-0002</ssn>
+            <date_of_birth>9/22/1976</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Partner in ABC Consulting LLC</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>ABC Consulting LLC</entity_name>
+            <entity_ein>98-7654321</entity_ein>
+            <!-- Box 1: Ordinary business income (loss) -->
+            <ordinary_income>45000</ordinary_income>
+            <!-- Box 20: Section 199A QBI -->
+            <qbi_income>45000</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

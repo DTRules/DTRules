@@ -1,0 +1,91 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+   </copyright>
+
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>TX</state>
+   <city>Dallas</city>
+
+   <!-- Expected values: Single filer, SE income $215k (gross $250k - $35k expenses) -->
+   <!-- AGI: $215,000 - $15,187 (SE tax deduction) = $199,813 -->
+   <!-- Itemized: $28,000 -->
+   <!-- QBI: ~$34,323 (20% of $215k minus 1/2 SE tax, subject to W-2/property limits) -->
+   <!-- Taxable: ~$137,490 -->
+   <!-- Federal Tax: ~$28,500 -->
+   <!-- SE Tax: $30,374 -->
+   <!-- State Tax: $0 -->
+   <expected_agi>199813</expected_agi>
+   <expected_taxable_income>137490</expected_taxable_income>
+   <expected_total_tax>58874</expected_total_tax>
+   <expected_state_tax>0</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah Chen</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>6/18/1980</date_of_birth>
+         <occupation>Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>250000</se_gross_income>
+         <estimated_payments>50000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+
+   <!-- Self-employment business expenses -->
+   <se_expenses>
+      <se_expense id="1">
+         <id>1</id>
+         <type>supplies</type>
+         <amount>8000</amount>
+      </se_expense>
+      <se_expense id="2">
+         <id>2</id>
+         <type>travel</type>
+         <amount>12000</amount>
+      </se_expense>
+      <se_expense id="3">
+         <id>3</id>
+         <type>office</type>
+         <amount>9000</amount>
+      </se_expense>
+      <se_expense id="4">
+         <id>4</id>
+         <type>insurance</type>
+         <amount>6000</amount>
+      </se_expense>
+   </se_expenses>
+
+   <!-- Itemized deductions (SALT capped at $10k) -->
+   <itemized_deductions>
+      <itemized_deduction id="1">
+         <id>1</id>
+         <type>state_income_tax</type>
+         <amount>0</amount>
+      </itemized_deduction>
+      <itemized_deduction id="2">
+         <id>2</id>
+         <type>property_tax</type>
+         <amount>10000</amount>
+      </itemized_deduction>
+      <itemized_deduction id="3">
+         <id>3</id>
+         <type>mortgage_interest</type>
+         <amount>15000</amount>
+      </itemized_deduction>
+      <itemized_deduction id="4">
+         <id>4</id>
+         <type>charity</type>
+         <amount>3000</amount>
+      </itemized_deduction>
+   </itemized_deductions>
+
+</job>

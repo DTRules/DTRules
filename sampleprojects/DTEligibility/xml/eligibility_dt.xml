@@ -1,0 +1,1708 @@
+<decision_tables>
+
+<decision_table>
+<table_name>Evaluate_All_Programs</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Main orchestrator table that evaluates all household members for all programs. Creates eligibility determination groups (EDGs) for each potential head of household, then evaluates programs using EDGs where applicable.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1000</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always run</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate income for all</action_comment>
+<action_requirement></action_requirement>
+<action_description>For each member, calculate their income</action_description>
+<action_postfix>household.members { person entitypush Calculate_Individual_Income entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Determine adults</action_comment>
+<action_requirement></action_requirement>
+<action_description>Determine who is an adult</action_description>
+<action_postfix>household.members { person entitypush Determine_Adult_Status entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate household totals</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate household income totals</action_description>
+<action_postfix>Calculate_Household_Totals</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Determine heads</action_comment>
+<action_requirement></action_requirement>
+<action_description>Determine who can be head of household</action_description>
+<action_postfix>Determine_Head_of_Household</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Create EDGs</action_comment>
+<action_requirement></action_requirement>
+<action_description>Create eligibility groups for each potential head</action_description>
+<action_postfix>Create_Eligibility_Groups</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Non-EDG programs</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate programs that dont use EDGs (Medicare, Disability)</action_description>
+<action_postfix>household.members { person entitypush Evaluate_Non_EDG_Programs entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>EDG programs</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate means-tested programs using EDGs</action_description>
+<action_postfix>Evaluate_EDG_Programs</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Vehicle assistance</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate vehicle assistance program</action_description>
+<action_postfix>Evaluate_Vehicle_Assistance</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Calculate_Individual_Income</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate total income for an individual from all sources</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1010</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has income sources</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person has income array</condition_description>
+<condition_postfix>person.incomes notempty</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Sum earned income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate total earned income</action_description>
+<action_postfix>0 person.incomes { income entitypush income.is_earned { income.amount + } if entitypop } forall person /earned_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Sum unearned income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate total unearned income</action_description>
+<action_postfix>0 person.incomes { income entitypush income.is_earned not { income.amount + } if entitypop } forall person /unearned_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate total</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set total income</action_description>
+<action_postfix>person.earned_income person.unearned_income + person /total_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>No income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set income to zero</action_description>
+<action_postfix>0 person /total_income exch def 0 person /earned_income exch def 0 person /unearned_income exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Determine_Adult_Status</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if a person is an adult. Parents under 18 may be considered adults.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1020</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Age 18+</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is 18 or older</condition_description>
+<condition_postfix>person.age constants.adult_age ge</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Is parent</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is a parent of someone in household</condition_description>
+<condition_postfix>person.is_parent</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Is married</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is married</condition_description>
+<condition_postfix>person.relationship_to_head "SPOUSE" streq</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Is elderly</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is 65 or older</condition_description>
+<condition_postfix>person.age constants.elderly_age ge</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Mark as adult</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set is_adult to true</action_description>
+<action_postfix>true person /is_adult exch def false person /is_child exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Mark as child</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set is_child to true</action_description>
+<action_postfix>false person /is_adult exch def true person /is_child exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Mark elderly</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set is_elderly based on age</action_description>
+<action_postfix>person.age constants.elderly_age ge person /is_elderly exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Add note for minor parent</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note that minor is treated as adult due to parental status</action_description>
+<action_postfix>"Minor treated as adult due to parental status" person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Calculate_Household_Totals</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate household-level income totals and find primary earner</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1030</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always run</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate total income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Sum all member incomes</action_description>
+<action_postfix>0 household.members { person entitypush person.total_income + entitypop } forall household /total_household_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate earned income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Sum all earned income</action_description>
+<action_postfix>0 household.members { person entitypush person.earned_income + entitypop } forall household /total_earned_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate unearned income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Sum all unearned income</action_description>
+<action_postfix>0 household.members { person entitypush person.unearned_income + entitypop } forall household /total_unearned_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Count members</action_comment>
+<action_requirement></action_requirement>
+<action_description>Count household size</action_description>
+<action_postfix>household.members length household /household_size exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Find primary earner</action_comment>
+<action_requirement></action_requirement>
+<action_description>Find person with highest income</action_description>
+<action_postfix>Determine_Primary_Earner</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Determine_Primary_Earner</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Find the primary income earner in the household</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1035</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Find max earner</action_comment>
+<action_requirement></action_requirement>
+<action_description>Find person with highest earned income among adults</action_description>
+<action_postfix>null 0 household.members { person entitypush person.is_adult { person.earned_income 2 index gt { pop pop person person.earned_income } if } if entitypop } forall pop household /primary_earner exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Mark primary earner</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set is_primary_earner flag on the person</action_description>
+<action_postfix>household.primary_earner null ne { true household.primary_earner /is_primary_earner exch def } if</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Determine_Head_of_Household</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Determine who can be head of household and select primary head</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1040</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Evaluate each member</action_comment>
+<action_requirement></action_requirement>
+<action_description>Check if each adult can be head</action_description>
+<action_postfix>household.members { person entitypush Evaluate_Can_Be_Head entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Select primary head</action_comment>
+<action_requirement></action_requirement>
+<action_description>Select the primary head of household</action_description>
+<action_postfix>Select_Primary_Head</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Can_Be_Head</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Evaluate if a person can be head of household</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1045</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is adult</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person must be an adult</condition_description>
+<condition_postfix>person.is_adult</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>US citizen or qualified</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Must be US citizen or qualified immigrant</condition_description>
+<condition_postfix>person.is_us_citizen person.immigration_status "QUALIFIED" streq or</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has income or disabled</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Has income or is disabled</condition_description>
+<condition_postfix>person.total_income 0 gt person.is_disabled or</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Can be head</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark person as eligible to be head</action_description>
+<action_postfix>true person /can_be_head exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Cannot be head</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark person as not eligible to be head</action_description>
+<action_postfix>false person /can_be_head exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Note no income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add note about no income</action_description>
+<action_postfix>"Cannot be head - no income and not disabled" person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Note citizenship</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add note about citizenship</action_description>
+<action_postfix>"Cannot be head - citizenship requirement not met" person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Select_Primary_Head</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Select the primary head of household using priority rules</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1050</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Primary earner can be head</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Primary earner is eligible to be head</condition_description>
+<condition_postfix>household.primary_earner null ne { household.primary_earner.can_be_head } { false } ifelse</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Any adult can be head</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>At least one adult can be head</condition_description>
+<condition_postfix>false household.members { person entitypush person.can_be_head { pop true } if entitypop } forall</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Primary earner is head</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set primary earner as head of household</action_description>
+<action_postfix>household.primary_earner household /head_of_household exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>First eligible adult</action_comment>
+<action_requirement></action_requirement>
+<action_description>Select first eligible adult as head</action_description>
+<action_postfix>household.members { person entitypush person.can_be_head { person household /head_of_household exch def exit } if entitypop } forall</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No eligible head</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add error - no eligible head</action_description>
+<action_postfix>"ERROR: No eligible head of household found" job.errors addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Create_Eligibility_Groups</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Create an Eligibility Determination Group (EDG) for each person who can be head of household. Each EDG represents a different way to evaluate means-tested program eligibility.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1100</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Clear existing EDGs</action_comment>
+<action_requirement></action_requirement>
+<action_description>Clear any existing eligibility groups</action_description>
+<action_postfix>newarray household /eligibility_groups exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Create EDG for each head</action_comment>
+<action_requirement></action_requirement>
+<action_description>For each person who can be head, create an EDG</action_description>
+<action_postfix>household.members { person entitypush person.can_be_head { Build_EDG_For_Head } if entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Build_EDG_For_Head</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Build a single EDG with the current person as head. Determines group members based on relationships and calculates group income and FPL.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1110</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Create EDG entity</action_comment>
+<action_requirement></action_requirement>
+<action_description>Create new eligibility group entity</action_description>
+<action_postfix>eligibility_group createentity</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Set head</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set the head of this EDG</action_description>
+<action_postfix>person eligibility_group /head exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Set group ID</action_comment>
+<action_requirement></action_requirement>
+<action_description>Create unique group ID using head person ID</action_description>
+<action_postfix>"EDG-" person.person_id strconcat eligibility_group /group_id exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Initialize members</action_comment>
+<action_requirement></action_requirement>
+<action_description>Create empty members array and add head</action_description>
+<action_postfix>newarray eligibility_group /members exch def person eligibility_group.members addto</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Add group members</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add related members to this EDG</action_description>
+<action_postfix>Calculate_EDG_Members</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Calculate group totals</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate group size and income</action_description>
+<action_postfix>Calculate_EDG_Totals</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Calculate group FPL</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate FPL percentage for this EDG</action_description>
+<action_postfix>Calculate_EDG_FPL</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Add to household</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add this EDG to household list</action_description>
+<action_postfix>eligibility_group household.eligibility_groups addto</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Calculate_EDG_Members</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Determine which household members belong in this EDG. Includes: the head, their spouse, their children, and siblings under 18 who share a parent with the head.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1120</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add related members</action_comment>
+<action_requirement></action_requirement>
+<action_description>For each household member, check if they belong in this EDG</action_description>
+<action_postfix>household.members { dup eligibility_group.head ne { dup entitypush Check_EDG_Membership entitypop } { pop } ifelse } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Check_EDG_Membership</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Check if the current person should be included in the current EDG. Rules: spouse of head, child of head, parent of head if head is child, or minor sibling.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1125</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is spouse of head</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is the spouse of the EDG head</condition_description>
+<condition_postfix>person.relationship_to_head "SPOUSE" streq eligibility_group.head.relationship_to_head "SPOUSE" streq and</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Head is parent of person</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>The EDG head is a parent of this person</condition_description>
+<condition_postfix>eligibility_group.head.is_mother eligibility_group.head.is_father or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Person is parent of head</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>This person is a parent of the EDG head (if head is child)</condition_description>
+<condition_postfix>person.is_mother person.is_father or eligibility_group.head.is_child and</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Minor sibling</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is under 18 and shares a parent with head</condition_description>
+<condition_postfix>person.is_child person.relationship_to_head "SIBLING" streq and</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add to EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add this person to the EDG members</action_description>
+<action_postfix>person eligibility_group.members addto</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Calculate_EDG_Totals</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate the total income and size for an EDG</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1130</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Count members</action_comment>
+<action_requirement></action_requirement>
+<action_description>Set group size</action_description>
+<action_postfix>eligibility_group.members length eligibility_group /group_size exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Sum income</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate total group income from adult members only</action_description>
+<action_postfix>0 eligibility_group.members { dup entitypush dup is_adult { total_income + } { pop } ifelse entitypop } forall eligibility_group /group_income exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Calculate_EDG_FPL</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Federal Poverty Level percentage for an EDG based on group size and income</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>1140</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Size 1</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG has 1 member</condition_description>
+<condition_postfix>eligibility_group.group_size 1 eq</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Size 2</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG has 2 members</condition_description>
+<condition_postfix>eligibility_group.group_size 2 eq</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Size 3</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG has 3 members</condition_description>
+<condition_postfix>eligibility_group.group_size 3 eq</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Size 4</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG has 4 members</condition_description>
+<condition_postfix>eligibility_group.group_size 4 eq</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>FPL for 1</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate FPL percentage for 1 person</action_description>
+<action_postfix>eligibility_group.group_income 100 * constants.fpl_base_1 / eligibility_group /group_fpl exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>FPL for 2</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate FPL percentage for 2 people</action_description>
+<action_postfix>eligibility_group.group_income 100 * constants.fpl_base_2 / eligibility_group /group_fpl exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>FPL for 3</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate FPL percentage for 3 people</action_description>
+<action_postfix>eligibility_group.group_income 100 * constants.fpl_base_3 / eligibility_group /group_fpl exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>FPL for 4</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate FPL percentage for 4 people</action_description>
+<action_postfix>eligibility_group.group_income 100 * constants.fpl_base_4 / eligibility_group /group_fpl exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>FPL for 5+</action_comment>
+<action_requirement></action_requirement>
+<action_description>Calculate FPL for 5+ people</action_description>
+<action_postfix>constants.fpl_base_4 eligibility_group.group_size 4 - constants.fpl_per_additional * + eligibility_group.group_income 100 * exch / eligibility_group /group_fpl exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Non_EDG_Programs</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Evaluate programs that do not use EDG-based eligibility. These programs have eligibility based on individual characteristics like age or disability status.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2000</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Medicare</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate Medicare eligibility (age/disability based)</action_description>
+<action_postfix>Evaluate_Medicare_Eligibility</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Disability</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate disability programs (status based)</action_description>
+<action_postfix>Evaluate_Disability_Programs</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_EDG_Programs</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Evaluate means-tested programs using EDGs. For each person, check eligibility under ALL EDGs they belong to. If ANY EDG makes them eligible, they are eligible for the program.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2100</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has EDGs</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Household has eligibility groups</condition_description>
+<condition_postfix>household.eligibility_groups notempty</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Evaluate each person by EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>For each person, evaluate programs under each applicable EDG</action_description>
+<action_postfix>household.members { person entitypush Evaluate_Person_By_All_EDGs entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No EDGs warning</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add warning that no EDGs exist</action_description>
+<action_postfix>"WARNING: No eligibility groups created - cannot evaluate means-tested programs" job.warnings addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Person_By_All_EDGs</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Evaluate a single person for all means-tested programs under each EDG they belong to. A person is eligible if ANY EDG makes them eligible.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2110</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Check each EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>For each EDG this person belongs to, evaluate programs</action_description>
+<action_postfix>household.eligibility_groups { eligibility_group entitypush Check_Person_In_EDG entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Check_Person_In_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Check if person is in current EDG. If so, evaluate programs using this EDG.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2115</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Person in EDG</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Check if person is a member of this EDG</condition_description>
+<condition_postfix>false eligibility_group.members { person eq { pop true } if } forall</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Evaluate programs</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate all EDG-based programs for this person using this EDG</action_description>
+<action_postfix>Evaluate_Programs_For_EDG</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Programs_For_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Evaluate all means-tested programs for the current person using the current EDG context</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2120</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>otherwise</condition_description>
+<condition_postfix>otherwise</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>CHIP</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate CHIP using EDG FPL</action_description>
+<action_postfix>Evaluate_CHIP_For_EDG</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Medicaid</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate Medicaid using EDG FPL</action_description>
+<action_postfix>Evaluate_Medicaid_For_EDG</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>SNAP</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate SNAP using EDG FPL</action_description>
+<action_postfix>Evaluate_SNAP_For_EDG</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>TANF</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate TANF using EDG FPL</action_description>
+<action_postfix>Evaluate_TANF_For_EDG</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>LIHEAP</action_comment>
+<action_requirement></action_requirement>
+<action_description>Evaluate LIHEAP using EDG FPL</action_description>
+<action_postfix>Evaluate_LIHEAP_For_EDG</action_postfix>
+<action_column column_number="1" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_CHIP_For_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>CHIP eligibility using EDG context. If person is already eligible (from another EDG), skip. Otherwise check eligibility using this EDGs FPL.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2200</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Already eligible</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person already eligible for CHIP from another EDG</condition_description>
+<condition_postfix>false person.eligible_programs { "CHIP" streq { pop true } if } forall</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Under age limit</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is under CHIP age limit</condition_description>
+<condition_postfix>person.age constants.chip_max_age lt</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>No insurance</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Does not have health insurance</condition_description>
+<condition_postfix>person.has_health_insurance not</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Citizen</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>US citizen or qualified immigrant</condition_description>
+<condition_postfix>person.is_us_citizen person.immigration_status "QUALIFIED" streq or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column></condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Income limit</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG FPL is within CHIP limit</condition_description>
+<condition_postfix>eligibility_group.group_fpl constants.chip_max_fpl le</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Eligible</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark eligible for CHIP via this EDG</action_description>
+<action_postfix>"CHIP" person.eligible_programs addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Record EDG used</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note which EDG made person eligible</action_description>
+<action_postfix>"CHIP eligible via EDG: " eligibility_group.group_id strconcat person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column>
+<action_column column_number="6" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Medicaid_For_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Medicaid eligibility using EDG context. Skip if already eligible. Uses EDG FPL for income test.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2210</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Already eligible</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person already eligible for Medicaid</condition_description>
+<condition_postfix>false person.eligible_programs { "MEDICAID" streq { pop true } if } forall</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Citizen</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>US citizen or qualified immigrant</condition_description>
+<condition_postfix>person.is_us_citizen person.immigration_status "QUALIFIED" streq or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income limit</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG FPL within Medicaid limit</condition_description>
+<condition_postfix>eligibility_group.group_fpl constants.medicaid_max_fpl le</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Pregnant or disabled</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Is pregnant or disabled (higher income allowed)</condition_description>
+<condition_postfix>person.is_pregnant person.is_disabled or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Eligible</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark eligible for Medicaid</action_description>
+<action_postfix>"MEDICAID" person.eligible_programs addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Record EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note which EDG made person eligible</action_description>
+<action_postfix>"MEDICAID eligible via EDG: " eligibility_group.group_id strconcat person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_SNAP_For_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>SNAP (food stamps) eligibility using EDG context. Uses gross income test based on EDG FPL.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2220</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Already eligible</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person already eligible for SNAP</condition_description>
+<condition_postfix>false person.eligible_programs { "SNAP" streq { pop true } if } forall</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Citizen</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>US citizen or qualified immigrant</condition_description>
+<condition_postfix>person.is_us_citizen person.immigration_status "QUALIFIED" streq or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income limit</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG FPL within SNAP gross limit</condition_description>
+<condition_postfix>eligibility_group.group_fpl constants.snap_max_fpl le</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Eligible</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark eligible for SNAP</action_description>
+<action_postfix>"SNAP" person.eligible_programs addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Record EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note which EDG made person eligible</action_description>
+<action_postfix>"SNAP eligible via EDG: " eligibility_group.group_id strconcat person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_TANF_For_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>TANF (cash assistance) eligibility using EDG. Requires children in group and very low income.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2230</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Already eligible</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person already eligible for TANF</condition_description>
+<condition_postfix>false person.eligible_programs { "TANF" streq { pop true } if } forall</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Citizen</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>US citizen or qualified immigrant</condition_description>
+<condition_postfix>person.is_us_citizen person.immigration_status "QUALIFIED" streq or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income limit</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG FPL within TANF limit</condition_description>
+<condition_postfix>eligibility_group.group_fpl constants.tanf_max_fpl le</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column></condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Has children or pregnant</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is child, has children, or is pregnant</condition_description>
+<condition_postfix>person.is_child person.is_parent or person.is_pregnant or</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Eligible</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark eligible for TANF</action_description>
+<action_postfix>"TANF" person.eligible_programs addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Record EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note which EDG made person eligible</action_description>
+<action_postfix>"TANF eligible via EDG: " eligibility_group.group_id strconcat person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="5" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_LIHEAP_For_EDG</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>LIHEAP (energy assistance) eligibility using EDG. Based on income relative to EDG FPL.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>2240</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Already eligible</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person already eligible for LIHEAP</condition_description>
+<condition_postfix>false person.eligible_programs { "LIHEAP" streq { pop true } if } forall</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Income limit</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>EDG FPL within LIHEAP limit</condition_description>
+<condition_postfix>eligibility_group.group_fpl constants.liheap_max_fpl le</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Eligible</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark eligible for LIHEAP</action_description>
+<action_postfix>"LIHEAP" person.eligible_programs addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Record EDG</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note which EDG made person eligible</action_description>
+<action_postfix>"LIHEAP eligible via EDG: " eligibility_group.group_id strconcat person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Medicare_Eligibility</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Medicare eligibility - not means-tested. Based on age 65+ or disability. Does not use EDG.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>3000</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Age 65+</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is 65 or older</condition_description>
+<condition_postfix>person.is_elderly</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Disabled and receiving SSDI</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person is disabled and receives SSDI</condition_description>
+<condition_postfix>person.is_disabled person.receives_ssdi and</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Eligible</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark eligible for Medicare</action_description>
+<action_postfix>"MEDICARE" person.eligible_programs addto</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Age note</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add note for age-based eligibility</action_description>
+<action_postfix>"MEDICARE: Eligible due to age 65+" person.notes addto</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Disability note</action_comment>
+<action_requirement></action_requirement>
+<action_description>Add note for disability-based eligibility</action_description>
+<action_postfix>"MEDICARE: Eligible due to disability + SSDI" person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Disability_Programs</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Disability program eligibility - SSI/SSDI programs. Not means-tested at the EDG level.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>3010</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Is disabled</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Person has a disability</condition_description>
+<condition_postfix>person.is_disabled</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Already receiving benefits</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Already receives SSI or SSDI</condition_description>
+<condition_postfix>person.receives_ssi person.receives_ssdi or</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Note current benefits</action_comment>
+<action_requirement></action_requirement>
+<action_description>Note existing disability benefits</action_description>
+<action_postfix>"DISABILITY: Already receiving SSI/SSDI benefits" person.notes addto</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>May qualify</action_comment>
+<action_requirement></action_requirement>
+<action_description>Person disabled but not receiving - may qualify</action_description>
+<action_postfix>"DISABILITY_REVIEW" person.eligible_programs addto "DISABILITY: Disabled but not receiving benefits - review for SSI/SSDI" person.notes addto</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Vehicle_Assistance</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Evaluate vehicle assistance program. Uses household FPL. Helps with vehicle payments for work or medical transport.</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>4000</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has vehicles</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Household has vehicles to evaluate</condition_description>
+<condition_postfix>household.vehicles notempty</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Evaluate each vehicle</action_comment>
+<action_requirement></action_requirement>
+<action_description>Check each vehicle for assistance eligibility</action_description>
+<action_postfix>household.vehicles { vehicle entitypush Evaluate_Vehicle_For_Assistance entitypop } forall</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>Evaluate_Vehicle_For_Assistance</table_name>
+<xls_file>eligibility_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Evaluate a single vehicle for assistance and asset exemption</COMMENTS>
+<File_Name>eligibility_dt.xls</File_Name>
+<TABLE_NUMBER>4010</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Used for work</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Vehicle is used to commute to work</condition_description>
+<condition_postfix>vehicle.used_for_work</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Used for medical</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Vehicle is used for medical transport</condition_description>
+<condition_postfix>vehicle.used_for_medical</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column></condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Adapted for disability</condition_comment>
+<condition_requirement></condition_requirement>
+<condition_description>Vehicle is adapted for disability</condition_description>
+<condition_postfix>vehicle.is_adapted_for_disability</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column></condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Exempt from assets</action_comment>
+<action_requirement></action_requirement>
+<action_description>Mark vehicle as exempt from asset test</action_description>
+<action_postfix>true vehicle /is_exempt_from_asset_test exch def</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column></action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Not exempt</action_comment>
+<action_requirement></action_requirement>
+<action_description>Vehicle counts as asset</action_description>
+<action_postfix>false vehicle /is_exempt_from_asset_test exch def</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value="X"></action_column></action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+</decision_tables>

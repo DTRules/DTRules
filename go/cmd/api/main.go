@@ -34,11 +34,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 var (

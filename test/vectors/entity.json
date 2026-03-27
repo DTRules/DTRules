@@ -1,0 +1,144 @@
+{
+  "name": "Entity Operations",
+  "description": "Test vectors for entity operators (entitypush, def, lookup, etc.)",
+  "tests": [
+    {
+      "name": "def_simple",
+      "description": "Define a simple attribute",
+      "operator": "def",
+      "name": "count",
+      "value": 42,
+      "expected": 42,
+      "type": "entity"
+    },
+    {
+      "name": "def_string",
+      "description": "Define a string attribute",
+      "operator": "def",
+      "name": "message",
+      "value": "Hello World",
+      "expected": "Hello World",
+      "type": "entity"
+    },
+    {
+      "name": "def_boolean",
+      "description": "Define a boolean attribute",
+      "operator": "def",
+      "name": "active",
+      "value": true,
+      "expected": true,
+      "type": "entity"
+    },
+    {
+      "name": "def_overwrite",
+      "description": "Redefine overwrites previous value",
+      "operator": "def",
+      "name": "value",
+      "initial_value": 10,
+      "new_value": 20,
+      "expected": 20,
+      "type": "entity"
+    },
+    {
+      "name": "lookup_found",
+      "description": "Lookup finds defined attribute",
+      "operator": "lookup",
+      "definitions": {"count": 42},
+      "lookup_name": "count",
+      "expected": 42,
+      "type": "entity"
+    },
+    {
+      "name": "lookup_chain",
+      "description": "Lookup searches entity stack",
+      "operator": "lookup",
+      "entity_stack": [
+        {"outer_attr": 100},
+        {"inner_attr": 200}
+      ],
+      "lookup_name": "outer_attr",
+      "expected": 100,
+      "type": "entity"
+    },
+    {
+      "name": "lookup_shadow",
+      "description": "Inner entity shadows outer",
+      "operator": "lookup",
+      "entity_stack": [
+        {"value": 100},
+        {"value": 200}
+      ],
+      "lookup_name": "value",
+      "expected": 200,
+      "type": "entity"
+    },
+    {
+      "name": "entitypush_context",
+      "description": "Entity push establishes lookup context",
+      "operator": "entitypush",
+      "entity_attrs": {"x": 10, "y": 20},
+      "lookup_name": "x",
+      "expected": 10,
+      "type": "entity"
+    },
+    {
+      "name": "entitypop_restores",
+      "description": "Entity pop restores previous context",
+      "operator": "entitypop",
+      "outer_attrs": {"value": 100},
+      "inner_attrs": {"value": 200},
+      "expected_after_pop": 100,
+      "type": "entity"
+    },
+    {
+      "name": "xdef_sets",
+      "description": "xdef sets attribute (opposite order)",
+      "operator": "xdef",
+      "name": "result",
+      "value": 42,
+      "expected": 42,
+      "type": "entity"
+    },
+    {
+      "name": "get_attribute",
+      "description": "Get explicit attribute from entity",
+      "operator": "get",
+      "entity_attrs": {"count": 42, "name": "test"},
+      "attr_name": "count",
+      "expected": 42,
+      "type": "entity"
+    },
+    {
+      "name": "get_missing_null",
+      "description": "Get missing attribute returns null",
+      "operator": "get",
+      "entity_attrs": {"count": 42},
+      "attr_name": "missing",
+      "expected": null,
+      "type": "entity"
+    },
+    {
+      "name": "createentity_basic",
+      "description": "Create new entity instance",
+      "operator": "createentity",
+      "entity_type": "Person",
+      "type": "entity"
+    },
+    {
+      "name": "findcreateentity_new",
+      "description": "Find or create entity (creates new)",
+      "operator": "findcreateentity",
+      "entity_type": "Person",
+      "id": 1,
+      "type": "entity"
+    },
+    {
+      "name": "entityfetch_by_index",
+      "description": "Fetch entity from stack by index",
+      "operator": "entityfetch",
+      "stack_depth": 3,
+      "index": 1,
+      "type": "entity"
+    }
+  ]
+}

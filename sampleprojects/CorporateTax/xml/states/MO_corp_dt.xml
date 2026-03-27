@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Missouri Corporate Tax Decision Tables
+
+  Table Allocation: 53300-53399
+  - 53300: Determine_MO_Filing_Requirement
+  - 53320: Calculate_MO_Income_Adjustments
+  - 53380: Calculate_MO_State_Tax
+
+  UNIQUE FEATURE: Missouri allows deduction of 50% of federal income tax paid.
+  This significantly reduces Missouri taxable income compared to other states.
+
+  This file will be merged into CorporateTax_dt.xml by merge script
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53300: Determine_MO_Filing_Requirement                           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_MO_Filing_Requirement</table_name>
+<xls_file>MO_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Missouri state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>53300</TABLE_NUMBER>
+<FILE_PATH>states/MO/53300_Determine_MO_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MO filing requirement check</action_description>
+<action_postfix>
+"MO Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in MO</condition_comment>
+<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == "MO"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code "MO" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in MO</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == "MO"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code "MO" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - MO filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"MO filing required due to physical presence (office, employees, or property in state)" job.audit_trail swap addto
+
+<!-- Reference: Missouri Revised Statutes § 32.200 (Nexus and apportionment) -->
+<!-- Reference: Missouri Form MO-1120 Instructions -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - MO filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+<!-- Economic nexus threshold: $100,000 gross receipts from Missouri customers -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"MO filing required due to economic nexus (post-Wayfair)" job.audit_trail swap addto
+
+<!-- Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018) -->
+<!-- Reference: Missouri Department of Revenue Economic Nexus Guidance -->
+<!-- Reference: Missouri Revised Statutes § 144.605 (Economic nexus provisions) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No MO nexus - no filing requirement. Any estimated payments refunded." job.audit_trail swap addto
+
+<!-- Reference: Missouri Revised Statutes § 32.200 (Nexus requirements) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53320: Calculate_MO_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MO_Income_Adjustments</table_name>
+<xls_file>MO_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Missouri state-specific additions and subtractions to federal taxable income. Includes Missouri's unique 50% federal income tax deduction.</COMMENTS>
+<TABLE_NUMBER>53320</TABLE_NUMBER>
+<FILE_PATH>states/MO/53320_Calculate_MO_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MO income adjustments</action_description>
+<action_postfix>
+"MO Income Adjustments Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has MO nexus</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MO state-specific additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Missouri state additions -->
+0.0 /additions xdef
+
+<!-- Missouri requires addback of: -->
+<!-- - Federal interest income (taxable to Missouri) -->
+<!-- - IRC 199A deduction (Missouri does not conform) -->
+<!-- - State income taxes deducted on federal return -->
+<!-- - Certain bonus depreciation amounts (depends on year) -->
+
+<!-- Example additions (would be calculated from entity fields): -->
+<!-- additions += revenue.federal_bond_interest; -->
+<!-- additions += result.section_199a_deduction; -->
+<!-- additions += result.state_taxes_deducted; -->
+
+additions /apportionment.state_additions xdef
+
+<!-- Calculate Missouri state subtractions -->
+0.0 /subtractions xdef
+
+<!-- UNIQUE MISSOURI FEATURE: 50% federal income tax deduction -->
+<!-- Missouri allows deduction of 50% of federal income tax paid -->
+<!-- This is one of only a few states with federal tax deductibility -->
+result.federal_tax_liability apportionment.mo_federal_tax_deduction_percentage mul /federal_tax_deduction xdef
+subtractions federal_tax_deduction add /subtractions xdef
+
+<!-- Missouri also allows subtraction of: -->
+<!-- - Missouri municipal bond interest (exempt for MO purposes) -->
+<!-- - Missouri net operating loss deduction (if applicable) -->
+<!-- - Certain dividend income (depends on circumstances) -->
+
+<!-- Example additional subtractions (would be calculated from entity fields): -->
+<!-- subtractions += revenue.mo_municipal_interest; -->
+<!-- subtractions += result.mo_nol_deduction; -->
+
+subtractions /apportionment.state_subtractions xdef
+
+"MO state-specific income adjustments calculated (includes 50% federal tax deduction)" job.audit_trail swap addto
+
+<!-- Reference: Missouri Form MO-1120 Schedule A (Additions) -->
+<!-- Reference: Missouri Form MO-1120 Schedule B (Deductions) -->
+<!-- Reference: Missouri Revised Statutes § 143.121 (50% federal tax deduction) -->
+<!-- Reference: Missouri Revised Statutes § 143.141 (Adjustments to federal taxable income) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"No MO nexus - no state adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53380: Calculate_MO_State_Tax                                    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MO_State_Tax</table_name>
+<xls_file>MO_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Missouri state corporate income tax. Applies Missouri 4.0% flat rate to apportioned and adjusted taxable income. Missouri's unique 50% federal tax deduction significantly reduces effective tax burden.</COMMENTS>
+<TABLE_NUMBER>53380</TABLE_NUMBER>
+<FILE_PATH>states/MO/53380_Calculate_MO_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MO state tax calculation</action_description>
+<action_postfix>
+"MO State Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has MO nexus</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MO tax at 4.0% flat rate</action_comment>
+<action_postfix>
+<!-- Missouri uses 4.0% flat rate -->
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/apportionment.state_tax xdef
+
+<!-- Subtract Missouri state credits -->
+<!-- Missouri offers various credits: jobs creation, historic preservation, -->
+<!-- film production, neighborhood preservation, etc. -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"MO state tax calculated at 4.0% (effective rate ~3.6% after 50% federal tax deduction)" job.audit_trail swap addto
+
+<!-- Reference: Missouri Form MO-1120 (Corporation Income Tax Return) -->
+<!-- Reference: Missouri Revised Statutes § 143.071 (Tax rate of 4.0%) -->
+<!-- Reference: Missouri Revised Statutes § 143.121 (50% federal tax deduction) -->
+<!-- Reference: Missouri Revised Statutes § 32.200 (Single-sales apportionment) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No MO nexus - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No MO nexus - no tax liability. Any estimated payments refunded." job.audit_trail swap addto
+
+<!-- Reference: Missouri Revised Statutes § 32.200 (Nexus requirements) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Nexus but no taxable income</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No MO taxable income - no tax liability. 50% federal tax deduction may create zero/negative MO income." job.audit_trail swap addto
+
+<!-- Reference: Missouri Form MO-1120 (Corporation Income Tax Return) -->
+<!-- Reference: Missouri Revised Statutes § 143.151 (Net operating loss deduction) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

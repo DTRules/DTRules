@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Minnesota State Tax Test Case - Head of Household, Bracket 4 -->
+   <!-- Test that HOH filer at the top tax rate (9.85%) is taxed correctly -->
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>MN</state>
+   <city>Rochester</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $350,000 -->
+   <!-- Standard deduction: $22,500 (HOH) -->
+   <!-- Dependent exemptions: 1 × $5,200 = $5,200 -->
+   <!-- Taxable income: $350,000 - $22,500 - $5,200 = $322,300 -->
+   <!-- Tax calculation (HOH brackets):
+        - Bracket 1 ($0-$40,100 @ 5.35%): $40,100 × 0.0535 = $2,145.35
+        - Bracket 2 ($40,100-$161,130 @ 6.80%): ($161,130 - $40,100) × 0.0680 = $8,230.04
+        - Bracket 3 ($161,130-$264,050 @ 7.85%): ($264,050 - $161,130) × 0.0785 = $8,079.23
+        - Bracket 4 (>$264,050 @ 9.85%): ($322,300 - $264,050) × 0.0985 = $5,737.63
+        - Total: $2,145.35 + $8,230.04 + $8,079.23 + $5,737.63 = $24,192.25
+   -->
+   <expected_agi>350000</expected_agi>
+   <expected_taxable_income>322300</expected_taxable_income>
+   <expected_mn_state_tax>24192.25</expected_mn_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Single parent, head of household -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Patricia Chen</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>2/28/1978</date_of_birth>
+         <occupation>Corporate Executive</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>350000</w2_wages>
+         <w2_withholding>75000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <!-- Qualifying child for HOH status -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Chen</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>10/5/2010</date_of_birth>
+         <age>15</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+</job>

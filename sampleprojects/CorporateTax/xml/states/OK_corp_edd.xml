@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Oklahoma
+
+  OK has a competitive 4% flat corporate income tax rate.
+
+  Key Features:
+  - Flat 4.0% corporate income tax rate (68 Okla. Stat. § 2355)
+  - Single-sales apportionment formula
+  - Economic nexus: $100,000 gross receipts threshold (sales tax standard)
+  - No alternative minimum tax
+  - No special surcharges
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/OK/54100_OK_constants</file_path>
+  </file_metadata>
+
+  <!-- Oklahoma state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="ok_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="OK economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="ok_transaction_threshold" type="integer" default_value="200"
+           comment="OK economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Tax Rate -->
+    <field name="ok_state_tax_rate" type="double" default_value="0.040"
+           comment="OK corporate income tax rate: 4.0% flat rate (68 Okla. Stat. § 2355)"/>
+
+  </entity>
+
+</entity_data_dictionary>

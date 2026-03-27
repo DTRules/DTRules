@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Missouri (MO)
+
+  Missouri Tax Structure (2025):
+  - Progressive income tax with 8 brackets
+  - Top rate: 4.7% (reduced from 4.8%)
+  - Standard deduction: $15,750 (single), $31,500 (joint)
+  - Social Security: 100% exempt for age 62+
+  - Public pension exemption: $48,000
+
+  Source: Missouri Department of Revenue
+  https://dor.mo.gov/taxation/individual/tax-types/income/year-changes/
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+
+    <!-- Standard deductions -->
+    <field name="mo_standard_deduction_single" type="double" default_value="15750.0"
+           comment="MO standard deduction single (2025). Source: MO DOR"/>
+    <field name="mo_standard_deduction_joint" type="double" default_value="31500.0"
+           comment="MO standard deduction married filing jointly (2025). Source: MO DOR"/>
+    <field name="mo_standard_deduction_hoh" type="double" default_value="23625.0"
+           comment="MO standard deduction head of household (2025). Source: MO DOR"/>
+
+    <!-- Progressive tax brackets (8 brackets, apply to all filing statuses) -->
+    <field name="mo_bracket_1_limit" type="double" default_value="1313.0"
+           comment="MO tax bracket 1 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_1_rate" type="double" default_value="0.0"
+           comment="MO tax rate for bracket 1 - 0% (2025)"/>
+
+    <field name="mo_bracket_2_limit" type="double" default_value="2626.0"
+           comment="MO tax bracket 2 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_2_rate" type="double" default_value="0.02"
+           comment="MO tax rate for bracket 2 - 2% (2025)"/>
+
+    <field name="mo_bracket_3_limit" type="double" default_value="3939.0"
+           comment="MO tax bracket 3 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_3_rate" type="double" default_value="0.025"
+           comment="MO tax rate for bracket 3 - 2.5% (2025)"/>
+
+    <field name="mo_bracket_4_limit" type="double" default_value="5252.0"
+           comment="MO tax bracket 4 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_4_rate" type="double" default_value="0.03"
+           comment="MO tax rate for bracket 4 - 3% (2025)"/>
+
+    <field name="mo_bracket_5_limit" type="double" default_value="6565.0"
+           comment="MO tax bracket 5 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_5_rate" type="double" default_value="0.035"
+           comment="MO tax rate for bracket 5 - 3.5% (2025)"/>
+
+    <field name="mo_bracket_6_limit" type="double" default_value="7878.0"
+           comment="MO tax bracket 6 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_6_rate" type="double" default_value="0.04"
+           comment="MO tax rate for bracket 6 - 4% (2025)"/>
+
+    <field name="mo_bracket_7_limit" type="double" default_value="9191.0"
+           comment="MO tax bracket 7 upper limit (2025). Source: MO DOR"/>
+    <field name="mo_bracket_7_rate" type="double" default_value="0.045"
+           comment="MO tax rate for bracket 7 - 4.5% (2025)"/>
+
+    <field name="mo_bracket_8_rate" type="double" default_value="0.047"
+           comment="MO tax rate for bracket 8 (income > $9,191) - 4.7% (2025)"/>
+    <field name="mo_bracket_8_base_tax" type="double" default_value="256.0"
+           comment="MO base tax for bracket 8 ($256 plus 4.7% of over $9,191) (2025)"/>
+
+    <!-- Social Security and Pension Exemptions -->
+    <field name="mo_social_security_age_requirement" type="double" default_value="62.0"
+           comment="MO age requirement for social security exemption (62)"/>
+    <field name="mo_public_pension_exemption_max" type="double" default_value="48000.0"
+           comment="MO maximum public pension exemption (2025). Source: MO DOR"/>
+
+    <!-- Military Retirement (full exemption) -->
+    <field name="mo_military_retirement_exclusion" type="double" default_value="0.0"
+           comment="MO military retirement exclusion (computed - full exemption)"/>
+    <field name="mo_subtractions" type="double" default_value="0.0"
+           comment="MO total subtractions from federal AGI (computed)"/>
+
+  </entity>
+</entity_data_dictionary>

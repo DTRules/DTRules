@@ -321,5 +321,5 @@ See [ui/README.md](ui/README.md) for full documentation.
 
 ## Links
 
-- Website: http://DTRules.com
+- Website: https://dtrules.com
 - GitHub: https://github.com/PaulSnow/DTRules

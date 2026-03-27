@@ -13,6 +13,16 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     calculation system to demonstrate the process.
   </p>
 
+  <div class="glass rounded-xl p-4 border-l-4 border-blue-500 my-6">
+    <p class="mb-0">
+      <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span>
+      <strong class="ml-2">This guide uses Java for compilation.</strong>
+      Excel compilation requires the Java implementation. See
+      <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a>
+      to understand the full workflow.
+    </p>
+  </div>
+
   <h2>Project Setup</h2>
 
   <h3>1. Copy the Template</h3>
@@ -304,7 +314,7 @@ Description: Apply discount to get final total
 Actions:
   set order.total = order.subtotal - order.discount</code></pre>
 
-  <h2>Compile the Rules</h2>
+  <h2>Compile the Rules <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h2>
 
   <h3>Create the Compiler</h3>
 
@@ -351,14 +361,16 @@ public class CompileMyProject &#123;
   &lt;/order&gt;
 &lt;/data&gt;</code></pre>
 
-  <h3>Run with Go CLI</h3>
+  <h3>Run with Go CLI <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></h3>
+
+  <p>Once you have compiled XML files, you can execute them with the Go CLI:</p>
 
   <pre><code>cd /path/to/DTRules/go
 go build -o dtrules ./cmd/dtrules
 
 ./dtrules -rules ../sampleprojects/MyProject/xml -entry Main -trace</code></pre>
 
-  <h3>Run with Java</h3>
+  <h3>Run with Java <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h3>
 
   <p>Create a test runner class and execute with Maven.</p>
 

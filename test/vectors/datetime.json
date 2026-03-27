@@ -1,0 +1,211 @@
+{
+  "name": "DateTime Operations",
+  "description": "Test vectors for date/time operators",
+  "tests": [
+    {
+      "name": "newdate_ymd",
+      "description": "Create date from year, month, day",
+      "operator": "newdate",
+      "inputs": [2024, 3, 15],
+      "expected": "2024-03-15",
+      "type": "date"
+    },
+    {
+      "name": "newdate_first_day",
+      "description": "Create date for first day of month",
+      "operator": "newdate",
+      "inputs": [2024, 1, 1],
+      "expected": "2024-01-01",
+      "type": "date"
+    },
+    {
+      "name": "newdate_last_day",
+      "description": "Create date for last day of month",
+      "operator": "newdate",
+      "inputs": [2024, 12, 31],
+      "expected": "2024-12-31",
+      "type": "date"
+    },
+    {
+      "name": "getyear_basic",
+      "description": "Get year from date",
+      "operator": "getyear",
+      "date": "2024-03-15",
+      "expected": 2024,
+      "type": "integer"
+    },
+    {
+      "name": "getmonth_basic",
+      "description": "Get month from date",
+      "operator": "getmonth",
+      "date": "2024-03-15",
+      "expected": 3,
+      "type": "integer"
+    },
+    {
+      "name": "getday_basic",
+      "description": "Get day from date",
+      "operator": "getday",
+      "date": "2024-03-15",
+      "expected": 15,
+      "type": "integer"
+    },
+    {
+      "name": "adddays_positive",
+      "description": "Add days to date",
+      "operator": "adddays",
+      "date": "2024-03-15",
+      "days": 10,
+      "expected": "2024-03-25",
+      "type": "date"
+    },
+    {
+      "name": "adddays_negative",
+      "description": "Subtract days from date",
+      "operator": "adddays",
+      "date": "2024-03-15",
+      "days": -10,
+      "expected": "2024-03-05",
+      "type": "date"
+    },
+    {
+      "name": "adddays_month_rollover",
+      "description": "Add days with month rollover",
+      "operator": "adddays",
+      "date": "2024-03-25",
+      "days": 10,
+      "expected": "2024-04-04",
+      "type": "date"
+    },
+    {
+      "name": "addmonths_positive",
+      "description": "Add months to date",
+      "operator": "addmonths",
+      "date": "2024-03-15",
+      "months": 3,
+      "expected": "2024-06-15",
+      "type": "date"
+    },
+    {
+      "name": "addmonths_negative",
+      "description": "Subtract months from date",
+      "operator": "addmonths",
+      "date": "2024-03-15",
+      "months": -3,
+      "expected": "2023-12-15",
+      "type": "date"
+    },
+    {
+      "name": "addmonths_year_rollover",
+      "description": "Add months with year rollover",
+      "operator": "addmonths",
+      "date": "2024-11-15",
+      "months": 3,
+      "expected": "2025-02-15",
+      "type": "date"
+    },
+    {
+      "name": "addyears_positive",
+      "description": "Add years to date",
+      "operator": "addyears",
+      "date": "2024-03-15",
+      "years": 5,
+      "expected": "2029-03-15",
+      "type": "date"
+    },
+    {
+      "name": "addyears_negative",
+      "description": "Subtract years from date",
+      "operator": "addyears",
+      "date": "2024-03-15",
+      "years": -5,
+      "expected": "2019-03-15",
+      "type": "date"
+    },
+    {
+      "name": "daysbetween_positive",
+      "description": "Days between two dates (earlier to later)",
+      "operator": "daysbetween",
+      "date1": "2024-03-01",
+      "date2": "2024-03-15",
+      "expected": 14,
+      "type": "integer"
+    },
+    {
+      "name": "daysbetween_same",
+      "description": "Days between same date",
+      "operator": "daysbetween",
+      "date1": "2024-03-15",
+      "date2": "2024-03-15",
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "datecmp_less",
+      "description": "Compare dates (earlier < later)",
+      "operator": "d<",
+      "date1": "2024-03-01",
+      "date2": "2024-03-15",
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "datecmp_greater",
+      "description": "Compare dates (later > earlier)",
+      "operator": "d>",
+      "date1": "2024-03-15",
+      "date2": "2024-03-01",
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "datecmp_equal",
+      "description": "Compare dates (equal)",
+      "operator": "d==",
+      "date1": "2024-03-15",
+      "date2": "2024-03-15",
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "firstofmonth_basic",
+      "description": "Get first day of month",
+      "operator": "firstofmonth",
+      "date": "2024-03-15",
+      "expected": "2024-03-01",
+      "type": "date"
+    },
+    {
+      "name": "endofmonth_basic",
+      "description": "Get last day of month",
+      "operator": "endofmonth",
+      "date": "2024-03-15",
+      "expected": "2024-03-31",
+      "type": "date"
+    },
+    {
+      "name": "endofmonth_february",
+      "description": "Get last day of February (non-leap year)",
+      "operator": "endofmonth",
+      "date": "2023-02-15",
+      "expected": "2023-02-28",
+      "type": "date"
+    },
+    {
+      "name": "endofmonth_february_leap",
+      "description": "Get last day of February (leap year)",
+      "operator": "endofmonth",
+      "date": "2024-02-15",
+      "expected": "2024-02-29",
+      "type": "date"
+    },
+    {
+      "name": "firstofyear_basic",
+      "description": "Get first day of year",
+      "operator": "firstofyear",
+      "date": "2024-07-15",
+      "expected": "2024-01-01",
+      "type": "date"
+    }
+  ]
+}

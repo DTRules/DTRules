@@ -1,0 +1,106 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Schedule K-1 Partnership Income -->
+   <!-- Partner in LLC with ordinary income, guaranteed payments, and capital gains -->
+
+   <id>K1-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Wages: $80,000 -->
+   <!-- K-1 Ordinary Income (Box 1): $50,000 -->
+   <!-- K-1 Guaranteed Payments (Box 4a): $30,000 (subject to SE tax) -->
+   <!-- K-1 Long-term Gain (Box 9a): $10,000 -->
+   <!-- K-1 QBI (Box 20): $50,000 -->
+   <!-- Total K-1 SE: $30,000 x 0.9235 x 0.153 = $4,239 -->
+   <!-- SE Tax Deduction: $2,120 -->
+   <!-- Gross Income: $80,000 + $50,000 + $30,000 + $10,000 = $170,000 -->
+   <!-- AGI: $170,000 - $2,120 = $167,880 -->
+   <!-- QBI: ($50,000 + $30,000) x 0.20 = $16,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable: $167,880 - $30,000 - $16,000 = $121,880 -->
+   <expected_agi>167880</expected_agi>
+   <expected_taxable_income>121880</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert</name>
+         <ssn>601-70-8090</ssn>
+         <date_of_birth>3/15/1975</date_of_birth>
+         <occupation>Partner</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>80000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <estimated_payments>5000</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Susan</name>
+         <ssn>601-70-8091</ssn>
+         <date_of_birth>6/20/1977</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Schedule K-1 from partnership -->
+   <k1_incomes>
+      <k1_income id="1">
+         <id>1</id>
+         <source_type>partnership</source_type>
+         <ein>12-3456789</ein>
+         <entity_name>Austin Tech Partners LLC</entity_name>
+         <ordinary_income>50000</ordinary_income>
+         <rental_income>0</rental_income>
+         <other_rental_income>0</other_rental_income>
+         <guaranteed_payments_services>30000</guaranteed_payments_services>
+         <guaranteed_payments_capital>0</guaranteed_payments_capital>
+         <interest_income>0</interest_income>
+         <ordinary_dividends>0</ordinary_dividends>
+         <qualified_dividends>0</qualified_dividends>
+         <royalties>0</royalties>
+         <short_term_gain>0</short_term_gain>
+         <long_term_gain>10000</long_term_gain>
+         <unrecaptured_1250>0</unrecaptured_1250>
+         <section_1231_gain>0</section_1231_gain>
+         <other_income>0</other_income>
+         <section_179>0</section_179>
+         <other_deductions>0</other_deductions>
+         <se_earnings>0</se_earnings>
+         <foreign_taxes_paid>0</foreign_taxes_paid>
+         <foreign_source_income>0</foreign_source_income>
+         <qbi_income>50000</qbi_income>
+         <w2_wages_qbi>0</w2_wages_qbi>
+         <ubia>0</ubia>
+         <sstb>false</sstb>
+      </k1_income>
+   </k1_incomes>
+</job>

@@ -1,0 +1,288 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!-- Job (root entity) mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='job' type='integer'></setattribute>
+			<setattribute tag='tax_year' RAttribute='tax_year' enclosure='job' type='integer'></setattribute>
+			<setattribute tag='filing_status' RAttribute='filing_status' enclosure='job' type='string'></setattribute>
+			<setattribute tag='state' RAttribute='state' enclosure='job' type='string'></setattribute>
+			<setattribute tag='city' RAttribute='city' enclosure='job' type='string'></setattribute>
+			<setattribute tag='expected_agi' RAttribute='expected_agi' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_taxable_income' RAttribute='expected_taxable_income' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_total_tax' RAttribute='expected_total_tax' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_refund' RAttribute='expected_refund' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_cdcc_credit' RAttribute='expected_cdcc_credit' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_education_credit' RAttribute='expected_education_credit' enclosure='job' type='double'></setattribute>
+			<!-- Healthcare / Premium Tax Credit -->
+			<setattribute tag='has_marketplace_coverage' RAttribute='has_marketplace_coverage' enclosure='job' type='boolean'></setattribute>
+			<setattribute tag='annual_premium' RAttribute='annual_premium' enclosure='job' type='double'></setattribute>
+			<setattribute tag='slcsp_premium' RAttribute='slcsp_premium' enclosure='job' type='double'></setattribute>
+			<setattribute tag='advance_ptc_received' RAttribute='advance_ptc_received' enclosure='job' type='double'></setattribute>
+			<setattribute tag='household_size' RAttribute='household_size' enclosure='job' type='integer'></setattribute>
+			<!-- Passive Activity -->
+			<setattribute tag='is_real_estate_professional' RAttribute='is_real_estate_professional' enclosure='job' type='boolean'></setattribute>
+			<setattribute tag='actively_participates_rental' RAttribute='actively_participates_rental' enclosure='job' type='boolean'></setattribute>
+
+			<!-- Taxpayer mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='taxpayer' type='integer'></setattribute>
+			<setattribute tag='name' RAttribute='name' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='ssn' RAttribute='ssn' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='date_of_birth' RAttribute='date_of_birth' enclosure='taxpayer' type='date'></setattribute>
+			<setattribute tag='occupation' RAttribute='occupation' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='is_self_employed' RAttribute='is_self_employed' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='is_primary' RAttribute='is_primary' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='w2_wages' RAttribute='w2_wages' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='w2_withholding' RAttribute='w2_withholding' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='se_gross_income' RAttribute='se_gross_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='se_expenses' RAttribute='se_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='estimated_payments' RAttribute='estimated_payments' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='estimated_tax_payments' RAttribute='estimated_tax_payments' enclosure='taxpayer' type='double'></setattribute>
+			<!-- OBBBA 2025 - Trump Tax Provisions -->
+			<setattribute tag='tip_income' RAttribute='tip_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='overtime_income' RAttribute='overtime_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='social_security_income' RAttribute='social_security_income' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='is_senior' RAttribute='is_senior' enclosure='taxpayer' type='boolean'></setattribute>
+			<!-- Retirement Contributions -->
+			<setattribute tag='traditional_ira_contribution' RAttribute='traditional_ira_contribution' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='roth_ira_contribution' RAttribute='roth_ira_contribution' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='hsa_contribution' RAttribute='hsa_contribution' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='hsa_coverage_type' RAttribute='hsa_coverage_type' enclosure='taxpayer' type='string'></setattribute>
+			<setattribute tag='covered_by_employer_plan' RAttribute='covered_by_employer_plan' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='age_50_or_over' RAttribute='age_50_or_over' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='student_loan_interest_paid' RAttribute='student_loan_interest_paid' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Child and Dependent Care -->
+			<setattribute tag='childcare_expenses' RAttribute='childcare_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='dependent_care_fsa' RAttribute='dependent_care_fsa' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Educator Expenses -->
+			<setattribute tag='is_educator' RAttribute='is_educator' enclosure='taxpayer' type='boolean'></setattribute>
+			<setattribute tag='educator_expenses' RAttribute='educator_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Medical Expenses -->
+			<setattribute tag='medical_expenses' RAttribute='medical_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Additional Income Types -->
+			<setattribute tag='unemployment_compensation' RAttribute='unemployment_compensation' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='gambling_winnings' RAttribute='gambling_winnings' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='alimony_received' RAttribute='alimony_received' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='alimony_divorce_date' RAttribute='alimony_divorce_date' enclosure='taxpayer' type='date'></setattribute>
+			<setattribute tag='state_tax_refund' RAttribute='state_tax_refund' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='long_term_capital_gains' RAttribute='long_term_capital_gains' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='qualified_dividends' RAttribute='qualified_dividends' enclosure='taxpayer' type='double'></setattribute>
+
+			<!-- Dependent mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='dependent' type='integer'></setattribute>
+			<setattribute tag='name' RAttribute='name' enclosure='dependent' type='string'></setattribute>
+			<setattribute tag='ssn' RAttribute='ssn' enclosure='dependent' type='string'></setattribute>
+			<setattribute tag='date_of_birth' RAttribute='date_of_birth' enclosure='dependent' type='date'></setattribute>
+			<setattribute tag='age' RAttribute='age' enclosure='dependent' type='integer'></setattribute>
+			<setattribute tag='relationship' RAttribute='relationship' enclosure='dependent' type='string'></setattribute>
+			<setattribute tag='months_lived_with' RAttribute='months_lived_with' enclosure='dependent' type='integer'></setattribute>
+			<setattribute tag='is_student' RAttribute='is_student' enclosure='dependent' type='boolean'></setattribute>
+			<setattribute tag='school_type' RAttribute='school_type' enclosure='dependent' type='string'></setattribute>
+			<setattribute tag='tuition_paid' RAttribute='tuition_paid' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='qualified_expenses' RAttribute='qualified_expenses' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='qualified_education_expenses' RAttribute='qualified_education_expenses' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='is_college_student' RAttribute='is_college_student' enclosure='dependent' type='boolean'></setattribute>
+			<setattribute tag='college_year' RAttribute='college_year' enclosure='dependent' type='integer'></setattribute>
+			<setattribute tag='aotc_used_years' RAttribute='aotc_used_years' enclosure='dependent' type='integer'></setattribute>
+			<setattribute tag='has_ssn' RAttribute='has_ssn' enclosure='dependent' type='boolean'></setattribute>
+			<!-- Childcare eligibility -->
+			<setattribute tag='is_disabled' RAttribute='is_disabled' enclosure='dependent' type='boolean'></setattribute>
+			<setattribute tag='care_expenses' RAttribute='care_expenses' enclosure='dependent' type='double'></setattribute>
+
+			<!-- Income mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='income' type='integer'></setattribute>
+			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='income' type='integer'></setattribute>
+			<setattribute tag='type' RAttribute='type' enclosure='income' type='string'></setattribute>
+			<setattribute tag='source' RAttribute='source' enclosure='income' type='string'></setattribute>
+			<setattribute tag='gross_amount' RAttribute='gross_amount' enclosure='income' type='double'></setattribute>
+			<setattribute tag='tax_withheld' RAttribute='tax_withheld' enclosure='income' type='double'></setattribute>
+			<setattribute tag='is_earned' RAttribute='is_earned' enclosure='income' type='boolean'></setattribute>
+			<!-- Capital Gains -->
+			<setattribute tag='holding_period' RAttribute='holding_period' enclosure='income' type='string'></setattribute>
+			<setattribute tag='is_qualified_dividend' RAttribute='is_qualified_dividend' enclosure='income' type='boolean'></setattribute>
+
+			<!-- Property mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='property' type='integer'></setattribute>
+			<setattribute tag='type' RAttribute='type' enclosure='property' type='string'></setattribute>
+			<setattribute tag='address' RAttribute='address' enclosure='property' type='string'></setattribute>
+			<setattribute tag='purchase_date' RAttribute='purchase_date' enclosure='property' type='date'></setattribute>
+			<setattribute tag='purchase_price' RAttribute='purchase_price' enclosure='property' type='double'></setattribute>
+			<setattribute tag='current_fmv' RAttribute='current_fmv' enclosure='property' type='double'></setattribute>
+			<setattribute tag='mortgage_balance' RAttribute='mortgage_balance' enclosure='property' type='double'></setattribute>
+			<setattribute tag='mortgage_origination_date' RAttribute='mortgage_origination_date' enclosure='property' type='date'></setattribute>
+			<setattribute tag='mortgage_interest' RAttribute='mortgage_interest' enclosure='property' type='double'></setattribute>
+			<setattribute tag='property_taxes' RAttribute='property_taxes' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_income' RAttribute='rental_income' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_expenses' RAttribute='rental_expenses' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_advertising' RAttribute='rental_advertising' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_insurance' RAttribute='rental_insurance' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_repairs' RAttribute='rental_repairs' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_utilities' RAttribute='rental_utilities' enclosure='property' type='double'></setattribute>
+			<setattribute tag='rental_management' RAttribute='rental_management' enclosure='property' type='double'></setattribute>
+			<setattribute tag='depreciation' RAttribute='depreciation' enclosure='property' type='double'></setattribute>
+
+			<!-- Vehicle mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='vehicle' type='integer'></setattribute>
+			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='vehicle' type='integer'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='vehicle' type='string'></setattribute>
+			<setattribute tag='purchase_date' RAttribute='purchase_date' enclosure='vehicle' type='date'></setattribute>
+			<setattribute tag='purchase_price' RAttribute='purchase_price' enclosure='vehicle' type='double'></setattribute>
+			<setattribute tag='total_miles' RAttribute='total_miles' enclosure='vehicle' type='integer'></setattribute>
+			<setattribute tag='business_miles' RAttribute='business_miles' enclosure='vehicle' type='integer'></setattribute>
+			<setattribute tag='method' RAttribute='method' enclosure='vehicle' type='string'></setattribute>
+			<setattribute tag='actual_expenses' RAttribute='actual_expenses' enclosure='vehicle' type='double'></setattribute>
+			<setattribute tag='vehicle_depreciation' RAttribute='vehicle_depreciation' enclosure='vehicle' type='double'></setattribute>
+
+			<!-- Deduction mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='deduction' type='integer'></setattribute>
+			<setattribute tag='category' RAttribute='category' enclosure='deduction' type='string'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='deduction' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='deduction' type='double'></setattribute>
+
+			<!-- Noncash Contribution mappings (Form 8283) -->
+			<setattribute tag='id' RAttribute='id' enclosure='noncash_contribution' type='integer'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='property_type' RAttribute='property_type' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='condition' RAttribute='condition' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='date_acquired' RAttribute='date_acquired' enclosure='noncash_contribution' type='date'></setattribute>
+			<setattribute tag='acquisition_method' RAttribute='acquisition_method' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='date_contributed' RAttribute='date_contributed' enclosure='noncash_contribution' type='date'></setattribute>
+			<setattribute tag='cost_basis' RAttribute='cost_basis' enclosure='noncash_contribution' type='double'></setattribute>
+			<setattribute tag='fair_market_value' RAttribute='fair_market_value' enclosure='noncash_contribution' type='double'></setattribute>
+			<setattribute tag='valuation_method' RAttribute='valuation_method' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='donee_organization' RAttribute='donee_organization' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='donee_ein' RAttribute='donee_ein' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='donee_address' RAttribute='donee_address' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='requires_appraisal' RAttribute='requires_appraisal' enclosure='noncash_contribution' type='boolean'></setattribute>
+			<setattribute tag='appraiser_name' RAttribute='appraiser_name' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='appraisal_date' RAttribute='appraisal_date' enclosure='noncash_contribution' type='date'></setattribute>
+			<setattribute tag='is_appreciated_property' RAttribute='is_appreciated_property' enclosure='noncash_contribution' type='boolean'></setattribute>
+			<setattribute tag='holding_period' RAttribute='holding_period' enclosure='noncash_contribution' type='string'></setattribute>
+			<setattribute tag='is_ordinary_income_property' RAttribute='is_ordinary_income_property' enclosure='noncash_contribution' type='boolean'></setattribute>
+			<setattribute tag='elected_reduced_deduction' RAttribute='elected_reduced_deduction' enclosure='noncash_contribution' type='boolean'></setattribute>
+
+			<!-- Energy Improvement mappings (Form 5695) -->
+			<setattribute tag='id' RAttribute='id' enclosure='energy_improvement' type='integer'></setattribute>
+			<setattribute tag='type' RAttribute='type' enclosure='energy_improvement' type='string'></setattribute>
+			<setattribute tag='category' RAttribute='category' enclosure='energy_improvement' type='string'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='energy_improvement' type='string'></setattribute>
+			<setattribute tag='cost' RAttribute='cost' enclosure='energy_improvement' type='double'></setattribute>
+			<setattribute tag='installation_date' RAttribute='installation_date' enclosure='energy_improvement' type='date'></setattribute>
+
+			<!-- Mortgage Credit Certificate mappings (Form 8396) -->
+			<setattribute tag='id' RAttribute='id' enclosure='mortgage_credit_certificate' type='integer'></setattribute>
+			<setattribute tag='certificate_number' RAttribute='certificate_number' enclosure='mortgage_credit_certificate' type='string'></setattribute>
+			<setattribute tag='issuing_authority' RAttribute='issuing_authority' enclosure='mortgage_credit_certificate' type='string'></setattribute>
+			<setattribute tag='issue_date' RAttribute='issue_date' enclosure='mortgage_credit_certificate' type='date'></setattribute>
+			<setattribute tag='credit_rate' RAttribute='credit_rate' enclosure='mortgage_credit_certificate' type='double'></setattribute>
+			<setattribute tag='mortgage_interest_paid' RAttribute='mortgage_interest_paid' enclosure='mortgage_credit_certificate' type='double'></setattribute>
+			<setattribute tag='certified_indebtedness' RAttribute='certified_indebtedness' enclosure='mortgage_credit_certificate' type='double'></setattribute>
+			<setattribute tag='prior_year_carryforward' RAttribute='prior_year_carryforward' enclosure='mortgage_credit_certificate' type='double'></setattribute>
+
+			<!-- Prior Year AMT mappings (Form 8801) -->
+			<setattribute tag='id' RAttribute='id' enclosure='prior_year_amt' type='integer'></setattribute>
+			<setattribute tag='origin_year' RAttribute='origin_year' enclosure='prior_year_amt' type='integer'></setattribute>
+			<setattribute tag='amt_paid' RAttribute='amt_paid' enclosure='prior_year_amt' type='double'></setattribute>
+			<setattribute tag='exclusion_preferences' RAttribute='exclusion_preferences' enclosure='prior_year_amt' type='double'></setattribute>
+			<setattribute tag='prior_credit_used' RAttribute='prior_credit_used' enclosure='prior_year_amt' type='double'></setattribute>
+			<setattribute tag='credit_available' RAttribute='credit_available' enclosure='prior_year_amt' type='double'></setattribute>
+
+			<!-- Partnership Audit mappings (Form 8978) -->
+			<setattribute tag='id' RAttribute='id' enclosure='partnership_audit' type='integer'></setattribute>
+			<setattribute tag='partnership_name' RAttribute='partnership_name' enclosure='partnership_audit' type='string'></setattribute>
+			<setattribute tag='partnership_ein' RAttribute='partnership_ein' enclosure='partnership_audit' type='string'></setattribute>
+			<setattribute tag='reviewed_year' RAttribute='reviewed_year' enclosure='partnership_audit' type='integer'></setattribute>
+			<setattribute tag='adjustment_year' RAttribute='adjustment_year' enclosure='partnership_audit' type='integer'></setattribute>
+			<setattribute tag='ordinary_income_adjustment' RAttribute='ordinary_income_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='capital_gain_adjustment' RAttribute='capital_gain_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='section_1231_adjustment' RAttribute='section_1231_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='dividend_adjustment' RAttribute='dividend_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='interest_adjustment' RAttribute='interest_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='rental_adjustment' RAttribute='rental_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='other_adjustment' RAttribute='other_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+			<setattribute tag='credit_adjustment' RAttribute='credit_adjustment' enclosure='partnership_audit' type='double'></setattribute>
+
+			<!-- Unreported Tips mappings (Form 4137) -->
+			<setattribute tag='id' RAttribute='id' enclosure='unreported_tips' type='integer'></setattribute>
+			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='unreported_tips' type='integer'></setattribute>
+			<setattribute tag='employer_name' RAttribute='employer_name' enclosure='unreported_tips' type='string'></setattribute>
+			<setattribute tag='employer_ein' RAttribute='employer_ein' enclosure='unreported_tips' type='string'></setattribute>
+			<setattribute tag='total_tips_received' RAttribute='total_tips_received' enclosure='unreported_tips' type='double'></setattribute>
+			<setattribute tag='tips_reported_to_employer' RAttribute='tips_reported_to_employer' enclosure='unreported_tips' type='double'></setattribute>
+			<setattribute tag='unreported_tips_amount' RAttribute='unreported_tips_amount' enclosure='unreported_tips' type='double'></setattribute>
+			<setattribute tag='w2_wages' RAttribute='w2_wages' enclosure='unreported_tips' type='double'></setattribute>
+			<setattribute tag='w2_ss_tips' RAttribute='w2_ss_tips' enclosure='unreported_tips' type='double'></setattribute>
+			<setattribute tag='w2_allocated_tips' RAttribute='w2_allocated_tips' enclosure='unreported_tips' type='double'></setattribute>
+
+			<!-- LIHTC Recapture mappings (Form 8611) -->
+			<setattribute tag='id' RAttribute='id' enclosure='lihtc_recapture' type='integer'></setattribute>
+			<setattribute tag='building_name' RAttribute='building_name' enclosure='lihtc_recapture' type='string'></setattribute>
+			<setattribute tag='building_identification' RAttribute='building_identification' enclosure='lihtc_recapture' type='string'></setattribute>
+			<setattribute tag='date_placed_in_service' RAttribute='date_placed_in_service' enclosure='lihtc_recapture' type='date'></setattribute>
+			<setattribute tag='recapture_event_date' RAttribute='recapture_event_date' enclosure='lihtc_recapture' type='date'></setattribute>
+			<setattribute tag='recapture_event_type' RAttribute='recapture_event_type' enclosure='lihtc_recapture' type='string'></setattribute>
+			<setattribute tag='accelerated_portion' RAttribute='accelerated_portion' enclosure='lihtc_recapture' type='double'></setattribute>
+			<setattribute tag='total_credits_claimed' RAttribute='total_credits_claimed' enclosure='lihtc_recapture' type='double'></setattribute>
+			<setattribute tag='percentage_decrease' RAttribute='percentage_decrease' enclosure='lihtc_recapture' type='double'></setattribute>
+
+			<!-- State Tax Result mappings -->
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='state_tax_result' type='string'></setattribute>
+			<setattribute tag='state_agi' RAttribute='state_agi' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_taxable_income' RAttribute='state_taxable_income' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_tax_before_credits' RAttribute='state_tax_before_credits' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_credits' RAttribute='state_credits' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_tax_liability' RAttribute='state_tax_liability' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_withholding' RAttribute='state_withholding' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_refund_or_owed' RAttribute='state_refund_or_owed' enclosure='state_tax_result' type='double'></setattribute>
+
+			<!-- Create entities from XML tags -->
+			<!-- Note: job is an initialentity, not created from XML -->
+			<createentity entity='taxpayer' tag='taxpayer' id='id' list='taxpayers'></createentity>
+			<createentity entity='dependent' tag='dependent' id='id' list='dependents'></createentity>
+			<createentity entity='income' tag='income' id='id' list='incomes'></createentity>
+			<createentity entity='property' tag='property' id='id' list='properties'></createentity>
+			<createentity entity='vehicle' tag='vehicle' id='id' list='vehicles'></createentity>
+			<createentity entity='deduction' tag='deduction' id='id' list='deductions'></createentity>
+			<createentity entity='noncash_contribution' tag='noncash_contribution' id='id'></createentity>
+			<createentity entity='energy_improvement' tag='energy_improvement' id='id'></createentity>
+			<createentity entity='mortgage_credit_certificate' tag='mortgage_credit_certificate' id='id'></createentity>
+			<createentity entity='prior_year_amt' tag='prior_year_amt' id='id'></createentity>
+			<createentity entity='partnership_audit' tag='partnership_audit' id='id'></createentity>
+			<createentity entity='unreported_tips' tag='unreported_tips' id='id'></createentity>
+			<createentity entity='lihtc_recapture' tag='lihtc_recapture' id='id'></createentity>
+			<createentity entity='credit' tag='credit' id='id'></createentity>
+			<createentity entity='constants' tag='constants' id='id'></createentity>
+			<createentity entity='result' tag='result' id='id'></createentity>
+			<createentity entity='state_tax_result' tag='state_tax_result' id='state_code' list='state_tax_results'></createentity>
+		</map>
+
+		<entities>
+			<!-- Singleton entities -->
+			<entity name='constants' number='1'></entity>
+			<entity name='job' number='1'></entity>
+			<entity name='result' number='1'></entity>
+
+			<!-- Multiple instance entities -->
+			<entity name='taxpayer' number='*'></entity>
+			<entity name='dependent' number='*'></entity>
+			<entity name='income' number='*'></entity>
+			<entity name='property' number='*'></entity>
+			<entity name='vehicle' number='*'></entity>
+			<entity name='deduction' number='*'></entity>
+			<entity name='noncash_contribution' number='*'></entity>
+			<entity name='energy_improvement' number='*'></entity>
+			<entity name='mortgage_credit_certificate' number='*'></entity>
+			<entity name='prior_year_amt' number='*'></entity>
+			<entity name='partnership_audit' number='*'></entity>
+			<entity name='unreported_tips' number='*'></entity>
+			<entity name='lihtc_recapture' number='*'></entity>
+			<entity name='credit' number='*'></entity>
+			<entity name='state_tax_result' number='*'></entity>
+		</entities>
+
+		<initialization>
+			<initialentity entity='result' epush='true'></initialentity>
+			<initialentity entity='constants' epush='true'></initialentity>
+			<initialentity entity='job' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>
