@@ -13776,4 +13776,198 @@ dc_calculated_tax /result.dc_tax xdef
 </policy_statements>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 45100: Calculate_SC_Tax - South Carolina State Income Tax       -->
+<!-- SC Reference: SC DOR, 2025 Tax Tables                                 -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SC_Tax</table_name>
+<xls_file>SpecialForms.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates South Carolina state income tax. SC has progressive tax brackets: 0% up to $3,560, 3% from $3,561-$17,830, and 6% above $17,830. SC standard deduction is $15,000 (Single) or $30,000 (MFJ).</COMMENTS>
+<TABLE_NUMBER>45100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer is SC resident</condition_comment>
+<condition_description>job.state is equal to "SC"</condition_description>
+<condition_postfix>
+job.state "SC" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate SC state tax</action_comment>
+<action_description>Calculate_SC_Tax_Brackets</action_description>
+<action_postfix>
+Calculate_SC_Tax_Brackets
+"  South Carolina State Income Tax:" job.audit_trail swap addto
+"    SC Taxable Income: $" result.sc_taxable_income cvs strconcat job.audit_trail swap addto
+"    SC State Tax: $" result.sc_state_tax cvs strconcat " (progressive brackets: 0%/3%/6%)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No SC tax for non-residents</action_comment>
+<action_description>set result.sc_state_tax = 0</action_description>
+<action_postfix>
+0 /result.sc_state_tax xdef
+0 /result.sc_taxable_income xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SC state income tax calculated per SC DOR 2025 progressive brackets</policy_description>
+<policy_statement_postfix>"SC state income tax calculated per SC DOR 2025 progressive brackets (0%/3%/6%)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 45110: Calculate_SC_Tax_Brackets                                 -->
+<!-- SC Reference: SC DOR 2025 Tax Tables - Progressive brackets           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SC_Tax_Brackets</table_name>
+<xls_file>SpecialForms.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies SC progressive tax brackets. Brackets: 0% up to $3,560, 3% from $3,561-$17,830, 6% above $17,830. Same brackets for all filing statuses.</COMMENTS>
+<TABLE_NUMBER>45110</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Calculate SC taxable income with standard deduction</context_comment>
+<context_description>local double sc_std_deduction = SC standard deduction based on filing status</context_description>
+<context_postfix>
+job.filing_status "MFJ" streq job.filing_status "QSS" streq or
+{ sc_standard_deduction_mfj }
+{ sc_standard_deduction_single }
+ifelse
+0 local!
+result.agi 0 local@ f- 0 fmax /result.sc_taxable_income xdef
+0 local@ deallocate pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>In bracket 1 only (0%)</condition_comment>
+<condition_description>sc_taxable_income at or below sc_bracket_1</condition_description>
+<condition_postfix>
+result.sc_taxable_income sc_bracket_1 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>In bracket 2 (3%)</condition_comment>
+<condition_description>sc_taxable_income at or below sc_bracket_2</condition_description>
+<condition_postfix>
+result.sc_taxable_income sc_bracket_2 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>In bracket 3 (6%)</condition_comment>
+<condition_description>sc_taxable_income above sc_bracket_2</condition_description>
+<condition_postfix>
+result.sc_taxable_income sc_bracket_2 >
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Zero or negative taxable income</condition_comment>
+<condition_description>sc_taxable_income at or below 0</condition_description>
+<condition_postfix>
+result.sc_taxable_income 0 &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 1 tax (0%)</action_comment>
+<action_description>set result.sc_state_tax = 0 (below $3,560)</action_description>
+<action_postfix>
+0 /result.sc_state_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 2 tax (3%)</action_comment>
+<action_description>set result.sc_state_tax = (income - $3,560) * 3%</action_description>
+<action_postfix>
+result.sc_taxable_income sc_bracket_1 f- sc_rate_2 f* /result.sc_state_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 3 tax (6%)</action_comment>
+<action_description>set result.sc_state_tax = $428.10 + (income - $17,830) * 6%</action_description>
+<action_postfix>
+sc_bracket_2 sc_bracket_1 f- sc_rate_2 f*
+result.sc_taxable_income sc_bracket_2 f- sc_rate_3 f* f+
+/result.sc_state_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>No tax (zero income)</action_comment>
+<action_description>set result.sc_state_tax = 0</action_description>
+<action_postfix>
+0 /result.sc_state_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SC tax: $0 (income under $3,560 at 0% rate)</policy_description>
+<policy_statement_postfix>"SC tax: $0 (income under $3,560 at 0% rate)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>SC tax: 3% on income between $3,561-$17,830</policy_description>
+<policy_statement_postfix>"SC tax: 3% on income between $3,561-$17,830"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>SC tax: $428.10 base + 6% on income above $17,830</policy_description>
+<policy_statement_postfix>"SC tax: $428.10 base + 6% on income above $17,830"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 </decision_tables>

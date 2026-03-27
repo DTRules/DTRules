@@ -1,0 +1,119 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case 3: SC High Income Taxpayers (Bracket 3 - 6% tax) -->
+   <!-- Scenario: Married filing jointly in South Carolina with high income -->
+   <!-- AGI: $100,000 -->
+   <!-- SC Taxable Income: $100,000 - $30,000 (SC std deduction MFJ) = $70,000 -->
+   <!-- SC Tax: ($17,830 - $3,560) * 3% + ($70,000 - $17,830) * 6% -->
+   <!--       = $14,270 * 0.03 + $52,170 * 0.06 -->
+   <!--       = $428.10 + $3,130.20 = $3,558.30 -->
+
+   <id>1003</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>SC</state>
+   <city>Greenville</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $100,000 -->
+   <!-- Federal Taxable: $100,000 - $30,000 (federal std MFJ) = $70,000 -->
+   <!-- Federal Tax: $23,850 * 10% + ($70,000 - $23,850) * 12% = $2,385 + $5,538 = $7,923 -->
+   <!-- SC Taxable: $100,000 - $30,000 (SC std MFJ) = $70,000 -->
+   <!-- SC Tax: $428.10 + ($70,000 - $17,830) * 6% = $428.10 + $3,130.20 = $3,558.30 -->
+   <!-- Total Tax: $7,923 + $3,558 = $11,481 -->
+   <expected_agi>100000</expected_agi>
+   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_total_tax>11481</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Spouse 1 -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Johnson</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>2/10/1982</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>70000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse 2 -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Emily Johnson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>9/5/1985</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents (2 children for Child Tax Credit) -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Lily Johnson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>4/20/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Noah Johnson</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>11/8/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- No deductions -->
+   <deductions></deductions>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No self-employment -->
+   <se_income></se_income>
+
+   <!-- No rental properties -->
+   <rental_properties></rental_properties>
+
+   <!-- No other income -->
+   <other_income></other_income>
+</job>

@@ -966,3 +966,139 @@ func Test2025CapitalGainsBrackets(t *testing.T) {
 		})
 	}
 }
+
+// TestSouthCarolinaTax tests South Carolina state income tax implementation
+// SC has progressive tax brackets: 0% up to $3,560, 3% from $3,561-$17,830, and 6% above $17,830
+// SC standard deduction: $15,000 (Single) or $30,000 (MFJ)
+func TestSouthCarolinaTax(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	// Test cases for SC tax implementation
+	testCases := []struct {
+		name            string
+		file            string
+		expectedAGI     float64
+		expectedSCTax   float64
+		description     string
+	}{
+		{
+			name:        "SC_Low_Income",
+			file:        "SC/TestCase_SC_Low_Income.xml",
+			expectedAGI: 18000,
+			expectedSCTax: 0, // SC taxable: $3,000 (under $3,560 threshold, 0% bracket)
+			description: "SC resident with income under first bracket threshold",
+		},
+		{
+			name:        "SC_Middle_Income",
+			file:        "SC/TestCase_SC_Middle_Income.xml",
+			expectedAGI: 32000,
+			expectedSCTax: 403, // SC taxable: $17,000, tax: ($17,000 - $3,560) * 3% = $403.20
+			description: "SC resident in 3% bracket",
+		},
+		{
+			name:        "SC_High_Income",
+			file:        "SC/TestCase_SC_High_Income.xml",
+			expectedAGI: 100000,
+			expectedSCTax: 3558, // SC taxable: $70,000, tax: $428.10 + ($70,000 - $17,830) * 6% = $3,558.30
+			description: "SC resident MFJ in 6% bracket",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			rs := session.NewRuleSet("TaxReturn")
+
+			eddFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
+			if err != nil {
+				t.Fatalf("Failed to open EDD: %v", err)
+			}
+			defer eddFile.Close()
+			rs.LoadEDD(eddFile)
+
+			dtFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
+			if err != nil {
+				t.Fatalf("Failed to open DT: %v", err)
+			}
+			defer dtFile.Close()
+			rs.LoadDecisionTables(dtFile)
+
+			sess, err := rs.NewSession()
+			if err != nil {
+				t.Fatalf("Failed to create session: %v", err)
+			}
+
+			mapFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+			if err != nil {
+				t.Fatalf("Failed to open mapping: %v", err)
+			}
+			defer mapFile.Close()
+
+			m := mapping.NewMapping(sess)
+			m.LoadMapping(mapFile)
+			m.Initialize()
+
+			testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", tc.file))
+			if err != nil {
+				t.Fatalf("Failed to open test file %s: %v", tc.file, err)
+			}
+			defer testFile.Close()
+			m.LoadData(testFile)
+
+			ef := sess.GetEntityFactory()
+			dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+			state := sess.GetState()
+			err = dt.Execute(state)
+			if err != nil {
+				t.Fatalf("Execution failed: %v", err)
+			}
+
+			job, _ := state.FindEntity(dtrules.GetRName("job"))
+			resultsObj, _ := job.Get(dtrules.GetRName("results"))
+			resultsArr, _ := resultsObj.ArrayValue()
+			if len(resultsArr) == 0 {
+				t.Fatal("No results")
+			}
+			result, _ := resultsArr[0].REntityValue()
+
+			agi := getFloatAttr(result, "agi")
+			scTax := getFloatAttr(result, "sc_state_tax")
+			scTaxable := getFloatAttr(result, "sc_taxable_income")
+			totalTax := getFloatAttr(result, "total_tax")
+
+			fmt.Printf("\n=== %s ===\n", tc.name)
+			fmt.Printf("Description: %s\n", tc.description)
+			fmt.Printf("AGI: $%.0f (expected $%.0f)\n", agi, tc.expectedAGI)
+			fmt.Printf("SC Taxable Income: $%.0f\n", scTaxable)
+			fmt.Printf("SC State Tax: $%.0f (expected $%.0f)\n", scTax, tc.expectedSCTax)
+			fmt.Printf("Total Tax (Federal + SC): $%.0f\n", totalTax)
+
+			// Verify AGI
+			checkValueResult(t, "AGI", agi, tc.expectedAGI, 10)
+
+			// Verify SC state tax
+			checkValueResult(t, "SC State Tax", scTax, tc.expectedSCTax, 10)
+
+			// Verify SC tax is included in total tax
+			if totalTax < scTax {
+				t.Errorf("Total tax $%.0f should include SC tax $%.0f", totalTax, scTax)
+			}
+
+			// Print audit trail for SC calculation
+			auditName := dtrules.GetRName("audit_trail")
+			auditObj, _ := job.Get(auditName)
+			if auditObj != nil {
+				auditArr, _ := auditObj.ArrayValue()
+				fmt.Println("  --- SC Tax Audit Trail ---")
+				for _, item := range auditArr {
+					line := item.StringValue()
+					if len(line) > 0 && (line[0] == ' ' && len(line) > 2 && line[2] == 'S') {
+						// Print lines that start with "  South" (SC-related audit lines)
+						fmt.Printf("  %s\n", line)
+					}
+				}
+			}
+		})
+	}
+}
