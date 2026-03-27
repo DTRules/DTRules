@@ -1,0 +1,139 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+   =====================================================================
+   WYOMING (WY) - NO STATE INCOME TAX TEST CASE
+   =====================================================================
+
+   Wyoming has NO state income tax on any type of income:
+   - W-2 wages: NOT TAXED
+   - Bonus income: NOT TAXED
+   - Self-employment income: NOT TAXED
+   - Investment income: NOT TAXED
+   - All other income types: NOT TAXED
+
+   Wyoming is one of 9 states with no personal income tax.
+   The state relies on mineral severance taxes and other revenue sources.
+
+   This test case validates energy sector worker with bonus:
+   - W-2 base wages ($110,000) are NOT taxed
+   - Large bonus ($25,000) is NOT taxed
+   - State tax = $0 for all wage and bonus income
+
+   Income breakdown:
+   - W-2 base wages: $110,000
+   - Year-end bonus: $25,000
+   - Total W-2 income: $135,000
+
+   Expected Results:
+   - Federal AGI: $135,000
+   - Federal Taxable: ~$105,000 (after standard deduction, MFJ)
+   - Federal Tax: ~$15,000 (approximate)
+   - WY State Tax: $0 (no income tax)
+
+   Note: Bonuses are fully taxable for federal purposes but not
+   subject to Wyoming state income tax (because WY has no income tax).
+   =====================================================================
+   -->
+
+   <id>WY-NoTax-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>WY</state>
+   <city>Cheyenne</city>
+
+   <!-- Expected Values for Validation -->
+   <expected_agi>135000</expected_agi>
+   <expected_taxable_income>105000</expected_taxable_income>
+   <expected_federal_tax>15000</expected_federal_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_total_tax>15000</expected_total_tax>
+
+   <!-- Married Couple - Wyoming Residents -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Thomas Brown</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>12/15/1979</date_of_birth>
+         <occupation>Energy Sector Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>135000</w2_wages>
+         <w2_bonus>25000</w2_bonus>
+         <w2_withholding>20000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Michelle Brown</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>3/22/1981</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents (2 children) -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Jacob Brown</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>5/10/2012</date_of_birth>
+         <age>13</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Emma Brown</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>8/18/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- No deductions -->
+   <deductions>
+   </deductions>
+</job>

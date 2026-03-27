@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // Factory manages reference entities and creates instances.

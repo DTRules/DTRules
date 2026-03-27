@@ -1,0 +1,102 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 8615 - Kiddie Tax Threshold Trigger -->
+   <!-- Scenario: 15-year-old with $2,700 unearned income (just over threshold) -->
+   <!-- 2025 threshold: $2,500 triggers kiddie tax -->
+
+   <!-- Kiddie Tax Calculation (2025): -->
+   <!-- Unearned Income: $2,700 -->
+   <!-- Standard Deduction for Dependent: $1,300 -->
+   <!-- Remaining: $2,700 - $1,300 = $1,400 -->
+   <!-- Next $1,300 taxed at child's rate (10%): $1,300 x 10% = $130 -->
+   <!-- Remaining $100 taxed at parent's marginal rate (24%): $100 x 24% = $24 -->
+   <!-- Total Kiddie Tax: $130 + $24 = $154 -->
+
+   <!-- This tests the exact threshold where kiddie tax kicks in -->
+
+   <id>KIDDIE-THRESHOLD-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <expected_agi>145000</expected_agi>
+   <expected_total_kiddie_tax>154</expected_total_kiddie_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Thompson</name>
+         <ssn>301-22-3333</ssn>
+         <date_of_birth>9/5/1979</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>95000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Thompson</name>
+         <ssn>302-22-3334</ssn>
+         <date_of_birth>11/22/1981</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Brandon Thompson</name>
+         <ssn>303-22-3335</ssn>
+         <date_of_birth>8/20/2010</date_of_birth>
+         <age>15</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+         <gross_income>2700</gross_income>
+         <provided_own_support>false</provided_own_support>
+         <unearned_income>2700</unearned_income>
+         <earned_income>0</earned_income>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 8615 - Child's Unearned Income (Kiddie Tax) -->
+   <child_unearned_incomes>
+      <child_unearned_income id="1">
+         <id>1</id>
+         <dependent_id>1</dependent_id>
+         <child_age>15</child_age>
+         <is_student>true</is_student>
+         <child_earned_income>0</child_earned_income>
+         <unearned_income_amount>2700</unearned_income_amount>
+         <child_itemized_deductions>0</child_itemized_deductions>
+         <parent_taxable_income>115000</parent_taxable_income>
+         <parent_filing_status>MFJ</parent_filing_status>
+      </child_unearned_income>
+   </child_unearned_incomes>
+</job>

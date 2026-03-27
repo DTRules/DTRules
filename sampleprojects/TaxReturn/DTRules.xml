@@ -1,0 +1,18 @@
+<DTRules>
+
+  <compileralias name="EL">com.dtrules.compiler.el.EL</compileralias>
+  <compiler>EL</compiler>
+
+  <RuleSet name="TaxReturn" source="file">
+     <RuleSetFilePath>/xml</RuleSetFilePath>
+     <WorkingDirectory>/temp</WorkingDirectory>
+
+     <DTExcelFolder>/DecisionTables/</DTExcelFolder>
+     <EDDExcelFolder>/edd/</EDDExcelFolder>
+
+     <Entities        name="TaxReturn_edd.xml" />
+     <Decisiontables  name="TaxReturn_dt.xml"  />
+     <Map             name="TaxReturn_map.xml" />
+  </RuleSet>
+
+</DTRules>

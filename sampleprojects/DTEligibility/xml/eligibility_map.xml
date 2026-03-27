@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+    <map tag="household" enclosure="root" RObject="createEntity" RAttribute="household" />
+    <map tag="household_id" enclosure="household" RObject="entity" RAttribute="household_id" />
+    <map tag="address" enclosure="household" RObject="entity" RAttribute="address" />
+    <map tag="city" enclosure="household" RObject="entity" RAttribute="city" />
+    <map tag="state" enclosure="household" RObject="entity" RAttribute="state" />
+    <map tag="zip" enclosure="household" RObject="entity" RAttribute="zip" />
+    <map tag="county" enclosure="household" RObject="entity" RAttribute="county" />
+    <map tag="rent_amount" enclosure="household" RObject="entity" RAttribute="rent_amount" />
+    <map tag="utility_costs" enclosure="household" RObject="entity" RAttribute="utility_costs" />
+    <map tag="receives_housing_assistance" enclosure="household" RObject="entity" RAttribute="receives_housing_assistance" />
+
+    <map tag="members" enclosure="household" RObject="entity" RAttribute="members" />
+    <map tag="person" enclosure="members" RObject="createEntity" RAttribute="person" />
+    <map tag="person_id" enclosure="person" RObject="entity" RAttribute="person_id" />
+    <map tag="first_name" enclosure="person" RObject="entity" RAttribute="first_name" />
+    <map tag="last_name" enclosure="person" RObject="entity" RAttribute="last_name" />
+    <map tag="date_of_birth" enclosure="person" RObject="entity" RAttribute="date_of_birth" />
+    <map tag="age" enclosure="person" RObject="entity" RAttribute="age" />
+    <map tag="gender" enclosure="person" RObject="entity" RAttribute="gender" />
+    <map tag="ssn" enclosure="person" RObject="entity" RAttribute="ssn" />
+    <map tag="relationship_to_head" enclosure="person" RObject="entity" RAttribute="relationship_to_head" />
+    <map tag="is_parent" enclosure="person" RObject="entity" RAttribute="is_parent" />
+    <map tag="is_mother" enclosure="person" RObject="entity" RAttribute="is_mother" />
+    <map tag="is_father" enclosure="person" RObject="entity" RAttribute="is_father" />
+    <map tag="is_disabled" enclosure="person" RObject="entity" RAttribute="is_disabled" />
+    <map tag="disability_type" enclosure="person" RObject="entity" RAttribute="disability_type" />
+    <map tag="receives_ssi" enclosure="person" RObject="entity" RAttribute="receives_ssi" />
+    <map tag="receives_ssdi" enclosure="person" RObject="entity" RAttribute="receives_ssdi" />
+    <map tag="is_veteran" enclosure="person" RObject="entity" RAttribute="is_veteran" />
+    <map tag="is_student" enclosure="person" RObject="entity" RAttribute="is_student" />
+    <map tag="student_status" enclosure="person" RObject="entity" RAttribute="student_status" />
+    <map tag="is_employed" enclosure="person" RObject="entity" RAttribute="is_employed" />
+    <map tag="employment_hours" enclosure="person" RObject="entity" RAttribute="employment_hours" />
+    <map tag="is_pregnant" enclosure="person" RObject="entity" RAttribute="is_pregnant" />
+    <map tag="expected_children" enclosure="person" RObject="entity" RAttribute="expected_children" />
+    <map tag="is_us_citizen" enclosure="person" RObject="entity" RAttribute="is_us_citizen" />
+    <map tag="immigration_status" enclosure="person" RObject="entity" RAttribute="immigration_status" />
+    <map tag="has_health_insurance" enclosure="person" RObject="entity" RAttribute="has_health_insurance" />
+    <map tag="insurance_type" enclosure="person" RObject="entity" RAttribute="insurance_type" />
+    <map tag="pays_for_vehicle" enclosure="person" RObject="entity" RAttribute="pays_for_vehicle" />
+    <map tag="vehicle_payment" enclosure="person" RObject="entity" RAttribute="vehicle_payment" />
+
+    <map tag="incomes" enclosure="person" RObject="entity" RAttribute="incomes" />
+    <map tag="income" enclosure="incomes" RObject="createEntity" RAttribute="income" />
+    <map tag="income_type" enclosure="income" RObject="entity" RAttribute="income_type" />
+    <map tag="amount" enclosure="income" RObject="entity" RAttribute="amount" />
+    <map tag="frequency" enclosure="income" RObject="entity" RAttribute="frequency" />
+    <map tag="is_earned" enclosure="income" RObject="entity" RAttribute="is_earned" />
+    <map tag="source" enclosure="income" RObject="entity" RAttribute="source" />
+    <map tag="is_verified" enclosure="income" RObject="entity" RAttribute="is_verified" />
+
+    <map tag="vehicles" enclosure="household" RObject="entity" RAttribute="vehicles" />
+    <map tag="vehicle" enclosure="vehicles" RObject="createEntity" RAttribute="vehicle" />
+    <map tag="vehicle_type" enclosure="vehicle" RObject="entity" RAttribute="vehicle_type" />
+    <map tag="make" enclosure="vehicle" RObject="entity" RAttribute="make" />
+    <map tag="model" enclosure="vehicle" RObject="entity" RAttribute="model" />
+    <map tag="year" enclosure="vehicle" RObject="entity" RAttribute="year" />
+    <map tag="value" enclosure="vehicle" RObject="entity" RAttribute="value" />
+    <map tag="is_primary" enclosure="vehicle" RObject="entity" RAttribute="is_primary" />
+    <map tag="used_for_work" enclosure="vehicle" RObject="entity" RAttribute="used_for_work" />
+    <map tag="used_for_medical" enclosure="vehicle" RObject="entity" RAttribute="used_for_medical" />
+    <map tag="is_adapted_for_disability" enclosure="vehicle" RObject="entity" RAttribute="is_adapted_for_disability" />
+    <map tag="monthly_payment" enclosure="vehicle" RObject="entity" RAttribute="monthly_payment" />
+</mapping>

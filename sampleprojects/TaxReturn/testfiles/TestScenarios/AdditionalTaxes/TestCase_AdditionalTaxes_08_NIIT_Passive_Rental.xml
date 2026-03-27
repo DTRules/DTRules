@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8960 - NIIT with Passive Rental Income -->
+<!-- Scenario: MFJ with passive rental income, AGI over $250k threshold -->
+<!-- Rental net: $35,000, Investment income: $18,000, Total NII: $53,000 -->
+<!-- Expected: 3.8% NIIT on lesser of NII ($53k) or excess MAGI ($88k) = $2,014 -->
+<job>
+    <id>AdditionalTaxes_08</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>FL</state>
+
+    <!-- Expected results -->
+    <!-- W-2: $280,000 + Rental net: $35,000 + Interest: $8,000 + Dividends: $10,000 = $333,000 AGI -->
+    <!-- Note: Rental income is passive (not real estate professional) -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $303,000 -->
+    <!-- Income tax: ~$53,887 -->
+    <!-- NIIT: $2,014 (3.8% on $53,000 - all NII subject to NIIT) -->
+    <!-- Total tax: $55,901 -->
+    <expected_agi>333000</expected_agi>
+    <expected_taxable_income>303000</expected_taxable_income>
+    <expected_total_tax>55901</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Andrew Martinez</name>
+            <ssn>012-34-5678</ssn>
+            <date_of_birth>09/18/1972</date_of_birth>
+            <occupation>Corporate Attorney</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>185000</w2_wages>
+            <w2_withholding>38000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Sarah Martinez</name>
+            <ssn>123-45-6789</ssn>
+            <date_of_birth>12/05/1974</date_of_birth>
+            <occupation>Physician</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>19000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- Investment income -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>interest</type>
+            <source>Investment Accounts</source>
+            <gross_amount>8000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+        </income>
+        <income>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>dividend</type>
+            <source>Stock Portfolio</source>
+            <gross_amount>10000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <is_qualified_dividend>true</is_qualified_dividend>
+        </income>
+    </incomes>
+
+    <properties>
+        <!-- Passive rental property (not real estate professional) -->
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <address>456 Beachfront Avenue, Miami, FL 33139</address>
+            <purchase_date>03/20/2018</purchase_date>
+            <purchase_price>520000</purchase_price>
+            <current_fmv>680000</current_fmv>
+            <mortgage_balance>380000</mortgage_balance>
+            <mortgage_origination_date>03/20/2018</mortgage_origination_date>
+            <mortgage_interest>18500</mortgage_interest>
+            <property_taxes>7200</property_taxes>
+            <rental_income>72000</rental_income>
+            <rental_insurance>3500</rental_insurance>
+            <rental_repairs>6800</rental_repairs>
+            <rental_utilities>2400</rental_utilities>
+            <rental_management>7200</rental_management>
+            <depreciation>11400</depreciation>
+        </property>
+    </properties>
+
+    <expenses></expenses>
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

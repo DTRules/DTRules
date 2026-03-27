@@ -1,0 +1,10 @@
+<chipAppSettings>
+    <db_overhead>0</db_overhead>
+    <threads>1</threads>
+    <numCases>10000</numCases>
+    <save>0</save>
+    <console>false</console>
+    <update>0</update>
+    <dtrules>dtrules</dtrules>
+    <printresults>false</printresults>
+</chipAppSettings>

@@ -1,0 +1,80 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Vermont Military Retirement Test Case -->
+   <!-- Test Case VT-Military-01: Military retirement with income-based exclusion -->
+   <!-- VT provides income-based exclusion for military retirement -->
+   <!-- Specific rules vary based on AGI thresholds -->
+
+   <id>VT-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>VT</state>
+   <city>Burlington</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $35,000 military retirement + $40,000 W2 = $75,000 -->
+   <!-- AGI: $75,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $60,000 -->
+   <!-- Federal Tax: ~$7,900 -->
+   <!-- VT: Progressive tax (3.35% to 8.75%) -->
+   <!-- VT Military Retirement Exclusion: Varies by income -->
+   <!-- Assume partial exemption based on VT rules -->
+   <!-- VT Taxable Income: ~$67,000 (after deductions) -->
+   <!-- VT Tax (progressive brackets): ~$4,200 -->
+   <!-- Total Tax: $12,100 -->
+   <!-- Withholding: $12,800 -->
+   <!-- Refund: $700 -->
+   <expected_agi>75000</expected_agi>
+   <expected_taxable_income>60000</expected_taxable_income>
+   <expected_total_tax>12100</expected_total_tax>
+   <expected_state_tax>4200</expected_state_tax>
+   <expected_refund>700</expected_refund>
+
+   <!-- Retired Military Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Nancy</name>
+         <last_name>Clark</last_name>
+         <ssn>666-77-8899</ssn>
+         <date_of_birth>5/17/1966</date_of_birth>
+         <occupation>Military Retiree - School Administrator</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>12800</w2_withholding>
+         <military_retirement_pay>35000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

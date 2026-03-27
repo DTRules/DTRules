@@ -110,11 +110,11 @@ public class RDouble extends ARObject {
     }
 
     /**
-     * returns 0 if both are equal. -1 if this object is less than the argument. 
+     * returns 0 if both are equal. -1 if this object is less than the argument.
      * 1 if this object is greater than the argument
-     */	
+     */
 	public int compare(IRObject irObject) throws RulesException {
-		return (this.value==irObject.doubleValue())?0:((this.value<irObject.doubleValue())?-1:0);	
+		return (this.value==irObject.doubleValue())?0:((this.value<irObject.doubleValue())?-1:1);
 	}
 
 	@Override

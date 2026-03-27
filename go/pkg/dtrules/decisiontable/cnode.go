@@ -18,20 +18,31 @@ package decisiontable
 import (
 	"fmt"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // CNode is a Condition Node that evaluates conditions within a Decision Table.
 // It forms the internal nodes of the decision tree.
 type CNode struct {
-	column          int             // Column that created this node
-	conditionNumber int             // Row number (0-based) of the condition
-	condition       dtrules.Object  // The compiled condition code
-	decisionTable   *RDecisionTable // Pointer back to the Decision Table
-	star            bool            // Whether this column has a star
+	column          int                    // Column that created this node
+	conditionNumber int                    // Row number (0-based) of the condition
+	condition       dtrules.Object         // The compiled condition code (Go interpreter)
+	bytecode        *dtrules.BytecodeChunk // Compiled bytecode (for ASM execution)
+	decisionTable   *RDecisionTable        // Pointer back to the Decision Table
+	star            bool                   // Whether this column has a star
 
 	IfTrue  DTNode // Branch taken if condition is true
 	IfFalse DTNode // Branch taken if condition is false
+}
+
+// SetBytecode sets the bytecode for this condition.
+func (c *CNode) SetBytecode(bc *dtrules.BytecodeChunk) {
+	c.bytecode = bc
+}
+
+// GetBytecode returns the bytecode for this condition.
+func (c *CNode) GetBytecode() *dtrules.BytecodeChunk {
+	return c.bytecode
 }
 
 // NewCNode creates a new condition node

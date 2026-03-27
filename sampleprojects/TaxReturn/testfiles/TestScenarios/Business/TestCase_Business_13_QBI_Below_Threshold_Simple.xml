@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 13: QBI Deduction - Below Threshold (Form 8995 Simple) -->
+<!-- Triggers: Form 8995, Schedule K-1, Form 1040 Line 13 -->
+<!-- Tests: 20% QBI deduction for taxpayer below income threshold -->
+<job>
+    <id>BUS13-QBI-BELOW-THRESHOLD</id>
+    <tax_year>2025</tax_year>
+    <filing_status>SINGLE</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $65,000 W2 + $82,000 K-1 QBI = $147,000 -->
+    <!-- AGI: $147,000 -->
+    <!-- Standard Deduction: $15,000 -->
+    <!-- Taxable before QBI: $132,000 -->
+    <!-- QBI Deduction: Lesser of: -->
+    <!--   1) 20% of QBI = $82,000 * 0.20 = $16,400 -->
+    <!--   2) 20% of taxable income = $132,000 * 0.20 = $26,400 -->
+    <!-- QBI Deduction: $16,400 (lesser amount) -->
+    <!-- Taxable: $115,600 ($132k - $16,400) -->
+    <!-- AGI $147k < $197,300 threshold: No W-2 wage limitation -->
+    <expected_agi>147000</expected_agi>
+    <expected_taxable_income>115600</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Brian Jackson</name>
+            <ssn>400-23-0001</ssn>
+            <date_of_birth>7/12/1985</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Software Developer + Partner in Dev Shop LLC</occupation>
+            <w2_wages>65000</w2_wages>
+            <w2_withholding>9500</w2_withholding>
+            <w2_ss_wages>65000</w2_ss_wages>
+            <w2_medicare_wages>65000</w2_medicare_wages>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - QBI Below Threshold -->
+    <!-- IRC 199A: QBI deduction for pass-through business income -->
+    <!-- Below threshold ($197,300 single): Simple 20% calculation -->
+    <!-- No W-2 wage limitation, no SSTB restriction -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Dev Shop LLC</entity_name>
+            <entity_ein>34-5678901</entity_ein>
+            <!-- Box 1: Ordinary business income -->
+            <ordinary_income>82000</ordinary_income>
+            <!-- Box 20: Section 199A QBI -->
+            <qbi_income>82000</qbi_income>
+            <w2_wages_qbi>45000</w2_wages_qbi>
+            <ubia>18000</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

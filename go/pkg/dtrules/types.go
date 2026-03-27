@@ -128,6 +128,7 @@ var (
 	TypeDouble        *RType
 	TypeName          *RType
 	TypeDate          *RType
+	TypeInterval      *RType
 	TypeBoolean       *RType
 	TypeNull          *RType
 	TypeArray         *RType
@@ -145,6 +146,7 @@ func init() {
 	TypeDouble = NewType("double")
 	TypeName = NewType("name")
 	TypeDate = NewType("date")
+	TypeInterval = NewType("interval")
 	TypeBoolean = NewType("boolean")
 	TypeNull = NewType("null")
 	TypeArray = NewType("array")
@@ -152,4 +154,27 @@ func init() {
 	TypeEntity = NewType("entity")
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
+	TypeInterval = NewType("interval")
+
+	// Register common type aliases
+	registerTypeAlias("float", TypeDouble)
+	registerTypeAlias("long", TypeInteger)
+	registerTypeAlias("int", TypeInteger)
+	registerTypeAlias("bool", TypeBoolean)
+	registerTypeAlias("datetime", TypeDate)
+	registerTypeAlias("time", TypeDate)
+	registerTypeAlias("list", TypeArray)
+	registerTypeAlias("map", TypeTable)
+	registerTypeAlias("dict", TypeTable)
+	registerTypeAlias("dictionary", TypeTable)
+	registerTypeAlias("hash", TypeTable)
+	registerTypeAlias("object", TypeEntity)
+}
+
+// registerTypeAlias registers an alias name that maps to an existing type.
+func registerTypeAlias(alias string, target *RType) {
+	alias = strings.ToLower(alias)
+	typesMu.Lock()
+	defer typesMu.Unlock()
+	types[alias] = target
 }

@@ -1,0 +1,30 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+
+	<!-- ================================================================== -->
+	<!-- APPORTIONMENT - North Carolina Configuration                      -->
+	<!-- NC has LOWEST state corporate income tax rate: 2.5%               -->
+	<!-- NC Reference: NC Gen Stat § 105-130.3, NC Form CD-405            -->
+	<!-- ================================================================== -->
+	<entity name='apportionment' xls_file='NC_Corp.xls' access='rw' comment='NC apportionment entity for multi-state tax calculation. Used by decision tables 7000-7500 for multi-state tax apportionment and NC-specific tables 51200-51299. NC has the LOWEST state corporate income tax rate in the nation at 2.5%. Key Features: Flat 2.5% corporate income tax rate (NC General Statute § 105-130.3), Single-sales apportionment formula, Economic nexus: $100,000 gross receipts threshold, No alternative minimum tax, No special surcharges. References: NC General Statute § 105-130.3 (Tax rate), NC Form CD-405 (Corporation Income Tax Return), NC Department of Revenue Corporate Income Tax Bulletins.'>
+		<field name='apportionment' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='NC' comment='North Carolina state code'></field>
+		<field name='economic_nexus_threshold' type='double' subtype='' access='r' input='' default_value='100000.0' comment='NC economic nexus gross receipts threshold: $100,000'></field>
+		<field name='transaction_threshold' type='integer' subtype='' access='r' input='' default_value='200' comment='NC economic nexus transaction count threshold: 200 transactions'></field>
+		<field name='apportionment_formula' type='string' subtype='' access='r' input='' default_value='single_sales' comment='NC uses single-sales factor apportionment (100% sales factor)'></field>
+		<field name='state_tax_rate' type='double' subtype='' access='r' input='' default_value='0.025' comment='NC corporate income tax rate: 2.5% (LOWEST state rate in the nation) - NC Gen. Stat. § 105-130.3'></field>
+		<field name='state_additions' type='double' subtype='' access='rw' input='' default_value='0.0' comment='NC additions: federal interest income, certain expenses, IRC 199A addback, etc.'></field>
+		<field name='state_subtractions' type='double' subtype='' access='rw' input='' default_value='0.0' comment='NC subtractions: NC municipal bond interest, state income taxes, state NOL, etc.'></field>
+		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0.0' comment='NC tax credits: jobs creation, film production, renewable energy, historic preservation, etc.'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- RESULT - NC does not require special state-specific fields       -->
+	<!-- NC uses straightforward flat-rate system                         -->
+	<!-- ================================================================== -->
+	<entity name='result' xls_file='NC_Corp.xls' access='rw' comment='NC result entity. North Carolina uses a straightforward flat-rate system without: Alternative minimum tax, Special surcharges, Industry-specific tax rates, Combined reporting complexity (though unitary rules apply). No NC-specific fields required.'>
+		<field name='result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+	</entity>
+
+</entity_data_dictionary>

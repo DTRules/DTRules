@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 02: Schedule K-1 Partnership - Guaranteed Payments (Box 4) -->
+<!-- Triggers: Schedule K-1 (Form 1065), Schedule E Part II, Schedule SE -->
+<!-- Tests: Guaranteed payments for services are subject to self-employment tax -->
+<job>
+    <id>BUS02-K1-GUARANTEED-PAYMENTS</id>
+    <tax_year>2025</tax_year>
+    <filing_status>SINGLE</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $60,000 K-1 ordinary + $25,000 guaranteed payments = $85,000 -->
+    <!-- SE Tax: $25,000 * 0.9235 * 0.153 = $3,527.56 -->
+    <!-- SE Tax Deduction: $3,527.56 / 2 = $1,763.78 -->
+    <!-- AGI: $85,000 - $1,764 = $83,236 -->
+    <!-- Standard Deduction: $15,000 -->
+    <!-- QBI: $17,000 (20% of $85k partnership income) limited by taxable income -->
+    <!-- Taxable: $51,236 ($83,236 - $15k - $17k) -->
+    <expected_agi>83236</expected_agi>
+    <expected_taxable_income>51236</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Maria Gonzalez</name>
+            <ssn>400-12-0001</ssn>
+            <date_of_birth>3/18/1980</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Partner in XYZ Accounting LLP</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership with Guaranteed Payments -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>XYZ Accounting LLP</entity_name>
+            <entity_ein>12-9876543</entity_ein>
+            <!-- Box 1: Ordinary business income -->
+            <ordinary_income>60000</ordinary_income>
+            <!-- Box 4a: Guaranteed payments for services (subject to SE tax) -->
+            <guaranteed_payments_services>25000</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <!-- Box 20: Section 199A QBI -->
+            <qbi_income>85000</qbi_income>
+            <w2_wages_qbi>15000</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>true</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

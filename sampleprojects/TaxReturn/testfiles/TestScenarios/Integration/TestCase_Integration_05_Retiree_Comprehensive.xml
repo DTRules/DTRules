@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 05: Comprehensive Retiree Scenario -->
+<!-- Tests: Social Security taxation, RMD, pension, LTCG, qualified dividends -->
+<!-- Scenario: 70-year-old retiree with multiple income sources -->
+<!-- Expected: Proper SS taxation (up to 85%), preferential cap gains rates, RMD penalty avoidance -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-05-RETIREE-COMPREHENSIVE</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>AZ</state>
+   <city>Scottsdale</city>
+
+   <!-- Expected values -->
+   <!-- Income sources: -->
+   <!-- Social Security: $45,000 (up to 85% taxable based on provisional income) -->
+   <!-- Pension: $52,000 (fully taxable) -->
+   <!-- IRA distribution (RMD): $38,000 (fully taxable) -->
+   <!-- Interest: $12,000 (fully taxable) -->
+   <!-- Qualified dividends: $28,000 (preferential rate) -->
+   <!-- Long-term capital gains: $35,000 (preferential rate) -->
+   <!-- Provisional income: $45k/2 + $52k + $38k + $12k + $28k + $35k = $187,500 -->
+   <!-- SS taxable: 85% of $45k = $38,250 -->
+   <!-- AGI: $52k + $38k + $12k + $28k + $35k + $38,250 = $203,250 -->
+   <!-- Standard deduction: $30,000 + $1,500 (age 65+) + $1,500 (age 65+) = $33,000 -->
+   <!-- Taxable: $170,250 -->
+   <!-- Tax calculation: Regular brackets + preferential rates on qualified div and LTCG -->
+   <expected_agi>203250</expected_agi>
+   <expected_taxable_income>170250</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>William Patterson</name>
+         <ssn>300-15-5001</ssn>
+         <date_of_birth>3/15/1955</date_of_birth>
+         <age>70</age>
+         <occupation>Retired Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <!-- Retirement income -->
+         <social_security_benefits>28000</social_security_benefits>
+         <pension_income>52000</pension_income>
+         <pension_withholding>8000</pension_withholding>
+         <ira_distributions>38000</ira_distributions>
+         <ira_distributions_taxable>38000</ira_distributions_taxable>
+         <ira_withholding>5700</ira_withholding>
+         <rmd_required>38000</rmd_required>
+         <rmd_satisfied>true</rmd_satisfied>
+         <!-- Investment income -->
+         <interest_income>12000</interest_income>
+         <ordinary_dividends>28000</ordinary_dividends>
+         <qualified_dividends>28000</qualified_dividends>
+         <long_term_gains>35000</long_term_gains>
+         <estimated_payments>12000</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Margaret Patterson</name>
+         <ssn>300-15-5002</ssn>
+         <date_of_birth>7/22/1956</date_of_birth>
+         <age>69</age>
+         <occupation>Retired Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <is_senior>true</is_senior>
+         <social_security_benefits>17000</social_security_benefits>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents (retired couple) -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties>
+      <!-- Primary residence (paid off) -->
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>7800 E Gainey Ranch Road, Scottsdale, AZ 85258</address>
+         <purchase_date>5/1/1995</purchase_date>
+         <purchase_price>285000</purchase_price>
+         <current_fmv>825000</current_fmv>
+         <mortgage_balance>0</mortgage_balance>
+         <property_taxes>6500</property_taxes>
+      </property>
+   </properties>
+
+   <!-- Investment accounts -->
+   <investment_accounts>
+      <investment_account id="1">
+         <id>1</id>
+         <type>traditional_ira</type>
+         <taxpayer_id>1</taxpayer_id>
+         <balance>950000</balance>
+         <rmd_amount>38000</rmd_amount>
+         <distributions>38000</distributions>
+      </investment_account>
+
+      <investment_account id="2">
+         <id>2</id>
+         <type>taxable_brokerage</type>
+         <taxpayer_id>1</taxpayer_id>
+         <balance>680000</balance>
+         <interest_earned>12000</interest_earned>
+         <ordinary_dividends>28000</ordinary_dividends>
+         <qualified_dividends>28000</qualified_dividends>
+         <long_term_gains>35000</long_term_gains>
+      </investment_account>
+   </investment_accounts>
+
+   <!-- Medical expenses (potential itemized deduction) -->
+   <medical_expenses>
+      <medical_expense id="1">
+         <id>1</id>
+         <category>insurance_premiums</category>
+         <description>Medicare supplement insurance</description>
+         <amount>8400</amount>
+      </medical_expense>
+
+      <medical_expense id="2">
+         <id>2</id>
+         <category>prescription_drugs</category>
+         <description>Prescription medications</description>
+         <amount>4200</amount>
+      </medical_expense>
+
+      <medical_expense id="3">
+         <id>3</id>
+         <category>dental</category>
+         <description>Dental work</description>
+         <amount>3800</amount>
+      </medical_expense>
+
+      <medical_expense id="4">
+         <id>4</id>
+         <category>doctor_visits</category>
+         <description>Co-pays and out-of-pocket</description>
+         <amount>2600</amount>
+      </medical_expense>
+   </medical_expenses>
+
+   <!-- Deductions -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Church donations</description>
+         <amount>12000</amount>
+      </deduction>
+
+      <deduction id="2">
+         <id>2</id>
+         <category>charity</category>
+         <description>Red Cross</description>
+         <amount>3000</amount>
+      </deduction>
+   </deductions>
+</job>
