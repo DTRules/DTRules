@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // getTestDataPath returns the path to the sample project test data.
@@ -659,11 +659,4 @@ func TestLargeTrace(t *testing.T) {
 			t.Errorf("Could not find node %d", i)
 		}
 	}
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

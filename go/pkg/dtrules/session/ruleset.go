@@ -79,6 +79,17 @@ func (rs *RuleSet) LoadEDD(r io.Reader) error {
 	return eddLoader.Load(r)
 }
 
+// LoadEDDJSON loads an EDD from a JSON reader.
+func (rs *RuleSet) LoadEDDJSON(r io.Reader) error {
+	tempSession := &loadSession{
+		factory:    rs.entityFactory,
+		dateParser: NewDateParser(),
+	}
+
+	jsonLoader := loader.NewJSONEDDLoader(tempSession, rs.entityFactory)
+	return jsonLoader.Load(r)
+}
+
 // LoadDecisionTables loads decision tables from a reader.
 func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 	// Create a temporary session for loading

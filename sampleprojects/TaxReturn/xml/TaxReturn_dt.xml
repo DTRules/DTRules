@@ -3282,6 +3282,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 "  Line 27 - EITC: $" result.eitc cvs strconcat job.audit_trail swap addto
 "  Line 28 - ACTC (refundable): $" result.total_actc cvs strconcat job.audit_trail swap addto
 "  Line 29 - AOTC (refundable portion): $" result.total_aotc_refundable cvs strconcat " per IRC 25A(i)(5)" strconcat job.audit_trail swap addto
+Calculate_MI_Tax
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -14327,6 +14328,111 @@ wi_tax /result.wi_tax xdef
 </policy_statements>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 41300: Calculate_MI_Tax - Michigan State Income Tax             -->
+<!-- Reference: Michigan Form MI-1040, 2025 Tax Year                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MI_Tax</table_name>
+<xls_file>Other.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Michigan state income tax using flat 4.25% rate. Michigan taxable income = Federal AGI - Michigan deductions - Michigan personal exemptions - retirement income subtractions. Michigan follows federal itemization if used.</COMMENTS>
+<TABLE_NUMBER>41300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Michigan tax calculation</action_description>
+<action_postfix>
+0.0 /result.mi_state_tax xdef
+0.0 /result.mi_taxable_income xdef
+0.0 /result.mi_deduction xdef
+0.0 /result.mi_exemptions xdef
+0.0 /result.mi_retirement_subtraction xdef
+"Michigan State Tax Calculation (TABLE 41300)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Not a Michigan resident</condition_comment>
+<condition_description>job.state is not "MI"</condition_description>
+<condition_postfix>
+job.state "MI" streq not
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No Michigan tax (not a MI resident)</action_comment>
+<action_description>set result.mi_state_tax = 0</action_description>
+<action_postfix>
+0.0 /result.mi_state_tax xdef
+"  Not a Michigan resident - no MI state tax" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MI tax with flat 4.25% rate</action_comment>
+<action_description>Calculate Michigan deductions, exemptions, and apply 4.25% flat tax rate</action_description>
+<action_postfix>
+0.0 /result.mi_deduction xdef
+result.deduction_used "itemized" streq {
+  result.total_itemized /result.mi_deduction xdef
+} if
+job.taxpayers {
+  dup .age 67 >= {
+    job.filing_status MFJ streq job.filing_status QSS streq or {
+      mi_standard_deduction_mfj_67 result.mi_deduction fmax /result.mi_deduction xdef
+    } {
+      mi_standard_deduction_single_67 result.mi_deduction fmax /result.mi_deduction xdef
+    } ifelse
+  } if
+  pop
+} forall
+mi_personal_exemption job.taxpayers length i* /result.mi_exemptions xdef
+0.0 /result.mi_retirement_subtraction xdef
+job.taxpayers {
+  dup .retirement_income 0.0 f> {
+    job.filing_status MFJ streq job.filing_status QSS streq or {
+      mi_retirement_tier1_limit_mfj /mi_limit xdef
+    } {
+      mi_retirement_tier1_limit /mi_limit xdef
+    } ifelse
+    dup .retirement_income mi_limit fmin result.mi_retirement_subtraction f+ /result.mi_retirement_subtraction xdef
+  } if
+  pop
+} forall
+result.agi result.mi_deduction f- result.mi_exemptions f- result.mi_retirement_subtraction f- 0 fmax /result.mi_taxable_income xdef
+result.mi_taxable_income mi_tax_rate f* /result.mi_state_tax xdef
+"  Michigan AGI (same as Federal AGI): $" result.agi cvs strconcat job.audit_trail swap addto
+"  Michigan Deduction: $" result.mi_deduction cvs strconcat job.audit_trail swap addto
+"  Michigan Personal Exemptions: $" result.mi_exemptions cvs strconcat job.audit_trail swap addto
+"  Michigan Retirement Subtraction: $" result.mi_retirement_subtraction cvs strconcat job.audit_trail swap addto
+"  Michigan Taxable Income: $" result.mi_taxable_income cvs strconcat job.audit_trail swap addto
+"  MI Tax (4.25% on $" result.mi_taxable_income cvs strconcat "): $" strconcat result.mi_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Not a Michigan resident - no state income tax</policy_description>
+<policy_statement_postfix>"Not a Michigan resident - no state income tax"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Michigan tax calculated using 4.25% flat rate</policy_description>
+<policy_statement_postfix>"Michigan tax calculated using 4.25% flat rate (TABLE 41300)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 
 <!-- TABLE 42100: Apply_NY_Tax_Brackets_Single - NY Single Filer Brackets -->
 <!-- Reference: New York Form IT-201 (2025)                                -->
