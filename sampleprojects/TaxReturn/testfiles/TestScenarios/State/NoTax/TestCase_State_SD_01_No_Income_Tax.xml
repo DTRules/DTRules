@@ -1,0 +1,109 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+   =====================================================================
+   SOUTH DAKOTA (SD) - NO STATE INCOME TAX TEST CASE
+   =====================================================================
+
+   South Dakota has NO state income tax on any type of income:
+   - Self-employment income: NOT TAXED
+   - Schedule C business income: NOT TAXED
+   - W-2 wages: NOT TAXED
+   - Investment income: NOT TAXED
+
+   South Dakota is one of 9 states with no personal income tax.
+   The state relies on sales tax and other revenue sources.
+
+   This test case validates:
+   - Schedule C business income ($75,000) is NOT taxed
+   - Self-employment tax still applies (federal)
+   - State tax = $0 for small business owners
+
+   Income breakdown:
+   - Schedule C gross income: $75,000
+   - Schedule C expenses: $15,000
+   - Net Schedule C income: $60,000
+   - Self-employment tax deduction: ~$4,238 (1/2 of SE tax)
+
+   Expected Results:
+   - Federal AGI: ~$55,762 ($60,000 - $4,238 SE tax deduction)
+   - Federal Taxable: ~$40,762 (after standard deduction)
+   - Federal Tax: ~$9,200 (includes SE tax + income tax)
+   - SD State Tax: $0 (no income tax)
+   =====================================================================
+   -->
+
+   <id>SD-NoTax-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>SD</state>
+   <city>Sioux Falls</city>
+
+   <!-- Expected Values for Validation -->
+   <expected_agi>55762</expected_agi>
+   <expected_taxable_income>40762</expected_taxable_income>
+   <expected_federal_tax>9200</expected_federal_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_total_tax>9200</expected_total_tax>
+
+   <!-- Self-Employed Business Owner - South Dakota Resident -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Thompson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>9/20/1980</date_of_birth>
+         <occupation>Marketing Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>75000</se_gross_income>
+         <se_expenses>15000</se_expenses>
+         <estimated_payments>3000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- Business vehicle -->
+   <vehicles>
+      <vehicle id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <description>2023 Honda Accord</description>
+         <purchase_date>1/15/2023</purchase_date>
+         <purchase_price>32000</purchase_price>
+         <total_miles>15000</total_miles>
+         <business_miles>12000</business_miles>
+         <method>standard_mileage</method>
+         <actual_expenses>0</actual_expenses>
+         <vehicle_depreciation>0</vehicle_depreciation>
+      </vehicle>
+   </vehicles>
+
+   <!-- No deductions -->
+   <deductions>
+   </deductions>
+</job>

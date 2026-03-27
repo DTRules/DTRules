@@ -31,6 +31,7 @@
 		<module>KidAid</module>
 		<module>KidAid_Application</module>
 		<module>SyntaxTests</module>
+		<module>TaxReturn</module>
 		<module>TestProject</module>
 	</modules>
 

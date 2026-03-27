@@ -1,0 +1,104 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 8814 - Parent Election to Report Child's Income -->
+   <!-- Scenario: Parent elects to include child's unearned income on parent's return -->
+   <!-- Child under 19 with unearned income under $12,500 -->
+
+   <!-- Form 8814 Calculation (2025): -->
+   <!-- Child's Unearned Income: $3,500 -->
+   <!-- Parent can elect to report on their return if: -->
+   <!-- - Child under 19 (or under 24 if full-time student) -->
+   <!-- - Only unearned income -->
+   <!-- - Unearned income < $12,500 -->
+   <!-- - No estimated tax payments made -->
+
+   <!-- Form 8814 Computation: -->
+   <!-- Child's gross income: $3,500 -->
+   <!-- Subtract: $1,300 (standard deduction amount) -->
+   <!-- Remaining: $2,200 -->
+   <!-- Parent adds to their AGI: $2,200 -->
+   <!-- Additional tax on first $1,300: $130 (flat 10% on this portion) -->
+
+   <id>KIDDIE-ELECTION-04</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>GA</state>
+
+   <expected_agi>152200</expected_agi>
+   <expected_additional_tax_form8814>130</expected_additional_tax_form8814>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Christopher Lee</name>
+         <ssn>501-44-5555</ssn>
+         <date_of_birth>3/8/1982</date_of_birth>
+         <occupation>Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>100000</w2_wages>
+         <w2_withholding>20000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Amanda Lee</name>
+         <ssn>502-44-5556</ssn>
+         <date_of_birth>6/14/1984</date_of_birth>
+         <occupation>Marketing Director</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophia Lee</name>
+         <ssn>503-44-5557</ssn>
+         <date_of_birth>10/12/2012</date_of_birth>
+         <age>13</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+         <gross_income>3500</gross_income>
+         <provided_own_support>false</provided_own_support>
+         <unearned_income>3500</unearned_income>
+         <earned_income>0</earned_income>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 8814 - Parent's Election to Report Child's Interest/Dividends -->
+   <parent_elections>
+      <parent_election id="1">
+         <id>1</id>
+         <form>8814</form>
+         <dependent_id>1</dependent_id>
+         <child_unearned_income>3500</child_unearned_income>
+         <amount_included_in_agi>2200</amount_included_in_agi>
+         <additional_tax>130</additional_tax>
+      </parent_election>
+   </parent_elections>
+</job>

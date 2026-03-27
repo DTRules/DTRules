@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/operators"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/operators"
 )
 
 // CompileToBytecode compiles a postfix expression string into bytecode.

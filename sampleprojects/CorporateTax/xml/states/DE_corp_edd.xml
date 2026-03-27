@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_dictionary name="CorporateTax_DE_Constants">
+
+  <!--
+    Delaware Corporate Income Tax - Entity Data Dictionary
+
+    Delaware has an 8.8% flat corporate income tax rate (DE Code Title 30 § 1902).
+    Uses single-sales factor apportionment.
+    Economic nexus threshold: $100,000.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='DE'
+           comment='Delaware two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='DE economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='DE economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='DE uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.088'
+           comment='DE corporate income tax rate: 8.8% flat rate (DE Code Title 30 § 1902)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='DE additions: federal interest, state tax refunds included in federal income, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='DE subtractions: municipal interest from other states, state income taxes paid, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='DE tax credits: research and development, brownfield development, historic preservation, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Delaware-Specific Extensions
+
+    Delaware does not require special state-specific fields beyond the standard
+    apportionment entity. DE uses a simple flat-rate tax structure.
+  -->
+  <entity name="result">
+    <!-- No DE-specific result fields needed -->
+  </entity>
+
+</entity_dictionary>

@@ -18,7 +18,7 @@ package decisiontable
 import (
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // Builder provides a fluent interface for constructing decision tables.
@@ -195,6 +195,12 @@ func (b *Builder) SetField(name, value string) *Builder {
 // SetFilename sets the source filename.
 func (b *Builder) SetFilename(filename string) *Builder {
 	b.dt.filename = filename
+	return b
+}
+
+// SetFilePath sets the canonical file path.
+func (b *Builder) SetFilePath(path string) *Builder {
+	b.dt.filePath = path
 	return b
 }
 

@@ -18,7 +18,7 @@ package operators
 import (
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func init() {
@@ -54,6 +54,10 @@ func init() {
 	Register("d-", opDateMinus)
 	Register("getdate", opGetDate)
 	Register("gettimestamp", opGetTimestamp)
+	// Date interval operators
+	Register("days", opDays)
+	Register("months", opMonths)
+	Register("years", opYears)
 }
 
 // opNow: ( -- date ) pushes the current date/time
@@ -96,7 +100,7 @@ func opNewDate(state dtrules.State) error {
 		return err
 	}
 
-	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
+	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 	return state.DataPush(dtrules.GetRTime(date))
 }
 
@@ -514,21 +518,43 @@ func opDateEQ(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRBoolean(t1.Equal(t2)))
 }
 
-// opDatePlus: ( date1 date2 -- date ) adds two dates
+// opDatePlus: ( date interval -- date ) or ( date1 date2 -- date )
+// If the second operand is an interval, adds the interval to the date.
+// Otherwise, adds two dates (legacy behavior).
 func opDatePlus(state dtrules.State) error {
-	date2Obj, err := state.DataPop()
+	operandObj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
-	date1Obj, err := state.DataPop()
+	dateObj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
-	t1, err := date1Obj.TimeValue()
+
+	// Check if operand is an interval
+	if interval, ok := dtrules.AsInterval(operandObj); ok {
+		t, err := dateObj.TimeValue()
+		if err != nil {
+			return err
+		}
+		var result time.Time
+		switch interval.GetUnit() {
+		case dtrules.IntervalDays:
+			result = t.AddDate(0, 0, interval.GetAmount())
+		case dtrules.IntervalMonths:
+			result = t.AddDate(0, interval.GetAmount(), 0)
+		case dtrules.IntervalYears:
+			result = t.AddDate(interval.GetAmount(), 0, 0)
+		}
+		return state.DataPush(dtrules.GetRTime(result))
+	}
+
+	// Legacy behavior: add two dates
+	t1, err := dateObj.TimeValue()
 	if err != nil {
 		return err
 	}
-	t2, err := date2Obj.TimeValue()
+	t2, err := operandObj.TimeValue()
 	if err != nil {
 		return err
 	}
@@ -536,21 +562,43 @@ func opDatePlus(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRTime(result))
 }
 
-// opDateMinus: ( date1 date2 -- date ) subtracts date2 from date1
+// opDateMinus: ( date interval -- date ) or ( date1 date2 -- date )
+// If the second operand is an interval, subtracts the interval from the date.
+// Otherwise, subtracts date2 from date1 (legacy behavior).
 func opDateMinus(state dtrules.State) error {
-	date2Obj, err := state.DataPop()
+	operandObj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
-	date1Obj, err := state.DataPop()
+	dateObj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
-	t1, err := date1Obj.TimeValue()
+
+	// Check if operand is an interval
+	if interval, ok := dtrules.AsInterval(operandObj); ok {
+		t, err := dateObj.TimeValue()
+		if err != nil {
+			return err
+		}
+		var result time.Time
+		switch interval.GetUnit() {
+		case dtrules.IntervalDays:
+			result = t.AddDate(0, 0, -interval.GetAmount())
+		case dtrules.IntervalMonths:
+			result = t.AddDate(0, -interval.GetAmount(), 0)
+		case dtrules.IntervalYears:
+			result = t.AddDate(-interval.GetAmount(), 0, 0)
+		}
+		return state.DataPush(dtrules.GetRTime(result))
+	}
+
+	// Legacy behavior: subtract two dates
+	t1, err := dateObj.TimeValue()
 	if err != nil {
 		return err
 	}
-	t2, err := date2Obj.TimeValue()
+	t2, err := operandObj.TimeValue()
 	if err != nil {
 		return err
 	}
@@ -574,4 +622,43 @@ func opGetTimestamp(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(dtrules.NewRString(t.Format("2006-01-02 15:04:05.000000000")))
+}
+
+// opDays: ( n -- interval ) creates a days interval
+func opDays(state dtrules.State) error {
+	nObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	n, err := nObj.IntValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.NewRInterval(n, dtrules.IntervalDays))
+}
+
+// opMonths: ( n -- interval ) creates a months interval
+func opMonths(state dtrules.State) error {
+	nObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	n, err := nObj.IntValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.NewRInterval(n, dtrules.IntervalMonths))
+}
+
+// opYears: ( n -- interval ) creates a years interval
+func opYears(state dtrules.State) error {
+	nObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	n, err := nObj.IntValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.NewRInterval(n, dtrules.IntervalYears))
 }

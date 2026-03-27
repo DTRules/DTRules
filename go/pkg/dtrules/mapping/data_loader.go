@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // dataLoader loads XML data according to a mapping.

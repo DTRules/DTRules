@@ -1,5 +1,7 @@
 # DTRules Go Implementation - Design Review
 
+> **Note:** The canonical version of this document is at [docs/go-design-review.md](../../../docs/go-design-review.md)
+
 ## Multi-Perspective Analysis
 
 This document reviews the optimized DTRules Go implementation from multiple perspectives to ensure design goals are met.

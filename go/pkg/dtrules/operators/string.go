@@ -20,7 +20,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func init() {

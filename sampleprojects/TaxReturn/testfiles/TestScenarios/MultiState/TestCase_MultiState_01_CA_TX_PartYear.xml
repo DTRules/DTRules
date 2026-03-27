@@ -1,0 +1,156 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 1: CA to TX Move (Part-Year Resident) -->
+   <!-- High-tax state (CA) to no-tax state (TX) mid-year move -->
+   <!-- Tests: Part-year resident allocation, CA tax on CA portion only -->
+   <!-- Move Date: June 30, 2025 (181 days in CA, 184 days in TX) -->
+   <id>MS-01-CA-TX</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <!-- Expected values for validation -->
+   <!-- Total W-2 Income: $180,000 -->
+   <!-- CA Period: Jan 1 - June 30 (181 days) = 49.6% of year -->
+   <!-- CA Allocated Income: $180,000 × 49.6% = $89,280 -->
+   <!-- TX has no state income tax -->
+   <!-- CA Tax (part-year resident): Based on $89,280 CA-source income -->
+   <expected_agi>180000</expected_agi>
+   <expected_taxable_income>150000</expected_taxable_income>
+   <expected_ca_allocated_income>89280</expected_ca_allocated_income>
+   <expected_tx_allocated_income>90720</expected_tx_allocated_income>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>CA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>6/30/2025</end_date>
+         <resident_status>part_year</resident_status>
+         <days_in_state>181</days_in_state>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>TX</state_code>
+         <start_date>7/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+         <days_in_state>184</days_in_state>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Martinez</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/15/1982</date_of_birth>
+         <occupation>Tech Executive</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>22000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Martinez</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>7/22/1984</date_of_birth>
+         <occupation>Marketing Director</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Tech Corp San Francisco</source>
+         <gross_amount>59520</gross_amount>
+         <withholding>11000</withholding>
+         <state_code>CA</state_code>
+         <state_period_id>1</state_period_id>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Tech Corp Austin</source>
+         <gross_amount>60480</gross_amount>
+         <withholding>11000</withholding>
+         <state_code>TX</state_code>
+         <state_period_id>2</state_period_id>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Marketing Inc SF</source>
+         <gross_amount>29760</gross_amount>
+         <withholding>4500</withholding>
+         <state_code>CA</state_code>
+         <state_period_id>1</state_period_id>
+      </income>
+      <income id="4">
+         <id>4</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Marketing Inc Austin</source>
+         <gross_amount>30240</gross_amount>
+         <withholding>4500</withholding>
+         <state_code>TX</state_code>
+         <state_period_id>2</state_period_id>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Martinez</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>5/10/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

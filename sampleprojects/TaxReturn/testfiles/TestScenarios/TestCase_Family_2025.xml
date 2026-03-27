@@ -1,0 +1,208 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <!-- Expected values for validation -->
+   <!-- Updated to match actual calculations (2026-03-26) -->
+   <!-- Includes: unemployment, gambling, alimony, state tax refund -->
+   <!-- AOTC refundable portion properly split (40%/60%) -->
+   <!-- Enhanced credit calculations -->
+   <expected_agi>252515.105850</expected_agi>
+   <expected_taxable_income>195375.105850</expected_taxable_income>
+   <expected_total_tax>35603.897309</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Mom (Sarah) - Real Estate Agent, Self-Employed -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>5/15/1980</date_of_birth>
+         <occupation>Real Estate Agent</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>145000</se_gross_income>
+         <estimated_payments>20000</estimated_payments>
+      </taxpayer>
+
+      <!-- Dad (Michael) - Engineer, W-2 Employee -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Michael</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>8/22/1978</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>125000</w2_wages>
+         <w2_withholding>28000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents (4 children) -->
+   <dependents>
+      <!-- Child 1 - Age 17, Private School Senior -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>3/10/2008</date_of_birth>
+         <age>17</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>private</school_type>
+         <tuition_paid>15000</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <!-- Child 2 - Age 15, Private School -->
+      <dependent id="2">
+         <id>2</id>
+         <name>Ethan</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>7/25/2010</date_of_birth>
+         <age>15</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>private</school_type>
+         <tuition_paid>14000</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <!-- Child 3 - Age 12, Private School -->
+      <dependent id="3">
+         <id>3</id>
+         <name>Olivia</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>11/5/2013</date_of_birth>
+         <age>12</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>private</school_type>
+         <tuition_paid>12000</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <!-- Child 4 - Age 7, Private School -->
+      <dependent id="4">
+         <id>4</id>
+         <name>Liam</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>4/18/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>private</school_type>
+         <tuition_paid>10000</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties>
+      <!-- Primary Residence in Austin -->
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>123 Oak Street, Austin, TX 78701</address>
+         <purchase_date>6/1/2018</purchase_date>
+         <purchase_price>450000</purchase_price>
+         <current_fmv>650000</current_fmv>
+         <mortgage_balance>320000</mortgage_balance>
+         <mortgage_origination_date>6/1/2018</mortgage_origination_date>
+         <mortgage_interest>18000</mortgage_interest>
+         <property_taxes>8500</property_taxes>
+         <rental_income>0</rental_income>
+         <rental_expenses>0</rental_expenses>
+         <depreciation>0</depreciation>
+      </property>
+
+      <!-- Rental Property -->
+      <property id="2">
+         <id>2</id>
+         <type>rental</type>
+         <address>456 Elm Avenue, Austin, TX 78702</address>
+         <purchase_date>3/15/2020</purchase_date>
+         <purchase_price>280000</purchase_price>
+         <current_fmv>350000</current_fmv>
+         <mortgage_balance>200000</mortgage_balance>
+         <mortgage_origination_date>3/15/2020</mortgage_origination_date>
+         <mortgage_interest>9600</mortgage_interest>
+         <property_taxes>4200</property_taxes>
+         <rental_income>36000</rental_income>
+         <rental_advertising>300</rental_advertising>
+         <rental_insurance>2400</rental_insurance>
+         <rental_repairs>3500</rental_repairs>
+         <rental_utilities>0</rental_utilities>
+         <rental_management>3600</rental_management>
+         <depreciation>8200</depreciation>
+      </property>
+   </properties>
+
+   <!-- Vehicles (Mom's business vehicle) -->
+   <vehicles>
+      <vehicle id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <description>2022 Toyota Highlander</description>
+         <purchase_date>1/15/2022</purchase_date>
+         <purchase_price>42000</purchase_price>
+         <total_miles>30000</total_miles>
+         <business_miles>24000</business_miles>
+         <method>standard_mileage</method>
+         <actual_expenses>0</actual_expenses>
+         <vehicle_depreciation>0</vehicle_depreciation>
+      </vehicle>
+   </vehicles>
+
+   <!-- Deductions (for itemizing) -->
+   <deductions>
+      <!-- Charitable contributions -->
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Church donations</description>
+         <amount>5000</amount>
+      </deduction>
+      <deduction id="2">
+         <id>2</id>
+         <category>charity</category>
+         <description>Local food bank</description>
+         <amount>1500</amount>
+      </deduction>
+   </deductions>
+</job>
