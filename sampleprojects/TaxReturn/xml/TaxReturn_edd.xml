@@ -1069,6 +1069,20 @@
 		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
 
 
+		<!-- Ohio State Tax Constants (2025) -->
+		<field name='oh_bracket_1_threshold' type='double' subtype='' access='r' input='' default_value='26050' comment='OH bracket 1 ceiling - 0% tax (2025)'></field>
+		<field name='oh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='OH bracket 2 ceiling - 2.75% tax (2025)'></field>
+		<field name='oh_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='OH tax rate bracket 1 (0.0%)'></field>
+		<field name='oh_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0275' comment='OH tax rate bracket 2 (2.75%)'></field>
+		<field name='oh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.03125' comment='OH tax rate bracket 3 (3.125%)'></field>
+		<field name='oh_exemption_low' type='double' subtype='' access='r' input='' default_value='2350' comment='OH personal exemption (AGI up to $40,000)'></field>
+		<field name='oh_exemption_mid' type='double' subtype='' access='r' input='' default_value='2100' comment='OH personal exemption (AGI $40,001 to $80,000)'></field>
+		<field name='oh_exemption_high' type='double' subtype='' access='r' input='' default_value='1850' comment='OH personal exemption (AGI over $80,000)'></field>
+		<field name='oh_exemption_threshold_low' type='double' subtype='' access='r' input='' default_value='40000' comment='OH exemption tier 1 threshold'></field>
+		<field name='oh_exemption_threshold_high' type='double' subtype='' access='r' input='' default_value='80000' comment='OH exemption tier 2 threshold'></field>
+		<field name='oh_exemption_phaseout_threshold' type='double' subtype='' access='r' input='' default_value='750000' comment='OH exemption phaseout starts at $750,000 MAGI'></field>
+
+
 		<!-- Delaware State Tax Constants (2025) -->
 		<field name='de_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='3250' comment='DE standard deduction Single (2025)'></field>
 		<field name='de_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='6500' comment='DE standard deduction MFJ (2025)'></field>
@@ -1085,6 +1099,7 @@
 		<field name='de_bracket_5_threshold' type='double' subtype='' access='r' input='' default_value='20000' comment='DE bracket 5 threshold (5.2% starts here)'></field>
 		<field name='de_bracket_6_threshold' type='double' subtype='' access='r' input='' default_value='25000' comment='DE bracket 6 threshold (5.55% starts here)'></field>
 		<field name='de_bracket_7_threshold' type='double' subtype='' access='r' input='' default_value='60000' comment='DE bracket 7 threshold (6.6% starts here)'></field>
+
 
 		<!-- Pennsylvania State Tax Constants (2025) -->
 		<field name='pa_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0307' comment='PA flat tax rate 3.07% (2025). Source: 72 P.S. § 7302'></field>
@@ -1639,6 +1654,17 @@
 		<field name='mt_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 2 tax (5.9%)'></field>
 		<field name='mt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana state income tax'></field>
 
+
+		<!-- Ohio State Tax Results -->
+		<field name='oh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio AGI (federal AGI + adjustments)'></field>
+		<field name='oh_exemption_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='OH personal exemption amount'></field>
+		<field name='oh_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total OH exemptions (all persons)'></field>
+		<field name='oh_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio taxable income after exemptions'></field>
+		<field name='oh_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 1 tax (0%)'></field>
+		<field name='oh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 2 tax (2.75%)'></field>
+		<field name='oh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 3 tax (3.125%)'></field>
+		<field name='oh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio state income tax'></field>
+
 		<!-- Delaware State Tax Results -->
 		<field name='de_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware AGI (federal AGI + adjustments)'></field>
 		<field name='de_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='DE standard deduction amount'></field>
@@ -1651,6 +1677,7 @@
 		<field name='de_bracket_6_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 6 tax (5.55%)'></field>
 		<field name='de_bracket_7_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 7 tax (6.6%)'></field>
 		<field name='de_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware state income tax'></field>
+
 
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
