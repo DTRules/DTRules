@@ -41,8 +41,10 @@ var (
 	traceFlag  = flag.Bool("trace", false, "Enable trace output during execution")
 	debug      = flag.Bool("debug", false, "Enable debug output during execution")
 
-	// Compile and export options
-	compile      = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
+	// Compile options
+	compile = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
+
+	// Export options
 	exportXLS    = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix, deprecated)")
 	exportDT     = flag.String("export-dt", "", "Export decision tables to Excel file (.xlsx)")
 	exportEDD    = flag.String("export-edd", "", "Export EDD to Excel file (.xlsx)")
@@ -105,14 +107,14 @@ func main() {
 		return
 	}
 
-	// Standard execution mode requires rules
+	// Load rules if paths are specified
 	eddPath, dtPath, err := resolveFilePaths()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		flag.Usage()
 		os.Exit(1)
 	}
 
-	// Load rule set
 	rs, err := loadRuleSet(eddPath, dtPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
@@ -128,6 +130,12 @@ func main() {
 	// Handle validate mode
 	if *validate {
 		validateRules(rs)
+		return
+	}
+
+	// Handle compare mode
+	if *comparePath != "" {
+		handleCompare(rs)
 		return
 	}
 
@@ -152,12 +160,6 @@ func main() {
 	// Handle directory export modes (grouped by xls_file)
 	if *exportDTDir != "" || *exportEDDDir != "" {
 		exportToDirectories(rs, *exportDTDir, *exportEDDDir)
-		return
-	}
-
-	// Handle compare mode
-	if *comparePath != "" {
-		handleCompare(rs)
 		return
 	}
 
