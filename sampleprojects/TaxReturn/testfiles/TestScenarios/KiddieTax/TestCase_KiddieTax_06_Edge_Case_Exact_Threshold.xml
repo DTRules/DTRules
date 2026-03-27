@@ -1,0 +1,108 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Kiddie Tax Edge Case - Exact Threshold -->
+   <!-- Scenario: Child exactly at $2,500 unearned income threshold -->
+   <!-- Tests boundary condition for kiddie tax application -->
+
+   <!-- Boundary Testing: -->
+   <!-- 2025 Kiddie Tax Threshold: $2,500 -->
+   <!-- Child's Unearned Income: $2,500 (exactly at threshold) -->
+
+   <!-- Kiddie Tax Calculation: -->
+   <!-- Unearned Income: $2,500 -->
+   <!-- Standard Deduction for Dependent: $1,300 -->
+   <!-- Remaining: $2,500 - $1,300 = $1,200 -->
+   <!-- All $1,200 taxed at child's rate (10%): $1,200 x 10% = $120 -->
+   <!-- No parent's rate applied (under $2,600 net threshold) -->
+   <!-- Total Tax: $120 -->
+
+   <!-- Note: At exactly $2,500 gross, the NET unearned (after $1,300 deduction) -->
+   <!-- is $1,200, which is below the $1,300 child's portion threshold. -->
+   <!-- Only amounts over $2,600 gross trigger parent's rate. -->
+
+   <id>KIDDIE-EDGE-06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>IL</state>
+
+   <expected_agi>115000</expected_agi>
+   <expected_total_kiddie_tax>120</expected_total_kiddie_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Daniel Brown</name>
+         <ssn>701-66-7777</ssn>
+         <date_of_birth>7/30/1980</date_of_birth>
+         <occupation>Sales Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>15000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Brown</name>
+         <ssn>702-66-7778</ssn>
+         <date_of_birth>12/5/1982</date_of_birth>
+         <occupation>Office Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Tyler Brown</name>
+         <ssn>703-66-7779</ssn>
+         <date_of_birth>2/28/2010</date_of_birth>
+         <age>15</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+         <gross_income>2500</gross_income>
+         <provided_own_support>false</provided_own_support>
+         <unearned_income>2500</unearned_income>
+         <earned_income>0</earned_income>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 8615 - Child's Unearned Income (Kiddie Tax) -->
+   <child_unearned_incomes>
+      <child_unearned_income id="1">
+         <id>1</id>
+         <dependent_id>1</dependent_id>
+         <child_age>15</child_age>
+         <is_student>true</is_student>
+         <child_earned_income>0</child_earned_income>
+         <unearned_income_amount>2500</unearned_income_amount>
+         <child_itemized_deductions>0</child_itemized_deductions>
+         <parent_taxable_income>85000</parent_taxable_income>
+         <parent_filing_status>MFJ</parent_filing_status>
+      </child_unearned_income>
+   </child_unearned_incomes>
+</job>

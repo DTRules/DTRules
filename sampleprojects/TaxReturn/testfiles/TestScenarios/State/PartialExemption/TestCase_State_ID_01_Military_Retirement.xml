@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Idaho Military Retirement Test Case -->
+   <!-- Test Case ID-Military-01: Military retirement income with deduction -->
+   <!-- ID provides deduction for military retirement (specific rules vary) -->
+   <!-- This test assumes Idaho's general retirement income deduction applies -->
+
+   <id>ID-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>ID</state>
+   <city>Boise</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $32,000 military retirement + $38,000 W2 = $70,000 -->
+   <!-- AGI: $70,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $55,000 -->
+   <!-- Federal Tax: ~$6,800 -->
+   <!-- ID: Progressive tax (5.8% top rate for 2025) -->
+   <!-- ID Military Retirement Deduction: Varies (assume partial deduction) -->
+   <!-- ID Taxable Income: ~$62,000 (with deduction) -->
+   <!-- ID Tax (progressive brackets): ~$3,600 -->
+   <!-- Total Tax: $10,400 -->
+   <!-- Withholding: $11,000 -->
+   <!-- Refund: $600 -->
+   <expected_agi>70000</expected_agi>
+   <expected_taxable_income>55000</expected_taxable_income>
+   <expected_total_tax>10400</expected_total_tax>
+   <expected_state_tax>3600</expected_state_tax>
+   <expected_refund>600</expected_refund>
+
+   <!-- Retired Military Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer</name>
+         <last_name>Wilson</last_name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>9/8/1967</date_of_birth>
+         <occupation>Military Retiree - Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>38000</w2_wages>
+         <w2_withholding>11000</w2_withholding>
+         <military_retirement_pay>32000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

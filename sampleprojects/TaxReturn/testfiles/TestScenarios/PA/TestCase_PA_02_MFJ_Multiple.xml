@@ -1,0 +1,125 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- PA Test Case 2: Married Filing Jointly with Multiple Income Sources -->
+   <id>PA-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>PA</state>
+   <city>Philadelphia</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: ~$150,000 -->
+   <!-- Primary: W-2 $85,000 -->
+   <!-- Spouse: W-2 $45,000 + Self-Employment $20,000 -->
+   <!-- Total AGI: $150,000 -->
+   <expected_agi>150000</expected_agi>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Davis</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>6/20/1985</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>12750</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Robert Davis</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>9/10/1983</date_of_birth>
+         <occupation>Accountant / Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>6750</w2_withholding>
+         <se_gross_income>20000</se_gross_income>
+         <estimated_payments>3000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>85000</gross_amount>
+         <withholding>12750</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>45000</gross_amount>
+         <withholding>6750</withholding>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>self_employment</type>
+         <gross_amount>20000</gross_amount>
+         <withholding>0</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophie Davis</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>4/15/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Emma Davis</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>8/22/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

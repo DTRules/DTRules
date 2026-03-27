@@ -1,0 +1,89 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- EITC Test: 3+ children -->
+   <!-- 2025 EITC 3+ children: max $8,046 -->
+   <!-- Income range: $16,370 - $62,106 for MFJ -->
+   <!-- This scenario: $38,000 income (in plateau range for max credit) -->
+   <!-- Expected EITC: $8,046 (maximum for 3+ children) -->
+
+   <id>Credits-12</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $38,000 combined W-2 (in EITC max range for 3+ children) -->
+   <!-- AGI: $38,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $8,000 -->
+   <!-- Tax: $800 -->
+   <!-- EITC: $8,046 (maximum for 3+ children, refundable) -->
+   <!-- CTC: $6,000 (3 children × $2,000) -->
+   <!-- Very substantial refund expected -->
+   <expected_agi>38000</expected_agi>
+   <expected_taxable_income>8000</expected_taxable_income>
+   <expected_eitc>8046</expected_eitc>
+   <expected_ctc>6000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Daniel Lopez</name>
+         <ssn>333-55-7777</ssn>
+         <date_of_birth>3/8/1987</date_of_birth>
+         <occupation>Delivery Driver</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>24000</w2_wages>
+         <w2_withholding>1800</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sofia Lopez</name>
+         <ssn>333-55-8888</ssn>
+         <date_of_birth>6/20/1989</date_of_birth>
+         <occupation>Home Care Provider</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>14000</w2_wages>
+         <w2_withholding>1000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Gabriela Lopez</name>
+         <ssn>444-66-7777</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>1/12/2014</date_of_birth>
+         <age>11</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Diego Lopez</name>
+         <ssn>444-66-8888</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>5/25/2016</date_of_birth>
+         <age>9</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="3">
+         <id>3</id>
+         <name>Valentina Lopez</name>
+         <ssn>444-66-9999</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>10/3/2018</date_of_birth>
+         <age>7</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

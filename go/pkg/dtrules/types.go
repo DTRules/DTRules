@@ -128,6 +128,7 @@ var (
 	TypeDouble        *RType
 	TypeName          *RType
 	TypeDate          *RType
+	TypeInterval      *RType
 	TypeBoolean       *RType
 	TypeNull          *RType
 	TypeArray         *RType
@@ -145,6 +146,7 @@ func init() {
 	TypeDouble = NewType("double")
 	TypeName = NewType("name")
 	TypeDate = NewType("date")
+	TypeInterval = NewType("interval")
 	TypeBoolean = NewType("boolean")
 	TypeNull = NewType("null")
 	TypeArray = NewType("array")

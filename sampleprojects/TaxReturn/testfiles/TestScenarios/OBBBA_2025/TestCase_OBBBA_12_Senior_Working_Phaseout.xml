@@ -1,0 +1,67 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Single working senior age 67 with phaseout -->
+   <!-- Tests Senior Additional Deduction for working senior with high income -->
+   <!-- Additional $6,000 deduction for senior, Phase-out at $150,000 MAGI for Single -->
+   <!-- Working senior with wages + SS benefits exceeding threshold -->
+
+   <id>12</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>WA</state>
+   <city>Seattle</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Wages: $95,000 (part-time consultant) -->
+   <!-- Social Security: $28,000 -->
+   <!-- Self-Employment Income: $45,000 -->
+   <!-- Total Income: $168,000 ($18k into phase-out zone) -->
+   <!-- Senior OBBBA Deduction: $6,000 max -->
+   <!-- Phase-out calculation: $18,000 over $150k threshold -->
+   <!-- Assume linear phase-out over $50k range: 36% reduction -->
+   <!-- Senior Deduction: $6,000 * 64% = $3,840 -->
+   <!-- AGI: $168,000 - $3,840 = $164,160 -->
+   <!-- Standard Deduction: $15,000 + $1,600 (65+) = $16,600 -->
+   <!-- Taxable Income: $164,160 - $16,600 = $147,560 -->
+   <!-- Tax: 10%(11,600)+12%(35,550)+22%(53,375)+24%(46,035) = $28,286 -->
+   <expected_agi>164160</expected_agi>
+   <expected_taxable_income>147560</expected_taxable_income>
+   <expected_total_tax>28286</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Richard Chen</name>
+      <ssn>555-77-8888</ssn>
+      <date_of_birth>1958-01-30</date_of_birth>
+      <occupation>Business Consultant</occupation>
+      <is_self_employed>true</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>95000</w2_wages>
+      <w2_withholding>20000</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>28000</social_security_income>
+      <is_senior>true</is_senior>
+   </taxpayer>
+
+   <!-- Self-employment income -->
+   <income>
+      <id>1</id>
+      <taxpayer_id>1</taxpayer_id>
+      <type>self_employment</type>
+      <source>Consulting Practice</source>
+      <gross_amount>45000</gross_amount>
+      <tax_withheld>0</tax_withheld>
+      <is_earned>true</is_earned>
+   </income>
+</job>
