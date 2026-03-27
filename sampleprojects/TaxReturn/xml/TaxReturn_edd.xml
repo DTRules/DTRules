@@ -1078,6 +1078,17 @@
 		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
+		<!-- Kansas State Tax Constants (2025) - Senate Bill 1 -->
+		<field name='ks_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='9765' comment='KS standard deduction Single (2025)'></field>
+		<field name='ks_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='26540' comment='KS standard deduction MFJ (2025)'></field>
+		<field name='ks_personal_exemption_single' type='double' subtype='' access='r' input='' default_value='9160' comment='KS personal exemption for single filers (2025)'></field>
+		<field name='ks_personal_exemption_mfj' type='double' subtype='' access='r' input='' default_value='18320' comment='KS personal exemption for MFJ (2025)'></field>
+		<field name='ks_dependent_exemption' type='double' subtype='' access='r' input='' default_value='2320' comment='KS exemption per dependent (2025)'></field>
+		<field name='ks_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='KS tax rate bracket 1 (5.20%)'></field>
+		<field name='ks_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0558' comment='KS tax rate bracket 2 (5.58%)'></field>
+		<field name='ks_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='23000' comment='KS bracket 2 threshold Single (above this uses 5.58%)'></field>
+		<field name='ks_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='46000' comment='KS bracket 2 threshold MFJ (above this uses 5.58%)'></field>
+
 
 		<!-- Georgia State Tax Constants (2025) -->
 		<field name='ga_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0519' comment='Georgia flat tax rate (5.19%)'></field>
@@ -1243,6 +1254,15 @@
 		<field name='sc_rate_1' type='double' subtype='' access='r' input='' default_value='0.00' comment='SC rate for income up to $3,560 (0%)'></field>
 		<field name='sc_rate_2' type='double' subtype='' access='r' input='' default_value='0.03' comment='SC rate for income $3,561-$17,830 (3%)'></field>
 		<field name='sc_rate_3' type='double' subtype='' access='r' input='' default_value='0.06' comment='SC rate for income above $17,830 (6%)'></field>
+
+		<!-- Idaho State Tax Constants (2025) -->
+		<field name='id_tax_rate' type='double' subtype='' access='r' input='' default_value='0.053' comment='Idaho tax rate (5.3%)'></field>
+		<field name='id_bracket_threshold_single' type='double' subtype='' access='r' input='' default_value='4811' comment='Idaho 0% bracket threshold - single (2025)'></field>
+		<field name='id_bracket_threshold_married' type='double' subtype='' access='r' input='' default_value='9622' comment='Idaho 0% bracket threshold - married (2025)'></field>
+		<field name='id_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Idaho standard deduction - single (2025)'></field>
+		<field name='id_standard_deduction_married' type='double' subtype='' access='r' input='' default_value='30000' comment='Idaho standard deduction - married (2025)'></field>
+		<field name='id_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Idaho standard deduction - head of household (2025)'></field>
+		<field name='id_food_tax_credit' type='double' subtype='' access='r' input='' default_value='155' comment='Idaho food tax credit per person (2025)'></field>
 
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
@@ -1476,6 +1496,14 @@
 		<field name='va_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='17500' comment='Virginia standard deduction MFJ (2025)'></field>
 		<field name='va_personal_exemption' type='double' subtype='' access='r' input='' default_value='930' comment='Virginia personal exemption (2025)'></field>
 		<field name='va_personal_exemption_senior' type='double' subtype='' access='r' input='' default_value='800' comment='Virginia additional exemption for age 65+ or blind (2025)'></field>
+
+		<!-- Michigan State Tax (2025) -->
+		<field name='mi_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0425' comment='Michigan flat tax rate (4.25%)'></field>
+		<field name='mi_personal_exemption' type='double' subtype='' access='r' input='' default_value='5800' comment='Michigan personal exemption (2025)'></field>
+		<field name='mi_standard_deduction_single_67' type='double' subtype='' access='r' input='' default_value='20000' comment='Michigan standard deduction Single age 67+ (2025)'></field>
+		<field name='mi_standard_deduction_mfj_67' type='double' subtype='' access='r' input='' default_value='40000' comment='Michigan standard deduction MFJ age 67+ (2025)'></field>
+		<field name='mi_retirement_tier1_limit' type='double' subtype='' access='r' input='' default_value='20000' comment='Michigan retirement deduction limit tier 1 (single)'></field>
+		<field name='mi_retirement_tier1_limit_mfj' type='double' subtype='' access='r' input='' default_value='40000' comment='Michigan retirement deduction limit tier 1 (MFJ)'></field>
 
 		<!-- Wisconsin State Tax Constants (2025) -->
 		<field name='wi_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.035' comment='Wisconsin tax rate bracket 1 (3.5%)'></field>
@@ -1797,6 +1825,13 @@
 		<field name='va_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia standard deduction or itemized deduction'></field>
 		<field name='va_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Virginia personal exemptions'></field>
 
+		<!-- State Tax (Michigan) -->
+		<field name='mi_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan state income tax (TABLE 41300)'></field>
+		<field name='mi_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan taxable income after deductions and exemptions'></field>
+		<field name='mi_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan standard deduction or itemized deduction'></field>
+		<field name='mi_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Michigan personal exemptions'></field>
+		<field name='mi_retirement_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan retirement income subtraction'></field>
+
 		<!-- EITC -->
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
 
@@ -1820,6 +1855,15 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+		<!-- Kansas State Tax Results -->
+		<field name='ks_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Kansas AGI (federal AGI + adjustments)'></field>
+		<field name='ks_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='KS standard deduction amount'></field>
+		<field name='ks_personal_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='KS total personal exemptions'></field>
+		<field name='ks_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Kansas taxable income'></field>
+		<field name='ks_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='KS bracket 1 tax (5.20%)'></field>
+		<field name='ks_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='KS bracket 2 tax (5.58%)'></field>
+		<field name='ks_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Kansas state income tax'></field>
+
 
 		<!-- Georgia State Tax Results -->
 		<field name='ga_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia AGI (federal AGI + adjustments)'></field>
@@ -1921,6 +1965,16 @@
 		<field name='sc_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='South Carolina taxable income'></field>
 		<field name='sc_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='South Carolina state income tax'></field>
 
+
+		<!-- Idaho State Tax Results -->
+		<field name='id_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho AGI (federal AGI + adjustments)'></field>
+		<field name='id_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho standard deduction amount'></field>
+		<field name='id_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho taxable income'></field>
+		<field name='id_bracket_1_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho income in 0% bracket'></field>
+		<field name='id_bracket_2_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho income in 5.3% bracket'></field>
+		<field name='id_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho tax before credits'></field>
+		<field name='id_food_tax_credit_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Idaho food tax credit'></field>
+		<field name='id_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Idaho state income tax'></field>
 
 		<!-- Wisconsin State Tax Results -->
 		<field name='wi_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Wisconsin AGI (federal AGI + adjustments)'></field>
