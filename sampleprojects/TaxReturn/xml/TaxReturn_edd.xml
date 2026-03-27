@@ -260,6 +260,8 @@
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
 		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
+		<!-- Non-resident state tax -->
+		<field name='state_location' type='string' subtype='' access='r' input='main' default_value='' comment='State where property is located (for non-resident tax on rental income)'></field>
 		<!-- Form 8396 - Mortgage Interest Credit -->
 		<field name='has_mortgage_credit_certificate' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Has MCC from state/local government (Form 8396)'></field>
 		<field name='mcc_rate' type='double' subtype='' access='r' input='main' default_value='0' comment='Certificate credit rate, usually 10%-50% (Form 8396)'></field>
@@ -1827,7 +1829,7 @@
 		<field name='ca_mhst_threshold' type='double' subtype='' access='r' input='' default_value='1000000' comment='MHST threshold $1M+ (all filing statuses)'></field>
 		<field name='ca_mhst' type='double' subtype='' access='rw' input='' default_value='0' comment='CA Mental Health Services Tax (1% on $1M+)'></field>
 		<field name='ca_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='CA standard deduction (computed)'></field>
-		<field name='ca_regular_tax' type='double' subtype='' access='rw' input= ' default_value='0' comment='CA regular tax (before MHST)'></field>
+		<field name='ca_regular_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='CA regular tax (before MHST)'></field>
 
 		<!-- Colorado state tax fields -->
 		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='CO flat tax rate 4.40% (2025). Source: Colorado DOR'></field>
@@ -1851,6 +1853,8 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is resident (vs non-resident) - used by non-resident tax calculation'></field>
+		<field name='state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in this state (for non-residents) - used by non-resident tax calculation'></field>
 		<field name='residency_status' type='string' subtype='' access='rw' input='main' default_value='full_year_resident' comment='Residency status: full_year_resident, part_year_resident, non_resident'></field>
 		<field name='residency_start_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency began (for part-year residents)'></field>
 		<field name='residency_end_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency ended (for part-year residents)'></field>
