@@ -1,0 +1,99 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- NE Test Case 2: Married Filing Jointly in three brackets -->
+   <id>NE-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>NE</state>
+   <city>Lincoln</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $95,000 -->
+   <!-- NE AGI: $95,000 -->
+   <!-- NE Standard Deduction: $17,200 (MFJ) -->
+   <!-- NE Taxable Income: $77,800 -->
+   <!-- NE Tax: $8,040 × 2.46% = $197.78 (bracket 1) -->
+   <!--        + ($48,250 - $8,040) × 3.51% = $40,210 × 3.51% = $1,411.37 (bracket 2) -->
+   <!--        + ($77,800 - $48,250) × 5.01% = $29,550 × 5.01% = $1,480.46 (bracket 3) -->
+   <!--        = $3,089.61 -->
+   <expected_agi>95000</expected_agi>
+   <expected_ne_agi>95000</expected_ne_agi>
+   <expected_ne_taxable_income>77800</expected_ne_taxable_income>
+   <expected_ne_tax>3089.61</expected_ne_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Brown</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/10/1988</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>8500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Brown</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/22/1990</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>4700</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>60000</gross_amount>
+         <withholding>8500</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>35000</gross_amount>
+         <withholding>4700</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
