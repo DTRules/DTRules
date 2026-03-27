@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- KS Test Case 3: Single High Earner Using Both Brackets -->
+   <id>KS-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>KS</state>
+   <city>Kansas City</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $75,000 -->
+   <!-- KS AGI: $75,000 -->
+   <!-- KS Standard Deduction: $9,765 (Single) -->
+   <!-- KS Personal Exemption: $9,160 (Single) -->
+   <!-- KS Taxable Income: $75,000 - $9,765 - $9,160 = $56,075 -->
+   <!-- KS Tax: -->
+   <!--   Bracket 1 (5.20% on $0-$23,000): $23,000 × 5.20% = $1,196.00 -->
+   <!--   Bracket 2 (5.58% on $23,000-$56,075): $33,075 × 5.58% = $1,845.59 -->
+   <!--   Total: $1,196.00 + $1,845.59 = $3,041.59 -->
+   <expected_agi>75000</expected_agi>
+   <expected_ks_agi>75000</expected_ks_agi>
+   <expected_ks_taxable_income>56075</expected_ks_taxable_income>
+   <expected_ks_bracket_1_tax>1196.00</expected_ks_bracket_1_tax>
+   <expected_ks_bracket_2_tax>1845.59</expected_ks_bracket_2_tax>
+   <expected_ks_tax>3041.59</expected_ks_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Brown</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>2/28/1982</date_of_birth>
+         <occupation>Software Developer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>11000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>75000</gross_amount>
+         <withholding>11000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
