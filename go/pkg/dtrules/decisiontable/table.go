@@ -806,6 +806,16 @@ func (dt *RDecisionTable) GetFilename() string {
 	return dt.filename
 }
 
+// GetFilePath returns the file path (alias for GetFilename, checks FILE_PATH field first)
+func (dt *RDecisionTable) GetFilePath() string {
+	// Check if FILE_PATH is in fields (multi-file architecture)
+	if filePath, ok := dt.fields["FILE_PATH"]; ok && filePath != "" {
+		return filePath
+	}
+	// Fall back to filename
+	return dt.filename
+}
+
 // GetContexts returns the context expressions
 func (dt *RDecisionTable) GetContexts() []string {
 	return dt.contexts

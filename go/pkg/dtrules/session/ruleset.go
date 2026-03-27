@@ -16,7 +16,11 @@
 package session
 
 import (
+	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
@@ -87,6 +91,91 @@ func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 
 	dtLoader := loader.NewDTLoader(tempSession, rs.entityFactory)
 	return dtLoader.Load(r)
+}
+
+// LoadFromDirectory loads all XML files from a directory.
+// This method loads both EDD and DT files found in the directory.
+func (rs *RuleSet) LoadFromDirectory(dirPath string) error {
+	// Verify directory exists
+	info, err := os.Stat(dirPath)
+	if err != nil {
+		return fmt.Errorf("cannot access directory %s: %w", dirPath, err)
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("%s is not a directory", dirPath)
+	}
+
+	// Create a temporary session for loading
+	tempSession := &loadSession{
+		factory:    rs.entityFactory,
+		dateParser: NewDateParser(),
+	}
+
+	// Find all XML files in directory (including subdirectories)
+	var eddFiles, dtFiles []string
+	err = filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(strings.ToLower(path), ".xml") {
+			return nil
+		}
+
+		// Read first few lines to determine file type
+		f, err := os.Open(path)
+		if err != nil {
+			return nil // Skip files we can't read
+		}
+		defer f.Close()
+
+		buf := make([]byte, 1024)
+		n, _ := f.Read(buf)
+		content := string(buf[:n])
+
+		if strings.Contains(content, "<entity_data_dictionary") {
+			eddFiles = append(eddFiles, path)
+		} else if strings.Contains(content, "<decision_tables") {
+			dtFiles = append(dtFiles, path)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error walking directory: %w", err)
+	}
+
+	// Load EDD files first
+	for _, eddPath := range eddFiles {
+		f, err := os.Open(eddPath)
+		if err != nil {
+			return fmt.Errorf("failed to open EDD file %s: %w", eddPath, err)
+		}
+		eddLoader := loader.NewEDDLoader(tempSession, rs.entityFactory)
+		err = eddLoader.Load(f)
+		f.Close()
+		if err != nil {
+			return fmt.Errorf("failed to load EDD from %s: %w", eddPath, err)
+		}
+	}
+
+	// Load DT files
+	for _, dtPath := range dtFiles {
+		f, err := os.Open(dtPath)
+		if err != nil {
+			return fmt.Errorf("failed to open DT file %s: %w", dtPath, err)
+		}
+		dtLoader := loader.NewDTLoader(tempSession, rs.entityFactory)
+		err = dtLoader.Load(f)
+		f.Close()
+		if err != nil {
+			return fmt.Errorf("failed to load DT from %s: %w", dtPath, err)
+		}
+	}
+
+	return nil
 }
 
 // NewSession creates a new session for this rule set.

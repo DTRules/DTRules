@@ -1,0 +1,90 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- New Jersey Test Case 02: Married filing jointly with mid income -->
+   <!-- Tests NJ progressive tax brackets for MFJ (2.45%, 3.5%, 5.525%) -->
+
+   <id>NJ-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>M</filing_status>
+   <state>NJ</state>
+   <city>Trenton</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $100,000 W2 combined -->
+   <!-- Federal AGI: $100,000 -->
+   <!-- Federal Standard Deduction: $30,000 (MFJ) -->
+   <!-- Federal Taxable: $70,000 -->
+   <!-- Federal Tax: $7,859 (10% on $23,850 + 12% on $46,150) -->
+   <!-- NJ uses AGI minus 2x personal exemption: $100,000 - $2,000 = $98,000 -->
+   <!-- NJ Tax MFJ brackets: -->
+   <!--   $280 (1.4% on $20,000) -->
+   <!--   + $525 (1.75% on $30,000) -->
+   <!--   + $490 (2.45% on $20,000) -->
+   <!--   + $350 (3.5% on $10,000) -->
+   <!--   + $995 (5.525% on $18,000) -->
+   <!--   = $2,640 -->
+   <expected_agi>100000</expected_agi>
+   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_federal_tax>7859</expected_federal_tax>
+   <expected_state_tax>2640</expected_state_tax>
+   <expected_total_tax>10499</expected_total_tax>
+
+   <!-- Married Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Martinez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>3/12/1985</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <state_withholding>2000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Robert Martinez</name>
+         <ssn>444-55-7777</ssn>
+         <date_of_birth>7/25/1983</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>5000</w2_withholding>
+         <state_withholding>1500</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

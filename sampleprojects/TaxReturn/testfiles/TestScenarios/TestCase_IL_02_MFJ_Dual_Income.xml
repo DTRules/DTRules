@@ -1,0 +1,67 @@
+<job>
+   <copyright>Copyright 2025 DTRules.com</copyright>
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>IL</state>
+   <city>Test City</city>
+   
+   <!-- Scenario 2: MFJ, $155k combined income, 2 children -->
+   <expected_agi>155000</expected_agi>
+   <expected_taxable_income>125000</expected_taxable_income>
+   
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Spouse One</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>1/1/1982</date_of_birth>
+         <occupation>Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+         <w2_withholding>14000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Spouse Two</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>1/1/1984</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Child One</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>1/1/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Child Two</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>1/1/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+</job>

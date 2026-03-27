@@ -1,0 +1,80 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Child Tax Credit Test: Additional CTC (refundable portion) -->
+   <!-- For low-income families with earned income -->
+   <!-- Additional CTC = 15% of earned income over $2,500 -->
+   <!-- Max refundable: $1,700 per child (2025) -->
+   <!-- This family: ($28,000 - $2,500) × 15% = $3,825 -->
+   <!-- With 2 children: min($3,825, $1,700 × 2) = $3,400 refundable -->
+
+   <id>Credits-08</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $28,000 W-2 (low income, qualifies for refundable portion) -->
+   <!-- AGI: $28,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $0 (deduction exceeds income) -->
+   <!-- Tax: $0 -->
+   <!-- CTC: $4,000 total ($2,000 × 2 children) -->
+   <!-- Additional CTC (refundable): $3,400 -->
+   <!-- Expected refund: $3,400 + withholding -->
+   <expected_agi>28000</expected_agi>
+   <expected_taxable_income>0</expected_taxable_income>
+   <expected_ctc>4000</expected_ctc>
+   <expected_additional_ctc>3400</expected_additional_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jose Rodriguez</name>
+         <ssn>555-66-9999</ssn>
+         <date_of_birth>10/30/1990</date_of_birth>
+         <occupation>Retail Worker</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>18000</w2_wages>
+         <w2_withholding>900</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Carmen Rodriguez</name>
+         <ssn>555-66-8888</ssn>
+         <date_of_birth>12/5/1992</date_of_birth>
+         <occupation>Server</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>10000</w2_wages>
+         <w2_withholding>500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Isabella Rodriguez</name>
+         <ssn>666-77-9999</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>2/15/2017</date_of_birth>
+         <age>8</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Miguel Rodriguez</name>
+         <ssn>666-77-8888</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>8/20/2019</date_of_birth>
+         <age>6</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8606 - Roth IRA Conversion with Basis -->
+<!-- Scenario: Taxpayer converts traditional IRA to Roth -->
+<!-- Form 8606 calculates taxable portion of conversion -->
+<!-- Expected: Only portion above basis is taxable -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Form 8606 Part II: Roth IRA Conversion (2025) -->
+   <!-- Taxpayer has $70,000 in traditional IRA ($20,000 basis) -->
+   <!-- Converts $30,000 to Roth IRA in 2025 -->
+   <!-- Taxable amount = $30,000 × ($50,000 taxable / $70,000 total) -->
+   <!-- Taxable amount = $30,000 × 0.7143 = $21,429 -->
+   <!-- Non-taxable basis portion = $8,571 -->
+
+   <id>Retirement-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $80,000 W-2 + $21,429 taxable conversion -->
+   <!-- AGI: $101,429 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $86,429 -->
+   <expected_agi>101429</expected_agi>
+   <expected_taxable_income>86429</expected_taxable_income>
+   <expected_roth_conversion_taxable>21429</expected_roth_conversion_taxable>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Marcus Johnson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>9/25/1978</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>80000</w2_wages>
+         <w2_withholding>14000</w2_withholding>
+         <ira_balance_prior>70000</ira_balance_prior>
+         <ira_basis_prior>20000</ira_basis_prior>
+         <roth_conversion_amount>30000</roth_conversion_amount>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
