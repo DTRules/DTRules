@@ -19,9 +19,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/mapping"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/mapping"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // TestStateTaxIntegration tests the full pipeline with a flat-tax state (Illinois)
@@ -352,7 +352,7 @@ func findStateTaxDir(t *testing.T) string {
 	home, _ := os.UserHomeDir()
 	knownPaths := []string{
 		filepath.Join(home, "DTRules/sampleprojects/StateTax"),
-		filepath.Join(home, "repos/github.com/PaulSnow/DTRules/sampleprojects/StateTax"),
+		filepath.Join(home, "repos/github.com/DTRules/DTRules/sampleprojects/StateTax"),
 		"/home/paul/DTRules/sampleprojects/StateTax",
 	}
 

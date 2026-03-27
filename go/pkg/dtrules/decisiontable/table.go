@@ -864,11 +864,6 @@ func (dt *RDecisionTable) GetActionsComment() []string {
 	return dt.actionsComment
 }
 
-// GetPolicyStatements returns the policy statements
-func (dt *RDecisionTable) GetPolicyStatements() []string {
-	return dt.policyStatements
-}
-
 // GetFields returns all metadata fields
 func (dt *RDecisionTable) GetFields() map[string]string {
 	return dt.fields
