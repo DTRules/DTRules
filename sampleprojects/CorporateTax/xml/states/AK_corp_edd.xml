@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Alaska Corporate Tax Entity Data Dictionary
+
+  Alaska Corporate Income Tax:
+  - Rate: 9.3% flat rate (AK Stat. § 43.20.011) - one of the highest in the nation
+  - Apportionment: Traditional three-factor formula (property, payroll, sales)
+  - Economic Nexus: $100,000 threshold
+  - Form: AK Form 6000 (Corporation Net Income Tax Return)
+
+  Key Features:
+  - Alaska still uses three-factor apportionment (most states use single-sales)
+  - No special state-specific fields needed for basic implementation
+  - High flat rate reflects state's reliance on corporate tax revenue
+-->
+<entity_dictionary name="CorporateTax_AK_Constants">
+
+  <!--
+    Apportionment Entity: Alaska-Specific Configuration
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='AK'
+           comment='Alaska state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Alaska economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Alaska economic nexus transaction count threshold - 200'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='three_factor'
+           comment='Alaska uses traditional three-factor UDITPA apportionment (property, payroll, sales)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.093'
+           comment='Alaska corporate income tax rate: 9.3% flat rate (AK Stat. § 43.20.011)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Alaska additions to federal taxable income'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Alaska subtractions from federal taxable income'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Alaska tax credits'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Alaska-Specific Extensions
+
+    No special Alaska-specific fields needed for basic implementation.
+    Alaska uses standard corporate tax structure with high flat rate.
+  -->
+  <entity name="result">
+    <!-- No Alaska-specific fields required -->
+  </entity>
+
+</entity_dictionary>

@@ -23,6 +23,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Michigan state income tax calculation. Implements flat 4.25% tax rate with personal exemptions per MI tax code (2025).</COMMENTS>
 <TABLE_NUMBER>42200</TABLE_NUMBER>
+<FILE_PATH>states/MI/42200_Calculate_MI_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

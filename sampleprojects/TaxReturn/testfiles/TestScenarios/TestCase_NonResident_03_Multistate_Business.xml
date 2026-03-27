@@ -1,0 +1,121 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Non-Resident Test Case 3: Multi-State Business -->
+   <!-- Scenario: NH resident operates consulting business with clients in NH and IL -->
+   <!-- Expected: NH resident tax on all income, IL non-resident tax on IL-source income only -->
+   <!-- NH brackets: 3% on first $75k, 5% on $75k-$150k -->
+   <!-- IL flat: 4.95% with $2,775 personal exemption -->
+   <id>NonRes-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>NH</state>
+   <city>Portsmouth</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $95,000 SE income - $30,000 expenses = $65,000 net -->
+   <!-- NH source SE income: $50,000 gross - $20,000 expenses = $30,000 net -->
+   <!-- IL source SE income: $45,000 gross - $10,000 expenses = $35,000 net -->
+   <!-- Total SE net: $65,000 -->
+   <!--  -->
+   <!-- NH Resident Tax: -->
+   <!-- NH AGI: $65,000 -->
+   <!-- NH Standard Deduction (Single): $8,000 -->
+   <!-- NH Taxable Income: $57,000 -->
+   <!-- NH Tax: $57,000 × 3% = $1,710 (all in bracket 1) -->
+   <!--  -->
+   <!-- IL Non-Resident Tax: -->
+   <!-- IL source income: $35,000 -->
+   <!-- IL AGI: $35,000 -->
+   <!-- IL Personal Exemption: $2,775 -->
+   <!-- IL Taxable Income: $32,225 -->
+   <!-- IL Tax: $32,225 × 4.95% = $1,595.14 -->
+   <expected_agi>65000</expected_agi>
+   <expected_nh_agi>65000</expected_nh_agi>
+   <expected_nh_taxable_income>57000</expected_nh_taxable_income>
+   <expected_nh_tax>1710</expected_nh_tax>
+   <expected_il_state_source_income>35000</expected_il_state_source_income>
+   <expected_il_agi>35000</expected_il_agi>
+   <expected_il_taxable_income>32225</expected_il_taxable_income>
+   <expected_il_tax>1595.14</expected_il_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Carol Davis</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/3/1985</date_of_birth>
+         <occupation>Management Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>95000</se_gross_income>
+         <se_state_source>NH</se_state_source>
+         <se_expenses>30000</se_expenses>
+         <estimated_payments>8000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>self_employment</type>
+         <source>NH Consulting Clients</source>
+         <gross_amount>50000</gross_amount>
+         <state_source>NH</state_source>
+         <is_earned>true</is_earned>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>self_employment</type>
+         <source>IL Consulting Clients</source>
+         <gross_amount>45000</gross_amount>
+         <state_source>IL</state_source>
+         <is_earned>true</is_earned>
+      </income>
+   </incomes>
+
+   <!-- Vehicles for Business Use -->
+   <vehicles>
+      <vehicle id="1">
+         <id>1</id>
+         <year>2023</year>
+         <make>Toyota</make>
+         <model>Camry</model>
+         <date_placed_in_service>3/1/2023</date_placed_in_service>
+         <business_miles>12000</business_miles>
+         <total_miles>15000</total_miles>
+         <business_percentage>80</business_percentage>
+         <use_standard_mileage>true</use_standard_mileage>
+      </vehicle>
+   </vehicles>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
