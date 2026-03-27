@@ -22,6 +22,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Mississippi state income tax calculation. Implements progressive tax structure (0% up to $10k, 4.4% above) per MS tax code (2025).</COMMENTS>
 <TABLE_NUMBER>42400</TABLE_NUMBER>
+<FILE_PATH>states/MS/42400_Calculate_MS_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

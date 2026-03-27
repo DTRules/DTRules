@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Montana Corporate Tax Constants
+
+  Key Features:
+  - Flat 6.75% corporate income tax rate (7.0% for water's edge election)
+  - Single-sales apportionment formula
+  - Economic nexus: $100,000 gross receipts threshold
+  - Montana starts with federal taxable income as base
+  - State-specific additions and subtractions apply
+
+  This file will be merged into CorporateTax_edd.xml by merge script
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/MT/53500_MT_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Montana Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="MT"
+           comment="Montana state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="MT economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="MT economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="MT uses single-sales factor apportionment (100% sales factor)"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.0675"
+           comment="MT corporate income tax rate: 6.75% (7.0% for waters edge election)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="MT additions: federal interest income, state tax refunds, certain expenses, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="MT subtractions: MT municipal bond interest, state income taxes, MT NOL, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="MT tax credits: jobs creation, research, energy production, infrastructure, etc."/>
+
+  </entity>
+
+  <!-- Result Entity: Montana-Specific Extensions -->
+  <entity name="result">
+
+    <!-- Montana Water's Edge Election -->
+    <field name="mt_waters_edge_election" type="boolean" default_value="false"
+           comment="MT waters edge election - if true, rate is 7.0% instead of 6.75%"/>
+
+    <field name="mt_effective_rate" type="double" default_value="0.0675"
+           comment="MT effective tax rate (6.75% standard, 7.0% with waters edge election)"/>
+
+  </entity>
+
+</entity_data_dictionary>

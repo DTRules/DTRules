@@ -12,6 +12,9 @@
   https://tax.ri.gov/sites/g/files/xkgbur541/files/2024-10/ADV_2024_26_Inflation_Adjustments.pdf
 -->
 <entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/RI/43900_RI_constants</file_path>
+  </file_metadata>
   <entity name="result">
 
     <!-- Standard deductions -->
