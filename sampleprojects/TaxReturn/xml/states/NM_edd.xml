@@ -63,5 +63,11 @@
     <field name="nm_bracket_6_rate" type="double" default_value="0.059"
            comment="NM tax rate bracket 6: 5.9% (2025)"/>
 
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="nm_military_retirement_exemption" type="double" default_value="30000.0"
+           comment="NM military retirement exemption amount for 2025-2026 (2025). Source: MOAA State Report Card"/>
+    <field name="nm_military_retirement_taxable" type="double" default_value="0.0"
+           comment="NM taxable military retirement after exemption (computed)"/>
+
   </entity>
 </entity_data_dictionary>

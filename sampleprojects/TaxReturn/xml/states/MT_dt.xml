@@ -1,144 +1,268 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  State-specific decision tables for MT
+  State-specific decision tables for Montana (MT)
 
-  AUTOMATICALLY GENERATED - DO NOT EDIT MANUALLY
-  Generated from TaxReturn_dt.xml
-  Use extract_dt_tables.py to regenerate this file
+  Montana has a progressive income tax with 5 brackets.
+  Tax rates range from 4.7% to 5.9%
+
+  Table Number: 42550 (MT is 25th state alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
 -->
 <decision_tables>
 
+<!-- ====================================================================== -->
+<!-- TABLE 42550: Calculate_MT_Tax - Montana State Income Tax              -->
+<!-- ====================================================================== -->
 <decision_table>
 <table_name>Calculate_MT_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates Montana state income tax per Form 2. Montana uses progressive tax brackets: 4.7% on first bracket, 5.9% above threshold. Thresholds vary by filing status: Single/MFS $21,100, MFJ $42,200, HOH $31,700. Starting with federal AGI, applies standard deduction based on filing status ($4,500 Single, $11,500 MFJ), then calculates tax using progressive brackets.</COMMENTS>
-<TABLE_NUMBER>44900</TABLE_NUMBER>
-<FILE_PATH>states/MT/44900_Calculate_MT_Tax</FILE_PATH>
+<COMMENTS>Montana state income tax calculation. Implements progressive 5-bracket tax structure per MT tax code (2025).</COMMENTS>
+<TABLE_NUMBER>42550</TABLE_NUMBER>
 </attribute_fields>
+
 <contexts></contexts>
+
 <initial_actions>
 <initial_action>
-<action_description>Initialize MT tax calculation</action_description>
+<action_description>Initialize Montana tax calculation</action_description>
 <action_postfix>
-"MONTANA FORM 2 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.mt_agi xdef
-0 /result.mt_bracket_1_tax xdef
-0 /result.mt_bracket_2_tax xdef
+"Montana Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
 </initial_action>
 </initial_actions>
+
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_comment>Always execute</condition_comment>
+<condition_description>true</condition_description>
 <condition_postfix>
-job.filing_status married_filing_jointly streq
+true
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Single</condition_comment>
-<condition_description>job.filing_status is equal to "single"</condition_description>
-<condition_postfix>
-job.filing_status single streq
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Head of Household</condition_comment>
-<condition_description>job.filing_status is equal to "head_of_household"</condition_description>
-<condition_postfix>
-job.filing_status head_of_household streq
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
+
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate MT tax MFJ</action_comment>
-<action_description>Calculate MT tax with MFJ standard deduction and progressive brackets</action_description>
+<action_comment>Calculate Montana progressive tax (5 brackets)</action_comment>
 <action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_mfj /result.mt_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
-"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.mt_taxable_income mt_bracket_2_threshold_mfj f> if
-  mt_bracket_2_threshold_mfj mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  result.mt_taxable_income mt_bracket_2_threshold_mfj f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
-  "  Bracket 1 (4.7% on $0-$42,200): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.9% above $42,200): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
-"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
+<!-- Calculate MT AGI: Federal AGI minus non-taxable military retirement -->
+result.agi get
+result.military_retirement_pay get result.mt_military_retirement_taxable get sub
+sub 0 max
+/mt_agi xdef
+
+<!-- Calculate taxable income after standard deduction -->
+mt_agi result.mt_standard_deduction_single get sub 0 max
+/mt_taxable_income xdef
+
+<!-- Progressive tax calculation: 5 brackets -->
+0.0 /mt_tax xdef
+
+<!-- Bracket 1: 4.7% on first $3,600 -->
+mt_taxable_income result.mt_bracket_1_limit get min
+0 max
+result.mt_bracket_1_rate get mul
+/mt_tax xdef
+
+<!-- Bracket 2: 5.2% on amount from $3,601 to $6,300 -->
+mt_taxable_income result.mt_bracket_1_limit get gt
+if
+    mt_taxable_income result.mt_bracket_2_limit get min
+    result.mt_bracket_1_limit get sub
+    0 max
+    result.mt_bracket_2_rate get mul
+    mt_tax add /mt_tax xdef
+then
+
+<!-- Bracket 3: 5.6% on amount from $6,301 to $10,000 -->
+mt_taxable_income result.mt_bracket_2_limit get gt
+if
+    mt_taxable_income result.mt_bracket_3_limit get min
+    result.mt_bracket_2_limit get sub
+    0 max
+    result.mt_bracket_3_rate get mul
+    mt_tax add /mt_tax xdef
+then
+
+<!-- Bracket 4: 5.8% on amount from $10,001 to $13,400 -->
+mt_taxable_income result.mt_bracket_3_limit get gt
+if
+    mt_taxable_income result.mt_bracket_4_limit get min
+    result.mt_bracket_3_limit get sub
+    0 max
+    result.mt_bracket_4_rate get mul
+    mt_tax add /mt_tax xdef
+then
+
+<!-- Bracket 5: 5.9% on amount over $13,400 -->
+mt_taxable_income result.mt_bracket_4_limit get gt
+if
+    mt_taxable_income result.mt_bracket_4_limit get sub
+    0 max
+    result.mt_bracket_5_rate get mul
+    mt_tax add /mt_tax xdef
+then
+
+<!-- Store final tax liability -->
+mt_tax /result.state_tax_liability xdef
+
+"Montana tax calculated: $" result.state_tax_liability get cvs strconcat
+" (Taxable income: $" strconcat mt_taxable_income cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42551: Calculate_MT_Military_Retirement_Deduction               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MT_Military_Retirement_Deduction</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Montana military retirement deduction calculation. MT National Guard: $15,000 exemption. New residents (after June 30, 2023): 50% deduction for first 5 years from separation. Program expires 2033. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
+<TABLE_NUMBER>42551</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MT military retirement deduction calculation</action_description>
+<action_postfix>
+"MT Military Retirement Deduction Calculation Started" job.audit_trail swap addto
+0.0 /result.mt_military_retirement_taxable xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has military retirement pay -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has military retirement pay</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+result.military_retirement_pay get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Is Montana National Guard member -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Is Montana National Guard member</condition_comment>
+<condition_description>is_mt_national_guard == true</condition_description>
+<condition_postfix>
+result.is_mt_national_guard get
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Is new resident (after June 30, 2023) within 5 years of separation -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Is new resident within 5 years of separation</condition_comment>
+<condition_description>is_mt_new_resident == true AND years_since_separation <= 5</condition_description>
+<condition_postfix>
+result.is_mt_new_resident get
+result.years_since_separation get result.mt_new_resident_year_limit get le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Apply MT National Guard $15,000 exemption -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply MT National Guard $15,000 exemption</action_comment>
+<action_postfix>
+<!-- Montana National Guard: First $15,000 exempt (2025) -->
+<!-- Exemption amount is the lesser of $15,000 or actual military retirement -->
+result.military_retirement_pay get
+result.mt_national_guard_exemption get
+min
+/mt_exemption_amount xdef
+
+<!-- Calculate taxable military retirement -->
+result.military_retirement_pay get
+mt_exemption_amount sub
+0 max
+/result.mt_military_retirement_taxable xdef
+
+"MT National Guard military retirement exemption applied: $" mt_exemption_amount cvs strconcat
+" (Retirement pay: $" strconcat result.military_retirement_pay get cvs strconcat
+", Taxable: $" strconcat result.mt_military_retirement_taxable get cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Apply MT new resident 50% deduction -->
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate MT tax Single</action_comment>
-<action_description>Calculate MT tax with Single standard deduction and progressive brackets</action_description>
+<action_comment>Apply MT new resident 50% deduction (5-year limit)</action_comment>
 <action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_single /result.mt_standard_deduction xdef
-"  Standard Deduction (Single): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
-"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.mt_taxable_income mt_bracket_2_threshold_single f> if
-  mt_bracket_2_threshold_single mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  result.mt_taxable_income mt_bracket_2_threshold_single f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
-  "  Bracket 1 (4.7% on $0-$21,100): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.9% above $21,100): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
-"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
+<!-- Montana new residents: 50% deduction for first 5 years from separation -->
+<!-- Must have become resident after June 30, 2023 -->
+<!-- Program expires in 2033 -->
+result.military_retirement_pay get
+result.mt_new_resident_deduction_rate get
+mul
+/mt_deduction_amount xdef
+
+<!-- Calculate taxable military retirement (50% is taxable) -->
+result.military_retirement_pay get
+mt_deduction_amount sub
+0 max
+/result.mt_military_retirement_taxable xdef
+
+"MT new resident military retirement deduction applied: $" mt_deduction_amount cvs strconcat
+" (Retirement pay: $" strconcat result.military_retirement_pay get cvs strconcat
+", Years since separation: " strconcat result.years_since_separation get cvs strconcat
+", Taxable (50%): $" strconcat result.mt_military_retirement_taxable get cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
+
+<!-- Action 3: No deduction applicable - fully taxable -->
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate MT tax Head of Household</action_comment>
-<action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
+<action_comment>No MT military retirement deduction - fully taxable</action_comment>
 <action_postfix>
-"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_hoh /result.mt_standard_deduction xdef
-"  Standard Deduction (HOH): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
-result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
-"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
-  mt_bracket_2_threshold_hoh mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  result.mt_taxable_income mt_bracket_2_threshold_hoh f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
-  "  Bracket 1 (4.7% on $0-$31,700): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.9% above $31,700): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
-  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
-"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
+<!-- No special deduction applies - military retirement is fully taxable -->
+result.military_retirement_pay get
+/result.mt_military_retirement_taxable xdef
+
+"No MT military retirement deduction applicable - fully taxable: $" result.mt_military_retirement_taxable get cvs strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+
 </decision_table>
 
 </decision_tables>

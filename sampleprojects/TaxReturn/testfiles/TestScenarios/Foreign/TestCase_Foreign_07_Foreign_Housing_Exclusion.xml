@@ -1,0 +1,141 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 7: Form 2555 - Foreign Housing Exclusion/Deduction -->
+   <!-- Tests: Process_Foreign_Earned_Income -->
+   <!-- Scenario: US citizen abroad with employer-provided housing -->
+   <!-- Housing costs exceed base amount, qualifies for housing exclusion -->
+   <id>FOREIGN-07</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Dallas</city>
+
+   <!-- Expected values for validation -->
+   <!-- Foreign earned income: $115,000 -->
+   <!-- Days outside US: 365 (full year, bona fide residence) -->
+   <!-- FEIE max exclusion (2025): $126,500 -->
+   <!-- FEIE exclusion: $115,000 (full amount) -->
+   <!-- Foreign housing costs: $65,000 (employer-provided) -->
+   <!-- Foreign housing base (2025): $41,200 (16% of $126,500 + ($126,500 × 0.16)) -->
+   <!-- Foreign housing amount: $65,000 - $41,200 = $23,800 -->
+   <!-- Foreign housing exclusion: $23,800 (for employee) -->
+   <!-- Combined exclusion: $115,000 + $23,800 = $138,800 -->
+   <!-- Spouse US income: $52,000 -->
+   <!-- AGI: $0 + $52,000 = $52,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $22,000 -->
+   <!-- Tax: $2,200 (10% bracket) -->
+   <expected_agi>52000</expected_agi>
+   <expected_foreign_earned_income>115000</expected_foreign_earned_income>
+   <expected_foreign_earned_income_exclusion>115000</expected_foreign_earned_income_exclusion>
+   <expected_foreign_housing_expenses>65000</expected_foreign_housing_expenses>
+   <expected_foreign_housing_base>41200</expected_foreign_housing_base>
+   <expected_foreign_housing_exclusion>23800</expected_foreign_housing_exclusion>
+   <expected_total_foreign_exclusion>138800</expected_total_foreign_exclusion>
+   <expected_days_outside_us>365</expected_days_outside_us>
+   <expected_taxable_income>22000</expected_taxable_income>
+   <expected_total_tax>2200</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Primary taxpayer working abroad -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Thomas Rodriguez</name>
+         <ssn>678-55-6666</ssn>
+         <date_of_birth>4/18/1981</date_of_birth>
+         <occupation>Corporate Executive</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <foreign_earned_income>115000</foreign_earned_income>
+         <foreign_country>Hong Kong</foreign_country>
+         <foreign_housing_expenses>65000</foreign_housing_expenses>
+         <foreign_housing_employer_provided>true</foreign_housing_employer_provided>
+         <days_outside_us>365</days_outside_us>
+         <foreign_residence_start>1/1/2025</foreign_residence_start>
+         <foreign_residence_end>12/31/2025</foreign_residence_end>
+         <physical_presence_test>true</physical_presence_test>
+         <bona_fide_residence>true</bona_fide_residence>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse working in US -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Rodriguez</name>
+         <ssn>789-66-7777</ssn>
+         <date_of_birth>6/25/1983</date_of_birth>
+         <occupation>Marketing Manager</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>52000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_earned_income</type>
+         <gross_amount>115000</gross_amount>
+         <withholding>0</withholding>
+         <description>Executive position in Hong Kong (Form 2555 with housing exclusion)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>52000</gross_amount>
+         <withholding>8000</withholding>
+         <description>US marketing firm employment</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Carlos Rodriguez</name>
+         <ssn>890-77-8888</ssn>
+         <date_of_birth>8/5/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

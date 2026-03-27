@@ -1,0 +1,102 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Michigan Test Case 03: Head of household with 3 dependents -->
+   <!-- Tests Michigan exemptions: $5,800 (HOH) + $17,400 (3 dependents) = $23,200 total -->
+
+   <id>MI-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>MI</state>
+   <city>Grand Rapids</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $85,000 W2 -->
+   <!-- Federal AGI: $85,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $22,500 (HOH per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $62,500 -->
+   <!-- Federal Tax: $8,734 (10% on $17,000 + 12% on $45,500) -->
+   <!-- MI Personal Exemptions: $5,800 (HOH) + $17,400 (3 dependents x $5,800) = $23,200 -->
+   <!-- MI Taxable Income: $61,800 ($85,000 AGI - $23,200 exemptions) -->
+   <!-- MI Tax: $2,627 (4.25% of $61,800) -->
+   <expected_agi>85000</expected_agi>
+   <expected_taxable_income>62500</expected_taxable_income>
+   <expected_federal_tax>8734</expected_federal_tax>
+   <expected_state_tax>2627</expected_state_tax>
+   <expected_total_tax>11361</expected_total_tax>
+
+   <!-- Head of Household Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Maria Rodriguez</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>6/5/1982</date_of_birth>
+         <occupation>Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>13000</w2_withholding>
+         <state_withholding>3500</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Three dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Rodriguez</name>
+         <ssn>999-00-1111</ssn>
+         <date_of_birth>1/20/2014</date_of_birth>
+         <relationship>daughter</relationship>
+         <months_lived_with_taxpayer>12</months_lived_with_taxpayer>
+         <is_qualifying_child>true</is_qualifying_child>
+         <is_qualifying_relative>false</is_qualifying_relative>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Carlos Rodriguez</name>
+         <ssn>000-11-2222</ssn>
+         <date_of_birth>5/8/2016</date_of_birth>
+         <relationship>son</relationship>
+         <months_lived_with_taxpayer>12</months_lived_with_taxpayer>
+         <is_qualifying_child>true</is_qualifying_child>
+         <is_qualifying_relative>false</is_qualifying_relative>
+      </dependent>
+      <dependent id="3">
+         <id>3</id>
+         <name>Diego Rodriguez</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>11/15/2019</date_of_birth>
+         <relationship>son</relationship>
+         <months_lived_with_taxpayer>12</months_lived_with_taxpayer>
+         <is_qualifying_child>true</is_qualifying_child>
+         <is_qualifying_relative>false</is_qualifying_relative>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

@@ -32,5 +32,15 @@
     <field name="ut_credit_phaseout_rate" type="double" default_value="0.013"
            comment="UT taxpayer credit phase-out rate 1.3% (2025)"/>
 
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="ut_military_retirement_exemption" type="double" default_value="10000.0"
+           comment="UT military retirement exemption amount (2025). Source: MOAA State Report Card"/>
+    <field name="ut_military_exemption_agi_cap_single" type="double" default_value="50000.0"
+           comment="UT military retirement exemption AGI cap single (2025). Source: MOAA State Report Card"/>
+    <field name="ut_military_exemption_agi_cap_joint" type="double" default_value="65000.0"
+           comment="UT military retirement exemption AGI cap joint (2025). Source: MOAA State Report Card"/>
+    <field name="ut_military_retirement_taxable" type="double" default_value="0.0"
+           comment="UT taxable military retirement after exemption (computed)"/>
+
   </entity>
 </entity_data_dictionary>

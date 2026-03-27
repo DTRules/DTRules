@@ -65,6 +65,17 @@
     <field name="dc_bracket_7_rate" type="double" default_value="0.1075"
            comment="DC tax rate for bracket 7 - 10.75% (2025)"/>
 
+    <!-- Military Retirement Provisions (2025) -->
+    <!-- DC has very limited exemption: only $3,000 if age 62+, otherwise fully taxable -->
+    <field name="dc_military_retirement_exemption_amount" type="double" default_value="3000.0"
+           comment="DC military retirement exemption - $3,000 only if age 62+ (2025). Source: MOAA"/>
+    <field name="dc_military_age_requirement" type="double" default_value="62.0"
+           comment="DC minimum age for military retirement exemption (62)"/>
+    <field name="dc_military_retirement_exemption" type="double" default_value="0.0"
+           comment="DC military retirement exemption (computed based on age)"/>
+    <field name="dc_military_retirement_taxable" type="double" default_value="0.0"
+           comment="DC taxable military retirement after exemption (computed)"/>
+
     <!-- State tax result field -->
     <field name="dc_state_tax" type="double" default_value="0.0"
            comment="DC state income tax liability (2025)"/>

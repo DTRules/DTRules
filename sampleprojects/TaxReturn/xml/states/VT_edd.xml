@@ -58,6 +58,17 @@
     <field name="vt_bracket_5_rate" type="double" default_value="0.0875"
            comment="VT tax rate for bracket 5 - 8.75% (2025)"/>
 
+    <!-- Military Retirement Provisions (2025) -->
+    <!-- AGI-based exemption: Full exemption if AGI ≤ $125k, partial if $125k-$175k, none if > $175k -->
+    <field name="vt_military_agi_full_exemption_threshold" type="double" default_value="125000.0"
+           comment="VT AGI threshold for full military retirement exemption (2025). Source: MOAA"/>
+    <field name="vt_military_agi_no_exemption_threshold" type="double" default_value="175000.0"
+           comment="VT AGI threshold above which no military retirement exemption (2025). Source: MOAA"/>
+    <field name="vt_military_retirement_exemption" type="double" default_value="0.0"
+           comment="VT military retirement exemption amount (computed based on AGI)"/>
+    <field name="vt_military_retirement_taxable" type="double" default_value="0.0"
+           comment="VT taxable military retirement after exemption (computed)"/>
+
     <!-- State tax result field -->
     <field name="vt_state_tax" type="double" default_value="0.0"
            comment="VT state income tax liability (2025)"/>

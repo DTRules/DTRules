@@ -809,6 +809,10 @@ func (dt *RDecisionTable) GetFilename() string {
 
 // GetFilePath returns the canonical file path with fallback to filename
 func (dt *RDecisionTable) GetFilePath() string {
+	// Check if FILE_PATH is in fields (multi-file architecture)
+	if filePath, ok := dt.fields["FILE_PATH"]; ok && filePath != "" {
+		return filePath
+	}
 	if dt.filePath != "" {
 		return dt.filePath
 	}

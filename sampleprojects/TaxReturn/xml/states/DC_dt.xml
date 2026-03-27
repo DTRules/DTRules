@@ -1,111 +1,415 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  State-specific decision tables for DC
+  State-specific decision tables for Washington DC
 
-  AUTOMATICALLY GENERATED - DO NOT EDIT MANUALLY
-  Generated from TaxReturn_dt.xml
-  Use extract_dt_tables.py to regenerate this file
+  DC implements progressive tax with 7 brackets (4% to 10.75%).
+  DC uses the same brackets for all filing statuses; only standard deduction varies.
+
+  Table Number: 40750 (DC comes after DE alphabetically)
 -->
 <decision_tables>
 
+<!-- ====================================================================== -->
+<!-- TABLE 40740: Calculate_DC_Military_Retirement_Exemption               -->
+<!-- ====================================================================== -->
 <decision_table>
-<table_name>Calculate_DC_Homebuyer_Credit</table_name>
+<table_name>Calculate_DC_Military_Retirement_Exemption</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates DC First-Time Homebuyer Credit. Credit is lesser of $5,000 or purchase price. Subject to phase-out at higher income levels. Must be first-time homebuyer in DC during qualified period per Form 8859.</COMMENTS>
-<TABLE_NUMBER>8300</TABLE_NUMBER>
-<FILE_PATH>states/DC/8300_Calculate_DC_Homebuyer_Credit</FILE_PATH>
+<COMMENTS>DC military retirement exemption (2025). Very limited: only $3,000 if age 62+, otherwise fully taxable. DC is one of only 2 jurisdictions that substantially tax military retirement. Honors MSRRA and SCRA. Source: MOAA State Report Card.</COMMENTS>
+<TABLE_NUMBER>40740</TABLE_NUMBER>
 </attribute_fields>
+
 <contexts></contexts>
+
 <initial_actions>
 <initial_action>
-<action_description>Initialize DC homebuyer credit</action_description>
+<action_description>Initialize DC military retirement exemption calculation</action_description>
 <action_postfix>
-0.0 /result.dc_homebuyer_credit xdef
+"DC Military Retirement Exemption Calculation Started" job.audit_trail swap addto
+0.0 /result.dc_military_retirement_exemption xdef
+0.0 /result.dc_military_retirement_taxable xdef
 </action_postfix>
 </initial_action>
 </initial_actions>
+
 <conditions>
+<!-- Condition 1: Has military retirement pay -->
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Purchased DC home as first-time buyer</condition_comment>
-<condition_description>job.purchased_dc_home_first_time equals true</condition_description>
-<condition_postfix>job.purchased_dc_home_first_time</condition_postfix>
+<condition_comment>Has military retirement pay</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+result.military_retirement_pay 0 gt
+</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
 </condition_details>
+
+<!-- Condition 2: Age 62 or older -->
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Purchase price is greater than zero</condition_comment>
-<condition_description>job.dc_home_purchase_price &gt; 0</condition_description>
-<condition_postfix>job.dc_home_purchase_price 0 &gt;</condition_postfix>
+<condition_comment>Age 62 or older</condition_comment>
+<condition_description>age >= 62</condition_description>
+<condition_postfix>
+result.age result.dc_military_age_requirement ge
+</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
 </condition_details>
 </conditions>
+
 <actions>
+<!-- Action 1: Apply $3,000 exemption (age 62+) -->
 <action_details>
 <action_number>1</action_number>
-<action_description>Calculate DC homebuyer credit (lesser of $5,000 or purchase price)</action_description>
+<action_comment>Apply DC $3,000 military retirement exemption (age 62+)</action_comment>
 <action_postfix>
-"Calculating DC First-Time Homebuyer Credit (Form 8859)" job.audit_trail swap addto
-5000.0 job.dc_home_purchase_price fmin /result.dc_homebuyer_credit xdef
-"  Purchase price: $" job.dc_home_purchase_price cvs strconcat job.audit_trail swap addto
-"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat job.audit_trail swap addto
+<!-- Exemption is lesser of $3,000 or actual retirement pay -->
+result.military_retirement_pay
+result.dc_military_retirement_exemption_amount
+min
+/result.dc_military_retirement_exemption xdef
+
+result.military_retirement_pay result.dc_military_retirement_exemption sub
+0 max
+/result.dc_military_retirement_taxable xdef
+
+"DC military retirement exemption (age 62+): $"
+result.dc_military_retirement_exemption cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", Taxable: $" strconcat result.dc_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
+
+<!-- Action 2: No exemption (age < 62) -->
 <action_details>
 <action_number>2</action_number>
-<action_description>No DC home purchase</action_description>
+<action_comment>No DC military retirement exemption (age &lt; 62)</action_comment>
 <action_postfix>
-"DC Homebuyer Credit not applicable" job.audit_trail swap addto
+0.0 /result.dc_military_retirement_exemption xdef
+result.military_retirement_pay /result.dc_military_retirement_taxable xdef
+
+"DC military retirement: NO EXEMPTION (age < 62). Age: "
+result.age cvs strconcat
+", Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", Fully taxable" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
+
+<!-- Action 3: No military retirement pay -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No military retirement pay</action_comment>
+<action_postfix>
+0.0 /result.dc_military_retirement_exemption xdef
+0.0 /result.dc_military_retirement_taxable xdef
+"No DC military retirement pay - exemption not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
 </actions>
+
 </decision_table>
 
-<!-- TABLE 24000: Process_Foreign_Earned_Income - Form 2555                -->
-<!-- IRS Reference: Form 2555, IRC Section 911                             -->
+<!-- ====================================================================== -->
+<!-- TABLE 40750: Calculate_DC_Tax - Washington DC Income Tax             -->
 <!-- ====================================================================== -->
 <decision_table>
-<table_name>Process_Foreign_Earned_Income</table_name>
-<xls_file>SpecialForms.xls</xls_file>
+<table_name>Calculate_DC_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
-<Type>ALL</Type>
-<COMMENTS>Process Form 2555 Foreign Earned Income Exclusion. Allows US citizens/residents abroad to exclude up to $126,500 of foreign earned income per IRC 911.</COMMENTS>
-<TABLE_NUMBER>24000</TABLE_NUMBER>
+<Type>FIRST</Type>
+<COMMENTS>Washington DC income tax calculation. Implements progressive tax structure with 7 brackets per DC Office of Tax and Revenue (2025).</COMMENTS>
+<TABLE_NUMBER>40750</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context_details>
-<context_number>1</context_number>
-<context_comment>Process each foreign earned income record</context_comment>
-<context_description>for all foreign earned income records</context_description>
-<context_postfix>
-0.0 /result.total_foreign_earned_income xdef
-0.0 /result.foreign_earned_income_exclusion xdef
-0.0 /result.foreign_housing_exclusion xdef
-"Processing Form 2555 Foreign Earned Income Exclusion (IRC 911)" job.audit_trail swap addto
-{ /Process_Foreign_Earned_Income executetable } job.foreign_earned_incomes forall
-</context_postfix>
-</context_details>
-</contexts>
-<initial_actions></initial_actions>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize DC tax calculation</action_description>
+<action_postfix>
+"Washington DC Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.dc_state_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
 <conditions>
+<!-- Condition 1: Filing status is Single -->
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Qualifies for FEIE</condition_comment>
-<condition_description>Meets bona fide residence or physical presence test</condition_description>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing Status is Single</condition_description>
 <condition_postfix>
-foreign_earned_income.bona_fide_resident foreign_earned_income.physical_presence_days physical_presence_days_required >= or
+result.filing_status "single" strcasecmp 0 eq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Filing status is Married Filing Jointly -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Married Filing Jointly</condition_comment>
+<condition_description>Filing Status is MFJ</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Filing status is Head of Household -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Filing status is Head of Household</condition_comment>
+<condition_description>Filing Status is HOH</condition_description>
+<condition_postfix>
+result.filing_status "head_of_household" strcasecmp 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
+
 <actions>
+<!-- Action 1: Calculate DC tax for Single filers -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate DC tax for Single filers using progressive brackets</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.dc_standard_deduction_single sub 0 max
+dup /dc_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /dc_tax xdef
+
+<!-- Bracket 1: First $10,000 @ 4% -->
+dc_taxable_income result.dc_bracket_1_limit min
+result.dc_bracket_1_rate mul
+/dc_tax xdef
+
+<!-- Bracket 2: $10,000 to $40,000 @ 6% -->
+dc_taxable_income result.dc_bracket_1_limit gt
+{
+  dc_taxable_income result.dc_bracket_2_limit min result.dc_bracket_1_limit sub
+  result.dc_bracket_2_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 3: $40,000 to $60,000 @ 6.5% -->
+dc_taxable_income result.dc_bracket_2_limit gt
+{
+  dc_taxable_income result.dc_bracket_3_limit min result.dc_bracket_2_limit sub
+  result.dc_bracket_3_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 4: $60,000 to $250,000 @ 8.5% -->
+dc_taxable_income result.dc_bracket_3_limit gt
+{
+  dc_taxable_income result.dc_bracket_4_limit min result.dc_bracket_3_limit sub
+  result.dc_bracket_4_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 5: $250,000 to $500,000 @ 9.25% -->
+dc_taxable_income result.dc_bracket_4_limit gt
+{
+  dc_taxable_income result.dc_bracket_5_limit min result.dc_bracket_4_limit sub
+  result.dc_bracket_5_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 6: $500,000 to $1,000,000 @ 9.75% -->
+dc_taxable_income result.dc_bracket_5_limit gt
+{
+  dc_taxable_income result.dc_bracket_6_limit min result.dc_bracket_5_limit sub
+  result.dc_bracket_6_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 7: Over $1,000,000 @ 10.75% -->
+dc_taxable_income result.dc_bracket_6_limit gt
+{
+  dc_taxable_income result.dc_bracket_6_limit sub
+  result.dc_bracket_7_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Store result -->
+dc_tax /result.dc_state_tax xdef
+dc_tax /result.state_tax_liability xdef
+
+"Washington DC tax calculated (Single): $" result.dc_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Calculate DC tax for Married Filing Jointly -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate DC tax for Married Filing Jointly using progressive brackets</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.dc_standard_deduction_joint sub 0 max
+dup /dc_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /dc_tax xdef
+
+<!-- Bracket 1: First $10,000 @ 4% -->
+dc_taxable_income result.dc_bracket_1_limit min
+result.dc_bracket_1_rate mul
+/dc_tax xdef
+
+<!-- Bracket 2: $10,000 to $40,000 @ 6% -->
+dc_taxable_income result.dc_bracket_1_limit gt
+{
+  dc_taxable_income result.dc_bracket_2_limit min result.dc_bracket_1_limit sub
+  result.dc_bracket_2_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 3: $40,000 to $60,000 @ 6.5% -->
+dc_taxable_income result.dc_bracket_2_limit gt
+{
+  dc_taxable_income result.dc_bracket_3_limit min result.dc_bracket_2_limit sub
+  result.dc_bracket_3_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 4: $60,000 to $250,000 @ 8.5% -->
+dc_taxable_income result.dc_bracket_3_limit gt
+{
+  dc_taxable_income result.dc_bracket_4_limit min result.dc_bracket_3_limit sub
+  result.dc_bracket_4_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 5: $250,000 to $500,000 @ 9.25% -->
+dc_taxable_income result.dc_bracket_4_limit gt
+{
+  dc_taxable_income result.dc_bracket_5_limit min result.dc_bracket_4_limit sub
+  result.dc_bracket_5_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 6: $500,000 to $1,000,000 @ 9.75% -->
+dc_taxable_income result.dc_bracket_5_limit gt
+{
+  dc_taxable_income result.dc_bracket_6_limit min result.dc_bracket_5_limit sub
+  result.dc_bracket_6_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 7: Over $1,000,000 @ 10.75% -->
+dc_taxable_income result.dc_bracket_6_limit gt
+{
+  dc_taxable_income result.dc_bracket_6_limit sub
+  result.dc_bracket_7_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Store result -->
+dc_tax /result.dc_state_tax xdef
+dc_tax /result.state_tax_liability xdef
+
+"Washington DC tax calculated (MFJ): $" result.dc_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: Calculate DC tax for Head of Household -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate DC tax for Head of Household using progressive brackets</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.dc_standard_deduction_hoh sub 0 max
+dup /dc_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /dc_tax xdef
+
+<!-- Bracket 1: First $10,000 @ 4% -->
+dc_taxable_income result.dc_bracket_1_limit min
+result.dc_bracket_1_rate mul
+/dc_tax xdef
+
+<!-- Bracket 2: $10,000 to $40,000 @ 6% -->
+dc_taxable_income result.dc_bracket_1_limit gt
+{
+  dc_taxable_income result.dc_bracket_2_limit min result.dc_bracket_1_limit sub
+  result.dc_bracket_2_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 3: $40,000 to $60,000 @ 6.5% -->
+dc_taxable_income result.dc_bracket_2_limit gt
+{
+  dc_taxable_income result.dc_bracket_3_limit min result.dc_bracket_2_limit sub
+  result.dc_bracket_3_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 4: $60,000 to $250,000 @ 8.5% -->
+dc_taxable_income result.dc_bracket_3_limit gt
+{
+  dc_taxable_income result.dc_bracket_4_limit min result.dc_bracket_3_limit sub
+  result.dc_bracket_4_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 5: $250,000 to $500,000 @ 9.25% -->
+dc_taxable_income result.dc_bracket_4_limit gt
+{
+  dc_taxable_income result.dc_bracket_5_limit min result.dc_bracket_4_limit sub
+  result.dc_bracket_5_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 6: $500,000 to $1,000,000 @ 9.75% -->
+dc_taxable_income result.dc_bracket_5_limit gt
+{
+  dc_taxable_income result.dc_bracket_6_limit min result.dc_bracket_5_limit sub
+  result.dc_bracket_6_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Bracket 7: Over $1,000,000 @ 10.75% -->
+dc_taxable_income result.dc_bracket_6_limit gt
+{
+  dc_taxable_income result.dc_bracket_6_limit sub
+  result.dc_bracket_7_rate mul
+  dc_tax add /dc_tax xdef
+} if
+
+<!-- Store result -->
+dc_tax /result.dc_state_tax xdef
+dc_tax /result.state_tax_liability xdef
+
+"Washington DC tax calculated (HOH): $" result.dc_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
 </actions>
+
 </decision_table>
 
 </decision_tables>

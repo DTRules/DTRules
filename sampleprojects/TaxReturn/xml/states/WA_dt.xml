@@ -8,6 +8,13 @@
 
   Table Numbering: 44700 (WA is state #47 alphabetically)
 
+  Military Tax Provisions:
+    - WA has no state income tax
+    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
+    - MSRRA: N/A (no income tax)
+    - SCRA: N/A (no income tax)
+    - Military spouses and service members have no state income tax burden
+
   This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
 -->
 <decision_tables>

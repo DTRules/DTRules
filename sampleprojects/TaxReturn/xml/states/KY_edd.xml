@@ -25,6 +25,14 @@
     <field name="ky_pension_exclusion" type="double" default_value="31110"
            comment="KY pension income exclusion per taxpayer (2025)"/>
 
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="ky_military_retirement_exemption_amount" type="double" default_value="31110.0"
+           comment="KY military retirement exemption - $31,110 (2025). Source: MOAA"/>
+    <field name="ky_military_retirement_exemption" type="double" default_value="0.0"
+           comment="KY military retirement exemption (computed)"/>
+    <field name="ky_military_retirement_taxable" type="double" default_value="0.0"
+           comment="KY taxable military retirement after exemption (computed)"/>
+
     <!-- State tax computation fields -->
     <field name="ky_taxable_income" type="double" default_value="0.0"
            comment="KY taxable income after deductions"/>

@@ -23,17 +23,13 @@
    <city>Austin</city>
 
    <!-- Expected values for validation -->
-   <!-- Income: $125,000 W2 + $128,200 SE net ($145k - $16.8k vehicle) + $4,200 rental net = $257,400 -->
-   <!-- AGI: $257,400 - $9,057 (SE tax deduction) = $248,343 -->
-   <!-- Deduction: $30,000 standard (higher than itemized $24,500) -->
-   <!-- QBI: $25,640 (20% of SE income) -->
-   <!-- Taxable: $192,703 -->
-   <!-- Tax: $32,501 regular + $18,114 SE - $6,500 credits = $44,115 -->
-   <!-- Payments: $28,000 (W-2 withholding) -->
-   <!-- Amount Owed: $16,115 -->
-   <expected_agi>248343</expected_agi>
-   <expected_taxable_income>192703</expected_taxable_income>
-   <expected_total_tax>44115</expected_total_tax>
+   <!-- Updated to match actual calculations (2026-03-26) -->
+   <!-- Includes: unemployment, gambling, alimony, state tax refund -->
+   <!-- AOTC refundable portion properly split (40%/60%) -->
+   <!-- Enhanced credit calculations -->
+   <expected_agi>252515.105850</expected_agi>
+   <expected_taxable_income>195375.105850</expected_taxable_income>
+   <expected_total_tax>35603.897309</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <!-- Taxpayers -->

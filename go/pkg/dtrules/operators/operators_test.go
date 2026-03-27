@@ -2191,8 +2191,8 @@ func TestDaysOperator(t *testing.T) {
 		t.Fatalf("DataPop failed: %v", err)
 	}
 
-	interval := dtrules.AsInterval(result)
-	if interval == nil {
+	interval, ok := dtrules.AsInterval(result)
+	if !ok {
 		t.Fatal("Result is not an interval")
 	}
 
@@ -2224,8 +2224,8 @@ func TestMonthsOperator(t *testing.T) {
 		t.Fatalf("DataPop failed: %v", err)
 	}
 
-	interval := dtrules.AsInterval(result)
-	if interval == nil {
+	interval, ok := dtrules.AsInterval(result)
+	if !ok {
 		t.Fatal("Result is not an interval")
 	}
 
@@ -2257,8 +2257,8 @@ func TestYearsOperator(t *testing.T) {
 		t.Fatalf("DataPop failed: %v", err)
 	}
 
-	interval := dtrules.AsInterval(result)
-	if interval == nil {
+	interval, ok := dtrules.AsInterval(result)
+	if !ok {
 		t.Fatal("Result is not an interval")
 	}
 
@@ -2574,9 +2574,213 @@ func TestIntervalType(t *testing.T) {
 }
 
 // =============================================================================
-// XML Operator Tests
+// XML Operator Tests - TEMPORARILY DISABLED
 // =============================================================================
-// TODO: XML operator tests temporarily removed pending RXmlValue implementation
+// NOTE: These tests require RXmlValue type which is not yet implemented
+/*
+func TestNewXmlAttributeOperator(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.NewRString("person"))
+
+	op, ok := Get(dtrules.GetRName("newxmlattribute"))
+	if !ok {
+		t.Fatal("newxmlattribute operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("newxmlattribute operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	xmlValue, ok := result.(*dtrules.RXmlValue)
+	if !ok {
+		t.Fatalf("Result is not an RXmlValue: got %T", result)
+	}
+
+	if xmlValue.GetName() != "person" {
+		t.Errorf("Expected element name 'person', got '%s'", xmlValue.GetName())
+	}
+}
+
+func TestSetXmlAttributeOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create XML element
+	xmlValue := dtrules.NewRXmlValue("person")
+	state.DataPush(xmlValue)
+	state.DataPush(dtrules.NewRString("name"))
+	state.DataPush(dtrules.NewRString("John"))
+
+	op, ok := Get(dtrules.GetRName("setxmlattribute"))
+	if !ok {
+		t.Fatal("setxmlattribute operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("setxmlattribute operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	resultXml, ok := result.(*dtrules.RXmlValue)
+	if !ok {
+		t.Fatalf("Result is not an RXmlValue: got %T", result)
+	}
+
+	// Verify the attribute was set
+	if resultXml.GetAttribute("name") != "John" {
+		t.Errorf("Expected attribute 'name' to be 'John', got '%s'", resultXml.GetAttribute("name"))
+	}
+}
+
+func TestGetXmlAttributeOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create XML element with attribute
+	xmlValue := dtrules.NewRXmlValue("person")
+	xmlValue.SetAttribute("age", "30")
+	state.DataPush(xmlValue)
+	state.DataPush(dtrules.NewRString("age"))
+
+	op, ok := Get(dtrules.GetRName("getxmlattribute"))
+	if !ok {
+		t.Fatal("getxmlattribute operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("getxmlattribute operator failed: %v", err)
+	}
+
+	result, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop failed: %v", err)
+	}
+
+	if result.StringValue() != "30" {
+		t.Errorf("Expected '30', got '%s'", result.StringValue())
+	}
+}
+
+func TestGetXmlAttributeNotFound(t *testing.T) {
+	state := newTestState()
+
+	// Create XML element without the requested attribute
+	xmlValue := dtrules.NewRXmlValue("person")
+	state.DataPush(xmlValue)
+	state.DataPush(dtrules.NewRString("nonexistent"))
+
+	op, _ := Get(dtrules.GetRName("getxmlattribute"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("getxmlattribute operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	// Should return empty string for non-existent attribute
+	if result.StringValue() != "" {
+		t.Errorf("Expected empty string, got '%s'", result.StringValue())
+	}
+}
+
+func TestSetXmlAttributeTypeMismatch(t *testing.T) {
+	state := newTestState()
+
+	// Push a non-XML value
+	state.DataPush(dtrules.GetRIntegerValue(42))
+	state.DataPush(dtrules.NewRString("attr"))
+	state.DataPush(dtrules.NewRString("value"))
+
+	op, _ := Get(dtrules.GetRName("setxmlattribute"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected type mismatch error for setxmlattribute on integer")
+	}
+}
+
+func TestGetXmlAttributeTypeMismatch(t *testing.T) {
+	state := newTestState()
+
+	// Push a non-XML value
+	state.DataPush(dtrules.NewRString("not xml"))
+	state.DataPush(dtrules.NewRString("attr"))
+
+	op, _ := Get(dtrules.GetRName("getxmlattribute"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected type mismatch error for getxmlattribute on string")
+	}
+}
+
+func TestXmlValueStringValue(t *testing.T) {
+	xmlValue := dtrules.NewRXmlValue("person")
+	xmlValue.SetAttribute("name", "John")
+	xmlValue.SetAttribute("age", "30")
+
+	str := xmlValue.StringValue()
+	// The string should contain the element name and attributes
+	if !strings.Contains(str, "person") {
+		t.Errorf("StringValue should contain element name: %s", str)
+	}
+	if !strings.Contains(str, "name") {
+		t.Errorf("StringValue should contain attribute name: %s", str)
+	}
+}
+
+func TestXmlOperatorChaining(t *testing.T) {
+	state := newTestState()
+
+	// Test: newxmlattribute then setxmlattribute then getxmlattribute
+	state.DataPush(dtrules.NewRString("element"))
+
+	newOp, _ := Get(dtrules.GetRName("newxmlattribute"))
+	err := newOp.Execute(state)
+	if err != nil {
+		t.Fatalf("newxmlattribute failed: %v", err)
+	}
+
+	// Set attribute
+	state.DataPush(dtrules.NewRString("key"))
+	state.DataPush(dtrules.NewRString("value"))
+
+	setOp, _ := Get(dtrules.GetRName("setxmlattribute"))
+	err = setOp.Execute(state)
+	if err != nil {
+		t.Fatalf("setxmlattribute failed: %v", err)
+	}
+
+	// Duplicate the XML element for getting (since get consumes it)
+	dupOp, _ := Get(dtrules.GetRName("dup"))
+	err = dupOp.Execute(state)
+	if err != nil {
+		t.Fatalf("dup failed: %v", err)
+	}
+
+	// Get attribute
+	state.DataPush(dtrules.NewRString("key"))
+
+	getOp, _ := Get(dtrules.GetRName("getxmlattribute"))
+	err = getOp.Execute(state)
+	if err != nil {
+		t.Fatalf("getxmlattribute failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	if result.StringValue() != "value" {
+		t.Errorf("Expected 'value', got '%s'", result.StringValue())
+	}
+}
+*/
 
 // =============================================================================
 // Tests for issues #126-133 (Go runtime bug fixes)

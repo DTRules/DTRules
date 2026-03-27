@@ -49,5 +49,11 @@
     <field name="va_bracket_4_rate" type="double" default_value="0.0575"
            comment="VA tax rate for bracket 4 (income > $17,000) - 5.75% (2025)"/>
 
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="va_military_retirement_exemption" type="double" default_value="40000.0"
+           comment="VA military retirement exemption amount (2025). Source: MOAA State Report Card"/>
+    <field name="va_military_retirement_taxable" type="double" default_value="0.0"
+           comment="VA taxable military retirement after exemption (computed)"/>
+
   </entity>
 </entity_data_dictionary>
