@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule D - Long-Term Capital Gains at 15% Bracket -->
+<!-- Scenario: Middle income couple with LTCG in 15% bracket -->
+<!-- LTCG: $50,000, W-2: $140,000, Total AGI: $190,000 -->
+<!-- Expected: 15% capital gains tax rate -->
+<job>
+    <id>10012</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $190,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $160,000 (includes $50,000 LTCG at 15%) -->
+    <!-- Tax: ~$15,980 ordinary + $7,500 LTCG = ~$23,480 -->
+    <expected_agi>190000</expected_agi>
+    <expected_taxable_income>160000</expected_taxable_income>
+    <expected_total_tax>23480</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Brian Taylor</name>
+            <ssn>901-23-4567</ssn>
+            <date_of_birth>07/10/1978</date_of_birth>
+            <occupation>Senior Developer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>16000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Amy Taylor</name>
+            <ssn>012-34-5678</ssn>
+            <date_of_birth>09/22/1980</date_of_birth>
+            <occupation>HR Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>45000</w2_wages>
+            <w2_withholding>6000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock sale - Tech portfolio</source>
+            <gross_amount>50000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>long_term</holding_period>
+        </income>
+    </incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <expenses></expenses>
+</job>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: HSA Family Coverage -->
+<!-- Scenario: Family with HSA contribution at family limit -->
+<!-- Expected: Full $8,300 HSA deduction for family coverage -->
+<job>
+    <id>9008</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>OH</state>
+
+    <!-- Expected results -->
+    <expected_agi>91700</expected_agi>
+    <expected_taxable_income>61700</expected_taxable_income>
+    <expected_total_tax>5500</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Thomas Garcia</name>
+            <ssn>222-22-3333</ssn>
+            <date_of_birth>03/15/1980</date_of_birth>
+            <occupation>IT Specialist</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>80000</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+            <hsa_contribution>8300</hsa_contribution>
+            <hsa_coverage_type>family</hsa_coverage_type>
+            <age_50_or_over>false</age_50_or_over>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Maria Garcia</name>
+            <ssn>333-33-4444</ssn>
+            <date_of_birth>08/20/1982</date_of_birth>
+            <occupation>Nurse</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>20000</w2_wages>
+            <w2_withholding>3000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <dependents>
+        <dependent>
+            <id>1</id>
+            <name>Carlos Garcia</name>
+            <ssn>444-44-5555</ssn>
+            <date_of_birth>06/10/2015</date_of_birth>
+            <age>10</age>
+            <relationship>child</relationship>
+            <months_lived_with>12</months_lived_with>
+            <has_ssn>true</has_ssn>
+        </dependent>
+    </dependents>
+
+    <incomes></incomes>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

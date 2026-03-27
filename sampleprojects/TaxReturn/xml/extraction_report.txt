@@ -1,0 +1,99 @@
+================================================================================
+EDD EXTRACTION REPORT
+================================================================================
+
+Generated: 2026-03-24 06:29:53
+Total entities extracted: 37
+
+ENTITIES BY CATEGORY:
+--------------------------------------------------------------------------------
+
+CONSTANTS (1 entities):
+  - constants                      (224 fields) Tax constants and rates for 2025
+
+CORE (5 entities):
+  - job                            ( 60 fields) Root entity for tax return processing
+  - taxpayer                       ( 39 fields) Individual taxpayer
+  - dependent                      ( 30 fields) Dependent (child or qualifying relative)
+  - state_tax_result               ( 10 fields) State tax calculation results
+  - state_period                   ( 12 fields) Period of residence or work in a specific state for multi-state allocation
+
+CREDITS (7 entities):
+  - energy_improvement             (  9 fields) Residential energy improvement
+  - elderly_disabled               ( 15 fields) Schedule R Credit for Elderly or Disabled
+  - clean_vehicle                  ( 17 fields) Form 8936 Clean Vehicle Credit
+  - adoption                       ( 16 fields) Form 8839 Qualified Adoption Expenses
+  - mortgage_credit_certificate    ( 15 fields) Form 8396 Mortgage Credit Certificate for first-time homebuyers
+  - prior_year_amt                 ( 12 fields) Form 8801 Prior Year Minimum Tax Credit carryforward
+  - credit                         ( 11 fields) Tax credit
+
+DEDUCTIONS (2 entities):
+  - noncash_contribution           ( 25 fields) Form 8283 Noncash Charitable Contribution
+  - deduction                      ( 11 fields) Itemized deduction
+
+FORMS (9 entities):
+  - household_employee             (  6 fields) Household employee (nanny, housekeeper, etc.)
+  - ira_account                    ( 16 fields) IRA account for basis tracking and conversions
+  - early_distribution             ( 14 fields) Form 5329 Early Distribution from Retirement Account
+  - child_unearned_income          ( 14 fields) Form 8615 Kiddie Tax
+  - estimated_payment              ( 11 fields) Estimated Tax Payment for Form 2210
+  - household_employee             ( 15 fields) Schedule H Household Employment
+  - nol_carryover                  ( 11 fields) Net Operating Loss Carryover
+  - partnership_audit              ( 19 fields) Form 8978 Partners Additional Reporting Year Tax (BBA audits)
+  - lihtc_recapture                ( 14 fields) Form 8611 Recapture of Low-Income Housing Credit
+
+INCOME (6 entities):
+  - income                         ( 15 fields) Income source
+  - k1_income                      ( 29 fields) Schedule K-1 income from partnerships, S-corps, trusts
+  - farm_income                    ( 42 fields) Schedule F farm income and expenses
+  - foreign_income                 ( 21 fields) Foreign income for Form 1116
+  - foreign_earned_income          ( 17 fields) Form 2555 Foreign Earned Income Exclusion
+  - unreported_tips                ( 16 fields) Form 4137 Social Security and Medicare Tax on Unreported Tip Income
+
+PROPERTY (6 entities):
+  - property                       ( 27 fields) Real estate property
+  - vehicle                        ( 15 fields) Business vehicle
+  - property_sale                  ( 19 fields) Sale of business property (Form 4797)
+  - installment_sale               ( 17 fields) Form 6252 Installment Sale
+  - like_kind_exchange             ( 20 fields) Form 8824 Like-Kind Exchange
+  - casualty_loss                  ( 16 fields) Form 4684 Casualty or Theft Loss
+
+RESULT (1 entities):
+  - result                         (199 fields) Tax calculation results
+
+================================================================================
+OUTPUT FILES CREATED:
+--------------------------------------------------------------------------------
+  TaxReturn_edd_constants.xml              ( 34558 bytes)
+  TaxReturn_edd_core.xml                   ( 23109 bytes)
+  TaxReturn_edd_credits.xml                ( 14228 bytes)
+  TaxReturn_edd_deductions.xml             (  5797 bytes)
+  TaxReturn_edd_forms.xml                  ( 17942 bytes)
+  TaxReturn_edd_income.xml                 ( 20560 bytes)
+  TaxReturn_edd_property.xml               ( 16737 bytes)
+  TaxReturn_edd_result.xml                 ( 30093 bytes)
+
+================================================================================
+DIRECTORY STRUCTURE:
+--------------------------------------------------------------------------------
+
+/home/paul/go/src/github.com/DTRules/DTRules/sampleprojects/TaxReturn/xml/
+  ├── TaxReturn_edd_constants.xml
+  ├── TaxReturn_edd_core.xml
+  ├── TaxReturn_edd_credits.xml
+  ├── TaxReturn_edd_deductions.xml
+  ├── TaxReturn_edd_forms.xml
+  ├── TaxReturn_edd_income.xml
+  ├── TaxReturn_edd_property.xml
+  ├── TaxReturn_edd_result.xml
+  └── extraction_report.txt (this file)
+
+================================================================================
+NOTES:
+--------------------------------------------------------------------------------
+- Original file backed up as TaxReturn_edd.xml.original
+- Each extracted file includes file_path metadata
+- All entity structures preserved exactly as in original
+- Files ready for use in multi-file EDD structure
+
+================================================================================

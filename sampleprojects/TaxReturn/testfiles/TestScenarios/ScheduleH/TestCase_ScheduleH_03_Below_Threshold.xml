@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Schedule H Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Cash Wage Below Threshold -->
+   <!-- Tests that Schedule H is NOT required when wages below $2,700 -->
+   <!-- Edge case: Occasional babysitter paid $2,500 -->
+   <!-- No FICA or FUTA taxes required -->
+   <!-- No W-2 required (can issue 1099-NEC or nothing if under $600) -->
+
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>NY</state>
+   <city>New York</city>
+
+   <!-- Expected values for validation -->
+   <!-- Taxpayer W-2 Wages: $85,000 -->
+   <!-- AGI: $85,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $70,000 -->
+   <!-- No Schedule H tax (below threshold) -->
+   <expected_agi>85000</expected_agi>
+   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_schedule_h_social_security_tax>0</expected_schedule_h_social_security_tax>
+   <expected_schedule_h_medicare_tax>0</expected_schedule_h_medicare_tax>
+   <expected_schedule_h_futa_tax>0</expected_schedule_h_futa_tax>
+   <expected_schedule_h_total_tax>0</expected_schedule_h_total_tax>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Emily Martinez</name>
+      <ssn>111-22-3333</ssn>
+      <date_of_birth>1992-08-20</date_of_birth>
+      <occupation>Marketing Manager</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>85000</w2_wages>
+      <w2_withholding>12000</w2_withholding>
+   </taxpayer>
+
+   <!-- Household Employee: Occasional Babysitter -->
+   <!-- Paid $2,500 for year (below $2,700 threshold) -->
+   <household_employee>
+      <id>1</id>
+      <name>Ashley Williams</name>
+      <ssn>777-88-9999</ssn>
+      <!-- Below threshold - no Schedule H required -->
+      <cash_wages>2500</cash_wages>
+      <federal_withholding>0</federal_withholding>
+      <!-- Wages below threshold - no FICA -->
+      <ss_wages>0</ss_wages>
+      <medicare_wages>0</medicare_wages>
+      <!-- Wages below threshold - no FUTA -->
+      <futa_wages>0</futa_wages>
+      <state_unemployment_paid>0</state_unemployment_paid>
+   </household_employee>
+
+   <!-- Schedule H Calculation: -->
+   <!-- Cash wages ($2,500) < threshold ($2,700) -->
+   <!-- NO household employment taxes required -->
+   <!-- Social Security tax: $0 -->
+   <!-- Medicare tax: $0 -->
+   <!-- FUTA tax: $0 -->
+   <!-- Total Schedule H: $0 -->
+
+   <!-- No W-2 required (wages below threshold) -->
+   <!-- Could issue 1099-NEC if over $600, but not required -->
+
+   <!-- Edge case notes: -->
+   <!-- - $2,700 is the 2025 threshold for Schedule H -->
+   <!-- - Below threshold = no employer FICA taxes -->
+   <!-- - Below threshold = no FUTA taxes -->
+   <!-- - This tests the threshold logic in Calculate_Schedule_H -->
+</job>

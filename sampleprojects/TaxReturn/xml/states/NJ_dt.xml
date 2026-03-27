@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for New Jersey (NJ)
+
+  New Jersey has a progressive income tax with 7 tax brackets for single filers
+  and 8 tax brackets for married filing jointly.
+
+  Tax rates: 1.4%, 1.75%, 2.45%, 3.5%, 5.525%, 6.37%, 8.97%, and 10.75%
+
+  Table Number: 43000 (NJ is 30th state alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 43000: Calculate_NJ_Tax - New Jersey State Income Tax           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NJ_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>New Jersey state income tax calculation. Implements progressive tax structure per NJ tax code (2025).</COMMENTS>
+<TABLE_NUMBER>43000</TABLE_NUMBER>
+<FILE_PATH>states/NJ/43000_Calculate_NJ_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize New Jersey tax calculation</action_description>
+<action_postfix>
+"New Jersey Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Single filer</condition_comment>
+<condition_description>Filing status is single</condition_description>
+<condition_postfix>
+result.filing_status "single" eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NJ tax - Progressive 7 brackets (Single)</action_comment>
+<action_postfix>
+<!-- Calculate taxable income (AGI minus personal exemption) -->
+result.agi result.nj_personal_exemption sub 0 max
+/nj_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0 /nj_tax xdef
+
+<!-- Calculate tax progressively for each bracket -->
+<!-- Bracket 1: 1.4% on first $20,000 -->
+nj_taxable_income result.nj_bracket_1_limit_single min
+result.nj_bracket_1_rate mul
+nj_tax add /nj_tax xdef
+
+<!-- Bracket 2: 1.75% on amount over $20,000 up to $35,000 -->
+nj_taxable_income result.nj_bracket_1_limit_single gt
+{
+  nj_taxable_income result.nj_bracket_2_limit_single min
+  result.nj_bracket_1_limit_single sub 0 max
+  result.nj_bracket_2_rate_single mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 3: 3.5% on amount over $35,000 up to $40,000 -->
+nj_taxable_income result.nj_bracket_2_limit_single gt
+{
+  nj_taxable_income result.nj_bracket_3_limit_single min
+  result.nj_bracket_2_limit_single sub 0 max
+  result.nj_bracket_3_rate_single mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 4: 5.525% on amount over $40,000 up to $75,000 -->
+nj_taxable_income result.nj_bracket_3_limit_single gt
+{
+  nj_taxable_income result.nj_bracket_4_limit_single min
+  result.nj_bracket_3_limit_single sub 0 max
+  result.nj_bracket_4_rate_single mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 5: 6.37% on amount over $75,000 up to $500,000 -->
+nj_taxable_income result.nj_bracket_4_limit_single gt
+{
+  nj_taxable_income result.nj_bracket_5_limit_single min
+  result.nj_bracket_4_limit_single sub 0 max
+  result.nj_bracket_5_rate_single mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 6: 8.97% on amount over $500,000 up to $1,000,000 -->
+nj_taxable_income result.nj_bracket_5_limit_single gt
+{
+  nj_taxable_income result.nj_bracket_6_limit_single min
+  result.nj_bracket_5_limit_single sub 0 max
+  result.nj_bracket_6_rate_single mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 7: 10.75% on amount over $1,000,000 -->
+nj_taxable_income result.nj_bracket_6_limit_single gt
+{
+  nj_taxable_income result.nj_bracket_6_limit_single sub
+  result.nj_bracket_7_rate mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Store result -->
+nj_tax /result.state_tax_liability xdef
+
+"New Jersey tax (single) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate NJ tax - Progressive 8 brackets (MFJ)</action_comment>
+<action_postfix>
+<!-- Calculate taxable income (AGI minus 2x personal exemption for MFJ) -->
+result.agi result.nj_personal_exemption 2 mul sub 0 max
+/nj_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0 /nj_tax xdef
+
+<!-- Calculate tax progressively for each bracket -->
+<!-- Bracket 1: 1.4% on first $20,000 -->
+nj_taxable_income result.nj_bracket_1_limit_joint min
+result.nj_bracket_1_rate mul
+nj_tax add /nj_tax xdef
+
+<!-- Bracket 2: 1.75% on amount over $20,000 up to $50,000 -->
+nj_taxable_income result.nj_bracket_1_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_2_limit_joint min
+  result.nj_bracket_1_limit_joint sub 0 max
+  result.nj_bracket_2_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 3: 2.45% on amount over $50,000 up to $70,000 -->
+nj_taxable_income result.nj_bracket_2_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_3_limit_joint min
+  result.nj_bracket_2_limit_joint sub 0 max
+  result.nj_bracket_3_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 4: 3.5% on amount over $70,000 up to $80,000 -->
+nj_taxable_income result.nj_bracket_3_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_4_limit_joint min
+  result.nj_bracket_3_limit_joint sub 0 max
+  result.nj_bracket_4_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 5: 5.525% on amount over $80,000 up to $150,000 -->
+nj_taxable_income result.nj_bracket_4_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_5_limit_joint min
+  result.nj_bracket_4_limit_joint sub 0 max
+  result.nj_bracket_5_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 6: 6.37% on amount over $150,000 up to $500,000 -->
+nj_taxable_income result.nj_bracket_5_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_6_limit_joint min
+  result.nj_bracket_5_limit_joint sub 0 max
+  result.nj_bracket_6_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 7: 8.97% on amount over $500,000 up to $1,000,000 -->
+nj_taxable_income result.nj_bracket_6_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_7_limit_joint min
+  result.nj_bracket_6_limit_joint sub 0 max
+  result.nj_bracket_7_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Bracket 8: 10.75% on amount over $1,000,000 -->
+nj_taxable_income result.nj_bracket_7_limit_joint gt
+{
+  nj_taxable_income result.nj_bracket_7_limit_joint sub
+  result.nj_bracket_8_rate_joint mul
+  nj_tax add /nj_tax xdef
+} if
+
+<!-- Store result -->
+nj_tax /result.state_tax_liability xdef
+
+"New Jersey tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 43001: Calculate_NJ_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NJ_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>New Jersey military retirement pay exclusion. Full exemption for all military retirement income (Group B). MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
+<TABLE_NUMBER>43001</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize NJ military retirement exclusion calculation</action_description>
+<action_postfix>
+"NJ Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has military retirement pay</condition_comment>
+<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_postfix>
+taxpayer.military_retirement_pay get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Full exclusion - 100% of military retirement pay excluded from NJ taxable income</action_comment>
+<action_postfix>
+<!-- New Jersey provides full exemption for military retirement pay -->
+<!-- Store full amount as exclusion (subtract from state AGI) -->
+taxpayer.military_retirement_pay get
+/result.nj_military_retirement_exclusion xdef
+
+<!-- Add to state subtractions -->
+result.nj_subtractions get
+result.nj_military_retirement_exclusion get add
+/result.nj_subtractions xdef
+
+"NJ Military Retirement Exclusion (Full): $" result.nj_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No military retirement pay - no exclusion</action_comment>
+<action_postfix>
+0 /result.nj_military_retirement_exclusion xdef
+"NJ Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

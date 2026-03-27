@@ -25,6 +25,7 @@
 		<field name='farm_incomes' type='array' subtype='farm_income' access='r' input='' default_value='' comment='Farm income for Schedule F'></field>
 		<field name='property_sales' type='array' subtype='property_sale' access='r' input='' default_value='' comment='Business property sales for Form 4797'></field>
 		<field name='foreign_incomes' type='array' subtype='foreign_income' access='r' input='' default_value='' comment='Foreign income for Form 1116'></field>
+		<field name='household_employees' type='array' subtype='household_employee' access='r' input='' default_value='' comment='Household employees for Schedule H'></field>
 		<field name='foreign_earned_incomes' type='array' subtype='foreign_earned_income' access='r' input='' default_value='' comment='Form 2555 Foreign Earned Income'></field>
 		<field name='installment_sales' type='array' subtype='installment_sale' access='r' input='' default_value='' comment='Form 6252 Installment Sales'></field>
 		<field name='like_kind_exchanges' type='array' subtype='like_kind_exchange' access='r' input='' default_value='' comment='Form 8824 Like-Kind Exchanges'></field>
@@ -45,6 +46,7 @@
 		<field name='lihtc_recaptures' type='array' subtype='lihtc_recapture' access='r' input='' default_value='' comment='Form 8611 LIHTC Recaptures'></field>
 		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Results of tax calculation'></field>
 		<field name='state_tax_results' type='array' subtype='state_tax_result' access='r' input='' default_value='' comment='State tax calculation results'></field>
+		<field name='state_periods' type='array' subtype='state_period' access='r' input='' default_value='' comment='Periods of residence/work in different states (for multi-state allocation)'></field>
 		<field name='audit_trail' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed trace of every decision'></field>
 		<!-- Healthcare / Premium Tax Credit -->
 		<field name='has_marketplace_coverage' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Had marketplace health insurance'></field>
@@ -60,6 +62,10 @@
 		<field name='expected_taxable_income' type='double' subtype='' access='r' input='main' default_value='' comment='Expected taxable income for validation'></field>
 		<field name='expected_total_tax' type='double' subtype='' access='r' input='main' default_value='' comment='Expected total tax for validation'></field>
 		<field name='expected_refund' type='double' subtype='' access='r' input='main' default_value='' comment='Expected refund for validation'></field>
+		<!-- Form 8859 - DC First-Time Homebuyer Credit -->
+		<field name='purchased_dc_home_first_time' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Purchased DC home as first-time buyer in qualified period'></field>
+		<field name='dc_home_purchase_price' type='double' subtype='' access='r' input='main' default_value='0' comment='Purchase price of DC home (Form 8859)'></field>
+		<field name='dc_home_purchase_date' type='date' subtype='' access='r' input='main' default_value='' comment='Purchase date of DC home (Form 8859)'></field>
 		<field name='expected_cdcc_credit' type='double' subtype='' access='r' input='main' default_value='' comment='Expected CDCC credit for validation'></field>
 		<field name='expected_education_credit' type='double' subtype='' access='r' input='main' default_value='' comment='Expected education credit for validation'></field>
 	</entity>
@@ -84,7 +90,8 @@
 		<field name='se_net_profit' type='double' subtype='' access='rw' input='' default_value='0' comment='Schedule C net profit (computed)'></field>
 		<field name='se_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Self-employment tax (computed)'></field>
 		<field name='se_tax_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible portion of SE tax (computed)'></field>
-		<field name='estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='Estimated tax payments made'></field>
+		<field name='estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='Federal estimated tax payments made'></field>
+		<field name='state_estimated_payments' type='double' subtype='' access='rw' input='main' default_value='0' comment='State estimated tax payments made'></field>
 		<field name='incomes' type='array' subtype='income' access='r' input='' default_value='' comment='Income sources for this taxpayer'></field>
 		<field name='total_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total income (computed)'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes and explanations'></field>
@@ -110,6 +117,47 @@
 		<field name='educator_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unreimbursed educator expenses'></field>
 		<!-- Medical Expenses -->
 		<field name='medical_expenses' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unreimbursed medical expenses (Schedule A)'></field>
+		<!-- Form 8909 - Energy Efficient Appliance Credit (MANUFACTURER CREDIT) -->
+		<field name='energy_efficient_appliances_produced' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of qualifying appliances produced (Form 8909 - manufacturers only)'></field>
+		<field name='appliance_type' type='string' subtype='' access='r' input='main' default_value='' comment='Type: dishwasher, clothes_washer, refrigerator (Form 8909)'></field>
+		<!-- Military Service Provisions (IRC § 112, MSRRA, SCRA) -->
+		<field name='is_military' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Active duty military service member'></field>
+		<field name='is_military_spouse' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Spouse of active duty military member (MSRRA)'></field>
+		<field name='military_rank' type='string' subtype='' access='r' input='main' default_value='' comment='Military rank: enlisted, warrant_officer, commissioned_officer'></field>
+		<field name='military_branch' type='string' subtype='' access='r' input='main' default_value='' comment='Branch: army, navy, air_force, marines, coast_guard, space_force'></field>
+		<field name='servicemember_domicile_state' type='string' subtype='' access='r' input='main' default_value='' comment='Service member legal residence state (MSRRA/SCRA)'></field>
+		<field name='spouse_same_domicile' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Spouse has same domicile as service member (MSRRA)'></field>
+		<!-- Combat Zone Service (IRC § 112) -->
+		<field name='combat_zone_service' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Served in combat zone during tax year'></field>
+		<field name='combat_zone_location' type='string' subtype='' access='r' input='main' default_value='' comment='Combat zone: afghanistan, iraq, persian_gulf, sinai, other'></field>
+		<field name='combat_zone_months' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of months in combat zone'></field>
+		<field name='combat_zone_start_date' type='date' subtype='' access='r' input='main' default_value='' comment='Combat zone service start date'></field>
+		<field name='combat_zone_end_date' type='date' subtype='' access='r' input='main' default_value='' comment='Combat zone service end date'></field>
+		<field name='hospitalized_combat_injury' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Hospitalized from combat zone injury'></field>
+		<field name='hospitalization_end_date' type='date' subtype='' access='r' input='main' default_value='' comment='End of hospitalization from combat injury'></field>
+		<!-- Military Pay Components -->
+		<field name='basic_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Basic military pay (W-2 Box 1)'></field>
+		<field name='combat_zone_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Pay earned in combat zone (excludable under IRC § 112)'></field>
+		<field name='imminent_danger_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Imminent danger/hostile fire pay'></field>
+		<field name='bah_amount' type='double' subtype='' access='rw' input='main' default_value='0' comment='Basic Allowance for Housing (nontaxable)'></field>
+		<field name='bas_amount' type='double' subtype='' access='rw' input='main' default_value='0' comment='Basic Allowance for Subsistence (nontaxable)'></field>
+		<field name='moving_expense_reimbursement' type='double' subtype='' access='rw' input='main' default_value='0' comment='Military moving expense reimbursement (nontaxable for military)'></field>
+		<field name='family_separation_allowance' type='double' subtype='' access='rw' input='main' default_value='0' comment='Family separation allowance (nontaxable)'></field>
+		<field name='reenlistment_bonus' type='double' subtype='' access='rw' input='main' default_value='0' comment='Reenlistment bonus (taxable unless combat zone)'></field>
+		<!-- Military Retirement -->
+		<field name='military_retirement_pay' type='double' subtype='' access='rw' input='main' default_value='0' comment='Military retirement pension (Form 1099-R)'></field>
+		<field name='va_disability_compensation' type='double' subtype='' access='rw' input='main' default_value='0' comment='VA disability compensation (nontaxable)'></field>
+		<field name='va_pension' type='double' subtype='' access='rw' input='main' default_value='0' comment='VA pension for veterans (nontaxable)'></field>
+		<field name='survivor_benefit_plan' type='double' subtype='' access='rw' input='main' default_value='0' comment='Survivor Benefit Plan payments (taxable)'></field>
+		<!-- Death Benefits -->
+		<field name='death_gratuity_amount' type='double' subtype='' access='rw' input='main' default_value='0' comment='Military death gratuity (excludable up to $100,000)'></field>
+		<field name='sgli_payment' type='double' subtype='' access='rw' input='main' default_value='0' comment='Servicemembers Group Life Insurance payment (nontaxable)'></field>
+		<!-- Military Moving Expenses (Reinstated for Military Only) -->
+		<field name='pcs_move' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Permanent Change of Station move'></field>
+		<field name='moving_expenses_paid' type='double' subtype='' access='rw' input='main' default_value='0' comment='Out-of-pocket moving expenses (deductible for military PCS)'></field>
+		<field name='moving_distance_miles' type='integer' subtype='' access='r' input='main' default_value='0' comment='Distance of move in miles'></field>
+		<!-- TRICARE and Military Health -->
+		<field name='tricare_premiums' type='double' subtype='' access='rw' input='main' default_value='0' comment='TRICARE health insurance premiums (if not free)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -143,6 +191,23 @@
 		<field name='is_disabled' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Physically or mentally incapable of self-care'></field>
 		<field name='care_expenses' type='double' subtype='' access='r' input='main' default_value='0' comment='Care expenses for this dependent'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about dependent eligibility'></field>
+		<!-- Form 8615 - Kiddie Tax -->
+		<field name='unearned_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Unearned income (investment income, dividends, interest) - Form 8615'></field>
+		<field name='earned_income' type='double' subtype='' access='r' input='main' default_value='0' comment='Earned income (wages, salary from part-time jobs) - Form 8615'></field>
+		<field name='subject_to_kiddie_tax' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether kiddie tax applies (computed) - Form 8615'></field>
+		<field name='kiddie_tax_amount' type='double' subtype='' access='rw' input='' default_value='0' comment='Calculated kiddie tax amount (computed) - Form 8615'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- HOUSEHOLD EMPLOYEE - Schedule H                                   -->
+	<!-- ================================================================== -->
+	<entity name='household_employee' access='rw' comment='Household employee (nanny, housekeeper, etc.)'>
+		<field name='household_employee' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='name' type='string' subtype='' access='r' input='main' default_value='' comment='Employee name'></field>
+		<field name='ssn' type='string' subtype='' access='r' input='main' default_value='' comment='Employee SSN'></field>
+		<field name='wages_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Cash wages paid'></field>
+		<field name='federal_income_tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Federal income tax withheld (optional)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -158,6 +223,8 @@
 		<field name='gross_amount' type='double' subtype='' access='r' input='main' default_value='0' comment='Gross income amount'></field>
 		<field name='tax_withheld' type='double' subtype='' access='r' input='main' default_value='0' comment='Tax withheld at source'></field>
 		<field name='is_earned' type='boolean' subtype='' access='r' input='main' default_value='true' comment='Earned income (wages, SE) vs unearned (interest, dividends)'></field>
+		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='State where income was earned (for multi-state allocation)'></field>
+		<field name='state_period_id' type='integer' subtype='' access='r' input='main' default_value='' comment='Reference to state_period for date-based allocation'></field>
 		<field name='irs_form' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form reference'></field>
 		<field name='irs_line' type='string' subtype='' access='rw' input='' default_value='' comment='IRS form line reference'></field>
 		<!-- Capital Gains fields -->
@@ -193,6 +260,10 @@
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
 		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
+		<!-- Form 8396 - Mortgage Interest Credit -->
+		<field name='has_mortgage_credit_certificate' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Has MCC from state/local government (Form 8396)'></field>
+		<field name='mcc_rate' type='double' subtype='' access='r' input='main' default_value='0' comment='Certificate credit rate, usually 10%-50% (Form 8396)'></field>
+		<field name='mortgage_interest_paid' type='double' subtype='' access='r' input='main' default_value='0' comment='Mortgage interest paid this year (overrides mortgage_interest if set)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -893,9 +964,9 @@
 		<field name='QSS' type='string' subtype='' access='r' input='' default_value='QSS' comment='Qualifying Surviving Spouse'></field>
 
 		<!-- Standard Deduction (2025 per Rev. Proc. 2024-40) -->
-		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
-		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for Single (2025)'></field>
-		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='22500' comment='Standard deduction for HOH (2025)'></field>
+		<field name='standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)'></field>
+		<field name='standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='Standard deduction for Single (2025)'></field>
+		<field name='standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='Standard deduction for HOH (2025)'></field>
 		<field name='standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15000' comment='Standard deduction for MFS (2025)'></field>
 		<field name='additional_std_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='Additional std deduction per senior/blind for Single/HOH (2025 est.)'></field>
 		<field name='additional_std_deduction_married' type='double' subtype='' access='r' input='' default_value='1600' comment='Additional std deduction per senior/blind for MFJ/MFS (2025 est.)'></field>
@@ -914,6 +985,12 @@
 		<!-- SALT Cap (TCJA) -->
 		<field name='salt_cap' type='double' subtype='' access='r' input='' default_value='40000' comment='SALT deduction cap $40k per OBBBA 2025 (was $10k under TCJA)'></field>
 
+		<!-- SALT Phaseout for High-Income Taxpayers (2025) -->
+		<field name='salt_phaseout_start' type='double' subtype='' access='r' input='' default_value='500000' comment='SALT cap phaseout start threshold'></field>
+		<field name='salt_phaseout_end' type='double' subtype='' access='r' input='' default_value='600000' comment='SALT cap phaseout end threshold'></field>
+		<field name='salt_phaseout_rate' type='double' subtype='' access='r' input='' default_value='0.30' comment='SALT cap phaseout rate (30%)'></field>
+		<field name='salt_reduced_cap' type='double' subtype='' access='r' input='' default_value='10000' comment='SALT cap after full phaseout'></field>
+
 		<!-- Mortgage Interest Limits -->
 		<field name='mortgage_limit_pre_tcja' type='double' subtype='' access='r' input='' default_value='1000000' comment='Pre-TCJA mortgage limit (before 12/15/2017)'></field>
 		<field name='mortgage_limit_post_tcja' type='double' subtype='' access='r' input='' default_value='750000' comment='Post-TCJA mortgage limit (IRC 163(h)(3)(F)(i)(I))'></field>
@@ -926,6 +1003,18 @@
 		<field name='ss_wage_base' type='double' subtype='' access='r' input='' default_value='176100' comment='Social Security wage base (2025 est.)'></field>
 		<field name='se_threshold' type='double' subtype='' access='r' input='' default_value='400' comment='Minimum SE income to file SE tax'></field>
 
+		<!-- Schedule H - Household Employment Taxes -->
+		<field name='household_wage_threshold' type='double' subtype='' access='r' input='' default_value='2800' comment='Household employee wage threshold for FICA (2025)'></field>
+		<field name='futa_wage_threshold' type='double' subtype='' access='r' input='' default_value='1000' comment='FUTA wage threshold per employee (2025)'></field>
+		<field name='social_security_rate' type='double' subtype='' access='r' input='' default_value='0.062' comment='Social Security tax rate 6.2% (employer share)'></field>
+		<field name='medicare_rate' type='double' subtype='' access='r' input='' default_value='0.0145' comment='Medicare tax rate 1.45% (employer share)'></field>
+		<field name='futa_rate' type='double' subtype='' access='r' input='' default_value='0.06' comment='FUTA rate 6.0% (before state credit)'></field>
+		<field name='futa_wage_base' type='double' subtype='' access='r' input='' default_value='7000' comment='FUTA wage base per employee (2025)'></field>
+
+
+	<!-- Form 3800 - General Business Credit -->
+	<field name='gbc_threshold' type='double' subtype='' access='r' input='' default_value='25000' comment='GBC limitation threshold (Form 3800)'></field>
+	<field name='gbc_limitation_percentage' type='double' subtype='' access='r' input='' default_value='0.75' comment='GBC 75% of tax over threshold (Form 3800 Part II)'></field>
 		<!-- Standard Mileage Rate -->
 		<field name='mileage_rate' type='double' subtype='' access='r' input='' default_value='0.70' comment='Standard mileage rate (2025 est.) per Pub 463'></field>
 
@@ -943,6 +1032,7 @@
 		<field name='bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.35' comment='35% bracket rate'></field>
 		<field name='bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='751600' comment='35% bracket ceiling MFJ (2025)'></field>
 		<field name='bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.37' comment='37% top bracket rate'></field>
+		<field name='bracket_7_mfj' type='double' subtype='' access='r' input='' default_value='999999999' comment='37% top bracket (no ceiling) MFJ (2025)'></field>
 
 		<!-- Tax Brackets Single 2025 (per Rev. Proc. 2024-40) -->
 		<field name='bracket_1_single' type='double' subtype='' access='r' input='' default_value='11925' comment='10% bracket ceiling Single (2025)'></field>
@@ -951,9 +1041,10 @@
 		<field name='bracket_4_single' type='double' subtype='' access='r' input='' default_value='197300' comment='24% bracket ceiling Single (2025)'></field>
 		<field name='bracket_5_single' type='double' subtype='' access='r' input='' default_value='250525' comment='32% bracket ceiling Single (2025)'></field>
 		<field name='bracket_6_single' type='double' subtype='' access='r' input='' default_value='626350' comment='35% bracket ceiling Single (2025)'></field>
+		<field name='bracket_7_single' type='double' subtype='' access='r' input='' default_value='999999999' comment='37% top bracket (no ceiling) Single (2025)'></field>
 
 		<!-- States without income tax -->
-		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "NV" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
 		<!-- Illinois State Tax Constants (2025) -->
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
@@ -987,6 +1078,55 @@
 		<field name='wa_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='50000' comment='WA bracket 2 threshold (above this uses 4.0%)'></field>
 		<field name='wa_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='WA bracket 3 threshold (above this uses 6.5%)'></field>
 		<field name='wa_bracket_4_threshold' type='double' subtype='' access='r' input='' default_value='250000' comment='WA bracket 4 threshold (above this uses 8.5%)'></field>
+
+
+		<!-- Delaware State Tax Constants (2025) -->
+		<field name='de_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='3250' comment='DE standard deduction Single (2025)'></field>
+		<field name='de_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='6500' comment='DE standard deduction MFJ (2025)'></field>
+		<field name='de_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='DE tax rate bracket 1 (0.0%) on $0-$2,000'></field>
+		<field name='de_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0220' comment='DE tax rate bracket 2 (2.2%) on $2,000-$5,000'></field>
+		<field name='de_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0390' comment='DE tax rate bracket 3 (3.9%) on $5,000-$10,000'></field>
+		<field name='de_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0480' comment='DE tax rate bracket 4 (4.8%) on $10,000-$20,000'></field>
+		<field name='de_bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='DE tax rate bracket 5 (5.2%) on $20,000-$25,000'></field>
+		<field name='de_bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.0555' comment='DE tax rate bracket 6 (5.55%) on $25,000-$60,000'></field>
+		<field name='de_bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.0660' comment='DE tax rate bracket 7 (6.6%) on income over $60,000'></field>
+		<field name='de_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='2000' comment='DE bracket 2 threshold (2.2% starts here)'></field>
+		<field name='de_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='5000' comment='DE bracket 3 threshold (3.9% starts here)'></field>
+		<field name='de_bracket_4_threshold' type='double' subtype='' access='r' input='' default_value='10000' comment='DE bracket 4 threshold (4.8% starts here)'></field>
+		<field name='de_bracket_5_threshold' type='double' subtype='' access='r' input='' default_value='20000' comment='DE bracket 5 threshold (5.2% starts here)'></field>
+		<field name='de_bracket_6_threshold' type='double' subtype='' access='r' input='' default_value='25000' comment='DE bracket 6 threshold (5.55% starts here)'></field>
+		<field name='de_bracket_7_threshold' type='double' subtype='' access='r' input='' default_value='60000' comment='DE bracket 7 threshold (6.6% starts here)'></field>
+
+		<!-- Pennsylvania State Tax Constants (2025) -->
+		<field name='pa_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0307' comment='PA flat tax rate 3.07% (2025). Source: 72 P.S. § 7302'></field>
+		<field name='pa_taxable_compensation' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 1: Compensation (W-2 wages excluding military retirement). Source: 72 P.S. § 7303(a)(1)'></field>
+		<field name='pa_taxable_interest' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 2: Interest income. Source: 72 P.S. § 7303(a)(2)'></field>
+		<field name='pa_taxable_dividends' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 3: Dividends. Source: 72 P.S. § 7303(a)(3)'></field>
+		<field name='pa_taxable_net_profits' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 4: Net profits from business (Schedule C/F). Source: 72 P.S. § 7303(a)(4)'></field>
+		<field name='pa_taxable_gains' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 5: Net gains (Schedule D). Source: 72 P.S. § 7303(a)(5)'></field>
+		<field name='pa_taxable_rents_royalties' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 6: Rents and royalties (Schedule E). Source: 72 P.S. § 7303(a)(6)'></field>
+		<field name='pa_taxable_estate_trust' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 7: Estate or trust income (K-1). Source: 72 P.S. § 7303(a)(7)'></field>
+		<field name='pa_taxable_gambling' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 8: Gambling and lottery winnings. Source: 72 P.S. § 7303(a)(8)'></field>
+		<field name='pa_total_income' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Total PA taxable income (sum of 8 classes). Source: PA-40 Line 7'></field>
+		<field name='pa_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA income tax (pa_total_income × 3.07%). Source: PA-40 Line 13'></field>
+		<field name='pa_military_retirement_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA military retirement exclusion (100%)'></field>
+		<field name='pa_social_security_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Social Security exclusion (100%)'></field>
+		<field name='pa_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA pension exclusion (100%)'></field>
+		<field name='pa_ira_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA IRA distribution exclusion (100%)'></field>
+
+		<!-- West Virginia State Income Tax (2025) -->
+		<field name='wv_rate_1' type='double' subtype='' access='r' input='' default_value='0.0222' comment='WV rate bracket 1 (2.22%)'></field>
+		<field name='wv_rate_2' type='double' subtype='' access='r' input='' default_value='0.0296' comment='WV rate bracket 2 (2.96%)'></field>
+		<field name='wv_rate_3' type='double' subtype='' access='r' input='' default_value='0.0333' comment='WV rate bracket 3 (3.33%)'></field>
+		<field name='wv_rate_4' type='double' subtype='' access='r' input='' default_value='0.0444' comment='WV rate bracket 4 (4.44%)'></field>
+		<field name='wv_rate_5' type='double' subtype='' access='r' input='' default_value='0.0482' comment='WV rate bracket 5 (4.82%)'></field>
+		<field name='wv_bracket_1' type='double' subtype='' access='r' input='' default_value='10000' comment='WV bracket 1 ceiling ($10,000)'></field>
+		<field name='wv_bracket_2' type='double' subtype='' access='r' input='' default_value='25000' comment='WV bracket 2 ceiling ($25,000)'></field>
+		<field name='wv_bracket_3' type='double' subtype='' access='r' input='' default_value='40000' comment='WV bracket 3 ceiling ($40,000)'></field>
+		<field name='wv_bracket_4' type='double' subtype='' access='r' input='' default_value='60000' comment='WV bracket 4 ceiling ($60,000)'></field>
+		<field name='wv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='WV standard deduction Single (2025)'></field>
+		<field name='wv_standard_deduction_joint' type='double' subtype='' access='r' input='' default_value='4000' comment='WV standard deduction MFJ (2025)'></field>
+		<field name='wv_personal_exemption' type='double' subtype='' access='r' input='' default_value='2000' comment='WV personal exemption per person (2025)'></field>
 
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
@@ -1043,8 +1183,10 @@
 		<!-- Capital Gains Brackets (2025 per Rev. Proc. 2024-40) -->
 		<field name='cg_0_percent_single' type='double' subtype='' access='r' input='' default_value='48350' comment='0% LTCG bracket ceiling Single (2025)'></field>
 		<field name='cg_0_percent_mfj' type='double' subtype='' access='r' input='' default_value='96700' comment='0% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_0_percent_hoh' type='double' subtype='' access='r' input='' default_value='63000' comment='0% LTCG bracket ceiling HOH (2025)'></field>
 		<field name='cg_15_percent_single' type='double' subtype='' access='r' input='' default_value='533400' comment='15% LTCG bracket ceiling Single (2025)'></field>
 		<field name='cg_15_percent_mfj' type='double' subtype='' access='r' input='' default_value='600050' comment='15% LTCG bracket ceiling MFJ (2025)'></field>
+		<field name='cg_15_percent_hoh' type='double' subtype='' access='r' input='' default_value='551350' comment='15% LTCG bracket ceiling HOH (2025)'></field>
 
 		<!-- Net Investment Income Tax (IRC 1411, Form 8960) -->
 		<field name='niit_rate' type='double' subtype='' access='r' input='' default_value='0.038' comment='3.8% NIIT rate (IRC 1411)'></field>
@@ -1086,6 +1228,10 @@
 		<field name='cdcc_rate_reduction_start' type='double' subtype='' access='r' input='' default_value='15000' comment='AGI where rate reduction begins'></field>
 		<field name='cdcc_rate_reduction_increment' type='double' subtype='' access='r' input='' default_value='2000' comment='AGI increment for 1% rate reduction'></field>
 
+		<!-- Kiddie Tax (Form 8615, IRC 1(g)) -->
+		<field name='kiddie_tax_threshold' type='double' subtype='' access='r' input='' default_value='2700' comment='2025 threshold for unearned income subject to kiddie tax (IRC 1(g)(4)(A))'></field>
+		<field name='kiddie_tax_standard_deduction' type='double' subtype='' access='r' input='' default_value='1300' comment='2025 standard deduction for dependents with unearned income (Rev. Proc. 2024-40)'></field>
+
 		<!-- Saver's Credit (Form 8880, IRC 25B) -->
 		<field name='savers_credit_max_contribution' type='double' subtype='' access='r' input='' default_value='2000' comment='Max eligible contribution per person'></field>
 		<field name='savers_50_percent_single' type='double' subtype='' access='r' input='' default_value='23000' comment='50% rate AGI limit Single (2025)'></field>
@@ -1102,12 +1248,13 @@
 		<field name='amt_exemption_single' type='double' subtype='' access='r' input='' default_value='88100' comment='AMT exemption Single (2025)'></field>
 		<field name='amt_exemption_mfj' type='double' subtype='' access='r' input='' default_value='137000' comment='AMT exemption MFJ (2025)'></field>
 		<field name='amt_exemption_mfs' type='double' subtype='' access='r' input='' default_value='68500' comment='AMT exemption MFS (2025)'></field>
-		<field name='amt_phaseout_single' type='double' subtype='' access='r' input='' default_value='609350' comment='AMT exemption phaseout start Single (2025)'></field>
-		<field name='amt_phaseout_mfj' type='double' subtype='' access='r' input='' default_value='1218700' comment='AMT exemption phaseout start MFJ (2025)'></field>
-		<field name='amt_phaseout_mfs' type='double' subtype='' access='r' input='' default_value='609350' comment='AMT exemption phaseout start MFS (2025)'></field>
+		<field name='amt_phaseout_single' type='double' subtype='' access='r' input='' default_value='626350' comment='AMT exemption phaseout start Single (2025)'></field>
+		<field name='amt_phaseout_mfj' type='double' subtype='' access='r' input='' default_value='1252700' comment='AMT exemption phaseout start MFJ (2025)'></field>
+		<field name='amt_phaseout_mfs' type='double' subtype='' access='r' input='' default_value='626350' comment='AMT exemption phaseout start MFS (2025)'></field>
 		<field name='amt_rate_low' type='double' subtype='' access='r' input='' default_value='0.26' comment='AMT 26% rate'></field>
 		<field name='amt_rate_high' type='double' subtype='' access='r' input='' default_value='0.28' comment='AMT 28% rate'></field>
-		<field name='amt_28_percent_threshold' type='double' subtype='' access='r' input='' default_value='232600' comment='AMTI threshold for 28% rate (2025)'></field>
+		<field name='amt_rate_threshold' type='double' subtype='' access='r' input='' default_value='239100' comment='AMTI threshold for 28% rate (2025)'></field>
+		<field name='amt_28_percent_threshold' type='double' subtype='' access='r' input='' default_value='239100' comment='AMTI threshold for 28% rate (2025) - deprecated, use amt_rate_threshold'></field>
 
 		<!-- Residential Energy Credits (Form 5695, IRC 25C/25D) -->
 		<field name='energy_efficiency_rate' type='double' subtype='' access='r' input='' default_value='0.30' comment='Energy Efficient Home Improvement Credit rate (30%)'></field>
@@ -1188,7 +1335,7 @@
 		<field name='clean_vehicle_magi_hoh' type='double' subtype='' access='r' input='' default_value='225000' comment='MAGI limit HOH'></field>
 
 		<!-- Form 8839 - Adoption Credit -->
-		<field name='adoption_credit_max' type='double' subtype='' access='r' input='' default_value='16810' comment='Max adoption credit per child (2024)'></field>
+		<field name='adoption_credit_max' type='double' subtype='' access='r' input='' default_value='17280' comment='Max adoption credit per child (2025)'></field>
 		<field name='adoption_phaseout_start' type='double' subtype='' access='r' input='' default_value='252150' comment='MAGI phase-out start (2024)'></field>
 		<field name='adoption_phaseout_end' type='double' subtype='' access='r' input='' default_value='292150' comment='MAGI phase-out end (2024)'></field>
 
@@ -1216,6 +1363,13 @@
 		<field name='total_rental_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Net rental income (Schedule E)'></field>
 		<field name='total_other_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Other income'></field>
 		<field name='gross_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total gross income (Form 1040 Line 9)'></field>
+
+		<!-- Additional Income Types -->
+		<field name='unemployment_compensation' type='double' subtype='' access='rw' input='main' default_value='0' comment='Unemployment compensation (Form 1040 Line 7). Source: IRC 85'></field>
+		<field name='gambling_winnings' type='double' subtype='' access='rw' input='main' default_value='0' comment='Gambling winnings (Form 1040 Line 8b). Source: IRC 61'></field>
+		<field name='alimony_received' type='double' subtype='' access='rw' input='main' default_value='0' comment='Alimony received pre-2019 (Form 1040 Line 2a). Source: IRC 71'></field>
+		<field name='state_tax_refund' type='double' subtype='' access='rw' input='main' default_value='0' comment='State tax refund (Form 1040 Line 1). Source: IRC 111'></field>
+		<field name='has_cryptocurrency' type='boolean' subtype='' access='rw' input='main' default_value='false' comment='Digital asset question (Form 1040 top). Source: Form 1040 instructions'></field>
 
 		<!-- Adjustments -->
 		<field name='total_adjustments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total adjustments to income (Schedule 1 Part II)'></field>
@@ -1319,6 +1473,8 @@
 		<field name='total_actc' type='double' subtype='' access='rw' input='' default_value='0' comment='Additional Child Tax Credit (refundable)'></field>
 		<field name='eitc' type='double' subtype='' access='rw' input='' default_value='0' comment='Earned Income Tax Credit'></field>
 		<field name='education_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Education credits (AOTC/LLC)'></field>
+		<field name='total_aotc_refundable' type='double' subtype='' access='rw' input='' default_value='0' comment='AOTC refundable portion (40%, max $1,000) per IRC 25A(i)(5)'></field>
+		<field name='total_aotc_nonrefundable' type='double' subtype='' access='rw' input='' default_value='0' comment='AOTC nonrefundable portion (60%) per IRC 25A(i)(6)'></field>
 		<field name='cdcc_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Child and Dependent Care Credit (Form 2441)'></field>
 		<field name='savers_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit (Form 8880)'></field>
 		<field name='savers_credit_rate' type='double' subtype='' access='rw' input='' default_value='0' comment='Saver Credit rate (0.50, 0.20, 0.10, or 0)'></field>
@@ -1327,6 +1483,14 @@
 		<field name='clean_energy_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Residential Clean Energy Credit (Form 5695 Part I)'></field>
 		<field name='premium_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Premium Tax Credit (Form 8962)'></field>
 		<field name='ptc_repayment' type='double' subtype='' access='rw' input='' default_value='0' comment='Excess APTC repayment'></field>
+		<!-- Form 8859 - DC First-Time Homebuyer Credit -->
+		<field name='dc_homebuyer_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='DC First-Time Homebuyer Credit (Form 8859)'></field>
+		<!-- Form 8396 - Mortgage Interest Credit -->
+		<field name='mortgage_interest_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Mortgage Interest Credit (Form 8396)'></field>
+		<field name='carryforward_mortgage_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Unused mortgage credit to carry forward (Form 8396)'></field>
+		<field name='mortgage_interest_deduction_reduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Reduction to mortgage interest deduction due to MCC'></field>
+		<!-- Form 8909 - Energy Efficient Appliance Credit -->
+		<field name='energy_appliance_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Energy Efficient Appliance Credit (Form 8909 - manufacturers only)'></field>
 		<field name='total_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total credits'></field>
 		<field name='tax_before_nonrefundable_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Tax before non-refundable credits'></field>
 		<field name='other_nonrefundable_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Non-refundable credits excluding CTC'></field>
@@ -1374,6 +1538,25 @@
 		<field name='foreign_tax_credit_limit' type='double' subtype='' access='rw' input='' default_value='0' comment='FTC limitation (US tax × foreign/total income)'></field>
 		<field name='foreign_tax_credit' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign Tax Credit allowed (Form 1116)'></field>
 
+
+	<!-- Form 3800 - General Business Credit Component Credits -->
+	<field name='work_opportunity_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Work Opportunity Credit (Form 5884)'></field>
+	<field name='research_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Research Credit (Form 6765)'></field>
+	<field name='low_income_housing_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Low-Income Housing Credit (Form 8586)'></field>
+	<field name='disabled_access_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Disabled Access Credit (Form 8826)'></field>
+	<field name='small_employer_pension_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Small Employer Pension Plan Startup Credit (Form 8881)'></field>
+	<field name='small_employer_health_credit' type='double' subtype='' access='rw' input='main' default_value='0' comment='Small Employer Health Insurance Credit (Form 8941)'></field>
+	<field name='employer_credit_paid_family_leave' type='double' subtype='' access='rw' input='main' default_value='0' comment='Employer Credit for Paid Family Leave (Form 8994)'></field>
+
+	<!-- Form 3800 - General Business Credit Summary -->
+	<field name='general_business_credit_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total General Business Credit from Form 3800 Part I'></field>
+	<field name='general_business_credit_used' type='double' subtype='' access='rw' input='' default_value='0' comment='Amount of GBC used against current year tax'></field>
+	<field name='general_business_credit_carryforward' type='double' subtype='' access='rw' input='' default_value='0' comment='Unused GBC to carry forward to next year'></field>
+		<!-- Schedule H - Household Employment Taxes -->
+		<field name='schedule_h_social_security_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Social Security tax on household employees (Schedule H)'></field>
+		<field name='schedule_h_medicare_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Medicare tax on household employees (Schedule H)'></field>
+		<field name='schedule_h_futa_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='FUTA tax on household employees (Schedule H)'></field>
+		<field name='schedule_h_total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total household employment tax (Schedule H)'></field>
 		<!-- Form 2555 - Foreign Earned Income Exclusion -->
 		<field name='total_foreign_earned_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Total foreign earned income'></field>
 		<field name='foreign_earned_income_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Foreign earned income exclusion (Form 2555)'></field>
@@ -1477,12 +1660,103 @@
 		<field name='wa_bracket_4_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='WA bracket 4 tax (8.5%)'></field>
 		<field name='wa_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Washington state income tax'></field>
 
+		<!-- Delaware State Tax Results -->
+		<field name='de_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware AGI (federal AGI + adjustments)'></field>
+		<field name='de_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='DE standard deduction amount'></field>
+		<field name='de_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware taxable income'></field>
+		<field name='de_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 1 tax (0%)'></field>
+		<field name='de_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 2 tax (2.2%)'></field>
+		<field name='de_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 3 tax (3.9%)'></field>
+		<field name='de_bracket_4_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 4 tax (4.8%)'></field>
+		<field name='de_bracket_5_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 5 tax (5.2%)'></field>
+		<field name='de_bracket_6_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 6 tax (5.55%)'></field>
+		<field name='de_bracket_7_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='DE bracket 7 tax (6.6%)'></field>
+		<field name='de_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware state income tax'></field>
+
 		<!-- Validation -->
 		<field name='validation_passed' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether validation passed'></field>
 
+		<!-- Military Tax Provisions Results -->
+		<field name='total_combat_zone_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Total combat zone pay exclusion (IRC § 112)'></field>
+		<field name='military_moving_expense_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Military PCS moving expense deduction'></field>
+		<field name='death_gratuity_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Military death gratuity exclusion'></field>
+		<field name='sgli_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='SGLI life insurance exclusion'></field>
+		<field name='military_retirement_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Taxable military retirement income'></field>
+		<field name='va_disability_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='VA disability compensation (excluded)'></field>
+		<field name='va_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='VA pension (excluded)'></field>
+		<field name='combined_military_foreign_exclusion' type='double' subtype='' access='rw' input='' default_value='0' comment='Combined military combat zone + spouse FEIE'></field>
 		<!-- Audit Trail -->
 		<field name='form_references' type='array' subtype='' access='rw' input='' default_value='' comment='IRS forms used in calculation'></field>
 		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Detailed calculation notes'></field>
+
+		<!-- California State Tax Fields -->
+		<!-- Standard Deductions (2025) -->
+		<field name='ca_standard_deduction_single' type='double' subtype='' access='rw' input='' default_value='5363.0' comment='CA standard deduction single/married filing separately $5,363 (2025). Source: CA FTB'></field>
+		<field name='ca_standard_deduction_joint' type='double' subtype='' access='rw' input='' default_value='10726.0' comment='CA standard deduction married filing jointly $10,726 (2025). Source: CA FTB'></field>
+		<field name='ca_standard_deduction_hoh' type='double' subtype='' access='rw' input='' default_value='10726.0' comment='CA standard deduction head of household $10,726 (2025). Source: CA FTB'></field>
+
+		<!-- Progressive Tax Brackets - Single Filers (2025 estimates) -->
+		<field name='ca_bracket_1_limit_single' type='double' subtype='' access='rw' input='' default_value='10412.0' comment='CA tax bracket 1 upper limit single $10,412 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_1_rate' type='double' subtype='' access='rw' input='' default_value='0.01' comment='CA tax rate for bracket 1 - 1.0% (2025)'></field>
+		<field name='ca_bracket_2_limit_single' type='double' subtype='' access='rw' input='' default_value='24684.0' comment='CA tax bracket 2 upper limit single $24,684 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_2_rate' type='double' subtype='' access='rw' input='' default_value='0.02' comment='CA tax rate for bracket 2 - 2.0% (2025)'></field>
+		<field name='ca_bracket_3_limit_single' type='double' subtype='' access='rw' input='' default_value='38959.0' comment='CA tax bracket 3 upper limit single $38,959 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_3_rate' type='double' subtype='' access='rw' input='' default_value='0.04' comment='CA tax rate for bracket 3 - 4.0% (2025)'></field>
+		<field name='ca_bracket_4_limit_single' type='double' subtype='' access='rw' input='' default_value='54081.0' comment='CA tax bracket 4 upper limit single $54,081 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_4_rate' type='double' subtype='' access='rw' input='' default_value='0.06' comment='CA tax rate for bracket 4 - 6.0% (2025)'></field>
+		<field name='ca_bracket_5_limit_single' type='double' subtype='' access='rw' input='' default_value='68350.0' comment='CA tax bracket 5 upper limit single $68,350 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_5_rate' type='double' subtype='' access='rw' input='' default_value='0.08' comment='CA tax rate for bracket 5 - 8.0% (2025)'></field>
+		<field name='ca_bracket_6_limit_single' type='double' subtype='' access='rw' input='' default_value='349137.0' comment='CA tax bracket 6 upper limit single $349,137 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_6_rate' type='double' subtype='' access='rw' input='' default_value='0.093' comment='CA tax rate for bracket 6 - 9.3% (2025)'></field>
+		<field name='ca_bracket_7_limit_single' type='double' subtype='' access='rw' input='' default_value='418961.0' comment='CA tax bracket 7 upper limit single $418,961 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_7_rate' type='double' subtype='' access='rw' input='' default_value='0.103' comment='CA tax rate for bracket 7 - 10.3% (2025)'></field>
+		<field name='ca_bracket_8_limit_single' type='double' subtype='' access='rw' input='' default_value='698271.0' comment='CA tax bracket 8 upper limit single $698,271 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_8_rate' type='double' subtype='' access='rw' input='' default_value='0.113' comment='CA tax rate for bracket 8 - 11.3% (2025)'></field>
+		<field name='ca_bracket_9_limit_single' type='double' subtype='' access='rw' input='' default_value='1000000.0' comment='CA tax bracket 9 upper limit single $1,000,000 (2025). Source: CA FTB'></field>
+		<field name='ca_bracket_9_rate' type='double' subtype='' access='rw' input='' default_value='0.123' comment='CA tax rate for bracket 9 - 12.3% (2025)'></field>
+		<field name='ca_bracket_10_rate' type='double' subtype='' access='rw' input='' default_value='0.133' comment='CA tax rate for bracket 10 (income > $1,000,000) - 13.3% (2025). Highest state marginal rate in the nation.'></field>
+
+		<!-- Progressive Tax Brackets - Married Filing Jointly (2025 estimates) -->
+		<field name='ca_bracket_1_limit_joint' type='double' subtype='' access='rw' input='' default_value='20824.0' comment='CA tax bracket 1 upper limit joint $20,824 (2025). Approximately double single filer brackets.'></field>
+		<field name='ca_bracket_2_limit_joint' type='double' subtype='' access='rw' input='' default_value='49368.0' comment='CA tax bracket 2 upper limit joint $49,368 (2025)'></field>
+		<field name='ca_bracket_3_limit_joint' type='double' subtype='' access='rw' input='' default_value='77918.0' comment='CA tax bracket 3 upper limit joint $77,918 (2025)'></field>
+		<field name='ca_bracket_4_limit_joint' type='double' subtype='' access='rw' input='' default_value='108162.0' comment='CA tax bracket 4 upper limit joint $108,162 (2025)'></field>
+		<field name='ca_bracket_5_limit_joint' type='double' subtype='' access='rw' input='' default_value='136700.0' comment='CA tax bracket 5 upper limit joint $136,700 (2025)'></field>
+		<field name='ca_bracket_6_limit_joint' type='double' subtype='' access='rw' input='' default_value='698274.0' comment='CA tax bracket 6 upper limit joint $698,274 (2025)'></field>
+		<field name='ca_bracket_7_limit_joint' type='double' subtype='' access='rw' input='' default_value='837922.0' comment='CA tax bracket 7 upper limit joint $837,922 (2025)'></field>
+		<field name='ca_bracket_8_limit_joint' type='double' subtype='' access='rw' input='' default_value='1396542.0' comment='CA tax bracket 8 upper limit joint $1,396,542 (2025)'></field>
+		<field name='ca_bracket_9_limit_joint' type='double' subtype='' access='rw' input='' default_value='1000000.0' comment='CA tax bracket 9 upper limit joint $1,000,000 (2025). Mental health surtax threshold is same for all filing statuses.'></field>
+
+		<!-- Mental Health Services Tax (2025) -->
+		<field name='ca_mental_health_tax_threshold' type='double' subtype='' access='rw' input='' default_value='1000000.0' comment='CA Mental Health Services Tax threshold $1,000,000 (2025). Additional 1% tax on taxable income > $1M. Source: CA FTB'></field>
+		<field name='ca_mental_health_tax_rate' type='double' subtype='' access='rw' input='' default_value='0.01' comment='CA Mental Health Services Tax rate - 1.0% on income > $1M (2025)'></field>
+
+		<!-- Military Retirement Provisions (2025) -->
+		<field name='ca_military_retirement_exemption_amount' type='double' subtype='' access='rw' input='' default_value='20000.0' comment='CA military retirement exemption amount - $20,000 (2025). Source: MOAA'></field>
+		<field name='ca_military_agi_limit_single' type='double' subtype='' access='rw' input='' default_value='125000.0' comment='CA AGI limit for military retirement exemption - single filers (2025)'></field>
+		<field name='ca_military_agi_limit_joint' type='double' subtype='' access='rw' input='' default_value='250000.0' comment='CA AGI limit for military retirement exemption - joint filers (2025)'></field>
+		<field name='ca_military_retirement_exemption' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA military retirement exemption (computed based on AGI and filing status)'></field>
+		<field name='ca_military_retirement_taxable' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA taxable military retirement after exemption (computed)'></field>
+
+		<!-- State tax result fields -->
+		<field name='ca_state_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA state income tax liability before Mental Health Services Tax (computed)'></field>
+		<field name="wv_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="West Virginia state income tax calculated"></field>
+		<field name='ca_mental_health_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA Mental Health Services Tax (1% surtax on income > $1M, computed)'></field>
+		<field name='ca_total_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CA total tax liability including Mental Health Services Tax (computed)'></field>
+
+		<!-- Colorado state tax fields -->
+		<field name='co_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='CO flat tax rate 4.40% (2025). Source: Colorado DOR'></field>
+		<field name='co_pension_subtraction_55_to_64' type='double' subtype='' access='r' input='' default_value='20000.0' comment='CO pension/annuity subtraction for taxpayers age 55-64 (2025). Source: Colorado DOR'></field>
+		<field name='co_pension_subtraction_65_plus' type='double' subtype='' access='r' input='' default_value='24000.0' comment='CO pension/annuity subtraction for taxpayers age 65+ (2025). Source: Colorado DOR'></field>
+		<field name='co_pension_subtraction' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO pension/annuity subtraction (computed based on age)'></field>
+		<field name='co_military_exemption_under_55' type='double' subtype='' access='r' input='' default_value='15000.0' comment='CO military retirement exemption for taxpayers under 55 (2025). Source: MOAA'></field>
+		<field name='co_military_exemption_55_to_64' type='double' subtype='' access='r' input='' default_value='20000.0' comment='CO military retirement exemption for taxpayers age 55-64 (2025). Source: MOAA'></field>
+		<field name='co_military_exemption_65_plus' type='double' subtype='' access='r' input='' default_value='24000.0' comment='CO military retirement exemption for taxpayers age 65+ (2025). Source: MOAA'></field>
+		<field name='co_military_retirement_exemption' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO military retirement exemption (computed based on age)'></field>
+		<field name='co_military_retirement_taxable' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO taxable military retirement after exemption (computed)'></field>
+		<field name='co_taxable_income' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO taxable income after all adjustments'></field>
+		<field name='co_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='CO state tax liability'></field>
+
 	</entity>
 
 	<!-- ================================================================== -->
@@ -1492,13 +1766,39 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='residency_status' type='string' subtype='' access='rw' input='main' default_value='full_year_resident' comment='Residency status: full_year_resident, part_year_resident, non_resident'></field>
+		<field name='residency_start_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency began (for part-year residents)'></field>
+		<field name='residency_end_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency ended (for part-year residents)'></field>
+		<field name='resident_months' type='integer' subtype='' access='rw' input='' default_value='12' comment='Number of months as resident (computed)'></field>
+		<field name='resident_ratio' type='double' subtype='' access='rw' input='' default_value='1.0' comment='Ratio of resident months to 12 (computed)'></field>
 		<field name='state_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='State adjusted gross income'></field>
+		<field name='resident_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned during resident period'></field>
+		<field name='non_resident_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income sourced to state during non-resident period'></field>
+		<field name='allocated_deductions' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductions allocated to state (computed)'></field>
 		<field name='state_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='State taxable income after deductions'></field>
 		<field name='state_tax_before_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax before credits'></field>
 		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0' comment='Total state tax credits'></field>
 		<field name='state_tax_liability' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax liability after credits'></field>
 		<field name='state_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='State tax withheld'></field>
 		<field name='state_refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='State refund (positive) or amount owed (negative)'></field>
+	</entity>
+
+	<!-- ================================================================== -->
+	<!-- STATE_PERIOD - Period of residence/work in a specific state       -->
+	<!-- ================================================================== -->
+	<entity name='state_period' xls_file='Core.xls' access='rw' comment='Period of residence or work in a specific state for multi-state allocation'>
+		<field name='state_period' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
+		<field name='id' type='integer' subtype='' access='r' input='main' default_value='' comment='State period ID'></field>
+		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='Two-letter state code (e.g., NY, FL, CA, TX)'></field>
+		<field name='start_date' type='date' subtype='' access='r' input='main' default_value='' comment='Start date of residence/work in this state'></field>
+		<field name='end_date' type='date' subtype='' access='r' input='main' default_value='' comment='End date of residence/work in this state'></field>
+		<field name='resident_status' type='string' subtype='' access='r' input='main' default_value='full_year' comment='Residency status: full_year, part_year, or nonresident'></field>
+		<field name='days_in_state' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of days in this state during this period (computed)'></field>
+		<field name='allocation_percentage' type='double' subtype='' access='rw' input='' default_value='0' comment='Percentage of income allocated to this state (computed)'></field>
+		<field name='allocated_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income allocated to this state (computed)'></field>
+		<field name='allocated_withholding' type='double' subtype='' access='rw' input='' default_value='0' comment='Withholding allocated to this state (computed)'></field>
+		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Notes about this state period'></field>
 	</entity>
 
 </entity_data_dictionary>
