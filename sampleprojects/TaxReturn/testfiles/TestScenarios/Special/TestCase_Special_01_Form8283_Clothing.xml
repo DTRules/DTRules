@@ -1,0 +1,167 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Form 8283 - Noncash Charitable Contributions (Clothing/Household Items)
+
+      IRC Section 170 - Charitable Contributions
+
+      Rules Tested:
+      - Donations < $500 do NOT require appraisal
+      - Clothing and household items must be in "good used condition or better"
+      - Fair Market Value (FMV) used for deduction (not original cost)
+      - Total noncash contributions under $500 reported on Schedule A only
+      - No Form 8283 filing required for donations < $500
+
+      Test Scenario:
+      - Single taxpayer donates clothing and household items to Goodwill
+      - Total FMV of donations: $450 (under $500 threshold)
+      - Items include: winter coats ($150), kitchen appliances ($200), books ($100)
+      - All items in good condition
+      - Proper receipt from qualified charitable organization
+
+      Expected Results:
+      - Charitable deduction: $450 (if itemizing)
+      - No Form 8283 required
+      - Deduction limited by AGI percentage (60% for cash method charities)
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>CO</state>
+   <city>Denver</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $65,000 W-2 -->
+   <!-- AGI: $65,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Itemized Deductions: $10,450 + $6,000 SALT + $450 charity = $16,900 -->
+   <!-- Choose itemized ($16,900) over standard ($15,000) -->
+   <!-- Taxable Income: $65,000 - $16,900 = $48,100 -->
+   <!-- Tax: $5,514 (2025 Single rates) -->
+   <!-- Withholding: $6,500 -->
+   <!-- Refund: $986 -->
+   <expected_agi>65000</expected_agi>
+   <expected_taxable_income>48100</expected_taxable_income>
+   <expected_total_tax>5514</expected_total_tax>
+   <expected_refund>986</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Martinez</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/12/1985</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>6500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- Primary Residence for mortgage interest -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>789 Pine Street, Denver, CO 80202</address>
+         <purchase_date>1/15/2022</purchase_date>
+         <purchase_price>380000</purchase_price>
+         <current_fmv>420000</current_fmv>
+         <mortgage_balance>350000</mortgage_balance>
+         <mortgage_origination_date>1/15/2022</mortgage_origination_date>
+         <mortgage_interest>10450</mortgage_interest>
+         <property_taxes>6000</property_taxes>
+         <rental_income>0</rental_income>
+         <rental_expenses>0</rental_expenses>
+         <depreciation>0</depreciation>
+      </property>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Noncash Charitable Contributions -->
+   <noncash_contributions>
+      <!-- Clothing donation to Goodwill -->
+      <contribution id="1">
+         <id>1</id>
+         <organization>Goodwill Industries</organization>
+         <ein>84-0423567</ein>
+         <donation_date>4/15/2025</donation_date>
+         <property_type>clothing</property_type>
+         <description>Winter coats and jackets (5 items)</description>
+         <original_cost>800</original_cost>
+         <fair_market_value>150</fair_market_value>
+         <acquisition_date>various</acquisition_date>
+         <condition>good</condition>
+         <appraisal_required>false</appraisal_required>
+         <appraisal_date></appraisal_date>
+         <appraiser_name></appraiser_name>
+      </contribution>
+
+      <!-- Household items donation -->
+      <contribution id="2">
+         <id>2</id>
+         <organization>Goodwill Industries</organization>
+         <ein>84-0423567</ein>
+         <donation_date>7/20/2025</donation_date>
+         <property_type>household_items</property_type>
+         <description>Kitchen appliances: coffee maker, toaster, blender</description>
+         <original_cost>350</original_cost>
+         <fair_market_value>200</fair_market_value>
+         <acquisition_date>2020-2023</acquisition_date>
+         <condition>good</condition>
+         <appraisal_required>false</appraisal_required>
+         <appraisal_date></appraisal_date>
+         <appraiser_name></appraiser_name>
+      </contribution>
+
+      <!-- Books donation -->
+      <contribution id="3">
+         <id>3</id>
+         <organization>Denver Public Library Foundation</organization>
+         <ein>84-0987654</ein>
+         <donation_date>11/5/2025</donation_date>
+         <property_type>books</property_type>
+         <description>Educational and fiction books (approximately 50 books)</description>
+         <original_cost>600</original_cost>
+         <fair_market_value>100</fair_market_value>
+         <acquisition_date>various</acquisition_date>
+         <condition>good</condition>
+         <appraisal_required>false</appraisal_required>
+         <appraisal_date></appraisal_date>
+         <appraiser_name></appraiser_name>
+      </contribution>
+   </noncash_contributions>
+
+   <!-- Regular charitable contributions (cash) -->
+   <deductions>
+      <!-- No cash contributions in this test -->
+   </deductions>
+</job>

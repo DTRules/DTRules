@@ -1023,7 +1023,179 @@
 		<field name='hi_bracket_9_hoh' type='double' subtype='' access='r' input='' default_value='225000' comment='Hawaii bracket 9 ceiling HOH'></field>
 		<field name='hi_bracket_10_hoh' type='double' subtype='' access='r' input='' default_value='262500' comment='Hawaii bracket 10 ceiling HOH'></field>
 		<field name='hi_bracket_11_hoh' type='double' subtype='' access='r' input='' default_value='300000' comment='Hawaii bracket 11 ceiling HOH'></field>
+		<!-- New Hampshire State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='nh_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NH standard deduction Single (2025)'></field>
+		<field name='nh_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16000' comment='NH standard deduction MFJ (2025)'></field>
+		<field name='nh_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0300' comment='NH tax rate bracket 1 (3.0%)'></field>
+		<field name='nh_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0500' comment='NH tax rate bracket 2 (5.0%)'></field>
+		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
+		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
+		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+		<!-- Georgia State Tax Constants (2025) -->
+		<field name='ga_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0519' comment='Georgia flat tax rate (5.19%)'></field>
+		<field name='ga_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='12000' comment='GA standard deduction Single (2025)'></field>
+		<field name='ga_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='24000' comment='GA standard deduction MFJ (2025)'></field>
+		<field name='ga_dependent_exemption' type='double' subtype='' access='r' input='' default_value='4000' comment='GA dependent exemption per dependent (2025)'></field>
+
+		<!-- Montana State Tax Constants (2025) -->
+		<field name='mt_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='4500' comment='MT standard deduction Single (2025)'></field>
+		<field name='mt_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='11500' comment='MT standard deduction MFJ (2025)'></field>
+		<field name='mt_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0470' comment='MT tax rate bracket 1 (4.7%)'></field>
+		<field name='mt_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0590' comment='MT tax rate bracket 2 (5.9%)'></field>
+		<field name='mt_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='21100' comment='MT bracket 2 threshold Single/MFS (above this uses 5.9%)'></field>
+		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
+		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
+
+		<!-- Florida State Tax Constants (2025) -->
+		<!-- Florida has NO state income tax (constitutionally prohibited). Tax rate is 0% for all residents. -->
+		<field name='fl_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0' comment='Florida has no state income tax (0%)'></field>
+
+		<!-- Mississippi State Tax Constants (2025) -->
+		<field name='ms_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2300' comment='MS standard deduction Single (2025)'></field>
+		<field name='ms_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='4600' comment='MS standard deduction MFJ (2025)'></field>
+		<field name='ms_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='3400' comment='MS standard deduction HOH (2025)'></field>
+		<field name='ms_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='MS tax rate (4.4% on income above $10,000)'></field>
+		<field name='ms_zero_bracket' type='double' subtype='' access='r' input='' default_value='10000' comment='MS zero bracket threshold (0% on first $10,000)'></field>
+
+		<!-- Tennessee State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='tn_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='6000' comment='TN standard deduction Single (2025)'></field>
+		<field name='tn_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='12000' comment='TN standard deduction MFJ (2025)'></field>
+		<field name='tn_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0200' comment='TN tax rate bracket 1 (2.0%)'></field>
+		<field name='tn_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='TN tax rate bracket 2 (4.0%)'></field>
+		<field name='tn_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0600' comment='TN tax rate bracket 3 (6.0%)'></field>
+		<field name='tn_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='50000' comment='TN bracket 2 threshold (above this uses 4%)'></field>
+		<field name='tn_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='TN bracket 3 threshold (above this uses 6%)'></field>
+
+		<!-- South Dakota State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='sd_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='5000' comment='SD standard deduction Single (2025)'></field>
+		<field name='sd_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='10000' comment='SD standard deduction MFJ (2025)'></field>
+		<field name='sd_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0350' comment='SD tax rate bracket 1 (3.5%)'></field>
+		<field name='sd_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0500' comment='SD tax rate bracket 2 (5.0%)'></field>
+		<field name='sd_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='25000' comment='SD bracket 2 threshold Single/MFS (above this uses 5.0%)'></field>
+		<field name='sd_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='50000' comment='SD bracket 2 threshold MFJ (above this uses 5.0%)'></field>
+		<field name='sd_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='37500' comment='SD bracket 2 threshold HOH (above this uses 5.0%)'></field>
+
+		<!-- Nevada State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='nv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='7500' comment='NV standard deduction Single (2025)'></field>
+		<field name='nv_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='15000' comment='NV standard deduction MFJ (2025)'></field>
+		<field name='nv_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='11250' comment='NV standard deduction HOH (2025)'></field>
+		<field name='nv_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0250' comment='NV tax rate bracket 1 (2.5%)'></field>
+		<field name='nv_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='NV tax rate bracket 2 (4.0%)'></field>
+		<field name='nv_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0600' comment='NV tax rate bracket 3 (6.0%)'></field>
+		<field name='nv_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='50000' comment='NV bracket 2 threshold Single/MFS (above this uses 4.0%)'></field>
+		<field name='nv_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='100000' comment='NV bracket 2 threshold MFJ (above this uses 4.0%)'></field>
+		<field name='nv_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='75000' comment='NV bracket 2 threshold HOH (above this uses 4.0%)'></field>
+		<field name='nv_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='120000' comment='NV bracket 3 threshold Single/MFS (above this uses 6.0%)'></field>
+		<field name='nv_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='240000' comment='NV bracket 3 threshold MFJ (above this uses 6.0%)'></field>
+		<field name='nv_bracket_3_threshold_hoh' type='double' subtype='' access='r' input='' default_value='180000' comment='NV bracket 3 threshold HOH (above this uses 6.0%)'></field>
+
+
+		<!-- Ohio State Tax Constants (2025) -->
+		<field name='oh_bracket_1_threshold' type='double' subtype='' access='r' input='' default_value='26050' comment='OH bracket 1 ceiling - 0% tax (2025)'></field>
+		<field name='oh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='OH bracket 2 ceiling - 2.75% tax (2025)'></field>
+		<field name='oh_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='OH tax rate bracket 1 (0.0%)'></field>
+		<field name='oh_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0275' comment='OH tax rate bracket 2 (2.75%)'></field>
+		<field name='oh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.03125' comment='OH tax rate bracket 3 (3.125%)'></field>
+		<field name='oh_exemption_low' type='double' subtype='' access='r' input='' default_value='2350' comment='OH personal exemption (AGI up to $40,000)'></field>
+		<field name='oh_exemption_mid' type='double' subtype='' access='r' input='' default_value='2100' comment='OH personal exemption (AGI $40,001 to $80,000)'></field>
+		<field name='oh_exemption_high' type='double' subtype='' access='r' input='' default_value='1850' comment='OH personal exemption (AGI over $80,000)'></field>
+		<field name='oh_exemption_threshold_low' type='double' subtype='' access='r' input='' default_value='40000' comment='OH exemption tier 1 threshold'></field>
+		<field name='oh_exemption_threshold_high' type='double' subtype='' access='r' input='' default_value='80000' comment='OH exemption tier 2 threshold'></field>
+		<field name='oh_exemption_phaseout_threshold' type='double' subtype='' access='r' input='' default_value='750000' comment='OH exemption phaseout starts at $750,000 MAGI'></field>
+		<!-- Nebraska State Tax Constants (2025) - Progressive Tax -->
+		<field name='ne_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8600' comment='NE standard deduction Single (2025)'></field>
+		<field name='ne_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='17200' comment='NE standard deduction MFJ (2025)'></field>
+		<field name='ne_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0246' comment='NE tax rate bracket 1 (2.46%)'></field>
+		<field name='ne_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0351' comment='NE tax rate bracket 2 (3.51%)'></field>
+		<field name='ne_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0501' comment='NE tax rate bracket 3 (5.01%)'></field>
+		<field name='ne_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='NE tax rate bracket 4 (5.20%)'></field>
+		<field name='ne_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='4030' comment='NE bracket 2 threshold Single (above this uses 3.51%)'></field>
+		<field name='ne_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='24120' comment='NE bracket 3 threshold Single (above this uses 5.01%)'></field>
+		<field name='ne_bracket_4_threshold_single' type='double' subtype='' access='r' input='' default_value='38870' comment='NE bracket 4 threshold Single (above this uses 5.20%)'></field>
+		<field name='ne_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='8040' comment='NE bracket 2 threshold MFJ (above this uses 3.51%)'></field>
+		<field name='ne_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='48250' comment='NE bracket 3 threshold MFJ (above this uses 5.01%)'></field>
+		<field name='ne_bracket_4_threshold_mfj' type='double' subtype='' access='r' input='' default_value='77730' comment='NE bracket 4 threshold MFJ (above this uses 5.20%)'></field>
+
+
+
+		<!-- Delaware State Tax Constants (2025) -->
+		<field name='de_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='3250' comment='DE standard deduction Single (2025)'></field>
+		<field name='de_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='6500' comment='DE standard deduction MFJ (2025)'></field>
+		<field name='de_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='DE tax rate bracket 1 (0.0%) on $0-$2,000'></field>
+		<field name='de_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0220' comment='DE tax rate bracket 2 (2.2%) on $2,000-$5,000'></field>
+		<field name='de_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0390' comment='DE tax rate bracket 3 (3.9%) on $5,000-$10,000'></field>
+		<field name='de_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0480' comment='DE tax rate bracket 4 (4.8%) on $10,000-$20,000'></field>
+		<field name='de_bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='DE tax rate bracket 5 (5.2%) on $20,000-$25,000'></field>
+		<field name='de_bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.0555' comment='DE tax rate bracket 6 (5.55%) on $25,000-$60,000'></field>
+		<field name='de_bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.0660' comment='DE tax rate bracket 7 (6.6%) on income over $60,000'></field>
+		<field name='de_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='2000' comment='DE bracket 2 threshold (2.2% starts here)'></field>
+		<field name='de_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='5000' comment='DE bracket 3 threshold (3.9% starts here)'></field>
+		<field name='de_bracket_4_threshold' type='double' subtype='' access='r' input='' default_value='10000' comment='DE bracket 4 threshold (4.8% starts here)'></field>
+		<field name='de_bracket_5_threshold' type='double' subtype='' access='r' input='' default_value='20000' comment='DE bracket 5 threshold (5.2% starts here)'></field>
+		<field name='de_bracket_6_threshold' type='double' subtype='' access='r' input='' default_value='25000' comment='DE bracket 6 threshold (5.55% starts here)'></field>
+		<field name='de_bracket_7_threshold' type='double' subtype='' access='r' input='' default_value='60000' comment='DE bracket 7 threshold (6.6% starts here)'></field>
+
+
+		<!-- Pennsylvania State Tax Constants (2025) -->
+		<field name='pa_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0307' comment='PA flat tax rate 3.07% (2025). Source: 72 P.S. § 7302'></field>
+		<field name='pa_taxable_compensation' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 1: Compensation (W-2 wages excluding military retirement). Source: 72 P.S. § 7303(a)(1)'></field>
+		<field name='pa_taxable_interest' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 2: Interest income. Source: 72 P.S. § 7303(a)(2)'></field>
+		<field name='pa_taxable_dividends' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 3: Dividends. Source: 72 P.S. § 7303(a)(3)'></field>
+		<field name='pa_taxable_net_profits' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 4: Net profits from business (Schedule C/F). Source: 72 P.S. § 7303(a)(4)'></field>
+		<field name='pa_taxable_gains' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 5: Net gains (Schedule D). Source: 72 P.S. § 7303(a)(5)'></field>
+		<field name='pa_taxable_rents_royalties' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 6: Rents and royalties (Schedule E). Source: 72 P.S. § 7303(a)(6)'></field>
+		<field name='pa_taxable_estate_trust' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 7: Estate or trust income (K-1). Source: 72 P.S. § 7303(a)(7)'></field>
+		<field name='pa_taxable_gambling' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Class 8: Gambling and lottery winnings. Source: 72 P.S. § 7303(a)(8)'></field>
+		<field name='pa_total_income' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Total PA taxable income (sum of 8 classes). Source: PA-40 Line 7'></field>
+		<field name='pa_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA income tax (pa_total_income × 3.07%). Source: PA-40 Line 13'></field>
+		<field name='pa_military_retirement_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA military retirement exclusion (100%)'></field>
+		<field name='pa_social_security_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA Social Security exclusion (100%)'></field>
+		<field name='pa_pension_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA pension exclusion (100%)'></field>
+		<field name='pa_ira_exclusion' type='double' subtype='' access='rw' input='' default_value='0.0' comment='PA IRA distribution exclusion (100%)'></field>
+
+		<!-- Washington DC State Tax Constants (2025) -->
+		<field name='dc_bracket_1_limit' type='double' subtype='' access='r' input='' default_value='10000' comment='DC tax bracket 1 upper limit'></field>
+		<field name='dc_bracket_2_limit' type='double' subtype='' access='r' input='' default_value='40000' comment='DC tax bracket 2 upper limit'></field>
+		<field name='dc_bracket_3_limit' type='double' subtype='' access='r' input='' default_value='60000' comment='DC tax bracket 3 upper limit'></field>
+		<field name='dc_bracket_4_limit' type='double' subtype='' access='r' input='' default_value='250000' comment='DC tax bracket 4 upper limit'></field>
+		<field name='dc_bracket_5_limit' type='double' subtype='' access='r' input='' default_value='500000' comment='DC tax bracket 5 upper limit'></field>
+		<field name='dc_bracket_6_limit' type='double' subtype='' access='r' input='' default_value='1000000' comment='DC tax bracket 6 upper limit'></field>
+		<field name='dc_rate_1' type='double' subtype='' access='r' input='' default_value='0.04' comment='DC tax rate 4% (bracket 1)'></field>
+		<field name='dc_rate_2' type='double' subtype='' access='r' input='' default_value='0.06' comment='DC tax rate 6% (bracket 2)'></field>
+		<field name='dc_rate_3' type='double' subtype='' access='r' input='' default_value='0.065' comment='DC tax rate 6.5% (bracket 3)'></field>
+		<field name='dc_rate_4' type='double' subtype='' access='r' input='' default_value='0.085' comment='DC tax rate 8.5% (bracket 4)'></field>
+		<field name='dc_rate_5' type='double' subtype='' access='r' input='' default_value='0.0925' comment='DC tax rate 9.25% (bracket 5)'></field>
+		<field name='dc_rate_6' type='double' subtype='' access='r' input='' default_value='0.0975' comment='DC tax rate 9.75% (bracket 6)'></field>
+		<field name='dc_rate_7' type='double' subtype='' access='r' input='' default_value='0.1075' comment='DC tax rate 10.75% (bracket 7)'></field>
+		<field name='dc_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='DC standard deduction single/MFS (2025)'></field>
+		<field name='dc_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='DC standard deduction head of household (2025)'></field>
+		<field name='dc_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='DC standard deduction MFJ/QW (2025)'></field>
+
+
+		<!-- West Virginia State Income Tax (2025) -->
+		<field name='wv_rate_1' type='double' subtype='' access='r' input='' default_value='0.0222' comment='WV rate bracket 1 (2.22%)'></field>
+		<field name='wv_rate_2' type='double' subtype='' access='r' input='' default_value='0.0296' comment='WV rate bracket 2 (2.96%)'></field>
+		<field name='wv_rate_3' type='double' subtype='' access='r' input='' default_value='0.0333' comment='WV rate bracket 3 (3.33%)'></field>
+		<field name='wv_rate_4' type='double' subtype='' access='r' input='' default_value='0.0444' comment='WV rate bracket 4 (4.44%)'></field>
+		<field name='wv_rate_5' type='double' subtype='' access='r' input='' default_value='0.0482' comment='WV rate bracket 5 (4.82%)'></field>
+		<field name='wv_bracket_1' type='double' subtype='' access='r' input='' default_value='10000' comment='WV bracket 1 ceiling ($10,000)'></field>
+		<field name='wv_bracket_2' type='double' subtype='' access='r' input='' default_value='25000' comment='WV bracket 2 ceiling ($25,000)'></field>
+		<field name='wv_bracket_3' type='double' subtype='' access='r' input='' default_value='40000' comment='WV bracket 3 ceiling ($40,000)'></field>
+		<field name='wv_bracket_4' type='double' subtype='' access='r' input='' default_value='60000' comment='WV bracket 4 ceiling ($60,000)'></field>
+		<field name='wv_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2000' comment='WV standard deduction Single (2025)'></field>
+		<field name='wv_standard_deduction_joint' type='double' subtype='' access='r' input='' default_value='4000' comment='WV standard deduction MFJ (2025)'></field>
+		<field name='wv_personal_exemption' type='double' subtype='' access='r' input='' default_value='2000' comment='WV personal exemption per person (2025)'></field>
+
+
+		<!-- South Carolina State Tax Constants (2025) -->
+		<field name='sc_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15000' comment='SC standard deduction Single (2025)'></field>
+		<field name='sc_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='30000' comment='SC standard deduction MFJ (2025)'></field>
+		<field name='sc_bracket_1' type='double' subtype='' access='r' input='' default_value='3560' comment='SC 0% bracket ceiling (2025)'></field>
+		<field name='sc_bracket_2' type='double' subtype='' access='r' input='' default_value='17830' comment='SC 3% bracket ceiling (2025)'></field>
+		<field name='sc_rate_1' type='double' subtype='' access='r' input='' default_value='0.00' comment='SC rate for income up to $3,560 (0%)'></field>
+		<field name='sc_rate_2' type='double' subtype='' access='r' input='' default_value='0.03' comment='SC rate for income $3,561-$17,830 (3%)'></field>
+		<field name='sc_rate_3' type='double' subtype='' access='r' input='' default_value='0.06' comment='SC rate for income above $17,830 (6%)'></field>
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 

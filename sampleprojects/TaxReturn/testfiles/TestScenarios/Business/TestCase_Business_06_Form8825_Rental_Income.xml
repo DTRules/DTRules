@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 06: Form 8825 - Partnership Rental Real Estate Income -->
+<!-- Triggers: Form 8825, Schedule K-1, Schedule E Part II -->
+<!-- Tests: Partnership rental property with positive income -->
+<job>
+    <id>BUS06-FORM8825-RENTAL-INCOME</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $110,000 W2 + $24,000 K-1 rental = $134,000 -->
+    <!-- AGI: $134,000 -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable: $104,000 -->
+    <!-- Tax: ~$12,324 -->
+    <expected_agi>134000</expected_agi>
+    <expected_taxable_income>104000</expected_taxable_income>
+    <expected_total_tax>12324</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>James Martinez</name>
+            <ssn>400-16-0001</ssn>
+            <date_of_birth>1/15/1975</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Attorney</occupation>
+            <w2_wages>110000</w2_wages>
+            <w2_withholding>16500</w2_withholding>
+            <w2_ss_wages>110000</w2_ss_wages>
+            <w2_medicare_wages>110000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Angela Martinez</name>
+            <ssn>400-16-0002</ssn>
+            <date_of_birth>5/8/1977</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Partner in Skyline Properties LLC</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - Form 8825 Rental Income -->
+    <!-- Partnership owns commercial rental property -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Skyline Properties LLC</entity_name>
+            <entity_ein>34-5678901</entity_ein>
+            <!-- Box 2: Net rental real estate income from Form 8825 -->
+            <!-- Form 8825: Rental income $48,000 - Expenses $24,000 = $24,000 net -->
+            <rental_income>24000</rental_income>
+            <!-- Rental income not eligible for QBI -->
+            <qbi_income>0</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <ordinary_income>0</ordinary_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

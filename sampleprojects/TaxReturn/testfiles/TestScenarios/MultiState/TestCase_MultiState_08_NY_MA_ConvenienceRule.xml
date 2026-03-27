@@ -1,0 +1,122 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 8: NY Convenience of Employer Rule -->
+   <!-- NY resident working remotely for MA company -->
+   <!-- Tests: NY "convenience of employer" rule - NY taxes even if work done remotely -->
+   <!-- Both states may claim taxing rights (NY as resident, MA as work state) -->
+   <!-- NY credit for MA taxes paid -->
+   <id>MS-08-NY-MA</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>NY</state>
+   <city>Albany</city>
+
+   <!-- Expected values for validation -->
+   <!-- Total W-2 Income: $165,000 -->
+   <!-- Work allocation: 200 days in NY (remote), 40 days in MA (office) -->
+   <!-- MA Nonresident Tax: On portion worked in MA (40/240 = 16.67%) = $27,500 -->
+   <!-- NY Resident Tax: On full $165,000 (convenience rule applies) -->
+   <!-- NY Credit: For MA taxes paid on $27,500 -->
+   <!-- Controversial: NY treats remote work as NY-source even though employer in MA -->
+   <expected_agi>165000</expected_agi>
+   <expected_taxable_income>151150</expected_taxable_income>
+   <expected_ny_resident_income>165000</expected_ny_resident_income>
+   <expected_ma_nonresident_income>27500</expected_ma_nonresident_income>
+   <expected_ny_credit_for_ma_tax>true</expected_ny_credit_for_ma_tax>
+   <expected_convenience_rule>true</expected_convenience_rule>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>NY</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+         <days_in_state>365</days_in_state>
+         <days_worked_in_state>200</days_worked_in_state>
+         <remote_work_days>200</remote_work_days>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+         <days_worked_in_state>40</days_worked_in_state>
+         <employer_location>true</employer_location>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Rebecca Goldstein</name>
+         <ssn>890-12-3457</ssn>
+         <date_of_birth>12/5/1986</date_of_birth>
+         <occupation>Data Scientist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>165000</w2_wages>
+         <w2_withholding>32000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>8000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Tech Analytics Boston</source>
+         <gross_amount>165000</gross_amount>
+         <withholding>32000</withholding>
+         <state_code>NY</state_code>
+         <state_period_id>1</state_period_id>
+         <employer_location>Boston, MA</employer_location>
+         <work_days_in_ny>200</work_days_in_ny>
+         <work_days_in_ma>40</work_days_in_ma>
+         <remote_work_arrangement>true</remote_work_arrangement>
+         <convenience_rule_applies>true</convenience_rule_applies>
+         <ny_allocated_income>165000</ny_allocated_income>
+         <ma_allocated_income>27500</ma_allocated_income>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Local charity donations</description>
+         <amount>5000</amount>
+      </deduction>
+   </deductions>
+</job>

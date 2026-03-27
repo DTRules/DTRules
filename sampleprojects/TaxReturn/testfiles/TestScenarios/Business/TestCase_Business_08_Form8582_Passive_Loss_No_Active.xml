@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 08: Form 8582 - Passive Activity Loss (No Active Participation) -->
+<!-- Triggers: Form 8582, Schedule K-1, Schedule E Part II -->
+<!-- Tests: Passive loss limitation - no active participation, loss fully suspended -->
+<job>
+    <id>BUS08-FORM8582-NO-ACTIVE</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $185,000 W2 - $15,000 K-1 loss (limited to $0) = $185,000 -->
+    <!-- Passive loss suspended: $15,000 -->
+    <!-- AGI: $185,000 -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable: $155,000 -->
+    <!-- Tax: ~$26,764 -->
+    <expected_agi>185000</expected_agi>
+    <expected_taxable_income>155000</expected_taxable_income>
+    <expected_total_tax>26764</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Richard Davis</name>
+            <ssn>400-18-0001</ssn>
+            <date_of_birth>3/10/1968</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Investment Banker</occupation>
+            <w2_wages>185000</w2_wages>
+            <w2_withholding>32000</w2_withholding>
+            <w2_ss_wages>176100</w2_ss_wages>
+            <w2_medicare_wages>185000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Sarah Davis</name>
+            <ssn>400-18-0002</ssn>
+            <date_of_birth>7/18/1970</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Limited Partner in Rental Properties LLC</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - Passive Loss -->
+    <!-- Limited partner with no active participation -->
+    <!-- IRC 469: Passive losses can only offset passive income -->
+    <!-- No passive income = loss suspended and carried forward -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Rental Properties LLC</entity_name>
+            <entity_ein>23-4567890</entity_ein>
+            <!-- Box 2: Net rental real estate loss -->
+            <rental_income>-15000</rental_income>
+            <!-- No active participation (limited partner) -->
+            <!-- Loss suspended per Form 8582 -->
+            <qbi_income>0</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <ordinary_income>0</ordinary_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

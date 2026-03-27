@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule E - Single Rental Property with Positive Income -->
+<!-- Scenario: Rental property generating net positive income -->
+<!-- Rental income: $24,000, Expenses: $15,000, Net: $9,000 -->
+<!-- Expected: Net rental income added to AGI -->
+<job>
+    <id>10016</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $90,000 W-2 + $9,000 rental net = $99,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $69,000 -->
+    <!-- Tax: ~$7,980 -->
+    <expected_agi>99000</expected_agi>
+    <expected_taxable_income>69000</expected_taxable_income>
+    <expected_total_tax>7980</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Gregory White</name>
+            <ssn>678-90-1234</ssn>
+            <date_of_birth>06/12/1980</date_of_birth>
+            <occupation>Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>90000</w2_wages>
+            <w2_withholding>14000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <address>567 Rental Lane, Austin, TX 78702</address>
+            <purchase_date>4/1/2020</purchase_date>
+            <purchase_price>250000</purchase_price>
+            <current_fmv>300000</current_fmv>
+            <mortgage_balance>180000</mortgage_balance>
+            <mortgage_origination_date>4/1/2020</mortgage_origination_date>
+            <mortgage_interest>7200</mortgage_interest>
+            <property_taxes>3500</property_taxes>
+            <rental_income>24000</rental_income>
+            <rental_insurance>1200</rental_insurance>
+            <rental_repairs>2000</rental_repairs>
+            <rental_management>1800</rental_management>
+            <rental_utilities>0</rental_utilities>
+            <depreciation>6300</depreciation>
+        </property>
+    </properties>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+    <expenses></expenses>
+</job>
