@@ -1,0 +1,106 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- IL Test Case 3: High Income with Dependents -->
+   <id>IL-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>IL</state>
+   <city>Naperville</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $200,000 -->
+   <!-- IL AGI: $200,000 -->
+   <!-- IL Personal Exemptions: $2,775 × 4 (2 parents + 2 children) = $11,100 -->
+   <!-- IL Taxable Income: $188,900 -->
+   <!-- IL Tax: $188,900 × 4.95% = $9,351 -->
+   <expected_agi>200000</expected_agi>
+   <expected_il_agi>200000</expected_il_agi>
+   <expected_il_taxable_income>188900</expected_il_taxable_income>
+   <expected_il_tax>9351</expected_il_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Martinez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>3/12/1978</date_of_birth>
+         <occupation>Executive</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>200000</w2_wages>
+         <w2_withholding>35000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Martinez</name>
+         <ssn>444-55-7777</ssn>
+         <date_of_birth>7/25/1980</date_of_birth>
+         <occupation>Attorney</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>200000</gross_amount>
+         <withholding>35000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Martinez</name>
+         <ssn>444-55-8888</ssn>
+         <date_of_birth>9/5/2015</date_of_birth>
+         <relationship>daughter</relationship>
+         <qualifying_child>true</qualifying_child>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Daniel Martinez</name>
+         <ssn>444-55-9999</ssn>
+         <date_of_birth>4/18/2018</date_of_birth>
+         <relationship>son</relationship>
+         <qualifying_child>true</qualifying_child>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -532,7 +532,7 @@ func opDatePlus(state dtrules.State) error {
 	}
 
 	// Check if operand is an interval
-	if interval := dtrules.AsInterval(operandObj); interval != nil {
+	if interval, ok := dtrules.AsInterval(operandObj); ok {
 		t, err := dateObj.TimeValue()
 		if err != nil {
 			return err
@@ -576,7 +576,7 @@ func opDateMinus(state dtrules.State) error {
 	}
 
 	// Check if operand is an interval
-	if interval := dtrules.AsInterval(operandObj); interval != nil {
+	if interval, ok := dtrules.AsInterval(operandObj); ok {
 		t, err := dateObj.TimeValue()
 		if err != nil {
 			return err

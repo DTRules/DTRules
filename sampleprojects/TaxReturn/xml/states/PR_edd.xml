@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Territory-specific constants for Puerto Rico (PR)
+
+  Puerto Rico operates under a separate tax system from the US mainland.
+  Bona fide residents of PR are generally exempt from US federal income tax on PR-source income,
+  but must pay PR income tax. Act 60 provides special tax incentives.
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+    <!-- Bona fide residence test -->
+    <field name="pr_bona_fide_resident" type="boolean" default_value="false"
+           comment="True if taxpayer meets bona fide resident test (183 days, tax home, closer connection)"/>
+    <field name="pr_days_present" type="integer" default_value="0"
+           comment="Number of days present in Puerto Rico during tax year"/>
+    <field name="pr_has_tax_home" type="boolean" default_value="false"
+           comment="True if taxpayer has tax home in Puerto Rico"/>
+    <field name="pr_closer_connection" type="boolean" default_value="false"
+           comment="True if taxpayer has closer connection to PR than US"/>
+
+    <!-- Act 60 tax incentives -->
+    <field name="pr_act60_investor" type="boolean" default_value="false"
+           comment="True if taxpayer qualifies under Act 60 investor incentives"/>
+    <field name="pr_act60_business" type="boolean" default_value="false"
+           comment="True if taxpayer qualifies under Act 60 business incentives"/>
+    <field name="pr_act60_capital_gains_rate" type="double" default_value="0.0"
+           comment="Act 60 capital gains rate (0% for qualified investors)"/>
+    <field name="pr_act60_business_rate" type="double" default_value="0.04"
+           comment="Act 60 business income tax rate (4% for qualified businesses)"/>
+
+    <!-- PR tax rates (progressive system) -->
+    <field name="pr_bracket_1_limit" type="double" default_value="9000"
+           comment="PR tax bracket 1 upper limit - single (2025)"/>
+    <field name="pr_bracket_1_rate" type="double" default_value="0.0"
+           comment="PR tax rate for bracket 1 - 0% (2025)"/>
+    <field name="pr_bracket_2_limit" type="double" default_value="25000"
+           comment="PR tax bracket 2 upper limit - single (2025)"/>
+    <field name="pr_bracket_2_rate" type="double" default_value="0.07"
+           comment="PR tax rate for bracket 2 - 7% (2025)"/>
+    <field name="pr_bracket_3_limit" type="double" default_value="41500"
+           comment="PR tax bracket 3 upper limit - single (2025)"/>
+    <field name="pr_bracket_3_rate" type="double" default_value="0.14"
+           comment="PR tax rate for bracket 3 - 14% (2025)"/>
+    <field name="pr_bracket_4_limit" type="double" default_value="61500"
+           comment="PR tax bracket 4 upper limit - single (2025)"/>
+    <field name="pr_bracket_4_rate" type="double" default_value="0.25"
+           comment="PR tax rate for bracket 4 - 25% (2025)"/>
+    <field name="pr_bracket_5_rate" type="double" default_value="0.33"
+           comment="PR tax rate for bracket 5 (over $61,500) - 33% (2025)"/>
+
+    <!-- PR standard deduction -->
+    <field name="pr_standard_deduction_single" type="double" default_value="13500"
+           comment="PR standard deduction single (2025)"/>
+    <field name="pr_standard_deduction_joint" type="double" default_value="24000"
+           comment="PR standard deduction married filing jointly (2025)"/>
+    <field name="pr_standard_deduction_hoh" type="double" default_value="18000"
+           comment="PR standard deduction head of household (2025)"/>
+
+    <!-- Income sourcing -->
+    <field name="pr_source_income" type="double" default_value="0.0"
+           comment="Income sourced from Puerto Rico"/>
+    <field name="pr_us_source_income" type="double" default_value="0.0"
+           comment="Income sourced from US mainland (subject to US tax if bona fide resident)"/>
+
+    <!-- Filing requirements -->
+    <field name="pr_requires_form_8898" type="boolean" default_value="false"
+           comment="True if taxpayer must file Form 8898 (bona fide resident statement)"/>
+    <field name="pr_files_with_hacienda" type="boolean" default_value="false"
+           comment="True if taxpayer files with PR Hacienda (tax authority)"/>
+
+    <!-- Calculated tax -->
+    <field name="pr_income_tax" type="double" default_value="0.0"
+           comment="Calculated Puerto Rico income tax liability"/>
+  </entity>
+</entity_data_dictionary>

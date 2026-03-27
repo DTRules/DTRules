@@ -1,0 +1,125 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 4: Form 1116 - Foreign Tax Credit for Passive Income -->
+   <!-- Tests: Calculate_Foreign_Tax_Credit -->
+   <!-- Scenario: US resident with foreign passive income (interest/dividends) -->
+   <!-- Foreign tax paid on dividends, claiming FTC instead of deduction -->
+   <id>FOREIGN-04</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NY</state>
+   <city>New York</city>
+
+   <!-- Expected values for validation -->
+   <!-- US wages: $150,000 -->
+   <!-- Foreign dividends: $25,000 (from UK stocks) -->
+   <!-- Foreign tax paid: $3,750 (UK 15% withholding) -->
+   <!-- AGI: $150,000 + $25,000 = $175,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $145,000 -->
+   <!-- Tax before FTC: ~$22,400 -->
+   <!-- FTC limitation: lesser of $3,750 paid OR US tax on foreign income -->
+   <!-- US tax on foreign income: $25,000 @ ~22% = ~$5,500 -->
+   <!-- FTC allowed: $3,750 (lesser amount) -->
+   <!-- Final tax: $22,400 - $3,750 = $18,650 -->
+   <expected_agi>175000</expected_agi>
+   <expected_foreign_source_income>25000</expected_foreign_source_income>
+   <expected_foreign_tax_paid>3750</expected_foreign_tax_paid>
+   <expected_foreign_tax_credit>3750</expected_foreign_tax_credit>
+   <expected_taxable_income>145000</expected_taxable_income>
+   <expected_total_tax>18650</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Williams</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>5/12/1978</date_of_birth>
+         <occupation>Portfolio Manager</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>32000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Williams</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>8/25/1980</date_of_birth>
+         <occupation>Homemaker</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>150000</gross_amount>
+         <withholding>32000</withholding>
+         <description>US employer wages</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_dividends</type>
+         <gross_amount>25000</gross_amount>
+         <withholding>0</withholding>
+         <foreign_tax_paid>3750</foreign_tax_paid>
+         <foreign_country>United Kingdom</foreign_country>
+         <description>UK stock dividends, 15% UK tax withheld (Form 1116)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophie Williams</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>2/14/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

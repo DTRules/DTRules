@@ -1,0 +1,131 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Schedule H Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: FUTA Credit Calculation -->
+   <!-- Tests State Unemployment Tax Act (SUTA) credit against FUTA -->
+   <!-- Demonstrates FUTA calculation with state unemployment credit -->
+   <!-- FUTA rate: 6.0% on first $7,000 -->
+   <!-- FUTA credit: 5.4% (when SUTA paid) -->
+   <!-- Net FUTA: 0.6% -->
+
+   <id>5</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Married Filing Jointly</filing_status>
+   <state>WA</state>
+   <city>Seattle</city>
+
+   <!-- Expected values for validation -->
+   <!-- Taxpayer W-2 Wages: $175,000 -->
+   <!-- AGI: $175,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $145,000 -->
+   <!-- Nanny wages: $52,000 -->
+   <!-- FICA: $52,000 × 7.65% = $3,978 -->
+   <!-- FUTA: $7,000 × 0.6% = $42 (with SUTA credit) -->
+   <!-- Total Schedule H: $4,020 -->
+   <expected_agi>175000</expected_agi>
+   <expected_taxable_income>145000</expected_taxable_income>
+   <expected_schedule_h_social_security_tax>3224.00</expected_schedule_h_social_security_tax>
+   <expected_schedule_h_medicare_tax>754.00</expected_schedule_h_medicare_tax>
+   <expected_schedule_h_futa_tax>42.00</expected_schedule_h_futa_tax>
+   <expected_schedule_h_total_tax>4020.00</expected_schedule_h_total_tax>
+
+   <taxpayer>
+      <id>1</id>
+      <name>James Wilson</name>
+      <ssn>111-22-3333</ssn>
+      <date_of_birth>1980-06-18</date_of_birth>
+      <occupation>Product Manager</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>175000</w2_wages>
+      <w2_withholding>28000</w2_withholding>
+   </taxpayer>
+
+   <spouse>
+      <id>2</id>
+      <name>Michelle Wilson</name>
+      <ssn>444-55-6666</ssn>
+      <date_of_birth>1982-12-05</date_of_birth>
+      <occupation>Designer</occupation>
+      <is_self_employed>false</is_self_employed>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+   </spouse>
+
+   <!-- Household Employee: Full-time Nanny -->
+   <household_employee>
+      <id>1</id>
+      <name>Anna Kowalski</name>
+      <ssn>777-88-9999</ssn>
+      <cash_wages>52000</cash_wages>
+      <federal_withholding>4000</federal_withholding>
+      <ss_wages>52000</ss_wages>
+      <medicare_wages>52000</medicare_wages>
+      <!-- FUTA applies only to first $7,000 -->
+      <futa_wages>7000</futa_wages>
+      <!-- State unemployment tax paid (enables FUTA credit) -->
+      <state_unemployment_paid>378</state_unemployment_paid>
+   </household_employee>
+
+   <!-- Schedule H Calculation: -->
+
+   <!-- FICA Taxes: -->
+   <!-- Social Security employer: $52,000 × 6.2% = $3,224.00 -->
+   <!-- Medicare employer: $52,000 × 1.45% = $754.00 -->
+   <!-- FICA total: $3,978.00 -->
+
+   <!-- FUTA Calculation (Federal Unemployment Tax): -->
+   <!-- FUTA wage base: $7,000 (only first $7,000 of wages) -->
+   <!-- Gross FUTA rate: 6.0% -->
+   <!-- Gross FUTA tax: $7,000 × 6.0% = $420.00 -->
+
+   <!-- FUTA Credit (State Unemployment): -->
+   <!-- SUTA paid to Washington state: $378.00 -->
+   <!-- FUTA credit: 5.4% of $7,000 = $378.00 -->
+   <!-- Net FUTA: $420.00 - $378.00 = $42.00 -->
+   <!-- OR: $7,000 × 0.6% = $42.00 -->
+
+   <!-- Total Schedule H Tax: $4,020.00 -->
+
+   <!-- FUTA Exemption Scenarios: -->
+
+   <!-- Scenario A: SUTA Paid (this test case) -->
+   <!-- - Employer paid state unemployment tax -->
+   <!-- - Qualifies for 5.4% FUTA credit -->
+   <!-- - Net FUTA rate: 0.6% -->
+   <!-- - FUTA tax: $7,000 × 0.6% = $42 -->
+
+   <!-- Scenario B: No SUTA Paid (credit state or no payment) -->
+   <!-- - No state unemployment tax paid -->
+   <!-- - NO FUTA credit -->
+   <!-- - Full FUTA rate: 6.0% -->
+   <!-- - FUTA tax: $7,000 × 6.0% = $420 -->
+
+   <!-- Scenario C: Credit Reduction State -->
+   <!-- - State has unpaid federal unemployment loans -->
+   <!-- - FUTA credit reduced (less than 5.4%) -->
+   <!-- - Net FUTA higher than 0.6% -->
+
+   <!-- W-2 Information: -->
+   <!-- Box 1 (Wages): $52,000 -->
+   <!-- Box 2 (Federal withholding): $4,000 -->
+   <!-- Box 3 (SS wages): $52,000 -->
+   <!-- Box 4 (SS tax withheld): $3,224 (employee 6.2%) -->
+   <!-- Box 5 (Medicare wages): $52,000 -->
+   <!-- Box 6 (Medicare tax withheld): $754 (employee 1.45%) -->
+   <!-- Box 13: Household employee checkbox -->
+
+   <!-- Note on FUTA wage base: -->
+   <!-- Even though annual wages are $52,000, -->
+   <!-- FUTA only applies to first $7,000 -->
+   <!-- This is different from Social Security wage base ($176,100 in 2025) -->
+</job>

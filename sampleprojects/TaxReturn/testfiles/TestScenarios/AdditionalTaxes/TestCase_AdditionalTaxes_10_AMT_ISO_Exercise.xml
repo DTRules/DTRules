@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 6251 - AMT with ISO Exercise -->
+<!-- Scenario: Employee exercises Incentive Stock Options (ISO) -->
+<!-- ISO bargain element = $180,000 (AMT preference item) -->
+<!-- Expected: AMT applies due to ISO exercise -->
+<job>
+    <id>AdditionalTaxes_10</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>WA</state>
+
+    <!-- Expected results -->
+    <!-- Regular tax: -->
+    <!--   W-2: $175,000 -->
+    <!--   AGI: $175,000 -->
+    <!--   Deduction: $15,000 standard -->
+    <!--   Taxable: $160,000, Tax: ~$31,817 -->
+    <!-- AMT calculation: -->
+    <!--   AMTI: $175k + $180k ISO = $355,000 -->
+    <!--   AMT exemption: $88,100 - phaseout (starts at $626,350, no phaseout) = $88,100 -->
+    <!--   AMT income: $355k - $88.1k = $266,900 -->
+    <!--   AMT: 26% on $232,600 + 28% on $34,300 = $60,476 + $9,604 = $70,080 -->
+    <!-- AMT liability: $38,263 (AMT exceeds regular tax) -->
+    <!-- Total tax: $70,080 -->
+    <expected_agi>175000</expected_agi>
+    <expected_taxable_income>160000</expected_taxable_income>
+    <expected_total_tax>70080</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Thomas Anderson</name>
+            <ssn>456-78-9012</ssn>
+            <date_of_birth>08/15/1985</date_of_birth>
+            <occupation>Senior Software Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>175000</w2_wages>
+            <w2_withholding>36000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>15000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- ISO exercise - preference item for AMT -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>iso_bargain_element</type>
+            <source>Company Stock Options Exercise</source>
+            <description>ISO exercise - 10,000 shares at $20 strike, FMV $38</description>
+            <gross_amount>180000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <is_amt_preference>true</is_amt_preference>
+        </income>
+    </incomes>
+
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

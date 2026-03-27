@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Maryland Military Retirement Test Case -->
+   <!-- Test Case MD-Military-01: Military retiree age 50 ($12,500 exemption under age 55) -->
+   <!-- MD provides age-based military retirement exemptions: -->
+   <!-- Under age 55: First $12,500 exempt -->
+   <!-- Age 55+: First $20,000 exempt -->
+   <!-- This test uses age 50 (born 1975) = $12,500 exemption -->
+
+   <id>MD-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>MD</state>
+   <city>Baltimore</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $30,000 military retirement + $50,000 W2 = $80,000 -->
+   <!-- AGI: $80,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $65,000 -->
+   <!-- Federal Tax: ~$8,700 -->
+   <!-- MD: Progressive tax (up to 5.75%) -->
+   <!-- MD Military Retirement Exemption: $12,500 (under age 55) -->
+   <!-- MD Taxable Retirement: $30,000 - $12,500 = $17,500 -->
+   <!-- MD Taxable Income: $17,500 + $50,000 = $67,500 -->
+   <!-- MD Tax (progressive brackets): ~$3,900 -->
+   <!-- Total Tax: $12,600 -->
+   <!-- Withholding: $13,500 -->
+   <!-- Refund: $900 -->
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>65000</expected_taxable_income>
+   <expected_total_tax>12600</expected_total_tax>
+   <expected_state_tax>3900</expected_state_tax>
+   <expected_refund>900</expected_refund>
+
+   <!-- Retired Military Taxpayer (Age 50) -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah</name>
+         <last_name>Miller</last_name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>2/18/1975</date_of_birth>
+         <occupation>Military Retiree - Project Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>13500</w2_withholding>
+         <military_retirement_pay>30000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>
