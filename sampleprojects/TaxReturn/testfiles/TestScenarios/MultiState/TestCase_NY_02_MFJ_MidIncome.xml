@@ -1,0 +1,87 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- New York Test Case 02: MFJ with dual W-2 income -->
+   <!-- Tests NY progressive tax through brackets 1-5 (4%, 4.5%, 5.25%, 5.5%, 6%) -->
+
+   <id>NY-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NY</state>
+   <city>New York City</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $250,000 W2 total ($150k + $100k) -->
+   <!-- Federal AGI: $250,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $220,000 -->
+   <!-- NY Standard Deduction: $16,050 (MFJ) -->
+   <!-- NY Taxable: $233,950 -->
+   <!-- NY Tax: $12,897 (progressive brackets 1-5) -->
+   <!--   Bracket 1: $17,150 * 4% = $686 -->
+   <!--   Bracket 2: $6,450 * 4.5% = $290.25 -->
+   <!--   Bracket 3: $4,300 * 5.25% = $225.75 -->
+   <!--   Bracket 4: $133,650 * 5.5% = $7,350.75 -->
+   <!--   Bracket 5: $72,400 * 6% = $4,344 -->
+   <expected_agi>250000</expected_agi>
+   <expected_taxable_income>220000</expected_taxable_income>
+   <expected_state_tax>12897</expected_state_tax>
+
+   <!-- Married Filing Jointly Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Rodriguez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>8/10/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>28000</w2_withholding>
+         <state_withholding>9000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Rodriguez</name>
+         <ssn>444-55-7777</ssn>
+         <date_of_birth>6/22/1987</date_of_birth>
+         <occupation>Marketing Director</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>100000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+         <state_withholding>6000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

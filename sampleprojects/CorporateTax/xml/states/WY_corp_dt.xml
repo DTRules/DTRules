@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Wyoming Corporate Tax Decision Tables
+
+  IMPORTANT: Wyoming has NO corporate income tax.
+
+  Wyoming does NOT impose:
+  - Corporate income tax
+  - Gross receipts tax
+  - Franchise tax
+  - Capital stock tax
+
+  Wyoming is one of the most business-friendly states in the nation.
+  The only corporate requirements are:
+  - Annual report filing ($60 domestic, $120 foreign)
+  - Business licenses (county/municipal level)
+
+  Table Numbering: 54900-54999 (Wyoming allocation)
+  - 54900: Determine_WY_Filing_Requirement
+  - 54920: Calculate_WY_Income_Adjustments
+  - 54980: Calculate_WY_State_Tax
+
+  Key Features:
+  - No corporate income tax (state_tax_rate = 0.0)
+  - No gross receipts tax
+  - No franchise tax
+  - Business-friendly regulatory environment
+
+  References:
+  - Wyoming Statutes Title 17 (Corporations)
+  - Wyoming Secretary of State - Business Division
+  - Wyoming does NOT have corporate income tax statutes
+-->
+<decision_tables name="CorporateTax_WY_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 54900: Determine WY Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file Wyoming annual report.
+
+    Wyoming has NO corporate income tax, so there is no tax return filing requirement.
+    However, corporations doing business in Wyoming must file an annual report.
+
+    Annual Report Requirements:
+    - Domestic corporations (formed in Wyoming): Must file annual report ($60 fee)
+    - Foreign corporations (registered in Wyoming): Must file annual report ($120 fee)
+    - Due date: First day of anniversary month of incorporation/registration
+
+    No tax return is required because Wyoming has no corporate income tax.
+  -->
+  <decision_table name="Determine_WY_Filing_Requirement" number="54900">
+    <description>
+      Determine if corporation must file Wyoming annual report.
+      Note: Wyoming has NO corporate income tax - no tax return required.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
+                    apportionment.state_code == 'WY'</expression>
+        <comment>Has physical presence in Wyoming (incorporated or registered to do business)</comment>
+      </condition>
+
+      <condition name="is_domestic_corporation">
+        <expression>corporation.state_of_incorporation == 'WY'</expression>
+        <comment>Corporation incorporated in Wyoming (domestic corporation)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+          <is_domestic_corporation>Y</is_domestic_corporation>
+        </conditions>
+        <actions>
+          <action>
+            // Wyoming domestic corporation - annual report required ($60 fee)
+            result.wy_annual_report_fee = result.wy_annual_report_fee_domestic;
+
+            // No corporate income tax
+            result.wy_state_tax = 0.0;
+            apportionment.state_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Wyoming Domestic Corporation - Annual Report Required
+
+          Wyoming has NO corporate income tax.
+
+          Filing Requirements:
+          - Annual Report: Required (due on first day of anniversary month)
+          - Annual Report Fee: $60 (domestic corporation)
+          - Tax Return: NOT REQUIRED (no corporate income tax)
+
+          Wyoming does not tax:
+          - Corporate net income
+          - Gross receipts
+          - Franchise/capital stock
+
+          Wyoming only requires:
+          - Annual report filing with Secretary of State
+          - Business licenses (county/municipality level)
+          - Registered agent in Wyoming
+
+          Reference: Wyoming Statutes 17-16-1630 - Annual Report
+          Reference: Wyoming Secretary of State - Annual Report Filing
+          Reference: No Wyoming corporate income tax statutes exist
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+          <is_domestic_corporation>N</is_domestic_corporation>
+        </conditions>
+        <actions>
+          <action>
+            // Wyoming foreign corporation - annual report required ($120 fee)
+            result.wy_annual_report_fee = result.wy_annual_report_fee_foreign;
+
+            // No corporate income tax
+            result.wy_state_tax = 0.0;
+            apportionment.state_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Wyoming Foreign Corporation - Annual Report Required
+
+          Wyoming has NO corporate income tax.
+
+          Filing Requirements:
+          - Annual Report: Required (due on first day of anniversary month)
+          - Annual Report Fee: $120 (foreign corporation registered in Wyoming)
+          - Tax Return: NOT REQUIRED (no corporate income tax)
+
+          Foreign corporation means:
+          - Incorporated outside Wyoming
+          - Registered to do business in Wyoming (Certificate of Authority)
+          - Must maintain registered agent in Wyoming
+
+          Wyoming does not tax:
+          - Corporate net income
+          - Gross receipts
+          - Franchise/capital stock
+
+          Reference: Wyoming Statutes 17-16-1630 - Annual Report
+          Reference: Wyoming Statutes 17-16-1520 - Certificate of Authority
+          Reference: Wyoming Secretary of State - Foreign Corporation Registration
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // No Wyoming presence - no filing requirement
+            result.wy_annual_report_fee = 0.0;
+            result.wy_state_tax = 0.0;
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Wyoming presence - no filing requirement.
+
+          Corporation is not:
+          - Incorporated in Wyoming (not domestic)
+          - Registered to do business in Wyoming (not foreign authorized)
+
+          Therefore:
+          - No annual report filing required
+          - No annual report fee
+          - No tax liability (Wyoming has no corporate income tax anyway)
+
+          Any estimated payments would be refunded.
+
+          Reference: Wyoming Statutes 17-16-1501 - Authority to Transact Business Required
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 54920: Calculate WY Income Adjustments
+    ============================================================================
+
+    Wyoming has NO corporate income tax, so this table confirms zero tax liability
+    and ensures no income-based adjustments are applied.
+
+    This table exists for framework consistency but performs no actual calculations.
+  -->
+  <decision_table name="Calculate_WY_Income_Adjustments" number="54920">
+    <description>
+      Wyoming has NO corporate income tax.
+      This table confirms zero income tax liability for consistency with framework.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
+                    apportionment.state_code == 'WY'</expression>
+        <comment>Has presence in Wyoming</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Wyoming has NO corporate income tax
+            apportionment.state_tax_rate = 0.0;
+
+            // No state additions or subtractions (no income tax base)
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+
+            // Confirm no-tax status flags
+            result.wy_no_corporate_tax = true;
+            result.wy_no_gross_receipts_tax = true;
+            result.wy_no_franchise_tax = true;
+          </action>
+        </actions>
+        <policy>
+          Wyoming has NO corporate income tax.
+
+          Wyoming does NOT tax:
+          - Corporate net income (no income tax)
+          - Gross receipts (no Commerce Tax like Nevada)
+          - Franchise or capital stock (no franchise tax like Delaware)
+          - Business property (no state-level property tax on business assets)
+
+          Wyoming ONLY requires:
+          - Annual report filing fee ($60 domestic, $120 foreign)
+          - Business licenses (county/municipal level, varies by location)
+          - Sales tax compliance (4% state sales tax, plus local options)
+
+          Why Wyoming has no corporate income tax:
+          Wyoming's revenue comes primarily from mineral severance taxes (oil, gas, coal)
+          and federal mineral royalties. This allows Wyoming to avoid corporate income tax
+          while maintaining one of the most business-friendly environments in the nation.
+
+          This decision table confirms zero income tax for framework consistency.
+
+          Reference: Wyoming Constitution Article 15, Section 3 - Taxation
+          Reference: Wyoming Statutes Title 39 - Revenue and Taxation (no corporate income tax chapter)
+          Reference: Wyoming does not have corporate income tax statutes
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No Wyoming presence - confirm zero tax
+            apportionment.state_tax_rate = 0.0;
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+
+            result.wy_no_corporate_tax = true;
+            result.wy_no_gross_receipts_tax = true;
+            result.wy_no_franchise_tax = true;
+          </action>
+        </actions>
+        <policy>
+          No Wyoming presence - no tax liability.
+
+          Wyoming has no corporate income tax regardless of nexus status.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 54980: Calculate WY State Tax
+    ============================================================================
+
+    Calculates final Wyoming state tax liability.
+
+    Wyoming has NO corporate income tax, NO gross receipts tax, and NO franchise tax.
+
+    This table:
+    1. Confirms zero tax liability
+    2. Sets annual report fee (if applicable)
+    3. Calculates refund of any estimated payments
+
+    Wyoming is one of the most business-friendly states with no corporate-level taxation.
+  -->
+  <decision_table name="Calculate_WY_State_Tax" number="54980">
+    <description>
+      Calculate Wyoming state tax liability.
+      Wyoming has NO corporate income tax - always returns $0 tax.
+    </description>
+
+    <conditions>
+      <condition name="has_presence">
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
+                    apportionment.state_code == 'WY'</expression>
+        <comment>Has presence in Wyoming (incorporated or registered)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_presence>Y</has_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Wyoming has NO corporate income tax
+            result.wy_state_tax = 0.0;
+            apportionment.state_tax = 0.0;
+
+            // Calculate refund of estimated payments (no tax to offset)
+            apportionment.state_refund_or_owed = apportionment.state_payments - 0.0;
+          </action>
+        </actions>
+        <policy>
+          Wyoming State Tax Calculation: $0
+
+          IMPORTANT: Wyoming has NO corporate income tax.
+
+          Wyoming does NOT impose:
+          - Corporate income tax (0% rate)
+          - Gross receipts tax (unlike Nevada, Washington)
+          - Franchise tax (unlike Delaware, California)
+          - Capital stock tax
+          - Business personal property tax (at state level)
+
+          Wyoming ONLY requires:
+          1. Annual Report Filing Fee:
+             - Domestic corporations: $60
+             - Foreign corporations: $120
+             - Due: First day of anniversary month
+
+          2. Business Licenses (county/municipal):
+             - Vary by location and industry
+             - Typically $25-$200 annually
+
+          3. Sales Tax Compliance:
+             - 4% state sales tax
+             - Local option taxes (up to 2%)
+             - Economic nexus: $100,000 or 200 transactions
+
+          Why Wyoming is Business-Friendly:
+          - No corporate income tax
+          - No personal income tax
+          - Strong asset protection laws (LLCs, trusts)
+          - Low regulatory burden
+          - Revenue from mineral extraction (oil, gas, coal)
+          - Federal mineral royalties fund state operations
+
+          Any estimated tax payments would be fully refunded since Wyoming
+          has no corporate income tax to apply payments against.
+
+          Note: Annual report fees are administrative fees, not taxes, and are
+          paid directly to the Secretary of State (not calculated here).
+
+          Reference: Wyoming Statutes Title 39 - Revenue and Taxation
+          Reference: Wyoming Secretary of State - Business Division
+          Reference: Wyoming does not have corporate income tax enabling statutes
+          Reference: Wyoming Economic Analysis Division - Revenue Sources
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_presence>N</has_presence>
+        </conditions>
+        <actions>
+          <action>
+            // No Wyoming presence - no tax
+            result.wy_state_tax = 0.0;
+            apportionment.state_tax = 0.0;
+
+            // Refund any estimated payments
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No Wyoming presence - no tax liability.
+
+          Corporation is not incorporated in Wyoming and not registered to do
+          business in Wyoming, therefore:
+          - No annual report filing required
+          - No annual report fee
+          - No tax liability (Wyoming has no corporate income tax anyway)
+
+          Any estimated payments would be fully refunded.
+
+          Reference: Wyoming Statutes 17-16-1501 - Authority to Transact Business
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>
