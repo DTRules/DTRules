@@ -246,6 +246,7 @@ Calculate_Final_Balance
 <action_postfix>
 job.has_state_income_tax if
   Dispatch_State_Tax
+  Calculate_Other_State_Tax_Credit
 endif
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -13323,6 +13324,113 @@ result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
 <policy_statement column="3">
 <policy_description>MS progressive tax HOH with standard deduction</policy_description>
 <policy_statement_postfix>"Mississippi progressive tax for HOH per Mississippi Form 80-105"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+
+<!-- ====================================================================== -->
+<!-- TABLE 45100: Calculate_Other_State_Tax_Credit                         -->
+<!-- Reference: State-specific forms for credit for taxes paid to other st -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Other_State_Tax_Credit</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates credit for taxes paid to other states to prevent double taxation. When a resident of one state (e.g., NY) earns income in another state (e.g., NJ), they pay tax to both states. The resident state provides a credit equal to the LESSER of: (a) tax actually paid to the other state, or (b) resident state tax on that same income. This prevents double taxation while ensuring the resident state collects at least its share.</COMMENTS>
+<TABLE_NUMBER>45100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize other state tax credit calculation</action_description>
+<action_postfix>
+"CREDIT FOR TAXES PAID TO OTHER STATES (TABLE 45100)" job.audit_trail swap addto
+0.0 /total_other_state_income xdef
+0.0 /total_other_state_taxes_paid xdef
+0.0 /resident_state_tax_on_other_income xdef
+0.0 /other_state_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has other state income and taxes</condition_comment>
+<condition_description>Has income from other states with taxes paid</condition_description>
+<condition_postfix>
+job.state_tax_results countof 1 >
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>No other state income</condition_comment>
+<condition_description>No multi-state taxation</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate credit for other state taxes</action_comment>
+<action_description>Sum other state income and taxes, calculate credit as lesser of taxes paid or resident state tax on that income</action_description>
+<action_postfix>
+"  Calculating credit for multi-state taxation" job.audit_trail swap addto
+job.state_tax_results forEach
+  /current_state_result xdef
+  current_state_result.state_code job.state streq not if
+    "    Other state: " current_state_result.state_code strconcat " - Income: $" strconcat current_state_result.state_agi cvs strconcat " - Tax paid: $" strconcat current_state_result.state_tax_liability cvs strconcat strconcat job.audit_trail swap addto
+    total_other_state_income current_state_result.state_agi f+ /total_other_state_income xdef
+    total_other_state_taxes_paid current_state_result.state_tax_liability f+ /total_other_state_taxes_paid xdef
+  endif
+endforEach
+total_other_state_income 0 f> if
+  "  Total income taxed by other states: $" total_other_state_income cvs strconcat job.audit_trail swap addto
+  "  Total taxes paid to other states: $" total_other_state_taxes_paid cvs strconcat job.audit_trail swap addto
+  total_other_state_income result.taxable_income f/ result.regular_tax f* /resident_state_tax_on_other_income xdef
+  "  Resident state tax on other state income: $" resident_state_tax_on_other_income cvs strconcat job.audit_trail swap addto
+  total_other_state_taxes_paid resident_state_tax_on_other_income fmin /other_state_credit xdef
+  "  Credit allowed (lesser of taxes paid or resident tax): $" other_state_credit cvs strconcat job.audit_trail swap addto
+  job.state_tax_results forEach
+    /current_state_result xdef
+    current_state_result.state_code job.state streq if
+      other_state_credit /current_state_result.other_state_tax_credit xdef
+      current_state_result.state_credits other_state_credit f+ /current_state_result.state_credits xdef
+      current_state_result.state_tax_before_credits current_state_result.state_credits f- 0 fmax /current_state_result.state_tax_liability xdef
+      "  Updated resident state (" current_state_result.state_code strconcat ") tax after credit: $" strconcat current_state_result.state_tax_liability cvs strconcat strconcat job.audit_trail swap addto
+    endif
+  endforEach
+else
+  "  No other state income found - no credit applicable" job.audit_trail swap addto
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No credit - single state only</action_comment>
+<action_description>No other state tax credit needed</action_description>
+<action_postfix>
+"  Single state filing - no other state tax credit needed" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate credit for taxes paid to other states</policy_description>
+<policy_statement_postfix>"Credit for taxes paid to other states prevents double taxation"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No other state credit needed for single state</policy_description>
+<policy_statement_postfix>"Single state filing requires no other state tax credit"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
