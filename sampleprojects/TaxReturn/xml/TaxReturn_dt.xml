@@ -9783,6 +9783,7 @@ then
 <condition_column column_number="8" column_value="N"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
 <condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 
 <condition_details>
@@ -9802,8 +9803,7 @@ then
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
-<condition_column column_number="9" column_value="N"></condition_column>
-<condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -9822,8 +9822,7 @@ then
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
-<condition_column column_number="9" column_value="N"></condition_column>
-<condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -9843,8 +9842,7 @@ then
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
 <condition_column column_number="6" column_value="N"></condition_column>
-<condition_column column_number="9" column_value="N"></condition_column>
-<condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -9865,8 +9863,7 @@ then
 <condition_column column_number="5" column_value="N"></condition_column>
 <condition_column column_number="6" column_value="N"></condition_column>
 <condition_column column_number="7" column_value="N"></condition_column>
-<condition_column column_number="9" column_value="N"></condition_column>
-<condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -9887,8 +9884,7 @@ then
 <condition_column column_number="5" column_value="Y"></condition_column>
 <condition_column column_number="6" column_value="N"></condition_column>
 <condition_column column_number="7" column_value="N"></condition_column>
-<condition_column column_number="9" column_value="N"></condition_column>
-<condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -9912,6 +9908,7 @@ then
 <condition_column column_number="8" column_value="N"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
 <condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -9935,6 +9932,7 @@ then
 <condition_column column_number="8" column_value="N"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
 <condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -9974,9 +9972,34 @@ then
 <condition_column column_number="8" column_value="Y"></condition_column>
 <condition_column column_number="9" column_value="N"></condition_column>
 <condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
-<condition_number>9</condition_number>
+<condition_number>10</condition_number>
+<condition_comment>Missouri state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "MO"</condition_description>
+<condition_postfix>
+state_period isnull not
+if
+  state_period.state_code MO streq
+else
+  job.state MO streq
+then
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
+<condition_column column_number="10" column_value="Y"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>10</condition_number>
 <condition_comment>New Jersey state</condition_comment>
 <condition_description>state_period.state_code or job.state is equal to "NJ"</condition_description>
 <condition_postfix>
@@ -9995,8 +10018,10 @@ then
 <condition_column column_number="6" column_value="N"></condition_column>
 <condition_column column_number="7" column_value="N"></condition_column>
 <condition_column column_number="8" column_value="N"></condition_column>
-<condition_column column_number="9" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
 <condition_column column_number="10" column_value="N"></condition_column>
+<condition_column column_number="11" column_value="Y"></condition_column>
+<condition_column column_number="12" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -10115,13 +10140,22 @@ then
 <action_column column_number="7" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>9</action_number>
+<action_number>10</action_number>
+<action_comment>Calculate Missouri state tax</action_comment>
+<action_description>Calculate_MO_Tax</action_description>
+<action_postfix>
+Calculate_MO_Tax
+</action_postfix>
+<action_column column_number="10" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
 <action_comment>Calculate New Jersey state tax</action_comment>
 <action_description>Calculate_NJ_Tax</action_description>
 <action_postfix>
 Calculate_NJ_Tax
 </action_postfix>
-<action_column column_number="9" column_value="X"></action_column>
+<action_column column_number="11" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -10157,7 +10191,11 @@ Calculate_NJ_Tax
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
 </policy_statement>
-<policy_statement column="9">
+<policy_statement column="10">
+<policy_description>Calculate Missouri state income tax</policy_description>
+<policy_statement_postfix>"Calculate Missouri state income tax per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="11">
 <policy_description>Calculate New Jersey state income tax</policy_description>
 <policy_statement_postfix>"Calculate New Jersey state income tax per Form NJ-1040 with progressive rates 1.4%-10.75%"</policy_statement_postfix>
 </policy_statement>
@@ -14484,6 +14522,1225 @@ result.mi_taxable_income mi_tax_rate f* /result.mi_state_tax xdef
 </policy_statements>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 44300: Calculate_MO_Tax - Missouri State Income Tax             -->
+<!-- Reference: Missouri Form MO-1040 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MO_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Missouri state income tax per Form MO-1040. Missouri uses 8 progressive tax brackets ranging from 0% to 4.7%. Standard deductions: Single $15,750, MFJ $31,500, HOH $23,625. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets with cumulative approach.</COMMENTS>
+<TABLE_NUMBER>44300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize MO tax calculation</action_description>
+<action_postfix>
+"MISSOURI FORM MO-1040 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.mo_agi xdef
+0 /result.mo_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status is equal to "head_of_household"</condition_description>
+<condition_postfix>
+job.filing_status head_of_household streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MO tax MFJ</action_comment>
+<action_description>Calculate MO tax with MFJ standard deduction and 8 progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mo_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mo_standard_deduction_mfj /result.mo_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.mo_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mo_agi result.mo_standard_deduction f- 0 fmax /result.mo_taxable_income xdef
+"  MO Taxable Income: $" result.mo_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+0 local@ cumulative_tax >
+result.mo_taxable_income mo_bracket_7_threshold f> if
+  mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_7_threshold mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+  result.mo_taxable_income mo_bracket_7_threshold f- mo_bracket_8_rate f* cumulative_tax f+ local@ cumulative_tax >
+  cumulative_tax /result.mo_tax xdef
+  "  Bracket 8 (4.7% above $9,191): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mo_taxable_income mo_bracket_6_threshold f> if
+    mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+    result.mo_taxable_income mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+    cumulative_tax /result.mo_tax xdef
+    "  Bracket 7 (4.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.mo_taxable_income mo_bracket_5_threshold f> if
+      mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+      result.mo_taxable_income mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+      cumulative_tax /result.mo_tax xdef
+      "  Bracket 6 (4%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+    else
+      result.mo_taxable_income mo_bracket_4_threshold f> if
+        mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+        result.mo_taxable_income mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+        cumulative_tax /result.mo_tax xdef
+        "  Bracket 5 (3.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+      else
+        result.mo_taxable_income mo_bracket_3_threshold f> if
+          mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+          result.mo_taxable_income mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+          cumulative_tax /result.mo_tax xdef
+          "  Bracket 4 (3%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+        else
+          result.mo_taxable_income mo_bracket_2_threshold f> if
+            mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+            mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+            result.mo_taxable_income mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+            cumulative_tax /result.mo_tax xdef
+            "  Bracket 3 (2.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+          else
+            result.mo_taxable_income mo_bracket_1_threshold f> if
+              mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+              result.mo_taxable_income mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+              cumulative_tax /result.mo_tax xdef
+              "  Bracket 2 (2%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            else
+              result.mo_taxable_income 0 f- mo_bracket_1_rate f* /result.mo_tax xdef
+              "  Bracket 1 (0%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+"  Total MO Tax: $" result.mo_tax cvs strconcat " (Form MO-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MO tax HOH</action_comment>
+<action_description>Calculate MO tax with HOH standard deduction</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mo_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mo_standard_deduction_hoh /result.mo_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.mo_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mo_agi result.mo_standard_deduction f- 0 fmax /result.mo_taxable_income xdef
+"  MO Taxable Income: $" result.mo_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+0 local@ cumulative_tax >
+result.mo_taxable_income mo_bracket_7_threshold f> if
+  mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_7_threshold mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+  result.mo_taxable_income mo_bracket_7_threshold f- mo_bracket_8_rate f* cumulative_tax f+ local@ cumulative_tax >
+  cumulative_tax /result.mo_tax xdef
+  "  Bracket 8 (4.7%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mo_taxable_income mo_bracket_6_threshold f> if
+    mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+    result.mo_taxable_income mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+    cumulative_tax /result.mo_tax xdef
+    "  Bracket 7 (4.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.mo_taxable_income mo_bracket_5_threshold f> if
+      mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+      result.mo_taxable_income mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+      cumulative_tax /result.mo_tax xdef
+      "  Bracket 6 (4%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+    else
+      result.mo_taxable_income mo_bracket_4_threshold f> if
+        mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+        result.mo_taxable_income mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+        cumulative_tax /result.mo_tax xdef
+        "  Bracket 5 (3.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+      else
+        result.mo_taxable_income mo_bracket_3_threshold f> if
+          mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+          result.mo_taxable_income mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+          cumulative_tax /result.mo_tax xdef
+          "  Bracket 4 (3%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+        else
+          result.mo_taxable_income mo_bracket_2_threshold f> if
+            mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+            mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+            result.mo_taxable_income mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+            cumulative_tax /result.mo_tax xdef
+            "  Bracket 3 (2.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+          else
+            result.mo_taxable_income mo_bracket_1_threshold f> if
+              mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+              result.mo_taxable_income mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+              cumulative_tax /result.mo_tax xdef
+              "  Bracket 2 (2%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            else
+              result.mo_taxable_income 0 f- mo_bracket_1_rate f* /result.mo_tax xdef
+              "  Bracket 1 (0%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+"  Total MO Tax: $" result.mo_tax cvs strconcat " (Form MO-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate MO tax Single</action_comment>
+<action_description>Calculate MO tax with Single standard deduction</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mo_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mo_standard_deduction_single /result.mo_standard_deduction xdef
+"  Standard Deduction (Single): $" result.mo_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mo_agi result.mo_standard_deduction f- 0 fmax /result.mo_taxable_income xdef
+"  MO Taxable Income: $" result.mo_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+0 local@ cumulative_tax >
+result.mo_taxable_income mo_bracket_7_threshold f> if
+  mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+  mo_bracket_7_threshold mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+  result.mo_taxable_income mo_bracket_7_threshold f- mo_bracket_8_rate f* cumulative_tax f+ local@ cumulative_tax >
+  cumulative_tax /result.mo_tax xdef
+  "  Bracket 8 (4.7%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mo_taxable_income mo_bracket_6_threshold f> if
+    mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+    mo_bracket_6_threshold mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+    result.mo_taxable_income mo_bracket_6_threshold f- mo_bracket_7_rate f* cumulative_tax f+ local@ cumulative_tax >
+    cumulative_tax /result.mo_tax xdef
+    "  Bracket 7 (4.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.mo_taxable_income mo_bracket_5_threshold f> if
+      mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+      mo_bracket_5_threshold mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+      result.mo_taxable_income mo_bracket_5_threshold f- mo_bracket_6_rate f* cumulative_tax f+ local@ cumulative_tax >
+      cumulative_tax /result.mo_tax xdef
+      "  Bracket 6 (4%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+    else
+      result.mo_taxable_income mo_bracket_4_threshold f> if
+        mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+        mo_bracket_4_threshold mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+        result.mo_taxable_income mo_bracket_4_threshold f- mo_bracket_5_rate f* cumulative_tax f+ local@ cumulative_tax >
+        cumulative_tax /result.mo_tax xdef
+        "  Bracket 5 (3.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+      else
+        result.mo_taxable_income mo_bracket_3_threshold f> if
+          mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+          mo_bracket_3_threshold mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+          result.mo_taxable_income mo_bracket_3_threshold f- mo_bracket_4_rate f* cumulative_tax f+ local@ cumulative_tax >
+          cumulative_tax /result.mo_tax xdef
+          "  Bracket 4 (3%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+        else
+          result.mo_taxable_income mo_bracket_2_threshold f> if
+            mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+            mo_bracket_2_threshold mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+            result.mo_taxable_income mo_bracket_2_threshold f- mo_bracket_3_rate f* cumulative_tax f+ local@ cumulative_tax >
+            cumulative_tax /result.mo_tax xdef
+            "  Bracket 3 (2.5%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+          else
+            result.mo_taxable_income mo_bracket_1_threshold f> if
+              mo_bracket_1_threshold 0 f- mo_bracket_1_rate f* cumulative_tax f+ local@ cumulative_tax >
+              result.mo_taxable_income mo_bracket_1_threshold f- mo_bracket_2_rate f* cumulative_tax f+ local@ cumulative_tax >
+              cumulative_tax /result.mo_tax xdef
+              "  Bracket 2 (2%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            else
+              result.mo_taxable_income 0 f- mo_bracket_1_rate f* /result.mo_tax xdef
+              "  Bracket 1 (0%): Total Tax = $" result.mo_tax cvs strconcat job.audit_trail swap addto
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+"  Total MO Tax: $" result.mo_tax cvs strconcat " (Form MO-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>MO progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"Missouri progressive tax for MFJ per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>MO progressive tax HOH with standard deduction</policy_description>
+<policy_statement_postfix>"Missouri progressive tax for HOH per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>MO progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix>"Missouri progressive tax for Single per Form MO-1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 42100: Apply_NY_Tax_Brackets_Single - NY Single Filer Brackets -->
+<!-- Reference: New York Form IT-201 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_NY_Tax_Brackets_Single</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies NY progressive tax brackets for single filers. Nine brackets from 4% to 10.9%.</COMMENTS>
+<TABLE_NUMBER>42100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Income exceeds bracket 8 threshold</condition_comment>
+<condition_description>Taxable income > $25,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket8_single f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Income exceeds bracket 7 threshold</condition_comment>
+<condition_description>Taxable income > $5,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket7_single f>
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income exceeds bracket 6 threshold</condition_comment>
+<condition_description>Taxable income > $1,077,550</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket6_single f>
+</condition_postfix>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Income exceeds bracket 5 threshold</condition_comment>
+<condition_description>Taxable income > $215,400</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket5_single f>
+</condition_postfix>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Income exceeds bracket 4 threshold</condition_comment>
+<condition_description>Taxable income > $80,650</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket4_single f>
+</condition_postfix>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Income exceeds bracket 3 threshold</condition_comment>
+<condition_description>Taxable income > $13,900</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket3_single f>
+</condition_postfix>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Income exceeds bracket 2 threshold</condition_comment>
+<condition_description>Taxable income > $11,700</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket2_single f>
+</condition_postfix>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Income exceeds bracket 1 threshold</condition_comment>
+<condition_description>Taxable income > $8,500</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket1_single f>
+</condition_postfix>
+<condition_column column_number="8" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 9: 10.9% on income over $25M</action_comment>
+<action_description>Calculate tax with 9 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+ny_bracket6_single ny_bracket5_single f- ny_rate6 f* f+
+ny_bracket7_single ny_bracket6_single f- ny_rate7 f* f+
+ny_bracket8_single ny_bracket7_single f- ny_rate8 f* f+
+result.ny_taxable_income ny_bracket8_single f- ny_rate9 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 8: 10.3% on income over $5M</action_comment>
+<action_description>Calculate tax with 8 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+ny_bracket6_single ny_bracket5_single f- ny_rate6 f* f+
+ny_bracket7_single ny_bracket6_single f- ny_rate7 f* f+
+result.ny_taxable_income ny_bracket7_single f- ny_rate8 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 7: 9.65% on income over $1,077,550</action_comment>
+<action_description>Calculate tax with 7 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+ny_bracket6_single ny_bracket5_single f- ny_rate6 f* f+
+result.ny_taxable_income ny_bracket6_single f- ny_rate7 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 6: 6.85% on income over $215,400</action_comment>
+<action_description>Calculate tax with 6 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+ny_bracket5_single ny_bracket4_single f- ny_rate5 f* f+
+result.ny_taxable_income ny_bracket5_single f- ny_rate6 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5: 6% on income over $80,650</action_comment>
+<action_description>Calculate tax with 5 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+ny_bracket4_single ny_bracket3_single f- ny_rate4 f* f+
+result.ny_taxable_income ny_bracket4_single f- ny_rate5 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 4: 5.5% on income over $13,900</action_comment>
+<action_description>Calculate tax with 4 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+ny_bracket3_single ny_bracket2_single f- ny_rate3 f* f+
+result.ny_taxable_income ny_bracket3_single f- ny_rate4 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 3: 5.25% on income over $11,700</action_comment>
+<action_description>Calculate tax with 3 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+ny_bracket2_single ny_bracket1_single f- ny_rate2 f* f+
+result.ny_taxable_income ny_bracket2_single f- ny_rate3 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Bracket 2: 4.5% on income over $8,500</action_comment>
+<action_description>Calculate tax with 2 brackets</action_description>
+<action_postfix>
+ny_bracket1_single ny_rate1 f*
+result.ny_taxable_income ny_bracket1_single f- ny_rate2 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Bracket 1: 4% on income up to $8,500</action_comment>
+<action_description>Calculate tax with 1 bracket</action_description>
+<action_postfix>
+result.ny_taxable_income ny_rate1 f* /result.ny_tax xdef
+</action_postfix>
+<action_column column_number="9" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NY single filer - 9 brackets (10.9% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 9 brackets up to 10.9%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NY single filer - 8 brackets (10.3% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 8 brackets up to 10.3%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>NY single filer - 7 brackets (9.65% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 7 brackets up to 9.65%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>NY single filer - 6 brackets (6.85% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 6 brackets up to 6.85%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>NY single filer - 5 brackets (6% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 5 brackets up to 6%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>NY single filer - 4 brackets (5.5% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 4 brackets up to 5.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>NY single filer - 3 brackets (5.25% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 3 brackets up to 5.25%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="8">
+<policy_description>NY single filer - 2 brackets (4.5% top rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 2 brackets up to 4.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="9">
+<policy_description>NY single filer - 1 bracket (4% rate)</policy_description>
+<policy_statement_postfix>"NY single filer - 1 bracket at 4%"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42200: Apply_NY_Tax_Brackets_MFJ - NY Married Filing Jointly   -->
+<!-- Reference: New York Form IT-201 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_NY_Tax_Brackets_MFJ</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies NY progressive tax brackets for married filing jointly. Nine brackets from 4% to 10.9%.</COMMENTS>
+<TABLE_NUMBER>42200</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Income exceeds bracket 8 threshold</condition_comment>
+<condition_description>Taxable income > $25,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket8_mfj f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Income exceeds bracket 7 threshold</condition_comment>
+<condition_description>Taxable income > $5,000,000</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket7_mfj f>
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Income exceeds bracket 6 threshold</condition_comment>
+<condition_description>Taxable income > $2,155,350</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket6_mfj f>
+</condition_postfix>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Income exceeds bracket 5 threshold</condition_comment>
+<condition_description>Taxable income > $323,200</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket5_mfj f>
+</condition_postfix>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Income exceeds bracket 4 threshold</condition_comment>
+<condition_description>Taxable income > $161,550</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket4_mfj f>
+</condition_postfix>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Income exceeds bracket 3 threshold</condition_comment>
+<condition_description>Taxable income > $27,900</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket3_mfj f>
+</condition_postfix>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Income exceeds bracket 2 threshold</condition_comment>
+<condition_description>Taxable income > $23,600</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket2_mfj f>
+</condition_postfix>
+<condition_column column_number="7" column_value="Y"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Income exceeds bracket 1 threshold</condition_comment>
+<condition_description>Taxable income > $17,150</condition_description>
+<condition_postfix>
+result.ny_taxable_income ny_bracket1_mfj f>
+</condition_postfix>
+<condition_column column_number="8" column_value="Y"></condition_column>
+<condition_column column_number="9" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 9: 10.9% on income over $25M</action_comment>
+<action_description>Calculate tax with 9 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+ny_bracket6_mfj ny_bracket5_mfj f- ny_rate6 f* f+
+ny_bracket7_mfj ny_bracket6_mfj f- ny_rate7 f* f+
+ny_bracket8_mfj ny_bracket7_mfj f- ny_rate8 f* f+
+result.ny_taxable_income ny_bracket8_mfj f- ny_rate9 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 8: 10.3% on income over $5M</action_comment>
+<action_description>Calculate tax with 8 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+ny_bracket6_mfj ny_bracket5_mfj f- ny_rate6 f* f+
+ny_bracket7_mfj ny_bracket6_mfj f- ny_rate7 f* f+
+result.ny_taxable_income ny_bracket7_mfj f- ny_rate8 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 7: 9.65% on income over $2,155,350</action_comment>
+<action_description>Calculate tax with 7 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+ny_bracket6_mfj ny_bracket5_mfj f- ny_rate6 f* f+
+result.ny_taxable_income ny_bracket6_mfj f- ny_rate7 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 6: 6.85% on income over $323,200</action_comment>
+<action_description>Calculate tax with 6 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+ny_bracket5_mfj ny_bracket4_mfj f- ny_rate5 f* f+
+result.ny_taxable_income ny_bracket5_mfj f- ny_rate6 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5: 6% on income over $161,550</action_comment>
+<action_description>Calculate tax with 5 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+ny_bracket4_mfj ny_bracket3_mfj f- ny_rate4 f* f+
+result.ny_taxable_income ny_bracket4_mfj f- ny_rate5 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 4: 5.5% on income over $27,900</action_comment>
+<action_description>Calculate tax with 4 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+ny_bracket3_mfj ny_bracket2_mfj f- ny_rate3 f* f+
+result.ny_taxable_income ny_bracket3_mfj f- ny_rate4 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 3: 5.25% on income over $23,600</action_comment>
+<action_description>Calculate tax with 3 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+ny_bracket2_mfj ny_bracket1_mfj f- ny_rate2 f* f+
+result.ny_taxable_income ny_bracket2_mfj f- ny_rate3 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Bracket 2: 4.5% on income over $17,150</action_comment>
+<action_description>Calculate tax with 2 brackets</action_description>
+<action_postfix>
+ny_bracket1_mfj ny_rate1 f*
+result.ny_taxable_income ny_bracket1_mfj f- ny_rate2 f* f+
+/result.ny_tax xdef
+</action_postfix>
+<action_column column_number="8" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Bracket 1: 4% on income up to $17,150</action_comment>
+<action_description>Calculate tax with 1 bracket</action_description>
+<action_postfix>
+result.ny_taxable_income ny_rate1 f* /result.ny_tax xdef
+</action_postfix>
+<action_column column_number="9" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NY MFJ - 9 brackets (10.9% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 9 brackets up to 10.9%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NY MFJ - 8 brackets (10.3% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 8 brackets up to 10.3%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>NY MFJ - 7 brackets (9.65% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 7 brackets up to 9.65%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>NY MFJ - 6 brackets (6.85% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 6 brackets up to 6.85%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>NY MFJ - 5 brackets (6% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 5 brackets up to 6%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>NY MFJ - 4 brackets (5.5% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 4 brackets up to 5.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>NY MFJ - 3 brackets (5.25% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 3 brackets up to 5.25%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="8">
+<policy_description>NY MFJ - 2 brackets (4.5% top rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 2 brackets up to 4.5%"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="9">
+<policy_description>NY MFJ - 1 bracket (4% rate)</policy_description>
+<policy_statement_postfix>"NY MFJ - 1 bracket at 4%"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 42000: Calculate_NY_Tax - New York State Income Tax            -->
+<!-- Reference: New York Form IT-201 (2025)                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NY_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates New York state income tax per Form IT-201. NY uses a progressive tax system with 9 brackets (4% to 10.9%). Starting with federal AGI, subtracts pension income (up to $20,000), applies standard deduction and dependent exemptions, then applies progressive brackets.</COMMENTS>
+<TABLE_NUMBER>42000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize NY tax calculation</action_description>
+<action_postfix>
+"NEW YORK FORM IT-201 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ny_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>job.filing_status is equal to "single"</condition_description>
+<condition_postfix>
+job.filing_status single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NY tax for single filer</action_comment>
+<action_description>Calculate NY AGI, apply single standard deduction and exemptions, apply progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ny_pension_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount ny_pension_subtraction f+ local@ ny_pension_subtraction > endif } job.incomes forall
+ny_pension_subtraction ny_pension_subtraction_max fmin local@ ny_pension_subtraction >
+ny_pension_subtraction 0 f> if
+  "  Subtract Pension Income: -$" ny_pension_subtraction cvs strconcat " (max $20,000)" strconcat job.audit_trail swap addto
+  result.ny_agi ny_pension_subtraction f- /result.ny_agi xdef
+endif
+"  New York AGI: $" result.ny_agi cvs strconcat " (Form IT-201 Line 19)" strconcat job.audit_trail swap addto
+"  Standard Deduction (Single): -$" ny_standard_deduction_single cvs strconcat job.audit_trail swap addto
+result.ny_agi ny_standard_deduction_single f- 0 fmax /result.ny_agi_after_deduction xdef
+job.dependents arraysize local@ num_dependents >
+num_dependents 0 > if
+  num_dependents ny_dependent_exemption f* /result.ny_dependent_exemption_total xdef
+  "  Dependent Exemptions: " num_dependents cvs strconcat " × $" strconcat ny_dependent_exemption cvs strconcat " = -$" strconcat result.ny_dependent_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+  result.ny_agi_after_deduction result.ny_dependent_exemption_total f- 0 fmax /result.ny_taxable_income xdef
+else
+  result.ny_agi_after_deduction /result.ny_taxable_income xdef
+endif
+"  New York Taxable Income: $" result.ny_taxable_income cvs strconcat " (Form IT-201 Line 33)" strconcat job.audit_trail swap addto
+Apply_NY_Tax_Brackets_Single
+"  New York Tax: $" result.ny_tax cvs strconcat " (Form IT-201 Line 39)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate NY tax for married filing jointly</action_comment>
+<action_description>Calculate NY AGI, apply MFJ standard deduction and exemptions, apply progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ ny_pension_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount ny_pension_subtraction f+ local@ ny_pension_subtraction > endif } job.incomes forall
+ny_pension_subtraction ny_pension_subtraction_max fmin local@ ny_pension_subtraction >
+ny_pension_subtraction 0 f> if
+  "  Subtract Pension Income: -$" ny_pension_subtraction cvs strconcat " (max $20,000)" strconcat job.audit_trail swap addto
+  result.ny_agi ny_pension_subtraction f- /result.ny_agi xdef
+endif
+"  New York AGI: $" result.ny_agi cvs strconcat " (Form IT-201 Line 19)" strconcat job.audit_trail swap addto
+"  Standard Deduction (MFJ): -$" ny_standard_deduction_mfj cvs strconcat job.audit_trail swap addto
+result.ny_agi ny_standard_deduction_mfj f- 0 fmax /result.ny_agi_after_deduction xdef
+job.dependents arraysize local@ num_dependents >
+num_dependents 0 > if
+  num_dependents ny_dependent_exemption f* /result.ny_dependent_exemption_total xdef
+  "  Dependent Exemptions: " num_dependents cvs strconcat " × $" strconcat ny_dependent_exemption cvs strconcat " = -$" strconcat result.ny_dependent_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+  result.ny_agi_after_deduction result.ny_dependent_exemption_total f- 0 fmax /result.ny_taxable_income xdef
+else
+  result.ny_agi_after_deduction /result.ny_taxable_income xdef
+endif
+"  New York Taxable Income: $" result.ny_taxable_income cvs strconcat " (Form IT-201 Line 33)" strconcat job.audit_trail swap addto
+Apply_NY_Tax_Brackets_MFJ
+"  New York Tax: $" result.ny_tax cvs strconcat " (Form IT-201 Line 39)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NY tax for single filer with progressive brackets</policy_description>
+<policy_statement_postfix>"NY tax for single filer per Form IT-201"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NY tax for married filing jointly with progressive brackets</policy_description>
+<policy_statement_postfix>"NY tax for married filing jointly per Form IT-201"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+
+<!-- TABLE 42500: Calculate_ME_Tax - Maine State Income Tax               -->
+<!-- Reference: Maine Form 1040ME (2025)                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ME_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Maine state income tax per Form 1040ME. Maine uses progressive tax rates (5.8%, 6.75%, 7.15%) with standard deductions and personal exemptions. Starting with federal AGI, subtracts pension/SS income (Maine exempts SS and allows pension deduction up to $48,216), applies standard deduction and personal exemptions, then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>42500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize ME tax calculation</action_description>
+<action_postfix>
+"MAINE FORM 1040ME - State Income Tax Calculation" job.audit_trail swap addto
+0 local@ num_people >
+result.agi /result.me_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing status is Single</condition_description>
+<condition_postfix>
+job.filing_status Single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is MFJ</condition_comment>
+<condition_description>Filing status is MFJ</condition_description>
+<condition_postfix>
+job.filing_status MFJ streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Filing status is MFS</condition_comment>
+<condition_description>Filing status is MFS</condition_description>
+<condition_postfix>
+job.filing_status MFS streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Filing status is HOH</condition_comment>
+<condition_description>Filing status is HOH</condition_description>
+<condition_postfix>
+job.filing_status HOH streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate ME tax for Single filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using Single brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_single /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (Single)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_single f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_single f&lt;= if
+    me_bracket_1_single me_tax_rate_1 f* result.me_taxable_income me_bracket_1_single f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_single me_tax_rate_1 f* me_bracket_2_single me_bracket_1_single f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_single f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate ME tax for MFJ filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using MFJ brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_mfj /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (MFJ)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_mfj f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_mfj f&lt;= if
+    me_bracket_1_mfj me_tax_rate_1 f* result.me_taxable_income me_bracket_1_mfj f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_mfj me_tax_rate_1 f* me_bracket_2_mfj me_bracket_1_mfj f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_mfj f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate ME tax for MFS filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using Single brackets (MFS uses same as Single)</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_mfs /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (MFS)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_single f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_single f&lt;= if
+    me_bracket_1_single me_tax_rate_1 f* result.me_taxable_income me_bracket_1_single f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_single me_tax_rate_1 f* me_bracket_2_single me_bracket_1_single f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_single f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate ME tax for HOH filer</action_comment>
+<action_description>Apply ME deductions and calculate tax using MFJ brackets (HOH uses same as MFJ)</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+job.taxpayers arraysize job.dependents arraysize + local@ num_people >
+0 local@ me_pension_subtraction >
+0 local@ me_ss_subtraction >
+{ dup type income_type > income_type "pension" streq income_type "ira_distribution" streq or if dup gross_amount me_pension_subtraction f+ local@ me_pension_subtraction > endif income_type "social_security" streq if dup gross_amount me_ss_subtraction f+ local@ me_ss_subtraction > endif } job.incomes forall
+me_ss_subtraction 0 f&gt; if
+  "  Subtract Social Security (exempt): -$" me_ss_subtraction cvs strconcat " (ME fully exempts SS benefits)" strconcat job.audit_trail swap addto
+  result.me_agi me_ss_subtraction f- /result.me_agi xdef
+endif
+me_pension_subtraction 0 f&gt; if
+  me_pension_subtraction me_pension_deduction_max fmin /result.me_pension_subtraction xdef
+  "  Subtract Pension Income: -$" result.me_pension_subtraction cvs strconcat " (ME allows up to $" strconcat me_pension_deduction_max cvs strconcat " max)" strconcat job.audit_trail swap addto
+  result.me_agi result.me_pension_subtraction f- /result.me_agi xdef
+endif
+"  Maine AGI: $" result.me_agi cvs strconcat " (Form 1040ME Line 11)" strconcat job.audit_trail swap addto
+me_std_deduction_hoh /result.me_standard_deduction xdef
+"  Standard Deduction: -$" result.me_standard_deduction cvs strconcat " (HOH)" strconcat job.audit_trail swap addto
+num_people me_personal_exemption f* /result.me_exemption_total xdef
+"  Personal Exemptions: " num_people cvs strconcat " × $" strconcat me_personal_exemption cvs strconcat " = -$" strconcat result.me_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.me_agi result.me_standard_deduction f- result.me_exemption_total f- 0 fmax /result.me_taxable_income xdef
+"  Maine Taxable Income: $" result.me_taxable_income cvs strconcat " (AGI - Deductions - Exemptions)" strconcat job.audit_trail swap addto
+result.me_taxable_income me_bracket_1_mfj f&lt;= if
+  result.me_taxable_income me_tax_rate_1 f* /result.me_tax xdef
+  "  Tax (5.8% rate): $" result.me_tax cvs strconcat job.audit_trail swap addto
+else
+  result.me_taxable_income me_bracket_2_mfj f&lt;= if
+    me_bracket_1_mfj me_tax_rate_1 f* result.me_taxable_income me_bracket_1_mfj f- me_tax_rate_2 f* f+ /result.me_tax xdef
+    "  Tax (brackets 5.8% + 6.75%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  else
+    me_bracket_1_mfj me_tax_rate_1 f* me_bracket_2_mfj me_bracket_1_mfj f- me_tax_rate_2 f* f+ result.me_taxable_income me_bracket_2_mfj f- me_tax_rate_3 f* f+ /result.me_tax xdef
+    "  Tax (all brackets 5.8% + 6.75% + 7.15%): $" result.me_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Maine progressive tax for Single filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for Single filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Maine progressive tax for MFJ filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for MFJ filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Maine progressive tax for MFS filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for MFS filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Maine progressive tax for HOH filer (5.8%-7.15%)</policy_description>
+<policy_statement_postfix>"Maine progressive tax for HOH filer per Form 1040ME"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 <!-- ====================================================================== -->
 <!-- TABLE 42300: Calculate_NJ_Tax - New Jersey State Income Tax          -->
 <!-- Reference: New Jersey Form NJ-1040 (2025)                             -->
@@ -14502,8 +15759,8 @@ result.mi_taxable_income mi_tax_rate f* /result.mi_state_tax xdef
 <action_description>Initialize NJ tax calculation</action_description>
 <action_postfix>
 "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" job.audit_trail swap addto
-0 local@ num_taxpayers >
-0 local@ num_dependents >
+0 local@ num_taxpayers &gt;
+0 local@ num_dependents &gt;
 result.agi /result.nj_agi xdef
 </action_postfix>
 </initial_action>
@@ -14514,9 +15771,9 @@ result.agi /result.nj_agi xdef
 <condition_comment>Count taxpayers and dependents</condition_comment>
 <condition_description>Get number of taxpayers and dependents for exemptions</condition_description>
 <condition_postfix>
-job.taxpayers arraysize local@ num_taxpayers >
-job.dependents arraysize local@ num_dependents >
-num_taxpayers 1 >=
+job.taxpayers arraysize local@ num_taxpayers &gt;
+job.dependents arraysize local@ num_dependents &gt;
+num_taxpayers 1 &gt;=
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -14529,52 +15786,52 @@ num_taxpayers 1 >=
 <action_description>Calculate NJ AGI, apply exemptions, calculate progressive tax</action_description>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-result.agi local@ nj_retirement_subtraction >
-0 local@ state_bond_addition >
-{ dup type income_type > income_type "social_security" streq income_type "railroad_retirement" streq or income_type "military_pension" streq or if dup gross_amount nj_retirement_subtraction f+ local@ nj_retirement_subtraction > endif } job.incomes forall
-nj_retirement_subtraction 0 f> if
+result.agi local@ nj_retirement_subtraction &gt;
+0 local@ state_bond_addition &gt;
+{ dup type income_type &gt; income_type "social_security" streq income_type "railroad_retirement" streq or income_type "military_pension" streq or if dup gross_amount nj_retirement_subtraction f+ local@ nj_retirement_subtraction &gt; endif } job.incomes forall
+nj_retirement_subtraction 0 f&gt; if
   "  Subtract Exempt Retirement Income: -$" nj_retirement_subtraction cvs strconcat " (SS, RR, Military exempt)" strconcat job.audit_trail swap addto
   result.nj_agi nj_retirement_subtraction f- /result.nj_agi xdef
 endif
 "  New Jersey Gross Income: $" result.nj_agi cvs strconcat " (Form NJ-1040 Line 27)" strconcat job.audit_trail swap addto
 num_taxpayers nj_personal_exemption f* num_dependents nj_dependent_exemption f* f+ /result.nj_exemption_total xdef
-"  Exemptions: " num_taxpayers cvs strconcat " × $" strconcat nj_personal_exemption cvs strconcat " + " strconcat num_dependents cvs strconcat " × $" strconcat nj_dependent_exemption cvs strconcat " = $" strconcat result.nj_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+"  Exemptions: " num_taxpayers cvs strconcat " x $" strconcat nj_personal_exemption cvs strconcat " + " strconcat num_dependents cvs strconcat " x $" strconcat nj_dependent_exemption cvs strconcat " = $" strconcat result.nj_exemption_total cvs strconcat strconcat job.audit_trail swap addto
 result.nj_agi result.nj_exemption_total f- 0 fmax /result.nj_taxable_income xdef
 "  New Jersey Taxable Income: $" result.nj_taxable_income cvs strconcat " (Gross Income - Exemptions)" strconcat job.audit_trail swap addto
-0 local@ nj_calculated_tax >
+0 local@ nj_calculated_tax &gt;
 job.filing_status "married_filing_jointly" streq if
-  result.nj_taxable_income nj_bracket_1_joint f<= if
-    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_2_joint f<= if
-    nj_bracket_1_joint nj_rate_1 f* result.nj_taxable_income nj_bracket_1_joint f- nj_rate_2 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_3_joint f<= if
-    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ result.nj_taxable_income nj_bracket_2_joint f- nj_rate_2_mfj f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_4_joint f<= if
-    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ result.nj_taxable_income nj_bracket_3_joint f- nj_rate_3 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_5_joint f<= if
-    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ result.nj_taxable_income nj_bracket_4_joint f- nj_rate_4 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_6_joint f<= if
-    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ result.nj_taxable_income nj_bracket_5_joint f- nj_rate_5 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_7_joint f<= if
-    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ nj_bracket_6_joint nj_bracket_5_joint f- nj_rate_5 f* f+ result.nj_taxable_income nj_bracket_6_joint f- nj_rate_6 f* f+ local@ nj_calculated_tax >
+  result.nj_taxable_income nj_bracket_1_joint f&lt;= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_2_joint f&lt;= if
+    nj_bracket_1_joint nj_rate_1 f* result.nj_taxable_income nj_bracket_1_joint f- nj_rate_2 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_3_joint f&lt;= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ result.nj_taxable_income nj_bracket_2_joint f- nj_rate_2_mfj f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_4_joint f&lt;= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ result.nj_taxable_income nj_bracket_3_joint f- nj_rate_3 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_5_joint f&lt;= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ result.nj_taxable_income nj_bracket_4_joint f- nj_rate_4 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_6_joint f&lt;= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ result.nj_taxable_income nj_bracket_5_joint f- nj_rate_5 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_7_joint f&lt;= if
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ nj_bracket_6_joint nj_bracket_5_joint f- nj_rate_5 f* f+ result.nj_taxable_income nj_bracket_6_joint f- nj_rate_6 f* f+ local@ nj_calculated_tax &gt;
   else
-    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ nj_bracket_6_joint nj_bracket_5_joint f- nj_rate_5 f* f+ nj_bracket_7_joint nj_bracket_6_joint f- nj_rate_6 f* f+ result.nj_taxable_income nj_bracket_7_joint f- nj_rate_7 f* f+ local@ nj_calculated_tax >
+    nj_bracket_1_joint nj_rate_1 f* nj_bracket_2_joint nj_bracket_1_joint f- nj_rate_2 f* f+ nj_bracket_3_joint nj_bracket_2_joint f- nj_rate_2_mfj f* f+ nj_bracket_4_joint nj_bracket_3_joint f- nj_rate_3 f* f+ nj_bracket_5_joint nj_bracket_4_joint f- nj_rate_4 f* f+ nj_bracket_6_joint nj_bracket_5_joint f- nj_rate_5 f* f+ nj_bracket_7_joint nj_bracket_6_joint f- nj_rate_6 f* f+ result.nj_taxable_income nj_bracket_7_joint f- nj_rate_7 f* f+ local@ nj_calculated_tax &gt;
   endif endif endif endif endif endif endif
 else
-  result.nj_taxable_income nj_bracket_1_single f<= if
-    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_2_single f<= if
-    nj_bracket_1_single nj_rate_1 f* result.nj_taxable_income nj_bracket_1_single f- nj_rate_2 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_3_single f<= if
-    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ result.nj_taxable_income nj_bracket_2_single f- nj_rate_3 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_4_single f<= if
-    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ result.nj_taxable_income nj_bracket_3_single f- nj_rate_4 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_5_single f<= if
-    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ result.nj_taxable_income nj_bracket_4_single f- nj_rate_5 f* f+ local@ nj_calculated_tax >
-  else result.nj_taxable_income nj_bracket_6_single f<= if
-    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ nj_bracket_5_single nj_bracket_4_single f- nj_rate_5 f* f+ result.nj_taxable_income nj_bracket_5_single f- nj_rate_6 f* f+ local@ nj_calculated_tax >
+  result.nj_taxable_income nj_bracket_1_single f&lt;= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_2_single f&lt;= if
+    nj_bracket_1_single nj_rate_1 f* result.nj_taxable_income nj_bracket_1_single f- nj_rate_2 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_3_single f&lt;= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ result.nj_taxable_income nj_bracket_2_single f- nj_rate_3 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_4_single f&lt;= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ result.nj_taxable_income nj_bracket_3_single f- nj_rate_4 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_5_single f&lt;= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ result.nj_taxable_income nj_bracket_4_single f- nj_rate_5 f* f+ local@ nj_calculated_tax &gt;
+  else result.nj_taxable_income nj_bracket_6_single f&lt;= if
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ nj_bracket_5_single nj_bracket_4_single f- nj_rate_5 f* f+ result.nj_taxable_income nj_bracket_5_single f- nj_rate_6 f* f+ local@ nj_calculated_tax &gt;
   else
-    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ nj_bracket_5_single nj_bracket_4_single f- nj_rate_5 f* f+ nj_bracket_6_single nj_bracket_5_single f- nj_rate_6 f* f+ result.nj_taxable_income nj_bracket_6_single f- nj_rate_7 f* f+ local@ nj_calculated_tax >
+    nj_bracket_1_single nj_rate_1 f* nj_bracket_2_single nj_bracket_1_single f- nj_rate_2 f* f+ nj_bracket_3_single nj_bracket_2_single f- nj_rate_3 f* f+ nj_bracket_4_single nj_bracket_3_single f- nj_rate_4 f* f+ nj_bracket_5_single nj_bracket_4_single f- nj_rate_5 f* f+ nj_bracket_6_single nj_bracket_5_single f- nj_rate_6 f* f+ result.nj_taxable_income nj_bracket_6_single f- nj_rate_7 f* f+ local@ nj_calculated_tax &gt;
   endif endif endif endif endif endif
 endif
 nj_calculated_tax /result.nj_tax xdef
@@ -14589,18 +15846,18 @@ nj_calculated_tax /result.nj_tax xdef
 <action_postfix>
 "  New Jersey Gross Income: $" result.nj_agi cvs strconcat job.audit_trail swap addto
 result.nj_agi 0 fmax /result.nj_taxable_income xdef
-0 local@ nj_calculated_tax >
+0 local@ nj_calculated_tax &gt;
 job.filing_status "married_filing_jointly" streq if
-  result.nj_taxable_income nj_bracket_1_joint f<= if
-    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
+  result.nj_taxable_income nj_bracket_1_joint f&lt;= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax &gt;
   else
-    nj_bracket_1_joint nj_rate_1 f* result.nj_taxable_income nj_bracket_1_joint f- nj_rate_2 f* f+ local@ nj_calculated_tax >
+    nj_bracket_1_joint nj_rate_1 f* result.nj_taxable_income nj_bracket_1_joint f- nj_rate_2 f* f+ local@ nj_calculated_tax &gt;
   endif
 else
-  result.nj_taxable_income nj_bracket_1_single f<= if
-    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax >
+  result.nj_taxable_income nj_bracket_1_single f&lt;= if
+    result.nj_taxable_income nj_rate_1 f* local@ nj_calculated_tax &gt;
   else
-    nj_bracket_1_single nj_rate_1 f* result.nj_taxable_income nj_bracket_1_single f- nj_rate_2 f* f+ local@ nj_calculated_tax >
+    nj_bracket_1_single nj_rate_1 f* result.nj_taxable_income nj_bracket_1_single f- nj_rate_2 f* f+ local@ nj_calculated_tax &gt;
   endif
 endif
 nj_calculated_tax /result.nj_tax xdef
