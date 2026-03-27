@@ -1067,6 +1067,70 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+		<!-- Hawaii State Tax Constants (2025) -->
+		<!-- Standard Deductions -->
+		<field name='hi_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2200' comment='Hawaii standard deduction Single (2025)'></field>
+		<field name='hi_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='4400' comment='Hawaii standard deduction MFJ (2025)'></field>
+		<field name='hi_standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='2200' comment='Hawaii standard deduction MFS (2025)'></field>
+		<field name='hi_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='3212' comment='Hawaii standard deduction HOH (2025)'></field>
+		<field name='hi_standard_deduction_qss' type='double' subtype='' access='r' input='' default_value='4400' comment='Hawaii standard deduction QSS (2025)'></field>
+
+		<!-- Personal Exemptions -->
+		<field name='hi_personal_exemption' type='double' subtype='' access='r' input='' default_value='1144' comment='Hawaii personal exemption per person (2025)'></field>
+		<field name='hi_exemption_65_or_blind' type='double' subtype='' access='r' input='' default_value='1144' comment='Hawaii additional exemption age 65+ or blind (2025)'></field>
+
+		<!-- Tax Bracket Rates (12 brackets) -->
+		<field name='hi_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0140' comment='Hawaii tax rate 1.40%'></field>
+		<field name='hi_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0320' comment='Hawaii tax rate 3.20%'></field>
+		<field name='hi_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0550' comment='Hawaii tax rate 5.50%'></field>
+		<field name='hi_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0640' comment='Hawaii tax rate 6.40%'></field>
+		<field name='hi_bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.0680' comment='Hawaii tax rate 6.80%'></field>
+		<field name='hi_bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.0720' comment='Hawaii tax rate 7.20%'></field>
+		<field name='hi_bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.0760' comment='Hawaii tax rate 7.60%'></field>
+		<field name='hi_bracket_8_rate' type='double' subtype='' access='r' input='' default_value='0.0790' comment='Hawaii tax rate 7.90%'></field>
+		<field name='hi_bracket_9_rate' type='double' subtype='' access='r' input='' default_value='0.0825' comment='Hawaii tax rate 8.25%'></field>
+		<field name='hi_bracket_10_rate' type='double' subtype='' access='r' input='' default_value='0.0900' comment='Hawaii tax rate 9.00%'></field>
+		<field name='hi_bracket_11_rate' type='double' subtype='' access='r' input='' default_value='0.1000' comment='Hawaii tax rate 10.00%'></field>
+		<field name='hi_bracket_12_rate' type='double' subtype='' access='r' input='' default_value='0.1100' comment='Hawaii tax rate 11.00%'></field>
+
+		<!-- Tax Bracket Thresholds - Single Filers -->
+		<field name='hi_bracket_1_single' type='double' subtype='' access='r' input='' default_value='9600' comment='Hawaii bracket 1 ceiling Single'></field>
+		<field name='hi_bracket_2_single' type='double' subtype='' access='r' input='' default_value='14400' comment='Hawaii bracket 2 ceiling Single'></field>
+		<field name='hi_bracket_3_single' type='double' subtype='' access='r' input='' default_value='19200' comment='Hawaii bracket 3 ceiling Single'></field>
+		<field name='hi_bracket_4_single' type='double' subtype='' access='r' input='' default_value='24000' comment='Hawaii bracket 4 ceiling Single'></field>
+		<field name='hi_bracket_5_single' type='double' subtype='' access='r' input='' default_value='36000' comment='Hawaii bracket 5 ceiling Single'></field>
+		<field name='hi_bracket_6_single' type='double' subtype='' access='r' input='' default_value='48000' comment='Hawaii bracket 6 ceiling Single'></field>
+		<field name='hi_bracket_7_single' type='double' subtype='' access='r' input='' default_value='125000' comment='Hawaii bracket 7 ceiling Single'></field>
+		<field name='hi_bracket_8_single' type='double' subtype='' access='r' input='' default_value='175000' comment='Hawaii bracket 8 ceiling Single'></field>
+		<field name='hi_bracket_9_single' type='double' subtype='' access='r' input='' default_value='225000' comment='Hawaii bracket 9 ceiling Single'></field>
+		<field name='hi_bracket_10_single' type='double' subtype='' access='r' input='' default_value='275000' comment='Hawaii bracket 10 ceiling Single'></field>
+		<field name='hi_bracket_11_single' type='double' subtype='' access='r' input='' default_value='325000' comment='Hawaii bracket 11 ceiling Single'></field>
+
+		<!-- Tax Bracket Thresholds - Married Filing Jointly -->
+		<field name='hi_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='19200' comment='Hawaii bracket 1 ceiling MFJ'></field>
+		<field name='hi_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='28800' comment='Hawaii bracket 2 ceiling MFJ'></field>
+		<field name='hi_bracket_3_mfj' type='double' subtype='' access='r' input='' default_value='38400' comment='Hawaii bracket 3 ceiling MFJ'></field>
+		<field name='hi_bracket_4_mfj' type='double' subtype='' access='r' input='' default_value='48000' comment='Hawaii bracket 4 ceiling MFJ'></field>
+		<field name='hi_bracket_5_mfj' type='double' subtype='' access='r' input='' default_value='72000' comment='Hawaii bracket 5 ceiling MFJ'></field>
+		<field name='hi_bracket_6_mfj' type='double' subtype='' access='r' input='' default_value='96000' comment='Hawaii bracket 6 ceiling MFJ'></field>
+		<field name='hi_bracket_7_mfj' type='double' subtype='' access='r' input='' default_value='250000' comment='Hawaii bracket 7 ceiling MFJ'></field>
+		<field name='hi_bracket_8_mfj' type='double' subtype='' access='r' input='' default_value='350000' comment='Hawaii bracket 8 ceiling MFJ'></field>
+		<field name='hi_bracket_9_mfj' type='double' subtype='' access='r' input='' default_value='450000' comment='Hawaii bracket 9 ceiling MFJ'></field>
+		<field name='hi_bracket_10_mfj' type='double' subtype='' access='r' input='' default_value='550000' comment='Hawaii bracket 10 ceiling MFJ'></field>
+		<field name='hi_bracket_11_mfj' type='double' subtype='' access='r' input='' default_value='650000' comment='Hawaii bracket 11 ceiling MFJ'></field>
+
+		<!-- Tax Bracket Thresholds - Head of Household -->
+		<field name='hi_bracket_1_hoh' type='double' subtype='' access='r' input='' default_value='3600' comment='Hawaii bracket 1 ceiling HOH'></field>
+		<field name='hi_bracket_2_hoh' type='double' subtype='' access='r' input='' default_value='7200' comment='Hawaii bracket 2 ceiling HOH'></field>
+		<field name='hi_bracket_3_hoh' type='double' subtype='' access='r' input='' default_value='14400' comment='Hawaii bracket 3 ceiling HOH'></field>
+		<field name='hi_bracket_4_hoh' type='double' subtype='' access='r' input='' default_value='21600' comment='Hawaii bracket 4 ceiling HOH'></field>
+		<field name='hi_bracket_5_hoh' type='double' subtype='' access='r' input='' default_value='28800' comment='Hawaii bracket 5 ceiling HOH'></field>
+		<field name='hi_bracket_6_hoh' type='double' subtype='' access='r' input='' default_value='36000' comment='Hawaii bracket 6 ceiling HOH'></field>
+		<field name='hi_bracket_7_hoh' type='double' subtype='' access='r' input='' default_value='54000' comment='Hawaii bracket 7 ceiling HOH'></field>
+		<field name='hi_bracket_8_hoh' type='double' subtype='' access='r' input='' default_value='72000' comment='Hawaii bracket 8 ceiling HOH'></field>
+		<field name='hi_bracket_9_hoh' type='double' subtype='' access='r' input='' default_value='225000' comment='Hawaii bracket 9 ceiling HOH'></field>
+		<field name='hi_bracket_10_hoh' type='double' subtype='' access='r' input='' default_value='262500' comment='Hawaii bracket 10 ceiling HOH'></field>
+		<field name='hi_bracket_11_hoh' type='double' subtype='' access='r' input='' default_value='300000' comment='Hawaii bracket 11 ceiling HOH'></field>
 		<!-- Maine State Tax Constants (2025) - Form 1040ME -->
 		<field name='me_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.058' comment='Maine 5.8% bracket rate'></field>
 		<field name='me_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.0675' comment='Maine 6.75% bracket rate'></field>
