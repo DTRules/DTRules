@@ -1,0 +1,109 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Schedule H Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Multiple Household Employees -->
+   <!-- Tests Schedule H with multiple household workers -->
+   <!-- Nanny: $40,000 annual wages -->
+   <!-- Housekeeper: $18,000 annual wages -->
+   <!-- Combined FICA and FUTA calculation -->
+   <!-- Multiple W-2 forms issued -->
+
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Married Filing Jointly</filing_status>
+   <state>CA</state>
+   <city>San Francisco</city>
+
+   <!-- Expected values for validation -->
+   <!-- Taxpayer W-2 Wages: $250,000 -->
+   <!-- AGI: $250,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $220,000 -->
+   <!-- Nanny FICA: $40,000 × 7.65% = $3,060 -->
+   <!-- Nanny FUTA: $7,000 × 0.6% = $42 -->
+   <!-- Housekeeper FICA: $18,000 × 7.65% = $1,377 -->
+   <!-- Housekeeper FUTA: $7,000 × 0.6% = $42 -->
+   <!-- Total Schedule H: $4,521 -->
+   <expected_agi>250000</expected_agi>
+   <expected_taxable_income>220000</expected_taxable_income>
+   <expected_schedule_h_social_security_tax>3596.00</expected_schedule_h_social_security_tax>
+   <expected_schedule_h_medicare_tax>841.00</expected_schedule_h_medicare_tax>
+   <expected_schedule_h_futa_tax>84.00</expected_schedule_h_futa_tax>
+   <expected_schedule_h_total_tax>4521.00</expected_schedule_h_total_tax>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Robert Chen</name>
+      <ssn>111-22-3333</ssn>
+      <date_of_birth>1978-05-10</date_of_birth>
+      <occupation>Tech Executive</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>250000</w2_wages>
+      <w2_withholding>45000</w2_withholding>
+   </taxpayer>
+
+   <spouse>
+      <id>2</id>
+      <name>Jennifer Chen</name>
+      <ssn>444-55-6666</ssn>
+      <date_of_birth>1980-11-15</date_of_birth>
+      <occupation>Attorney</occupation>
+      <is_self_employed>false</is_self_employed>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+   </spouse>
+
+   <!-- Household Employee #1: Full-time Nanny -->
+   <household_employee>
+      <id>1</id>
+      <name>Carmen Rodriguez</name>
+      <ssn>777-88-9999</ssn>
+      <cash_wages>40000</cash_wages>
+      <federal_withholding>3000</federal_withholding>
+      <ss_wages>40000</ss_wages>
+      <medicare_wages>40000</medicare_wages>
+      <futa_wages>7000</futa_wages>
+      <state_unemployment_paid>378</state_unemployment_paid>
+   </household_employee>
+
+   <!-- Household Employee #2: Part-time Housekeeper -->
+   <household_employee>
+      <id>2</id>
+      <name>Lisa Thompson</name>
+      <ssn>222-33-4444</ssn>
+      <cash_wages>18000</cash_wages>
+      <federal_withholding>1000</federal_withholding>
+      <ss_wages>18000</ss_wages>
+      <medicare_wages>18000</medicare_wages>
+      <futa_wages>7000</futa_wages>
+      <state_unemployment_paid>378</state_unemployment_paid>
+   </household_employee>
+
+   <!-- Combined Schedule H Calculation: -->
+   <!-- Employee #1 (Nanny): -->
+   <!--   SS employer: $40,000 × 6.2% = $2,480 -->
+   <!--   Medicare employer: $40,000 × 1.45% = $580 -->
+   <!--   FUTA: $7,000 × 0.6% = $42 -->
+   <!--   Subtotal: $3,102 -->
+
+   <!-- Employee #2 (Housekeeper): -->
+   <!--   SS employer: $18,000 × 6.2% = $1,116 -->
+   <!--   Medicare employer: $18,000 × 1.45% = $261 -->
+   <!--   FUTA: $7,000 × 0.6% = $42 -->
+   <!--   Subtotal: $1,419 -->
+
+   <!-- Total Schedule H Tax: $4,521 -->
+
+   <!-- Two W-2 forms issued -->
+   <!-- W-2 #1: Maria ($40,000) -->
+   <!-- W-2 #2: Lisa ($18,000) -->
+</job>

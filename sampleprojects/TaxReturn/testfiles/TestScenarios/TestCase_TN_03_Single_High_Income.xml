@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- TN Test Case 3: Single High Income Earner in All 3 Brackets -->
+   <id>TN-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>TN</state>
+   <city>Knoxville</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $200,000 -->
+   <!-- TN AGI: $200,000 -->
+   <!-- TN Standard Deduction: $6,000 (Single) -->
+   <!-- TN Taxable Income: $194,000 -->
+   <!-- Bracket 1: $50,000 × 2% = $1,000 -->
+   <!-- Bracket 2: $50,000 × 4% = $2,000 -->
+   <!-- Bracket 3: $94,000 × 6% = $5,640 -->
+   <!-- TN Tax: $1,000 + $2,000 + $5,640 = $8,640 -->
+   <expected_agi>200000</expected_agi>
+   <expected_tn_agi>200000</expected_tn_agi>
+   <expected_tn_taxable_income>194000</expected_tn_taxable_income>
+   <expected_tn_tax>8640</expected_tn_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Wilson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>4/8/1978</date_of_birth>
+         <occupation>Executive</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>200000</w2_wages>
+         <w2_withholding>45000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>200000</gross_amount>
+         <withholding>45000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

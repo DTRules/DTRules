@@ -1,0 +1,134 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+   =====================================================================
+   TEXAS (TX) - NO STATE INCOME TAX TEST CASE
+   =====================================================================
+
+   Texas has NO state income tax on any type of income:
+   - Self-employment income: NOT TAXED
+   - W-2 wages: NOT TAXED
+   - Investment income: NOT TAXED
+   - Capital gains: NOT TAXED
+   - All other income types: NOT TAXED
+
+   Texas is one of 9 states with no personal income tax.
+   The state relies on sales tax, property tax, and other revenue sources.
+
+   This test case validates high-income self-employed individual:
+   - High W-2 income ($150,000) is NOT taxed
+   - High self-employment income ($100,000) is NOT taxed
+   - State tax = $0 regardless of income level
+
+   Income breakdown:
+   - W-2 wages: $150,000
+   - Schedule C gross income: $100,000
+   - Schedule C expenses: $20,000
+   - Net Schedule C income: $80,000
+   - Self-employment tax deduction: ~$5,652 (1/2 of SE tax)
+
+   Expected Results:
+   - Federal AGI: ~$224,348 ($150,000 + $80,000 - $5,652 SE deduction)
+   - Federal Taxable: ~$193,348 (after standard deduction + QBI deduction)
+   - Federal Tax: ~$48,000 (approximate, includes SE tax)
+   - TX State Tax: $0 (no income tax)
+
+   Note: Texas has no income tax even for very high earners.
+   =====================================================================
+   -->
+
+   <id>TX-NoTax-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <!-- Expected Values for Validation -->
+   <expected_agi>224348</expected_agi>
+   <expected_taxable_income>193348</expected_taxable_income>
+   <expected_federal_tax>48000</expected_federal_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_total_tax>48000</expected_total_tax>
+
+   <!-- High-Income Self-Employed - Texas Resident -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Christopher Davis</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>1/8/1982</date_of_birth>
+         <occupation>Technology Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>35000</w2_withholding>
+         <se_gross_income>100000</se_gross_income>
+         <se_expenses>20000</se_expenses>
+         <estimated_payments>15000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- Property (primary residence) -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>123 Oak Street, Austin, TX 78701</address>
+         <purchase_date>1/15/2020</purchase_date>
+         <purchase_price>450000</purchase_price>
+         <current_fmv>625000</current_fmv>
+         <mortgage_balance>350000</mortgage_balance>
+         <mortgage_origination_date>1/15/2020</mortgage_origination_date>
+         <mortgage_interest>18000</mortgage_interest>
+         <property_taxes>11000</property_taxes>
+         <rental_income>0</rental_income>
+         <rental_expenses>0</rental_expenses>
+         <depreciation>0</depreciation>
+      </property>
+   </properties>
+
+   <!-- Business vehicle -->
+   <vehicles>
+      <vehicle id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <description>2024 Tesla Model 3</description>
+         <purchase_date>1/5/2024</purchase_date>
+         <purchase_price>48000</purchase_price>
+         <total_miles>20000</total_miles>
+         <business_miles>16000</business_miles>
+         <method>standard_mileage</method>
+         <actual_expenses>0</actual_expenses>
+         <vehicle_depreciation>0</vehicle_depreciation>
+      </vehicle>
+   </vehicles>
+
+   <!-- Deductions (for itemizing - high enough to beat standard) -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Community foundation</description>
+         <amount>12000</amount>
+      </deduction>
+   </deductions>
+</job>

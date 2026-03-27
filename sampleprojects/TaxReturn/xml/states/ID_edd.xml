@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Idaho (ID)
+
+  Military Retirement Provisions (2025):
+  - Conditional FULL exemption if:
+    * Disabled veteran, OR
+    * Age 62 or older
+
+  Source: MOAA State Report Card, Idaho State Tax Commission
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+
+    <!-- Military Retirement Provisions (2025) - Conditional Full Exemption -->
+    <field name="id_military_age_requirement" type="double" default_value="62.0"
+           comment="ID minimum age for full military retirement exemption (62)"/>
+    <field name="id_military_retirement_exemption" type="double" default_value="0.0"
+           comment="ID military retirement exemption (computed - full if qualified)"/>
+    <field name="id_military_retirement_taxable" type="double" default_value="0.0"
+           comment="ID taxable military retirement after exemption (computed)"/>
+
+  </entity>
+</entity_data_dictionary>

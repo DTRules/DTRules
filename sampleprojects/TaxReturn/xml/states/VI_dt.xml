@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Decision tables for US Virgin Islands (VI) Territory Tax
+
+  USVI uses a "mirror code" system - mirrors the US Internal Revenue Code.
+  Bona fide residents file with VI Bureau of Internal Revenue, use federal tax rates.
+  Non-residents use Form 8689 for income allocation.
+
+  FILE_PATH: sampleprojects/TaxReturn/xml/states/VI_dt.xml
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 50100: Calculate_VI_Tax - US Virgin Islands Territory Tax       -->
+<!-- Reference: VI Mirror Code, Form 8689, IRC Section 932                 -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_VI_Tax</table_name>
+<xls_file>Territory.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>US Virgin Islands territory income tax calculation. USVI uses mirror code system - same rates as federal tax. Bona fide residents file with VI Bureau of Internal Revenue instead of IRS. EDC benefits provide up to 90% tax reduction. Non-residents use Form 8689 for income allocation per IRC 932.</COMMENTS>
+<TABLE_NUMBER>50100</TABLE_NUMBER>
+<FILE_PATH>sampleprojects/TaxReturn/xml/states/VI_dt.xml</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize VI tax calculation</action_description>
+<action_postfix>
+"US VIRGIN ISLANDS TERRITORY TAX - Mirror Code System" job.audit_trail swap addto
+"  Uses federal tax rates and rules (IRC mirror)" job.audit_trail swap addto
+0.0 /result.vi_income_tax xdef
+0.0 /result.vi_income_tax_after_edc xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Bona fide resident of USVI</condition_comment>
+<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_postfix>
+result.vi_days_present 183 &gt;=
+result.vi_has_tax_home and
+result.vi_closer_connection and
+dup /result.vi_bona_fide_resident xdef
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Qualifies for EDC benefits</condition_comment>
+<condition_description>Has Economic Development Commission benefits (up to 90% reduction)</condition_description>
+<condition_postfix>
+result.vi_has_edc_benefits
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate VI tax for bona fide resident using mirror code</action_comment>
+<action_postfix>
+true /result.vi_files_with_irb xdef
+false /result.vi_files_with_irs xdef
+
+result.federal_income_tax /result.vi_income_tax xdef
+
+result.vi_has_edc_benefits if
+  result.vi_edc_qualified_income 0 &gt; if
+    result.vi_income_tax result.vi_edc_reduction_rate f* local@ edc_reduction &gt;
+    result.vi_income_tax edc_reduction f- /result.vi_income_tax_after_edc xdef
+    "  EDC benefits applied: " result.vi_edc_reduction_rate 100 f* cvs strconcat "% reduction" strconcat job.audit_trail swap addto
+    "  Tax before EDC: $" result.vi_income_tax cvs strconcat " - After EDC: $" strconcat result.vi_income_tax_after_edc cvs strconcat job.audit_trail swap addto
+  else
+    result.vi_income_tax /result.vi_income_tax_after_edc xdef
+  then
+else
+  result.vi_income_tax /result.vi_income_tax_after_edc xdef
+then
+
+"  Bona fide VI resident - files with VI Bureau of Internal Revenue" job.audit_trail swap addto
+"  Mirror code: uses federal tax rates (" result.filing_status strconcat ")" strconcat job.audit_trail swap addto
+"  VI tax liability: $" result.vi_income_tax_after_edc cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Non-resident - requires Form 8689 for allocation</action_comment>
+<action_postfix>
+false /result.vi_bona_fide_resident xdef
+true /result.vi_requires_form_8689 xdef
+true /result.vi_files_with_irs xdef
+
+result.vi_source_income 0 &gt; if
+  result.federal_income_tax result.vi_source_income f* result.agi f/ /result.vi_income_tax xdef
+  result.vi_income_tax /result.vi_income_tax_after_edc xdef
+  "  Non-resident with VI source income - Form 8689 required" job.audit_trail swap addto
+  "  VI tax allocated based on VI-source income: $" result.vi_source_income cvs strconcat job.audit_trail swap addto
+  "  VI tax liability: $" result.vi_income_tax_after_edc cvs strconcat job.audit_trail swap addto
+else
+  0.0 /result.vi_income_tax xdef
+  0.0 /result.vi_income_tax_after_edc xdef
+  "  Non-resident with no VI source income - no VI tax" job.audit_trail swap addto
+then
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate VI territory tax for bona fide residents using mirror code</policy_description>
+<policy_statement_postfix>"Bona fide USVI residents file with VI Bureau of Internal Revenue instead of IRS per IRC 932. USVI uses mirror code system with same rates as federal tax. EDC benefits provide up to 90% tax reduction on qualified income."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Non-resident allocation using Form 8689</policy_description>
+<policy_statement_postfix>"Non-bona fide residents with VI-source income must file Form 8689 to allocate income between USVI and US. Tax allocated proportionally based on VI-source income. Must meet 183-day presence test for bona fide resident status."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+</decision_tables>

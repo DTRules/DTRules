@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEMPLATE for State Corporate Tax Entity Data Dictionary
+
+  Instructions for implementing a new state:
+  1. Copy this file to XX_corp_edd.xml (replace XX with state code)
+  2. Update state_code field
+  3. Set state_tax_rate with actual rate
+  4. Set apportionment_formula (most states use single_sales)
+  5. Update economic_nexus thresholds if state differs from $100K/200 transactions
+  6. Add state-specific fields in result entity section (if needed)
+  7. Remove this comment block in your state file
+
+  Common State Tax Rates (2025):
+  - CA: 8.84%  (single-sales apportionment)
+  - IL: 9.5%   (single-sales apportionment)
+  - NY: 6.5%   (single-sales apportionment + MTA surcharge)
+  - TX: 0%     (no income tax, franchise tax on margin instead)
+  - PA: 8.99%  (single-sales apportionment)
+  - MA: 8%     (single-sales apportionment)
+  - GA: 5.75%  (single-sales apportionment)
+  - NC: 2.5%   (single-sales apportionment)
+  - CO: 4.55%  (single-sales apportionment)
+  - MI: 6%     (single-sales apportionment)
+
+  Apportionment Formula Guide:
+  - single_sales: Most modern states (CA, IL, TX, etc.)
+  - three_factor: Traditional UDITPA (rare now)
+  - double_weighted_sales: Transitional states (rare now)
+
+  See README.md for complete table numbering allocation by state.
+-->
+<entity_dictionary name="CorporateTax_XX_Constants">
+
+  <!--
+    Apportionment Entity: State-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='XX'
+           comment='Two-letter state code - REQUIRED: Replace XX with your state (CA, NY, TX, etc.)'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - Default $100K (update if state differs)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - Default 200 (update if state differs)'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='REQUIRED: Set to three_factor, single_sales, or double_weighted_sales'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.0500'
+           comment='REQUIRED: State corporate income tax rate (example: 0.0884 for CA 8.84%)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Add state-specific fields here if your state has unique requirements
+    not covered by the standard apportionment entity.
+
+    Examples:
+    - NY MTA surcharge for NYC metro area businesses
+    - CA water's edge election for worldwide combined reporting
+    - State alternative minimum tax
+    - Special industry taxes (financial institutions, utilities)
+    - State-specific NOL rules that differ from federal
+  -->
+  <entity name="result">
+
+    <!--
+      Uncomment and customize examples below as needed for your state:
+    -->
+
+    <!-- Example: New York MTA Surcharge -->
+    <!--
+    <field name='ny_in_mta_region' type='boolean' default_value='false'
+           comment='Business located in MTA region (NYC metro area)'/>
+    <field name='ny_mta_surcharge_rate' type='double' default_value='0.0034'
+           comment='NY MTA surcharge rate (0.34% for businesses in MTA region)'/>
+    <field name='ny_mta_surcharge' type='double' default_value='0.0'
+           comment='NY MTA surcharge amount calculated'/>
+    -->
+
+    <!-- Example: California Water's Edge Election -->
+    <!--
+    <field name='ca_waters_edge_election' type='boolean' default_value='false'
+           comment='Elected water s edge treatment for worldwide combined reporting'/>
+    <field name='ca_unitary_group_count' type='integer' default_value='1'
+           comment='Number of corporations in CA unitary group'/>
+    -->
+
+    <!-- Example: Texas Margin Tax (not an income tax) -->
+    <!--
+    <field name='tx_total_revenue' type='double' default_value='0.0'
+           comment='Total revenue for Texas margin tax'/>
+    <field name='tx_margin' type='double' default_value='0.0'
+           comment='Taxable margin (revenue minus cost of goods sold or compensation)'/>
+    <field name='tx_margin_tax_rate' type='double' default_value='0.0075'
+           comment='TX franchise tax rate on taxable margin (0.75%)'/>
+    <field name='tx_franchise_tax' type='double' default_value='0.0'
+           comment='Texas franchise tax (not income tax)'/>
+    -->
+
+    <!-- Example: State Alternative Minimum Tax -->
+    <!--
+    <field name='xx_amt_income' type='double' default_value='0.0'
+           comment='State AMT income (federal AMTI with state adjustments)'/>
+    <field name='xx_amt_rate' type='double' default_value='0.03'
+           comment='State AMT rate (example: 3%)'/>
+    <field name='xx_amt_exemption' type='double' default_value='40000'
+           comment='State AMT exemption amount'/>
+    <field name='xx_amt' type='double' default_value='0.0'
+           comment='State alternative minimum tax'/>
+    -->
+
+    <!-- Example: Special Industry Tax Rate -->
+    <!--
+    <field name='xx_is_financial_institution' type='boolean' default_value='false'
+           comment='Is financial institution (may have different tax rate/base)'/>
+    <field name='xx_financial_institution_rate' type='double' default_value='0.0'
+           comment='Special tax rate for financial institutions'/>
+    -->
+
+  </entity>
+
+</entity_dictionary>

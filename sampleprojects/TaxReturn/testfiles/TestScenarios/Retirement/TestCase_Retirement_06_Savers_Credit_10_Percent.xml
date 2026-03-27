@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Saver's Credit at 10% Rate with Phaseout -->
+<!-- Scenario: Moderate income taxpayer qualifies for 10% Saver's Credit -->
+<!-- Expected: 10% credit on $2,000 contribution = $200 -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Retirement Savings Contributions Credit (Saver's Credit) 2025 -->
+   <!-- Single filer at 10% credit rate -->
+   <!-- AGI thresholds for Single: -->
+   <!-- - 50% rate: AGI ≤ $23,000 -->
+   <!-- - 20% rate: $23,001 - $25,000 -->
+   <!-- - 10% rate: $25,001 - $39,500 -->
+   <!-- - 0% rate: AGI > $39,500 -->
+   <!-- This scenario: AGI $35,000 = 10% credit rate -->
+   <!-- Contribution: $2,000 (maximum eligible) -->
+   <!-- Saver's Credit: $2,000 × 10% = $200 -->
+
+   <id>Retirement-06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $37,000 W-2 -->
+   <!-- IRA contribution: $2,000 (deductible) -->
+   <!-- AGI: $35,000 ($37,000 - $2,000) -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $20,000 -->
+   <!-- Saver's Credit: $200 (10% of $2,000) -->
+   <expected_agi>35000</expected_agi>
+   <expected_taxable_income>20000</expected_taxable_income>
+   <expected_savers_credit>200</expected_savers_credit>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jessica Taylor</name>
+         <ssn>999-00-1111</ssn>
+         <date_of_birth>11/5/1995</date_of_birth>
+         <occupation>Administrative Assistant</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>37000</w2_wages>
+         <w2_withholding>4200</w2_withholding>
+         <traditional_ira_contribution>2000</traditional_ira_contribution>
+         <covered_by_employer_plan>false</covered_by_employer_plan>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
