@@ -1,0 +1,95 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 2: Officer in Combat Zone (Limited Exclusion) -->
+   <!-- Tests: Table 25000 - Calculate_Combat_Zone_Pay_Exclusion -->
+   <!-- Scenario: O-3 commissioned officer deployed to Afghanistan -->
+   <!-- Officer exclusion limited to max enlisted pay + IDP -->
+   <id>MIL-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>CA</state>
+   <city>San Diego</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 shows $95,000 total wages -->
+   <!-- Combat zone pay: $70,000 -->
+   <!-- Max enlisted pay for 12 months: ~$59,400 (E-9 with 20+ years) -->
+   <!-- IDP: $3,000 -->
+   <!-- Officer exclusion: min($70,000, $59,400) + $3,000 = $62,400 -->
+   <!-- Taxable wages: $95,000 - $62,400 = $32,600 -->
+   <!-- AGI: $32,600 -->
+   <!-- Standard deduction: $15,000 (Single) -->
+   <!-- Taxable: $17,600 -->
+   <expected_agi>32600</expected_agi>
+   <expected_total_combat_zone_exclusion>62400</expected_total_combat_zone_exclusion>
+   <expected_taxable_income>17600</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Commissioned officer (O-3 Captain) -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Rebecca Thompson</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>6/12/1990</date_of_birth>
+         <occupation>Air Force Captain (O-3)</occupation>
+         <is_military>true</is_military>
+         <military_rank>commissioned_officer</military_rank>
+         <combat_zone_service>true</combat_zone_service>
+         <combat_zone_location>afghanistan</combat_zone_location>
+         <combat_zone_months>12</combat_zone_months>
+         <combat_zone_start_date>1/1/2025</combat_zone_start_date>
+         <combat_zone_end_date>12/31/2025</combat_zone_end_date>
+         <combat_zone_pay>70000</combat_zone_pay>
+         <imminent_danger_pay>3000</imminent_danger_pay>
+         <bah_amount>24000</bah_amount>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>95000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <servicemember_domicile_state>CA</servicemember_domicile_state>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>95000</gross_amount>
+         <withholding>4500</withholding>
+         <description>Military officer pay (includes combat zone pay)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

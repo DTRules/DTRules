@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 03: Small Business Owner -->
+<!-- Tests: Schedule C, SE tax, QBI deduction, SEP-IRA, home office -->
+<!-- Scenario: Self-employed consultant with home office -->
+<!-- Expected: SE tax calculation, 20% QBI deduction, proper deduction ordering -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-03-SMALL-BUSINESS</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CO</state>
+   <city>Denver</city>
+
+   <!-- Expected values -->
+   <!-- Schedule C gross: $185,000 -->
+   <!-- Schedule C expenses: $42,000 -->
+   <!-- Net profit: $143,000 -->
+   <!-- SE tax: ~$20,200 (92.35% * $143k * 15.3%) -->
+   <!-- SE tax deduction: ~$10,100 (50% of SE tax) -->
+   <!-- SEP-IRA: $28,600 (20% of net SE income after SE tax deduction) -->
+   <!-- Spouse W-2: $65,000 -->
+   <!-- Total income: $143,000 + $65,000 = $208,000 -->
+   <!-- AGI: $208,000 - $10,100 (SE tax) - $28,600 (SEP) = $169,300 -->
+   <!-- QBI deduction: 20% of $143,000 = $28,600 (limited by taxable income) -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable income: $169,300 - $30,000 - $28,600 = $110,700 -->
+   <!-- Tax: Regular income tax + $20,200 SE tax -->
+   <expected_agi>169300</expected_agi>
+   <expected_taxable_income>110700</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Marcus Johnson</name>
+         <ssn>300-13-3001</ssn>
+         <date_of_birth>4/8/1982</date_of_birth>
+         <occupation>IT Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>185000</se_gross_income>
+         <estimated_payments>35000</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Rachel Johnson</name>
+         <ssn>300-13-3002</ssn>
+         <date_of_birth>11/30/1984</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>8500</w2_withholding>
+         <w2_ss_wages>65000</w2_ss_wages>
+         <w2_ss_withheld>4030</w2_ss_withheld>
+         <w2_medicare_wages>65000</w2_medicare_wages>
+         <w2_medicare_withheld>943</w2_medicare_withheld>
+         <employer_name>KPMG LLP</employer_name>
+         <employer_ein>13-5565207</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- One child -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Tyler Johnson</name>
+         <ssn>300-13-3003</ssn>
+         <date_of_birth>6/15/2016</date_of_birth>
+         <age>9</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Primary residence with home office -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>890 Cherry Creek Drive, Denver, CO 80206</address>
+         <purchase_date>8/1/2020</purchase_date>
+         <purchase_price>425000</purchase_price>
+         <current_fmv>550000</current_fmv>
+         <mortgage_balance>360000</mortgage_balance>
+         <mortgage_origination_date>8/1/2020</mortgage_origination_date>
+         <mortgage_interest>16200</mortgage_interest>
+         <property_taxes>6800</property_taxes>
+         <square_footage>2500</square_footage>
+         <home_office_square_footage>250</home_office_square_footage>
+      </property>
+   </properties>
+
+   <!-- Business expenses (Schedule C) -->
+   <business_expenses>
+      <!-- Office expenses -->
+      <business_expense id="1">
+         <id>1</id>
+         <category>office_supplies</category>
+         <description>Computer equipment and software</description>
+         <amount>8500</amount>
+      </business_expense>
+
+      <!-- Travel -->
+      <business_expense id="2">
+         <id>2</id>
+         <category>travel</category>
+         <description>Client travel and hotels</description>
+         <amount>12000</amount>
+      </business_expense>
+
+      <!-- Professional development -->
+      <business_expense id="3">
+         <id>3</id>
+         <category>education</category>
+         <description>Professional certifications and training</description>
+         <amount>4500</amount>
+      </business_expense>
+
+      <!-- Business insurance -->
+      <business_expense id="4">
+         <id>4</id>
+         <category>insurance</category>
+         <description>Professional liability insurance</description>
+         <amount>3200</amount>
+      </business_expense>
+
+      <!-- Marketing -->
+      <business_expense id="5">
+         <id>5</id>
+         <category>advertising</category>
+         <description>Website and marketing</description>
+         <amount>5800</amount>
+      </business_expense>
+
+      <!-- Home office (simplified method: 250 sq ft * $5 = $1,250) -->
+      <business_expense id="6">
+         <id>6</id>
+         <category>home_office</category>
+         <description>Home office expense (10% of home)</description>
+         <amount>2300</amount>
+      </business_expense>
+
+      <!-- Phone and internet -->
+      <business_expense id="7">
+         <id>7</id>
+         <category>utilities</category>
+         <description>Business phone and internet (75% business use)</description>
+         <amount>2700</amount>
+      </business_expense>
+
+      <!-- Professional services -->
+      <business_expense id="8">
+         <id>8</id>
+         <category>legal_professional</category>
+         <description>Legal and accounting fees</description>
+         <amount>3000</amount>
+      </business_expense>
+   </business_expenses>
+
+   <!-- Retirement contributions -->
+   <retirement_contributions>
+      <retirement_contribution id="1">
+         <id>1</id>
+         <type>SEP_IRA</type>
+         <taxpayer_id>1</taxpayer_id>
+         <amount>28600</amount>
+         <description>SEP-IRA contribution (20% of net SE income)</description>
+      </retirement_contribution>
+   </retirement_contributions>
+
+   <!-- Vehicle (business use) -->
+   <vehicles>
+      <vehicle id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <description>2023 Honda Accord</description>
+         <purchase_date>2/1/2023</purchase_date>
+         <purchase_price>32000</purchase_price>
+         <total_miles>18000</total_miles>
+         <business_miles>14000</business_miles>
+         <method>standard_mileage</method>
+      </vehicle>
+   </vehicles>
+
+   <!-- Deductions -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Local nonprofit</description>
+         <amount>4200</amount>
+      </deduction>
+   </deductions>
+</job>

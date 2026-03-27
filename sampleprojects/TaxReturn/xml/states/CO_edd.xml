@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Colorado (CO)
+
+  Colorado Tax Law (2025):
+  - Flat rate: 4.40%
+  - Starting point: Federal AGI (not taxable income)
+  - Standard deduction: Uses federal (no separate CO deduction)
+  - No personal exemptions
+
+  Key Adjustments:
+  - ADD: State tax refund (if itemized federally)
+  - SUBTRACT: Social Security benefits (exempt in CO)
+  - SUBTRACT: Military retirement (age-based exemptions)
+  - SUBTRACT: Colorado Pension/Annuity Subtraction (age 55-64: $20k, 65+: $24k)
+
+  Military Retirement Provisions (2025):
+  - Age-based exemptions:
+    * Under 55: Up to $15,000
+    * Age 55-64: Up to $20,000
+    * Age 65+: Up to $24,000
+
+  Source: Colorado DOR Form DR 0104, MOAA State Report Card
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <entity name="result">
+
+    <!-- Colorado Tax Rate (2025) -->
+    <field name="co_tax_rate" type="double" default_value="0.044"
+           comment="CO flat tax rate 4.40% (2025). Source: Colorado DOR"/>
+
+    <!-- Colorado Pension/Annuity Subtraction (2025) - Age-Based -->
+    <field name="co_pension_subtraction_55_to_64" type="double" default_value="20000.0"
+           comment="CO pension/annuity subtraction for taxpayers age 55-64 (2025). Source: Colorado DOR"/>
+    <field name="co_pension_subtraction_65_plus" type="double" default_value="24000.0"
+           comment="CO pension/annuity subtraction for taxpayers age 65+ (2025). Source: Colorado DOR"/>
+    <field name="co_pension_subtraction" type="double" default_value="0.0"
+           comment="CO pension/annuity subtraction (computed based on age)"/>
+
+    <!-- Military Retirement Provisions (2025) - Age-Based -->
+    <field name="co_military_exemption_under_55" type="double" default_value="15000.0"
+           comment="CO military retirement exemption for taxpayers under 55 (2025). Source: MOAA"/>
+    <field name="co_military_exemption_55_to_64" type="double" default_value="20000.0"
+           comment="CO military retirement exemption for taxpayers age 55-64 (2025). Source: MOAA"/>
+    <field name="co_military_exemption_65_plus" type="double" default_value="24000.0"
+           comment="CO military retirement exemption for taxpayers age 65+ (2025). Source: MOAA"/>
+    <field name="co_military_retirement_exemption" type="double" default_value="0.0"
+           comment="CO military retirement exemption (computed based on age)"/>
+    <field name="co_military_retirement_taxable" type="double" default_value="0.0"
+           comment="CO taxable military retirement after exemption (computed)"/>
+
+    <!-- Colorado Tax Calculation Fields -->
+    <field name="co_taxable_income" type="double" default_value="0.0"
+           comment="CO taxable income after all adjustments"/>
+    <field name="co_tax" type="double" default_value="0.0"
+           comment="CO state tax liability"/>
+
+  </entity>
+</entity_data_dictionary>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Health Savings Account (HSA) Deduction -->
+<!-- Scenario: MFJ with family HSA plan, full contribution -->
+<!-- Expected: $8,550 HSA deduction (2025 family limit) -->
+<!-- AGI before adjustments: $95,000 -->
+<!-- AGI after HSA: $86,450 -->
+<job>
+    <id>3532</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Income: $95,000 W2 -->
+    <!-- AGI: $95,000 - $8,550 (HSA family) = $86,450 -->
+    <!-- Standard deduction: $30,000 -->
+    <!-- Taxable: $56,450 -->
+    <expected_agi>86450</expected_agi>
+    <expected_taxable_income>56450</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>David Thompson</name>
+            <ssn>444-55-6666</ssn>
+            <date_of_birth>6/10/1985</date_of_birth>
+            <occupation>Software Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>14000</w2_withholding>
+            <hsa_contribution>8550</hsa_contribution>
+            <hsa_coverage_type>family</hsa_coverage_type>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Lisa Thompson</name>
+            <ssn>555-66-7777</ssn>
+            <date_of_birth>9/18/1987</date_of_birth>
+            <occupation>Stay-at-home parent</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents>
+        <dependent>
+            <id>1</id>
+            <name>Emily Thompson</name>
+            <ssn>666-77-8888</ssn>
+            <date_of_birth>4/5/2018</date_of_birth>
+            <age>7</age>
+            <relationship>child</relationship>
+            <months_lived_with>12</months_lived_with>
+            <has_ssn>true</has_ssn>
+        </dependent>
+    </dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

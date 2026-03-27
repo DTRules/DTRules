@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8960 - NIIT on Capital Gains -->
+<!-- Scenario: Single filer with long-term capital gains, AGI over $200k -->
+<!-- LTCG: $85,000, MAGI: $265,000 -->
+<!-- Expected: 3.8% NIIT on lesser of NII ($85k) or excess MAGI ($65k) = $2,470 -->
+<job>
+    <id>AdditionalTaxes_07</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>WA</state>
+
+    <!-- Expected results -->
+    <!-- W-2: $175,000 + Interest: $5,000 + LTCG: $85,000 = $265,000 AGI -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- Taxable: $250,000 -->
+    <!-- Income tax: ~$48,697 (with qualified cap gains at 15%) -->
+    <!-- NIIT: $2,470 (3.8% on $65,000 excess MAGI over $200k) -->
+    <!-- Total tax: $51,167 -->
+    <expected_agi>265000</expected_agi>
+    <expected_taxable_income>250000</expected_taxable_income>
+    <expected_total_tax>51167</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Robert Kim</name>
+            <ssn>901-23-4567</ssn>
+            <date_of_birth>06/30/1970</date_of_birth>
+            <occupation>Product Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>175000</w2_wages>
+            <w2_withholding>36000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>5000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- Investment income -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>interest</type>
+            <source>Savings Account</source>
+            <gross_amount>5000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+        </income>
+        <income>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock Sales - Long Term</source>
+            <gross_amount>85000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>long_term</holding_period>
+        </income>
+    </incomes>
+
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

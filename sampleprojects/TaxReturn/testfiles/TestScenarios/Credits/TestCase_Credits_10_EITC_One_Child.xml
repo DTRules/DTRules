@@ -1,0 +1,59 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- EITC Test: 1 child (phase-in range) -->
+   <!-- 2025 EITC 1 child: max $4,213 -->
+   <!-- Income range: $12,500 - $49,084 for Single -->
+   <!-- This scenario: $22,000 income (in phase-in range) -->
+   <!-- Expected EITC: ~$3,200 (approaching max) -->
+
+   <id>Credits-10</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $22,000 W-2 (in EITC phase-in range for 1 child) -->
+   <!-- AGI: $22,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $7,000 -->
+   <!-- Tax: $700 -->
+   <!-- EITC: $3,200 (refundable) -->
+   <!-- CTC: $2,000 -->
+   <!-- Net refund after withholding -->
+   <expected_agi>22000</expected_agi>
+   <expected_taxable_income>7000</expected_taxable_income>
+   <expected_eitc>3200</expected_eitc>
+   <expected_ctc>2000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Rachel Miller</name>
+         <ssn>888-99-1111</ssn>
+         <date_of_birth>7/18/1993</date_of_birth>
+         <occupation>Home Health Aide</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>22000</w2_wages>
+         <w2_withholding>1500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Chloe Miller</name>
+         <ssn>999-11-2222</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>4/5/2018</date_of_birth>
+         <age>7</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

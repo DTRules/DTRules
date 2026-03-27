@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 04: Military Family with Foreign Earned Income -->
+<!-- Tests: Combat zone exclusion, FEIE (Form 2555), MSRRA, PCS moving expenses -->
+<!-- Scenario: Active duty service member in combat zone, spouse with foreign income -->
+<!-- Expected: Combat pay excluded, FEIE for spouse, state tax coordination -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-04-MILITARY-COMPLEX</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <military_state_of_residence>FL</military_state_of_residence>
+   <city>Jacksonville</city>
+
+   <!-- Expected values -->
+   <!-- Service member W-2: $55,000 base + $22,000 combat pay (excluded) = $55,000 taxable -->
+   <!-- Spouse foreign income: $68,000 - $126,500 FEIE = $0 (fully excluded) -->
+   <!-- AGI: $55,000 -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable: $25,000 -->
+   <!-- Tax: $2,500 (10% bracket) -->
+   <!-- CTC: $4,000 (2 children) -->
+   <!-- Net tax: $0 (CTC exceeds tax) -->
+   <!-- Refundable CTC: $1,700 per child = $3,400 -->
+   <expected_agi>55000</expected_agi>
+   <expected_taxable_income>25000</expected_taxable_income>
+   <expected_total_tax>2500</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>SSgt David Thompson</name>
+         <ssn>300-14-4001</ssn>
+         <date_of_birth>1/25/1990</date_of_birth>
+         <occupation>Active Duty Military (E-6)</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_military>true</is_military>
+         <military_branch>Air Force</military_branch>
+         <military_rank>SSgt (E-6)</military_rank>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>4200</w2_withholding>
+         <w2_ss_wages>55000</w2_ss_wages>
+         <w2_ss_withheld>3410</w2_ss_withheld>
+         <w2_medicare_wages>55000</w2_medicare_wages>
+         <w2_medicare_withheld>798</w2_medicare_withheld>
+         <combat_zone_pay>22000</combat_zone_pay>
+         <combat_zone_months>8</combat_zone_months>
+         <employer_name>United States Air Force</employer_name>
+         <employer_ein>52-0000000</employer_ein>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jessica Thompson</name>
+         <ssn>300-14-4002</ssn>
+         <date_of_birth>9/12/1991</date_of_birth>
+         <occupation>Teacher (Overseas)</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <foreign_earned_income>68000</foreign_earned_income>
+         <foreign_earned_income_exclusion>68000</foreign_earned_income_exclusion>
+         <days_abroad>365</days_abroad>
+         <foreign_country>Germany</foreign_country>
+         <employer_name>DOD Education Activity</employer_name>
+         <employer_ein>52-1234567</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two children -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Ava Thompson</name>
+         <ssn>300-14-4003</ssn>
+         <date_of_birth>5/10/2016</date_of_birth>
+         <age>9</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Noah Thompson</name>
+         <ssn>300-14-4004</ssn>
+         <date_of_birth>12/3/2019</date_of_birth>
+         <age>6</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Military housing (no mortgage) -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>military_housing</type>
+         <address>Ramstein Air Base, Germany</address>
+         <is_military_housing>true</is_military_housing>
+         <bah_received>0</bah_received>
+      </property>
+   </properties>
+
+   <!-- PCS moving expenses (deductible for military) -->
+   <military_moving_expenses>
+      <moving_expense id="1">
+         <id>1</id>
+         <description>PCS move from Nellis AFB to Ramstein AB</description>
+         <move_date>3/15/2025</move_date>
+         <unreimbursed_amount>4800</unreimbursed_amount>
+         <is_pcs_move>true</is_pcs_move>
+      </moving_expense>
+   </military_moving_expenses>
+
+   <!-- Foreign housing expenses (for Form 2555) -->
+   <foreign_housing_expenses>
+      <foreign_housing_expense id="1">
+         <id>1</id>
+         <description>Housing in Germany</description>
+         <amount>18000</amount>
+      </foreign_housing_expense>
+
+      <foreign_housing_expense id="2">
+         <id>2</id>
+         <description>Utilities</description>
+         <amount>3600</amount>
+      </foreign_housing_expense>
+   </foreign_housing_expenses>
+
+   <!-- Deductions -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Air Force Aid Society</description>
+         <amount>1200</amount>
+      </deduction>
+   </deductions>
+</job>

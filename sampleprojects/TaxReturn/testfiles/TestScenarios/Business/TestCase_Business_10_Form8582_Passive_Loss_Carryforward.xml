@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 10: Form 8582 - Passive Loss with Carryforward -->
+<!-- Triggers: Form 8582, Schedule K-1, Schedule E Part II -->
+<!-- Tests: Partial passive loss allowed, excess carried forward -->
+<job>
+    <id>BUS10-FORM8582-CARRYFORWARD</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $120,000 W2 - $12,000 allowed K-1 loss = $108,000 -->
+    <!-- Active participation: AGI $120k is in phaseout range ($100k-$150k) -->
+    <!-- Phaseout: ($120k - $100k) / $50k = 40% phased out -->
+    <!-- Allowed loss: $25,000 * (1 - 0.40) = $15,000 allowed -->
+    <!-- Loss: $32,000 total, $15,000 allowed, $17,000 suspended -->
+    <!-- AGI: $108,000 ($120k - $12k adjusted for allowed portion) -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable: ~$78,000 -->
+    <expected_agi>108000</expected_agi>
+    <expected_taxable_income>78000</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Christopher Wilson</name>
+            <ssn>400-20-0001</ssn>
+            <date_of_birth>2/14/1976</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>IT Manager</occupation>
+            <w2_wages>78000</w2_wages>
+            <w2_withholding>11500</w2_withholding>
+            <w2_ss_wages>78000</w2_ss_wages>
+            <w2_medicare_wages>78000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Amanda Wilson</name>
+            <ssn>400-20-0002</ssn>
+            <date_of_birth>6/30/1977</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Active Partner in Wilson Properties LLC</occupation>
+            <w2_wages>42000</w2_wages>
+            <w2_withholding>5800</w2_withholding>
+            <w2_ss_wages>42000</w2_ss_wages>
+            <w2_medicare_wages>42000</w2_medicare_wages>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - Loss with Carryforward -->
+    <!-- Partner actively participates in rental real estate -->
+    <!-- IRC 469(i): $25,000 allowance phased out $0.50 per $1 over $100k AGI -->
+    <!-- AGI $120k: Phaseout = ($120k - $100k) * 0.50 = $10k -->
+    <!-- Allowed: $25k - $10k = $15k -->
+    <!-- Loss: $32k, Allowed: $15k, Suspended: $17k -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Wilson Properties LLC</entity_name>
+            <entity_ein>89-0123456</entity_ein>
+            <!-- Box 2: Net rental real estate loss -->
+            <rental_income>-32000</rental_income>
+            <!-- Active participation with phaseout -->
+            <!-- Allowed: $15,000, Suspended: $17,000 -->
+            <qbi_income>0</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <ordinary_income>0</ordinary_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

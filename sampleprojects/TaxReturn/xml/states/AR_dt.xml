@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Arkansas
+
+  Arkansas has a progressive income tax with 5 tax brackets (same for all filing statuses):
+  - 0% on $0 - $5,499
+  - 2% on $5,500 - $10,999
+  - 3% on $11,000 - $16,999
+  - 3.4% on $17,000 - $25,699
+  - 3.9% on $25,700+
+
+  Table Number: 40400 (AR is 4th state alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 40400: Calculate_AR_Tax - Arkansas State Income Tax             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AR_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arkansas state income tax calculation. Implements progressive tax structure per AR tax code (2025). Top rate reduced from 4.4% to 3.9% effective 1/1/2025.</COMMENTS>
+<TABLE_NUMBER>40400</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Arkansas tax calculation</action_description>
+<action_postfix>
+"Arkansas Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Single filer</condition_comment>
+<condition_description>filing_status == "Single"</condition_description>
+<condition_postfix>
+result.filing_status "Single" eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Married filing jointly</condition_comment>
+<condition_description>filing_status == "MFJ"</condition_description>
+<condition_postfix>
+result.filing_status "MFJ" eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of household</condition_comment>
+<condition_description>filing_status == "HOH"</condition_description>
+<condition_postfix>
+result.filing_status "HOH" eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Married filing separately</condition_comment>
+<condition_description>filing_status == "MFS"</condition_description>
+<condition_postfix>
+result.filing_status "MFS" eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Arkansas tax - Single filer (progressive brackets)</action_comment>
+<action_postfix>
+<!-- Calculate taxable income (AGI minus standard deduction) -->
+result.agi result.ar_standard_deduction_single sub 0 max
+/ar_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0 /ar_tax xdef
+
+<!-- Bracket 1: 0% on first $5,499 -->
+ar_taxable_income result.ar_bracket_1_limit min
+result.ar_bracket_1_rate mul
+ar_tax add /ar_tax xdef
+
+<!-- Bracket 2: 2% on amount over $5,499 up to $10,999 -->
+ar_taxable_income result.ar_bracket_1_limit gt
+{
+  ar_taxable_income result.ar_bracket_2_limit min
+  result.ar_bracket_1_limit sub 0 max
+  result.ar_bracket_2_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 3: 3% on amount over $10,999 up to $16,999 -->
+ar_taxable_income result.ar_bracket_2_limit gt
+{
+  ar_taxable_income result.ar_bracket_3_limit min
+  result.ar_bracket_2_limit sub 0 max
+  result.ar_bracket_3_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 4: 3.4% on amount over $16,999 up to $25,699 -->
+ar_taxable_income result.ar_bracket_3_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit min
+  result.ar_bracket_3_limit sub 0 max
+  result.ar_bracket_4_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 5: 3.9% on amount over $25,699 -->
+ar_taxable_income result.ar_bracket_4_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit sub
+  result.ar_bracket_5_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Store result -->
+ar_tax /result.state_tax_liability xdef
+
+"Arkansas tax (Single) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Arkansas tax - Married filing jointly (progressive brackets)</action_comment>
+<action_postfix>
+<!-- Calculate taxable income (AGI minus standard deduction) -->
+result.agi result.ar_standard_deduction_joint sub 0 max
+/ar_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0 /ar_tax xdef
+
+<!-- Bracket 1: 0% on first $5,499 -->
+ar_taxable_income result.ar_bracket_1_limit min
+result.ar_bracket_1_rate mul
+ar_tax add /ar_tax xdef
+
+<!-- Bracket 2: 2% on amount over $5,499 up to $10,999 -->
+ar_taxable_income result.ar_bracket_1_limit gt
+{
+  ar_taxable_income result.ar_bracket_2_limit min
+  result.ar_bracket_1_limit sub 0 max
+  result.ar_bracket_2_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 3: 3% on amount over $10,999 up to $16,999 -->
+ar_taxable_income result.ar_bracket_2_limit gt
+{
+  ar_taxable_income result.ar_bracket_3_limit min
+  result.ar_bracket_2_limit sub 0 max
+  result.ar_bracket_3_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 4: 3.4% on amount over $16,999 up to $25,699 -->
+ar_taxable_income result.ar_bracket_3_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit min
+  result.ar_bracket_3_limit sub 0 max
+  result.ar_bracket_4_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 5: 3.9% on amount over $25,699 -->
+ar_taxable_income result.ar_bracket_4_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit sub
+  result.ar_bracket_5_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Store result -->
+ar_tax /result.state_tax_liability xdef
+
+"Arkansas tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate Arkansas tax - Head of household (progressive brackets)</action_comment>
+<action_postfix>
+<!-- Calculate taxable income (AGI minus standard deduction) -->
+result.agi result.ar_standard_deduction_hoh sub 0 max
+/ar_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0 /ar_tax xdef
+
+<!-- Bracket 1: 0% on first $5,499 -->
+ar_taxable_income result.ar_bracket_1_limit min
+result.ar_bracket_1_rate mul
+ar_tax add /ar_tax xdef
+
+<!-- Bracket 2: 2% on amount over $5,499 up to $10,999 -->
+ar_taxable_income result.ar_bracket_1_limit gt
+{
+  ar_taxable_income result.ar_bracket_2_limit min
+  result.ar_bracket_1_limit sub 0 max
+  result.ar_bracket_2_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 3: 3% on amount over $10,999 up to $16,999 -->
+ar_taxable_income result.ar_bracket_2_limit gt
+{
+  ar_taxable_income result.ar_bracket_3_limit min
+  result.ar_bracket_2_limit sub 0 max
+  result.ar_bracket_3_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 4: 3.4% on amount over $16,999 up to $25,699 -->
+ar_taxable_income result.ar_bracket_3_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit min
+  result.ar_bracket_3_limit sub 0 max
+  result.ar_bracket_4_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 5: 3.9% on amount over $25,699 -->
+ar_taxable_income result.ar_bracket_4_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit sub
+  result.ar_bracket_5_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Store result -->
+ar_tax /result.state_tax_liability xdef
+
+"Arkansas tax (HOH) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate Arkansas tax - Married filing separately (progressive brackets)</action_comment>
+<action_postfix>
+<!-- Calculate taxable income (AGI minus standard deduction) -->
+result.agi result.ar_standard_deduction_mfs sub 0 max
+/ar_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0 /ar_tax xdef
+
+<!-- Bracket 1: 0% on first $5,499 -->
+ar_taxable_income result.ar_bracket_1_limit min
+result.ar_bracket_1_rate mul
+ar_tax add /ar_tax xdef
+
+<!-- Bracket 2: 2% on amount over $5,499 up to $10,999 -->
+ar_taxable_income result.ar_bracket_1_limit gt
+{
+  ar_taxable_income result.ar_bracket_2_limit min
+  result.ar_bracket_1_limit sub 0 max
+  result.ar_bracket_2_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 3: 3% on amount over $10,999 up to $16,999 -->
+ar_taxable_income result.ar_bracket_2_limit gt
+{
+  ar_taxable_income result.ar_bracket_3_limit min
+  result.ar_bracket_2_limit sub 0 max
+  result.ar_bracket_3_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 4: 3.4% on amount over $16,999 up to $25,699 -->
+ar_taxable_income result.ar_bracket_3_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit min
+  result.ar_bracket_3_limit sub 0 max
+  result.ar_bracket_4_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Bracket 5: 3.9% on amount over $25,699 -->
+ar_taxable_income result.ar_bracket_4_limit gt
+{
+  ar_taxable_income result.ar_bracket_4_limit sub
+  result.ar_bracket_5_rate mul
+  ar_tax add /ar_tax xdef
+} if
+
+<!-- Store result -->
+ar_tax /result.state_tax_liability xdef
+
+"Arkansas tax (MFS) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 40401: Calculate_AR_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AR_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arkansas military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per AR Code § 26-51-426 (2025).</COMMENTS>
+<TABLE_NUMBER>40401</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Arkansas military retirement exclusion calculation</action_description>
+<action_postfix>
+"Arkansas Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+0 /result.ar_military_retirement_exclusion xdef
+0 /result.ar_sbp_exclusion xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has military retirement income</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
+<action_postfix>
+<!-- Arkansas provides 100% exclusion for military retirement income -->
+taxpayer.military_retirement_pay /result.ar_military_retirement_exclusion xdef
+
+<!-- SBP payments are also fully exempt in Arkansas -->
+taxpayer.sbp_payments 0 gt
+{
+  taxpayer.sbp_payments /result.ar_sbp_exclusion xdef
+} if
+
+<!-- Calculate total military exclusion -->
+result.ar_military_retirement_exclusion result.ar_sbp_exclusion add
+/result.ar_total_military_exclusion xdef
+
+<!-- Reduce Arkansas taxable income by the exclusion -->
+result.agi result.ar_total_military_exclusion sub 0 max
+/result.ar_adjusted_agi xdef
+
+<!-- Audit trail -->
+"Arkansas military retirement exclusion: $" result.ar_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
+result.ar_sbp_exclusion 0 gt
+{
+  "Arkansas SBP exclusion: $" result.ar_sbp_exclusion cvs strconcat job.audit_trail swap addto
+} if
+"Arkansas total military exclusion: $" result.ar_total_military_exclusion cvs strconcat job.audit_trail swap addto
+
+<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
+<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

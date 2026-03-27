@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Arizona
+
+  Arizona has a flat tax rate of 2.5% for tax year 2025.
+  Standard deductions:
+    - Single: $15,750
+    - Married filing jointly: $31,500
+    - Head of household: $15,750 (same as single)
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Arizona state tax constants -->
+  <entity name="result">
+    <!-- Tax rates -->
+    <field name="az_tax_rate" type="double" default_value="0.025"
+           comment="AZ flat rate 2.5% (2025)"/>
+
+    <!-- Standard deductions -->
+    <field name="az_standard_deduction_single" type="double" default_value="15750.0"
+           comment="AZ standard deduction single (2025)"/>
+    <field name="az_standard_deduction_joint" type="double" default_value="31500.0"
+           comment="AZ standard deduction married filing jointly (2025)"/>
+    <field name="az_standard_deduction_hoh" type="double" default_value="15750.0"
+           comment="AZ standard deduction head of household (2025)"/>
+
+  </entity>
+</entity_data_dictionary>
