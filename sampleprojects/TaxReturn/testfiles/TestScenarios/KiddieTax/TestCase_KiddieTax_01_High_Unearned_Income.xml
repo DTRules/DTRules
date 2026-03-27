@@ -1,0 +1,102 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 8615 - Kiddie Tax on High Unearned Income -->
+   <!-- Scenario: 16-year-old with $5,000 trust fund dividends -->
+   <!-- Child under 18 with unearned income triggers kiddie tax -->
+
+   <!-- Kiddie Tax Calculation (2025): -->
+   <!-- Unearned Income: $5,000 -->
+   <!-- Standard Deduction for Dependent: $1,300 (kiddie tax standard deduction) -->
+   <!-- Remaining: $5,000 - $1,300 = $3,700 -->
+   <!-- Next $1,300 taxed at child's rate (10%): $1,300 x 10% = $130 -->
+   <!-- Remaining $2,400 taxed at parent's marginal rate (32%): $2,400 x 32% = $768 -->
+   <!-- Total Kiddie Tax: $130 + $768 = $898 -->
+
+   <!-- Parent's Marginal Tax Rate: 32% (taxable income $180,000 MFJ) -->
+
+   <id>KIDDIE-HIGH-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CA</state>
+
+   <expected_agi>180000</expected_agi>
+   <expected_total_kiddie_tax>898</expected_total_kiddie_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Anderson</name>
+         <ssn>201-11-2222</ssn>
+         <date_of_birth>4/12/1978</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>25000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Anderson</name>
+         <ssn>202-11-2223</ssn>
+         <date_of_birth>7/18/1980</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Anderson</name>
+         <ssn>203-11-2224</ssn>
+         <date_of_birth>6/15/2009</date_of_birth>
+         <age>16</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+         <gross_income>5000</gross_income>
+         <provided_own_support>false</provided_own_support>
+         <unearned_income>5000</unearned_income>
+         <earned_income>0</earned_income>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 8615 - Child's Unearned Income (Kiddie Tax) -->
+   <child_unearned_incomes>
+      <child_unearned_income id="1">
+         <id>1</id>
+         <dependent_id>1</dependent_id>
+         <child_age>16</child_age>
+         <is_student>true</is_student>
+         <child_earned_income>0</child_earned_income>
+         <unearned_income_amount>5000</unearned_income_amount>
+         <child_itemized_deductions>0</child_itemized_deductions>
+         <parent_taxable_income>150000</parent_taxable_income>
+         <parent_filing_status>MFJ</parent_filing_status>
+      </child_unearned_income>
+   </child_unearned_incomes>
+</job>

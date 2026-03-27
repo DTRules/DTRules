@@ -111,6 +111,21 @@ Calculate_Gross_Income
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+<!-- VALIDATION CHECKPOINT: AGI -->
+<action_details>
+<action_number>6</action_number>
+<action_comment>Validate AGI if expected values exist (validation checkpoint)</action_comment>
+<action_description>Validate_AGI (if job.expected_agi exists)</action_description>
+<action_postfix>
+job.expected_agi isnull not if
+  Validate_AGI
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate deductions (Form 1040 Line 12)</action_comment>
@@ -135,12 +150,42 @@ Calculate_Taxable_Income
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+<!-- VALIDATION CHECKPOINT: Taxable Income -->
+<action_details>
+<action_number>7</action_number>
+<action_comment>Validate taxable income if expected values exist (validation checkpoint)</action_comment>
+<action_description>Validate_Taxable_Income (if job.expected_taxable_income exists)</action_description>
+<action_postfix>
+job.expected_taxable_income isnull not if
+  Validate_Taxable_Income
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
 <action_details>
 <action_number>8</action_number>
 <action_comment>Calculate tax liability (Form 1040 Lines 16-24)</action_comment>
 <action_description>Calculate_Tax_Liability</action_description>
 <action_postfix>
 Calculate_Tax_Liability
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<!-- VALIDATION CHECKPOINT: Total Tax -->
+<action_details>
+<action_number>9</action_number>
+<action_comment>Validate total tax if expected values exist (validation checkpoint)</action_comment>
+<action_description>Validate_Total_Tax (if job.expected_total_tax exists)</action_description>
+<action_postfix>
+job.expected_total_tax isnull not if
+  Validate_Total_Tax
+endif
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -161,6 +206,18 @@ Calculate_AMT
 </action_details>
 <action_details>
 <action_number>10</action_number>
+<action_comment>Calculate kiddie tax for dependents with unearned income (Form 8615)</action_comment>
+<action_description>Calculate_Kiddie_Tax</action_description>
+<action_postfix>
+Calculate_Kiddie_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
 <action_comment>Calculate credits (Form 1040 Lines 19-21)</action_comment>
 <action_description>Calculate_Credits</action_description>
 <action_postfix>
@@ -172,7 +229,7 @@ Calculate_Credits
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>11</action_number>
+<action_number>12</action_number>
 <action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
 <action_description>Calculate_Final_Balance</action_description>
 <action_postfix>
@@ -196,6 +253,19 @@ endif
 <action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
+</action_details>
+<!-- VALIDATION SUMMARY: Run all validations and report results -->
+<action_details>
+<action_number>13</action_number>
+<action_comment>Run validation framework to verify calculations against expected values</action_comment>
+<action_description>Validate_Results (master validation coordinator)</action_description>
+<action_postfix>
+Validate_Results
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -349,19 +419,36 @@ Calculate_Section_1231
 Process_Foreign_Income
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-</action_details>
-<action_details>
+</action_details><action_details>
 <action_number>11</action_number>
-<action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
-<action_description>set result.gross_income = result.total_w2_wages + result.total_se_income + result.total_rental_income + result.total_other_income</action_description>
+<action_comment>Process installment sales (Form 6252) - gain recognized in current year per IRC 453</action_comment>
+<action_description>Process_Installment_Sales</action_description>
 <action_postfix>
-result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.total_tip_income f+ result.total_overtime_income f+ result.total_social_security f+ result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_k1_ordinary_income f+ result.total_k1_rental_income f+ result.net_farm_profit f+ result.total_depreciation_recapture f+ result.total_foreign_income f+ /result.gross_income xdef
-"Line 9 - Total Income: $" result.gross_income cvs strconcat " per Form 1040 Line 9" strconcat job.audit_trail swap addto
+/Process_Installment_Sales executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>12</action_number>
+<action_comment>Process like-kind exchanges (Form 8824) - recognized gain from boot per IRC 1031</action_comment>
+<action_description>Process_Like_Kind_Exchanges</action_description>
+<action_postfix>
+/Process_Like_Kind_Exchanges executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
+<action_description>set result.gross_income = result.total_w2_wages + result.total_se_income + result.total_rental_income + result.total_other_income + result.unemployment_compensation + result.gambling_winnings + result.alimony_received + result.state_tax_refund</action_description>
+<action_postfix>
+result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.total_tip_income f+ result.total_overtime_income f+ result.total_social_security f+ result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_k1_ordinary_income f+ result.total_k1_rental_income f+ result.net_farm_profit f+ result.total_depreciation_recapture f+ result.total_foreign_income f+ result.total_installment_gain f+ result.total_like_kind_recognized f+ result.unemployment_compensation f+ result.gambling_winnings f+ result.alimony_received f+ result.state_tax_refund f+ /result.gross_income xdef
+"Line 9 - Total Income: $" result.gross_income cvs strconcat " per Form 1040 Line 9" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>14</action_number>
 <action_comment>Calculate AGI adjustments (Schedule 1 Part II)</action_comment>
 <action_description>Calculate_AGI_Adjustments</action_description>
 <action_postfix>
@@ -370,7 +457,7 @@ Calculate_AGI_Adjustments
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>13</action_number>
+<action_number>15</action_number>
 <action_comment>Calculate AGI</action_comment>
 <action_description>set result.agi = result.gross_income - result.total_adjustments</action_description>
 <action_postfix>
@@ -380,7 +467,7 @@ result.gross_income result.total_adjustments f- /result.agi xdef
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>14</action_number>
+<action_number>16</action_number>
 <action_comment>Calculate Social Security taxability after AGI is known</action_comment>
 <action_description>Calculate_SS_Taxability</action_description>
 <action_postfix>
@@ -620,14 +707,18 @@ Calculate_SE_Tax
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate SE tax - net profit exceeds threshold</action_comment>
-<action_description>set taxpayer.se_tax = taxpayer.se_net_profit * se_income_multiplier * se_tax_rate</action_description>
+<action_comment>Calculate SE tax with proper SS wage base cap and Medicare component</action_comment>
+<action_description>Calculate SE tax: SS component (12.4% up to wage base) + Medicare component (2.9% all income)</action_description>
 <action_postfix>
-taxpayer.se_net_profit se_income_multiplier f* se_tax_rate f* /taxpayer.se_tax xdef
+taxpayer.se_net_profit se_income_multiplier f* dup
+ss_wage_base result.total_w2_wages f- 0 fmax fmin 0.124 f*
+exch 0.029 f* f+ /taxpayer.se_tax xdef
 taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 "SCHEDULE SE - Self-Employment Tax" job.audit_trail swap addto
 "  Net SE Earnings x 92.35%: $" taxpayer.se_net_profit se_income_multiplier f* cvs strconcat " (IRC 1402(a)(12))" strconcat job.audit_trail swap addto
-"  SE Tax (15.3%): $" taxpayer.se_tax cvs strconcat " (IRC 1401(a) SS 12.4% + IRC 1401(b) Medicare 2.9%)" strconcat job.audit_trail swap addto
+"  W-2 Wages: $" result.total_w2_wages cvs strconcat job.audit_trail swap addto
+"  Remaining SS Wage Base: $" ss_wage_base result.total_w2_wages f- 0 fmax cvs strconcat " ($176,100 - W-2 wages, IRC 3121(a)(1))" strconcat job.audit_trail swap addto
+"  SE Tax (SS 12.4% capped + Medicare 2.9%): $" taxpayer.se_tax cvs strconcat " (IRC 1401(a) + 1401(b))" strconcat job.audit_trail swap addto
 "  Deductible Portion (50%): $" taxpayer.se_tax_deduction cvs strconcat " (IRC 164(f), Schedule 1 Line 15)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -657,7 +748,7 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 2b1: Calculate_Vehicle_Deduction                                -->
+<!-- TABLE 2215 (was 2210): Calculate_Vehicle_Deduction                                -->
 <!-- IRS Reference: Publication 463 Chapter 4, IRC 162, 274(d)             -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -665,8 +756,8 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 <xls_file>Income.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile.</COMMENTS>
-<TABLE_NUMBER>2210</TABLE_NUMBER>
+<COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile. TABLE RENUMBERED: 2210 → 2215 to resolve duplicate with Calculate_SE_Tax.</COMMENTS>
+<TABLE_NUMBER>2215</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
@@ -972,9 +1063,9 @@ income.tax_withheld result.total_payments f+ /result.total_payments xdef
 { /Calculate_AGI_Adjustments executetable } job.taxpayers forall
 { /Calculate_Educator_Expenses executetable } job.taxpayers forall
 Calculate_OBBBA_Deductions
-Calculate_IRA_Deduction
-Calculate_HSA_Deduction
-Calculate_Student_Loan_Deduction
+Calculate_IRA_Deduction          { Schedule 1 Line 20 - IRA deduction per Publication 590-A, IRC 219 }
+Calculate_HSA_Deduction          { Schedule 1 Line 13 - HSA deduction per Form 8889, IRC 223 }
+Calculate_Student_Loan_Deduction { Schedule 1 Line 21 - Student loan interest per Publication 970, IRC 221 }
 result.total_obbba_deductions result.ira_deduction f+ result.hsa_deduction f+ result.student_loan_deduction f+ result.educator_expense_deduction f+ result.total_adjustments f+ /result.total_adjustments xdef
 </context_postfix>
 </context_details>
@@ -1310,9 +1401,23 @@ Calculate_Charitable_Deduction
 /Calculate_Noncash_Charitable executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
+</action_details><action_details>
+<action_number>6</action_number>
+<action_comment>Process casualty and theft losses (Form 4684) - deductible only for federally declared disasters per IRC 165</action_comment>
+<action_description>Process_Casualty_Losses</action_description>
+<action_postfix>
+job.casualty_losses length 0 > if
+  /Process_Casualty_Losses executetable
+  result.is_disaster_loss if
+    result.total_casualty_loss result.agi casualty_loss_agi_percent f* f- 0 fmax /result.casualty_loss_deduction xdef
+    result.casualty_loss_deduction result.total_itemized f+ /result.total_itemized xdef
+  endif
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>6</action_number>
+<action_number>7</action_number>
 <action_comment>Log total itemized</action_comment>
 <action_description>add "Total Itemized Deductions: $" + result.total_itemized to job.audit_trail</action_description>
 <action_postfix>
@@ -1348,6 +1453,23 @@ Calculate_Charitable_Deduction
 0 local@ cve deallocate pop
 </context_postfix>
 </context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment>Calculate SALT cap with high-income phaseout</context_comment>
+<context_description>local double effective_salt_cap = salt_cap adjusted for MAGI phaseout</context_description>
+<context_postfix>
+result.agi salt_phaseout_start f&lt;= {
+  salt_cap /effective_salt_cap local
+} {
+  result.agi salt_phaseout_end f&gt;= {
+    salt_reduced_cap /effective_salt_cap local
+  } {
+    result.agi salt_phaseout_start f- salt_phaseout_rate f*
+    salt_cap swap f- salt_reduced_cap fmax /effective_salt_cap local
+  } ifelse
+} ifelse
+</context_postfix>
+</context_details>
 </contexts>
 <initial_actions></initial_actions>
 <conditions>
@@ -1365,10 +1487,10 @@ job.has_state_income_tax true beq
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Total SALT exceeds cap</condition_comment>
-<condition_description>salt_total &gt; salt_cap</condition_description>
+<condition_comment>Total SALT exceeds effective cap</condition_comment>
+<condition_description>salt_total &gt; effective_salt_cap</condition_description>
 <condition_postfix>
-0 local@ salt_cap >
+0 local@ effective_salt_cap >
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -1385,9 +1507,10 @@ job.has_state_income_tax true beq
 "  State and Local Taxes (SALT):" job.audit_trail swap addto
 "    State Income Tax: (applicable)" job.audit_trail swap addto
 "    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
-"    Total SALT LIMITED TO $" salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
-salt_cap /result.salt_deduction xdef
-salt_cap result.total_itemized f+ /result.total_itemized xdef
+"    Effective SALT cap (with phaseout): $" effective_salt_cap cvs strconcat job.audit_trail swap addto
+"    Total SALT LIMITED TO $" effective_salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
+effective_salt_cap /result.salt_deduction xdef
+effective_salt_cap result.total_itemized f+ /result.total_itemized xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -1398,9 +1521,10 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <action_postfix>
 "  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
 "    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
-"    Total SALT LIMITED TO $" salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
-salt_cap /result.salt_deduction xdef
-salt_cap result.total_itemized f+ /result.total_itemized xdef
+"    Effective SALT cap (with phaseout): $" effective_salt_cap cvs strconcat job.audit_trail swap addto
+"    Total SALT LIMITED TO $" effective_salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
+effective_salt_cap /result.salt_deduction xdef
+effective_salt_cap result.total_itemized f+ /result.total_itemized xdef
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -1410,7 +1534,7 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <action_description>set result.salt_deduction = salt_total</action_description>
 <action_postfix>
 "  State and Local Taxes (SALT):" job.audit_trail swap addto
-"    Total SALT: $" 0 local@ cvs strconcat " (under $" strconcat salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
+"    Total SALT: $" 0 local@ cvs strconcat " (under $" strconcat effective_salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
 0 local@ /result.salt_deduction xdef
 0 local@ result.total_itemized f+ /result.total_itemized xdef
 </action_postfix>
@@ -1422,7 +1546,7 @@ salt_cap result.total_itemized f+ /result.total_itemized xdef
 <action_description>set result.salt_deduction = property_tax_total</action_description>
 <action_postfix>
 "  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
-"    Property Taxes: $" 0 local@ cvs strconcat " (under $" strconcat salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
+"    Property Taxes: $" 0 local@ cvs strconcat " (under $" strconcat effective_salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
 0 local@ /result.salt_deduction xdef
 0 local@ result.total_itemized f+ /result.total_itemized xdef
 </action_postfix>
@@ -1915,15 +2039,26 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Section A - under $5,000, use FMV</action_comment>
-<action_description>set noncash_contribution.deduction_amount = fair_market_value</action_description>
+<action_comment>Section A - capital gain property under $5,000, use FMV with 30% limit</action_comment>
+<action_description>set noncash_contribution.deduction_amount = fair_market_value with 30% AGI limit</action_description>
+<action_postfix>
+fair_market_value /noncash_contribution.deduction_amount xdef
+0.30 /noncash_contribution.agi_limitation xdef
+noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result.total_noncash_charitable xdef
+"  Noncash (Section A, capital gain, 30% limit): $" noncash_contribution.deduction_amount cvs strconcat " - " strconcat description strconcat " to " strconcat donee_organization strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Section A - ordinary property under $5,000, use FMV with 50% limit</action_comment>
+<action_description>set noncash_contribution.deduction_amount = fair_market_value with 50% AGI limit</action_description>
 <action_postfix>
 fair_market_value /noncash_contribution.deduction_amount xdef
 0.50 /noncash_contribution.agi_limitation xdef
 noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result.total_noncash_charitable xdef
-"  Noncash (Section A): $" noncash_contribution.deduction_amount cvs strconcat " - " strconcat description strconcat " to " strconcat donee_organization strconcat job.audit_trail swap addto
+"  Noncash (Section A, ordinary, 50% limit): $" noncash_contribution.deduction_amount cvs strconcat " - " strconcat description strconcat " to " strconcat donee_organization strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 </actions>
@@ -1937,8 +2072,12 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 <policy_statement_postfix>"Ordinary income property deduction limited to basis (IRC 170(e)(1))"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
-<policy_description>Section A property deduction at FMV (IRC 170)</policy_description>
-<policy_statement_postfix>"Section A property deduction at FMV (IRC 170)"</policy_statement_postfix>
+<policy_description>Section A capital gain property deduction at FMV with 30% AGI limit (IRC 170(b)(1)(C))</policy_description>
+<policy_statement_postfix>"Section A capital gain property deduction at FMV with 30% AGI limit (IRC 170(b)(1)(C))"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Section A ordinary property deduction at FMV with 50% AGI limit (IRC 170(b)(1)(A))</policy_description>
+<policy_statement_postfix>"Section A ordinary property deduction at FMV with 50% AGI limit (IRC 170(b)(1)(A))"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -1960,49 +2099,34 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has self-employment income for QBI</condition_comment>
-<condition_description>result.total_se_income &gt; 0</condition_description>
+<condition_comment>Always execute</condition_comment>
+<condition_description>perform when called</condition_description>
 <condition_postfix>
-result.total_se_income 0 >
+perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="*"></condition_column>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate QBI deduction</action_comment>
-<action_description>set result.qbi_deduction = the minimum of (result.total_se_income * qbi_rate) and ((result.agi - result.total_deduction) * qbi_rate)</action_description>
+<action_comment>Calculate QBI deduction (Form 8995/8995-A, IRC 199A)</action_comment>
+<action_description>Calculate_QBI_Deduction</action_description>
 <action_postfix>
-result.total_se_income qbi_rate f* /result.qbi_from_income xdef
-result.agi result.total_deduction f- qbi_rate f* /result.qbi_taxable_limit xdef
-result.qbi_from_income result.qbi_taxable_limit fmin /result.qbi_deduction xdef
 "TAXABLE INCOME CALCULATION" job.audit_trail swap addto
-"  Line 13 - QBI Deduction: $" result.qbi_deduction cvs strconcat " (IRC 199A, Form 8995)" strconcat job.audit_trail swap addto
+Calculate_QBI_Deduction { Form 8995/8995-A - QBI deduction calculated AFTER AGI but BEFORE taxable income per IRC 199A }
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>No QBI deduction</action_comment>
-<action_description>set result.qbi_deduction = 0</action_description>
-<action_postfix>
-0.0 /result.qbi_deduction xdef
-"TAXABLE INCOME CALCULATION" job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate taxable income (floor at zero)</action_comment>
+<action_comment>Calculate taxable income (floor at zero per IRC 63)</action_comment>
 <action_description>set result.taxable_income = the maximum of (result.agi - result.total_deduction - result.qbi_deduction) and 0</action_description>
 <action_postfix>
 result.agi result.total_deduction f- result.qbi_deduction f- 0.0 fmax /result.taxable_income xdef
 "  Line 15 - Taxable Income: $" result.taxable_income cvs strconcat " per Form 1040 Line 15" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -2095,13 +2219,32 @@ Calculate_NIIT
 Calculate_Additional_Medicare_Tax
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
+</action_details><action_details>
+<action_number>6</action_number>
+<action_comment>Calculate early distribution penalty (Form 5329) - 10% penalty on early retirement withdrawals per IRC 72(t)</action_comment>
+<action_description>Process_Early_Distributions</action_description>
+<action_postfix>
+job.early_distributions length 0 > if
+  /Process_Early_Distributions executetable
+endif
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
-<action_number>6</action_number>
+<action_number>7</action_number>
+<action_comment>Calculate Schedule H (household employment taxes)</action_comment>
+<action_description>Calculate_Schedule_H</action_description>
+<action_postfix>
+Calculate_Schedule_H
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
 <action_comment>Calculate total tax before credits</action_comment>
 <action_description>set result.total_tax_before_credits = result.regular_tax + result.capital_gains_tax + result.se_tax + result.niit_tax + result.additional_medicare_tax</action_description>
 <action_postfix>
-result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax f+ result.additional_medicare_tax f+ /result.total_tax_before_credits xdef
+result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax f+ result.additional_medicare_tax f+ result.schedule_h_total_tax f+ result.total_early_withdrawal_penalty f+ /result.total_tax_before_credits xdef
 "  Total Tax Before Credits: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -2205,6 +2348,8 @@ result.taxable_income bracket_1_mfj &lt;=
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -2218,6 +2363,8 @@ result.taxable_income bracket_2_mfj &lt;=
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2231,6 +2378,8 @@ result.taxable_income bracket_3_mfj &lt;=
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -2244,6 +2393,38 @@ result.taxable_income bracket_4_mfj &lt;=
 <condition_column column_number="3" column_value="-"></condition_column>
 <condition_column column_number="4" column_value="Y"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>In bracket 5</condition_comment>
+<condition_description>taxable_income at or below bracket_5_mfj</condition_description>
+<condition_postfix>
+result.taxable_income bracket_5_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>In bracket 6</condition_comment>
+<condition_description>taxable_income at or below bracket_6_mfj</condition_description>
+<condition_postfix>
+result.taxable_income bracket_6_mfj &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -2306,6 +2487,37 @@ result.taxable_income bracket_4_mfj f- bracket_5_rate f* f+
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
 </action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 6 tax</action_comment>
+<action_description>set result.regular_tax = tax at brackets 1-5 + excess taxed at bracket_6_rate</action_description>
+<action_postfix>
+bracket_1_mfj bracket_1_rate f*
+bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* f+
+bracket_3_mfj bracket_2_mfj f- bracket_3_rate f* f+
+bracket_4_mfj bracket_3_mfj f- bracket_4_rate f* f+
+bracket_5_mfj bracket_4_mfj f- bracket_5_rate f* f+
+result.taxable_income bracket_5_mfj f- bracket_6_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 7 tax</action_comment>
+<action_description>set result.regular_tax = tax at brackets 1-6 + excess taxed at bracket_7_rate</action_description>
+<action_postfix>
+bracket_1_mfj bracket_1_rate f*
+bracket_2_mfj bracket_1_mfj f- bracket_2_rate f* f+
+bracket_3_mfj bracket_2_mfj f- bracket_3_rate f* f+
+bracket_4_mfj bracket_3_mfj f- bracket_4_rate f* f+
+bracket_5_mfj bracket_4_mfj f- bracket_5_rate f* f+
+bracket_6_mfj bracket_5_mfj f- bracket_6_rate f* f+
+result.taxable_income bracket_6_mfj f- bracket_7_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
 </actions>
 <policy_statements></policy_statements>
 </decision_table>
@@ -2337,6 +2549,8 @@ result.taxable_income bracket_1_single &lt;=
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -2350,6 +2564,8 @@ result.taxable_income bracket_2_single &lt;=
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2363,6 +2579,8 @@ result.taxable_income bracket_3_single &lt;=
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -2376,6 +2594,38 @@ result.taxable_income bracket_4_single &lt;=
 <condition_column column_number="3" column_value="-"></condition_column>
 <condition_column column_number="4" column_value="Y"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>In bracket 5</condition_comment>
+<condition_description>taxable_income at or below bracket_5_single</condition_description>
+<condition_postfix>
+result.taxable_income bracket_5_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>In bracket 6</condition_comment>
+<condition_description>taxable_income at or below bracket_6_single</condition_description>
+<condition_postfix>
+result.taxable_income bracket_6_single &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -2438,12 +2688,43 @@ result.taxable_income bracket_4_single f- bracket_5_rate f* f+
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
 </action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 6 tax</action_comment>
+<action_description>set result.regular_tax = tax at brackets 1-5 + excess taxed at bracket_6_rate</action_description>
+<action_postfix>
+bracket_1_single bracket_1_rate f*
+bracket_2_single bracket_1_single f- bracket_2_rate f* f+
+bracket_3_single bracket_2_single f- bracket_3_rate f* f+
+bracket_4_single bracket_3_single f- bracket_4_rate f* f+
+bracket_5_single bracket_4_single f- bracket_5_rate f* f+
+result.taxable_income bracket_5_single f- bracket_6_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 7 tax</action_comment>
+<action_description>set result.regular_tax = tax at brackets 1-6 + excess taxed at bracket_7_rate</action_description>
+<action_postfix>
+bracket_1_single bracket_1_rate f*
+bracket_2_single bracket_1_single f- bracket_2_rate f* f+
+bracket_3_single bracket_2_single f- bracket_3_rate f* f+
+bracket_4_single bracket_3_single f- bracket_4_rate f* f+
+bracket_5_single bracket_4_single f- bracket_5_rate f* f+
+bracket_6_single bracket_5_single f- bracket_6_rate f* f+
+result.taxable_income bracket_6_single f- bracket_7_rate f* f+
+/result.regular_tax xdef
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
 </actions>
 <policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 6: Calculate_Credits                                            -->
+<!-- TABLE 6010 (was 6000): Calculate_Credits                                            -->
 <!-- IRS Reference: Form 1040 Lines 19-21, Schedule 8812                   -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -2451,8 +2732,8 @@ result.taxable_income bracket_4_single f- bracket_5_rate f* f+
 <xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24.</COMMENTS>
-<TABLE_NUMBER>6000</TABLE_NUMBER>
+<COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24. TABLE RENUMBERED: 6000 → 6010 to resolve duplicate with Calculate_AMT.</COMMENTS>
+<TABLE_NUMBER>6010</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -2563,22 +2844,108 @@ Calculate_Foreign_Tax_Credit
 </action_details>
 <action_details>
 <action_number>10</action_number>
-<action_comment>Sum total credits</action_comment>
-<action_description>set result.total_credits = sum of all credit amounts</action_description>
+<action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
+<action_description>Calculate_DC_Homebuyer_Credit</action_description>
 <action_postfix>
-result.total_ctc result.total_odc f+ result.education_credit f+
+/Calculate_DC_Homebuyer_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
+<action_comment>Calculate Mortgage Interest Credit (Form 8396)</action_comment>
+<action_description>Calculate_Mortgage_Interest_Credit</action_description>
+<action_postfix>
+Calculate_Mortgage_Interest_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>12</action_number>
+<action_comment>Calculate Energy Efficient Appliance Credit (Form 8909)</action_comment>
+<action_description>Calculate_Energy_Appliance_Credit</action_description>
+<action_postfix>
+Calculate_Energy_Appliance_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate General Business Credit (Form 3800)</action_comment>
+<action_description>Calculate_General_Business_Credit</action_description>
+<action_postfix>
+/Calculate_General_Business_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Calculate Prior Year AMT Credit (Form 8801) - Schedule 3 Line 6b</action_comment>
+<action_description>Calculate_Prior_Year_AMT_Credit</action_description>
+<action_postfix>
+/Calculate_Prior_Year_AMT_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>15</action_number>
+<action_comment>Process Adoption Credit (Form 8839) - Schedule 3 Line 6c</action_comment>
+<action_description>Process_Adoption_Credit</action_description>
+<action_postfix>
+/Process_Adoption_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>16</action_number>
+<action_comment>Calculate Elderly/Disabled Credit (Schedule R) - Schedule 3 Line 6d</action_comment>
+<action_description>Calculate_Elderly_Disabled_Credit</action_description>
+<action_postfix>
+/Calculate_Elderly_Disabled_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>17</action_number>
+<action_comment>Process Clean Vehicle Credit (Form 8936) - Nonrefundable</action_comment>
+<action_description>Process_Clean_Vehicle_Credit</action_description>
+<action_postfix>
+/Process_Clean_Vehicle_Credit executetable
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>18</action_number>
+<action_comment>Sum total credits</action_comment>
+<action_description>set result.total_credits = sum of all nonrefundable credit amounts (education credit less AOTC refundable portion)</action_description>
+<action_postfix>
+result.total_ctc result.total_odc f+ result.education_credit f+ result.total_aotc_refundable f-
 result.cdcc_credit f+ result.savers_credit f+ result.energy_efficiency_credit f+ result.clean_energy_credit f+
-result.premium_tax_credit f+ result.foreign_tax_credit f+ /result.total_credits xdef
+result.premium_tax_credit f+ result.foreign_tax_credit f+
+result.dc_homebuyer_credit f+ result.mortgage_interest_credit f+ result.energy_appliance_credit f+
+result.general_business_credit_used f+
+result.prior_year_amt_credit f+ result.total_adoption_credit f+ result.elderly_disabled_credit f+
+result.total_clean_vehicle_credit f+ /result.total_credits xdef
 "  Total Child Tax Credit: $" result.total_ctc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total Other Dependent Credit: $" result.total_odc cvs strconcat " (Schedule 8812)" strconcat job.audit_trail swap addto
 "  Total EITC: $" result.eitc cvs strconcat " (Schedule EIC)" strconcat job.audit_trail swap addto
 "  Total Education Credit: $" result.education_credit cvs strconcat " (Form 8863)" strconcat job.audit_trail swap addto
+"    Education Credit Nonrefundable Portion: $" result.education_credit result.total_aotc_refundable f- cvs strconcat " (AOTC 60% + LLC)" strconcat job.audit_trail swap addto
+"    AOTC Refundable Portion: $" result.total_aotc_refundable cvs strconcat " (AOTC 40%, max $1,000)" strconcat job.audit_trail swap addto
 "  Child/Dependent Care Credit: $" result.cdcc_credit cvs strconcat " (Form 2441)" strconcat job.audit_trail swap addto
 "  Saver's Credit: $" result.savers_credit cvs strconcat " (Form 8880)" strconcat job.audit_trail swap addto
 "  Energy Efficiency Credit: $" result.energy_efficiency_credit cvs strconcat " (Form 5695)" strconcat job.audit_trail swap addto
 "  Clean Energy Credit: $" result.clean_energy_credit cvs strconcat " (Form 5695)" strconcat job.audit_trail swap addto
 "  Premium Tax Credit: $" result.premium_tax_credit cvs strconcat " (Form 8962)" strconcat job.audit_trail swap addto
 "  Foreign Tax Credit: $" result.foreign_tax_credit cvs strconcat " (Form 1116)" strconcat job.audit_trail swap addto
+"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat " (Form 8859)" strconcat job.audit_trail swap addto
+"  Mortgage Interest Credit: $" result.mortgage_interest_credit cvs strconcat " (Form 8396)" strconcat job.audit_trail swap addto
+"  Energy Appliance Credit: $" result.energy_appliance_credit cvs strconcat " (Form 8909)" strconcat job.audit_trail swap addto
+"  General Business Credit: $" result.general_business_credit_used cvs strconcat " (Form 3800)" strconcat job.audit_trail swap addto
+"  Prior Year AMT Credit: $" result.prior_year_amt_credit cvs strconcat " (Form 8801 - Schedule 3 Line 6b)" strconcat job.audit_trail swap addto
+"  Adoption Credit: $" result.total_adoption_credit cvs strconcat " (Form 8839 - Schedule 3 Line 6c)" strconcat job.audit_trail swap addto
+"  Elderly/Disabled Credit: $" result.elderly_disabled_credit cvs strconcat " (Schedule R - Schedule 3 Line 6d)" strconcat job.audit_trail swap addto
+"  Clean Vehicle Credit: $" result.total_clean_vehicle_credit cvs strconcat " (Form 8936)" strconcat job.audit_trail swap addto
 "  Total Credits: $" result.total_credits cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -2899,9 +3266,11 @@ result.ctc_used result.other_nonrefundable_credits f+ /result.total_nonrefundabl
 result.tax_before_nonrefundable_credits result.total_nonrefundable_credits f- result.ptc_repayment f+ /result.total_tax xdef
 result.eitc result.total_payments f+ /result.total_payments xdef
 result.total_actc result.total_payments f+ /result.total_payments xdef
+result.total_aotc_refundable result.total_payments f+ /result.total_payments xdef
 "  Line 19 - CTC (non-refundable): $" result.ctc_used cvs strconcat job.audit_trail swap addto
 "  Line 27 - EITC: $" result.eitc cvs strconcat job.audit_trail swap addto
 "  Line 28 - ACTC (refundable): $" result.total_actc cvs strconcat job.audit_trail swap addto
+"  Line 29 - AOTC (refundable portion): $" result.total_aotc_refundable cvs strconcat " per IRC 25A(i)(5)" strconcat job.audit_trail swap addto
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -3291,9 +3660,11 @@ eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 f* f- 0 fmax /resu
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.education_credit = 0, for all dependents perform Calculate_Education_Credit_Per_Dependent</action_description>
+<action_description>set result.education_credit = 0, initialize AOTC refundable/nonrefundable, for all dependents perform Calculate_Education_Credit_Per_Dependent</action_description>
 <action_postfix>
 0.0 /result.education_credit xdef
+0.0 /result.total_aotc_refundable xdef
+0.0 /result.total_aotc_nonrefundable xdef
 { Calculate_Education_Credit_Per_Dependent performaliased } job.dependents forall
 </action_postfix>
 </initial_action>
@@ -3313,9 +3684,11 @@ perform when called
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log education credit total</action_comment>
-<action_description>add education credit summary to job.audit_trail</action_description>
+<action_description>add education credit summary to job.audit_trail, showing AOTC split</action_description>
 <action_postfix>
 "  Total Education Credits: $" result.education_credit cvs strconcat job.audit_trail swap addto
+"    AOTC Refundable (40%, max $1,000): $" result.total_aotc_refundable cvs strconcat " per IRC 25A(i)(5)" strconcat job.audit_trail swap addto
+"    AOTC Nonrefundable (60%): $" result.total_aotc_nonrefundable cvs strconcat " per IRC 25A(i)(6)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -3396,23 +3769,27 @@ result.agi llc_phase_out_mfj &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate AOTC (full amount)</action_comment>
-<action_description>AOTC: 100% of first $2000 + 25% of next $2000</action_description>
+<action_description>AOTC: 100% of first $2000 + 25% of next $2000, split into refundable (40%, max $1,000) and nonrefundable (60%)</action_description>
 <action_postfix>
 dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
+dependent.education_credit 0.40 f* 1000 fmin result.total_aotc_refundable f+ /result.total_aotc_refundable xdef
+dependent.education_credit 0.60 f* result.total_aotc_nonrefundable f+ /result.total_aotc_nonrefundable xdef
 dependent.education_credit result.education_credit f+ /result.education_credit xdef
-"  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
+"  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " (refundable: $" strconcat result.total_aotc_refundable cvs strconcat ", nonrefundable: $" strconcat result.total_aotc_nonrefundable cvs strconcat ") per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate AOTC with phase-out</action_comment>
-<action_description>AOTC with AGI phase-out reduction</action_description>
+<action_description>AOTC with AGI phase-out reduction, split into refundable (40%, max $1,000) and nonrefundable (60%)</action_description>
 <action_postfix>
 dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
 dependent.education_credit aotc_phase_out_end_mfj result.agi f- aotc_phase_out_end_mfj aotc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef
+dependent.education_credit 0.40 f* 1000 fmin result.total_aotc_refundable f+ /result.total_aotc_refundable xdef
+dependent.education_credit 0.60 f* result.total_aotc_nonrefundable f+ /result.total_aotc_nonrefundable xdef
 dependent.education_credit result.education_credit f+ /result.education_credit xdef
-"  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " (phase-out applied) per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
+"  AOTC for " dependent.name strconcat ": $" strconcat dependent.education_credit cvs strconcat " (phase-out applied, refundable: $" strconcat result.total_aotc_refundable cvs strconcat ", nonrefundable: $" strconcat result.total_aotc_nonrefundable cvs strconcat ") per Form 8863, IRC 25A(i)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -3595,7 +3972,7 @@ Validate_Summary
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 8a: Validate_AGI                                                 -->
+<!-- TABLE 8010 (was 8100/8150): Validate_AGI                                                 -->
 <!-- Validation sub-table for AGI                                           -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -3603,8 +3980,8 @@ Validate_Summary
 <xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch.</COMMENTS>
-<TABLE_NUMBER>8100</TABLE_NUMBER>
+<COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch. TABLE RENUMBERED: 8150 → 8010 to resolve duplicate with Calculate_Kiddie_Tax_For_Dependent.</COMMENTS>
+<TABLE_NUMBER>8010</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -3695,7 +4072,7 @@ false /result.validation_passed xdef
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 8c: Validate_Total_Tax                                           -->
+<!-- TABLE 8030 (was 8300): Validate_Total_Tax                                           -->
 <!-- Validation sub-table for Total Tax                                     -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -3703,8 +4080,8 @@ false /result.validation_passed xdef
 <xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Validates total tax against expected value.</COMMENTS>
-<TABLE_NUMBER>8300</TABLE_NUMBER>
+<COMMENTS>Validates total tax against expected value. TABLE RENUMBERED: 8300 → 8030 to resolve duplicate with Calculate_DC_Homebuyer_Credit.</COMMENTS>
+<TABLE_NUMBER>8030</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -3745,7 +4122,7 @@ false /result.validation_passed xdef
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 8d: Validate_Summary                                             -->
+<!-- TABLE 8040 (was 8400): Validate_Summary                                             -->
 <!-- Validation summary - log overall pass/fail                             -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -3753,8 +4130,8 @@ false /result.validation_passed xdef
 <xls_file>Validation.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Logs overall validation summary.</COMMENTS>
-<TABLE_NUMBER>8400</TABLE_NUMBER>
+<COMMENTS>Logs overall validation summary. TABLE RENUMBERED: 8400 → 8040 to resolve duplicate with Calculate_Mortgage_Interest_Credit.</COMMENTS>
+<TABLE_NUMBER>8040</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -3938,7 +4315,7 @@ type "rental" streq
 <xls_file>Helpers.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Helper table that increments counter if dependent is qualifying child for EITC.</COMMENTS>
+<COMMENTS>Helper table that increments counter if dependent is qualifying child for EITC. Per IRS Pub 596: child relationship, age test (under 19, OR under 24 if student, OR any age if disabled), and residency test (>6 months).</COMMENTS>
 <TABLE_NUMBER>9040</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -3946,10 +4323,32 @@ type "rental" streq
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Is qualifying child</condition_comment>
-<condition_description>relationship is child AND age under 19</condition_description>
+<condition_comment>Has child relationship</condition_comment>
+<condition_description>relationship is "child"</condition_description>
 <condition_postfix>
-relationship "child" streq age 19 &lt; and
+relationship "child" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets age test</condition_comment>
+<condition_description>age &lt; 19 OR (age &lt; 24 AND is_student) OR is_disabled</condition_description>
+<condition_postfix>
+age 19 &lt;
+age 24 &lt; is_student and or
+is_disabled or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Meets residency test</condition_comment>
+<condition_description>months_lived_with &gt; 6</condition_description>
+<condition_postfix>
+months_lived_with 6 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -3959,7 +4358,7 @@ relationship "child" streq age 19 &lt; and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Increment counter</action_comment>
-<action_description>increment qualifying children count</action_description>
+<action_description>Qualifies for EITC - increment counter</action_description>
 <action_postfix>
 0 local@ 1 + 0 local!
 </action_postfix>
@@ -3968,7 +4367,7 @@ relationship "child" streq age 19 &lt; and
 <action_details>
 <action_number>2</action_number>
 <action_comment>Skip non-qualifying</action_comment>
-<action_description>otherwise</action_description>
+<action_description>Does not qualify for EITC</action_description>
 <action_postfix>
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -4847,7 +5246,8 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 result.total_long_term_gains result.total_qualified_dividends f+ 0 >
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4857,6 +5257,16 @@ result.total_long_term_gains result.total_qualified_dividends f+ 0 >
 job.filing_status MFJ streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status is equal to "HOH"</condition_description>
+<condition_postfix>
+job.filing_status HOH streq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -4871,18 +5281,31 @@ Apply_CG_Brackets_MFJ
 </action_details>
 <action_details>
 <action_number>2</action_number>
+<action_comment>Calculate CG tax for HOH</action_comment>
+<action_description>Calculate_Capital_Gains_Tax_HOH</action_description>
+<action_postfix>
+Apply_CG_Brackets_HOH
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
 <action_comment>Calculate CG tax for Single/Other</action_comment>
 <action_description>Calculate_Capital_Gains_Tax_Single</action_description>
 <action_postfix>
 Apply_CG_Brackets_Single
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>Capital gains tax calculated using MFJ brackets per IRC 1(h)</policy_description>
 <policy_statement_postfix>"Capital gains tax calculated using MFJ brackets per IRC 1(h)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Capital gains tax calculated using HOH brackets per IRC 1(h)</policy_description>
+<policy_statement_postfix>"Capital gains tax calculated using HOH brackets per IRC 1(h)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -4966,7 +5389,85 @@ deallocate pop
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 13b: Apply_CG_Brackets_Single                                   -->
+
+<!-- ====================================================================== -->
+<!-- TABLE 13b: Apply_CG_Brackets_HOH                                      -->
+<!-- IRS Reference: Schedule D Tax Worksheet, IRC 1(h) - HOH               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Apply_CG_Brackets_HOH</table_name>
+<xls_file>SpecialForms.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies HOH capital gains brackets (0%/15%/20%) based on taxable income level.</COMMENTS>
+<TABLE_NUMBER>13150</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Ordinary income fills 0% bracket</condition_comment>
+<condition_description>ordinary_income_for_cg at or below 0% ceiling</condition_description>
+<condition_postfix>
+result.ordinary_income_for_cg cg_0_percent_hoh le
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Taxable income in 15% bracket</condition_comment>
+<condition_description>taxable_income at or below 15% ceiling</condition_description>
+<condition_postfix>
+result.taxable_income cg_15_percent_hoh le
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>0% rate applies to all preferential income</action_comment>
+<action_description>set result.capital_gains_tax = 0</action_description>
+<action_postfix>
+0.0 /result.capital_gains_tax xdef
+"  Capital Gains Rate: 0% - Taxable income within 0% bracket ($63,000 HOH)" job.audit_trail swap addto
+deallocate pop
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>15% rate applies</action_comment>
+<action_description>LTCG/QD at 15%</action_description>
+<action_postfix>
+result.total_long_term_gains result.total_qualified_dividends f+ 0.15 f* /result.capital_gains_tax xdef
+"  Capital Gains Rate: 15% - Taxable income within 15% bracket" job.audit_trail swap addto
+"  Capital Gains Tax: $" result.capital_gains_tax cvs strconcat job.audit_trail swap addto
+deallocate pop
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>20% rate applies</action_comment>
+<action_description>LTCG/QD at 20%</action_description>
+<action_postfix>
+result.total_long_term_gains result.total_qualified_dividends f+ 0.20 f* /result.capital_gains_tax xdef
+"  Capital Gains Rate: 20% - Taxable income above 15% bracket ($551,350 HOH)" job.audit_trail swap addto
+"  Capital Gains Tax: $" result.capital_gains_tax cvs strconcat job.audit_trail swap addto
+deallocate pop
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+<!-- TABLE 13c: Apply_CG_Brackets_Single                                   -->
 <!-- IRS Reference: Schedule D Tax Worksheet, IRC 1(h) - Single            -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -6113,7 +6614,7 @@ result.cdcc_credit result.total_credits f+ /result.total_credits xdef
 <xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Count qualifying persons and care expenses for CDCC per IRC 21</COMMENTS>
+<COMMENTS>Count qualifying persons and care expenses for CDCC per IRC 21. Requires qualifying person (under 13 OR disabled) AND work-related care expenses greater than zero.</COMMENTS>
 <TABLE_NUMBER>5601</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -6137,6 +6638,15 @@ result.cdcc_credit result.total_credits f+ /result.total_credits xdef
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has work-related care expenses</condition_comment>
+<condition_description>dependent.care_expenses &gt; 0</condition_description>
+<condition_postfix>dependent.care_expenses 0 &gt;</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
 </conditions>
 <actions>
 <action_details>
@@ -6152,7 +6662,7 @@ true /dependent.qualifies_for_cdcc xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_description>otherwise</action_description>
+<action_description>otherwise - does not qualify</action_description>
 <action_postfix>
 false /dependent.qualifies_for_cdcc xdef
 </action_postfix>
@@ -6161,12 +6671,12 @@ false /dependent.qualifies_for_cdcc xdef
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>Child under 13 qualifies for CDCC per IRC 21(b)(1)(A)</policy_description>
-<policy_statement_postfix>"Child under 13 qualifies for CDCC per IRC 21(b)(1)(A)"</policy_statement_postfix>
+<policy_description>Child under 13 with care expenses qualifies for CDCC per IRC 21(b)(1)(A)</policy_description>
+<policy_statement_postfix>"Child under 13 with work-related care expenses qualifies for CDCC per IRC 21(b)(1)(A)"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>Disabled person qualifies for CDCC per IRC 21(b)(1)(B)</policy_description>
-<policy_statement_postfix>"Disabled person qualifies for CDCC per IRC 21(b)(1)(B)"</policy_statement_postfix>
+<policy_description>Disabled person with care expenses qualifies for CDCC per IRC 21(b)(1)(B)</policy_description>
+<policy_statement_postfix>"Disabled person with work-related care expenses qualifies for CDCC per IRC 21(b)(1)(B)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -6706,7 +7216,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <xls_file>TaxCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Sum rental losses for PAL calculation per IRC 469</COMMENTS>
+<COMMENTS>Sum rental losses for PAL calculation per IRC 469. Only counts properties with type='rental' to exclude primary residence and second homes.</COMMENTS>
 <TABLE_NUMBER>5901</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -6714,11 +7224,19 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
+<condition_comment>Is rental property</condition_comment>
+<condition_description>property.type == "rental"</condition_description>
+<condition_postfix>property.type "rental" streq</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
 <condition_comment>Property has loss (negative net income)</condition_comment>
 <condition_description>property.rental_net_income &lt; 0</condition_description>
 <condition_postfix>property.rental_net_income 0 &lt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
 </condition_details>
 </conditions>
 <actions>
@@ -6730,11 +7248,18 @@ property.rental_net_income fnegate result.total_rental_loss f+ /result.total_ren
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
+<action_details>
+<action_number>2</action_number>
+<action_description>skip non-rental properties</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>Rental loss counted for PAL per IRC 469</policy_description>
-<policy_statement_postfix>"Rental loss counted for PAL per IRC 469"</policy_statement_postfix>
+<policy_description>Rental property loss counted for PAL per IRC 469</policy_description>
+<policy_statement_postfix>"Rental property loss counted for PAL per IRC 469"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -6748,7 +7273,7 @@ property.rental_net_income fnegate result.total_rental_loss f+ /result.total_ren
 <xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculate Alternative Minimum Tax per Form 6251, IRC 55-59. AMTI = taxable income + preference items. Tax rates: 26% up to $232,600, 28% above. Exemption phased out at 25% of AMTI over threshold.</COMMENTS>
+<COMMENTS>Calculate Alternative Minimum Tax per Form 6251, IRC 55-59. AMTI = taxable income + preference items. Tax rates: 26% up to $239,100, 28% above. Exemption phased out at 25% of AMTI over threshold.</COMMENTS>
 <TABLE_NUMBER>6000</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -6792,7 +7317,9 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 result.amti amt_phaseout_mfj f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_mfj result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
 result.amti result.amt_exemption f- 0 fmax /result.amt_base xdef
-result.amt_base amt_rate_low f* /result.amt_tax xdef
+result.amt_base constants.amt_rate_threshold fmin constants.amt_rate_low f*
+result.amt_base constants.amt_rate_threshold f- 0 fmax constants.amt_rate_high f* f+
+/result.amt_tax xdef
 result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 "  Exemption: $" result.amt_exemption cvs strconcat " (reduced by $" strconcat result.amt_exemption_reduction cvs strconcat ")" strconcat job.audit_trail swap addto
 "  Tentative Minimum Tax: $" result.amt_tax cvs strconcat job.audit_trail swap addto
@@ -6807,7 +7334,9 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 result.amti amt_phaseout_mfs f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_mfs result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
 result.amti result.amt_exemption f- 0 fmax /result.amt_base xdef
-result.amt_base amt_rate_low f* /result.amt_tax xdef
+result.amt_base constants.amt_rate_threshold fmin constants.amt_rate_low f*
+result.amt_base constants.amt_rate_threshold f- 0 fmax constants.amt_rate_high f* f+
+/result.amt_tax xdef
 result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 "  Exemption: $" result.amt_exemption cvs strconcat " (reduced by $" strconcat result.amt_exemption_reduction cvs strconcat ")" strconcat job.audit_trail swap addto
 "  Tentative Minimum Tax: $" result.amt_tax cvs strconcat job.audit_trail swap addto
@@ -6822,7 +7351,9 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 result.amti amt_phaseout_single f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_single result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
 result.amti result.amt_exemption f- 0 fmax /result.amt_base xdef
-result.amt_base amt_rate_low f* /result.amt_tax xdef
+result.amt_base constants.amt_rate_threshold fmin constants.amt_rate_low f*
+result.amt_base constants.amt_rate_threshold f- 0 fmax constants.amt_rate_high f* f+
+/result.amt_tax xdef
 result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 "  Exemption: $" result.amt_exemption cvs strconcat " (reduced by $" strconcat result.amt_exemption_reduction cvs strconcat ")" strconcat job.audit_trail swap addto
 "  Tentative Minimum Tax: $" result.amt_tax cvs strconcat job.audit_trail swap addto
@@ -6848,15 +7379,15 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 </decision_table>
 
 <!-- ================================================================== -->
-<!-- Calculate_Premium_Tax_Credit - Form 8962 (IRC 36B)                -->
+<!-- TABLE 6110 (was 6100): Calculate_Premium_Tax_Credit - Form 8962 (IRC 36B)                -->
 <!-- ================================================================== -->
 <decision_table>
 <table_name>Calculate_Premium_Tax_Credit</table_name>
 <xls_file>MajorCredits.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculate Premium Tax Credit per Form 8962, IRC 36B</COMMENTS>
-<TABLE_NUMBER>6100</TABLE_NUMBER>
+<COMMENTS>Calculate Premium Tax Credit per Form 8962, IRC 36B TABLE RENUMBERED: 6100 → 6110 to resolve duplicate with Calculate_Child_Tax_Credit.</COMMENTS>
+<TABLE_NUMBER>6110</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -7638,6 +8169,71 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 </decision_table>
 
 <!-- ====================================================================== -->
+<!-- TABLE 8300: Calculate_DC_Homebuyer_Credit                             -->
+<!-- IRS Reference: Form 8859 - DC First-Time Homebuyer Credit             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_DC_Homebuyer_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates DC First-Time Homebuyer Credit. Credit is lesser of $5,000 or purchase price. Subject to phase-out at higher income levels. Must be first-time homebuyer in DC during qualified period per Form 8859.</COMMENTS>
+<TABLE_NUMBER>8300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize DC homebuyer credit</action_description>
+<action_postfix>
+0.0 /result.dc_homebuyer_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Purchased DC home as first-time buyer</condition_comment>
+<condition_description>job.purchased_dc_home_first_time equals true</condition_description>
+<condition_postfix>job.purchased_dc_home_first_time</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Purchase price is greater than zero</condition_comment>
+<condition_description>job.dc_home_purchase_price &gt; 0</condition_description>
+<condition_postfix>job.dc_home_purchase_price 0 &gt;</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate DC homebuyer credit</action_comment>
+<action_description>Calculate DC credit (lesser of $5,000 or purchase price)</action_description>
+<action_postfix>
+"Calculating DC First-Time Homebuyer Credit (Form 8859)" job.audit_trail swap addto
+5000.0 job.dc_home_purchase_price fmin /result.dc_homebuyer_credit xdef
+"  Purchase price: $" job.dc_home_purchase_price cvs strconcat job.audit_trail swap addto
+"  DC Homebuyer Credit: $" result.dc_homebuyer_credit cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No DC homebuyer credit</action_comment>
+<action_description>DC homebuyer credit not applicable</action_description>
+<action_postfix>
+"DC Homebuyer Credit not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 24000: Process_Foreign_Earned_Income - Form 2555                -->
 <!-- IRS Reference: Form 2555, IRC Section 911                             -->
 <!-- ====================================================================== -->
@@ -7679,7 +8275,7 @@ foreign_earned_income.bona_fide_resident foreign_earned_income.physical_presence
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_description>set result.feie_exclusion = the minimum of foreign_earned_income and feie_limit</action_description>
+<action_description>Calculate FEIE exclusion and housing exclusion</action_description>
 <action_postfix>
 foreign_earned_income.foreign_wages foreign_earned_income.foreign_se_income f+ result.total_foreign_earned_income f+ /result.total_foreign_earned_income xdef
 result.total_foreign_earned_income feie_max_exclusion fmin result.foreign_earned_income_exclusion f+ /result.foreign_earned_income_exclusion xdef
@@ -7693,7 +8289,7 @@ foreign_earned_income.housing_exclusion result.foreign_housing_exclusion f+ /res
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_description>set result.feie_exclusion = 0</action_description>
+<action_description>Does not qualify for FEIE</action_description>
 <action_postfix>
 false /foreign_earned_income.qualifies_exclusion xdef
 "  Does not qualify for FEIE - did not meet residence or presence test" job.audit_trail swap addto
@@ -7701,6 +8297,94 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8400: Calculate_Mortgage_Interest_Credit                        -->
+<!-- IRS Reference: Form 8396 - Mortgage Interest Credit                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Mortgage_Interest_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Mortgage Interest Credit for holders of Mortgage Credit Certificates (MCC). Credit = mortgage interest paid x MCC rate. Limited to $2,000. Reduces Schedule A mortgage interest deduction. Excess carries forward per Form 8396.</COMMENTS>
+<TABLE_NUMBER>8400</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each property for MCC</context_comment>
+<context_description>for all properties</context_description>
+<context_postfix>
+{ /Calculate_Mortgage_Interest_Credit executetable } job.properties forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize mortgage interest credit</action_description>
+<action_postfix>
+0.0 /result.mortgage_interest_credit xdef
+0.0 /result.carryforward_mortgage_credit xdef
+0.0 /result.mortgage_interest_deduction_reduction xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property has MCC</condition_comment>
+<condition_description>property.has_mortgage_credit_certificate equals true</condition_description>
+<condition_postfix>property.has_mortgage_credit_certificate</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>MCC rate is valid</condition_comment>
+<condition_description>property.mcc_rate &gt; 0 and &lt;= 0.50</condition_description>
+<condition_postfix>property.mcc_rate 0 &gt; property.mcc_rate 0.50 &lt;= and</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has mortgage interest paid</condition_comment>
+<condition_description>Mortgage interest paid &gt; 0</condition_description>
+<condition_postfix>
+property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate mortgage interest credit</action_comment>
+<action_description>Calculate MCC credit and adjust deduction</action_description>
+<action_postfix>
+property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if local@ interest_paid &gt;
+interest_paid property.mcc_rate f* /property.mcc_credit xdef
+property.mcc_credit 2000 fmin /property.mcc_credit_allowed xdef
+property.mcc_credit_allowed result.mortgage_interest_credit f+ /result.mortgage_interest_credit xdef
+property.mcc_credit_allowed /result.mortgage_interest_deduction_reduction xdef
+"  MCC credit calculated: $" property.mcc_credit_allowed cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No MCC credit</action_comment>
+<action_description>Property does not qualify for MCC</action_description>
+<action_postfix>
+0.0 /property.mcc_credit_allowed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -7734,7 +8418,7 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <condition_number>1</condition_number>
 <condition_comment>Has payments this year</condition_comment>
 <condition_description>result.payments_received &gt; 0</condition_description>
-<condition_postfix>installment_sale.payments_received 0 ></condition_postfix>
+<condition_postfix>installment_sale.payments_received 0 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
@@ -7756,6 +8440,7 @@ installment_sale.interest_received result.total_installment_interest f+ /result.
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -8251,7 +8936,7 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 25000: Process_Household_Employment - Schedule H                -->
+<!-- TABLE 25200 (was 25000): Process_Household_Employment - Schedule H                -->
 <!-- IRS Reference: Schedule H, IRC Sections 3101, 3111, 3301              -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -8259,8 +8944,8 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 <xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Process Schedule H Household Employment Taxes. FICA and FUTA taxes for household employees.</COMMENTS>
-<TABLE_NUMBER>25000</TABLE_NUMBER>
+<COMMENTS>Process Schedule H Household Employment Taxes. FICA and FUTA taxes for household employees. TABLE RENUMBERED: 25000 → 25200 to resolve duplicate with Calculate_Combat_Zone_Pay_Exclusion.</COMMENTS>
+<TABLE_NUMBER>25200</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
@@ -8313,7 +8998,7 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 25100: Process_NOL_Carryover - Net Operating Loss               -->
+<!-- TABLE 25300 (was 25100): Process_NOL_Carryover - Net Operating Loss               -->
 <!-- IRS Reference: IRC Section 172                                        -->
 <!-- ====================================================================== -->
 <decision_table>
@@ -8321,8 +9006,8 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 <xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Process Net Operating Loss carryovers per IRC 172. NOLs limited to 80% of taxable income for post-2017 losses.</COMMENTS>
-<TABLE_NUMBER>25100</TABLE_NUMBER>
+<COMMENTS>Process Net Operating Loss carryovers per IRC 172. NOLs limited to 80% of taxable income for post-2017 losses. TABLE RENUMBERED: 25100 → 25300 to resolve duplicate with Calculate_Military_Moving_Expenses.</COMMENTS>
+<TABLE_NUMBER>25300</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
@@ -8536,7 +9221,7 @@ partnership_audit.rental_adjustment f+ partnership_audit.other_adjustment f+ 0 !
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_description>set result.additional_tax = adjustments * applicable_rate</action_description>
+<action_description>Calculate partnership audit additional tax</action_description>
 <action_postfix>
 partnership_audit.ordinary_income_adjustment partnership_audit.capital_gain_adjustment f+
 partnership_audit.dividend_adjustment f+ partnership_audit.interest_adjustment f+
@@ -8552,6 +9237,62 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8350: Calculate_Energy_Appliance_Credit                         -->
+<!-- IRS Reference: Form 8909 - Energy Efficient Appliance Credit          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Energy_Appliance_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Energy Efficient Appliance Credit for MANUFACTURERS. Credit varies by appliance type: dishwasher ($25-$75), clothes_washer ($75-$175), refrigerator ($50-$200) per unit. Subject to annual caps. Not for individual homeowners per Form 8909.</COMMENTS>
+<TABLE_NUMBER>8350</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each taxpayer for energy appliance credit</context_comment>
+<context_description>for all taxpayers</context_description>
+<context_postfix>
+{ /Calculate_Energy_Appliance_Credit executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize energy appliance credit</action_description>
+<action_postfix>
+0.0 /result.energy_appliance_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Manufacturer has appliance production</condition_comment>
+<condition_description>Has energy efficient appliances produced</condition_description>
+<condition_postfix>
+taxpayer.energy_efficient_appliances_produced 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate energy appliance credit</action_description>
+<action_postfix>
+0.0 /taxpayer.appliance_credit xdef
+"  Energy appliance credit placeholder" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
@@ -8682,6 +9423,96 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 
 
 <!-- ====================================================================== -->
+<!-- TABLE 45000: Allocate_Income_By_State - Multi-State Income Allocation -->
+<!-- Reference: Multi-state resident income allocation rules                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Allocate_Income_By_State</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>ITERATIVE</Type>
+<COMMENTS>Allocates income across multiple states for taxpayers who moved between states during the tax year. Processes each state_period and allocates income based on dates and source state.</COMMENTS>
+<TABLE_NUMBER>45000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_entity>state_period</context_entity>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log multi-state allocation start</action_description>
+<action_postfix>
+"Multi-State Income Allocation" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute for each state period</condition_comment>
+<condition_description>Always allocate income for each state period in the iteration</condition_description>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate days in state</action_comment>
+<action_description>Calculate days between start_date and end_date</action_description>
+<action_postfix>
+state_period.end_date state_period.start_date daysbetween state_period.days_in_state !
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate allocation percentage</action_comment>
+<action_description>Calculate allocation percentage based on days in state</action_description>
+<action_postfix>
+state_period.days_in_state cvt:d 365.0 div state_period.allocation_percentage !
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Allocate income for this state</action_comment>
+<action_description>Allocate income to this state based on state_code match or allocation percentage</action_description>
+<action_postfix>
+0 state_period.allocated_income !
+0 state_period.allocated_withholding !
+job.incomes foreach income do
+  income.state_code state_period.state_code streq
+  income.state_code null:s streq or
+  if
+    state_period.allocated_income income.gross_amount state_period.allocation_percentage mult add state_period.allocated_income !
+    state_period.allocated_withholding income.tax_withheld state_period.allocation_percentage mult add state_period.allocated_withholding !
+  then
+done
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Log allocation results</action_comment>
+<action_description>Log the allocation results for audit trail</action_description>
+<action_postfix>
+"  Allocated " state_period.allocated_income formatnumber strconcat " to " strconcat state_period.state_code strconcat
+" (" strconcat state_period.days_in_state cvt:s strconcat " days)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Allocate income across multiple states based on days worked in each state</policy_description>
+<policy_statement_postfix>"For taxpayers who moved between states, income is allocated based on days in each state and source of income"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
 <!-- TABLE 40000: Dispatch_State_Tax - State Tax Dispatcher               -->
 <!-- Reference: State-specific income tax forms                             -->
 <!-- ====================================================================== -->
@@ -8690,25 +9521,60 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <xls_file>State.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Dispatches to state-specific tax calculation based on job.state. Only calculates if job.has_state_income_tax is true.</COMMENTS>
+<COMMENTS>Dispatches to state-specific tax calculation for each state_period or falls back to job.state for single-state returns. Supports multi-state allocation for taxpayers who moved between states.</COMMENTS>
 <TABLE_NUMBER>40000</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_entity>state_period</context_entity>
+</contexts>
 <initial_actions>
 <initial_action>
 <action_description>Log state tax calculation start</action_description>
 <action_postfix>
-"State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+job.state_periods length 0 eq
+if
+  "State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+else
+  "Multi-State Tax Calculation" job.audit_trail swap addto
+  Allocate_Income_By_State
+then
 </action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Illinois state</condition_comment>
-<condition_description>job.state is equal to "IL"</condition_description>
+<condition_comment>California state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "CA"</condition_description>
 <condition_postfix>
-job.state IL streq
+state_period isnull not
+if
+  state_period.state_code CA streq
+else
+  job.state CA streq
+then
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+<condition_column column_number="8" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Illinois state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "IL"</condition_description>
+<condition_postfix>
+state_period isnull not
+if
+  state_period.state_code IL streq
+else
+  job.state IL streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -8719,9 +9585,14 @@ job.state IL streq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>New Hampshire state</condition_comment>
-<condition_description>job.state is equal to "NH"</condition_description>
+<condition_description>state_period.state_code or job.state is equal to "NH"</condition_description>
 <condition_postfix>
-job.state NH streq
+state_period isnull not
+if
+  state_period.state_code NH streq
+else
+  job.state NH streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -8731,32 +9602,111 @@ job.state NH streq
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Montana state</condition_comment>
-<condition_description>job.state is equal to "MT"</condition_description>
+<condition_comment>Colorado state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "CO"</condition_description>
 <condition_postfix>
-job.state MT streq
+state_period isnull not
+if
+  state_period.state_code CO streq
+else
+  job.state CO streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
-<condition_comment>Arizona state</condition_comment>
-<condition_description>job.state is equal to "AZ"</condition_description>
+<condition_comment>Montana state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "MT"</condition_description>
 <condition_postfix>
-job.state AZ streq
+state_period isnull not
+if
+  state_period.state_code MT streq
+else
+  job.state MT streq
+then
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="Y"></condition_column>
 <condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Pennsylvania state</condition_comment>
+<condition_description>state_period.state_code or job.state is equal to "PA"</condition_description>
+<condition_postfix>
+state_period isnull not
+if
+  state_period.state_code PA streq
+else
+  job.state PA streq
+then
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>No state income tax (AK, FL, NV, SD, TN, TX, WA, WY)</condition_comment>
+<condition_description>State has no state income tax</condition_description>
+<condition_postfix>
+state_period isnull not
+if
+  state_period.state_code AK streq
+  state_period.state_code FL streq or
+  state_period.state_code NV streq or
+  state_period.state_code SD streq or
+  state_period.state_code TN streq or
+  state_period.state_code TX streq or
+  state_period.state_code WA streq or
+  state_period.state_code WY streq or
+else
+  job.state AK streq
+  job.state FL streq or
+  job.state NV streq or
+  job.state SD streq or
+  job.state TN streq or
+  job.state TX streq or
+  job.state WA streq or
+  job.state WY streq or
+then
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate California state tax</action_comment>
+<action_description>Calculate_CA_Tax</action_description>
+<action_postfix>
+<!-- California requires military retirement exemption to be calculated first -->
+Calculate_CA_Military_Retirement_Exemption
+Calculate_CA_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Illinois state tax</action_comment>
@@ -8777,30 +9727,68 @@ Calculate_NH_Tax
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate Montana state tax</action_comment>
-<action_description>Calculate_MT_Tax</action_description>
+<action_comment>Calculate Colorado state tax</action_comment>
+<action_description>Calculate_CO_Tax</action_description>
 <action_postfix>
-Calculate_MT_Tax
+<!-- Colorado requires military retirement and pension exemptions to be calculated first -->
+Calculate_CO_Military_Retirement_Exemption
+Calculate_CO_Pension_Subtraction
+Calculate_CO_Tax
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate Arizona state tax</action_comment>
-<action_description>Calculate_AZ_Tax</action_description>
+<action_comment>Calculate Montana state tax</action_comment>
+<action_description>Calculate_MT_Tax</action_description>
 <action_postfix>
-Calculate_AZ_Tax
+Calculate_MT_Tax
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>State tax calculation not implemented</action_comment>
-<action_description>log "State tax calculation not implemented for this state"</action_description>
+<action_comment>Calculate Pennsylvania state tax</action_comment>
+<action_description>Calculate_PA_Tax</action_description>
 <action_postfix>
-"  State tax calculation not yet implemented for " job.state strconcat job.audit_trail swap addto
+Calculate_PA_Tax
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>No state income tax</action_comment>
+<action_description>log "No state income tax for this state"</action_description>
+<action_postfix>
+state_period isnull not
+if
+  "  No state income tax for " state_period.state_code strconcat job.audit_trail swap addto
+else
+  "  No state income tax for " job.state strconcat job.audit_trail swap addto
+then
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Dynamically dispatch to state tax table</action_comment>
+<action_description>Construct table name Calculate_XX_Tax and execute</action_description>
+<action_postfix>
+state_period isnull not
+if
+  state_period.state_code /state_code xdef
+else
+  job.state /state_code xdef
+then
+Calculate_ state_code strconcat _Tax strconcat /table_name xdef
+table_name lookupEntity isnull
+if
+  "  State tax calculation not yet implemented for " state_code strconcat job.audit_trail swap addto
+else
+  table_name execute
+then
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
@@ -8813,16 +9801,217 @@ Calculate_AZ_Tax
 <policy_statement_postfix>"Calculate New Hampshire state income tax per Form NH-1040"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
+<policy_description>Calculate Colorado state income tax</policy_description>
+<policy_statement_postfix>"Calculate Colorado state income tax per Colorado Form DR 0104"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
 <policy_description>Calculate Montana state income tax</policy_description>
 <policy_statement_postfix>"Calculate Montana state income tax per Montana Form 2"</policy_statement_postfix>
 </policy_statement>
-<policy_statement column="4">
-<policy_description>Calculate Arizona state income tax</policy_description>
-<policy_statement_postfix>"Calculate Arizona state income tax per Arizona Form 140"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="5">
+<policy_description>Calculate Pennsylvania state income tax</policy_description>
+<policy_statement_postfix>"Calculate Pennsylvania state income tax per Form PA-40 with 3.07% flat rate on 8 income classes"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>No state income tax</policy_description>
+<policy_statement_postfix>"No state income tax for TX, FL, WA, NV, and other no-tax states"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
 <policy_description>State tax not implemented</policy_description>
 <policy_statement_postfix>"State tax calculation not implemented for this state"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 40100: Dispatch_Territory_Tax - US Territory Tax Dispatcher     -->
+<!-- Reference: Territory-specific income tax forms and rules              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Dispatch_Territory_Tax</table_name>
+<xls_file>Territory.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Dispatches to US territory-specific tax calculation. Territories have special tax systems: PR (separate progressive), VI/GU (mirror code), AS (frozen IRC 2000 + SE tax), MP/CNMI (mirror + rebate). Bona fide residence test determines filing authority.</COMMENTS>
+<TABLE_NUMBER>40100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log territory tax calculation start</action_description>
+<action_postfix>
+job.territory isnull not if
+  "US Territory Tax Calculation for " job.territory strconcat job.audit_trail swap addto
+then
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Puerto Rico territory</condition_comment>
+<condition_description>job.territory equals "PR"</condition_description>
+<condition_postfix>
+job.territory PR streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>US Virgin Islands territory</condition_comment>
+<condition_description>job.territory equals "VI"</condition_description>
+<condition_postfix>
+job.territory VI streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Guam territory</condition_comment>
+<condition_description>job.territory equals "GU"</condition_description>
+<condition_postfix>
+job.territory GU streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>American Samoa territory</condition_comment>
+<condition_description>job.territory equals "AS"</condition_description>
+<condition_postfix>
+job.territory AS streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Northern Mariana Islands territory</condition_comment>
+<condition_description>job.territory equals "MP" or "CNMI"</condition_description>
+<condition_postfix>
+job.territory MP streq job.territory CNMI streq or
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>No territory or not applicable</condition_comment>
+<condition_description>No territory tax calculation needed</condition_description>
+<condition_postfix>
+job.territory isnull job.territory "" streq or
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Puerto Rico territory tax</action_comment>
+<action_description>Calculate_PR_Tax</action_description>
+<action_postfix>
+Calculate_PR_Tax
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate US Virgin Islands territory tax</action_comment>
+<action_description>Calculate_VI_Tax</action_description>
+<action_postfix>
+Calculate_VI_Tax
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate Guam territory tax</action_comment>
+<action_description>Calculate_GU_Tax</action_description>
+<action_postfix>
+Calculate_GU_Tax
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate American Samoa territory tax</action_comment>
+<action_description>Calculate_AS_Tax</action_description>
+<action_postfix>
+Calculate_AS_Tax
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate Northern Mariana Islands territory tax</action_comment>
+<action_description>Calculate_MP_Tax</action_description>
+<action_postfix>
+Calculate_MP_Tax
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>No territory tax</action_comment>
+<action_description>log "No territory tax calculation needed"</action_description>
+<action_postfix>
+"  No US territory tax calculation needed" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Puerto Rico territory tax</policy_description>
+<policy_statement_postfix>"Calculate Puerto Rico territory tax per PR Internal Revenue Code. Bona fide residents exempt from US tax on PR-source income per IRC 933. Act 60 provides 0% capital gains, 4% business tax. Form 8898 required."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Calculate US Virgin Islands territory tax</policy_description>
+<policy_statement_postfix>"Calculate USVI territory tax per IRC 932. Mirror code system uses federal rates. Bona fide residents file with VI Bureau of Internal Revenue. EDC benefits up to 90% reduction. Form 8689 for non-residents."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Calculate Guam territory tax</policy_description>
+<policy_statement_postfix>"Calculate Guam territory tax per IRC 935. Mirror code system uses federal rates. Bona fide residents file with Guam DRT. Form 5074 for non-residents."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Calculate American Samoa territory tax</policy_description>
+<policy_statement_postfix>"Calculate American Samoa territory tax per IRC 931. Uses frozen IRC as of 2000. Bona fide residents with only AS-source income file only with ASG. SPECIAL RULE: Must pay US self-employment tax if SE income &gt;= $400."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Calculate Northern Mariana Islands territory tax</policy_description>
+<policy_statement_postfix>"Calculate CNMI territory tax per IRC 935. Mirror code with tiered rebate: 90% if tax &lt;= $20k, 70% on excess over $20k, 50% on excess over $100k. Bona fide residents file with CNMI Division of Revenue and Tax. Form 5074 for non-residents."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>No territory tax</policy_description>
+<policy_statement_postfix>"No US territory tax calculation needed for non-territory taxpayers"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
@@ -9143,8 +10332,8 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 <action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
 <action_postfix>
 "  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-mt_standard_deduction_single /result.mt_standard_deduction xdef
-"  Standard Deduction (HOH uses Single): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
+mt_standard_deduction_hoh /result.mt_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
 result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
 "  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
 result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
@@ -9164,107 +10353,1246 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>MT progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"Montana progressive tax for MFJ per Montana Form 2"</policy_statement_postfix>
+<policy_description>Calculate Montana state income tax for MFJ</policy_description>
+<policy_statement_postfix>"Calculate Montana state income tax per Form 2 for Married Filing Jointly with progressive brackets 4.7%/5.9%"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>MT progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"Montana progressive tax for Single per Montana Form 2"</policy_statement_postfix>
+<policy_description>Calculate Montana state income tax for Single</policy_description>
+<policy_statement_postfix>"Calculate Montana state income tax per Form 2 for Single filers with progressive brackets 4.7%/5.9%"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
-<policy_description>MT progressive tax HOH with standard deduction</policy_description>
-<policy_statement_postfix>"Montana progressive tax for HOH per Montana Form 2"</policy_statement_postfix>
+<policy_description>Calculate Montana state income tax for HOH</policy_description>
+<policy_statement_postfix>"Calculate Montana state income tax per Form 2 for Head of Household with progressive brackets 4.7%/5.9%"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
 <!-- ====================================================================== -->
-<!-- TABLE 46200: Calculate_AZ_Tax - Arizona State Income Tax             -->
-<!-- Reference: Arizona Form 140 (2025)                                    -->
+<!-- TABLE 8600: Calculate_General_Business_Credit                         -->
+<!-- IRS Reference: Form 3800 - General Business Credit                    -->
 <!-- ====================================================================== -->
 <decision_table>
-<table_name>Calculate_AZ_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<table_name>Calculate_General_Business_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Calculates Arizona state income tax per Form 140. Arizona uses a flat tax rate of 2.5% (2025). Starting with federal AGI, applies filing-status-based standard deduction ($15,750 Single, $31,500 MFJ), then calculates tax at flat rate.</COMMENTS>
-<TABLE_NUMBER>46200</TABLE_NUMBER>
+<Type>ALL</Type>
+<COMMENTS>Calculates General Business Credit per Form 3800. Aggregates component business credits (Forms 5884, 6765, 8586, 8826, 8881, 8941, 8994) and applies limitation based on regular tax liability. Credit limited to net income tax minus greater of: (a) tentative AMT or (b) 25% of regular tax over $25,000. Unused credit carries forward.</COMMENTS>
+<TABLE_NUMBER>8600</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize AZ tax calculation</action_description>
+<action_description>Initialize GBC calculation</action_description>
 <action_postfix>
-"ARIZONA FORM 140 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.az_agi xdef
-0 /result.az_tax xdef
+0.0 /result.general_business_credit_total xdef
+0.0 /result.general_business_credit_used xdef
+0.0 /result.general_business_credit_carryforward xdef
+"GENERAL BUSINESS CREDIT (Form 3800)" job.audit_trail swap addto
 </action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_comment>Any business credits present</condition_comment>
+<condition_description>Sum of business credits greater than 0</condition_description>
 <condition_postfix>
-job.filing_status married_filing_jointly streq
+result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+
+result.disabled_access_credit f+ result.small_employer_pension_credit f+
+result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Single or other filing status</condition_comment>
-<condition_description>job.filing_status is equal to "single" or other</condition_description>
-<condition_postfix>
-job.filing_status single streq job.filing_status married_filing_separately streq or job.filing_status head_of_household streq or
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate AZ tax MFJ</action_comment>
-<action_description>Calculate Arizona tax for Married Filing Jointly with $31,500 standard deduction at 2.5%</action_description>
+<action_comment>Calculate total GBC (Part I)</action_comment>
+<action_description>Sum all component business credits</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-az_standard_deduction_mfj /result.az_standard_deduction xdef
-"  AZ Standard Deduction (MFJ): $" result.az_standard_deduction cvs strconcat " (Form 140)" strconcat job.audit_trail swap addto
-result.az_agi result.az_standard_deduction f- 0 fmax /result.az_taxable_income xdef
-"  Arizona Taxable Income: $" result.az_taxable_income cvs strconcat " (AGI - Standard Deduction)" strconcat job.audit_trail swap addto
-result.az_taxable_income az_tax_rate f* /result.az_tax xdef
-"  Arizona Tax (2.5% flat): $" result.az_tax cvs strconcat " (Form 140)" strconcat job.audit_trail swap addto
+result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+
+result.disabled_access_credit f+ result.small_employer_pension_credit f+
+result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ /result.general_business_credit_total xdef
+"  Total component credits: $" result.general_business_credit_total cvs strconcat job.audit_trail swap addto
+result.work_opportunity_credit 0 &gt; { "    Work Opportunity Credit: $" result.work_opportunity_credit cvs strconcat " (Form 5884)" strconcat job.audit_trail swap addto } if
+result.research_credit 0 &gt; { "    Research Credit: $" result.research_credit cvs strconcat " (Form 6765)" strconcat job.audit_trail swap addto } if
+result.low_income_housing_credit 0 &gt; { "    Low-Income Housing Credit: $" result.low_income_housing_credit cvs strconcat " (Form 8586)" strconcat job.audit_trail swap addto } if
+result.disabled_access_credit 0 &gt; { "    Disabled Access Credit: $" result.disabled_access_credit cvs strconcat " (Form 8826)" strconcat job.audit_trail swap addto } if
+result.small_employer_pension_credit 0 &gt; { "    Small Employer Pension Credit: $" result.small_employer_pension_credit cvs strconcat " (Form 8881)" strconcat job.audit_trail swap addto } if
+result.small_employer_health_credit 0 &gt; { "    Small Employer Health Credit: $" result.small_employer_health_credit cvs strconcat " (Form 8941)" strconcat job.audit_trail swap addto } if
+result.employer_credit_paid_family_leave 0 &gt; { "    Employer Paid Family Leave Credit: $" result.employer_credit_paid_family_leave cvs strconcat " (Form 8994)" strconcat job.audit_trail swap addto } if
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate AZ tax Single/other</action_comment>
-<action_description>Calculate Arizona tax for Single/MFS/HOH with $15,750 standard deduction at 2.5%</action_description>
+<action_comment>Calculate GBC limitation (Part II)</action_comment>
+<action_description>Apply tax liability limitation</action_description>
 <action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-az_standard_deduction_single /result.az_standard_deduction xdef
-"  AZ Standard Deduction (Single/MFS/HOH): $" result.az_standard_deduction cvs strconcat " (Form 140)" strconcat job.audit_trail swap addto
-result.az_agi result.az_standard_deduction f- 0 fmax /result.az_taxable_income xdef
-"  Arizona Taxable Income: $" result.az_taxable_income cvs strconcat " (AGI - Standard Deduction)" strconcat job.audit_trail swap addto
-result.az_taxable_income az_tax_rate f* /result.az_tax xdef
-"  Arizona Tax (2.5% flat): $" result.az_tax cvs strconcat " (Form 140)" strconcat job.audit_trail swap addto
+/tax_before_credits result.total_tax_before_credits def
+/threshold constants.gbc_threshold def
+/limitation_pct constants.gbc_limitation_percentage def
+/gbc_limit tax_before_credits threshold f- 0 max limitation_pct f* tax_before_credits min def
+gbc_limit 0 &lt; { 0 /gbc_limit xdef } if
+"  Tax before credits: $" tax_before_credits cvs strconcat job.audit_trail swap addto
+"  GBC limitation: Lesser of tax liability or 75% of (tax - $25,000) = $" gbc_limit cvs strconcat job.audit_trail swap addto
+result.general_business_credit_total gbc_limit min /result.general_business_credit_used xdef
+result.general_business_credit_total result.general_business_credit_used f- /result.general_business_credit_carryforward xdef
+"  GBC used this year: $" result.general_business_credit_used cvs strconcat job.audit_trail swap addto
+result.general_business_credit_carryforward 0 &gt; { "  GBC carryforward: $" result.general_business_credit_carryforward cvs strconcat " (to next year)" strconcat job.audit_trail swap addto } if
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No business credits</action_comment>
+<action_description>Log no GBC applicable</action_description>
+<action_postfix>
+"No general business credits (Form 3800 not applicable)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 81: Calculate_Kiddie_Tax                                        -->
+<!-- IRS Reference: Form 8615, IRC Section 1(g)                            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Kiddie_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates tax on unearned income of children under age 19 (or under 24 if full-time student). Applies parent's marginal tax rate to net unearned income over threshold per IRC Section 1(g) and Form 8615.</COMMENTS>
+<TABLE_NUMBER>8100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Log kiddie tax calculation start</action_description>
+<action_postfix>
+"KIDDIE TAX CALCULATION (Form 8615)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always process kiddie tax for all dependents</condition_comment>
+<condition_description>always</condition_description>
+<condition_postfix>
+always
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process kiddie tax for each dependent</action_comment>
+<action_description>Calculate_Kiddie_Tax_For_Dependent for each dependent</action_description>
+<action_postfix>
+{ /Calculate_Kiddie_Tax_For_Dependent executetable } job.dependents forall
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 8150: Calculate_Kiddie_Tax_For_Dependent                        -->
+<!-- IRS Reference: Form 8615, IRC Section 1(g)                            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Kiddie_Tax_For_Dependent</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Processes kiddie tax for an individual dependent. Determines if dependent meets age and income requirements, then applies parent's marginal tax rate to net unearned income.</COMMENTS>
+<TABLE_NUMBER>8150</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Dependent is under 19 with unearned income over threshold</condition_comment>
+<condition_description>dependent.age lt 19 and dependent.unearned_income gt kiddie_tax_threshold</condition_description>
+<condition_postfix>
+dependent.age 19 &lt;
+dependent.unearned_income kiddie_tax_threshold &gt;
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Dependent is 19-23 full-time student with unearned income over threshold</condition_comment>
+<condition_description>dependent.age between 19 and 23 and is_student and unearned_income gt threshold</condition_description>
+<condition_postfix>
+dependent.age 19 &gt;=
+dependent.age 24 &lt;
+and
+dependent.is_student
+and
+dependent.unearned_income kiddie_tax_threshold &gt;
+and
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Kiddie tax does not apply</condition_comment>
+<condition_description>otherwise</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="3" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Mark dependent subject to kiddie tax</action_comment>
+<action_description>Set kiddie tax flag to true</action_description>
+<action_postfix>
+true /dependent.subject_to_kiddie_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate net unearned income subject to parent's tax rate</action_comment>
+<action_description>Net unearned income = unearned_income - kiddie_tax_threshold</action_description>
+<action_postfix>
+dependent.unearned_income kiddie_tax_threshold f- 0 fmax /net_unearned_income local
+"  Dependent: " dependent.name strconcat job.audit_trail swap addto
+"    Age: " dependent.age cvs strconcat job.audit_trail swap addto
+"    Unearned income: $" dependent.unearned_income cvs strconcat job.audit_trail swap addto
+"    Kiddie tax threshold: $" kiddie_tax_threshold cvs strconcat job.audit_trail swap addto
+"    Net unearned income: $" net_unearned_income cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Determine parent's marginal tax rate based on filing status</action_comment>
+<action_description>Calculate parent's marginal rate for MFJ filing status</action_description>
+<action_postfix>
+0.10 /parent_marginal_rate local
+result.agi bracket_1_mfj &lt;={
+  0.10 /parent_marginal_rate local
+} if
+result.agi bracket_1_mfj &gt; result.agi bracket_2_mfj &lt;=and {
+  0.12 /parent_marginal_rate local
+} if
+result.agi bracket_2_mfj &gt; result.agi bracket_3_mfj &lt;=and {
+  0.22 /parent_marginal_rate local
+} if
+result.agi bracket_3_mfj &gt; result.agi bracket_4_mfj &lt;=and {
+  0.24 /parent_marginal_rate local
+} if
+result.agi bracket_4_mfj &gt; result.agi bracket_5_mfj &lt;=and {
+  0.32 /parent_marginal_rate local
+} if
+result.agi bracket_5_mfj &gt; result.agi bracket_6_mfj &lt;=and {
+  0.35 /parent_marginal_rate local
+} if
+result.agi bracket_6_mfj &gt; {
+  0.37 /parent_marginal_rate local
+} if
+net_unearned_income parent_marginal_rate f* /dependent.kiddie_tax_amount xdef
+"    Parent's marginal tax rate: " parent_marginal_rate 100 f* cvs strconcat "%" strconcat job.audit_trail swap addto
+"    Kiddie tax amount: $" dependent.kiddie_tax_amount cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Add kiddie tax to total tax before credits</action_comment>
+<action_description>Add kiddie tax to total tax</action_description>
+<action_postfix>
+result.total_tax_before_credits dependent.kiddie_tax_amount f+ /result.total_tax_before_credits xdef
+"    Total tax before credits increased to: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Kiddie tax does not apply - initialize to zero</action_comment>
+<action_description>No kiddie tax applicable</action_description>
+<action_postfix>
+false /dependent.subject_to_kiddie_tax xdef
+0.0 /dependent.kiddie_tax_amount xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+
+
+<!-- ====================================================================== -->
+<!-- TABLE 85: Calculate_Schedule_H                                        -->
+<!-- IRS Reference: Schedule H - Household Employment Taxes                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Schedule_H</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates household employment taxes per Schedule H. Includes employer's share of Social Security (6.2%), Medicare (1.45%), and FUTA (6.0% on first $7,000 per employee). Only applies to employees with wages above threshold ($2,700 for FICA, $1,000 for FUTA).</COMMENTS>
+<TABLE_NUMBER>8500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize Schedule H calculation</action_description>
+<action_postfix>
+"SCHEDULE H - Household Employment Taxes" job.audit_trail swap addto
+0.0 /result.schedule_h_social_security_tax xdef
+0.0 /result.schedule_h_medicare_tax xdef
+0.0 /result.schedule_h_futa_tax xdef
+0.0 /result.schedule_h_total_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has household employees</condition_comment>
+<condition_description>job.household_employees length greater than 0</condition_description>
+<condition_postfix>
+job.household_employees length 0 &gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate employer FICA and FUTA for each employee</action_comment>
+<action_description>Process each household employee</action_description>
+<action_postfix>
+{
+  /employee xdef
+
+  employee.wages_paid result.household_wage_threshold &gt;= {
+    % Calculate Social Security tax (6.2% on wages up to SS wage base)
+    employee.wages_paid result.ss_wage_base min result.social_security_rate f*
+    result.schedule_h_social_security_tax f+ /result.schedule_h_social_security_tax xdef
+
+    % Calculate Medicare tax (1.45% on all wages)
+    employee.wages_paid result.medicare_rate f*
+    result.schedule_h_medicare_tax f+ /result.schedule_h_medicare_tax xdef
+
+    "  Employee: " employee.name strconcat " - Wages: $" strconcat employee.wages_paid cvs strconcat job.audit_trail swap addto
+  } if
+
+  employee.wages_paid result.futa_wage_threshold &gt;= {
+    % Calculate FUTA (6.0% on first $7,000, typically reduced to 0.6% with state credit)
+    employee.wages_paid result.futa_wage_base min result.futa_rate f* 0.10 f*
+    result.schedule_h_futa_tax f+ /result.schedule_h_futa_tax xdef
+  } if
+} job.household_employees forall
+
+% Calculate total Schedule H tax
+result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.schedule_h_futa_tax f+
+/result.schedule_h_total_tax xdef
+
+"  Total Social Security Tax: $" result.schedule_h_social_security_tax cvs strconcat job.audit_trail swap addto
+"  Total Medicare Tax: $" result.schedule_h_medicare_tax cvs strconcat job.audit_trail swap addto
+"  Total FUTA Tax: $" result.schedule_h_futa_tax cvs strconcat job.audit_trail swap addto
+"  Total Schedule H Tax: $" result.schedule_h_total_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No household employees</action_comment>
+<action_description>Skip Schedule H</action_description>
+<action_postfix>
+"  No household employees - Schedule H not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- MILITARY TAX PROVISIONS (Tables 25000-25999)                         -->
+<!-- IRC § 112 - Combat Zone Exclusion                                     -->
+<!-- MSRRA - Military Spouse Residency Relief Act                          -->
+<!-- SCRA - Servicemembers Civil Relief Act                                -->
+<!-- ====================================================================== -->
+
+<!-- ====================================================================== -->
+<!-- TABLE 25000: Calculate_Combat_Zone_Pay_Exclusion                      -->
+<!-- IRS Reference: IRC § 112, Pub 3                                       -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Combat_Zone_Pay_Exclusion</table_name>
+<xls_file>Military.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate combat zone pay exclusion per IRC § 112. Enlisted: entire combat pay excluded. Officers: limited to max enlisted pay + imminent danger pay.</COMMENTS>
+<TABLE_NUMBER>25000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process each taxpayer for combat zone exclusion</context_comment>
+<context_description>for all taxpayers with military service</context_description>
+<context_postfix>
+0.0 /result.total_combat_zone_exclusion xdef
+"Processing Combat Zone Pay Exclusion (IRC § 112)" job.audit_trail swap addto
+{ /Calculate_Combat_Zone_Pay_Exclusion executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Served in combat zone</condition_comment>
+<condition_description>taxpayer.combat_zone_service == true</condition_description>
+<condition_postfix>
+taxpayer.combat_zone_service true eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Enlisted rank</condition_comment>
+<condition_description>taxpayer.military_rank == "enlisted"</condition_description>
+<condition_postfix>
+taxpayer.military_rank "enlisted" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Enlisted - exclude all combat zone pay</action_comment>
+<action_description>Entire combat zone pay excluded for enlisted</action_description>
+<action_postfix>
+"  " taxpayer.name strconcat " - Enlisted combat zone service" strconcat job.audit_trail swap addto
+taxpayer.combat_zone_pay /taxpayer.combat_zone_exclusion xdef
+taxpayer.imminent_danger_pay taxpayer.combat_zone_exclusion f+ /taxpayer.combat_zone_exclusion xdef
+result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.total_combat_zone_exclusion xdef
+
+"    Combat zone pay: $" taxpayer.combat_zone_pay cvs strconcat job.audit_trail swap addto
+"    Imminent danger pay: $" taxpayer.imminent_danger_pay cvs strconcat job.audit_trail swap addto
+"    Total exclusion: $" taxpayer.combat_zone_exclusion cvs strconcat job.audit_trail swap addto
+"    Combat zone: " taxpayer.combat_zone_location strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Officer - limited exclusion</action_comment>
+<action_description>Officers limited to max enlisted pay + imminent danger pay</action_description>
+<action_postfix>
+"  " taxpayer.name strconcat " - Officer combat zone service (limited exclusion)" strconcat job.audit_trail swap addto
+
+% For 2025: Max enlisted pay is approximately $9,500/month = $114,000/year
+% Calculate months in combat zone and prorate
+taxpayer.combat_zone_months 12 min /months_in_zone xdef
+9500.0 months_in_zone f* /max_enlisted_for_period xdef
+
+% Officer exclusion = min(combat_zone_pay, max_enlisted_for_period) + imminent_danger_pay
+taxpayer.combat_zone_pay max_enlisted_for_period fmin
+taxpayer.imminent_danger_pay f+
+/taxpayer.combat_zone_exclusion xdef
+
+result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.total_combat_zone_exclusion xdef
+
+"    Combat zone pay: $" taxpayer.combat_zone_pay cvs strconcat job.audit_trail swap addto
+"    Max enlisted pay (" months_in_zone cvs strconcat " months): $" strconcat max_enlisted_for_period cvs strconcat job.audit_trail swap addto
+"    Imminent danger pay: $" taxpayer.imminent_danger_pay cvs strconcat job.audit_trail swap addto
+"    Officer exclusion (limited): $" taxpayer.combat_zone_exclusion cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No combat zone service</action_comment>
+<action_description>No exclusion</action_description>
+<action_postfix>
+0.0 /taxpayer.combat_zone_exclusion xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>IRC § 112(a): Enlisted members exclude all combat zone compensation</policy_description>
+<policy_statement_postfix>"Enlisted: entire combat pay + imminent danger pay excluded per IRC § 112(a)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>IRC § 112(b): Officers limited to maximum enlisted pay + imminent danger pay</policy_description>
+<policy_statement_postfix>"Officer: limited to max enlisted pay (" months_in_zone cvs strconcat " × $9,500) + IDP per IRC § 112(b)" strconcat</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>No combat zone service</policy_description>
+<policy_statement_postfix>"No combat zone service - no exclusion"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 25100: Calculate_Military_Moving_Expenses                       -->
+<!-- IRS Reference: TCJA reinstated for military only                      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_Military_Moving_Expenses</table_name>
+<xls_file>Military.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculate deductible military moving expenses for PCS moves. TCJA suspended civilian moving expense deduction but retained it for active duty military permanent change of station.</COMMENTS>
+<TABLE_NUMBER>25100</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Process military moving expenses</context_comment>
+<context_description>for all military taxpayers</context_description>
+<context_postfix>
+0.0 /result.military_moving_expense_deduction xdef
+"Processing Military Moving Expense Deduction" job.audit_trail swap addto
+{ /Calculate_Military_Moving_Expenses executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Active duty military with PCS move</condition_comment>
+<condition_description>taxpayer.is_military == true AND taxpayer.pcs_move == true</condition_description>
+<condition_postfix>
+taxpayer.is_military true eq
+taxpayer.pcs_move true eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Move meets distance test</condition_comment>
+<condition_description>taxpayer.moving_distance_miles >= 50</condition_description>
+<condition_postfix>
+taxpayer.moving_distance_miles 50 >=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Deduct qualifying military moving expenses</action_comment>
+<action_description>Military PCS moves are fully deductible</action_description>
+<action_postfix>
+"  " taxpayer.name strconcat " - Qualified military PCS move" strconcat job.audit_trail swap addto
+
+% Military moving expenses are deductible as an above-the-line deduction
+% Unlike civilians (suspended under TCJA), military retain this benefit
+taxpayer.moving_expenses_paid /taxpayer.moving_expense_deduction xdef
+result.military_moving_expense_deduction taxpayer.moving_expense_deduction f+
+/result.military_moving_expense_deduction xdef
+
+"    Distance: " taxpayer.moving_distance_miles cvs strconcat " miles" strconcat job.audit_trail swap addto
+"    Moving expenses paid: $" taxpayer.moving_expenses_paid cvs strconcat job.audit_trail swap addto
+"    Deductible amount: $" taxpayer.moving_expense_deduction cvs strconcat job.audit_trail swap addto
+"    Note: Moving expense reimbursement is excluded from income (nontaxable)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Not qualified or not military</action_comment>
+<action_description>No deduction</action_description>
+<action_postfix>
+0.0 /taxpayer.moving_expense_deduction xdef
+
+taxpayer.is_military true eq {
+  "  " taxpayer.name strconcat " - Military move but does not meet distance test" strconcat job.audit_trail swap addto
+} if
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>AZ flat tax 2.5% MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"Arizona flat tax 2.5% for MFJ per Arizona Form 140"</policy_statement_postfix>
+<policy_description>Military PCS moving expenses deductible (exception to TCJA suspension)</policy_description>
+<policy_statement_postfix>"Military PCS: out-of-pocket moving expenses deductible; reimbursements excluded from income"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>AZ flat tax 2.5% Single/other with standard deduction</policy_description>
-<policy_statement_postfix>"Arizona flat tax 2.5% for Single/MFS/HOH per Arizona Form 140"</policy_statement_postfix>
+<policy_description>Not qualified for moving expense deduction</policy_description>
+<policy_statement_postfix>"Moving expense deduction not available (civilian or does not meet requirements)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 25400: Coordinate_Military_And_Foreign_Income                   -->
+<!-- IRS Reference: IRC § 112, IRC § 911 coordination                      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Coordinate_Military_And_Foreign_Income</table_name>
+<xls_file>Military.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Coordinate military combat zone exclusion with foreign earned income exclusion for military stationed abroad with civilian spouse working in foreign country. Combat zone exclusion takes priority; remaining spouse income may qualify for FEIE.</COMMENTS>
+<TABLE_NUMBER>25400</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize coordination of military and foreign income</action_description>
+<action_postfix>
+"Coordinating Military Combat Zone and Foreign Earned Income Exclusions" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Military with combat zone AND foreign earned income</condition_comment>
+<condition_description>Has both combat zone service and foreign earned income</condition_description>
+<condition_postfix>
+result.total_combat_zone_exclusion 0 >
+job.foreign_earned_incomes length 0 >
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply both exclusions (no double benefit)</action_comment>
+<action_description>Combat zone exclusion + spouse FEIE</action_description>
+<action_postfix>
+"  Scenario: Military member in combat zone + spouse working abroad" job.audit_trail swap addto
+"  " job.audit_trail swap addto
+"  Military member combat zone exclusion: $" result.total_combat_zone_exclusion cvs strconcat job.audit_trail swap addto
+"  Spouse foreign earned income exclusion (Form 2555): $" result.foreign_earned_income_exclusion cvs strconcat job.audit_trail swap addto
+
+result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
+/result.combined_military_foreign_exclusion xdef
+
+"  Combined exclusions: $" result.combined_military_foreign_exclusion cvs strconcat job.audit_trail swap addto
+"  " job.audit_trail swap addto
+"  Tax Treatment Summary:" job.audit_trail swap addto
+"  - Military member: Combat zone pay excluded (IRC § 112)" job.audit_trail swap addto
+"  - Spouse: Foreign earned income excluded up to $126,500 (IRC § 911)" job.audit_trail swap addto
+"  - No overlap: Each exclusion applies to different income" job.audit_trail swap addto
+"  - BAH, BAS, and allowances: Always excluded (nontaxable)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No coordination needed</action_comment>
+<action_description>Only one type of exclusion or none</action_description>
+<action_postfix>
+0.0 /result.combined_military_foreign_exclusion xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Military combat zone + civilian spouse foreign income: Both exclusions apply</policy_description>
+<policy_statement_postfix>"Combat zone (IRC § 112): $" result.total_combat_zone_exclusion cvs strconcat " + FEIE (IRC § 911): $" strconcat result.foreign_earned_income_exclusion cvs strconcat strconcat</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No coordination needed</policy_description>
+<policy_statement_postfix>"No military-foreign income coordination required"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 47000: Calculate_PA_Tax - Pennsylvania State Income Tax         -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_PA_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Pennsylvania state income tax calculation. Implements flat 3.07% tax on 8 classes of income. NO standard deduction, NO exemptions. ALL retirement income excluded. Per 72 P.S. § 7302-7303 (2025).</COMMENTS>
+<TABLE_NUMBER>47000</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Pennsylvania tax calculation</action_description>
+<action_postfix>
+"Pennsylvania Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.pa_taxable_compensation xdef
+0.0 /result.pa_taxable_interest xdef
+0.0 /result.pa_taxable_dividends xdef
+0.0 /result.pa_taxable_net_profits xdef
+0.0 /result.pa_taxable_gains xdef
+0.0 /result.pa_taxable_rents_royalties xdef
+0.0 /result.pa_taxable_estate_trust xdef
+0.0 /result.pa_taxable_gambling xdef
+0.0 /result.pa_total_income xdef
+0.0 /result.pa_tax xdef
+0.0 /result.pa_military_retirement_exclusion xdef
+0.0 /result.pa_social_security_exclusion xdef
+0.0 /result.pa_pension_exclusion xdef
+0.0 /result.pa_ira_exclusion xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute</condition_comment>
+<condition_description>true</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate all 8 PA income classes and apply 3.07% flat tax</action_comment>
+<action_postfix>
+<!-- PA Class 1: Compensation (W-2 wages excluding military retirement) -->
+result.military_retirement_pay 0 gt
+{
+  result.military_retirement_pay /result.pa_military_retirement_exclusion xdef
+  "PA military retirement exclusion: $" result.pa_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
+} if
+result.total_w2_wages result.pa_military_retirement_exclusion sub 0 max /result.pa_taxable_compensation xdef
+"PA Class 1 Compensation: $" result.pa_taxable_compensation cvs strconcat job.audit_trail swap addto
+
+<!-- PA Class 2: Interest -->
+result.total_interest_income 0 max /result.pa_taxable_interest xdef
+
+<!-- PA Class 3: Dividends -->
+result.total_ordinary_dividends 0 max /result.pa_taxable_dividends xdef
+
+<!-- PA Class 4: Net Profits (Schedule C) -->
+result.total_schedule_c_income 0 max /result.pa_taxable_net_profits xdef
+
+<!-- PA Class 5: Capital Gains (Schedule D) -->
+result.net_capital_gain 0 max /result.pa_taxable_gains xdef
+
+<!-- PA Class 6: Rents/Royalties (Schedule E) -->
+result.total_rental_income 0 max /result.pa_taxable_rents_royalties xdef
+
+<!-- PA Class 7: Estate/Trust (K-1) -->
+0.0 /result.pa_taxable_estate_trust xdef
+
+<!-- PA Class 8: Gambling -->
+result.gambling_winnings 0 max /result.pa_taxable_gambling xdef
+
+<!-- Exclude Social Security (100%) -->
+result.total_social_security 0 gt
+{
+  result.total_social_security /result.pa_social_security_exclusion xdef
+  "PA Social Security exclusion (100%): $" result.pa_social_security_exclusion cvs strconcat job.audit_trail swap addto
+} if
+
+<!-- Sum all 8 classes -->
+result.pa_taxable_compensation
+result.pa_taxable_interest add
+result.pa_taxable_dividends add
+result.pa_taxable_net_profits add
+result.pa_taxable_gains add
+result.pa_taxable_rents_royalties add
+result.pa_taxable_estate_trust add
+result.pa_taxable_gambling add
+/result.pa_total_income xdef
+
+"PA Total Income (8 classes): $" result.pa_total_income cvs strconcat job.audit_trail swap addto
+
+<!-- Apply PA flat tax: 3.07% with NO deductions or exemptions -->
+result.pa_total_income result.pa_tax_rate mul /result.pa_tax xdef
+result.pa_tax /result.state_tax_liability xdef
+
+"PA tax calculated (3.07% flat): $" result.pa_tax cvs strconcat " (on $" strconcat result.pa_total_income cvs strconcat " - NO deductions)" strconcat job.audit_trail swap addto
+"Pennsylvania Tax Calculation Completed" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+
+<decision_table>
+<table_name>Calculate_CA_Military_Retirement_Exemption</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California military retirement exemption (2025). New $20,000 exemption with AGI limits: $125k single, $250k joint. SBP payments receive same treatment. Honors MSRRA and SCRA. Source: MOAA State Report Card, CA FTB.</COMMENTS>
+<TABLE_NUMBER>4790</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize CA military retirement exemption calculation</action_description>
+<action_postfix>
+"CA Military Retirement Exemption Calculation Started" job.audit_trail swap addto
+0.0 /result.ca_military_retirement_exemption xdef
+0.0 /result.ca_military_retirement_taxable xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has military retirement pay -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has military retirement pay</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+result.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Single filer with AGI ≤ $125,000 -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single filer, AGI ≤ $125k</condition_comment>
+<condition_description>Single AND AGI ≤ $125,000</condition_description>
+<condition_postfix>
+result.filing_status "single" strcasecmp 0 eq
+result.agi result.ca_military_agi_limit_single le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Joint filer with AGI ≤ $250,000 -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Joint filer, AGI ≤ $250k</condition_comment>
+<condition_description>Married Filing Jointly AND AGI ≤ $250,000</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+result.filing_status "head_of_household" strcasecmp 0 eq or
+result.agi result.ca_military_agi_limit_joint le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Apply $20,000 exemption (Single, qualifies) -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply CA $20,000 military retirement exemption (Single, AGI ≤ $125k)</action_comment>
+<action_postfix>
+<!-- Exemption is lesser of $20,000 or actual retirement pay -->
+result.military_retirement_pay
+result.ca_military_retirement_exemption_amount
+min
+/result.ca_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ca_military_retirement_exemption sub
+0 max
+/result.ca_military_retirement_taxable xdef
+
+"CA military retirement exemption (Single): $"
+result.ca_military_retirement_exemption cvs strconcat
+" (Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", AGI: $" strconcat result.agi cvs strconcat
+", Taxable: $" strconcat result.ca_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Apply $20,000 exemption (Joint, qualifies) -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_comment>
+<action_postfix>
+<!-- Exemption is lesser of $20,000 or actual retirement pay -->
+result.military_retirement_pay
+result.ca_military_retirement_exemption_amount
+min
+/result.ca_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ca_military_retirement_exemption sub
+0 max
+/result.ca_military_retirement_taxable xdef
+
+"CA military retirement exemption (Joint/HOH): $"
+result.ca_military_retirement_exemption cvs strconcat
+" (Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", AGI: $" strconcat result.agi cvs strconcat
+", Taxable: $" strconcat result.ca_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: No exemption (AGI exceeds limits) -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No CA military retirement exemption (AGI exceeds limit)</action_comment>
+<action_postfix>
+0.0 /result.ca_military_retirement_exemption xdef
+result.military_retirement_pay /result.ca_military_retirement_taxable xdef
+
+"CA military retirement: NO EXEMPTION (AGI exceeds limit). Retirement: $"
+result.military_retirement_pay cvs strconcat
+", AGI: $" strconcat result.agi cvs strconcat
+", Fully taxable" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 4: No military retirement pay -->
+<action_details>
+<action_number>4</action_number>
+<action_comment>No military retirement pay</action_comment>
+<action_postfix>
+0.0 /result.ca_military_retirement_exemption xdef
+0.0 /result.ca_military_retirement_taxable xdef
+"No CA military retirement pay - exemption not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<decision_table>
+<table_name>Calculate_CA_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California state income tax calculation. Implements progressive tax structure with 10 brackets (1% to 13.3%) plus Mental Health Services Tax (1% surtax on income over $1M). Highest state tax rates in the nation. Per California Franchise Tax Board (2025).</COMMENTS>
+<TABLE_NUMBER>4800</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize California tax calculation</action_description>
+<action_postfix>
+"California Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.ca_state_tax xdef
+0.0 /result.ca_mental_health_tax xdef
+0.0 /result.ca_total_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Filing status is Single -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing Status is Single</condition_description>
+<condition_postfix>
+result.filing_status "single" strcasecmp 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Filing status is Married Filing Jointly or HOH -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Married Filing Jointly or Head of Household</condition_comment>
+<condition_description>Filing Status is MFJ or HOH</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+result.filing_status "head_of_household" strcasecmp 0 eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Calculate CA tax for Single filers -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate CA tax for Single filers using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
+<action_postfix>
+<!-- Calculate CA AGI: Federal AGI minus exempt military retirement -->
+result.agi result.ca_military_retirement_exemption sub 0 max
+/ca_agi xdef
+
+<!-- Calculate taxable income: CA AGI - standard deduction -->
+ca_agi result.ca_standard_deduction_single sub 0 max
+dup /ca_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /ca_tax xdef
+
+<!-- Bracket 1: First $10,412 @ 1% -->
+ca_taxable_income result.ca_bracket_1_limit_single min
+result.ca_bracket_1_rate mul
+/ca_tax xdef
+
+<!-- Bracket 2: $10,413 to $24,684 @ 2% -->
+ca_taxable_income result.ca_bracket_1_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_2_limit_single min result.ca_bracket_1_limit_single sub
+  result.ca_bracket_2_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 3: $24,685 to $38,959 @ 4% -->
+ca_taxable_income result.ca_bracket_2_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_3_limit_single min result.ca_bracket_2_limit_single sub
+  result.ca_bracket_3_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 4: $38,960 to $54,081 @ 6% -->
+ca_taxable_income result.ca_bracket_3_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_4_limit_single min result.ca_bracket_3_limit_single sub
+  result.ca_bracket_4_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 5: $54,082 to $68,350 @ 8% -->
+ca_taxable_income result.ca_bracket_4_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_5_limit_single min result.ca_bracket_4_limit_single sub
+  result.ca_bracket_5_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 6: $68,351 to $349,137 @ 9.3% -->
+ca_taxable_income result.ca_bracket_5_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_6_limit_single min result.ca_bracket_5_limit_single sub
+  result.ca_bracket_6_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 7: $349,138 to $418,961 @ 10.3% -->
+ca_taxable_income result.ca_bracket_6_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_7_limit_single min result.ca_bracket_6_limit_single sub
+  result.ca_bracket_7_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 8: $418,962 to $698,271 @ 11.3% -->
+ca_taxable_income result.ca_bracket_7_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_8_limit_single min result.ca_bracket_7_limit_single sub
+  result.ca_bracket_8_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 9: $698,272 to $1,000,000 @ 12.3% -->
+ca_taxable_income result.ca_bracket_8_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_single min result.ca_bracket_8_limit_single sub
+  result.ca_bracket_9_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 10: Over $1,000,000 @ 13.3% -->
+ca_taxable_income result.ca_bracket_9_limit_single gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_single sub
+  result.ca_bracket_10_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Mental Health Services Tax: 1% on taxable income > $1M -->
+0.0 /ca_mh_tax xdef
+ca_taxable_income result.ca_mental_health_tax_threshold gt
+{
+  ca_taxable_income result.ca_mental_health_tax_threshold sub
+  result.ca_mental_health_tax_rate mul
+  /ca_mh_tax xdef
+} if
+
+<!-- Store results -->
+ca_tax /result.ca_state_tax xdef
+ca_mh_tax /result.ca_mental_health_tax xdef
+ca_tax ca_mh_tax add /result.ca_total_tax xdef
+ca_tax ca_mh_tax add /result.state_tax_liability xdef
+
+"California tax calculated (Single): Base tax: $" result.ca_state_tax cvs strconcat
+", Mental Health Tax: $" strconcat result.ca_mental_health_tax cvs strconcat
+", Total: $" strconcat result.ca_total_tax cvs strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Calculate CA tax for Married Filing Jointly / Head of Household -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
+<action_postfix>
+<!-- Calculate CA AGI: Federal AGI minus exempt military retirement -->
+result.agi result.ca_military_retirement_exemption sub 0 max
+/ca_agi xdef
+
+<!-- Calculate taxable income: CA AGI - standard deduction -->
+ca_agi result.ca_standard_deduction_joint sub 0 max
+dup /ca_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /ca_tax xdef
+
+<!-- Bracket 1: First $20,824 @ 1% -->
+ca_taxable_income result.ca_bracket_1_limit_joint min
+result.ca_bracket_1_rate mul
+/ca_tax xdef
+
+<!-- Bracket 2: $20,825 to $49,368 @ 2% -->
+ca_taxable_income result.ca_bracket_1_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_2_limit_joint min result.ca_bracket_1_limit_joint sub
+  result.ca_bracket_2_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 3: $49,369 to $77,918 @ 4% -->
+ca_taxable_income result.ca_bracket_2_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_3_limit_joint min result.ca_bracket_2_limit_joint sub
+  result.ca_bracket_3_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 4: $77,919 to $108,162 @ 6% -->
+ca_taxable_income result.ca_bracket_3_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_4_limit_joint min result.ca_bracket_3_limit_joint sub
+  result.ca_bracket_4_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 5: $108,163 to $136,700 @ 8% -->
+ca_taxable_income result.ca_bracket_4_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_5_limit_joint min result.ca_bracket_4_limit_joint sub
+  result.ca_bracket_5_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 6: $136,701 to $698,274 @ 9.3% -->
+ca_taxable_income result.ca_bracket_5_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_6_limit_joint min result.ca_bracket_5_limit_joint sub
+  result.ca_bracket_6_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 7: $698,275 to $837,922 @ 10.3% -->
+ca_taxable_income result.ca_bracket_6_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_7_limit_joint min result.ca_bracket_6_limit_joint sub
+  result.ca_bracket_7_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 8: $837,923 to $1,396,542 @ 11.3% -->
+ca_taxable_income result.ca_bracket_7_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_8_limit_joint min result.ca_bracket_7_limit_joint sub
+  result.ca_bracket_8_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 9: $1,396,543 to $1,000,000 @ 12.3% -->
+<!-- Note: This is unusual - the $1M mental health threshold is actually BELOW bracket 9 limit -->
+<!-- In practice, most joint filers in bracket 9 will also pay mental health tax -->
+ca_taxable_income result.ca_bracket_8_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_joint min result.ca_bracket_8_limit_joint sub
+  result.ca_bracket_9_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Bracket 10: Over $1,000,000 @ 13.3% -->
+ca_taxable_income result.ca_bracket_9_limit_joint gt
+{
+  ca_taxable_income result.ca_bracket_9_limit_joint sub
+  result.ca_bracket_10_rate mul
+  ca_tax add /ca_tax xdef
+} if
+
+<!-- Mental Health Services Tax: 1% on taxable income > $1M -->
+0.0 /ca_mh_tax xdef
+ca_taxable_income result.ca_mental_health_tax_threshold gt
+{
+  ca_taxable_income result.ca_mental_health_tax_threshold sub
+  result.ca_mental_health_tax_rate mul
+  /ca_mh_tax xdef
+} if
+
+<!-- Store results -->
+ca_tax /result.ca_state_tax xdef
+ca_mh_tax /result.ca_mental_health_tax xdef
+ca_tax ca_mh_tax add /result.ca_total_tax xdef
+ca_tax ca_mh_tax add /result.state_tax_liability xdef
+
+"California tax calculated (MFJ/HOH): Base tax: $" result.ca_state_tax cvs strconcat
+", Mental Health Tax: $" strconcat result.ca_mental_health_tax cvs strconcat
+", Total: $" strconcat result.ca_total_tax cvs strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
 </decision_table>
 
 </decision_tables>

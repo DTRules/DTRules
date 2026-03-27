@@ -1,0 +1,178 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Form 4684 - Casualty and Theft Losses (Federally Declared Disaster)
+
+      IRC Section 165(h) - Casualty Loss Deduction
+
+      Rules Tested:
+      - Post-TCJA: Personal casualty losses only deductible for federally declared disasters
+      - $100 floor per casualty event (IRC §165(h)(1))
+      - 10% AGI limitation (IRC §165(h)(2))
+      - Loss = Lesser of (adjusted basis OR decline in FMV) - insurance reimbursement
+      - Each separate casualty subject to $100 floor
+      - Total casualty losses reduced by 10% of AGI
+
+      Test Scenario:
+      - Hurricane damage (federally declared disaster) in Florida
+      - Home damaged: FMV before $350,000, FMV after $280,000 (decline: $70,000)
+      - Adjusted basis in home: $320,000
+      - Insurance reimbursement: $55,000
+      - Loss calculation: Lesser($320,000 basis, $70,000 FMV decline) - $55,000 = $15,000
+      - Apply $100 floor: $15,000 - $100 = $14,900
+      - AGI: $85,000, so 10% AGI = $8,500
+      - Deductible loss: $14,900 - $8,500 = $6,400
+
+      Expected Results:
+      - Form 4684 required
+      - Casualty loss deduction: $6,400 (reported on Schedule A)
+      - Must be federally declared disaster
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Miami</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $85,000 W-2 -->
+   <!-- AGI: $85,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Itemized: $8,500 mortgage int + $6,000 property tax + $6,400 casualty = $20,900 -->
+   <!-- Choose standard ($30,000) over itemized ($20,900) -->
+   <!-- Taxable Income: $85,000 - $30,000 = $55,000 -->
+   <!-- Tax: $6,204 (2025 MFJ rates) -->
+   <!-- Credits: $2,000 CTC (1 child) -->
+   <!-- Total tax: $6,204 - $2,000 = $4,204 -->
+   <!-- Withholding: $8,500 -->
+   <!-- Refund: $4,296 -->
+   <expected_agi>85000</expected_agi>
+   <expected_taxable_income>55000</expected_taxable_income>
+   <expected_total_tax>4204</expected_total_tax>
+   <expected_refund>4296</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Martinez</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>4/10/1980</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>8500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Martinez</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>6/22/1982</date_of_birth>
+         <occupation>Nurse (taking leave)</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Carlos Martinez</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>9/5/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>public</school_type>
+         <tuition_paid>0</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Primary Residence (damaged by hurricane) -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>789 Beachfront Boulevard, Miami, FL 33101</address>
+         <purchase_date>5/1/2019</purchase_date>
+         <purchase_price>320000</purchase_price>
+         <current_fmv>280000</current_fmv>
+         <fmv_before_casualty>350000</fmv_before_casualty>
+         <fmv_after_casualty>280000</fmv_after_casualty>
+         <mortgage_balance>280000</mortgage_balance>
+         <mortgage_origination_date>5/1/2019</mortgage_origination_date>
+         <mortgage_interest>8500</mortgage_interest>
+         <property_taxes>6000</property_taxes>
+         <rental_income>0</rental_income>
+         <rental_expenses>0</rental_expenses>
+         <depreciation>0</depreciation>
+      </property>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Casualty Losses -->
+   <casualty_losses>
+      <!-- Hurricane damage (federally declared disaster) -->
+      <casualty id="1">
+         <id>1</id>
+         <event_type>hurricane</event_type>
+         <description>Hurricane damage to primary residence - roof, windows, flooding</description>
+         <event_date>9/15/2025</event_date>
+         <property_id>1</property_id>
+         <is_federally_declared_disaster>true</is_federally_declared_disaster>
+         <disaster_declaration_number>FEMA-4567-DR-FL</disaster_declaration_number>
+         <property_adjusted_basis>320000</property_adjusted_basis>
+         <fmv_before_casualty>350000</fmv_before_casualty>
+         <fmv_after_casualty>280000</fmv_after_casualty>
+         <decline_in_fmv>70000</decline_in_fmv>
+         <insurance_reimbursement>55000</insurance_reimbursement>
+         <insurance_reimbursement_expected>0</insurance_reimbursement_expected>
+         <!-- Loss = Lesser(basis $320k, FMV decline $70k) - insurance $55k = $70k - $55k = $15,000 -->
+         <loss_before_limits>15000</loss_before_limits>
+         <!-- Apply $100 floor per casualty -->
+         <floor_100_applied>100</floor_100_applied>
+         <loss_after_100_floor>14900</loss_after_100_floor>
+         <!-- 10% AGI limitation: $85,000 * 0.10 = $8,500 -->
+         <agi_for_calculation>85000</agi_for_calculation>
+         <ten_percent_agi>8500</ten_percent_agi>
+         <!-- Deductible: $14,900 - $8,500 = $6,400 -->
+         <deductible_casualty_loss>6400</deductible_casualty_loss>
+      </casualty>
+   </casualty_losses>
+
+   <!-- No other deductions -->
+   <deductions>
+   </deductions>
+</job>
