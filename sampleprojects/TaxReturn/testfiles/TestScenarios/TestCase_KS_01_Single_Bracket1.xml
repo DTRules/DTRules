@@ -1,0 +1,77 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- KS Test Case 1: Single W-2 Earner in Bracket 1 Only -->
+   <id>KS-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>KS</state>
+   <city>Topeka</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $40,000 -->
+   <!-- KS AGI: $40,000 -->
+   <!-- KS Standard Deduction: $9,765 (Single) -->
+   <!-- KS Personal Exemption: $9,160 (Single) -->
+   <!-- KS Taxable Income: $40,000 - $9,765 - $9,160 = $21,075 -->
+   <!-- KS Tax: $21,075 × 5.20% = $1,095.90 (all in bracket 1) -->
+   <expected_agi>40000</expected_agi>
+   <expected_ks_agi>40000</expected_ks_agi>
+   <expected_ks_taxable_income>21075</expected_ks_taxable_income>
+   <expected_ks_tax>1095.90</expected_ks_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jane Doe</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>5/10/1990</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>40000</gross_amount>
+         <withholding>4500</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -1,73 +1,86 @@
-# DTRules NASM VM Makefile
+# DTRules NASM VM - Makefile
 # Copyright 2024 Paul Snow
-# Licensed under Apache License 2.0
+# Licensed under the Apache License, Version 2.0
 
-# Toolchain
-NASM = nasm
-CC = gcc
-LD = gcc
-
-# Directories
-SRC_DIR = src
-BUILD_DIR = build
-TEST_DIR = tests
+# Assembler and compiler
+NASM := nasm
+CC := gcc
 
 # Flags
-NASM_FLAGS = -f elf64 -g -F dwarf
-CFLAGS = -Wall -Wextra -g -O2 -I$(SRC_DIR)
-LDFLAGS = -no-pie
+NASM_FLAGS := -f elf64 -g -F dwarf -I include/
+CFLAGS := -Wall -Wextra -g -O2
+
+# Directories
+SRC_DIR := src
+TEST_DIR := tests
+BUILD_DIR := build
+OBJ_DIR := $(BUILD_DIR)/obj
 
 # Source files
-ASM_SOURCES = $(SRC_DIR)/vm_core.asm
-C_SOURCES = $(SRC_DIR)/vm_test.c
+ASM_SOURCES := $(wildcard $(SRC_DIR)/*.asm)
+ASM_OBJECTS := $(patsubst $(SRC_DIR)/%.asm,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
 
-# Object files
-ASM_OBJECTS = $(BUILD_DIR)/vm_core.o
-C_OBJECTS = $(BUILD_DIR)/vm_test.o
+# Test sources
+TEST_SOURCES := $(wildcard $(TEST_DIR)/*.c)
+TEST_OBJECTS := $(patsubst $(TEST_DIR)/%.c,$(OBJ_DIR)/%.o,$(TEST_SOURCES))
 
-# Targets
-TEST_BIN = $(BUILD_DIR)/vm_test
+# Output
+VM_LIB := $(BUILD_DIR)/libdtrules_vm.a
+TEST_BIN := $(BUILD_DIR)/test_vm
 
-.PHONY: all clean test
+# Default target
+.PHONY: all
+all: $(VM_LIB) $(TEST_BIN)
 
-all: $(TEST_BIN)
+# Create directories
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-# Create build directory
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# Assemble NASM files
-$(BUILD_DIR)/vm_core.o: $(SRC_DIR)/vm_core.asm $(SRC_DIR)/opcodes.inc | $(BUILD_DIR)
+# Assemble NASM sources
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.asm | $(OBJ_DIR)
 	$(NASM) $(NASM_FLAGS) -o $@ $<
 
-# Compile C files
-$(BUILD_DIR)/vm_test.o: $(SRC_DIR)/vm_test.c | $(BUILD_DIR)
+# Compile C test sources
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Link test binary
-$(TEST_BIN): $(ASM_OBJECTS) $(C_OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $^
+# Create static library
+$(VM_LIB): $(ASM_OBJECTS) | $(BUILD_DIR)
+	ar rcs $@ $^
+
+# Build test binary
+$(TEST_BIN): $(TEST_OBJECTS) $(VM_LIB) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -o $@ $(TEST_OBJECTS) $(VM_LIB)
 
 # Run tests
+.PHONY: test
 test: $(TEST_BIN)
 	./$(TEST_BIN)
 
 # Clean build artifacts
+.PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
 
-# Debug build with extra symbols
-debug: NASM_FLAGS += -l $(BUILD_DIR)/vm_core.lst
-debug: CFLAGS += -DDEBUG -O0
-debug: all
+# Show object files (for debugging)
+.PHONY: show
+show:
+	@echo "ASM sources: $(ASM_SOURCES)"
+	@echo "ASM objects: $(ASM_OBJECTS)"
+	@echo "Test sources: $(TEST_SOURCES)"
+	@echo "Test objects: $(TEST_OBJECTS)"
 
 # Help
+.PHONY: help
 help:
 	@echo "DTRules NASM VM Build System"
 	@echo ""
 	@echo "Targets:"
-	@echo "  all     - Build everything (default)"
+	@echo "  all     - Build library and tests (default)"
 	@echo "  test    - Build and run tests"
 	@echo "  clean   - Remove build artifacts"
-	@echo "  debug   - Build with debug symbols and listing"
+	@echo "  show    - Show source/object files"
 	@echo "  help    - Show this help"
