@@ -1044,7 +1044,7 @@
 		<field name='bracket_7_single' type='double' subtype='' access='r' input='' default_value='999999999' comment='37% top bracket (no ceiling) Single (2025)'></field>
 
 		<!-- States without income tax -->
-		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
 		<!-- Illinois State Tax Constants (2025) -->
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
