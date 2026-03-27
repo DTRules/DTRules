@@ -9925,7 +9925,7 @@ then
 <condition_number>8</condition_number>
 <condition_comment>No state income tax (AK, FL, NV, TN, TX, WA, WY)</condition_comment>
 
-<condition_comment>No state income tax (AK, FL, SD, TN, TX, WA, WY)</condition_comment>
+<condition_comment>No state income tax (AK, FL, SD, TX, WA, WY)</condition_comment>
 <condition_description>State has no state income tax</condition_description>
 <condition_postfix>
 state_period isnull not
@@ -9935,7 +9935,6 @@ if
   state_period.state_code NV streq or
 
   state_period.state_code SD streq or
-  state_period.state_code TN streq or
   state_period.state_code TX streq or
   state_period.state_code WA streq or
   state_period.state_code WY streq or
@@ -9945,7 +9944,6 @@ else
   job.state NV streq or
 
   job.state SD streq or
-  job.state TN streq or
   job.state TX streq or
   job.state WA streq or
   job.state WY streq or
@@ -13065,3 +13063,121 @@ result.ga_taxable_income ga_tax_rate f* /result.ga_tax xdef
 </decision_table>
 
 
+<!-- ====================================================================== -->
+<!-- TABLE 45900: Calculate_TN_Tax - Tennessee State Income Tax           -->
+<!-- Reference: Tennessee Form TN-1040 (2025) - Hypothetical              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TN_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Tennessee state income tax per hypothetical Form TN-1040. Tennessee uses progressive tax brackets: 2% on first $50,000, 4% on $50,000-$100,000, 6% above $100,000. Starting with federal AGI, applies standard deduction based on filing status ($6,000 Single, $12,000 MFJ), then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>45900</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize TN tax calculation</action_description>
+<action_postfix>
+"TENNESSEE FORM TN-1040 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.tn_agi xdef
+0 /result.tn_bracket_1_tax xdef
+0 /result.tn_bracket_2_tax xdef
+0 /result.tn_bracket_3_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate TN tax MFJ</action_comment>
+<action_description>Calculate TN tax with MFJ standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.tn_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+tn_standard_deduction_mfj /result.tn_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.tn_standard_deduction cvs strconcat job.audit_trail swap addto
+result.tn_agi result.tn_standard_deduction f- 0 fmax /result.tn_taxable_income xdef
+"  TN Taxable Income: $" result.tn_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.tn_taxable_income tn_bracket_3_threshold f> if
+  tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+  tn_bracket_3_threshold tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+  result.tn_taxable_income tn_bracket_3_threshold f- tn_bracket_3_rate f* /result.tn_bracket_3_tax xdef
+  "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (4% on $50,000-$100,000): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (6% above $100,000): $" result.tn_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.tn_taxable_income tn_bracket_2_threshold f> if
+    tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    result.tn_taxable_income tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+    "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (4%): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.tn_taxable_income tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    "  Bracket 1 (2%): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /result.tn_tax xdef
+"  Total TN Tax: $" result.tn_tax cvs strconcat " (Form TN-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate TN tax Single/other</action_comment>
+<action_description>Calculate TN tax with Single standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.tn_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+tn_standard_deduction_single /result.tn_standard_deduction xdef
+"  Standard Deduction (Single): $" result.tn_standard_deduction cvs strconcat job.audit_trail swap addto
+result.tn_agi result.tn_standard_deduction f- 0 fmax /result.tn_taxable_income xdef
+"  TN Taxable Income: $" result.tn_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.tn_taxable_income tn_bracket_3_threshold f> if
+  tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+  tn_bracket_3_threshold tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+  result.tn_taxable_income tn_bracket_3_threshold f- tn_bracket_3_rate f* /result.tn_bracket_3_tax xdef
+  "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (4% on $50,000-$100,000): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (6% above $100,000): $" result.tn_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.tn_taxable_income tn_bracket_2_threshold f> if
+    tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    result.tn_taxable_income tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+    "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (4%): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.tn_taxable_income tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    "  Bracket 1 (2%): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /result.tn_tax xdef
+"  Total TN Tax: $" result.tn_tax cvs strconcat " (Form TN-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Tennessee tax MFJ</policy_description>
+<policy_statement_postfix>"Calculate Tennessee state income tax for MFJ filer per Form TN-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Calculate Tennessee tax Single/other</policy_description>
+<policy_statement_postfix>"Calculate Tennessee state income tax for Single/other filer per Form TN-1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+</decision_tables>
