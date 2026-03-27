@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Massachusetts (MA) Corporate Tax Decision Tables
+
+  Massachusetts General Laws Chapter 63 § 39
+  - Tax rate: 8% flat rate on net income
+  - Apportionment: Single-sales factor (100% sales)
+  - Economic nexus: $500,000 in gross receipts
+  - Form: MA Form 355 (Corporate Excise Tax Return)
+
+  Table number allocation:
+  - 50800-50899: Massachusetts tables
+    - 50800: Determine_MA_Filing_Requirement
+    - 50820: Calculate_MA_Income_Adjustments
+    - 50880: Calculate_MA_State_Tax
+-->
+<decision_tables name="CorporateTax_MA_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 50800: Determine MA Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file MA state tax return.
+
+    Nexus types:
+    - Physical presence: Office, employees, property in state
+    - Economic nexus (post-Wayfair): $500,000 gross receipts threshold
+  -->
+  <decision_table>
+  <table_name>Determine_MA_Filing_Requirement</table_name>
+  <xls_file>MA_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Determine if corporation must file MA state corporate tax return. Checks for physical presence or economic nexus. Physical presence: Office, employees, property in state. Economic nexus (post-Wayfair): $500,000 gross receipts threshold.</COMMENTS>
+  <TABLE_NUMBER>50800</TABLE_NUMBER>
+  <FILE_PATH>states/MA/50800_Determine_MA_Filing_Requirement</FILE_PATH>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+
+  <conditions>
+    <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>Has physical presence in MA (office, employees, property)</condition_comment>
+    <condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == 'MA'</condition_description>
+    <condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code MA streq
+and
+    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    </condition_details>
+    <condition_details>
+    <condition_number>2</condition_number>
+    <condition_comment>Meets MA economic nexus threshold ($500,000)</condition_comment>
+    <condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == 'MA'</condition_description>
+    <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code MA streq
+and
+    </condition_postfix>
+    <condition_column column_number="2" column_value="N"></condition_column>
+    <condition_column column_number="3" column_value="Y"></condition_column>
+    </condition_details>
+    <condition_details>
+    <condition_number>3</condition_number>
+    <condition_comment>Default case</condition_comment>
+    <condition_description>otherwise</condition_description>
+    <condition_postfix>
+otherwise
+    </condition_postfix>
+    <condition_column column_number="4" column_value="*"></condition_column>
+    </condition_details>
+  </conditions>
+
+  <actions>
+    <action_details>
+    <action_number>1</action_number>
+    <action_comment>Physical nexus established - filing required</action_comment>
+    <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+    <action_postfix>
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
+    </action_postfix>
+    <action_column column_number="1" column_value="X"></action_column>
+    </action_details>
+    <action_details>
+    <action_number>2</action_number>
+    <action_comment>Economic nexus established - filing required</action_comment>
+    <action_description>MA threshold: $500,000 in gross receipts</action_description>
+    <action_postfix>
+// Economic nexus established per Wayfair - filing required
+// MA threshold: $500,000 in gross receipts
+// Apportionment will be calculated by tables 7000-7500
+    </action_postfix>
+    <action_column column_number="3" column_value="X"></action_column>
+    </action_details>
+    <action_details>
+    <action_number>3</action_number>
+    <action_comment>No nexus - no filing required</action_comment>
+    <action_description>Any estimated payments would be refunded</action_description>
+    <action_postfix>
+// No nexus - no filing required
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
+    </action_postfix>
+    <action_column column_number="4" column_value="X"></action_column>
+    </action_details>
+  </actions>
+
+  <policy_statements>
+    <policy_statement column_number="1">
+MA filing required due to physical presence (office, employees, or property in state).
+
+Reference: MA Form 355 Instructions (Corporate Excise Tax Return)
+Reference: M.G.L. c. 63 § 39 (Corporate Excise Tax)
+Reference: MA Department of Revenue TIR 18-10 (Nexus Standards)
+    </policy_statement>
+    <policy_statement column_number="3">
+MA filing required due to economic nexus (post-Wayfair).
+Threshold: $500,000 in gross receipts from Massachusetts sources.
+
+Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+Reference: MA Department of Revenue TIR 18-10 (Economic Nexus)
+Reference: M.G.L. c. 63 § 1 (Definitions and nexus standards)
+    </policy_statement>
+    <policy_statement column_number="4">
+No MA nexus - no filing requirement.
+Any estimated payments would be refunded.
+    </policy_statement>
+  </policy_statements>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50820: Calculate MA State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates state additions and subtractions to federal taxable income.
+
+    Common MA additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - IRC Section 199A qualified business income deduction addback
+    - Safe harbor lease deductions
+    - Certain accelerated depreciation differences
+
+    Common MA subtractions:
+    - Dividends from 15% or more ownership subsidiaries
+    - Capital gain from certain qualified investments
+    - Massachusetts NOL deduction
+  -->
+  <decision_table>
+  <table_name>Calculate_MA_Income_Adjustments</table_name>
+  <xls_file>MA_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Calculate MA state-specific additions and subtractions to federal taxable income. MA additions: Federal interest, IRC 199A addback, safe harbor leases, depreciation differences. MA subtractions: Dividend deduction (15%+ ownership), qualified capital gains, NOL deduction.</COMMENTS>
+  <TABLE_NUMBER>50820</TABLE_NUMBER>
+  <FILE_PATH>states/MA/50820_Calculate_MA_Income_Adjustments</FILE_PATH>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+
+  <conditions>
+    <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>Must have nexus to calculate adjustments</condition_comment>
+    <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+    <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="2" column_value="N"></condition_column>
+    </condition_details>
+  </conditions>
+
+  <actions>
+    <action_details>
+    <action_number>1</action_number>
+    <action_comment>Calculate MA state additions and subtractions</action_comment>
+    <action_description>Calculate state-specific income adjustments</action_description>
+    <action_postfix>
+// Calculate state additions (MA-specific)
+0.0 /additions xdef
+
+// MA requires addback of federal interest (U.S. obligations)
+// additions revenue.federal_bond_interest add /additions xdef
+
+// MA requires addback of IRC 199A deduction (MA doesn't conform)
+// additions result.section_199a_deduction add /additions xdef
+
+// MA requires addback of certain depreciation differences
+// additions result.federal_ma_depreciation_difference add /additions xdef
+
+apportionment.state_additions additions xdef
+
+// Calculate state subtractions (MA-specific)
+0.0 /subtractions xdef
+
+// MA allows deduction for dividends from 15%+ owned subsidiaries
+// subtractions revenue.qualified_dividend_deduction add /subtractions xdef
+
+// MA allows deduction for certain capital gains on qualified investments
+// subtractions result.ma_qualified_capital_gain add /subtractions xdef
+
+// MA NOL deduction (limited to certain years)
+// subtractions result.ma_nol_deduction add /subtractions xdef
+
+apportionment.state_subtractions subtractions xdef
+    </action_postfix>
+    <action_column column_number="1" column_value="X"></action_column>
+    </action_details>
+    <action_details>
+    <action_number>2</action_number>
+    <action_comment>No nexus - no state adjustments</action_comment>
+    <action_description>Set adjustments to zero</action_description>
+    <action_postfix>
+apportionment.state_additions 0.0 xdef
+apportionment.state_subtractions 0.0 xdef
+    </action_postfix>
+    <action_column column_number="2" column_value="X"></action_column>
+    </action_details>
+  </actions>
+
+  <policy_statements>
+    <policy_statement column_number="1">
+MA state-specific income adjustments to federal taxable income.
+
+Additions may include:
+- Interest on U.S. government obligations
+- IRC Section 199A qualified business income deduction
+- Safe harbor lease deductions
+- Accelerated depreciation differences (federal vs MA)
+
+Subtractions may include:
+- Dividends from 15% or more owned subsidiaries (95% deduction)
+- Capital gains on certain qualified Massachusetts investments
+- Massachusetts net operating loss deduction
+
+Reference: MA Form 355 Instructions (Lines 4-11)
+Reference: M.G.L. c. 63 § 30 (Deductions and adjustments)
+Reference: MA Department of Revenue TIR 05-15 (Dividend deduction)
+    </policy_statement>
+    <policy_statement column_number="2">
+No nexus - no state adjustments calculated.
+    </policy_statement>
+  </policy_statements>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 50880: Calculate MA State Tax
+    ============================================================================
+
+    Calculates final MA state corporate excise tax.
+
+    Process:
+    1. Federal taxable income apportioned to MA (done by table 7500)
+    2. Add state-specific additions (done by table 50820)
+    3. Subtract state-specific subtractions (done by table 50820)
+    4. Calculate MA state taxable income
+    5. Apply MA 8% flat tax rate
+    6. Subtract MA state credits
+    7. Calculate refund or amount owed
+
+    MA uses a flat 8% rate on apportioned net income (M.G.L. c. 63 § 39).
+  -->
+  <decision_table>
+  <table_name>Calculate_MA_State_Tax</table_name>
+  <xls_file>MA_Corp.xls</xls_file>
+  <attribute_fields>
+  <Type>FIRST</Type>
+  <COMMENTS>Calculate MA state corporate excise tax. Applies 8% flat rate to apportioned and adjusted taxable income. MA uses 8% flat rate on apportioned net income (M.G.L. c. 63 § 39).</COMMENTS>
+  <TABLE_NUMBER>50880</TABLE_NUMBER>
+  <FILE_PATH>states/MA/50880_Calculate_MA_State_Tax</FILE_PATH>
+  </attribute_fields>
+  <contexts></contexts>
+  <initial_actions></initial_actions>
+
+  <conditions>
+    <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>Must have nexus to owe tax</condition_comment>
+    <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+    <condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="2" column_value="N"></condition_column>
+    <condition_column column_number="3" column_value="Y"></condition_column>
+    </condition_details>
+    <condition_details>
+    <condition_number>2</condition_number>
+    <condition_comment>Has positive state taxable income</condition_comment>
+    <condition_description>apportionment.state_taxable_income > 0</condition_description>
+    <condition_postfix>
+apportionment.state_taxable_income 0 gt
+    </condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="3" column_value="N"></condition_column>
+    </condition_details>
+  </conditions>
+
+  <actions>
+    <action_details>
+    <action_number>1</action_number>
+    <action_comment>MA flat rate calculation (8%)</action_comment>
+    <action_description>Calculate MA excise tax with 8% flat rate</action_description>
+    <action_postfix>
+// MA uses 8% flat rate on apportioned net income
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/state_tax_before_credits xdef
+
+// Subtract state credits (EDIP, R&D, film credits, etc.)
+state_tax_before_credits apportionment.state_credits sub
+0.0 max
+/apportionment.state_tax xdef
+
+// Calculate refund or amount owed
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+    </action_postfix>
+    <action_column column_number="1" column_value="X"></action_column>
+    </action_details>
+    <action_details>
+    <action_number>2</action_number>
+    <action_comment>No nexus - no tax liability</action_comment>
+    <action_description>Refund any estimated payments</action_description>
+    <action_postfix>
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
+    </action_postfix>
+    <action_column column_number="2" column_value="X"></action_column>
+    </action_details>
+    <action_details>
+    <action_number>3</action_number>
+    <action_comment>Nexus but no taxable income</action_comment>
+    <action_description>NOL carryforward rules may apply</action_description>
+    <action_postfix>
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
+    </action_postfix>
+    <action_column column_number="3" column_value="X"></action_column>
+    </action_details>
+  </actions>
+
+  <policy_statements>
+    <policy_statement column_number="1">
+MA state corporate excise tax calculation:
+
+1. Federal taxable income: [Form 1120 line 28]
+2. Apportioned to MA: × [Single-sales apportionment %]
+3. State additions: + [Federal interest, 199A addback, etc.]
+4. State subtractions: - [Dividend deduction, qualified capital gains, NOL]
+5. MA taxable income: = [Result]
+6. MA tax rate: × 8.0% (flat rate)
+7. MA excise tax: = [Tax before credits]
+8. MA credits: - [EDIP, R&D, film, renewable energy credits]
+9. MA tax liability: = [Final tax]
+
+Reference: MA Form 355 Instructions (Corporate Excise Tax Return)
+Reference: M.G.L. c. 63 § 39 (Corporate excise tax - 8% rate)
+Reference: M.G.L. c. 63 § 38C (Single-sales factor apportionment)
+Reference: MA Department of Revenue TIR 11-12 (Tax credits)
+    </policy_statement>
+    <policy_statement column_number="2">
+No MA nexus - no tax liability.
+Any estimated payments are refunded.
+    </policy_statement>
+    <policy_statement column_number="3">
+No MA taxable income - no tax liability.
+MA NOL carryforward rules may apply (limited to certain tax years).
+
+Reference: M.G.L. c. 63 § 30.4 (Net operating loss deduction)
+    </policy_statement>
+  </policy_statements>
+  </decision_table>
+
+</decision_tables>

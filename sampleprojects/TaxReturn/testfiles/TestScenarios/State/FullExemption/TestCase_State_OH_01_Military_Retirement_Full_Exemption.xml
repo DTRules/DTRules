@@ -1,0 +1,110 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Ohio Military Retirement Full Exemption Test Case -->
+   <!-- Test Case OH-Military-01: Military retiree with full exemption -->
+   <!-- OH provides 100% exemption for military retirement pay -->
+   <!-- OH has progressive tax rates with brackets -->
+   <!-- 2025 Rates: 0% on first $26,050, 2.75% on $26,051-$100,000, 3.125% on $100,001+ -->
+   <!-- This test verifies that military retirement is fully excluded from OH taxable income -->
+
+   <id>OH-MIL-FULL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>OH</state>
+   <city>Columbus</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $48,000 military retirement (100% exempt in OH) + $15,000 part-time work (taxable) = $63,000 AGI -->
+   <!-- Federal AGI: $63,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $48,000 -->
+   <!-- Federal Tax: $11,925 @ 10% = $1,192.50 + $36,075 @ 12% = $4,329.00 = $5,521.50 -->
+   <!--
+   OH Calculation:
+   - OH AGI starts with Federal AGI: $63,000
+   - OH Military Retirement Exclusion: $48,000 (100% exempt)
+   - OH Adjusted Income: $63,000 - $48,000 = $15,000
+   - OH Personal Exemption: $2,400 (AGI < $40,000)
+   - OH Taxable Income: $15,000 - $2,400 = $12,600
+   - OH Tax: $0 (under the $26,050 exemption threshold)
+   - Total Tax: $5,521.50 + $0 = $5,521.50
+   - Withholding: $6,500
+   - Refund: $978.50
+   -->
+   <expected_agi>63000</expected_agi>
+   <expected_taxable_income>48000</expected_taxable_income>
+   <expected_total_tax>5521.50</expected_total_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_refund>978.50</expected_refund>
+
+   <!-- Retired Military Taxpayer with part-time work -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael</name>
+         <last_name>Anderson</last_name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/5/1980</date_of_birth>
+         <occupation>Military Retiree - Part-time Security</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>15000</w2_wages>
+         <w2_withholding>6500</w2_withholding>
+         <military_retirement_pay>48000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+
+   <!--
+   MSRRA Compliance Notes:
+   - Military Servicemembers Civil Relief Act (SCRA) and Military Spouses Residency Relief Act (MSRRA)
+     protect service members from dual state taxation
+   - OH honors these federal protections
+   - Military retirement pay earned through federal service is 100% exempt in OH
+
+   SCRA Compliance:
+   - Service members stationed in OH but domiciled elsewhere can exclude military pay from OH taxation
+   - This test case shows OH resident receiving full exemption on military retirement
+
+   Test Coverage:
+   - This test validates that $48,000 military retirement pay is fully excluded from OH state AGI
+   - Only the $15,000 part-time wages are subject to OH income tax
+   - After military retirement exclusion ($48,000) and personal exemption ($2,400),
+     the taxable income of $12,600 falls below OH's $26,050 zero-tax threshold
+   - Result: $0 OH state tax owed
+   - OH provides this exemption regardless of age or years of service
+   - Representative of progressive-rate state with full military retirement exemption
+   - Tests combination of tax-exempt military retirement and modest employment income
+   - Demonstrates how OH's exemption threshold benefits low-to-moderate income military retirees
+   - OH may also have local income taxes (not modeled in this test)
+   -->
+</job>

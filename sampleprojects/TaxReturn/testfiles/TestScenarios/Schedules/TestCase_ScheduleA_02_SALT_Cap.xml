@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule A - SALT Deduction at $10,000 Cap -->
+<!-- Scenario: High-tax state couple with SALT exceeding cap -->
+<!-- State tax: $18,000, Property tax: $15,000, Total: $33,000 but capped at $10,000 -->
+<!-- Expected: SALT limited to $10,000 maximum -->
+<job>
+    <id>10002</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>CA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $250,000 -->
+    <!-- Itemized: SALT $10,000 + Mortgage $12,000 + Charity $15,000 = $37,000 -->
+    <!-- Standard: $30,000 (MFJ) -->
+    <!-- Taxable: $250,000 - $37,000 = $213,000 -->
+    <!-- Tax: ~$37,795 -->
+    <expected_agi>250000</expected_agi>
+    <expected_taxable_income>213000</expected_taxable_income>
+    <expected_total_tax>37795</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Robert Chen</name>
+            <ssn>222-33-4444</ssn>
+            <date_of_birth>06/20/1975</date_of_birth>
+            <occupation>Software Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>180000</w2_wages>
+            <w2_withholding>35000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Lisa Chen</name>
+            <ssn>333-44-5555</ssn>
+            <date_of_birth>08/15/1977</date_of_birth>
+            <occupation>Marketing Director</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>70000</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>primary_residence</type>
+            <address>789 Silicon Valley Way, San Jose, CA 95110</address>
+            <purchase_date>1/10/2020</purchase_date>
+            <purchase_price>1200000</purchase_price>
+            <current_fmv>1500000</current_fmv>
+            <mortgage_balance>900000</mortgage_balance>
+            <mortgage_origination_date>1/10/2020</mortgage_origination_date>
+            <mortgage_interest>12000</mortgage_interest>
+            <property_taxes>15000</property_taxes>
+        </property>
+    </properties>
+
+    <deductions>
+        <!-- State income tax (will be capped with property tax) -->
+        <deduction>
+            <id>1</id>
+            <category>state_tax</category>
+            <description>California state income tax</description>
+            <amount>18000</amount>
+        </deduction>
+
+        <!-- Charitable contributions -->
+        <deduction>
+            <id>2</id>
+            <category>charity</category>
+            <description>Donor-advised fund contribution</description>
+            <amount>10000</amount>
+        </deduction>
+        <deduction>
+            <id>3</id>
+            <category>charity</category>
+            <description>Educational foundation</description>
+            <amount>5000</amount>
+        </deduction>
+    </deductions>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <incomes></incomes>
+</job>

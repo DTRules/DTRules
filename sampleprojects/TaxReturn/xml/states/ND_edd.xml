@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for North Dakota (ND)
+
+  North Dakota has a progressive income tax with 3 tax brackets (2025).
+  Tax rates: 0%, 1.95%, and 2.5%
+
+  Single filers:
+    $0-$55,975: 0%
+    $55,975-$252,325: 1.95%
+    Over $252,325: 2.5%
+
+  Joint filers:
+    $0-$55,488: 0%
+    $55,488-$164,038: 1.95%
+    Over $164,038: 2.5%
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/ND/43200_ND_constants</file_path>
+  </file_metadata>
+  <!-- North Dakota state tax constants -->
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="nd_standard_deduction_single" type="double" default_value="15750"
+           comment="ND standard deduction single (2025)"/>
+    <field name="nd_standard_deduction_joint" type="double" default_value="31500"
+           comment="ND standard deduction married filing jointly (2025)"/>
+    <field name="nd_standard_deduction_hoh" type="double" default_value="23625"
+           comment="ND standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets - Single filers -->
+    <field name="nd_single_bracket_1_limit" type="double" default_value="55975"
+           comment="ND bracket 1 upper limit single (2025)"/>
+    <field name="nd_single_bracket_2_limit" type="double" default_value="252325"
+           comment="ND bracket 2 upper limit single (2025)"/>
+
+    <!-- Progressive tax brackets - Joint filers -->
+    <field name="nd_joint_bracket_1_limit" type="double" default_value="55488"
+           comment="ND bracket 1 upper limit joint (2025)"/>
+    <field name="nd_joint_bracket_2_limit" type="double" default_value="164038"
+           comment="ND bracket 2 upper limit joint (2025)"/>
+
+    <!-- Tax rates for all brackets -->
+    <field name="nd_bracket_1_rate" type="double" default_value="0.0"
+           comment="ND tax rate bracket 1: 0% (2025)"/>
+    <field name="nd_bracket_2_rate" type="double" default_value="0.0195"
+           comment="ND tax rate bracket 2: 1.95% (2025)"/>
+    <field name="nd_bracket_3_rate" type="double" default_value="0.025"
+           comment="ND tax rate bracket 3: 2.5% (2025)"/>
+
+  </entity>
+</entity_data_dictionary>

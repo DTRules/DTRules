@@ -1,0 +1,102 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Missouri Test Case 03: Head of Household with two dependents -->
+   <!-- Tests MO HOH standard deduction and progressive tax brackets -->
+
+   <id>MO-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>MO</state>
+   <city>Springfield</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $62,000 W2 -->
+   <!-- Federal AGI: $62,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $22,500 (HOH per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $39,500 -->
+   <!-- Federal Tax: 10% × $16,550 + 12% × $22,950 = $1,655 + $2,754 = $4,409 -->
+   <!-- Child Tax Credit: 2 × $2,000 = $4,000 (phaseout begins at $200,000 for HOH) -->
+   <!-- Federal Tax after credits: $4,409 - $4,000 = $409 -->
+   <!-- MO Standard Deduction: $22,500 (HOH) -->
+   <!-- MO Taxable: $62,000 - $22,500 = $39,500 -->
+   <!-- MO Tax calculation: -->
+   <!--   Bracket 1: $1,313 × 0% = $0 -->
+   <!--   Bracket 2: $1,313 × 2% = $26.26 -->
+   <!--   Bracket 3: $1,313 × 2.5% = $32.83 -->
+   <!--   Bracket 4: $1,313 × 3% = $39.39 -->
+   <!--   Bracket 5: $1,313 × 3.5% = $45.96 -->
+   <!--   Bracket 6: $1,313 × 4% = $52.52 -->
+   <!--   Bracket 7: $1,313 × 4.6% = $60.40 -->
+   <!--   Bracket 8: ($39,500 - $9,191) = $30,309 × 4.7% = $1,424.52 -->
+   <!--   Total MO Tax: $1,681.88 -->
+   <!-- Withholding: $6,500 federal + $1,700 state -->
+   <expected_agi>62000</expected_agi>
+   <expected_taxable_income>39500</expected_taxable_income>
+   <expected_federal_tax>409</expected_federal_tax>
+   <expected_state_tax>1682</expected_state_tax>
+   <expected_total_tax>2091</expected_total_tax>
+
+   <!-- Head of Household Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Patricia Martinez</name>
+         <ssn>999-00-1111</ssn>
+         <date_of_birth>5/30/1988</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>62000</w2_wages>
+         <w2_withholding>6500</w2_withholding>
+         <state_withholding>1700</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two dependent children -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Martinez</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>2/14/2012</date_of_birth>
+         <relationship>Daughter</relationship>
+         <months_lived_in_home>12</months_lived_in_home>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Diego Martinez</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>11/8/2016</date_of_birth>
+         <relationship>Son</relationship>
+         <months_lived_in_home>12</months_lived_in_home>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

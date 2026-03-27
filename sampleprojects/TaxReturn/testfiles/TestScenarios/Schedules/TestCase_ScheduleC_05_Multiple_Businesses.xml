@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule C - Multiple Schedule C Businesses -->
+<!-- Scenario: Taxpayer with two separate businesses -->
+<!-- Business 1 (Consulting): Gross $75,000, Expenses $18,000, Net $57,000 -->
+<!-- Business 2 (Online Store): Gross $40,000, Expenses $25,000, Net $15,000 -->
+<!-- Total Net SE Income: $72,000 -->
+<job>
+    <id>10010</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $115,000 - $43,000 expenses - $5,086 SE deduction = $66,914 -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- QBI: ~$14,400 (20% of $72,000) -->
+    <!-- Taxable: $66,914 - $15,000 - $14,400 = ~$37,514 -->
+    <!-- Tax: ~$4,289 income + $10,173 SE = ~$14,462 -->
+    <expected_agi>66914</expected_agi>
+    <expected_taxable_income>37514</expected_taxable_income>
+    <expected_total_tax>14462</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Daniel Kim</name>
+            <ssn>789-01-2345</ssn>
+            <date_of_birth>11/08/1986</date_of_birth>
+            <occupation>Consultant / E-commerce</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>115000</se_gross_income>
+            <estimated_payments>12000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <expenses>
+        <!-- Business 1: IT Consulting -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Consulting - software and tools</description>
+            <amount>8000</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Consulting - professional development</description>
+            <amount>5000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Consulting - marketing</description>
+            <amount>3000</amount>
+        </expense>
+        <expense>
+            <id>4</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Consulting - office expenses</description>
+            <amount>2000</amount>
+        </expense>
+
+        <!-- Business 2: Online Store -->
+        <expense>
+            <id>5</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>E-commerce - inventory purchases</description>
+            <amount>15000</amount>
+        </expense>
+        <expense>
+            <id>6</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>E-commerce - shipping and fulfillment</description>
+            <amount>5000</amount>
+        </expense>
+        <expense>
+            <id>7</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>E-commerce - platform fees</description>
+            <amount>3000</amount>
+        </expense>
+        <expense>
+            <id>8</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>E-commerce - advertising</description>
+            <amount>2000</amount>
+        </expense>
+    </expenses>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+</job>

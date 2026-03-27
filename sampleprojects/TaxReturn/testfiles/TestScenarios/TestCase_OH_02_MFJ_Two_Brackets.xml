@@ -1,0 +1,100 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OH Test Case 2: Married Filing Jointly with Two Brackets -->
+   <id>OH-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>OH</state>
+   <city>Cleveland</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $55,000 -->
+   <!-- OH AGI: $55,000 -->
+   <!-- OH Exemption: $2,100 per person ($40,000 < AGI ≤ $80,000) -->
+   <!-- Total Exemptions: 2 × $2,100 = $4,200 -->
+   <!-- OH Taxable Income: $55,000 - $4,200 = $50,800 -->
+   <!-- OH Tax: -->
+   <!--   Bracket 1 (0% on $0-$26,050): $0 -->
+   <!--   Bracket 2 (2.75% on $26,051-$50,800): $24,750 × 0.0275 = $680.625 -->
+   <!--   Total: $680.625 -->
+   <expected_agi>55000</expected_agi>
+   <expected_oh_agi>55000</expected_oh_agi>
+   <expected_oh_taxable_income>50800</expected_oh_taxable_income>
+   <expected_oh_tax>680.625</expected_oh_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Bob Williams</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>8/10/1988</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Carol Williams</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>6/25/1990</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>25000</w2_wages>
+         <w2_withholding>2800</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>30000</gross_amount>
+         <withholding>3500</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>25000</gross_amount>
+         <withholding>2800</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

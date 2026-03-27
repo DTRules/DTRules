@@ -1,0 +1,153 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 7: Military SCRA/MSRRA Protection -->
+   <!-- Active duty military stationed in CA, domiciled in TX -->
+   <!-- Spouse works in CA (MSRRA protects spouse) -->
+   <!-- Tests: SCRA protection for military pay, MSRRA protection for spouse income -->
+   <!-- TX domicile maintained, no CA tax on military pay or spouse income -->
+   <id>MS-07-SCRA</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>San Antonio</city>
+
+   <!-- Expected values for validation -->
+   <!-- Military Pay: $85,000 (exempt from CA tax under SCRA) -->
+   <!-- Spouse Wages: $62,000 (exempt from CA tax under MSRRA) -->
+   <!-- Total Income: $147,000 -->
+   <!-- CA Nonresident Tax: $0 (SCRA/MSRRA protection) -->
+   <!-- TX Tax: $0 (no state income tax) -->
+   <expected_agi>147000</expected_agi>
+   <expected_taxable_income>117000</expected_taxable_income>
+   <expected_ca_nonresident_income>0</expected_ca_nonresident_income>
+   <expected_tx_resident_income>147000</expected_tx_resident_income>
+   <expected_scra_protection>true</expected_scra_protection>
+   <expected_msrra_protection>true</expected_msrra_protection>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>TX</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+         <domicile_state>true</domicile_state>
+         <days_in_state>30</days_in_state>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>CA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+         <military_duty_station>true</military_duty_station>
+         <days_in_state>335</days_in_state>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Captain James Rodriguez</name>
+         <ssn>567-89-0124</ssn>
+         <date_of_birth>2/14/1988</date_of_birth>
+         <occupation>Military Officer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_military>true</is_military>
+         <military_status>active_duty</military_status>
+         <domicile_state>TX</domicile_state>
+         <duty_station_state>CA</duty_station_state>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>14000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Rodriguez</name>
+         <ssn>678-90-1235</ssn>
+         <date_of_birth>6/30/1990</date_of_birth>
+         <occupation>Registered Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <is_military_spouse>true</is_military_spouse>
+         <domicile_state>TX</domicile_state>
+         <w2_wages>62000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>U.S. Navy (Camp Pendleton)</source>
+         <gross_amount>85000</gross_amount>
+         <withholding>14000</withholding>
+         <state_code>TX</state_code>
+         <state_period_id>1</state_period_id>
+         <military_pay>true</military_pay>
+         <scra_protected>true</scra_protected>
+         <work_location>Camp Pendleton, CA</work_location>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Hospital San Diego</source>
+         <gross_amount>62000</gross_amount>
+         <withholding>9000</withholding>
+         <state_code>TX</state_code>
+         <state_period_id>1</state_period_id>
+         <military_spouse_income>true</military_spouse_income>
+         <msrra_protected>true</msrra_protected>
+         <work_location>San Diego, CA</work_location>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Isabella Rodriguez</name>
+         <ssn>789-01-2346</ssn>
+         <date_of_birth>9/8/2019</date_of_birth>
+         <age>6</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

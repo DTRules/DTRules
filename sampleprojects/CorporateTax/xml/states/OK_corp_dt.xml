@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Oklahoma
+
+  OK Corporate Income Tax Overview:
+  - Tax rate: 4.0% flat rate
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 gross receipts threshold
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54100: Determine_OK_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_OK_Filing_Requirement</table_name>
+<xls_file>OK_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Oklahoma state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>54100</TABLE_NUMBER>
+<FILE_PATH>states/OK/54100_Determine_OK_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize OK filing requirement check</action_description>
+<action_postfix>
+"OK Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in OK</condition_comment>
+<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'OK'</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence get
+apportionment.state_code get 'OK' eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in OK</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'OK'</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.state_code get 'OK' eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+# Oklahoma filing required due to physical presence (office, employees, or property in state).
+#
+# Reference: Oklahoma Form 512 Instructions (Corporation Income Tax Return)
+# Reference: 68 Okla. Stat. § 2355 et seq. (Corporate Income Tax)
+# Reference: OAC 710:50-17-3 (What constitutes "Nexus")
+
+"OK filing required - physical nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+# Oklahoma filing required due to economic nexus (post-Wayfair).
+# Threshold: $100,000 gross receipts OR 200 transactions
+#
+# Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+# Reference: Oklahoma Tax Commission Economic Nexus Guidance
+
+"OK filing required - economic nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+# No Oklahoma nexus - no filing requirement.
+# Any estimated payments would be refunded.
+
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+
+"OK - no nexus, no filing required" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54120: Calculate_OK_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_OK_Income_Adjustments</table_name>
+<xls_file>OK_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Oklahoma state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>54120</TABLE_NUMBER>
+<FILE_PATH>states/OK/54120_Calculate_OK_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize OK income adjustments</action_description>
+<action_postfix>
+"OK Income Adjustments Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with OK</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate OK state additions and subtractions</action_comment>
+<action_postfix>
+# Oklahoma state-specific income adjustments to federal taxable income.
+#
+# Additions may include:
+# - Interest on U.S. government obligations (OAC 710:50-17-51)
+# - State income tax refunds included in federal income
+# - IRC Section 199A deduction addback (depending on OK conformity)
+# - State income taxes deducted on federal return
+#
+# Subtractions may include:
+# - Interest on Oklahoma state and municipal obligations (OAC 710:50-17-51)
+# - Dividends from affiliated corporations (68 Okla. Stat. § 2357)
+# - Income from U.S. obligations (if included in federal)
+#
+# Reference: Oklahoma Form 512 Schedule B (Additions and Subtractions)
+# Reference: OAC 710:50-17-51 (Adjustments to arrive at Oklahoma taxable income)
+# Reference: 68 Okla. Stat. § 2355 et seq.
+
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"OK income adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"OK - no nexus, no adjustments" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 54180: Calculate_OK_State_Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_OK_State_Tax</table_name>
+<xls_file>OK_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Oklahoma state corporate income tax. Applies 4% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>54180</TABLE_NUMBER>
+<FILE_PATH>states/OK/54180_Calculate_OK_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize OK state tax calculation</action_description>
+<action_postfix>
+"OK State Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with OK</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate OK tax at 4% flat rate</action_comment>
+<action_postfix>
+# Oklahoma state corporate income tax calculation:
+#
+# 1. Federal taxable income: [Form 1120 line 28]
+# 2. Apportioned to OK: × [Apportionment % using single-sales factor]
+# 3. State additions: + [Additions from Schedule B]
+# 4. State subtractions: - [Subtractions from Schedule B]
+# 5. OK taxable income: = [Result]
+# 6. OK tax rate: × 4.0%
+# 7. OK income tax: = [Tax before credits]
+# 8. OK credits: - [Credits from Schedule C]
+# 9. OK tax liability: = [Final tax]
+#
+# Oklahoma uses 100% single-sales factor apportionment.
+# Tax rate is a flat 4% with no brackets or alternative minimum tax.
+#
+# Available OK credits include:
+# - Investment/New Jobs Tax Credit (68 Okla. Stat. § 2357.21)
+# - Small Employer Quality Jobs Incentive Act Credit
+# - Historic Preservation Tax Credit
+# - Research and Development Tax Credit
+# - Venture Capital Tax Credit
+# - Oklahoma Quality Events Incentive Act Credit
+#
+# Reference: Oklahoma Form 512 (Corporation Income Tax Return) Instructions
+# Reference: Oklahoma Form 512 Schedule C (Tax Credits)
+# Reference: 68 Okla. Stat. § 2355 (4% tax rate)
+# Reference: 68 Okla. Stat. § 2358 (Apportionment - single-sales factor)
+# Reference: OAC 710:50-17 (Corporate Income Tax)
+
+apportionment.state_taxable_income get
+apportionment.ok_state_tax_rate get
+mul
+/apportionment.state_tax xdef
+
+apportionment.state_tax get
+apportionment.state_credits get
+sub
+0.0 max
+/apportionment.state_tax xdef
+
+apportionment.state_payments get
+apportionment.state_tax get
+sub
+/apportionment.state_refund_or_owed xdef
+
+"OK tax calculated: $" apportionment.state_tax get cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Nexus but no taxable income</action_comment>
+<action_postfix>
+# No Oklahoma taxable income - no tax liability.
+# Oklahoma allows NOL carryforward (68 Okla. Stat. § 2357.6).
+
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+
+"OK - nexus but no taxable income" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+# No Oklahoma nexus - no tax liability.
+# Any estimated payments are refunded.
+
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+
+"OK - no nexus, no tax liability" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>
