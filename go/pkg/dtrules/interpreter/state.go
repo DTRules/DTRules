@@ -87,6 +87,7 @@ type DTState struct {
 
 	// Current decision table context
 	currentTable        interface{} // *RDecisionTable when implemented
+	currentANode        interface{} // Current action node being executed
 	currentTableSection string
 	numberInSection     int
 	anode               interface{} // *ANode when implemented
@@ -795,6 +796,16 @@ func (s *DTState) GetCurrentTable() interface{} {
 // SetCurrentTable sets the current decision table.
 func (s *DTState) SetCurrentTable(table interface{}) {
 	s.currentTable = table
+}
+
+// GetANode returns the current action node.
+func (s *DTState) GetANode() interface{} {
+	return s.currentANode
+}
+
+// SetANode sets the current action node.
+func (s *DTState) SetANode(anode interface{}) {
+	s.currentANode = anode
 }
 
 // GetCurrentTableSection returns the current section (Condition, Action, etc).

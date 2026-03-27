@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: MFJ factory worker with significant overtime income -->
+   <!-- Tests the "No Tax on Overtime" provision from OBBBA 2025 -->
+   <!-- Max deduction: $25,000 for MFJ, Phase-out starts at $300,000 MAGI -->
+
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>OH</state>
+   <city>Cleveland</city>
+
+   <!-- Expected values for validation -->
+   <!-- Primary W-2: $55,000 base + $18,000 overtime -->
+   <!-- Spouse W-2: $42,000 -->
+   <!-- Total Income: $55,000 + $18,000 + $42,000 = $115,000 -->
+   <!-- Overtime Deduction: $18,000 (under $25k cap for MFJ) -->
+   <!-- AGI: $115,000 - $18,000 = $97,000 -->
+   <!-- Standard Deduction (MFJ): $30,000 -->
+   <!-- Taxable Income: $97,000 - $30,000 = $67,000 -->
+   <!-- Tax: 10%(23,200) + 12%(43,800) = $7,576 -->
+   <!-- CTC: $2,000 (Tommy age 10) -->
+   <!-- Total Tax: $7,576 - $2,000 = $5,576 -->
+   <expected_agi>97000</expected_agi>
+   <expected_taxable_income>67000</expected_taxable_income>
+   <expected_total_tax>5576</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>James Miller</name>
+      <ssn>222-33-4444</ssn>
+      <date_of_birth>1985-08-20</date_of_birth>
+      <occupation>Factory Worker</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>55000</w2_wages>
+      <w2_withholding>7000</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>18000</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+
+   <taxpayer>
+      <id>2</id>
+      <name>Susan Miller</name>
+      <ssn>222-33-5555</ssn>
+      <date_of_birth>1987-03-12</date_of_birth>
+      <occupation>Office Manager</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>false</is_primary>
+      <w2_wages>42000</w2_wages>
+      <w2_withholding>5000</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+
+   <dependent>
+      <id>1</id>
+      <name>Tommy Miller</name>
+      <ssn>222-33-6666</ssn>
+      <date_of_birth>2015-06-01</date_of_birth>
+      <age>10</age>
+      <relationship>child</relationship>
+      <months_lived_with>12</months_lived_with>
+      <is_student>true</is_student>
+      <school_type>public</school_type>
+      <has_ssn>true</has_ssn>
+   </dependent>
+</job>

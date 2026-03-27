@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Ohio Test Case 03: Single filer with high income (over $100,000) -->
+   <!-- Tests Ohio 3.125% bracket and high-income personal exemption -->
+
+   <id>OH-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>OH</state>
+   <city>Cincinnati</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $150,000 W2 -->
+   <!-- Federal AGI: $150,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $135,000 -->
+   <!-- Federal Tax: ~$27,616 (10% + 12% + 22% + 24% brackets) -->
+   <!-- OH Personal Exemption: $1,850 (AGI > $80,000) -->
+   <!-- OH Taxable: $150,000 - $1,850 = $148,150 -->
+   <!-- OH Tax Bracket 2: ($100,000 - $26,050) x 2.75% = $2,033.63 -->
+   <!-- OH Tax Bracket 3: ($148,150 - $100,000) x 3.125% = $1,504.69 -->
+   <!-- OH Total Tax: $3,538.32 -->
+   <!-- Withholding: $30,000 federal + $4,000 state -->
+   <!-- Federal Refund: ~$2,384 -->
+   <!-- State Refund: $461.68 -->
+   <expected_agi>150000</expected_agi>
+   <expected_taxable_income>135000</expected_taxable_income>
+   <expected_federal_tax>27616</expected_federal_tax>
+   <expected_state_tax>3538</expected_state_tax>
+   <expected_total_tax>31154</expected_total_tax>
+
+   <!-- Single Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Anderson</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>4/8/1980</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>30000</w2_withholding>
+         <state_withholding>4000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

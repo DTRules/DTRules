@@ -1,0 +1,139 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 2210 - Farmer/Fisherman Exception -->
+   <!-- Scenario: Farmer with 2/3+ of gross income from farming -->
+   <!-- Per IRC 6654(i): Special rules for farmers and fishermen -->
+   <!-- Only ONE payment required by January 15 (not quarterly) -->
+   <!-- No penalty if paid by Jan 15 or filed return by March 1 with full payment -->
+
+   <id>EST-06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>IA</state>
+
+   <!-- Expected calculations: -->
+   <!-- Farm income: $280,000 (>2/3 of total) -->
+   <!-- Other income (W-2 spouse): $35,000 -->
+   <!-- Total gross income: $315,000 -->
+   <!-- Farm income percentage: $280,000 / $315,000 = 88.9% (exceeds 66.67%) -->
+   <!-- Qualifies for farmer/fisherman exception -->
+   <!--
+   <!-- Farm SE tax: $280,000 x 0.9235 x 0.153 = $39,564 -->
+   <!-- SE deduction: $19,782 -->
+   <!-- AGI: $280,000 + $35,000 - $19,782 = $295,218 -->
+   <!-- QBI: $280,000 x 0.20 = $56,000 -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable: $295,218 - $30,000 - $56,000 = $209,218 -->
+   <!-- Income tax: ~$37,740 -->
+   <!-- Total tax: $37,740 + $39,564 = $77,304 -->
+   <!--
+   <!-- Farmer exception rules: -->
+   <!--   - NO quarterly payments required -->
+   <!--   - ONE payment by January 15 OR -->
+   <!--   - File return by March 1 with full payment -->
+   <!-- Payment made: $80,000 on 01/15/2026 -->
+   <!-- NO PENALTY - farmer exception met -->
+   <expected_agi>295218</expected_agi>
+   <expected_taxable_income>209218</expected_taxable_income>
+   <expected_total_tax>77304</expected_total_tax>
+   <expected_estimated_penalty>0</expected_estimated_penalty>
+   <expected_refund>2696</expected_refund>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>John Peterson</name>
+         <ssn>401-55-6677</ssn>
+         <date_of_birth>04/12/1970</date_of_birth>
+         <occupation>Farmer</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>280000</se_gross_income>
+         <is_farmer>true</is_farmer>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Mary Peterson</name>
+         <ssn>401-55-7788</ssn>
+         <date_of_birth>06/18/1972</date_of_birth>
+         <occupation>School Administrator</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+
+   <!-- Farm property -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <description>Family Farm - 640 acres</description>
+         <property_type>farm</property_type>
+         <purchase_date>01/01/1995</purchase_date>
+         <purchase_price>400000</purchase_price>
+         <address>Rural Route 2, Cedar Rapids, IA</address>
+      </property>
+   </properties>
+
+   <!-- Farm vehicles and equipment -->
+   <vehicles>
+      <vehicle id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <description>2022 John Deere Tractor</description>
+         <purchase_date>03/15/2022</purchase_date>
+         <purchase_price>185000</purchase_price>
+         <total_miles>0</total_miles>
+         <business_miles>0</business_miles>
+         <method>actual_expense</method>
+         <actual_expenses>12000</actual_expenses>
+         <vehicle_depreciation>25000</vehicle_depreciation>
+      </vehicle>
+   </vehicles>
+
+   <deductions></deductions>
+
+   <!-- Single payment on January 15 - meets farmer exception -->
+   <estimated_payments>
+      <estimated_payment id="1">
+         <id>1</id>
+         <quarter>4</quarter>
+         <due_date>01/15/2026</due_date>
+         <payment_date>01/15/2026</payment_date>
+         <payment_amount>80000</payment_amount>
+         <payment_type>farmer_single_payment</payment_type>
+      </estimated_payment>
+   </estimated_payments>
+
+   <prior_year>
+      <tax_year>2024</tax_year>
+      <total_tax>65000</total_tax>
+      <agi>260000</agi>
+   </prior_year>
+
+   <!-- Farmer/Fisherman designation -->
+   <form_2210_options>
+      <is_farmer_or_fisherman>true</is_farmer_or_fisherman>
+      <farm_income_percentage>88.9</farm_income_percentage>
+   </form_2210_options>
+</job>

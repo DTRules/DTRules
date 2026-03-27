@@ -1,0 +1,84 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Colorado Test Case 02: Married filing jointly with two W-2 incomes -->
+   <!-- Tests Colorado flat 4.4% tax on federal taxable income -->
+
+   <id>CO-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CO</state>
+   <city>Boulder</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $90,000 + $60,000 = $150,000 W2 -->
+   <!-- Federal AGI: $150,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $120,000 -->
+   <!-- Federal Tax: $18,229 (10% on $23,850 + 12% on $73,100 + 22% on $23,050) -->
+   <!-- CO uses federal taxable income: $120,000 -->
+   <!-- CO Tax: $5,280 (4.4% of $120,000) -->
+   <expected_agi>150000</expected_agi>
+   <expected_taxable_income>120000</expected_taxable_income>
+   <expected_federal_tax>18229</expected_federal_tax>
+   <expected_state_tax>5280</expected_state_tax>
+   <expected_total_tax>23509</expected_total_tax>
+
+   <!-- Married Couple -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Chen</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/12/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+         <w2_withholding>15000</w2_withholding>
+         <state_withholding>4000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Chen</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/3/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <state_withholding>2500</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>
