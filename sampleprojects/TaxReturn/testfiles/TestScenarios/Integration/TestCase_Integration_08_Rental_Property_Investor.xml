@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 08: Rental Property Investor -->
+<!-- Tests: Schedule E, passive activity losses, real estate professional status -->
+<!-- Scenario: Multiple rental properties with depreciation and Section 1250 recapture -->
+<!-- Expected: Passive loss limitations, proper depreciation, rental income netting -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-08-RENTAL-INVESTOR</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <!-- Expected values -->
+   <!-- Rental Property 1: $36,000 income - $28,700 expenses - $8,200 depreciation = -$900 loss -->
+   <!-- Rental Property 2: $42,000 income - $25,400 expenses - $9,800 depreciation = $6,800 profit -->
+   <!-- Rental Property 3: $28,800 income - $22,600 expenses - $7,200 depreciation = -$1,000 loss -->
+   <!-- Net rental income: -$900 + $6,800 - $1,000 = $4,900 -->
+   <!-- W-2 income (spouse): $95,000 -->
+   <!-- Total income: $99,900 -->
+   <!-- AGI: $99,900 -->
+   <!-- Standard deduction: $30,000 -->
+   <!-- Taxable: $69,900 -->
+   <!-- Tax: ~$8,000 -->
+   <!-- Note: Real estate professional status would allow full loss deduction -->
+   <expected_agi>99900</expected_agi>
+   <expected_taxable_income>69900</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Thomas Garcia</name>
+         <ssn>300-18-8001</ssn>
+         <date_of_birth>5/12/1978</date_of_birth>
+         <occupation>Real Estate Investor</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_real_estate_professional>true</is_real_estate_professional>
+         <real_estate_hours>2100</real_estate_hours>
+         <w2_wages>0</w2_wages>
+         <estimated_payments>8000</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Garcia</name>
+         <ssn>300-18-8002</ssn>
+         <date_of_birth>11/8/1980</date_of_birth>
+         <occupation>Nurse Practitioner</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>95000</w2_wages>
+         <w2_withholding>14000</w2_withholding>
+         <w2_ss_wages>95000</w2_ss_wages>
+         <w2_ss_withheld>5890</w2_ss_withheld>
+         <w2_medicare_wages>95000</w2_medicare_wages>
+         <w2_medicare_withheld>1378</w2_medicare_withheld>
+         <employer_name>Seton Healthcare</employer_name>
+         <employer_ein>74-1234567</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- One child -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Carlos Garcia</name>
+         <ssn>300-18-8003</ssn>
+         <date_of_birth>4/20/2014</date_of_birth>
+         <age>11</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Multiple rental properties -->
+   <properties>
+      <!-- Primary residence -->
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>1234 River Place Blvd, Austin, TX 78730</address>
+         <purchase_date>6/1/2018</purchase_date>
+         <purchase_price>485000</purchase_price>
+         <current_fmv>680000</current_fmv>
+         <mortgage_balance>380000</mortgage_balance>
+         <mortgage_origination_date>6/1/2018</mortgage_origination_date>
+         <mortgage_interest>17100</mortgage_interest>
+         <property_taxes>9200</property_taxes>
+      </property>
+
+      <!-- Rental Property 1 - Single Family Home -->
+      <property id="2">
+         <id>2</id>
+         <type>rental</type>
+         <address>456 West Avenue, Austin, TX 78701</address>
+         <purchase_date>3/15/2019</purchase_date>
+         <purchase_price>320000</purchase_price>
+         <current_fmv>425000</current_fmv>
+         <mortgage_balance>240000</mortgage_balance>
+         <mortgage_origination_date>3/15/2019</mortgage_origination_date>
+         <mortgage_interest>10800</mortgage_interest>
+         <property_taxes>4800</property_taxes>
+         <rental_income>36000</rental_income>
+         <rental_insurance>2400</rental_insurance>
+         <rental_repairs>4200</rental_repairs>
+         <rental_management>3600</rental_management>
+         <rental_utilities>1200</rental_utilities>
+         <rental_advertising>300</rental_advertising>
+         <rental_hoa_fees>1400</rental_hoa_fees>
+         <depreciation>8200</depreciation>
+         <depreciation_method>straight_line</depreciation_method>
+         <placed_in_service_date>3/15/2019</placed_in_service_date>
+      </property>
+
+      <!-- Rental Property 2 - Duplex -->
+      <property id="3">
+         <id>3</id>
+         <type>rental</type>
+         <address>789 South Congress, Austin, TX 78704</address>
+         <purchase_date>8/1/2020</purchase_date>
+         <purchase_price>380000</purchase_price>
+         <current_fmv>520000</current_fmv>
+         <mortgage_balance>290000</mortgage_balance>
+         <mortgage_origination_date>8/1/2020</mortgage_origination_date>
+         <mortgage_interest>13050</mortgage_interest>
+         <property_taxes>5700</property_taxes>
+         <rental_income>42000</rental_income>
+         <rental_insurance>2800</rental_insurance>
+         <rental_repairs>1200</rental_repairs>
+         <rental_management>2100</rental_management>
+         <rental_utilities>0</rental_utilities>
+         <rental_advertising>200</rental_advertising>
+         <rental_pest_control>350</rental_pest_control>
+         <depreciation>9800</depreciation>
+         <depreciation_method>straight_line</depreciation_method>
+         <placed_in_service_date>8/1/2020</placed_in_service_date>
+      </property>
+
+      <!-- Rental Property 3 - Condo -->
+      <property id="4">
+         <id>4</id>
+         <type>rental</type>
+         <address>321 Rainey Street, Austin, TX 78701</address>
+         <purchase_date>5/1/2022</purchase_date>
+         <purchase_price>280000</purchase_price>
+         <current_fmv>315000</current_fmv>
+         <mortgage_balance>225000</mortgage_balance>
+         <mortgage_origination_date>5/1/2022</mortgage_origination_date>
+         <mortgage_interest>10125</mortgage_interest>
+         <property_taxes>4200</property_taxes>
+         <rental_income>28800</rental_income>
+         <rental_insurance>1800</rental_insurance>
+         <rental_repairs>2800</rental_repairs>
+         <rental_management>1440</rental_management>
+         <rental_utilities>850</rental_utilities>
+         <rental_hoa_fees>1385</rental_hoa_fees>
+         <depreciation>7200</depreciation>
+         <depreciation_method>straight_line</depreciation_method>
+         <placed_in_service_date>5/1/2022</placed_in_service_date>
+      </property>
+   </properties>
+
+   <!-- Passive activity tracking -->
+   <passive_activities>
+      <passive_activity id="1">
+         <id>1</id>
+         <activity_name>Rental Property 1 - 456 West Avenue</activity_name>
+         <activity_type>rental_real_estate</activity_type>
+         <is_passive>false</is_passive>
+         <participation_hours>720</participation_hours>
+         <net_income_loss>-900</net_income_loss>
+      </passive_activity>
+
+      <passive_activity id="2">
+         <id>2</id>
+         <activity_name>Rental Property 2 - 789 South Congress</activity_name>
+         <activity_type>rental_real_estate</activity_type>
+         <is_passive>false</is_passive>
+         <participation_hours>680</participation_hours>
+         <net_income_loss>6800</net_income_loss>
+      </passive_activity>
+
+      <passive_activity id="3">
+         <id>3</id>
+         <activity_name>Rental Property 3 - 321 Rainey Street</activity_name>
+         <activity_type>rental_real_estate</activity_type>
+         <is_passive>false</is_passive>
+         <participation_hours>700</participation_hours>
+         <net_income_loss>-1000</net_income_loss>
+      </passive_activity>
+   </passive_activities>
+
+   <!-- Deductions -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Local housing charity</description>
+         <amount>3500</amount>
+      </deduction>
+   </deductions>
+</job>

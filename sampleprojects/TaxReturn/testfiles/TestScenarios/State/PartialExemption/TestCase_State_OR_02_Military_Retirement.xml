@@ -1,0 +1,86 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Oregon Military Retirement Test Case -->
+   <!-- Test Case OR-Military-02: Mixed service (prorated exemption) -->
+   <!-- OR provides prorated exemption for mixed service (before and after Oct 1, 1991) -->
+   <!-- This taxpayer served 1985-2005 (20 years total: 6 years before, 14 years after cutoff) -->
+   <!-- Proration: 6/20 = 30% exempt, 70% taxable -->
+
+   <id>OR-MIL-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>OR</state>
+   <city>Eugene</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $50,000 military retirement + $30,000 W2 = $80,000 -->
+   <!-- AGI: $80,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $65,000 -->
+   <!-- Federal Tax: ~$8,700 -->
+   <!-- OR: Progressive tax (4.75% to 9.9%) -->
+   <!-- OR Standard Deduction: $2,745 (single) -->
+   <!-- OR Personal Exemption: $239 -->
+   <!-- OR Military Retirement: Mixed service proration -->
+   <!-- Service years before Oct 1, 1991: 6 years (1985-1991) -->
+   <!-- Total service years: 20 years (1985-2005) -->
+   <!-- Exempt portion: $50,000 * (6/20) = $15,000 -->
+   <!-- Taxable military retirement: $50,000 - $15,000 = $35,000 -->
+   <!-- OR Taxable Income: $30,000 + $35,000 - $2,745 - $239 = $62,016 -->
+   <!-- OR Tax (progressive brackets): ~$4,600 -->
+   <!-- Total Tax: $13,300 -->
+   <!-- Withholding: $14,000 -->
+   <!-- Refund: $700 -->
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>65000</expected_taxable_income>
+   <expected_total_tax>13300</expected_total_tax>
+   <expected_state_tax>4600</expected_state_tax>
+   <expected_refund>700</expected_refund>
+
+   <!-- Retired Military Taxpayer (Served 1985-2005, mixed service) -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Linda</name>
+         <last_name>Williams</last_name>
+         <ssn>333-44-5566</ssn>
+         <date_of_birth>4/22/1965</date_of_birth>
+         <occupation>Military Retiree - Office Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>14000</w2_withholding>
+         <military_retirement_pay>50000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

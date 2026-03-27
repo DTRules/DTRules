@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Alabama
+
+  Alabama has progressive tax brackets:
+  - Single/MFS: 2% on first $500, 4% on next $2,500 ($500-$3,000), 5% over $3,000
+  - MFJ: 2% on first $1,000, 4% on next $5,000 ($1,000-$6,000), 5% over $6,000
+
+  Standard deductions:
+  - Single: $4,500
+  - MFJ: $11,500
+  - HOH: $7,500 (estimated)
+
+  Personal exemptions:
+  - Single/MFS: $1,500
+  - MFJ/HOH: $3,000
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/AL/40100_AL_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="al_standard_deduction_single" type="double" default_value="4500.0"
+           comment="AL standard deduction single (2025)"/>
+    <field name="al_standard_deduction_joint" type="double" default_value="11500.0"
+           comment="AL standard deduction married filing jointly (2025)"/>
+    <field name="al_standard_deduction_hoh" type="double" default_value="7500.0"
+           comment="AL standard deduction head of household (2025)"/>
+
+    <!-- Personal exemptions -->
+    <field name="al_exemption_single" type="double" default_value="1500.0"
+           comment="AL personal exemption single/MFS (2025)"/>
+    <field name="al_exemption_joint" type="double" default_value="3000.0"
+           comment="AL personal exemption MFJ/HOH (2025)"/>
+
+    <!-- Tax brackets for Single/MFS -->
+    <field name="al_bracket_1_limit_single" type="double" default_value="500.0"
+           comment="AL tax bracket 1 upper limit for single (2025)"/>
+    <field name="al_bracket_1_rate" type="double" default_value="0.02"
+           comment="AL tax rate for bracket 1 - 2% (2025)"/>
+
+    <field name="al_bracket_2_limit_single" type="double" default_value="3000.0"
+           comment="AL tax bracket 2 upper limit for single (2025)"/>
+    <field name="al_bracket_2_rate" type="double" default_value="0.04"
+           comment="AL tax rate for bracket 2 - 4% (2025)"/>
+
+    <field name="al_bracket_3_rate" type="double" default_value="0.05"
+           comment="AL tax rate for bracket 3 - 5% (2025)"/>
+
+    <!-- Tax brackets for MFJ -->
+    <field name="al_bracket_1_limit_joint" type="double" default_value="1000.0"
+           comment="AL tax bracket 1 upper limit for MFJ (2025)"/>
+
+    <field name="al_bracket_2_limit_joint" type="double" default_value="6000.0"
+           comment="AL tax bracket 2 upper limit for MFJ (2025)"/>
+
+  </entity>
+</entity_data_dictionary>

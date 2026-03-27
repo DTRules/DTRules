@@ -1,0 +1,138 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Multiple Children with Kiddie Tax -->
+   <!-- Scenario: Two children with unearned income, both subject to kiddie tax -->
+   <!-- Parent's tax rate applied to both children's unearned income over threshold -->
+
+   <!-- Child 1 (Age 14) - Trust Fund Income: -->
+   <!-- Unearned Income: $4,500 -->
+   <!-- Standard Deduction: $1,300 -->
+   <!-- Remaining: $3,200 -->
+   <!-- First $1,300 at child's rate (10%): $130 -->
+   <!-- Remaining $1,900 at parent's rate (35%): $665 -->
+   <!-- Child 1 Kiddie Tax: $795 -->
+
+   <!-- Child 2 (Age 11) - Investment Income: -->
+   <!-- Unearned Income: $3,200 -->
+   <!-- Standard Deduction: $1,300 -->
+   <!-- Remaining: $1,900 -->
+   <!-- First $1,300 at child's rate (10%): $130 -->
+   <!-- Remaining $600 at parent's rate (35%): $210 -->
+   <!-- Child 2 Kiddie Tax: $340 -->
+
+   <!-- Total Kiddie Tax: $795 + $340 = $1,135 -->
+
+   <id>KIDDIE-MULTIPLE-05</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NY</state>
+
+   <expected_agi>280000</expected_agi>
+   <expected_total_kiddie_tax>1135</expected_total_kiddie_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Richard Walker</name>
+         <ssn>601-55-6666</ssn>
+         <date_of_birth>5/18/1975</date_of_birth>
+         <occupation>Surgeon</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>200000</w2_wages>
+         <w2_withholding>50000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Patricia Walker</name>
+         <ssn>602-55-6667</ssn>
+         <date_of_birth>8/25/1977</date_of_birth>
+         <occupation>Attorney</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>80000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Matthew Walker</name>
+         <ssn>603-55-6668</ssn>
+         <date_of_birth>4/22/2011</date_of_birth>
+         <age>14</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+         <gross_income>4500</gross_income>
+         <provided_own_support>false</provided_own_support>
+         <unearned_income>4500</unearned_income>
+         <earned_income>0</earned_income>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Chloe Walker</name>
+         <ssn>604-55-6669</ssn>
+         <date_of_birth>9/10/2014</date_of_birth>
+         <age>11</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+         <gross_income>3200</gross_income>
+         <provided_own_support>false</provided_own_support>
+         <unearned_income>3200</unearned_income>
+         <earned_income>0</earned_income>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 8615 - Child 1's Unearned Income (Kiddie Tax) -->
+   <child_unearned_incomes>
+      <child_unearned_income id="1">
+         <id>1</id>
+         <dependent_id>1</dependent_id>
+         <child_age>14</child_age>
+         <is_student>true</is_student>
+         <child_earned_income>0</child_earned_income>
+         <unearned_income_amount>4500</unearned_income_amount>
+         <child_itemized_deductions>0</child_itemized_deductions>
+         <parent_taxable_income>250000</parent_taxable_income>
+         <parent_filing_status>MFJ</parent_filing_status>
+      </child_unearned_income>
+      <!-- Form 8615 - Child 2's Unearned Income (Kiddie Tax) -->
+      <child_unearned_income id="2">
+         <id>2</id>
+         <dependent_id>2</dependent_id>
+         <child_age>11</child_age>
+         <is_student>true</is_student>
+         <child_earned_income>0</child_earned_income>
+         <unearned_income_amount>3200</unearned_income_amount>
+         <child_itemized_deductions>0</child_itemized_deductions>
+         <parent_taxable_income>250000</parent_taxable_income>
+         <parent_filing_status>MFJ</parent_filing_status>
+      </child_unearned_income>
+   </child_unearned_incomes>
+</job>

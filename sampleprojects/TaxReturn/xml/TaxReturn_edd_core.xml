@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: core
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 5 entities categorized as 'core'.
+-->
+	<file_metadata>
+		<file_path>core/01000_core_entities</file_path>
+	</file_metadata>
+	<entity name="job" xls_file="Core.xls" access="rw" comment="Root entity for tax return processing">
+		<field name="job" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Job ID" />
+		<field name="tax_year" type="integer" subtype="" access="r" input="main" default_value="2025" comment="Tax year being processed" />
+		<field name="filing_status" type="string" subtype="" access="rw" input="main" default_value="" comment="Filing status: MFJ, MFS, Single, HOH, QSS" />
+		<field name="state" type="string" subtype="" access="r" input="main" default_value="TX" comment="State of residence" />
+		<field name="city" type="string" subtype="" access="r" input="main" default_value="" comment="City of residence" />
+		<field name="has_state_income_tax" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Whether state has income tax (computed)" />
+		<field name="taxpayers" type="array" subtype="taxpayer" access="r" input="" default_value="" comment="Taxpayers on this return" />
+		<field name="dependents" type="array" subtype="dependent" access="r" input="" default_value="" comment="Dependents on this return" />
+		<field name="properties" type="array" subtype="property" access="r" input="" default_value="" comment="Properties owned" />
+		<field name="vehicles" type="array" subtype="vehicle" access="r" input="" default_value="" comment="Vehicles used for business" />
+		<field name="deductions" type="array" subtype="deduction" access="r" input="" default_value="" comment="Itemized deductions" />
+		<field name="credits" type="array" subtype="credit" access="r" input="" default_value="" comment="Tax credits" />
+		<field name="incomes" type="array" subtype="income" access="r" input="" default_value="" comment="Other income sources (pension, interest, dividends)" />
+		<field name="energy_improvements" type="array" subtype="energy_improvement" access="r" input="" default_value="" comment="Energy improvements for Form 5695" />
+		<field name="k1_incomes" type="array" subtype="k1_income" access="r" input="" default_value="" comment="Schedule K-1 income (partnerships, S-corps, trusts)" />
+		<field name="ira_accounts" type="array" subtype="ira_account" access="r" input="" default_value="" comment="IRA accounts for Form 8606" />
+		<field name="farm_incomes" type="array" subtype="farm_income" access="r" input="" default_value="" comment="Farm income for Schedule F" />
+		<field name="property_sales" type="array" subtype="property_sale" access="r" input="" default_value="" comment="Business property sales for Form 4797" />
+		<field name="foreign_incomes" type="array" subtype="foreign_income" access="r" input="" default_value="" comment="Foreign income for Form 1116" />
+		<field name="household_employees" type="array" subtype="household_employee" access="r" input="" default_value="" comment="Household employees for Schedule H" />
+		<field name="foreign_earned_incomes" type="array" subtype="foreign_earned_income" access="r" input="" default_value="" comment="Form 2555 Foreign Earned Income" />
+		<field name="installment_sales" type="array" subtype="installment_sale" access="r" input="" default_value="" comment="Form 6252 Installment Sales" />
+		<field name="like_kind_exchanges" type="array" subtype="like_kind_exchange" access="r" input="" default_value="" comment="Form 8824 Like-Kind Exchanges" />
+		<field name="early_distributions" type="array" subtype="early_distribution" access="r" input="" default_value="" comment="Form 5329 Early Distributions" />
+		<field name="child_unearned_incomes" type="array" subtype="child_unearned_income" access="r" input="" default_value="" comment="Form 8615 Kiddie Tax" />
+		<field name="elderly_disabled" type="array" subtype="elderly_disabled" access="r" input="" default_value="" comment="Schedule R Credit" />
+		<field name="estimated_payments" type="array" subtype="estimated_payment" access="r" input="" default_value="" comment="Form 2210 Estimated Payments" />
+		<field name="casualty_losses" type="array" subtype="casualty_loss" access="r" input="" default_value="" comment="Form 4684 Casualty Losses" />
+		<field name="clean_vehicles" type="array" subtype="clean_vehicle" access="r" input="" default_value="" comment="Form 8936 Clean Vehicles" />
+		<field name="adoptions" type="array" subtype="adoption" access="r" input="" default_value="" comment="Form 8839 Adoption Credits" />
+		<field name="household_employees" type="array" subtype="household_employee" access="r" input="" default_value="" comment="Schedule H Household Employees" />
+		<field name="nol_carryovers" type="array" subtype="nol_carryover" access="r" input="" default_value="" comment="Net Operating Loss Carryovers" />
+		<field name="noncash_contributions" type="array" subtype="noncash_contribution" access="r" input="" default_value="" comment="Form 8283 Noncash Charitable Contributions" />
+		<field name="mortgage_credit_certificates" type="array" subtype="mortgage_credit_certificate" access="r" input="" default_value="" comment="Form 8396 Mortgage Credit Certificates" />
+		<field name="prior_year_amts" type="array" subtype="prior_year_amt" access="r" input="" default_value="" comment="Form 8801 Prior Year AMT Credits" />
+		<field name="partnership_audits" type="array" subtype="partnership_audit" access="r" input="" default_value="" comment="Form 8978 Partnership Audit Adjustments" />
+		<field name="unreported_tips_records" type="array" subtype="unreported_tips" access="r" input="" default_value="" comment="Form 4137 Unreported Tip Income" />
+		<field name="lihtc_recaptures" type="array" subtype="lihtc_recapture" access="r" input="" default_value="" comment="Form 8611 LIHTC Recaptures" />
+		<field name="results" type="array" subtype="result" access="r" input="" default_value="" comment="Results of tax calculation" />
+		<field name="state_tax_results" type="array" subtype="state_tax_result" access="r" input="" default_value="" comment="State tax calculation results" />
+		<field name="state_periods" type="array" subtype="state_period" access="r" input="" default_value="" comment="Periods of residence/work in different states (for multi-state allocation)" />
+		<field name="audit_trail" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed trace of every decision" />
+		<field name="has_marketplace_coverage" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Had marketplace health insurance" />
+		<field name="annual_premium" type="double" subtype="" access="r" input="main" default_value="0" comment="Annual health insurance premium (Form 1095-A)" />
+		<field name="slcsp_premium" type="double" subtype="" access="r" input="main" default_value="0" comment="Second lowest cost silver plan premium (Form 1095-A)" />
+		<field name="advance_ptc_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Advance PTC received (Form 1095-A)" />
+		<field name="household_size" type="integer" subtype="" access="r" input="main" default_value="1" comment="Household size for FPL calculation" />
+		<field name="is_real_estate_professional" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Qualifies as real estate professional (IRC 469(c)(7))" />
+		<field name="actively_participates_rental" type="boolean" subtype="" access="r" input="main" default_value="true" comment="Actively participates in rental activities" />
+		<field name="expected_agi" type="double" subtype="" access="r" input="main" default_value="" comment="Expected AGI for validation" />
+		<field name="expected_taxable_income" type="double" subtype="" access="r" input="main" default_value="" comment="Expected taxable income for validation" />
+		<field name="expected_total_tax" type="double" subtype="" access="r" input="main" default_value="" comment="Expected total tax for validation" />
+		<field name="expected_refund" type="double" subtype="" access="r" input="main" default_value="" comment="Expected refund for validation" />
+		<field name="purchased_dc_home_first_time" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Purchased DC home as first-time buyer in qualified period" />
+		<field name="dc_home_purchase_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Purchase price of DC home (Form 8859)" />
+		<field name="dc_home_purchase_date" type="date" subtype="" access="r" input="main" default_value="" comment="Purchase date of DC home (Form 8859)" />
+		<field name="expected_cdcc_credit" type="double" subtype="" access="r" input="main" default_value="" comment="Expected CDCC credit for validation" />
+		<field name="expected_education_credit" type="double" subtype="" access="r" input="main" default_value="" comment="Expected education credit for validation" />
+	</entity>
+	<entity name="taxpayer" xls_file="Core.xls" access="rw" comment="Individual taxpayer">
+		<field name="taxpayer" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Taxpayer ID" />
+		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Full name" />
+		<field name="ssn" type="string" subtype="" access="r" input="main" default_value="" comment="Social Security Number" />
+		<field name="date_of_birth" type="date" subtype="" access="r" input="main" default_value="" comment="Date of birth" />
+		<field name="occupation" type="string" subtype="" access="r" input="main" default_value="" comment="Occupation or profession" />
+		<field name="is_self_employed" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Whether taxpayer is self-employed" />
+		<field name="is_primary" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Primary taxpayer on return" />
+		<field name="w2_wages" type="double" subtype="" access="rw" input="main" default_value="0" comment="W-2 wage income" />
+		<field name="w2_withholding" type="double" subtype="" access="rw" input="main" default_value="0" comment="Federal tax withheld from W-2" />
+		<field name="se_gross_income" type="double" subtype="" access="rw" input="main" default_value="0" comment="Self-employment gross receipts" />
+		<field name="se_expenses" type="double" subtype="" access="rw" input="main" default_value="0" comment="Total Schedule C expenses" />
+		<field name="se_net_profit" type="double" subtype="" access="rw" input="" default_value="0" comment="Schedule C net profit (computed)" />
+		<field name="se_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Self-employment tax (computed)" />
+		<field name="se_tax_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Deductible portion of SE tax (computed)" />
+		<field name="estimated_payments" type="double" subtype="" access="rw" input="main" default_value="0" comment="Federal estimated tax payments made" />
+		<field name="state_estimated_payments" type="double" subtype="" access="rw" input="main" default_value="0" comment="State estimated tax payments made" />
+		<field name="incomes" type="array" subtype="income" access="r" input="" default_value="" comment="Income sources for this taxpayer" />
+		<field name="total_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total income (computed)" />
+		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Notes and explanations" />
+		<field name="tip_income" type="double" subtype="" access="rw" input="main" default_value="0" comment="Tips received in qualifying occupation (OBBBA 2025)" />
+		<field name="overtime_income" type="double" subtype="" access="rw" input="main" default_value="0" comment="Overtime pay exceeding regular rate (OBBBA 2025)" />
+		<field name="social_security_income" type="double" subtype="" access="rw" input="main" default_value="0" comment="Social Security benefits received (Form SSA-1099)" />
+		<field name="is_senior" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Age 65+ at end of tax year" />
+		<field name="traditional_ira_contribution" type="double" subtype="" access="rw" input="main" default_value="0" comment="Traditional IRA contribution (Form 5498)" />
+		<field name="roth_ira_contribution" type="double" subtype="" access="rw" input="main" default_value="0" comment="Roth IRA contribution (not deductible)" />
+		<field name="hsa_contribution" type="double" subtype="" access="rw" input="main" default_value="0" comment="HSA contribution (Form 8889)" />
+		<field name="hsa_coverage_type" type="string" subtype="" access="rw" input="main" default_value="self" comment="HSA coverage: self or family" />
+		<field name="covered_by_employer_plan" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Covered by employer retirement plan (Box 13 W-2)" />
+		<field name="age_50_or_over" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Age 50 or over for catchup contributions" />
+		<field name="student_loan_interest_paid" type="double" subtype="" access="rw" input="main" default_value="0" comment="Student loan interest paid (Form 1098-E)" />
+		<field name="childcare_expenses" type="double" subtype="" access="rw" input="main" default_value="0" comment="Child/dependent care expenses paid" />
+		<field name="dependent_care_fsa" type="double" subtype="" access="rw" input="main" default_value="0" comment="Dependent Care FSA (Box 10 W-2)" />
+		<field name="is_educator" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="K-12 teacher, instructor, counselor, principal, or aide" />
+		<field name="educator_expenses" type="double" subtype="" access="rw" input="main" default_value="0" comment="Unreimbursed educator expenses" />
+		<field name="medical_expenses" type="double" subtype="" access="rw" input="main" default_value="0" comment="Unreimbursed medical expenses (Schedule A)" />
+		<field name="energy_efficient_appliances_produced" type="integer" subtype="" access="r" input="main" default_value="0" comment="Number of qualifying appliances produced (Form 8909 - manufacturers only)" />
+		<field name="appliance_type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: dishwasher, clothes_washer, refrigerator (Form 8909)" />
+	</entity>
+	<entity name="dependent" xls_file="Core.xls" access="rw" comment="Dependent (child or qualifying relative)">
+		<field name="dependent" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Dependent ID" />
+		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Full name" />
+		<field name="ssn" type="string" subtype="" access="r" input="main" default_value="" comment="Social Security Number" />
+		<field name="date_of_birth" type="date" subtype="" access="r" input="main" default_value="" comment="Date of birth" />
+		<field name="age" type="integer" subtype="" access="r" input="main" default_value="0" comment="Age at end of tax year" />
+		<field name="relationship" type="string" subtype="" access="r" input="main" default_value="child" comment="Relationship: child, parent, relative, other" />
+		<field name="months_lived_with" type="integer" subtype="" access="r" input="main" default_value="12" comment="Months lived with taxpayer" />
+		<field name="is_student" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Full-time student" />
+		<field name="school_type" type="string" subtype="" access="r" input="main" default_value="" comment="Type of school: public, private, homeschool" />
+		<field name="tuition_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Tuition paid (Form 1098-T Box 1)" />
+		<field name="qualified_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Qualified education expenses" />
+		<field name="is_college_student" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Enrolled in college/university" />
+		<field name="college_year" type="integer" subtype="" access="r" input="main" default_value="0" comment="Year of college (1-4 for AOTC, 0 for LLC only)" />
+		<field name="aotc_used_years" type="integer" subtype="" access="r" input="main" default_value="0" comment="Years AOTC already claimed (max 4)" />
+		<field name="has_ssn" type="boolean" subtype="" access="r" input="main" default_value="true" comment="Has valid SSN (required for CTC)" />
+		<field name="education_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Education credit for this dependent (computed)" />
+		<field name="qualifies_for_ctc" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for Child Tax Credit (computed)" />
+		<field name="qualifies_for_odc" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for Other Dependent Credit (computed)" />
+		<field name="ctc_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Child Tax Credit amount (computed)" />
+		<field name="odc_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Other Dependent Credit amount (computed)" />
+		<field name="qualifies_for_cdcc" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for Child/Dependent Care Credit (computed)" />
+		<field name="is_disabled" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Physically or mentally incapable of self-care" />
+		<field name="care_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Care expenses for this dependent" />
+		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Notes about dependent eligibility" />
+		<field name="unearned_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Unearned income (investment income, dividends, interest) - Form 8615" />
+		<field name="earned_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Earned income (wages, salary from part-time jobs) - Form 8615" />
+		<field name="subject_to_kiddie_tax" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Whether kiddie tax applies (computed) - Form 8615" />
+		<field name="kiddie_tax_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Calculated kiddie tax amount (computed) - Form 8615" />
+	</entity>
+	<entity name="state_tax_result" xls_file="Core.xls" access="rw" comment="State tax calculation results">
+		<field name="state_tax_result" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="state_code" type="string" subtype="" access="rw" input="main" default_value="" comment="Two-letter state code (e.g., CA, NY, TX)" />
+		<field name="state_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="State adjusted gross income" />
+		<field name="state_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="State taxable income after deductions" />
+		<field name="state_tax_before_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="State tax before credits" />
+		<field name="state_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total state tax credits" />
+		<field name="state_tax_liability" type="double" subtype="" access="rw" input="" default_value="0" comment="State tax liability after credits" />
+		<field name="state_withholding" type="double" subtype="" access="rw" input="" default_value="0" comment="State tax withheld" />
+		<field name="state_refund_or_owed" type="double" subtype="" access="rw" input="" default_value="0" comment="State refund (positive) or amount owed (negative)" />
+	</entity>
+	<entity name="state_period" xls_file="Core.xls" access="rw" comment="Period of residence or work in a specific state for multi-state allocation">
+		<field name="state_period" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="State period ID" />
+		<field name="state_code" type="string" subtype="" access="r" input="main" default_value="" comment="Two-letter state code (e.g., NY, FL, CA, TX)" />
+		<field name="start_date" type="date" subtype="" access="r" input="main" default_value="" comment="Start date of residence/work in this state" />
+		<field name="end_date" type="date" subtype="" access="r" input="main" default_value="" comment="End date of residence/work in this state" />
+		<field name="resident_status" type="string" subtype="" access="r" input="main" default_value="full_year" comment="Residency status: full_year, part_year, or nonresident" />
+		<field name="days_in_state" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of days in this state during this period (computed)" />
+		<field name="allocation_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Percentage of income allocated to this state (computed)" />
+		<field name="allocated_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Income allocated to this state (computed)" />
+		<field name="allocated_withholding" type="double" subtype="" access="rw" input="" default_value="0" comment="Withholding allocated to this state (computed)" />
+		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Notes about this state period" />
+	</entity>
+</entity_data_dictionary>

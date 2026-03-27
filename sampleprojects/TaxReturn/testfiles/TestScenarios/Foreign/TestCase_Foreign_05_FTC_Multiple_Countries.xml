@@ -1,0 +1,120 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 5: Form 1116 - Foreign Tax Credit with Multiple Countries -->
+   <!-- Tests: Calculate_Foreign_Tax_Credit -->
+   <!-- Scenario: US resident with income from multiple foreign countries -->
+   <!-- Requires separate Form 1116 for each country, aggregate FTC -->
+   <id>FOREIGN-05</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>WA</state>
+   <city>Seattle</city>
+
+   <!-- Expected values for validation -->
+   <!-- US wages: $120,000 -->
+   <!-- Foreign dividend (Canada): $12,000, tax paid $1,800 (15%) -->
+   <!-- Foreign dividend (Germany): $8,000, tax paid $2,000 (25%) -->
+   <!-- Foreign interest (Switzerland): $5,000, tax paid $1,750 (35%) -->
+   <!-- Total foreign source income: $25,000 -->
+   <!-- Total foreign tax paid: $5,550 -->
+   <!-- AGI: $120,000 + $25,000 = $145,000 -->
+   <!-- Standard deduction: $15,000 (Single) -->
+   <!-- Taxable: $130,000 -->
+   <!-- Tax before FTC: ~$23,500 -->
+   <!-- FTC limitation calculation (per country, then aggregate) -->
+   <!-- Total FTC allowed: $5,500 (slightly limited) -->
+   <!-- Final tax: $23,500 - $5,500 = $18,000 -->
+   <expected_agi>145000</expected_agi>
+   <expected_foreign_source_income>25000</expected_foreign_source_income>
+   <expected_foreign_tax_paid>5550</expected_foreign_tax_paid>
+   <expected_foreign_tax_credit>5500</expected_foreign_tax_credit>
+   <expected_taxable_income>130000</expected_taxable_income>
+   <expected_total_tax>18000</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jessica Thompson</name>
+         <ssn>123-00-9999</ssn>
+         <date_of_birth>11/8/1982</date_of_birth>
+         <occupation>Investment Analyst</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>25000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>120000</gross_amount>
+         <withholding>25000</withholding>
+         <description>US employer wages</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_dividends</type>
+         <gross_amount>12000</gross_amount>
+         <withholding>0</withholding>
+         <foreign_tax_paid>1800</foreign_tax_paid>
+         <foreign_country>Canada</foreign_country>
+         <description>Canadian stock dividends, 15% tax withheld (Form 1116 - Canada)</description>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_dividends</type>
+         <gross_amount>8000</gross_amount>
+         <withholding>0</withholding>
+         <foreign_tax_paid>2000</foreign_tax_paid>
+         <foreign_country>Germany</foreign_country>
+         <description>German stock dividends, 25% tax withheld (Form 1116 - Germany)</description>
+      </income>
+      <income id="4">
+         <id>4</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_interest</type>
+         <gross_amount>5000</gross_amount>
+         <withholding>0</withholding>
+         <foreign_tax_paid>1750</foreign_tax_paid>
+         <foreign_country>Switzerland</foreign_country>
+         <description>Swiss bank interest, 35% tax withheld (Form 1116 - Switzerland)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

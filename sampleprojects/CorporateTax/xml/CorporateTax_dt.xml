@@ -1,0 +1,1980 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables name="CorporateTax_Core_Tables">
+
+  <!--
+    ================================================================
+    INCOME CALCULATION TABLES (2000-2999)
+    ================================================================
+  -->
+
+  <!--
+    Table 2000: Calculate Net Receipts
+
+    Calculates net receipts (Form 1120 line 1c = 1a - 1b)
+
+    Reference: Form 1120 Line 1a-1c
+  -->
+  <decision_table name="Calculate_Net_Receipts" number="2000">
+    <description>
+      Calculate net receipts from gross receipts minus returns and allowances.
+      Form 1120 line 1c = 1a - 1b
+    </description>
+
+    <conditions>
+      <condition name="has_gross_receipts">
+        <expression>revenue.gross_receipts > 0</expression>
+        <comment>Has gross receipts from sales</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_gross_receipts>Y</has_gross_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.net_receipts = revenue.gross_receipts - revenue.returns_and_allowances;
+          </action>
+        </actions>
+        <policy>
+          Net receipts = Gross receipts - Returns and allowances.
+          Reference: Form 1120 Instructions, Line 1c
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_gross_receipts>N</has_gross_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.net_receipts = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No gross receipts = zero net receipts.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 2100: Calculate Gross Profit
+
+    Calculates gross profit (Form 1120 line 3 = 1c - 2)
+
+    Reference: Form 1120 Line 3, Schedule A (Cost of Goods Sold)
+  -->
+  <decision_table name="Calculate_Gross_Profit" number="2100">
+    <description>
+      Calculate gross profit from net receipts minus cost of goods sold.
+      Form 1120 line 3 = 1c - 2
+    </description>
+
+    <conditions>
+      <condition name="has_net_receipts">
+        <expression>revenue.net_receipts > 0</expression>
+        <comment>Has net receipts from sales</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_net_receipts>Y</has_net_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.gross_profit = revenue.net_receipts - revenue.cost_of_goods_sold;
+          </action>
+        </actions>
+        <policy>
+          Gross profit = Net receipts - Cost of goods sold.
+          Reference: Form 1120 Instructions, Line 3
+          Reference: Schedule A - Cost of Goods Sold
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_net_receipts>N</has_net_receipts>
+        </conditions>
+        <actions>
+          <action>
+            revenue.gross_profit = 0.0 - revenue.cost_of_goods_sold;
+          </action>
+        </actions>
+        <policy>
+          No receipts: gross profit = negative COGS (loss from inventory).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 2600: Calculate Total Income
+
+    Calculates total income (Form 1120 line 11)
+    Sum of: gross profit + dividends + interest + rents + royalties + capital gains + other
+
+    Reference: Form 1120 Line 11
+  -->
+  <decision_table name="Calculate_Total_Income" number="2600">
+    <description>
+      Calculate total income (sum of all income sources).
+      Form 1120 line 11
+    </description>
+
+    <conditions>
+      <condition name="always_calculate">
+        <expression>true</expression>
+        <comment>Always calculate total income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_calculate>Y</always_calculate>
+        </conditions>
+        <actions>
+          <action>
+            revenue.total_income =
+              revenue.gross_profit +
+              revenue.dividends_received +
+              revenue.interest_income +
+              revenue.gross_rents +
+              revenue.gross_royalties +
+              revenue.capital_gain_net_income +
+              revenue.net_gain_loss_4797 +
+              revenue.other_income;
+
+            // Copy to result entity for tax calculation
+            result.total_income = revenue.total_income;
+          </action>
+        </actions>
+        <policy>
+          Total income = Gross profit (line 3) + Dividends (line 4) + Interest (line 5) +
+                        Rents (line 6) + Royalties (line 7) + Capital gain (line 8) +
+                        Net gain/loss Form 4797 (line 9) + Other income (line 10).
+          Reference: Form 1120 Instructions, Line 11
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    DEDUCTION CALCULATION TABLES (3000-3999)
+    ================================================================
+  -->
+
+  <!--
+    Table 3000: Calculate Compensation Deduction
+
+    Deduction for compensation of officers (Form 1120 line 12)
+
+    Reference: Form 1120 Line 12, Schedule E
+  -->
+  <decision_table name="Calculate_Compensation_Deduction" number="3000">
+    <description>
+      Calculate deduction for officer compensation.
+      Form 1120 line 12
+    </description>
+
+    <conditions>
+      <condition name="has_officer_compensation">
+        <expression>result.compensation > 0</expression>
+        <comment>Has officer compensation expense</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_officer_compensation>Y</has_officer_compensation>
+        </conditions>
+        <actions>
+          <action>
+            // Officer compensation is fully deductible (subject to reasonableness test)
+            // Reasonableness test is typically applied during audit, not in calculation
+          </action>
+        </actions>
+        <policy>
+          Compensation paid to officers is deductible under IRC Section 162(a)(1).
+          Must be reasonable in amount and for services actually performed.
+          Reference: Form 1120 Instructions, Line 12
+          Reference: IRC Section 162(a)(1)
+          Reference: Reg. Section 1.162-7 (Compensation for personal services)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_officer_compensation>N</has_officer_compensation>
+        </conditions>
+        <actions>
+          <action>
+            result.compensation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No officer compensation to deduct.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 3200: Calculate Interest Deduction with IRC 163(j) Limitation
+
+    Business interest expense deduction limited to:
+    - Business interest income +
+    - 30% of adjusted taxable income (ATI) +
+    - Floor plan financing interest
+
+    Reference: Form 1120 Line 18, IRC Section 163(j), Form 8990
+  -->
+  <decision_table name="Calculate_Interest_Deduction" number="3200">
+    <description>
+      Calculate interest expense deduction with IRC 163(j) limitation.
+      Form 1120 line 18
+    </description>
+
+    <conditions>
+      <condition name="has_interest_expense">
+        <expression>result.interest_expense > 0</expression>
+        <comment>Has interest expense</comment>
+      </condition>
+
+      <condition name="exceeds_30pct_ati">
+        <expression>result.interest_expense > (0.30 * result.taxable_income)</expression>
+        <comment>Interest expense exceeds 30% of adjusted taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_interest_expense>Y</has_interest_expense>
+          <exceeds_30pct_ati>N</exceeds_30pct_ati>
+        </conditions>
+        <actions>
+          <action>
+            // Interest expense is fully deductible (under 163(j) limit)
+          </action>
+        </actions>
+        <policy>
+          Business interest expense is fully deductible when it does not exceed
+          business interest income plus 30% of adjusted taxable income.
+          Reference: Form 1120 Instructions, Line 18
+          Reference: IRC Section 163(j)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_interest_expense>Y</has_interest_expense>
+          <exceeds_30pct_ati>Y</exceeds_30pct_ati>
+        </conditions>
+        <actions>
+          <action>
+            // Limit interest deduction to 30% of ATI
+            // Excess carried forward (not implemented in Phase 1)
+            result.interest_expense = 0.30 * result.taxable_income;
+          </action>
+        </actions>
+        <policy>
+          Business interest expense limited to 30% of adjusted taxable income per IRC 163(j).
+          Excess interest carried forward indefinitely.
+          Reference: Form 1120 Instructions, Line 18
+          Reference: IRC Section 163(j)
+          Reference: Form 8990 - Limitation on Business Interest Expense
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_interest_expense>N</has_interest_expense>
+        </conditions>
+        <actions>
+          <action>
+            result.interest_expense = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No interest expense to deduct.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 3500: Calculate Charitable Contributions with 10% Limitation
+
+    Charitable contributions limited to 10% of taxable income (computed without
+    regard to charitable contributions deduction, NOL, capital loss carryback, etc.)
+
+    Reference: Form 1120 Line 19, IRC Section 170(b)(2)
+  -->
+  <decision_table name="Calculate_Charitable_Contributions" number="3500">
+    <description>
+      Calculate charitable contributions deduction with 10% limitation.
+      Form 1120 line 19
+    </description>
+
+    <conditions>
+      <condition name="has_charitable_contributions">
+        <expression>result.charitable_contributions > 0</expression>
+        <comment>Has charitable contributions</comment>
+      </condition>
+
+      <condition name="exceeds_10pct_limit">
+        <expression>result.charitable_contributions > (0.10 * result.taxable_income)</expression>
+        <comment>Contributions exceed 10% of taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_charitable_contributions>Y</has_charitable_contributions>
+          <exceeds_10pct_limit>N</exceeds_10pct_limit>
+        </conditions>
+        <actions>
+          <action>
+            // Charitable contributions fully deductible (under 10% limit)
+          </action>
+        </actions>
+        <policy>
+          Charitable contributions are fully deductible when they do not exceed
+          10% of taxable income (computed without the charitable deduction).
+          Reference: Form 1120 Instructions, Line 19
+          Reference: IRC Section 170(b)(2)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_charitable_contributions>Y</has_charitable_contributions>
+          <exceeds_10pct_limit>Y</exceeds_10pct_limit>
+        </conditions>
+        <actions>
+          <action>
+            // Limit charitable contributions to 10% of taxable income
+            // Excess carried forward 5 years (not implemented in Phase 1)
+            result.charitable_contributions = 0.10 * result.taxable_income;
+          </action>
+        </actions>
+        <policy>
+          Charitable contributions limited to 10% of taxable income per IRC 170(b)(2).
+          Excess contributions carried forward 5 years.
+          Reference: Form 1120 Instructions, Line 19
+          Reference: IRC Section 170(b)(2)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_charitable_contributions>N</has_charitable_contributions>
+        </conditions>
+        <actions>
+          <action>
+            result.charitable_contributions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No charitable contributions to deduct.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 3600: Calculate Total Deductions
+
+    Sum all deductions (Form 1120 line 27)
+
+    Reference: Form 1120 Line 27
+  -->
+  <decision_table name="Calculate_Total_Deductions" number="3600">
+    <description>
+      Calculate total deductions (sum of all deduction line items).
+      Form 1120 line 27
+    </description>
+
+    <conditions>
+      <condition name="always_calculate">
+        <expression>true</expression>
+        <comment>Always calculate total deductions</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_calculate>Y</always_calculate>
+        </conditions>
+        <actions>
+          <action>
+            result.total_deductions =
+              result.compensation +
+              result.salaries_and_wages +
+              result.repairs_and_maintenance +
+              result.bad_debts +
+              result.rents +
+              result.taxes_and_licenses +
+              result.interest_expense +
+              result.charitable_contributions +
+              result.depreciation +
+              result.depletion +
+              result.advertising +
+              result.pension_profit_sharing +
+              result.employee_benefit_programs +
+              result.other_deductions;
+          </action>
+        </actions>
+        <policy>
+          Total deductions = Sum of lines 12-26 (all deduction categories).
+          Reference: Form 1120 Instructions, Line 27
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    TAX CALCULATION TABLES (4000-4999)
+    ================================================================
+  -->
+
+  <!--
+    Table 4000: Calculate Taxable Income
+
+    Taxable income = Total income - Total deductions
+    (Form 1120 line 28 = line 11 - line 27)
+
+    Reference: Form 1120 Line 28
+  -->
+  <decision_table name="Calculate_Taxable_Income" number="4000">
+    <description>
+      Calculate taxable income (total income minus total deductions).
+      Form 1120 line 28 = 11 - 27
+    </description>
+
+    <conditions>
+      <condition name="has_positive_income">
+        <expression>result.total_income > result.total_deductions</expression>
+        <comment>Income exceeds deductions</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_positive_income>Y</has_positive_income>
+        </conditions>
+        <actions>
+          <action>
+            result.taxable_income = result.total_income - result.total_deductions;
+          </action>
+        </actions>
+        <policy>
+          Taxable income = Total income - Total deductions.
+          Reference: Form 1120 Instructions, Line 28
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_positive_income>N</has_positive_income>
+        </conditions>
+        <actions>
+          <action>
+            result.taxable_income = 0.0;
+            // Net operating loss (NOL) - Phase 4
+          </action>
+        </actions>
+        <policy>
+          Deductions exceed income: taxable income is zero.
+          Net operating loss (NOL) may be available for carryforward/carryback.
+          Reference: Form 1120 Instructions, Line 28
+          Reference: IRC Section 172 (NOL deduction)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 4100: Apply Corporate Tax Rate
+
+    Federal corporate tax is a flat 21% rate per IRC Section 11 (TCJA 2017).
+    No brackets, no AMT for corporations (repealed by TCJA).
+
+    Reference: Form 1120 Line 31, IRC Section 11(b)
+  -->
+  <decision_table name="Apply_Corporate_Tax_Rate" number="4100">
+    <description>
+      Calculate federal corporate income tax at 21% flat rate.
+      Form 1120 line 31 = line 28 × 21%
+    </description>
+
+    <conditions>
+      <condition name="has_taxable_income">
+        <expression>result.taxable_income > 0</expression>
+        <comment>Has positive taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_taxable_income>Y</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            result.federal_tax = result.taxable_income * result.federal_tax_rate;
+          </action>
+        </actions>
+        <policy>
+          Federal corporate income tax = Taxable income × 21% (flat rate).
+          Rate established by Tax Cuts and Jobs Act (TCJA) of 2017, effective 2018+.
+          No progressive brackets. No Alternative Minimum Tax (AMT repealed for corporations).
+          Reference: Form 1120 Instructions, Schedule J Line 2
+          Reference: IRC Section 11(b) - Tax imposed on corporations
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_taxable_income>N</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            result.federal_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No taxable income = no tax liability.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 4300: Calculate Refund or Amount Owed
+
+    Final calculation: payments + credits - tax = refund (positive) or owed (negative)
+
+    Reference: Form 1120 Lines 32-35
+  -->
+  <decision_table name="Calculate_Refund_Or_Owed" number="4300">
+    <description>
+      Calculate final refund or amount owed.
+      Payments + Credits - Tax
+    </description>
+
+    <conditions>
+      <condition name="always_calculate">
+        <expression>true</expression>
+        <comment>Always calculate final amount</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_calculate>Y</always_calculate>
+        </conditions>
+        <actions>
+          <action>
+            // Total payments includes estimated payments + prior year overpayment credits
+            result.total_payments = result.estimated_tax_payments + result.total_credits;
+
+            // Refund (positive) or owed (negative)
+            result.refund_or_owed = result.total_payments - result.federal_tax;
+          </action>
+        </actions>
+        <policy>
+          If (Payments + Credits) > Tax: Refund
+          If (Payments + Credits) < Tax: Amount owed
+          Reference: Form 1120 Instructions, Lines 32-35
+          Line 32: Total payments and refundable credits
+          Line 33: Estimated tax penalty (not implemented Phase 1)
+          Line 34: Amount owed = Tax - Payments (if positive)
+          Line 35: Overpayment = Payments - Tax (if positive)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    CREDIT CALCULATION TABLES (5000-5999)
+    ================================================================
+  -->
+
+  <!--
+    Table 5100: Calculate Research & Development Credit
+
+    Calculates R&D tax credit under IRC Section 41.
+
+    Simplified calculation: 20% of qualified research expenses (QREs)
+    exceeding a base amount.
+
+    Reference: Form 6765, IRC Section 41
+  -->
+  <decision_table name="Calculate_RD_Credit" number="5100">
+    <description>
+      Calculate research and development tax credit.
+      Form 6765 - Credit for Increasing Research Activities
+    </description>
+
+    <conditions>
+      <condition name="has_rd_expenses">
+        <expression>result.research_development_credit > 0</expression>
+        <comment>Has qualified research expenses (QREs)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_rd_expenses>Y</has_rd_expenses>
+        </conditions>
+        <actions>
+          <action>
+            // R&D credit calculation (simplified for Phase 2)
+            // Full implementation requires base period calculations
+            // Phase 2: Accept pre-calculated credit amount
+          </action>
+        </actions>
+        <policy>
+          Research & Development credit = 20% of qualified research expenses (QREs)
+          exceeding base amount.
+
+          QREs include:
+          - Wages for qualified research activities
+          - Supplies used in research
+          - Contract research expenses (65% of amount paid)
+
+          Base amount calculation requires 4-year average of prior QREs.
+
+          Reference: Form 6765 - Credit for Increasing Research Activities
+          Reference: IRC Section 41 - Credit for increasing research activities
+          Reference: Publication 561 - Determining Value of Donated Property
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_rd_expenses>N</has_rd_expenses>
+        </conditions>
+        <actions>
+          <action>
+            result.research_development_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No qualified research expenses = no R&D credit.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 5300: Calculate General Business Credit
+
+    Aggregates all business credits and applies general business credit limitation.
+
+    Reference: Form 3800, IRC Section 38
+  -->
+  <decision_table name="Calculate_General_Business_Credit" number="5300">
+    <description>
+      Calculate general business credit (aggregate of all credits).
+      Form 3800 - General Business Credit
+    </description>
+
+    <conditions>
+      <condition name="has_any_credits">
+        <expression>result.research_development_credit > 0 || result.work_opportunity_credit > 0</expression>
+        <comment>Has at least one business credit</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_any_credits>Y</has_any_credits>
+        </conditions>
+        <actions>
+          <action>
+            // Sum all business credits
+            result.general_business_credit =
+              result.research_development_credit +
+              result.work_opportunity_credit;
+
+            // Apply to total credits
+            result.total_credits = result.general_business_credit;
+          </action>
+        </actions>
+        <policy>
+          General business credit = Sum of all component credits
+          - Research & development credit (Form 6765)
+          - Work opportunity tax credit (Form 5884)
+          - Energy credits (not implemented)
+          - Low-income housing credit (not implemented)
+          - Other credits (not implemented)
+
+          Credit is limited to net income tax minus greater of:
+          (1) Tentative minimum tax, or
+          (2) 25% of net regular tax liability above $25,000
+
+          Unused credits carry back 1 year, forward 20 years.
+
+          Reference: Form 3800 Instructions
+          Reference: IRC Section 38 - General business credit
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_any_credits>N</has_any_credits>
+        </conditions>
+        <actions>
+          <action>
+            result.general_business_credit = 0.0;
+            result.total_credits = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No business credits available.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    DEPRECIATION TABLES (6000-6999)
+    ================================================================
+  -->
+
+  <!--
+    Table 6000: Determine Asset Class and Recovery Period
+
+    Determines MACRS asset class and recovery period based on asset type.
+
+    Common MACRS Classes:
+    - 3-year: Tractor units, racehorses over 2 years old
+    - 5-year: Automobiles, computers, office equipment
+    - 7-year: Office furniture, most machinery and equipment
+    - 15-year: Land improvements, gas stations
+    - 27.5-year: Residential rental property
+    - 39-year: Nonresidential real property
+
+    Reference: Publication 946 Table B-1
+  -->
+  <decision_table name="Determine_Asset_Class" number="6000">
+    <description>
+      Determine MACRS asset class and recovery period for depreciable property.
+      Publication 946 - How to Depreciate Property
+    </description>
+
+    <conditions>
+      <condition name="has_asset_class">
+        <expression>asset.asset_class != null && asset.asset_class != ''</expression>
+        <comment>Asset class is already specified</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_asset_class>Y</has_asset_class>
+        </conditions>
+        <actions>
+          <action>
+            // Asset class already specified, set recovery period
+            if (asset.asset_class == '3-year') {
+              asset.recovery_period = 3;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '5-year') {
+              asset.recovery_period = 5;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '7-year') {
+              asset.recovery_period = 7;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '10-year') {
+              asset.recovery_period = 10;
+              asset.depreciation_method = 'MACRS-200DB';
+            } else if (asset.asset_class == '15-year') {
+              asset.recovery_period = 15;
+              asset.depreciation_method = 'MACRS-150DB';
+            } else if (asset.asset_class == '20-year') {
+              asset.recovery_period = 20;
+              asset.depreciation_method = 'MACRS-150DB';
+            } else if (asset.asset_class == '27.5-year') {
+              asset.recovery_period = 27.5;
+              asset.depreciation_method = 'MACRS-SL';
+            } else if (asset.asset_class == '39-year') {
+              asset.recovery_period = 39;
+              asset.depreciation_method = 'MACRS-SL';
+            }
+          </action>
+        </actions>
+        <policy>
+          MACRS asset classification determines recovery period and depreciation method.
+
+          Property Classes (Publication 946 Table B-1):
+          - 3-year: Tractor units, racehorses 2+ years, breeding hogs
+          - 5-year: Automobiles, computers, office equipment, breeding/dairy cattle
+          - 7-year: Office furniture, fixtures, most machinery and equipment
+          - 10-year: Vessels, barges, tugs, single-purpose agricultural structures
+          - 15-year: Land improvements, gas stations, depreciable improvements
+          - 20-year: Farm buildings, municipal sewers
+          - 27.5-year: Residential rental property
+          - 39-year: Nonresidential real property (commercial buildings)
+
+          Depreciation methods:
+          - 200% declining balance (200DB) for 3, 5, 7, 10-year property
+          - 150% declining balance (150DB) for 15, 20-year property
+          - Straight-line (SL) for 27.5, 39-year property
+
+          Reference: Publication 946 - How to Depreciate Property
+          Reference: IRC Section 168 - MACRS
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_asset_class>N</has_asset_class>
+        </conditions>
+        <actions>
+          <action>
+            // Default to 7-year property if not specified
+            asset.asset_class = '7-year';
+            asset.recovery_period = 7;
+            asset.depreciation_method = 'MACRS-200DB';
+          </action>
+        </actions>
+        <policy>
+          If asset class not specified, default to 7-year property (most common).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6100: Calculate Section 179 Deduction
+
+    Section 179 allows immediate expensing of qualifying property up to annual limits.
+
+    2025 Limits:
+    - Maximum deduction: $1,220,000
+    - Phaseout threshold: $3,050,000
+    - Dollar-for-dollar phaseout above threshold
+
+    Reference: IRC Section 179, Form 4562 Part I
+  -->
+  <decision_table name="Calculate_Section_179" number="6100">
+    <description>
+      Calculate Section 179 expense deduction for qualifying property.
+      Form 4562 Part I - Election To Expense Certain Property
+    </description>
+
+    <conditions>
+      <condition name="eligible_for_179">
+        <expression>asset.eligible_for_section_179 == true</expression>
+        <comment>Property qualifies for Section 179</comment>
+      </condition>
+
+      <condition name="within_limits">
+        <expression>result.section_179_total < result.section_179_limit</expression>
+        <comment>Haven't exceeded annual Section 179 limit</comment>
+      </condition>
+
+      <condition name="has_remaining_basis">
+        <expression>asset.cost_basis > 0</expression>
+        <comment>Has remaining basis to expense</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <eligible_for_179>Y</eligible_for_179>
+          <within_limits>Y</within_limits>
+          <has_remaining_basis>Y</has_remaining_basis>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate available Section 179 deduction
+            double remaining_limit = result.section_179_limit - result.section_179_total;
+            double section_179_amount = Math.min(asset.cost_basis, remaining_limit);
+
+            // Apply Section 179 deduction
+            asset.section_179_deduction = section_179_amount;
+            result.section_179_total += section_179_amount;
+
+            // Reduce basis for remaining depreciation
+            asset.cost_basis -= section_179_amount;
+          </action>
+        </actions>
+        <policy>
+          Section 179 expense deduction allows immediate expensing of qualifying property.
+
+          2025 Limits:
+          - Maximum deduction: $1,220,000
+          - Phaseout threshold: $3,050,000 (total property placed in service)
+          - Phaseout: Dollar-for-dollar reduction above threshold
+
+          Qualifying property:
+          - Tangible personal property (machinery, equipment, furniture, computers)
+          - Off-the-shelf software
+          - Qualified improvement property (QIP)
+          - Must be used > 50% for business
+
+          Nonqualifying property:
+          - Buildings and structural components
+          - Land and land improvements
+          - Property used outside the U.S.
+          - Property used for lodging
+          - Listed property used 50% or less for business
+
+          Limitation: Cannot exceed taxable income from business.
+
+          Reference: Form 4562 Instructions, Part I
+          Reference: IRC Section 179 - Election to expense certain depreciable business assets
+          Reference: Publication 946 Chapter 2
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <eligible_for_179>N</eligible_for_179>
+        </conditions>
+        <actions>
+          <action>
+            asset.section_179_deduction = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Property does not qualify for Section 179 deduction.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <eligible_for_179>Y</eligible_for_179>
+          <within_limits>N</within_limits>
+        </conditions>
+        <actions>
+          <action>
+            asset.section_179_deduction = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Section 179 annual limit exceeded. No additional deduction available.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6200: Calculate Bonus Depreciation
+
+    Bonus depreciation allows additional first-year depreciation for qualifying property.
+
+    Historical rates:
+    - 2022: 100%
+    - 2023: 80%
+    - 2024: 60%
+    - 2025: 40%
+    - 2026: 20%
+    - 2027: 0%
+
+    Reference: IRC Section 168(k), Form 4562 Part II
+  -->
+  <decision_table name="Calculate_Bonus_Depreciation" number="6200">
+    <description>
+      Calculate bonus depreciation for qualifying property.
+      Form 4562 Part II - Special Depreciation Allowance
+    </description>
+
+    <conditions>
+      <condition name="eligible_for_bonus">
+        <expression>asset.eligible_for_bonus == true</expression>
+        <comment>Property qualifies for bonus depreciation</comment>
+      </condition>
+
+      <condition name="has_bonus_rate">
+        <expression>result.bonus_depreciation_rate > 0</expression>
+        <comment>Bonus depreciation rate is greater than zero</comment>
+      </condition>
+
+      <condition name="has_remaining_basis">
+        <expression>asset.cost_basis > 0</expression>
+        <comment>Has remaining basis after Section 179</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <eligible_for_bonus>Y</eligible_for_bonus>
+          <has_bonus_rate>Y</has_bonus_rate>
+          <has_remaining_basis>Y</has_remaining_basis>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate bonus depreciation
+            double bonus_amount = asset.cost_basis * result.bonus_depreciation_rate;
+
+            // Apply bonus depreciation
+            asset.bonus_depreciation = bonus_amount;
+            result.bonus_depreciation_total += bonus_amount;
+
+            // Reduce basis for MACRS depreciation
+            asset.cost_basis -= bonus_amount;
+          </action>
+        </actions>
+        <policy>
+          Bonus depreciation allows additional first-year depreciation for qualifying property.
+
+          Phaseout schedule (TCJA):
+          - 2022: 100%
+          - 2023: 80%
+          - 2024: 60%
+          - 2025: 40%
+          - 2026: 20%
+          - 2027: 0% (expires)
+
+          Qualifying property:
+          - New or used property (expanded by TCJA)
+          - Original use begins with taxpayer OR acquired used property
+          - MACRS property with recovery period of 20 years or less
+          - Computer software
+          - Qualified improvement property (QIP)
+          - Placed in service during tax year
+
+          Nonqualifying property:
+          - Property required to use Alternative Depreciation System (ADS)
+          - Listed property used 50% or less for business
+          - Property used for lodging
+
+          Election to opt out: Taxpayer can elect out of bonus depreciation.
+
+          Reference: Form 4562 Instructions, Part II
+          Reference: IRC Section 168(k) - Special allowance for certain property
+          Reference: Publication 946 Chapter 3
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <eligible_for_bonus>N</eligible_for_bonus>
+        </conditions>
+        <actions>
+          <action>
+            asset.bonus_depreciation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Property does not qualify for bonus depreciation.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <eligible_for_bonus>Y</eligible_for_bonus>
+          <has_bonus_rate>N</has_bonus_rate>
+        </conditions>
+        <actions>
+          <action>
+            asset.bonus_depreciation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Bonus depreciation rate is 0% for 2025 (phased out).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6300: Calculate MACRS Depreciation
+
+    Calculates regular MACRS depreciation using IRS percentage tables.
+
+    Reference: Publication 946 Appendix A, IRC Section 168
+  -->
+  <decision_table name="Calculate_MACRS_Depreciation" number="6300">
+    <description>
+      Calculate MACRS depreciation for property.
+      Form 4562 Part III - MACRS Depreciation
+    </description>
+
+    <conditions>
+      <condition name="has_remaining_basis">
+        <expression>asset.cost_basis > 0</expression>
+        <comment>Has remaining basis after Section 179 and bonus</comment>
+      </condition>
+
+      <condition name="is_first_year">
+        <expression>asset.accumulated_depreciation == 0</expression>
+        <comment>First year of depreciation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_remaining_basis>Y</has_remaining_basis>
+          <is_first_year>Y</is_first_year>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate first-year MACRS depreciation using half-year convention
+            double macrs_rate = 0.0;
+
+            // Lookup MACRS percentage (simplified - using approximate rates)
+            if (asset.recovery_period == 3) {
+              macrs_rate = 0.3333; // 33.33% first year (200DB, half-year)
+            } else if (asset.recovery_period == 5) {
+              macrs_rate = 0.2000; // 20.00% first year (200DB, half-year)
+            } else if (asset.recovery_period == 7) {
+              macrs_rate = 0.1429; // 14.29% first year (200DB, half-year)
+            } else if (asset.recovery_period == 10) {
+              macrs_rate = 0.1000; // 10.00% first year (200DB, half-year)
+            } else if (asset.recovery_period == 15) {
+              macrs_rate = 0.0500; // 5.00% first year (150DB, half-year)
+            } else if (asset.recovery_period == 20) {
+              macrs_rate = 0.0375; // 3.75% first year (150DB, half-year)
+            } else if (asset.recovery_period == 27.5) {
+              macrs_rate = 0.0182; // 1.82% first year (SL, mid-month)
+            } else if (asset.recovery_period == 39) {
+              macrs_rate = 0.0128; // 1.28% first year (SL, mid-month)
+            }
+
+            // Calculate depreciation
+            double macrs_amount = asset.cost_basis * macrs_rate;
+            asset.current_year_depreciation = macrs_amount;
+            asset.accumulated_depreciation += macrs_amount;
+            result.macrs_depreciation_total += macrs_amount;
+          </action>
+        </actions>
+        <policy>
+          MACRS (Modified Accelerated Cost Recovery System) depreciation using IRS tables.
+
+          Depreciation methods by property class:
+          - 3, 5, 7, 10-year: 200% declining balance (200DB)
+          - 15, 20-year: 150% declining balance (150DB)
+          - 27.5, 39-year: Straight-line (SL)
+
+          Conventions:
+          - Half-year: Property placed in service mid-year (most property)
+          - Mid-quarter: If > 40% of property placed in service in Q4
+          - Mid-month: Residential/nonresidential real property
+
+          First-year rates (half-year convention):
+          - 3-year: 33.33%
+          - 5-year: 20.00%
+          - 7-year: 14.29%
+          - 10-year: 10.00%
+          - 15-year: 5.00%
+          - 20-year: 3.75%
+
+          Full MACRS tables in Publication 946 Appendix A.
+
+          Reference: Form 4562 Instructions, Part III
+          Reference: IRC Section 168 - MACRS
+          Reference: Publication 946 Appendix A (MACRS Percentage Tables)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_remaining_basis>N</has_remaining_basis>
+        </conditions>
+        <actions>
+          <action>
+            asset.current_year_depreciation = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No remaining basis to depreciate (fully expensed via Section 179/bonus).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6900: Aggregate Depreciation Deduction
+
+    Aggregates Section 179, bonus, and MACRS depreciation for Form 1120 line 20.
+
+    Reference: Form 4562, Form 1120 line 20
+  -->
+  <decision_table name="Aggregate_Depreciation" number="6900">
+    <description>
+      Aggregate all depreciation deductions for Form 1120.
+      Form 4562 - Depreciation and Amortization
+    </description>
+
+    <conditions>
+      <condition name="always_aggregate">
+        <expression>true</expression>
+        <comment>Always aggregate depreciation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_aggregate>Y</always_aggregate>
+        </conditions>
+        <actions>
+          <action>
+            // Total depreciation = Section 179 + Bonus + MACRS
+            result.depreciation =
+              result.section_179_total +
+              result.bonus_depreciation_total +
+              result.macrs_depreciation_total;
+          </action>
+        </actions>
+        <policy>
+          Total depreciation deduction (Form 1120 line 20) equals:
+          - Section 179 expense deduction (Form 4562 Part I)
+          - Bonus depreciation (Form 4562 Part II)
+          - MACRS depreciation (Form 4562 Part III)
+          - Amortization (not implemented)
+
+          Reference: Form 4562 Line 22
+          Reference: Form 1120 Line 20
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    ORCHESTRATION TABLE (1000-1999)
+    ================================================================
+  -->
+
+  <!--
+    Table 1000: Compute Corporate Tax Return
+
+    Main orchestration table that calls all subtables in correct order.
+
+    Execution flow:
+    1. Income calculation (2000-2600)
+    2. Deduction calculation (3000-3600)
+    3. Tax calculation (4000-4300)
+
+    Reference: Form 1120 (entire form)
+  -->
+  <decision_table name="Compute_Corporate_Tax_Return" number="1000">
+    <description>
+      Main orchestration table for corporate tax calculation.
+      Calls all income, deduction, and tax calculation tables in sequence.
+    </description>
+
+    <conditions>
+      <condition name="always_execute">
+        <expression>true</expression>
+        <comment>Always execute full tax calculation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_execute>Y</always_execute>
+        </conditions>
+        <actions>
+          <action>
+            // ===== INCOME CALCULATION =====
+            execute(2000);  // Calculate_Net_Receipts
+            execute(2100);  // Calculate_Gross_Profit
+            execute(2600);  // Calculate_Total_Income
+
+            // ===== DEPRECIATION CALCULATION (Form 4562) =====
+            // Process each asset through depreciation waterfall
+            foreach asset in assets {
+              execute(6000);  // Determine_Asset_Class
+              execute(6100);  // Calculate_Section_179
+              execute(6200);  // Calculate_Bonus_Depreciation
+              execute(6300);  // Calculate_MACRS_Depreciation
+            }
+            execute(6900);  // Aggregate_Depreciation
+
+            // ===== DEDUCTION CALCULATION =====
+            execute(3000);  // Calculate_Compensation_Deduction
+            execute(3200);  // Calculate_Interest_Deduction (IRC 163j)
+            execute(3500);  // Calculate_Charitable_Contributions (10% limit)
+            execute(3600);  // Calculate_Total_Deductions
+
+            // ===== TAX CALCULATION =====
+            execute(4000);  // Calculate_Taxable_Income
+            execute(4100);  // Apply_Corporate_Tax_Rate (21%)
+
+            // ===== CREDIT CALCULATION (Form 3800) =====
+            execute(5100);  // Calculate_RD_Credit
+            execute(5300);  // Calculate_General_Business_Credit
+
+            // ===== FINAL CALCULATION =====
+            execute(4300);  // Calculate_Refund_Or_Owed
+          </action>
+        </actions>
+        <policy>
+          Corporate tax calculation flow (Phase 2 - with depreciation and credits):
+
+          1. Calculate income (Form 1120 lines 1-11)
+          2. Calculate depreciation (Form 4562):
+             a. Section 179 expense deduction
+             b. Bonus depreciation (phased out in 2025)
+             c. MACRS depreciation
+          3. Calculate deductions (Form 1120 lines 12-27)
+          4. Calculate taxable income (Form 1120 line 28)
+          5. Apply 21% tax rate (Schedule J)
+          6. Calculate credits (Form 3800):
+             a. R&D credit (Form 6765)
+             b. General business credit
+          7. Determine refund or amount owed
+
+          Reference: Form 1120 - U.S. Corporation Income Tax Return
+          Reference: Form 4562 - Depreciation and Amortization
+          Reference: Form 3800 - General Business Credit
+          Reference: Form 6765 - Research & Development Credit
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+
+  <!--
+    ================================================================
+    APPORTIONMENT TABLES (7000-7999)
+    ================================================================
+  -->
+
+  <!--
+    Table 7000: Determine State Nexus
+
+    Determines if corporation has nexus (tax obligation) in a state.
+
+    Nexus types:
+    - Physical: Office, employees, property in state
+    - Economic: Post-Wayfair ($100K sales or 200 transactions typical)
+
+    Reference: South Dakota v. Wayfair (2018), State revenue dept guidance
+  -->
+  <decision_table name="Determine_State_Nexus" number="7000">
+    <description>
+      Determine if corporation has nexus requiring state tax filing.
+      Physical presence or economic nexus (post-Wayfair).
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true</expression>
+        <comment>Has physical presence in state</comment>
+      </condition>
+
+      <condition name="exceeds_economic_threshold">
+        <expression>apportionment.gross_receipts_in_state >= apportionment.economic_nexus_threshold ||
+                    apportionment.transactions_in_state >= apportionment.transaction_threshold</expression>
+        <comment>Meets economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.has_economic_nexus = true; // Physical presence creates nexus
+          </action>
+        </actions>
+        <policy>
+          Physical nexus exists due to presence in state (office, employees, property).
+          Traditional nexus standard under Quill Corp. v. North Dakota (1992).
+          Reference: State-specific statutes and regulations
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <exceeds_economic_threshold>Y</exceeds_economic_threshold>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.has_economic_nexus = true; // Economic nexus (Wayfair)
+          </action>
+        </actions>
+        <policy>
+          Economic nexus established per South Dakota v. Wayfair, Inc. (2018).
+          Typical thresholds: $100,000 gross receipts OR 200 transactions in state.
+          States vary - check state-specific thresholds.
+          Reference: South Dakota v. Wayfair, 138 S. Ct. 2080 (2018)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <exceeds_economic_threshold>N</exceeds_economic_threshold>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.has_economic_nexus = false;
+            apportionment.apportionment_percentage = 0.0;
+            apportionment.state_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state tax obligation.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7100: Calculate Property Factor
+
+    Property factor = Average property in state / Average property everywhere
+
+    Property includes:
+    - Real property (land, buildings)
+    - Tangible personal property (machinery, equipment, inventory)
+    - Rented property (8× annual rent)
+
+    Reference: UDITPA Section 10-11, MTC Regulations
+  -->
+  <decision_table name="Calculate_Property_Factor" number="7100">
+    <description>
+      Calculate property factor for apportionment.
+      Average property in state / average property everywhere.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate factors</comment>
+      </condition>
+
+      <condition name="has_property">
+        <expression>apportionment.property_total_average > 0</expression>
+        <comment>Has property to apportion</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_property>Y</has_property>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate average property (beginning + ending) / 2
+            apportionment.property_average =
+              (apportionment.property_beginning_balance + apportionment.property_ending_balance) / 2.0;
+
+            // Calculate property factor
+            apportionment.property_factor =
+              apportionment.property_average / apportionment.property_total_average;
+          </action>
+        </actions>
+        <policy>
+          Property factor = Average property in state / Average property everywhere.
+
+          Property includes:
+          - Real property owned (land, buildings) at original cost
+          - Tangible personal property owned (machinery, equipment, inventory)
+          - Rented property: 8 times annual rent (capitalization method)
+
+          Average property = (Beginning balance + Ending balance) / 2
+
+          Reference: UDITPA Section 10-11 (Uniform Division of Income for Tax Purposes Act)
+          Reference: Multistate Tax Commission (MTC) Regulations
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_property>N</has_property>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.property_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No property = zero property factor.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.property_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no apportionment factor calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7200: Calculate Payroll Factor
+
+    Payroll factor = Compensation in state / Total compensation
+
+    Compensation includes:
+    - Wages, salaries, commissions, bonuses
+    - Payments to independent contractors (some states)
+
+    Sourcing: Where services performed, not where paid
+
+    Reference: UDITPA Section 13-14, MTC Regulations
+  -->
+  <decision_table name="Calculate_Payroll_Factor" number="7200">
+    <description>
+      Calculate payroll factor for apportionment.
+      Compensation in state / total compensation.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate factors</comment>
+      </condition>
+
+      <condition name="has_payroll">
+        <expression>apportionment.payroll_total > 0</expression>
+        <comment>Has payroll to apportion</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_payroll>Y</has_payroll>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate payroll factor
+            apportionment.payroll_factor =
+              apportionment.payroll_in_state / apportionment.payroll_total;
+          </action>
+        </actions>
+        <policy>
+          Payroll factor = Compensation in state / Total compensation.
+
+          Compensation includes:
+          - Wages, salaries, commissions, bonuses
+          - Other forms of compensation (stock options, deferred comp)
+          - Payments to independent contractors (in some states)
+
+          Sourcing rule: Compensation assigned to state where services performed.
+          If services in multiple states: Assign based on time spent in each state.
+
+          Reference: UDITPA Section 13-14
+          Reference: MTC Regulations Article IV.13-14
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_payroll>N</has_payroll>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.payroll_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No payroll = zero payroll factor.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.payroll_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no apportionment factor calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7300: Calculate Sales Factor
+
+    Sales factor = Sales in state / Total sales
+
+    Sourcing methods:
+    - Tangible goods: Destination state (where delivered)
+    - Services: Market-based sourcing (where benefit received)
+    - Intangibles: Varies by state
+
+    Reference: UDITPA Section 15-17, MTC Market-Based Sourcing
+  -->
+  <decision_table name="Calculate_Sales_Factor" number="7300">
+    <description>
+      Calculate sales factor for apportionment.
+      Sales in state / total sales.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate factors</comment>
+      </condition>
+
+      <condition name="has_sales">
+        <expression>apportionment.sales_total > 0</expression>
+        <comment>Has sales to apportion</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_sales>Y</has_sales>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate sales factor
+            apportionment.sales_factor =
+              apportionment.sales_in_state / apportionment.sales_total;
+          </action>
+        </actions>
+        <policy>
+          Sales factor = Sales in state / Total sales.
+
+          Sourcing rules:
+          
+          Tangible personal property:
+          - Destination state (where shipped/delivered to customer)
+          - If shipped from state inventory to out-of-state customer: Destination state
+
+          Services:
+          - Market-based sourcing: Where customer receives benefit
+          - Cost-of-performance: Where greater cost incurred (older method)
+
+          Intangible property:
+          - Varies by state and type of intangible
+
+          Throwback rule (some states):
+          - If destination state cannot tax, sales "thrown back" to origin state
+
+          Reference: UDITPA Section 15-17
+          Reference: MTC Market-Based Sourcing Amendments
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_sales>N</has_sales>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.sales_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No sales = zero sales factor.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.sales_factor = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no apportionment factor calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7400: Calculate Apportionment Percentage
+
+    Combines property, payroll, and sales factors based on state formula.
+
+    Common formulas:
+    - Three-factor: (Property + Payroll + Sales) / 3
+    - Single-sales: Sales factor only
+    - Double-weighted sales: (Property + Payroll + 2×Sales) / 4
+
+    Reference: State statutes, UDITPA
+  -->
+  <decision_table name="Calculate_Apportionment_Percentage" number="7400">
+    <description>
+      Calculate final apportionment percentage using state formula.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to apportion</comment>
+      </condition>
+
+      <condition name="three_factor">
+        <expression>apportionment.apportionment_formula == 'three_factor'</expression>
+        <comment>Uses traditional three-factor formula</comment>
+      </condition>
+
+      <condition name="single_sales">
+        <expression>apportionment.apportionment_formula == 'single_sales'</expression>
+        <comment>Uses single-sales factor only</comment>
+      </condition>
+
+      <condition name="double_weighted_sales">
+        <expression>apportionment.apportionment_formula == 'double_weighted_sales'</expression>
+        <comment>Uses double-weighted sales formula</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <three_factor>Y</three_factor>
+        </conditions>
+        <actions>
+          <action>
+            // Three-factor formula: (P + Pa + S) / 3
+            apportionment.apportionment_percentage =
+              (apportionment.property_factor +
+               apportionment.payroll_factor +
+               apportionment.sales_factor) / 3.0;
+          </action>
+        </actions>
+        <policy>
+          Traditional three-factor apportionment: (Property + Payroll + Sales) / 3.
+          
+          Equal weighting of all three factors.
+          Used by fewer states as many shift to single-sales.
+
+          Reference: UDITPA Article IV (original version)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <single_sales>Y</single_sales>
+        </conditions>
+        <actions>
+          <action>
+            // Single-sales formula: S only
+            apportionment.apportionment_percentage = apportionment.sales_factor;
+          </action>
+        </actions>
+        <policy>
+          Single-sales factor apportionment: Sales factor = 100%.
+
+          Most common formula in modern state tax law.
+          Eliminates property and payroll factors.
+          Intended to encourage in-state investment and employment.
+
+          Used by: CA, IL, TX, and many other states.
+
+          Reference: State-specific statutes
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <double_weighted_sales>Y</double_weighted_sales>
+        </conditions>
+        <actions>
+          <action>
+            // Double-weighted sales: (P + Pa + 2×S) / 4
+            apportionment.apportionment_percentage =
+              (apportionment.property_factor +
+               apportionment.payroll_factor +
+               (2.0 * apportionment.sales_factor)) / 4.0;
+          </action>
+        </actions>
+        <policy>
+          Double-weighted sales apportionment: (Property + Payroll + 2×Sales) / 4.
+
+          Transitional formula between three-factor and single-sales.
+          Gives more weight to sales while retaining property/payroll factors.
+
+          Less common now as states move to single-sales.
+
+          Reference: State-specific statutes
+        </policy>
+      </rule>
+
+      <rule number="4">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.apportionment_percentage = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus = 0% apportionment to state.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 7500: Apply Apportionment and Calculate State Tax
+
+    Applies apportionment percentage to federal taxable income,
+    makes state-specific adjustments, and calculates state tax.
+
+    Reference: State corporate income tax forms
+  -->
+  <decision_table name="Apply_Apportionment_Calculate_State_Tax" number="7500">
+    <description>
+      Apply apportionment to federal taxable income and calculate state tax.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe state tax</comment>
+      </condition>
+
+      <condition name="has_taxable_income">
+        <expression>result.taxable_income > 0</expression>
+        <comment>Has federal taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_taxable_income>Y</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Apply apportionment to federal taxable income
+            apportionment.apportioned_income =
+              result.taxable_income * apportionment.apportionment_percentage;
+
+            // Apply state-specific adjustments
+            apportionment.state_taxable_income =
+              apportionment.apportioned_income +
+              apportionment.state_additions -
+              apportionment.state_subtractions;
+
+            // Calculate state tax
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          State tax calculation:
+          
+          1. Apportion federal taxable income:
+             Apportioned income = Federal taxable income × Apportionment %
+
+          2. Apply state adjustments:
+             State additions: Interest on federal bonds, IRC 199A deduction, etc.
+             State subtractions: Municipal bond interest, state taxes, etc.
+
+          3. Calculate state taxable income:
+             State TI = Apportioned income + Additions - Subtractions
+
+          4. Apply state tax rate:
+             State tax = State TI × State rate
+
+          5. Subtract state credits
+
+          6. Compare to payments to determine refund/owed
+
+          Reference: State corporate income tax instructions
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.apportioned_income = 0.0;
+            apportionment.state_taxable_income = 0.0;
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No nexus = no state tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_taxable_income>N</has_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.apportioned_income = 0.0;
+            apportionment.state_taxable_income = 0.0;
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No federal taxable income = no state tax.
+          State NOL rules may apply (not implemented).
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+
+</decision_tables>

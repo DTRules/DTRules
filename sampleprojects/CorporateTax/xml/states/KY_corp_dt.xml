@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Kentucky corporate tax
+
+  Kentucky corporate tax structure:
+  - Flat rate: 4.5% (effective 2025)
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: $100,000 in gross receipts or 200 transactions
+
+  Table Number Range: 53000-53099 (Kentucky corporate allocation)
+
+  References:
+  - KRS 141.040 (Tax rate: 4.5%)
+  - KRS 141.120 (Apportionment)
+  - Kentucky Form 720 (Corporation Income Tax Return)
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53000: Determine_KY_Corporate_Filing_Requirement                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_KY_Corporate_Filing_Requirement</table_name>
+<xls_file>KY_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Kentucky corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>53000</TABLE_NUMBER>
+<FILE_PATH>states/KY/53000_Determine_KY_Corporate_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kentucky filing requirement check</action_description>
+<action_postfix>
+"Kentucky Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false /result.ky_has_nexus xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Kentucky</condition_comment>
+<condition_description>has_physical_presence == true</condition_description>
+<condition_postfix>
+result.has_physical_presence_ky
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions)</condition_comment>
+<condition_description>ky_gross_receipts >= ky_economic_nexus_threshold</condition_description>
+<condition_postfix>
+result.ky_gross_receipts result.ky_economic_nexus_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+true /result.ky_has_nexus xdef
+"Kentucky filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+true /result.ky_has_nexus xdef
+"Kentucky filing required: Economic nexus (exceeds $100,000 gross receipts or 200 transactions)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+false /result.ky_has_nexus xdef
+0.0 /result.ky_tax_liability xdef
+"Kentucky filing not required: No nexus with state" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53020: Calculate_KY_Corporate_Income_Adjustments                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_KY_Corporate_Income_Adjustments</table_name>
+<xls_file>KY_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Kentucky state-specific additions and subtractions to federal taxable income. KY requires addback of federal interest income and IRC 199A deduction, with subtraction of KY municipal bond interest and dividends from KY corporations.</COMMENTS>
+<TABLE_NUMBER>53020</TABLE_NUMBER>
+<FILE_PATH>states/KY/53020_Calculate_KY_Corporate_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kentucky income adjustments</action_description>
+<action_postfix>
+"Kentucky Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /result.ky_state_additions xdef
+0.0 /result.ky_state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Kentucky nexus</condition_comment>
+<condition_description>ky_has_nexus == true</condition_description>
+<condition_postfix>
+result.ky_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Kentucky state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate Kentucky state additions -->
+0.0 /ky_additions xdef
+
+<!-- Common Kentucky additions: -->
+<!-- - Federal interest income -->
+<!-- - IRC 199A addback -->
+<!-- - State tax refunds -->
+
+result.ky_us_interest_income 0.0 ne
+{
+  ky_additions result.ky_us_interest_income add /ky_additions xdef
+} if
+
+ky_additions /result.ky_state_additions xdef
+
+<!-- Calculate Kentucky state subtractions -->
+0.0 /ky_subtractions xdef
+
+<!-- Common Kentucky subtractions: -->
+<!-- - KY municipal bond interest -->
+<!-- - Dividends from KY corporations -->
+
+result.ky_municipal_interest 0.0 ne
+{
+  ky_subtractions result.ky_municipal_interest add /ky_subtractions xdef
+} if
+
+result.ky_dividends_from_ky_corps 0.0 ne
+{
+  ky_subtractions result.ky_dividends_from_ky_corps add /ky_subtractions xdef
+} if
+
+ky_subtractions /result.ky_state_subtractions xdef
+
+"Kentucky additions: $" result.ky_state_additions cvs strconcat ", subtractions: $" strconcat result.ky_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /result.ky_state_additions xdef
+0.0 /result.ky_state_subtractions xdef
+"Kentucky adjustments not calculated: No nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53080: Calculate_KY_Corporate_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_KY_Corporate_Tax</table_name>
+<xls_file>KY_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Kentucky corporate income tax. Applies Kentucky flat rate (4.5%) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>53080</TABLE_NUMBER>
+<FILE_PATH>states/KY/53080_Calculate_KY_Corporate_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Kentucky tax calculation</action_description>
+<action_postfix>
+"Kentucky Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.ky_taxable_income xdef
+0.0 /result.ky_tax_liability xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Kentucky nexus</condition_comment>
+<condition_description>ky_has_nexus == true</condition_description>
+<condition_postfix>
+result.ky_has_nexus
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income</condition_comment>
+<condition_description>ky_apportioned_income > 0</condition_description>
+<condition_postfix>
+result.ky_apportioned_income 0.0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Kentucky corporate tax (flat rate 4.5%)</action_comment>
+<action_postfix>
+<!-- Calculate Kentucky taxable income -->
+<!-- Federal taxable income apportioned to KY + additions - subtractions -->
+result.ky_apportioned_income
+result.ky_state_additions add
+result.ky_state_subtractions sub
+0.0 max
+/result.ky_taxable_income xdef
+
+<!-- Calculate Kentucky tax using flat rate: 4.5% -->
+result.ky_taxable_income result.ky_corp_tax_rate mul
+/ky_tax_before_credits xdef
+
+<!-- Subtract Kentucky state credits -->
+ky_tax_before_credits result.ky_state_credits sub 0.0 max
+/result.ky_tax_liability xdef
+
+<!-- Calculate refund or amount owed -->
+result.ky_estimated_payments result.ky_tax_liability sub
+/result.ky_refund_or_owed xdef
+
+"Kentucky taxable income: $" result.ky_taxable_income cvs strconcat job.audit_trail swap addto
+"Kentucky tax liability (4.5%): $" result.ky_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+<!-- No taxable income - no tax liability -->
+0.0 /result.ky_taxable_income xdef
+0.0 /result.ky_tax_liability xdef
+result.ky_estimated_payments /result.ky_refund_or_owed xdef
+"Kentucky tax liability: $0 (no taxable income)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+<!-- No nexus - no tax liability -->
+0.0 /result.ky_taxable_income xdef
+0.0 /result.ky_tax_liability xdef
+result.ky_estimated_payments /result.ky_refund_or_owed xdef
+"Kentucky tax liability: $0 (no nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

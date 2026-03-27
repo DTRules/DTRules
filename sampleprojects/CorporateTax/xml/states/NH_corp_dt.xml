@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for New Hampshire
+
+  New Hampshire Business Profits Tax (BPT)
+  - BPT rate: 7.5% flat rate on business profits
+  - Filing threshold: $109,000 gross business income (2025)
+  - Single-sales apportionment
+  - Static conformity to IRC as of December 31, 2018
+
+  Note: This implementation covers Business Profits Tax (BPT) only.
+  Business Enterprise Tax (BET) is a separate tax not covered here.
+
+  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53800: Determine_NH_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_NH_Filing_Requirement</table_name>
+<xls_file>NH_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file New Hampshire Business Profits Tax (BPT) return. Checks for physical presence or economic nexus ($109,000 gross income threshold).</COMMENTS>
+<TABLE_NUMBER>53800</TABLE_NUMBER>
+<FILE_PATH>states/NH/53800_Determine_NH_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize NH filing requirement check</action_description>
+<action_postfix>
+"NH Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in NH</condition_comment>
+<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'NH'</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence get
+apportionment.state_code get 'NH' eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in NH</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'NH'</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.state_code get 'NH' eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - BPT filing required</action_comment>
+<action_postfix>
+# NH BPT filing required due to physical presence (office, employees, or property in state).
+#
+# A corporation has physical presence nexus in NH if it has:
+# - An office, store, warehouse, or other place of business in NH
+# - Employees or agents working in NH
+# - Tangible personal property located in NH
+# - Real property located in NH
+#
+# Reference: RSA 77-A:1 (Business Profits Tax definitions and nexus)
+# Reference: NH Rev 300.01 (Nexus standards)
+# Reference: NH DRA Business Profits Tax FAQ (Nexus requirements)
+
+"NH BPT filing required - physical nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - BPT filing required</action_comment>
+<action_postfix>
+# NH BPT filing required due to economic nexus.
+#
+# Economic nexus threshold: $109,000 gross business income from all activities.
+# (Threshold adjusted biennially; $109,000 for periods beginning on or after 1/1/2025)
+#
+# NH does NOT have a transaction count threshold - only gross receipts.
+#
+# Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NH requires
+# BPT filing if gross business income exceeds the threshold, even without
+# physical presence.
+#
+# Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+# Reference: RSA 77-A:1 (Filing thresholds)
+# Reference: NH Rev 300.02 (Economic nexus provisions)
+# Reference: NH DRA Business Enterprise Tax and Business Profits Tax Filing Threshold Adjustment
+
+"NH BPT filing required - economic nexus" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+# No NH nexus or below filing threshold - no BPT filing requirement.
+#
+# Corporation does not meet physical presence or economic nexus thresholds.
+# Gross business income must exceed $109,000 (2025) to require filing.
+# Any estimated payments would be refunded.
+#
+# Reference: RSA 77-A:1 (Filing requirements)
+# Reference: NH Rev 300.02 (Nexus and filing threshold)
+
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+
+"NH - no nexus, no filing required" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53820: Calculate_NH_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NH_Income_Adjustments</table_name>
+<xls_file>NH_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate NH state-specific additions and subtractions to federal taxable income. NH uses static conformity to IRC as of December 31, 2018, and has decoupled from Section 163(j) interest limitations.</COMMENTS>
+<TABLE_NUMBER>53820</TABLE_NUMBER>
+<FILE_PATH>states/NH/53820_Calculate_NH_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize NH income adjustments</action_description>
+<action_postfix>
+"NH Income Adjustments Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with NH</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NH state additions and subtractions</action_comment>
+<action_postfix>
+# NH state-specific income adjustments to federal taxable income.
+#
+# NH ADDITIONS to federal taxable income include:
+# - Interest income from U.S. government obligations (exempt federally, taxable to NH)
+# - State income taxes deducted on federal return
+# - Deductions for federal provisions enacted after December 31, 2018 (static conformity)
+# - Certain expenses related to exempt income
+#
+# NH SUBTRACTIONS from federal taxable income include:
+# - Interest on NH state and municipal bonds
+# - Business interest expense disallowed under Section 163(j) (NH allows full deduction
+#   effective 1/1/2024 per Senate Bill 189 signed 7/28/2023)
+# - Carryforward of Section 163(j) interest from pre-2024 years (deductible over 3 years)
+# - Dividends received deduction (if applicable)
+# - NH net operating loss deduction (subject to NH limitations)
+#
+# CRITICAL: NH uses static conformity to the IRC as of December 31, 2018.
+# Federal tax law changes after that date do NOT automatically apply to NH BPT
+# unless specifically adopted by NH legislation.
+#
+# CRITICAL: NH decoupled from Section 163(j) business interest limitation.
+# Interest disallowed for federal purposes under Section 163(j) is FULLY DEDUCTIBLE
+# for NH BPT purposes (effective for tax years beginning on or after 1/1/2024).
+#
+# Reference: RSA 77-A:1 (Definitions - "Gross business profits")
+# Reference: Senate Bill 189 (2023) - Section 163(j) decoupling
+# Reference: NH Rev 300.03 (Additions to federal taxable income)
+# Reference: NH Rev 300.04 (Subtractions from federal taxable income)
+# Reference: NH Form BT-Summary Instructions (Additions and Subtractions schedules)
+
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"NH income adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"NH - no nexus, no adjustments" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53880: Calculate_NH_State_Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_NH_State_Tax</table_name>
+<xls_file>NH_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate NH Business Profits Tax (BPT). Applies NH 7.5% flat rate to apportioned and adjusted business profits.</COMMENTS>
+<TABLE_NUMBER>53880</TABLE_NUMBER>
+<FILE_PATH>states/NH/53880_Calculate_NH_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize NH BPT calculation</action_description>
+<action_postfix>
+"NH Business Profits Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with NH</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NH BPT at 7.5% flat rate</action_comment>
+<action_postfix>
+# NH Business Profits Tax (BPT) calculation:
+#
+# 1. Federal taxable income: [Form 1120 line 28]
+# 2. Apportioned to NH: × [NH apportionment percentage (single-sales)]
+# 3. NH additions: + [Federal interest, state taxes, post-2018 provisions]
+# 4. NH subtractions: - [NH municipal interest, Section 163(j) interest, dividends]
+# 5. NH taxable business profits: = [Result]
+# 6. NH BPT rate: × 7.5% (flat rate)
+# 7. NH Business Profits Tax: = [Tax before credits]
+# 8. NH credits: - [R&D, Coos County jobs, Economic Revitalization Zone, BET credit]
+# 9. NH BPT liability: = [Final tax]
+#
+# NH uses single-sales factor apportionment (100% sales factor).
+#
+# NH BPT rate history:
+# - 2025+: 7.5% (for tax periods ending on or after 12/31/2023)
+# - Previous years: Higher rates (gradually reduced over time)
+#
+# NH provides various tax credits including:
+# - Research & Development Credit (RSA 77-A:5-b)
+# - Coos County Job Creation Credit (RSA 77-A:5-c)
+# - Economic Revitalization Zone Credit (RSA 162-N)
+# - Business Enterprise Tax (BET) credit against BPT (RSA 77-E:3-a)
+#
+# IMPORTANT: BET is a separate tax on enterprise value base (compensation,
+# interest, dividends). BET paid may be credited against BPT to prevent
+# double taxation. BET is not implemented in this decision table.
+#
+# Reference: RSA 77-A:2 (BPT rate of 7.5%)
+# Reference: RSA 77-A:3 (Apportionment - single-sales factor)
+# Reference: RSA 77-A:5 (Tax credits)
+# Reference: NH Form BT-Summary (Business Tax Return)
+# Reference: NH Rev 300 (Business Profits Tax regulations)
+
+apportionment.state_taxable_income get
+apportionment.nh_state_tax_rate get
+mul
+/apportionment.state_tax xdef
+
+apportionment.state_tax get
+apportionment.state_credits get
+sub
+0.0 max
+/apportionment.state_tax xdef
+
+apportionment.state_payments get
+apportionment.state_tax get
+sub
+/apportionment.state_refund_or_owed xdef
+
+"NH BPT calculated: $" apportionment.state_tax get cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Nexus but no taxable income</action_comment>
+<action_postfix>
+# No NH taxable business profits - no BPT liability.
+#
+# Corporation has NH nexus but no positive taxable income after apportionment
+# and adjustments. Any estimated payments are refunded.
+#
+# NH net operating loss (NOL) rules may apply:
+# - NH allows NOL carryforward (subject to limitations)
+# - NOL carryback provisions vary by tax year
+# - NH NOL rules may differ from federal due to static conformity to
+#   IRC as of December 31, 2018
+#
+# Reference: RSA 77-A:4 (Net operating loss deduction)
+# Reference: NH Form BT-Summary Instructions (NOL schedules)
+
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+
+"NH - nexus but no taxable income" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no BPT liability</action_comment>
+<action_postfix>
+# No NH nexus or below filing threshold - no BPT liability.
+#
+# Corporation does not have physical presence or economic nexus in NH,
+# or gross business income is below $109,000 filing threshold (2025).
+# Any estimated payments are refunded.
+#
+# Reference: RSA 77-A:1 (Filing requirements and nexus)
+
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+
+"NH - no nexus, no BPT liability" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

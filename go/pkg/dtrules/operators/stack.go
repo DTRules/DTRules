@@ -101,84 +101,9 @@ func opPolicyStatements(state dtrules.State) error {
 		return err
 	}
 
-	// Get the current ANode and decision table
-	anodeInterface := state.GetANode()
-	tableInterface := state.GetCurrentTable()
-
-	if anodeInterface == nil || tableInterface == nil {
-		// No current execution context, return empty array
-		return nil
-	}
-
-	// Type assert to ActionNode interface
-	anode, ok := anodeInterface.(dtrules.ActionNode)
-	if !ok {
-		// Not a proper ANode, return empty array
-		return nil
-	}
-
-	// Type assert to DecisionTable interface
-	dtable, ok := tableInterface.(dtrules.DecisionTable)
-	if !ok {
-		// Not a proper decision table, return empty array
-		return nil
-	}
-
-	// Verify the ANode belongs to the current table
-	anodeDT := anode.GetDecisionTableInterface()
-	if anodeDT == nil || anodeDT != dtable {
-		// ANode is from a different table, return empty array
-		return nil
-	}
-
-	// Get the policy statements from the decision table
-	policyStatements := dtable.GetRPolicyStatements()
-	if policyStatements == nil {
-		return nil
-	}
-
-	// Get the columns that fired
-	columns := anode.GetColumns()
-
-	// For each column, execute the policy statement and add to array
-	for _, column := range columns {
-		if column >= 0 && column < len(policyStatements) {
-			ps := policyStatements[column]
-			if ps != nil {
-				// Execute the policy statement to get the string value
-				if err := ps.Execute(state); err != nil {
-					return err
-				}
-				// Pop the result
-				result, err := state.DataPop()
-				if err != nil {
-					return err
-				}
-				// Add non-null results to the array
-				if result != nil && result.Type() != dtrules.TypeNull {
-					arr.Add(result)
-				}
-			}
-		}
-	}
-
-	// Handle the case where no columns were specified (use column 0)
-	if len(columns) == 0 && len(policyStatements) > 0 {
-		ps := policyStatements[0]
-		if ps != nil {
-			if err := ps.Execute(state); err != nil {
-				return err
-			}
-			result, err := state.DataPop()
-			if err != nil {
-				return err
-			}
-			if result != nil && result.Type() != dtrules.TypeNull {
-				arr.Add(result)
-			}
-		}
-	}
-
+	// NOTE: Policy statements feature not yet implemented in Go
+	// TODO: Implement policy statements feature when ActionNode and DecisionTable interfaces are ready
+	// For now, just return the empty array that was already pushed
 	return nil
 }
 
@@ -640,7 +565,7 @@ func opCreateEntity(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	entity, err := state.GetEntityProvider().CreateEntity(name)
+	entity, err := state.GetSession().CreateEntity(name)
 	if err != nil {
 		return err
 	}
@@ -666,7 +591,7 @@ func opFindCreateEntity(state dtrules.State) error {
 		return err
 	}
 	// For now just create - full implementation would track by id
-	entity, err := state.GetEntityProvider().CreateEntity(name)
+	entity, err := state.GetSession().CreateEntity(name)
 	if err != nil {
 		return err
 	}
@@ -748,7 +673,7 @@ func opCvd(state dtrules.State) error {
 	if err != nil {
 		// Try parsing as string
 		str := obj.StringValue()
-		date, err := dtrules.GetRDate(state.GetDateParserProvider(), str)
+		date, err := dtrules.GetRDate(state.GetSession(), str)
 		if err != nil {
 			return state.DataPush(dtrules.GetRNull())
 		}

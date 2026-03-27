@@ -60,6 +60,7 @@ type RDecisionTable struct {
 
 	name      *dtrules.RName // The decision table's name
 	filename  string         // Filename where the table is defined
+	filePath  string         // FILE_PATH: canonical path for Excel generation
 	tableType TableType      // Type of decision table
 
 	maxCol int // Number of columns in this decision table
@@ -76,27 +77,27 @@ type RDecisionTable struct {
 	rcontext        dtrules.Object // Compiled context setup code
 
 	// Initial actions (executed before conditions)
-	initialActions         []string
-	initialActionsPostfix  []string
-	initialActionsComment  []string
-	rinitialActions        []dtrules.Object           // Go interpreter
-	binitialActions        []*dtrules.BytecodeChunk   // ASM bytecode
+	initialActions        []string
+	initialActionsPostfix []string
+	initialActionsComment []string
+	rinitialActions       []dtrules.Object         // Go interpreter
+	binitialActions       []*dtrules.BytecodeChunk // ASM bytecode
 
 	// Conditions
-	conditionTable       [][]string                 // conditionTable[row][col] - "y", "n", "-", "*"
-	conditions           []string                   // Condition expressions (formal)
-	conditionsPostfix    []string                   // Compiled postfix
-	conditionsComment    []string                   // Comments
-	rconditions          []dtrules.Object           // Compiled condition code (Go interpreter)
-	bconditions          []*dtrules.BytecodeChunk   // Compiled bytecode (for ASM execution)
+	conditionTable    [][]string               // conditionTable[row][col] - "y", "n", "-", "*"
+	conditions        []string                 // Condition expressions (formal)
+	conditionsPostfix []string                 // Compiled postfix
+	conditionsComment []string                 // Comments
+	rconditions       []dtrules.Object         // Compiled condition code (Go interpreter)
+	bconditions       []*dtrules.BytecodeChunk // Compiled bytecode (for ASM execution)
 
 	// Actions
-	actionTable       [][]string                 // actionTable[row][col] - "x" or ""
-	actions           []string                   // Action expressions (formal)
-	actionsPostfix    []string                   // Compiled postfix
-	actionsComment    []string                   // Comments
-	ractions          []dtrules.Object           // Compiled action code (Go interpreter)
-	bactions          []*dtrules.BytecodeChunk   // Compiled bytecode (for ASM execution)
+	actionTable    [][]string               // actionTable[row][col] - "x" or ""
+	actions        []string                 // Action expressions (formal)
+	actionsPostfix []string                 // Compiled postfix
+	actionsComment []string                 // Comments
+	ractions       []dtrules.Object         // Compiled action code (Go interpreter)
+	bactions       []*dtrules.BytecodeChunk // Compiled bytecode (for ASM execution)
 
 	// Policy statements
 	policyStatements        []string
@@ -804,6 +805,23 @@ func (dt *RDecisionTable) RStringValue() *dtrules.RString {
 // GetFilename returns the source filename
 func (dt *RDecisionTable) GetFilename() string {
 	return dt.filename
+}
+
+// GetFilePath returns the canonical file path with fallback to filename
+func (dt *RDecisionTable) GetFilePath() string {
+	// Check if FILE_PATH is in fields (multi-file architecture)
+	if filePath, ok := dt.fields["FILE_PATH"]; ok && filePath != "" {
+		return filePath
+	}
+	if dt.filePath != "" {
+		return dt.filePath
+	}
+	return dt.filename // Fallback to legacy xls_file
+}
+
+// SetFilePath sets the canonical file path
+func (dt *RDecisionTable) SetFilePath(path string) {
+	dt.filePath = path
 }
 
 // GetContexts returns the context expressions
