@@ -11,6 +11,9 @@
   https://otr.cfo.dc.gov/page/dc-individual-and-fiduciary-income-tax-rates
 -->
 <entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/DC/40750_DC_constants</file_path>
+  </file_metadata>
   <entity name="result">
 
     <!-- Standard deductions -->
