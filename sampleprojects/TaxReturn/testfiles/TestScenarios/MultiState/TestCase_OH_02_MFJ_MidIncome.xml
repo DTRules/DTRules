@@ -1,0 +1,89 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Ohio Test Case 02: Married filing jointly with mid-level income -->
+   <!-- Tests Ohio 2.75% bracket and mid-income personal exemption -->
+
+   <id>OH-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>OH</state>
+   <city>Cleveland</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $85,000 combined W2 -->
+   <!-- Federal AGI: $85,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $55,000 -->
+   <!-- Federal Tax: ~$5,827 (10% on $23,850 + 12% on $31,150) -->
+   <!-- OH Personal Exemption: $1,850 x 2 = $3,700 (AGI > $80,000) -->
+   <!-- OH Taxable: $85,000 - $3,700 = $81,300 -->
+   <!-- OH Tax: ($81,300 - $26,050) x 2.75% = $55,250 x 0.0275 = $1,519.38 -->
+   <!-- Withholding: $10,000 federal + $2,000 state -->
+   <!-- Federal Refund: ~$4,173 -->
+   <!-- State Refund: $480.62 -->
+   <expected_agi>85000</expected_agi>
+   <expected_taxable_income>55000</expected_taxable_income>
+   <expected_federal_tax>5827</expected_federal_tax>
+   <expected_state_tax>1519</expected_state_tax>
+   <expected_total_tax>7346</expected_total_tax>
+
+   <!-- Married Filing Jointly -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Thompson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>3/10/1985</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>6500</w2_withholding>
+         <state_withholding>1300</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Thompson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>7/22/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <is_spouse>true</is_spouse>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+         <state_withholding>700</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

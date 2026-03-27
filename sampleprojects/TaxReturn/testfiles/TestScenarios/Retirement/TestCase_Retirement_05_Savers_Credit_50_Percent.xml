@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Saver's Credit at 50% Rate -->
+<!-- Scenario: Low-income couple qualifies for maximum Saver's Credit -->
+<!-- Expected: 50% credit on $4,000 contributions = $2,000 -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Retirement Savings Contributions Credit (Saver's Credit) 2025 -->
+   <!-- Credit Rate: 50% (AGI ≤ $46,000 for MFJ) -->
+   <!-- Max eligible contribution: $2,000 per person -->
+   <!-- Couple contributes $2,000 each to traditional IRA ($4,000 total) -->
+   <!-- Saver's Credit = $4,000 × 50% = $2,000 -->
+   <!-- Credit is non-refundable (can reduce tax to $0 but no refund) -->
+
+   <id>Retirement-05</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $40,000 W-2 ($20k each) -->
+   <!-- IRA contributions: $4,000 total (deductible) -->
+   <!-- AGI: $36,000 ($40,000 - $4,000 IRA deduction) -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $6,000 -->
+   <!-- Tax before credits: ~$600 -->
+   <!-- Saver's Credit: $2,000 (50% rate, but limited to tax liability) -->
+   <expected_agi>36000</expected_agi>
+   <expected_taxable_income>6000</expected_taxable_income>
+   <expected_savers_credit>2000</expected_savers_credit>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Carlos Rodriguez</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>4/10/1992</date_of_birth>
+         <occupation>Warehouse Worker</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>20000</w2_wages>
+         <w2_withholding>1200</w2_withholding>
+         <traditional_ira_contribution>2000</traditional_ira_contribution>
+         <covered_by_employer_plan>false</covered_by_employer_plan>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Rodriguez</name>
+         <ssn>888-99-1111</ssn>
+         <date_of_birth>7/22/1994</date_of_birth>
+         <occupation>Retail Cashier</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>20000</w2_wages>
+         <w2_withholding>1200</w2_withholding>
+         <traditional_ira_contribution>2000</traditional_ira_contribution>
+         <covered_by_employer_plan>false</covered_by_employer_plan>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

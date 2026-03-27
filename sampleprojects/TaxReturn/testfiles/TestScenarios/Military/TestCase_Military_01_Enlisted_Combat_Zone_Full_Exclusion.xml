@@ -1,0 +1,128 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 1: Enlisted Member in Combat Zone (100% Exclusion) -->
+   <!-- Tests: Table 25000 - Calculate_Combat_Zone_Pay_Exclusion -->
+   <!-- Scenario: E-5 enlisted member deployed to Iraq for full year -->
+   <!-- All combat zone pay is excludable for enlisted members -->
+   <id>MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Killeen</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 shows $75,000 total wages -->
+   <!-- Combat zone pay: $55,000 (fully excludable for enlisted) -->
+   <!-- Taxable wages: $75,000 - $55,000 = $20,000 -->
+   <!-- IDP: $2,250 (also excludable) -->
+   <!-- BAH: $18,000 (nontaxable) -->
+   <!-- Spouse W-2: $45,000 -->
+   <!-- AGI: $20,000 + $45,000 = $65,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $35,000 -->
+   <expected_agi>65000</expected_agi>
+   <expected_total_combat_zone_exclusion>57250</expected_total_combat_zone_exclusion>
+   <expected_taxable_income>35000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Enlisted member (E-5) -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>James Martinez</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>5/15/1995</date_of_birth>
+         <occupation>Army Sergeant (E-5)</occupation>
+         <is_military>true</is_military>
+         <military_rank>enlisted</military_rank>
+         <combat_zone_service>true</combat_zone_service>
+         <combat_zone_location>iraq</combat_zone_location>
+         <combat_zone_months>12</combat_zone_months>
+         <combat_zone_start_date>1/1/2025</combat_zone_start_date>
+         <combat_zone_end_date>12/31/2025</combat_zone_end_date>
+         <combat_zone_pay>55000</combat_zone_pay>
+         <imminent_danger_pay>2250</imminent_danger_pay>
+         <bah_amount>18000</bah_amount>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>2500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <servicemember_domicile_state>TX</servicemember_domicile_state>
+      </taxpayer>
+
+      <!-- Spouse (civilian) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Martinez</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>8/22/1996</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>5200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>75000</gross_amount>
+         <withholding>2500</withholding>
+         <description>Military pay (includes combat zone pay)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>45000</gross_amount>
+         <withholding>5200</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Martinez</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>3/10/2022</date_of_birth>
+         <age>3</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

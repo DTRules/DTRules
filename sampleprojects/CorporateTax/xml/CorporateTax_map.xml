@@ -1,0 +1,208 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!-- Job (root entity) mappings -->
+			<setattribute tag='id' RAttribute='id' enclosure='job' type='integer'></setattribute>
+			<setattribute tag='test_case_name' RAttribute='test_case_name' enclosure='job' type='string'></setattribute>
+			<setattribute tag='execution_date' RAttribute='execution_date' enclosure='job' type='date'></setattribute>
+			<setattribute tag='dtrules_version' RAttribute='dtrules_version' enclosure='job' type='string'></setattribute>
+			<setattribute tag='tax_year' RAttribute='tax_year' enclosure='job' type='integer'></setattribute>
+			<!-- Expected values for validation -->
+			<setattribute tag='expected_taxable_income' RAttribute='expected_taxable_income' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_federal_tax' RAttribute='expected_federal_tax' enclosure='job' type='double'></setattribute>
+			<setattribute tag='expected_refund_or_owed' RAttribute='expected_refund_or_owed' enclosure='job' type='double'></setattribute>
+
+			<!-- Corporation mappings -->
+			<setattribute tag='ein' RAttribute='ein' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='corporation_name' RAttribute='corporation_name' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='incorporation_date' RAttribute='incorporation_date' enclosure='corporation' type='date'></setattribute>
+			<setattribute tag='business_code' RAttribute='business_code' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='accounting_method' RAttribute='accounting_method' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='tax_year_end' RAttribute='tax_year_end' enclosure='corporation' type='date'></setattribute>
+			<setattribute tag='total_assets' RAttribute='total_assets' enclosure='corporation' type='double'></setattribute>
+			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='corporation' type='double'></setattribute>
+
+			<!-- Revenue mappings (Form 1120 lines 1-11) -->
+			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='returns_and_allowances' RAttribute='returns_and_allowances' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='net_receipts' RAttribute='net_receipts' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='cost_of_goods_sold' RAttribute='cost_of_goods_sold' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='gross_profit' RAttribute='gross_profit' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='dividends_received' RAttribute='dividends_received' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='interest_income' RAttribute='interest_income' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='gross_rents' RAttribute='gross_rents' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='gross_royalties' RAttribute='gross_royalties' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='capital_gain_net_income' RAttribute='capital_gain_net_income' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='net_gain_loss_4797' RAttribute='net_gain_loss_4797' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='other_income' RAttribute='other_income' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='total_income' RAttribute='total_income' enclosure='revenue' type='double'></setattribute>
+
+			<!-- Expense mappings (for business deductions) -->
+			<setattribute tag='id' RAttribute='id' enclosure='expense' type='integer'></setattribute>
+			<setattribute tag='category' RAttribute='category' enclosure='expense' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='expense' type='double'></setattribute>
+			<setattribute tag='deductible' RAttribute='deductible' enclosure='expense' type='boolean'></setattribute>
+			<setattribute tag='limitation_applied' RAttribute='limitation_applied' enclosure='expense' type='string'></setattribute>
+
+			<!-- Asset mappings (for depreciation) -->
+			<setattribute tag='id' RAttribute='id' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='date_acquired' RAttribute='date_acquired' enclosure='asset' type='date'></setattribute>
+			<setattribute tag='cost_basis' RAttribute='cost_basis' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='asset_class' RAttribute='asset_class' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='recovery_period' RAttribute='recovery_period' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='depreciation_method' RAttribute='depreciation_method' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='convention' RAttribute='convention' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='current_year_depreciation' RAttribute='current_year_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='accumulated_depreciation' RAttribute='accumulated_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='section_179_deduction' RAttribute='section_179_deduction' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation' RAttribute='bonus_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='eligible_for_section_179' RAttribute='eligible_for_section_179' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='eligible_for_bonus' RAttribute='eligible_for_bonus' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='listed_property' RAttribute='listed_property' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='business_use_percentage' RAttribute='business_use_percentage' enclosure='asset' type='double'></setattribute>
+
+			<!-- Result mappings (Form 1120 lines 12-35) -->
+			<!-- Total Income -->
+			<setattribute tag='total_income' RAttribute='total_income' enclosure='result' type='double'></setattribute>
+
+			<!-- Deductions (lines 12-27) -->
+			<setattribute tag='compensation' RAttribute='compensation' enclosure='result' type='double'></setattribute>
+			<setattribute tag='salaries_and_wages' RAttribute='salaries_and_wages' enclosure='result' type='double'></setattribute>
+			<setattribute tag='repairs_and_maintenance' RAttribute='repairs_and_maintenance' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bad_debts' RAttribute='bad_debts' enclosure='result' type='double'></setattribute>
+			<setattribute tag='rents' RAttribute='rents' enclosure='result' type='double'></setattribute>
+			<setattribute tag='taxes_and_licenses' RAttribute='taxes_and_licenses' enclosure='result' type='double'></setattribute>
+			<setattribute tag='interest_expense' RAttribute='interest_expense' enclosure='result' type='double'></setattribute>
+			<setattribute tag='charitable_contributions' RAttribute='charitable_contributions' enclosure='result' type='double'></setattribute>
+			<setattribute tag='depreciation' RAttribute='depreciation' enclosure='result' type='double'></setattribute>
+			<setattribute tag='depletion' RAttribute='depletion' enclosure='result' type='double'></setattribute>
+			<setattribute tag='advertising' RAttribute='advertising' enclosure='result' type='double'></setattribute>
+			<setattribute tag='pension_profit_sharing' RAttribute='pension_profit_sharing' enclosure='result' type='double'></setattribute>
+			<setattribute tag='employee_benefit_programs' RAttribute='employee_benefit_programs' enclosure='result' type='double'></setattribute>
+			<setattribute tag='other_deductions' RAttribute='other_deductions' enclosure='result' type='double'></setattribute>
+			<setattribute tag='total_deductions' RAttribute='total_deductions' enclosure='result' type='double'></setattribute>
+
+			<!-- Depreciation Tracking (Form 4562) -->
+			<setattribute tag='section_179_total' RAttribute='section_179_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_limit' RAttribute='section_179_limit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_phaseout_threshold' RAttribute='section_179_phaseout_threshold' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_total' RAttribute='bonus_depreciation_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_rate' RAttribute='bonus_depreciation_rate' enclosure='result' type='double'></setattribute>
+			<setattribute tag='macrs_depreciation_total' RAttribute='macrs_depreciation_total' enclosure='result' type='double'></setattribute>
+
+			<!-- Tax Calculation (lines 28-35) -->
+			<setattribute tag='taxable_income' RAttribute='taxable_income' enclosure='result' type='double'></setattribute>
+			<setattribute tag='federal_tax_rate' RAttribute='federal_tax_rate' enclosure='result' type='double'></setattribute>
+			<setattribute tag='federal_tax' RAttribute='federal_tax' enclosure='result' type='double'></setattribute>
+
+			<!-- Credits (Form 3800) -->
+			<setattribute tag='general_business_credit' RAttribute='general_business_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='research_development_credit' RAttribute='research_development_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='work_opportunity_credit' RAttribute='work_opportunity_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='total_credits' RAttribute='total_credits' enclosure='result' type='double'></setattribute>
+			<setattribute tag='estimated_tax_payments' RAttribute='estimated_tax_payments' enclosure='result' type='double'></setattribute>
+			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
+			<setattribute tag='refund_or_owed' RAttribute='refund_or_owed' enclosure='result' type='double'></setattribute>
+
+			<!-- Audit Trail -->
+			<setattribute tag='audit_trail' RAttribute='audit_trail' enclosure='result' type='string'></setattribute>
+		</map>
+	</XMLtoEDD>
+
+	<EDDtoXML>
+		<map>
+			<!-- Job entity -->
+			<setattribute tag='id' RAttribute='id' enclosure='job' type='integer'></setattribute>
+			<setattribute tag='test_case_name' RAttribute='test_case_name' enclosure='job' type='string'></setattribute>
+			<setattribute tag='execution_date' RAttribute='execution_date' enclosure='job' type='date'></setattribute>
+			<setattribute tag='dtrules_version' RAttribute='dtrules_version' enclosure='job' type='string'></setattribute>
+			<setattribute tag='tax_year' RAttribute='tax_year' enclosure='job' type='integer'></setattribute>
+
+			<!-- Corporation entity -->
+			<setattribute tag='ein' RAttribute='ein' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='corporation_name' RAttribute='corporation_name' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='incorporation_date' RAttribute='incorporation_date' enclosure='corporation' type='date'></setattribute>
+			<setattribute tag='business_code' RAttribute='business_code' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='accounting_method' RAttribute='accounting_method' enclosure='corporation' type='string'></setattribute>
+			<setattribute tag='tax_year_end' RAttribute='tax_year_end' enclosure='corporation' type='date'></setattribute>
+			<setattribute tag='total_assets' RAttribute='total_assets' enclosure='corporation' type='double'></setattribute>
+			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='corporation' type='double'></setattribute>
+
+			<!-- Revenue entity -->
+			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='returns_and_allowances' RAttribute='returns_and_allowances' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='net_receipts' RAttribute='net_receipts' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='cost_of_goods_sold' RAttribute='cost_of_goods_sold' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='gross_profit' RAttribute='gross_profit' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='dividends_received' RAttribute='dividends_received' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='interest_income' RAttribute='interest_income' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='gross_rents' RAttribute='gross_rents' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='gross_royalties' RAttribute='gross_royalties' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='capital_gain_net_income' RAttribute='capital_gain_net_income' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='net_gain_loss_4797' RAttribute='net_gain_loss_4797' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='other_income' RAttribute='other_income' enclosure='revenue' type='double'></setattribute>
+			<setattribute tag='total_income' RAttribute='total_income' enclosure='revenue' type='double'></setattribute>
+
+			<!-- Expense entity -->
+			<setattribute tag='id' RAttribute='id' enclosure='expense' type='integer'></setattribute>
+			<setattribute tag='category' RAttribute='category' enclosure='expense' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='expense' type='double'></setattribute>
+			<setattribute tag='deductible' RAttribute='deductible' enclosure='expense' type='boolean'></setattribute>
+			<setattribute tag='limitation_applied' RAttribute='limitation_applied' enclosure='expense' type='string'></setattribute>
+
+			<!-- Asset entity -->
+			<setattribute tag='id' RAttribute='id' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='date_acquired' RAttribute='date_acquired' enclosure='asset' type='date'></setattribute>
+			<setattribute tag='cost_basis' RAttribute='cost_basis' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='asset_class' RAttribute='asset_class' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='recovery_period' RAttribute='recovery_period' enclosure='asset' type='integer'></setattribute>
+			<setattribute tag='depreciation_method' RAttribute='depreciation_method' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='convention' RAttribute='convention' enclosure='asset' type='string'></setattribute>
+			<setattribute tag='current_year_depreciation' RAttribute='current_year_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='accumulated_depreciation' RAttribute='accumulated_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='section_179_deduction' RAttribute='section_179_deduction' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation' RAttribute='bonus_depreciation' enclosure='asset' type='double'></setattribute>
+			<setattribute tag='eligible_for_section_179' RAttribute='eligible_for_section_179' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='eligible_for_bonus' RAttribute='eligible_for_bonus' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='listed_property' RAttribute='listed_property' enclosure='asset' type='boolean'></setattribute>
+			<setattribute tag='business_use_percentage' RAttribute='business_use_percentage' enclosure='asset' type='double'></setattribute>
+
+			<!-- Result entity -->
+			<setattribute tag='total_income' RAttribute='total_income' enclosure='result' type='double'></setattribute>
+			<setattribute tag='compensation' RAttribute='compensation' enclosure='result' type='double'></setattribute>
+			<setattribute tag='salaries_and_wages' RAttribute='salaries_and_wages' enclosure='result' type='double'></setattribute>
+			<setattribute tag='repairs_and_maintenance' RAttribute='repairs_and_maintenance' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bad_debts' RAttribute='bad_debts' enclosure='result' type='double'></setattribute>
+			<setattribute tag='rents' RAttribute='rents' enclosure='result' type='double'></setattribute>
+			<setattribute tag='taxes_and_licenses' RAttribute='taxes_and_licenses' enclosure='result' type='double'></setattribute>
+			<setattribute tag='interest_expense' RAttribute='interest_expense' enclosure='result' type='double'></setattribute>
+			<setattribute tag='charitable_contributions' RAttribute='charitable_contributions' enclosure='result' type='double'></setattribute>
+			<setattribute tag='depreciation' RAttribute='depreciation' enclosure='result' type='double'></setattribute>
+			<setattribute tag='depletion' RAttribute='depletion' enclosure='result' type='double'></setattribute>
+			<setattribute tag='advertising' RAttribute='advertising' enclosure='result' type='double'></setattribute>
+			<setattribute tag='pension_profit_sharing' RAttribute='pension_profit_sharing' enclosure='result' type='double'></setattribute>
+			<setattribute tag='employee_benefit_programs' RAttribute='employee_benefit_programs' enclosure='result' type='double'></setattribute>
+			<setattribute tag='other_deductions' RAttribute='other_deductions' enclosure='result' type='double'></setattribute>
+			<setattribute tag='total_deductions' RAttribute='total_deductions' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_total' RAttribute='section_179_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_limit' RAttribute='section_179_limit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='section_179_phaseout_threshold' RAttribute='section_179_phaseout_threshold' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_total' RAttribute='bonus_depreciation_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='bonus_depreciation_rate' RAttribute='bonus_depreciation_rate' enclosure='result' type='double'></setattribute>
+			<setattribute tag='macrs_depreciation_total' RAttribute='macrs_depreciation_total' enclosure='result' type='double'></setattribute>
+			<setattribute tag='taxable_income' RAttribute='taxable_income' enclosure='result' type='double'></setattribute>
+			<setattribute tag='federal_tax_rate' RAttribute='federal_tax_rate' enclosure='result' type='double'></setattribute>
+			<setattribute tag='federal_tax' RAttribute='federal_tax' enclosure='result' type='double'></setattribute>
+			<setattribute tag='general_business_credit' RAttribute='general_business_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='research_development_credit' RAttribute='research_development_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='work_opportunity_credit' RAttribute='work_opportunity_credit' enclosure='result' type='double'></setattribute>
+			<setattribute tag='total_credits' RAttribute='total_credits' enclosure='result' type='double'></setattribute>
+			<setattribute tag='estimated_tax_payments' RAttribute='estimated_tax_payments' enclosure='result' type='double'></setattribute>
+			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
+			<setattribute tag='refund_or_owed' RAttribute='refund_or_owed' enclosure='result' type='double'></setattribute>
+			<setattribute tag='audit_trail' RAttribute='audit_trail' enclosure='result' type='string'></setattribute>
+		</map>
+	</EDDtoXML>
+</mapping>

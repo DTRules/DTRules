@@ -18,19 +18,17 @@ package operators
 import (
 	"fmt"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
-// DefaultMaxIterations is the default maximum iterations for loop operators.
+// DefaultMaxIterations is the maximum iterations for loop operators.
 // This prevents infinite loops from consuming unbounded CPU.
 const DefaultMaxIterations = 1000000
 
-// MaxIterations is the configurable maximum iterations for loop operators.
-// Set to 0 to disable the limit (not recommended for untrusted rules).
-var MaxIterations = DefaultMaxIterations
-
-// ErrMaxIterationsExceeded is returned when a loop exceeds MaxIterations.
-var ErrMaxIterationsExceeded = fmt.Errorf("loop exceeded maximum iterations (%d)", DefaultMaxIterations)
+// ErrMaxIterationsExceeded returns an error indicating the loop exceeded the maximum iterations.
+func ErrMaxIterationsExceeded(limit int) error {
+	return fmt.Errorf("loop exceeded maximum iterations (%d)", limit)
+}
 
 func init() {
 	Register("if", opIf)
@@ -55,7 +53,9 @@ func init() {
 	Register("local!", opLocalStore)
 	Register("ignore", opIgnore)
 	Alias("ignore", "nop")
+	Alias("ignore", "performaliased")
 	Register("executetable", opExecuteTable)
+	Register("performcatcherror", opPerformCatchError)
 }
 
 // opIf: ( body boolean -- ) executes body if boolean is true
@@ -103,8 +103,7 @@ func opIfelse(state dtrules.State) error {
 }
 
 // opWhile: ( body test -- ) executes body while test returns true.
-// Has a configurable iteration limit (MaxIterations, default 1M) to prevent infinite loops.
-// Set MaxIterations = 0 to disable the limit (not recommended for untrusted rules).
+// Has an iteration limit (DefaultMaxIterations = 1M) to prevent infinite loops.
 func opWhile(state dtrules.State) error {
 	test, err := state.DataPop()
 	if err != nil {
@@ -132,8 +131,8 @@ func opWhile(state dtrules.State) error {
 	for result {
 		// Check iteration limit
 		iterations++
-		if MaxIterations > 0 && iterations > MaxIterations {
-			return fmt.Errorf("while: %w", ErrMaxIterationsExceeded)
+		if iterations > DefaultMaxIterations {
+			return fmt.Errorf("while: %w", ErrMaxIterationsExceeded(DefaultMaxIterations))
 		}
 
 		if err := body.Execute(state); err != nil {
@@ -199,13 +198,17 @@ func opForr(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	list, err := arrayObj.ArrayValue()
+	arr, err := arrayObj.RArrayValue()
 	if err != nil {
 		return err
 	}
 
-	for i := len(list) - 1; i >= 0; i-- {
-		if err := state.DataPush(list[i]); err != nil {
+	for i := arr.Size() - 1; i >= 0; i-- {
+		elem, err := arr.Get(i)
+		if err != nil {
+			return err
+		}
+		if err := state.DataPush(elem); err != nil {
 			return err
 		}
 		if err := body.Execute(state); err != nil {
@@ -216,6 +219,7 @@ func opForr(state dtrules.State) error {
 }
 
 // opForall: ( body array -- ) executes body for each entity in array
+// Entities are automatically pushed to entity stack before executing body
 func opForall(state dtrules.State) error {
 	arrayObj, err := state.DataPop()
 	if err != nil {
@@ -252,6 +256,7 @@ func opForall(state dtrules.State) error {
 }
 
 // opForallr: ( body array -- ) executes body for each entity in reverse order
+// Entities are automatically pushed to entity stack before executing body
 func opForallr(state dtrules.State) error {
 	arrayObj, err := state.DataPop()
 	if err != nil {
@@ -261,11 +266,12 @@ func opForallr(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	list, err := arrayObj.ArrayValue()
+	arr, err := arrayObj.RArrayValue()
 	if err != nil {
 		return err
 	}
 
+	list := arr.GetIterator()
 	for i := len(list) - 1; i >= 0; i-- {
 		obj := list[i]
 		if obj.Type() == dtrules.TypeNull {
@@ -289,7 +295,7 @@ func opForallr(state dtrules.State) error {
 }
 
 // opDoloop: ( body start increment limit -- )
-// Has a configurable iteration limit (MaxIterations) to prevent infinite loops.
+// Has an iteration limit (DefaultMaxIterations) to prevent infinite loops.
 func opDoloop(state dtrules.State) error {
 	limitObj, err := state.DataPop()
 	if err != nil {
@@ -332,8 +338,8 @@ func opDoloop(state dtrules.State) error {
 	if increment > 0 {
 		for i := start; i < limit; i += increment {
 			iterations++
-			if MaxIterations > 0 && iterations > MaxIterations {
-				return fmt.Errorf("doloop: %w", ErrMaxIterationsExceeded)
+			if iterations > DefaultMaxIterations {
+				return fmt.Errorf("doloop: %w", ErrMaxIterationsExceeded(DefaultMaxIterations))
 			}
 			if err := state.DataPush(dtrules.GetRIntegerValueFromInt(i)); err != nil {
 				return err
@@ -345,8 +351,8 @@ func opDoloop(state dtrules.State) error {
 	} else {
 		for i := start; i > limit; i += increment {
 			iterations++
-			if MaxIterations > 0 && iterations > MaxIterations {
-				return fmt.Errorf("doloop: %w", ErrMaxIterationsExceeded)
+			if iterations > DefaultMaxIterations {
+				return fmt.Errorf("doloop: %w", ErrMaxIterationsExceeded(DefaultMaxIterations))
 			}
 			if err := state.DataPush(dtrules.GetRIntegerValueFromInt(i)); err != nil {
 				return err
@@ -617,4 +623,139 @@ func opExecuteTable(state dtrules.State) error {
 	}
 	// Call ExecuteTable which runs the decision tree directly without context
 	return dtObj.ExecuteTable(state)
+}
+
+// opPerformCatchError: ( table error_table error_entity -- )
+// Executes the main table. If a RulesException is thrown, creates an error entity,
+// populates it with error details, pushes it to the entity stack, and executes
+// the error handler table.
+//
+// The error entity is populated with the following fields (if defined):
+// - errortype: The type of error (e.g., "undefined", "typecheck")
+// - location: Where the error occurred
+// - message: The error message
+// - postfix: The postfix context if available
+//
+// This is critical for production rule systems that need to handle errors
+// gracefully without terminating execution.
+func opPerformCatchError(state dtrules.State) error {
+	// Pop error_entity name
+	errorEntityNameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	errorEntityName, err := errorEntityNameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+
+	// Pop error_table name
+	errorTableNameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	errorTableName, err := errorTableNameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+
+	// Pop main_table name
+	mainTableNameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	mainTableName, err := mainTableNameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+
+	// Look up and execute the main table
+	mainTable, err := state.Find(mainTableName)
+	if err != nil {
+		return err
+	}
+	if mainTable == nil {
+		return dtrules.UndefinedError("PerformCatchError",
+			"The table '"+mainTableName.StringValue()+"' is undefined")
+	}
+
+	// Execute main table and catch errors
+	mainErr := mainTable.Execute(state)
+	if mainErr != nil {
+		// Create an instance of the error entity
+		session := state.GetSession()
+		ef := session.GetEntityFactory()
+		errorEntity, createErr := ef.CreateEntity(session, errorEntityName)
+		if createErr != nil {
+			// If we can't create the error entity, return the original error
+			return mainErr
+		}
+
+		// Push the error entity to the entity stack
+		state.EntityPush(errorEntity)
+
+		// Populate error entity with error details
+		// If any of the puts fail (because the entity doesn't define the attribute),
+		// simply carry on - the user can define these fields if they need them
+		populateErrorEntity(errorEntity, mainErr)
+
+		// Look up and execute the error handler table
+		errorTable, err := state.Find(errorTableName)
+		if err != nil {
+			// Pop the error entity since we're returning
+			state.EntityPop()
+			return err
+		}
+		if errorTable == nil {
+			state.EntityPop()
+			return dtrules.UndefinedError("PerformCatchError",
+				"The error table '"+errorTableName.StringValue()+"' is undefined")
+		}
+
+		// Execute the error handler table
+		handlerErr := errorTable.Execute(state)
+		if handlerErr != nil {
+			// Pop the error entity and return the handler error
+			state.EntityPop()
+			return handlerErr
+		}
+
+		// Leave the error entity on the entity stack for the caller to use
+		// (they can pop it when done if needed)
+		return nil
+	}
+
+	return nil
+}
+
+// populateErrorEntity fills in the error details on an error entity.
+// Silently ignores errors from Put (attribute not defined).
+func populateErrorEntity(entity dtrules.Entity, err error) {
+	// Try to extract structured error info from RulesError
+	var rulesErr *dtrules.RulesError
+	if re, ok := err.(*dtrules.RulesError); ok {
+		rulesErr = re
+	}
+
+	// Helper to safely put a string value
+	putString := func(attrName string, value string) {
+		_ = entity.Put(dtrules.GetRName(attrName), dtrules.NewRString(value))
+	}
+
+	if rulesErr != nil {
+		// Populate from RulesError fields
+		putString("errortype", rulesErr.ErrorType)
+		putString("location", rulesErr.Location)
+		putString("message", rulesErr.Message)
+		putString("postfix", rulesErr.PostFix)
+		// 'formal' is the same as errortype in Java implementation
+		putString("formal", rulesErr.ErrorType)
+	} else {
+		// Generic error - populate what we can
+		putString("errortype", "execution")
+		putString("location", "")
+		putString("message", err.Error())
+		putString("postfix", "")
+		putString("formal", "execution")
+	}
 }

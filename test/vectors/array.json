@@ -1,0 +1,158 @@
+{
+  "name": "Array Operations",
+  "description": "Test vectors for array operators (newarray, addto, length, getat, etc.)",
+  "tests": [
+    {
+      "name": "newarray_empty",
+      "description": "Create empty array",
+      "operator": "newarray",
+      "inputs": [],
+      "expected": [],
+      "type": "array"
+    },
+    {
+      "name": "length_empty",
+      "description": "Length of empty array",
+      "operator": "length",
+      "inputs": [[]],
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "length_single",
+      "description": "Length of single element array",
+      "operator": "length",
+      "inputs": [[42]],
+      "expected": 1,
+      "type": "integer"
+    },
+    {
+      "name": "length_multiple",
+      "description": "Length of multiple element array",
+      "operator": "length",
+      "inputs": [[1, 2, 3, 4, 5]],
+      "expected": 5,
+      "type": "integer"
+    },
+    {
+      "name": "addto_empty",
+      "description": "Add to empty array",
+      "operator": "addto",
+      "inputs": [[], 42],
+      "expected": [42],
+      "type": "array"
+    },
+    {
+      "name": "addto_existing",
+      "description": "Add to existing array",
+      "operator": "addto",
+      "inputs": [[1, 2, 3], 4],
+      "expected": [1, 2, 3, 4],
+      "type": "array"
+    },
+    {
+      "name": "getat_first",
+      "description": "Get first element",
+      "operator": "getat",
+      "inputs": [[10, 20, 30], 0],
+      "expected": 10,
+      "type": "integer"
+    },
+    {
+      "name": "getat_middle",
+      "description": "Get middle element",
+      "operator": "getat",
+      "inputs": [[10, 20, 30], 1],
+      "expected": 20,
+      "type": "integer"
+    },
+    {
+      "name": "getat_last",
+      "description": "Get last element",
+      "operator": "getat",
+      "inputs": [[10, 20, 30], 2],
+      "expected": 30,
+      "type": "integer"
+    },
+    {
+      "name": "removeat_first",
+      "description": "Remove first element",
+      "operator": "removeat",
+      "inputs": [[1, 2, 3], 0],
+      "expected": [2, 3],
+      "type": "array"
+    },
+    {
+      "name": "removeat_middle",
+      "description": "Remove middle element",
+      "operator": "removeat",
+      "inputs": [[1, 2, 3], 1],
+      "expected": [1, 3],
+      "type": "array"
+    },
+    {
+      "name": "removeat_last",
+      "description": "Remove last element",
+      "operator": "removeat",
+      "inputs": [[1, 2, 3], 2],
+      "expected": [1, 2],
+      "type": "array"
+    },
+    {
+      "name": "first_basic",
+      "description": "Get first element",
+      "operator": "first",
+      "inputs": [[10, 20, 30]],
+      "expected": 10,
+      "type": "integer"
+    },
+    {
+      "name": "last_basic",
+      "description": "Get last element",
+      "operator": "last",
+      "inputs": [[10, 20, 30]],
+      "expected": 30,
+      "type": "integer"
+    },
+    {
+      "name": "memberof_true",
+      "description": "Element is member of array",
+      "operator": "memberof",
+      "inputs": [[1, 2, 3, 4, 5], 3],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "memberof_false",
+      "description": "Element is not member of array",
+      "operator": "memberof",
+      "inputs": [[1, 2, 3, 4, 5], 10],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "memberof_first",
+      "description": "First element is member",
+      "operator": "memberof",
+      "inputs": [[1, 2, 3], 1],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "memberof_last",
+      "description": "Last element is member",
+      "operator": "memberof",
+      "inputs": [[1, 2, 3], 3],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "copy_array",
+      "description": "Copy creates independent array",
+      "operator": "copy",
+      "inputs": [[1, 2, 3]],
+      "expected": [1, 2, 3],
+      "type": "array"
+    }
+  ]
+}

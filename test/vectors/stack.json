@@ -1,0 +1,142 @@
+{
+  "name": "Stack Operations",
+  "description": "Test vectors for stack operators (pop, dup, swap, rot, over, pick, roll)",
+  "tests": [
+    {
+      "name": "dup_integer",
+      "description": "Duplicate integer on stack",
+      "operator": "dup",
+      "stack_before": [42],
+      "stack_after": [42, 42],
+      "type": "stack"
+    },
+    {
+      "name": "dup_zero",
+      "description": "Duplicate zero on stack",
+      "operator": "dup",
+      "stack_before": [0],
+      "stack_after": [0, 0],
+      "type": "stack"
+    },
+    {
+      "name": "swap_two",
+      "description": "Swap top two elements",
+      "operator": "swap",
+      "stack_before": [1, 2],
+      "stack_after": [2, 1],
+      "type": "stack"
+    },
+    {
+      "name": "swap_with_three",
+      "description": "Swap with three elements (bottom unchanged)",
+      "operator": "swap",
+      "stack_before": [1, 2, 3],
+      "stack_after": [1, 3, 2],
+      "type": "stack"
+    },
+    {
+      "name": "rot_three",
+      "description": "Rotate top three elements",
+      "operator": "rot",
+      "stack_before": [1, 2, 3],
+      "stack_after": [2, 3, 1],
+      "type": "stack"
+    },
+    {
+      "name": "rot_with_four",
+      "description": "Rotate with four elements (bottom unchanged)",
+      "operator": "rot",
+      "stack_before": [0, 1, 2, 3],
+      "stack_after": [0, 2, 3, 1],
+      "type": "stack"
+    },
+    {
+      "name": "over_two",
+      "description": "Copy second to top",
+      "operator": "over",
+      "stack_before": [1, 2],
+      "stack_after": [1, 2, 1],
+      "type": "stack"
+    },
+    {
+      "name": "over_three",
+      "description": "Copy second to top with three",
+      "operator": "over",
+      "stack_before": [1, 2, 3],
+      "stack_after": [1, 2, 3, 2],
+      "type": "stack"
+    },
+    {
+      "name": "pick_0",
+      "description": "Pick top element (same as dup)",
+      "operator": "pick",
+      "stack_before": [1, 2, 3, 0],
+      "stack_after": [1, 2, 3, 3],
+      "type": "stack"
+    },
+    {
+      "name": "pick_1",
+      "description": "Pick second element (same as over)",
+      "operator": "pick",
+      "stack_before": [1, 2, 3, 1],
+      "stack_after": [1, 2, 3, 2],
+      "type": "stack"
+    },
+    {
+      "name": "pick_2",
+      "description": "Pick third element",
+      "operator": "pick",
+      "stack_before": [1, 2, 3, 2],
+      "stack_after": [1, 2, 3, 1],
+      "type": "stack"
+    },
+    {
+      "name": "roll_2",
+      "description": "Roll top 2 elements",
+      "operator": "roll",
+      "stack_before": [1, 2, 3, 2],
+      "stack_after": [1, 3, 2],
+      "type": "stack"
+    },
+    {
+      "name": "roll_3",
+      "description": "Roll top 3 elements",
+      "operator": "roll",
+      "stack_before": [0, 1, 2, 3, 3],
+      "stack_after": [0, 2, 3, 1],
+      "type": "stack"
+    },
+    {
+      "name": "pop_single",
+      "description": "Pop single element",
+      "operator": "pop",
+      "stack_before": [42],
+      "stack_after": [],
+      "type": "stack"
+    },
+    {
+      "name": "pop_with_others",
+      "description": "Pop leaves others intact",
+      "operator": "pop",
+      "stack_before": [1, 2, 3],
+      "stack_after": [1, 2],
+      "type": "stack"
+    },
+    {
+      "name": "clear_all",
+      "description": "Clear removes all elements",
+      "operator": "clear",
+      "stack_before": [1, 2, 3, 4, 5],
+      "stack_after": [],
+      "type": "stack"
+    },
+    {
+      "name": "clear_empty",
+      "description": "Clear empty stack is no-op",
+      "operator": "clear",
+      "stack_before": [],
+      "stack_after": [],
+      "type": "stack"
+    }
+  ]
+}

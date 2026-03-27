@@ -19,17 +19,28 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // ANode executes a list of actions.
 // It represents a leaf node in the decision tree.
 type ANode struct {
-	decisionTable *RDecisionTable  // The Decision Table to which this ANode belongs
-	actions       []dtrules.Object // The compiled action code to execute
-	actionNumbers []int            // The action numbers (0-based, for tracing)
-	columns       []int            // Column numbers that lead to this node (1-based)
-	star          bool             // Whether this column has a star
+	decisionTable   *RDecisionTable          // The Decision Table to which this ANode belongs
+	actions         []dtrules.Object         // The compiled action code to execute (Go interpreter)
+	actionBytecodes []*dtrules.BytecodeChunk // Compiled bytecode for actions (for ASM execution)
+	actionNumbers   []int                    // The action numbers (0-based, for tracing)
+	columns         []int                    // Column numbers that lead to this node (1-based)
+	star            bool                     // Whether this column has a star
+}
+
+// SetActionBytecodes sets the bytecode for all actions.
+func (a *ANode) SetActionBytecodes(bcs []*dtrules.BytecodeChunk) {
+	a.actionBytecodes = bcs
+}
+
+// GetActionBytecodes returns the bytecode for all actions.
+func (a *ANode) GetActionBytecodes() []*dtrules.BytecodeChunk {
+	return a.actionBytecodes
 }
 
 // NewANode creates a new empty ANode for the given decision table

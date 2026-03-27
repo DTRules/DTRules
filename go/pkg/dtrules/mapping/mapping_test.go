@@ -18,9 +18,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
 )
 
 // mockSession implements minimal Session for testing

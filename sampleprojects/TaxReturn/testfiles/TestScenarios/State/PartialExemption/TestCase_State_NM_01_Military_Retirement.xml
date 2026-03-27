@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- New Mexico Military Retirement Test Case -->
+   <!-- Test Case NM-Military-01: Military retirement ($30,000 exemption) -->
+   <!-- NM provides flat $30,000 exemption for military retirement (2025) -->
+
+   <id>NM-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>NM</state>
+   <city>Albuquerque</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $48,000 military retirement + $40,000 W2 = $88,000 -->
+   <!-- AGI: $88,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $73,000 -->
+   <!-- Federal Tax: ~$10,200 -->
+   <!-- NM: Progressive tax (up to 5.9%) -->
+   <!-- NM Military Retirement Exemption: $30,000 -->
+   <!-- NM Taxable Retirement: $48,000 - $30,000 = $18,000 -->
+   <!-- NM Taxable Income: $18,000 + $40,000 = $58,000 -->
+   <!-- NM Tax (progressive brackets): ~$3,200 -->
+   <!-- Total Tax: $13,400 -->
+   <!-- Withholding: $14,500 -->
+   <!-- Refund: $1,100 -->
+   <expected_agi>88000</expected_agi>
+   <expected_taxable_income>73000</expected_taxable_income>
+   <expected_total_tax>13400</expected_total_tax>
+   <expected_state_tax>3200</expected_state_tax>
+   <expected_refund>1100</expected_refund>
+
+   <!-- Retired Military Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Daniel</name>
+         <last_name>Martinez</last_name>
+         <ssn>111-22-3344</ssn>
+         <date_of_birth>10/5/1963</date_of_birth>
+         <occupation>Military Retiree - IT Specialist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>14500</w2_withholding>
+         <military_retirement_pay>48000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,107 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 4: Remote Worker (NC Resident, CA Company) -->
+   <!-- Remote worker living in NC, employed by CA company -->
+   <!-- Tests: Source income allocation, convenience of employer rules (CA doesn't apply) -->
+   <!-- NC resident, all work performed in NC, no CA tax (employer location irrelevant) -->
+   <id>MS-04-NC-CA</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>NC</state>
+   <city>Charlotte</city>
+
+   <!-- Expected values for validation -->
+   <!-- Total W-2 Income: $135,000 (all NC-source, work performed in NC) -->
+   <!-- CA does NOT tax remote workers (unlike NY) -->
+   <!-- NC Resident Tax: On full $135,000 -->
+   <!-- No CA tax: All work performed in NC, not for convenience -->
+   <expected_agi>135000</expected_agi>
+   <expected_taxable_income>121150</expected_taxable_income>
+   <expected_nc_resident_income>135000</expected_nc_resident_income>
+   <expected_ca_nonresident_income>0</expected_ca_nonresident_income>
+
+   <!-- State Periods -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>NC</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+         <days_in_state>365</days_in_state>
+         <days_worked_in_state>240</days_worked_in_state>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>CA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+         <days_worked_in_state>0</days_worked_in_state>
+         <employer_location>true</employer_location>
+      </state_period>
+   </state_periods>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Amanda Wilson</name>
+         <ssn>890-12-3456</ssn>
+         <date_of_birth>4/25/1990</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>135000</w2_wages>
+         <w2_withholding>24000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Tech Corp (CA HQ)</source>
+         <gross_amount>135000</gross_amount>
+         <withholding>24000</withholding>
+         <state_code>NC</state_code>
+         <state_period_id>1</state_period_id>
+         <work_location>Charlotte, NC (Remote)</work_location>
+         <employer_location>San Francisco, CA</employer_location>
+         <days_worked_in_nc>240</days_worked_in_nc>
+         <days_worked_in_ca>0</days_worked_in_ca>
+         <remote_work_arrangement>true</remote_work_arrangement>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

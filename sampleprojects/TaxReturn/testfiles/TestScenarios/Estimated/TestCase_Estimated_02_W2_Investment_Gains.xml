@@ -1,0 +1,111 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 2210 - W-2 Employee with Large Investment Gains -->
+   <!-- Scenario: Employee had withholding from W-2, but large capital gains with no estimated payments -->
+   <!-- Tests quarterly penalty calculation on investment income underpayment -->
+
+   <id>EST-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+
+   <!-- Expected calculations: -->
+   <!-- W-2 wages: $140,000 (withholding $20,000) -->
+   <!-- LTCG: $100,000 (realized in Q3) -->
+   <!-- AGI: $140,000 + $100,000 = $240,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable: $240,000 - $30,000 = $210,000 -->
+   <!-- Ordinary income taxable: $140,000 - $30,000 = $110,000 -->
+   <!-- Ordinary tax: ~$15,940 -->
+   <!-- LTCG tax: $100,000 x 15% = $15,000 -->
+   <!-- Total tax: $15,940 + $15,000 = $30,940 -->
+   <!-- W-2 withholding: $20,000 -->
+   <!-- Required annual payment (90% current): $30,940 x 0.90 = $27,846 -->
+   <!-- Required quarterly: $27,846 / 4 = $6,962 -->
+   <!-- Q1-Q2 covered by withholding pro-rata: ~$10,000 -->
+   <!-- Q3-Q4 underpaid due to capital gains realization -->
+   <!-- Q1 underpayment: $6,962 - $5,000 = $1,962 -->
+   <!-- Q2 underpayment: $6,962 - $5,000 = $1,962 -->
+   <!-- Q3 underpayment: $6,962 - $5,000 = $1,962 -->
+   <!-- Q4 underpayment: $6,962 - $5,000 = $1,962 -->
+   <!-- Penalty rate: 8% -->
+   <!-- Q1 penalty: $1,962 x 0.08 x (273/365) = $117 -->
+   <!-- Q2 penalty: $1,962 x 0.08 x (182/365) = $78 -->
+   <!-- Q3 penalty: $1,962 x 0.08 x (91/365) = $39 -->
+   <!-- Q4 penalty: $0 -->
+   <!-- Total penalty: $234 -->
+   <expected_agi>240000</expected_agi>
+   <expected_taxable_income>210000</expected_taxable_income>
+   <expected_total_tax>30940</expected_total_tax>
+   <expected_estimated_penalty>234</expected_estimated_penalty>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Chen</name>
+         <ssn>902-33-4455</ssn>
+         <date_of_birth>03/18/1978</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>140000</w2_wages>
+         <w2_withholding>20000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Chen</name>
+         <ssn>902-33-5566</ssn>
+         <date_of_birth>07/22/1980</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+
+   <!-- Capital gains realized in Q3 -->
+   <investments>
+      <investment id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <description>Stock Sale - Tech Portfolio</description>
+         <date_acquired>01/15/2020</date_acquired>
+         <date_sold>08/20/2025</date_sold>
+         <cost_basis>50000</cost_basis>
+         <sale_proceeds>150000</sale_proceeds>
+         <long_term_gain>100000</long_term_gain>
+      </investment>
+   </investments>
+
+   <deductions></deductions>
+
+   <!-- No estimated payments made -->
+   <estimated_payments></estimated_payments>
+
+   <!-- Prior year tax data -->
+   <prior_year>
+      <tax_year>2024</tax_year>
+      <total_tax>18000</total_tax>
+      <agi>145000</agi>
+   </prior_year>
+</job>

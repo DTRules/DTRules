@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: forms
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 9 entities categorized as 'forms'.
+-->
+	<file_metadata>
+		<file_path>core/06000_forms_entities</file_path>
+	</file_metadata>
+	<entity name="household_employee" access="rw" comment="Household employee (nanny, housekeeper, etc.)">
+		<field name="household_employee" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Employee name" />
+		<field name="ssn" type="string" subtype="" access="r" input="main" default_value="" comment="Employee SSN" />
+		<field name="wages_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash wages paid" />
+		<field name="federal_income_tax_withheld" type="double" subtype="" access="r" input="main" default_value="0" comment="Federal income tax withheld (optional)" />
+	</entity>
+	<entity name="ira_account" xls_file="Forms.xls" access="rw" comment="IRA account for basis tracking and conversions">
+		<field name="ira_account" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Account ID" />
+		<field name="account_type" type="string" subtype="" access="r" input="main" default_value="traditional" comment="Type: traditional, roth, sep, simple" />
+		<field name="institution" type="string" subtype="" access="r" input="main" default_value="" comment="Financial institution" />
+		<field name="account_number" type="string" subtype="" access="r" input="main" default_value="" comment="Account number (last 4)" />
+		<field name="year_end_balance" type="double" subtype="" access="r" input="main" default_value="0" comment="Balance as of 12/31" />
+		<field name="prior_year_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Cumulative non-deductible basis from prior years" />
+		<field name="contribution_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Current year contribution" />
+		<field name="contribution_deductible" type="boolean" subtype="" access="rw" input="" default_value="true" comment="Whether contribution is deductible (computed)" />
+		<field name="conversion_to_roth" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount converted to Roth IRA" />
+		<field name="distribution_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Non-conversion distributions taken" />
+		<field name="total_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Total non-deductible basis (computed)" />
+		<field name="taxable_conversion" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of conversion (computed)" />
+		<field name="taxable_distribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of distribution (computed)" />
+		<field name="nontaxable_portion" type="double" subtype="" access="rw" input="" default_value="0" comment="Non-taxable portion (basis recovery)" />
+	</entity>
+	<entity name="early_distribution" xls_file="Forms.xls" access="rw" comment="Form 5329 Early Distribution from Retirement Account">
+		<field name="early_distribution" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Distribution ID" />
+		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID" />
+		<field name="account_type" type="string" subtype="" access="r" input="main" default_value="ira" comment="Account type: ira, 401k, 403b, 457, roth_ira" />
+		<field name="institution" type="string" subtype="" access="r" input="main" default_value="" comment="Financial institution" />
+		<field name="distribution_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross distribution (Form 1099-R Box 1)" />
+		<field name="taxable_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Taxable amount (Form 1099-R Box 2a)" />
+		<field name="distribution_code" type="string" subtype="" access="r" input="main" default_value="" comment="Distribution code (Form 1099-R Box 7)" />
+		<field name="exception_code" type="string" subtype="" access="r" input="main" default_value="" comment="Exception code: 01-disability, 02-death, 03-medical, 04-sepp, 05-separation, 06-dividend, 07-levy, 08-military, 09-birth_adoption, 10-disaster, 11-domestic_abuse, 12-terminal" />
+		<field name="age_at_distribution" type="integer" subtype="" access="r" input="main" default_value="0" comment="Age at time of distribution" />
+		<field name="subject_to_penalty" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Subject to 10% penalty (computed)" />
+		<field name="penalty_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Early withdrawal penalty (10%)" />
+		<field name="exception_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount excepted from penalty" />
+	</entity>
+	<entity name="child_unearned_income" xls_file="Forms.xls" access="rw" comment="Form 8615 Kiddie Tax">
+		<field name="child_unearned_income" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Record ID" />
+		<field name="dependent_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated dependent ID" />
+		<field name="child_age" type="integer" subtype="" access="r" input="main" default_value="" comment="Child age at year end" />
+		<field name="is_student" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Full-time student (extends to age 24)" />
+		<field name="child_earned_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Child earned income" />
+		<field name="unearned_income_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Child unearned income (interest, dividends, CG)" />
+		<field name="child_itemized_deductions" type="double" subtype="" access="r" input="main" default_value="0" comment="Child itemized deductions allocable to unearned" />
+		<field name="parent_taxable_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Parent taxable income (for tax rate)" />
+		<field name="parent_filing_status" type="string" subtype="" access="r" input="main" default_value="MFJ" comment="Parent filing status" />
+		<field name="subject_to_kiddie_tax" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Subject to kiddie tax (computed)" />
+		<field name="net_unearned_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net unearned income subject to kiddie tax" />
+		<field name="kiddie_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional tax from kiddie tax" />
+	</entity>
+	<entity name="estimated_payment" xls_file="Forms.xls" access="rw" comment="Estimated Tax Payment for Form 2210">
+		<field name="estimated_payment" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Payment ID" />
+		<field name="quarter" type="integer" subtype="" access="r" input="main" default_value="" comment="Quarter: 1, 2, 3, or 4" />
+		<field name="due_date" type="date" subtype="" access="r" input="main" default_value="" comment="Due date for quarter" />
+		<field name="payment_date" type="date" subtype="" access="r" input="main" default_value="" comment="Actual payment date" />
+		<field name="payment_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount paid" />
+		<field name="required_payment" type="double" subtype="" access="rw" input="" default_value="0" comment="Required quarterly payment" />
+		<field name="underpayment" type="double" subtype="" access="rw" input="" default_value="0" comment="Underpayment amount" />
+		<field name="days_late" type="integer" subtype="" access="rw" input="" default_value="0" comment="Days payment was late" />
+		<field name="penalty_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Penalty for this quarter" />
+	</entity>
+	<entity name="household_employee" xls_file="Forms.xls" access="rw" comment="Schedule H Household Employment">
+		<field name="household_employee" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Employee ID" />
+		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Employee name" />
+		<field name="ssn" type="string" subtype="" access="r" input="main" default_value="" comment="Employee SSN" />
+		<field name="cash_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash wages paid" />
+		<field name="federal_withholding" type="double" subtype="" access="r" input="main" default_value="0" comment="Federal income tax withheld" />
+		<field name="ss_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Social Security wages" />
+		<field name="medicare_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Medicare wages" />
+		<field name="futa_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="FUTA wages (first $7,000)" />
+		<field name="state_unemployment_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="State unemployment tax paid" />
+		<field name="ss_tax_employer" type="double" subtype="" access="rw" input="" default_value="0" comment="Employer SS tax (6.2%)" />
+		<field name="medicare_tax_employer" type="double" subtype="" access="rw" input="" default_value="0" comment="Employer Medicare tax (1.45%)" />
+		<field name="futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax (0.6% after credit)" />
+		<field name="total_household_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment taxes" />
+	</entity>
+	<entity name="nol_carryover" xls_file="Forms.xls" access="rw" comment="Net Operating Loss Carryover">
+		<field name="nol_carryover" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="NOL ID" />
+		<field name="origin_year" type="integer" subtype="" access="r" input="main" default_value="" comment="Year NOL originated" />
+		<field name="original_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Original NOL amount" />
+		<field name="amount_used_prior" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount used in prior years" />
+		<field name="amount_available" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount available this year" />
+		<field name="is_farming_loss" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Farming loss (special rules)" />
+		<field name="deduction_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="80% of taxable income limit" />
+		<field name="amount_used" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount used this year" />
+		<field name="remaining_carryover" type="double" subtype="" access="rw" input="" default_value="0" comment="Remaining carryover" />
+	</entity>
+	<entity name="partnership_audit" xls_file="Forms.xls" access="rw" comment="Form 8978 Partners Additional Reporting Year Tax (BBA audits)">
+		<field name="partnership_audit" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Audit ID" />
+		<field name="partnership_name" type="string" subtype="" access="r" input="main" default_value="" comment="Partnership name" />
+		<field name="partnership_ein" type="string" subtype="" access="r" input="main" default_value="" comment="Partnership EIN" />
+		<field name="reviewed_year" type="integer" subtype="" access="r" input="main" default_value="" comment="Tax year being reviewed" />
+		<field name="adjustment_year" type="integer" subtype="" access="r" input="main" default_value="" comment="Adjustment year (current year)" />
+		<field name="ordinary_income_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to ordinary income" />
+		<field name="capital_gain_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to capital gains" />
+		<field name="section_1231_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to Section 1231 gains" />
+		<field name="dividend_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to dividends" />
+		<field name="interest_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to interest" />
+		<field name="rental_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to rental income" />
+		<field name="other_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Other adjustments" />
+		<field name="credit_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to tax credits" />
+		<field name="total_income_adjustment" type="double" subtype="" access="rw" input="" default_value="0" comment="Total income adjustments" />
+		<field name="additional_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional tax due from adjustments" />
+		<field name="interest_on_adjustment" type="double" subtype="" access="rw" input="" default_value="0" comment="Interest on underpayment" />
+		<field name="total_amount_due" type="double" subtype="" access="rw" input="" default_value="0" comment="Total amount due including interest" />
+	</entity>
+	<entity name="lihtc_recapture" xls_file="Credits.xls" access="rw" comment="Form 8611 Recapture of Low-Income Housing Credit">
+		<field name="lihtc_recapture" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Record ID" />
+		<field name="building_name" type="string" subtype="" access="r" input="main" default_value="" comment="Building name or address" />
+		<field name="building_identification" type="string" subtype="" access="r" input="main" default_value="" comment="Building identification number (BIN)" />
+		<field name="date_placed_in_service" type="date" subtype="" access="r" input="main" default_value="" comment="Date building placed in service" />
+		<field name="recapture_event_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date of recapture event" />
+		<field name="recapture_event_type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: disposition, noncompliance, change_use" />
+		<field name="accelerated_portion" type="double" subtype="" access="r" input="main" default_value="0" comment="Accelerated portion of credit previously claimed" />
+		<field name="total_credits_claimed" type="double" subtype="" access="r" input="main" default_value="0" comment="Total LIHTC credits claimed in prior years" />
+		<field name="percentage_decrease" type="double" subtype="" access="r" input="main" default_value="0" comment="Percentage decrease in qualified basis" />
+		<field name="recapture_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit recapture amount" />
+		<field name="interest_on_recapture" type="double" subtype="" access="rw" input="" default_value="0" comment="Interest on recaptured credit" />
+		<field name="total_recapture_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total tax including interest" />
+	</entity>
+</entity_data_dictionary>

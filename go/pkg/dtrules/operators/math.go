@@ -18,7 +18,7 @@ package operators
 import (
 	"math"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func init() {
@@ -35,6 +35,8 @@ func init() {
 	Register("/", opDiv)
 	Alias("/", "div")
 	Alias("/", "ldiv")
+
+	Register("mod", opMod)
 
 	Register("abs", opAbs)
 	Register("negate", opNegate)
@@ -56,9 +58,17 @@ func init() {
 	Register("fnegate", opFNegate)
 
 	Register("roundto", opRoundTo)
+	Register("ceiling", opCeiling)
+	Alias("ceiling", "ceil")
+	Register("floor", opFloor)
+	Register("fmax", opFMax)
+	Register("fmin", opFMin)
+	Register("max", opMax)
+	Register("min", opMin)
 }
 
 // opAdd adds two integers: ( a b -- a+b )
+// Returns error on overflow.
 func opAdd(state dtrules.State) error {
 	b, err := state.DataPop()
 	if err != nil {
@@ -76,10 +86,16 @@ func opAdd(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(aVal + bVal))
+	result := aVal + bVal
+	// Check for overflow: if signs of inputs are same but result sign differs
+	if (aVal > 0 && bVal > 0 && result < 0) || (aVal < 0 && bVal < 0 && result > 0) {
+		return dtrules.NewRulesError("Math Exception", "+", "integer overflow")
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(result))
 }
 
 // opSub subtracts two integers: ( a b -- a-b )
+// Returns error on overflow.
 func opSub(state dtrules.State) error {
 	b, err := state.DataPop()
 	if err != nil {
@@ -97,10 +113,16 @@ func opSub(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(aVal - bVal))
+	result := aVal - bVal
+	// Check for overflow: subtracting negative is like adding positive, and vice versa
+	if (bVal < 0 && aVal > 0 && result < 0) || (bVal > 0 && aVal < 0 && result > 0) {
+		return dtrules.NewRulesError("Math Exception", "-", "integer overflow")
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(result))
 }
 
 // opMul multiplies two integers: ( a b -- a*b )
+// Returns error on overflow.
 func opMul(state dtrules.State) error {
 	b, err := state.DataPop()
 	if err != nil {
@@ -118,7 +140,12 @@ func opMul(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(aVal * bVal))
+	result := aVal * bVal
+	// Check for overflow: if b != 0 and result/b != a, overflow occurred
+	if bVal != 0 && result/bVal != aVal {
+		return dtrules.NewRulesError("Math Exception", "*", "integer overflow")
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(result))
 }
 
 // opDiv divides two integers: ( a b -- a/b )
@@ -143,6 +170,33 @@ func opDiv(state dtrules.State) error {
 		return dtrules.NewRulesError("Math Exception", "/", "Division by zero")
 	}
 	return state.DataPush(dtrules.GetRIntegerValue(aVal / bVal))
+}
+
+// opMod computes modulo of two integers: ( a b -- a%b )
+func opMod(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+
+	bVal, err := b.LongValue()
+	if err != nil {
+		return err
+	}
+	if bVal == 0 {
+		return dtrules.NewRulesError("Division By Zero", "mod", "cannot mod by zero")
+	}
+
+	aVal, err := a.LongValue()
+	if err != nil {
+		return err
+	}
+
+	return state.DataPush(dtrules.GetRIntegerValue(aVal % bVal))
 }
 
 // opAbs returns absolute value of integer: ( a -- |a| )
@@ -287,6 +341,32 @@ func opFNegate(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRDoubleValue(-aVal))
 }
 
+// opCeiling rounds up to nearest integer: ( a -- ceil(a) )
+func opCeiling(state dtrules.State) error {
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Ceil(aVal)))
+}
+
+// opFloor rounds down to nearest integer: ( a -- floor(a) )
+func opFloor(state dtrules.State) error {
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Floor(aVal)))
+}
+
 // opRoundTo rounds a number: ( number #places boundary -- number2 )
 func opRoundTo(state dtrules.State) error {
 	boundaryObj, err := state.DataPop()
@@ -347,4 +427,94 @@ func opRoundTo(state dtrules.State) error {
 	}
 
 	return state.DataPush(dtrules.GetRDoubleValue(number))
+}
+
+// opFMax returns the maximum of two doubles: ( a b -- max(a,b) )
+func opFMax(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Max(aVal, bVal)))
+}
+
+// opFMin returns the minimum of two doubles: ( a b -- min(a,b) )
+func opFMin(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.DoubleValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.DoubleValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRDoubleValue(math.Min(aVal, bVal)))
+}
+
+// opMax returns the maximum of two integers: ( a b -- max(a,b) )
+func opMax(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.IntValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.IntValue()
+	if err != nil {
+		return err
+	}
+	if aVal > bVal {
+		return state.DataPush(dtrules.GetRIntegerValueFromInt(aVal))
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(bVal))
+}
+
+// opMin returns the minimum of two integers: ( a b -- min(a,b) )
+func opMin(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.IntValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.IntValue()
+	if err != nil {
+		return err
+	}
+	if aVal < bVal {
+		return state.DataPush(dtrules.GetRIntegerValueFromInt(aVal))
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(bVal))
 }

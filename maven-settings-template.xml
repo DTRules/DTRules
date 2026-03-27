@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Maven settings template for DTRules Maven Central deployment.
+
+  Copy this file to ~/.m2/settings.xml and fill in your credentials:
+  - YOUR_SONATYPE_USERNAME: Your Sonatype JIRA/OSSRH username
+  - YOUR_SONATYPE_PASSWORD: Your Sonatype JIRA/OSSRH password
+  - YOUR_GPG_PASSPHRASE: Passphrase for your GPG signing key
+
+  To get Sonatype credentials:
+  1. Create account at https://issues.sonatype.org
+  2. Request access to com.dtrules group if not already granted
+
+  To set up GPG:
+  1. Generate key: gpg --gen-key
+  2. List key ID: gpg --list-secret-keys --keyid-format LONG
+  3. Upload public key: gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <servers>
+    <!-- Sonatype OSSRH (Maven Central) -->
+    <server>
+      <id>sonatype-nexus-snapshots</id>
+      <username>YOUR_SONATYPE_USERNAME</username>
+      <password>YOUR_SONATYPE_PASSWORD</password>
+    </server>
+    <server>
+      <id>sonatype-nexus-staging</id>
+      <username>YOUR_SONATYPE_USERNAME</username>
+      <password>YOUR_SONATYPE_PASSWORD</password>
+    </server>
+  </servers>
+
+  <profiles>
+    <profile>
+      <id>gpg-signing</id>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.passphrase>YOUR_GPG_PASSPHRASE</gpg.passphrase>
+        <!-- Optional: specify key if you have multiple -->
+        <!-- <gpg.keyname>YOUR_KEY_ID</gpg.keyname> -->
+      </properties>
+    </profile>
+
+    <profile>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+      </properties>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>gpg-signing</activeProfile>
+    <activeProfile>ossrh</activeProfile>
+  </activeProfiles>
+
+</settings>
