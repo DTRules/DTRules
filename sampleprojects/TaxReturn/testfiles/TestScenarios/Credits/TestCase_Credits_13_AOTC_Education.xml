@@ -1,0 +1,73 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Education Credit Test: AOTC for college student -->
+   <!-- American Opportunity Tax Credit (AOTC) -->
+   <!-- 2025 AOTC: max $2,500 per student -->
+   <!-- Formula: 100% of first $2,000 + 25% of next $2,000 -->
+   <!-- Phaseout: $160,000 - $180,000 MFJ -->
+   <!-- Up to 40% refundable ($1,000) -->
+
+   <id>Credits-13</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $110,000 combined W-2 (below phaseout) -->
+   <!-- AGI: $110,000 -->
+   <!-- Qualified education expenses: $8,000 (tuition) -->
+   <!-- AOTC: 100% × $2,000 + 25% × $2,000 = $2,500 -->
+   <!-- Expected AOTC: $2,500 (40% refundable = $1,000) -->
+   <expected_agi>110000</expected_agi>
+   <expected_education_credit>2500</expected_education_credit>
+   <expected_refundable_education_credit>1000</expected_refundable_education_credit>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Thomas Bennett</name>
+         <ssn>555-77-9999</ssn>
+         <date_of_birth>12/10/1978</date_of_birth>
+         <occupation>Sales Manager</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>70000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Bennett</name>
+         <ssn>555-77-8888</ssn>
+         <date_of_birth>2/28/1980</date_of_birth>
+         <occupation>Administrative Assistant</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Brandon Bennett</name>
+         <ssn>666-88-9999</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>7/15/2005</date_of_birth>
+         <age>20</age>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>true</is_college_student>
+         <college_year>2</college_year>
+         <college_name>State University</college_name>
+         <aotc_used_years>1</aotc_used_years>
+         <tuition_paid>8000</tuition_paid>
+         <qualified_expenses>8000</qualified_expenses>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

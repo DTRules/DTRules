@@ -1,0 +1,119 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+   =====================================================================
+   FLORIDA (FL) - NO STATE INCOME TAX TEST CASE
+   =====================================================================
+
+   Florida has NO state income tax on any type of income:
+   - Pension income: NOT TAXED
+   - Social Security benefits: NOT TAXED
+   - Investment income (dividends/interest): NOT TAXED
+   - All other income types: NOT TAXED
+
+   Florida is one of 9 states with no personal income tax.
+   This makes Florida particularly attractive to retirees.
+
+   This test case validates:
+   - Pension income ($45,000) is NOT taxed
+   - Social Security benefits ($30,000) are NOT taxed (also not federally taxed)
+   - Dividend income ($15,000) is NOT taxed
+   - Interest income ($5,000) is NOT taxed
+   - State tax = $0 for all retirement income
+
+   Income breakdown:
+   - Pension income: $45,000
+   - Social Security: $30,000 (not taxable federally at this income level)
+   - Qualified dividends: $15,000
+   - Interest income: $5,000
+   - Total for AGI: $65,000 (SS excluded)
+
+   Expected Results:
+   - Federal AGI: ~$65,000 (excludes non-taxable SS)
+   - Federal Taxable: ~$50,000 (after standard deduction)
+   - Federal Tax: ~$5,500 (approximate, with preferential dividend rate)
+   - FL State Tax: $0 (no income tax)
+   =====================================================================
+   -->
+
+   <id>FL-NoTax-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Tampa</city>
+
+   <!-- Expected Values for Validation -->
+   <expected_agi>65000</expected_agi>
+   <expected_taxable_income>50000</expected_taxable_income>
+   <expected_federal_tax>5500</expected_federal_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_total_tax>5500</expected_total_tax>
+
+   <!-- Retired Couple - Florida Residents -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Charles Martinez</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>3/10/1955</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <pension_income>45000</pension_income>
+         <pension_withholding>4500</pension_withholding>
+         <social_security>30000</social_security>
+         <interest_income>5000</interest_income>
+         <dividend_income>15000</dividend_income>
+         <qualified_dividends>15000</qualified_dividends>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Patricia Martinez</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>7/18/1957</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- No deductions -->
+   <deductions>
+   </deductions>
+</job>

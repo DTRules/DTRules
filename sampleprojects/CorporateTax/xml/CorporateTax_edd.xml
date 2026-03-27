@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_dictionary name="CorporateTax_Core_EDD">
+
+  <!-- Corporation Entity -->
+  <entity name="corporation">
+    <field name='ein' type='string' comment='Employer Identification Number'/>
+    <field name='corporation_name' type='string' comment='Legal name of corporation'/>
+    <field name='incorporation_date' type='date' comment='Date of incorporation'/>
+    <field name='business_code' type='string' comment='Principal Business Activity Code'/>
+    <field name='accounting_method' type='string' comment='Accounting method: cash or accrual'/>
+    <field name='tax_year_end' type='date' comment='End of tax year'/>
+    <field name='total_assets' type='double' comment='Total assets (Schedule L)'/>
+    <field name='gross_receipts' type='double' comment='Gross receipts for the year'/>
+  </entity>
+
+  <!-- Revenue Entity -->
+  <entity name="revenue">
+    <field name='gross_receipts' type='double' default_value='0.0' comment='Gross receipts or sales (Form 1120 line 1a)'/>
+    <field name='returns_and_allowances' type='double' default_value='0.0' comment='Returns and allowances (Form 1120 line 1b)'/>
+    <field name='net_receipts' type='double' default_value='0.0' comment='Net receipts (line 1c = 1a - 1b)'/>
+    <field name='cost_of_goods_sold' type='double' default_value='0.0' comment='Cost of goods sold (Form 1120 line 2)'/>
+    <field name='gross_profit' type='double' default_value='0.0' comment='Gross profit (Form 1120 line 3 = 1c - 2)'/>
+    <field name='dividends_received' type='double' default_value='0.0' comment='Dividends (Form 1120 line 4)'/>
+    <field name='interest_income' type='double' default_value='0.0' comment='Interest income (Form 1120 line 5)'/>
+    <field name='gross_rents' type='double' default_value='0.0' comment='Gross rents (Form 1120 line 6)'/>
+    <field name='gross_royalties' type='double' default_value='0.0' comment='Gross royalties (Form 1120 line 7)'/>
+    <field name='capital_gain_net_income' type='double' default_value='0.0' comment='Capital gain net income (Form 1120 line 8)'/>
+    <field name='net_gain_loss_4797' type='double' default_value='0.0' comment='Net gain or loss from Form 4797'/>
+    <field name='other_income' type='double' default_value='0.0' comment='Other income (Form 1120 line 10)'/>
+    <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
+  </entity>
+
+  <!-- Expense Entity (for business deductions) -->
+  <entity name="expense">
+    <field name='category' type='string' comment='Expense category (compensation, rent, interest, etc.)'/>
+    <field name='amount' type='double' comment='Expense amount'/>
+    <field name='deductible' type='boolean' default_value='true' comment='Whether expense is deductible'/>
+    <field name='limitation_applied' type='string' comment='Any limitation applied (163j, charitable, etc.)'/>
+  </entity>
+
+  <!-- Asset Entity (for depreciation and Section 179) -->
+  <entity name="asset">
+    <field name='id' type='integer' comment='Unique asset ID'/>
+    <field name='description' type='string' comment='Asset description'/>
+    <field name='date_acquired' type='date' comment='Date asset was placed in service'/>
+    <field name='cost_basis' type='double' comment='Original cost basis of asset'/>
+    <field name='asset_class' type='string' comment='MACRS asset class (3-year, 5-year, 7-year, etc.)'/>
+    <field name='recovery_period' type='integer' comment='MACRS recovery period in years'/>
+    <field name='depreciation_method' type='string' comment='Depreciation method: MACRS, SL, DDB, 150DB'/>
+    <field name='convention' type='string' comment='Convention: half-year, mid-quarter, mid-month'/>
+    <field name='current_year_depreciation' type='double' default_value='0.0' comment='Depreciation for current tax year'/>
+    <field name='accumulated_depreciation' type='double' default_value='0.0' comment='Total depreciation taken to date'/>
+    <field name='section_179_deduction' type='double' default_value='0.0' comment='Section 179 expense deduction taken'/>
+    <field name='bonus_depreciation' type='double' default_value='0.0' comment='Bonus depreciation taken'/>
+    <field name='eligible_for_section_179' type='boolean' default_value='true' comment='Qualifies for Section 179 deduction'/>
+    <field name='eligible_for_bonus' type='boolean' default_value='true' comment='Qualifies for bonus depreciation'/>
+    <field name='listed_property' type='boolean' default_value='false' comment='Listed property (vehicles, computers, etc.)'/>
+    <field name='business_use_percentage' type='double' default_value='1.0' comment='Percentage of business use (0.0 to 1.0)'/>
+  </entity>
+
+  <!-- Result Entity (tax calculation results and audit trail) -->
+  <entity name="result">
+    <!-- Federal Income -->
+    <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
+
+    <!-- Federal Deductions -->
+    <field name='compensation' type='double' default_value='0.0' comment='Compensation of officers (Form 1120 line 12)'/>
+    <field name='salaries_and_wages' type='double' default_value='0.0' comment='Salaries and wages (Form 1120 line 13)'/>
+    <field name='repairs_and_maintenance' type='double' default_value='0.0' comment='Repairs and maintenance (Form 1120 line 14)'/>
+    <field name='bad_debts' type='double' default_value='0.0' comment='Bad debts (Form 1120 line 15)'/>
+    <field name='rents' type='double' default_value='0.0' comment='Rents (Form 1120 line 16)'/>
+    <field name='taxes_and_licenses' type='double' default_value='0.0' comment='Taxes and licenses (Form 1120 line 17)'/>
+    <field name='interest_expense' type='double' default_value='0.0' comment='Interest expense (Form 1120 line 18)'/>
+    <field name='charitable_contributions' type='double' default_value='0.0' comment='Charitable contributions (Form 1120 line 19)'/>
+    <field name='depreciation' type='double' default_value='0.0' comment='Depreciation (Form 1120 line 20)'/>
+    <field name='depletion' type='double' default_value='0.0' comment='Depletion (Form 1120 line 21)'/>
+    <field name='advertising' type='double' default_value='0.0' comment='Advertising (Form 1120 line 22)'/>
+    <field name='pension_profit_sharing' type='double' default_value='0.0' comment='Pension, profit-sharing plans (Form 1120 line 23)'/>
+    <field name='employee_benefit_programs' type='double' default_value='0.0' comment='Employee benefit programs (Form 1120 line 24)'/>
+    <field name='other_deductions' type='double' default_value='0.0' comment='Other deductions (Form 1120 line 26)'/>
+    <field name='total_deductions' type='double' default_value='0.0' comment='Total deductions (Form 1120 line 27)'/>
+
+    <!-- Depreciation Tracking (Form 4562) -->
+    <field name='section_179_total' type='double' default_value='0.0' comment='Total Section 179 deduction (Form 4562 Part I)'/>
+    <field name='section_179_limit' type='double' default_value='1220000.0' comment='Section 179 annual limit (2025: $1,220,000)'/>
+    <field name='section_179_phaseout_threshold' type='double' default_value='3050000.0' comment='Section 179 phaseout threshold (2025: $3,050,000)'/>
+    <field name='bonus_depreciation_total' type='double' default_value='0.0' comment='Total bonus depreciation (Form 4562 Part II)'/>
+    <field name='bonus_depreciation_rate' type='double' default_value='0.0' comment='Bonus depreciation rate (0% for 2025)'/>
+    <field name='macrs_depreciation_total' type='double' default_value='0.0' comment='Total MACRS depreciation (Form 4562 Part III)'/>
+
+    <!-- Taxable Income and Tax -->
+    <field name='taxable_income' type='double' default_value='0.0' comment='Taxable income (Form 1120 line 28 = 11 - 27)'/>
+    <field name='federal_tax_rate' type='double' default_value='0.21' comment='Federal corporate tax rate (21% flat rate)'/>
+    <field name='federal_tax' type='double' default_value='0.0' comment='Federal income tax (Form 1120 line 31 = 28 × 21%)'/>
+
+    <!-- Credits and Payments (Form 3800) -->
+    <field name='general_business_credit' type='double' default_value='0.0' comment='General business credit (Form 3800)'/>
+    <field name='research_development_credit' type='double' default_value='0.0' comment='Research & development credit (Form 6765)'/>
+    <field name='work_opportunity_credit' type='double' default_value='0.0' comment='Work opportunity tax credit (Form 5884)'/>
+    <field name='total_credits' type='double' default_value='0.0' comment='Total tax credits (Form 1120)'/>
+    <field name='estimated_tax_payments' type='double' default_value='0.0' comment='Estimated tax payments'/>
+    <field name='total_payments' type='double' default_value='0.0' comment='Total payments and credits'/>
+
+    <!-- Final Amount -->
+    <field name='refund_or_owed' type='double' default_value='0.0' comment='Refund (positive) or amount owed (negative)'/>
+
+    <!-- Audit Trail -->
+    <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
+  </entity>
+
+  <!-- Apportionment Entity (for state tax allocation) -->
+  <entity name="apportionment">
+    <field name='state_code' type='string' comment='Two-letter state code (e.g., CA, NY, TX)'/>
+
+    <!-- Nexus Determination -->
+    <field name='has_physical_presence' type='boolean' default_value='false' comment='Has physical presence in state (office, employees, property)'/>
+    <field name='has_economic_nexus' type='boolean' default_value='false' comment='Meets economic nexus threshold (post-Wayfair)'/>
+    <field name='gross_receipts_in_state' type='double' default_value='0.0' comment='Gross receipts sourced to state'/>
+    <field name='transactions_in_state' type='integer' default_value='0' comment='Number of transactions in state'/>
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0' comment='Economic nexus threshold (typically $100K)'/>
+    <field name='transaction_threshold' type='integer' default_value='200' comment='Transaction count threshold (typically 200)'/>
+
+    <!-- Property Factor -->
+    <field name='property_beginning_balance' type='double' default_value='0.0' comment='Property in state at beginning of year'/>
+    <field name='property_ending_balance' type='double' default_value='0.0' comment='Property in state at end of year'/>
+    <field name='property_average' type='double' default_value='0.0' comment='Average property in state'/>
+    <field name='property_total_average' type='double' default_value='0.0' comment='Average property everywhere'/>
+    <field name='property_factor' type='double' default_value='0.0' comment='Property factor (state / total)'/>
+
+    <!-- Payroll Factor -->
+    <field name='payroll_in_state' type='double' default_value='0.0' comment='Total compensation paid in state'/>
+    <field name='payroll_total' type='double' default_value='0.0' comment='Total compensation everywhere'/>
+    <field name='payroll_factor' type='double' default_value='0.0' comment='Payroll factor (state / total)'/>
+
+    <!-- Sales Factor -->
+    <field name='sales_in_state' type='double' default_value='0.0' comment='Sales sourced to state'/>
+    <field name='sales_total' type='double' default_value='0.0' comment='Sales everywhere'/>
+    <field name='sales_factor' type='double' default_value='0.0' comment='Sales factor (state / total)'/>
+
+    <!-- Apportionment Calculation -->
+    <field name='apportionment_formula' type='string' default_value='three_factor' comment='Formula: three_factor, single_sales, double_weighted_sales'/>
+    <field name='apportionment_percentage' type='double' default_value='0.0' comment='Final apportionment percentage'/>
+    <field name='apportioned_income' type='double' default_value='0.0' comment='Federal taxable income × apportionment %'/>
+
+    <!-- State Tax Calculation -->
+    <field name='state_additions' type='double' default_value='0.0' comment='State-specific additions to income'/>
+    <field name='state_subtractions' type='double' default_value='0.0' comment='State-specific subtractions from income'/>
+    <field name='state_taxable_income' type='double' default_value='0.0' comment='State taxable income'/>
+    <field name='state_tax_rate' type='double' default_value='0.0' comment='State corporate tax rate'/>
+    <field name='state_tax' type='double' default_value='0.0' comment='State corporate income tax'/>
+    <field name='state_credits' type='double' default_value='0.0' comment='State tax credits'/>
+    <field name='state_payments' type='double' default_value='0.0' comment='State estimated tax payments'/>
+    <field name='state_refund_or_owed' type='double' default_value='0.0' comment='State refund (positive) or owed (negative)'/>
+  </entity>
+
+  <!-- Job Entity (execution metadata) -->
+  <entity name="job">
+    <field name='test_case_name' type='string' comment='Name of test case'/>
+    <field name='execution_date' type='date' comment='Date of execution'/>
+    <field name='dtrules_version' type='string' comment='DTRules version'/>
+  </entity>
+
+
+  <!-- State: CA -->
+
+  <!-- Apportionment Entity: California Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='CA'
+           comment='California state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='610395.0'
+           comment='CA economic nexus threshold (2025: $610,395, indexed annually)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='CA has no transaction count threshold (sales threshold only)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='CA uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0884'
+           comment='CA corporate tax rate: 8.84% (flat rate)'/>
+
+    <!-- State Additions -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='CA additions: federal interest, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='CA subtractions: CA municipal interest, CA NOL, etc.'/>
+
+    <!-- State Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='CA credits: R&D, hiring, film, etc.'/>
+
+  </entity>
+
+  <!-- Result Entity: California-Specific Extensions -->
+  <entity name="result">
+
+    <!-- California Water's Edge Election -->
+    <field name='ca_waters_edge_election' type='boolean' default_value='true'
+           comment='Water s edge election for worldwide combined reporting (most taxpayers elect)'/>
+
+    <!-- California Unitary Group -->
+    <field name='ca_unitary_group_count' type='integer' default_value='1'
+           comment='Number of corporations in CA unitary group (1 = standalone)'/>
+
+    <!-- California Minimum Franchise Tax -->
+    <field name='ca_minimum_franchise_tax' type='double' default_value='800.0'
+           comment='CA minimum franchise tax ($800 for most corporations)'/>
+
+    <!-- California Enterprise Zone Credits (being phased out) -->
+    <field name='ca_enterprise_zone_credit' type='double' default_value='0.0'
+           comment='CA enterprise zone hiring credit (legacy, being phased out)'/>
+
+  </entity>
+

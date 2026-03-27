@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Wisconsin Test Case 03: Single filer with high income -->
+   <!-- Tests all 4 Wisconsin progressive tax brackets including top 7.65% rate -->
+
+   <id>WI-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>WI</state>
+   <city>Green Bay</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $400,000 W2 -->
+   <!-- Federal AGI: $400,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $385,000 -->
+   <!-- Federal Tax: $110,851 (10% on $11,925 + 12% on $36,550 + 22% on $50,000 + 24% on $54,425 + 32% on $78,450 + 35% on $130,000 + 37% on $23,650) -->
+   <!-- WI Standard Deduction: $14,260 -->
+   <!-- WI Taxable: $400,000 - $14,260 = $385,740 -->
+   <!-- WI Tax Bracket 1: $14,679 × 3.5% = $513.77 -->
+   <!-- WI Tax Bracket 2: ($50,479 - $14,679) × 4.4% = $1,575.20 -->
+   <!-- WI Tax Bracket 3: ($323,289 - $50,479) × 5.3% = $14,458.93 -->
+   <!-- WI Tax Bracket 4: ($385,740 - $323,289) × 7.65% = $4,777.50 -->
+   <!-- WI Tax Total: $21,325.40 -->
+   <!-- Withholding: $120,000 federal + $22,000 state -->
+   <expected_agi>400000</expected_agi>
+   <expected_taxable_income>385000</expected_taxable_income>
+   <expected_federal_tax>110851</expected_federal_tax>
+   <expected_state_tax>21325</expected_state_tax>
+   <expected_total_tax>132176</expected_total_tax>
+
+   <!-- Single High-Income Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Williams</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>11/22/1978</date_of_birth>
+         <occupation>Physician</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>400000</w2_wages>
+         <w2_withholding>120000</w2_withholding>
+         <state_withholding>22000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>

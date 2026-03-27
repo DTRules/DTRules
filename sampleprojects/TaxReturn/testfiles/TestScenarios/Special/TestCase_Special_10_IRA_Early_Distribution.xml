@@ -1,0 +1,176 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Early Distribution from Retirement Account (IRA)
+
+      IRC Section 72(t) - Early Distribution Penalty
+
+      Rules Tested:
+      - Distributions before age 59½ subject to 10% early withdrawal penalty
+      - Exceptions to penalty (IRC §72(t)(2)):
+      -   Death, disability, medical expenses > 7.5% AGI
+      -   Health insurance premiums (unemployed), first home ($10k lifetime)
+      -   Higher education expenses, substantially equal periodic payments
+      -   IRS levy, qualified reservist distributions
+      - Distribution is ordinary income regardless of penalty
+      - Form 1099-R shows distribution and taxable amount
+      - Form 5329 calculates penalty (unless exception applies)
+
+      Test Scenario:
+      - Taxpayer age 52 (under 59½)
+      - Traditional IRA early distribution: $40,000
+      - Distribution reason: Disability (permanently disabled)
+      - Form 1099-R received, code 3 (disability exception)
+      - Taxable amount: $40,000 (fully taxable - traditional IRA)
+      - 10% penalty: WAIVED due to disability exception
+      - Medical certification of disability required
+
+      Expected Results:
+      - Distribution included in gross income: $40,000
+      - No 10% early distribution penalty (disability exception)
+      - Tax on distribution at ordinary income rates
+      - Form 5329 filed showing exception code
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_10</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CO</state>
+   <city>Denver</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $55,000 W-2 + $40,000 IRA distribution -->
+   <!-- AGI: $95,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $95,000 - $30,000 = $65,000 -->
+   <!-- Tax: $7,372 (2025 MFJ rates) -->
+   <!-- NO early distribution penalty (disability exception) -->
+   <!-- Withholding: $5,500 W-2 + $8,000 IRA = $13,500 -->
+   <!-- Refund: $6,128 -->
+   <expected_agi>95000</expected_agi>
+   <expected_taxable_income>65000</expected_taxable_income>
+   <expected_total_tax>7372</expected_total_tax>
+   <expected_refund>6128</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Thomas Mitchell</name>
+         <ssn>012-34-5678</ssn>
+         <date_of_birth>6/10/1973</date_of_birth>
+         <age>52</age>
+         <occupation>Construction Worker (Disabled)</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_disabled>true</is_disabled>
+         <disability_date>3/1/2025</disability_date>
+         <disability_certification>Permanent and total disability per IRC 72(m)(7)</disability_certification>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>5500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Mitchell</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>8/15/1975</date_of_birth>
+         <age>50</age>
+         <occupation>Retail Manager (part-time)</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Mitchell</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>4/20/2010</date_of_birth>
+         <age>15</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>public</school_type>
+         <tuition_paid>0</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- IRA Distribution -->
+   <ira_distributions>
+      <!-- Early distribution with disability exception -->
+      <distribution id="1">
+         <id>1</id>
+         <account_type>traditional_ira</account_type>
+         <custodian>Vanguard</custodian>
+         <custodian_ein>23-1945930</custodian_ein>
+         <distribution_date>5/15/2025</distribution_date>
+         <gross_distribution>40000</gross_distribution>
+         <taxable_amount>40000</taxable_amount>
+         <federal_withholding>8000</federal_withholding>
+         <state_withholding>0</state_withholding>
+         <!-- Form 1099-R details -->
+         <form_1099r_received>true</form_1099r_received>
+         <distribution_code>3</distribution_code>
+         <distribution_code_description>Disability</distribution_code_description>
+         <!-- Early distribution penalty analysis -->
+         <taxpayer_age_at_distribution>52</taxpayer_age_at_distribution>
+         <under_age_59_half>true</under_age_59_half>
+         <early_distribution>true</early_distribution>
+         <!-- Exception to 10% penalty -->
+         <exception_applies>true</exception_applies>
+         <exception_code>01</exception_code>
+         <exception_description>Disability (IRC 72(t)(2)(A)(iii))</exception_description>
+         <disability_certification_on_file>true</disability_certification_on_file>
+         <physician_name>Dr. Sarah Johnson, M.D.</physician_name>
+         <certification_date>3/15/2025</certification_date>
+         <!-- Penalty calculation -->
+         <amount_subject_to_penalty>0</amount_subject_to_penalty>
+         <early_distribution_penalty_rate>0.10</early_distribution_penalty_rate>
+         <early_distribution_penalty_amount>0</early_distribution_penalty_amount>
+         <!-- If no exception, penalty would be: $40,000 × 10% = $4,000 -->
+         <penalty_if_no_exception>4000</penalty_if_no_exception>
+         <!-- Tax treatment -->
+         <included_in_gross_income>40000</included_in_gross_income>
+         <tax_withholding_applied>8000</tax_withholding_applied>
+      </distribution>
+   </ira_distributions>
+
+   <!-- No other deductions -->
+   <deductions>
+   </deductions>
+</job>

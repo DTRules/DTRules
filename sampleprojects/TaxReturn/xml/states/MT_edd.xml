@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Montana (MT)
+
+  Montana has a progressive income tax with 5 brackets.
+  Tax rates range from 4.7% to 5.9%
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Montana state tax constants -->
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="mt_standard_deduction_single" type="double" default_value="5350.0"
+           comment="MT standard deduction single (2025)"/>
+    <field name="mt_standard_deduction_joint" type="double" default_value="10700.0"
+           comment="MT standard deduction married filing jointly (2025)"/>
+    <field name="mt_standard_deduction_hoh" type="double" default_value="8050.0"
+           comment="MT standard deduction head of household (2025)"/>
+
+    <!-- Progressive tax brackets (using single filer rates) -->
+    <field name="mt_bracket_1_limit" type="double" default_value="3600.0"
+           comment="MT tax bracket 1 upper limit (2025)"/>
+    <field name="mt_bracket_1_rate" type="double" default_value="0.047"
+           comment="MT tax rate for bracket 1 - 4.7% (2025)"/>
+
+    <field name="mt_bracket_2_limit" type="double" default_value="6300.0"
+           comment="MT tax bracket 2 upper limit (2025)"/>
+    <field name="mt_bracket_2_rate" type="double" default_value="0.052"
+           comment="MT tax rate for bracket 2 - 5.2% (2025)"/>
+
+    <field name="mt_bracket_3_limit" type="double" default_value="10000.0"
+           comment="MT tax bracket 3 upper limit (2025)"/>
+    <field name="mt_bracket_3_rate" type="double" default_value="0.056"
+           comment="MT tax rate for bracket 3 - 5.6% (2025)"/>
+
+    <field name="mt_bracket_4_limit" type="double" default_value="13400.0"
+           comment="MT tax bracket 4 upper limit (2025)"/>
+    <field name="mt_bracket_4_rate" type="double" default_value="0.058"
+           comment="MT tax rate for bracket 4 - 5.8% (2025)"/>
+
+    <field name="mt_bracket_5_rate" type="double" default_value="0.059"
+           comment="MT tax rate for bracket 5 (income > $13,400) - 5.9% (2025)"/>
+
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="mt_national_guard_exemption" type="double" default_value="15000.0"
+           comment="MT National Guard exemption: First $15,000 exempt (2025). Source: MOAA State Report Card"/>
+    <field name="mt_new_resident_deduction_rate" type="double" default_value="0.50"
+           comment="MT new resident deduction: 50% of military retirement (2025). Source: MOAA State Report Card"/>
+    <field name="mt_new_resident_year_limit" type="double" default_value="5.0"
+           comment="MT new resident deduction limited to first 5 years from separation (2025)"/>
+    <field name="mt_program_start_date" type="string" default_value="2023-06-30"
+           comment="MT new resident program: Must become resident after June 30, 2023"/>
+    <field name="mt_program_expiration_year" type="double" default_value="2033.0"
+           comment="MT new resident program expires in 2033"/>
+    <field name="mt_military_retirement_taxable" type="double" default_value="0.0"
+           comment="MT taxable military retirement after exemption (computed)"/>
+
+  </entity>
+</entity_data_dictionary>

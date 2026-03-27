@@ -1,0 +1,80 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>DC</state>
+   <city>Washington</city>
+
+   <!-- Expected values for validation -->
+   <!-- DC Test Case 02: Married Filing Jointly with $90,000 income -->
+   <!-- AGI: $90,000 -->
+   <!-- DC Standard Deduction: $31,500 -->
+   <!-- DC Taxable Income: $58,500 -->
+   <!-- DC Tax Calculation: -->
+   <!--   First $10,000 @ 4% = $400 -->
+   <!--   Next $30,000 @ 6% = $1,800 -->
+   <!--   $18,500 @ 6.5% = $1,202.50 -->
+   <!--   Total DC Tax: $3,402.50 -->
+   <expected_agi>90000</expected_agi>
+   <expected_taxable_income>60000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jordan Smith</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>3/22/1985</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>5500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Casey Smith</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>7/10/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+   </dependents>
+
+   <properties>
+   </properties>
+
+   <vehicles>
+   </vehicles>
+
+   <deductions>
+   </deductions>
+</job>
