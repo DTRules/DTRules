@@ -1,0 +1,77 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- New Jersey Test Case 03: Single filer with high income -->
+   <!-- Tests NJ progressive tax brackets including upper brackets (6.37%, 8.97%) -->
+
+   <id>NJ-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>NJ</state>
+   <city>Jersey City</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $600,000 W2 -->
+   <!-- Federal AGI: $600,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable: $585,000 -->
+   <!-- Federal Tax: $175,815 (complex calculation with multiple brackets) -->
+   <!-- NJ uses AGI minus personal exemption: $600,000 - $1,000 = $599,000 -->
+   <!-- NJ Tax Single brackets: -->
+   <!--   $280 (1.4% on $20,000) -->
+   <!--   + $262.50 (1.75% on $15,000) -->
+   <!--   + $175 (3.5% on $5,000) -->
+   <!--   + $1,933.75 (5.525% on $35,000) -->
+   <!--   + $27,072.50 (6.37% on $425,000) -->
+   <!--   + $8,880.30 (8.97% on $99,000) -->
+   <!--   = $38,604.05 -->
+   <expected_agi>600000</expected_agi>
+   <expected_taxable_income>585000</expected_taxable_income>
+   <expected_federal_tax>175815</expected_federal_tax>
+   <expected_state_tax>38604</expected_state_tax>
+   <expected_total_tax>214419</expected_total_tax>
+
+   <!-- Single Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Wu</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>1/30/1978</date_of_birth>
+         <occupation>Investment Banker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>600000</w2_wages>
+         <w2_withholding>180000</w2_withholding>
+         <state_withholding>40000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

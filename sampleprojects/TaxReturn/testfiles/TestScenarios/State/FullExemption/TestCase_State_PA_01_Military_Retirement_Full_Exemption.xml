@@ -1,0 +1,109 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Pennsylvania Military Retirement Full Exemption Test Case -->
+   <!-- Test Case PA-Military-01: Military retiree with full exemption -->
+   <!-- PA provides 100% exemption for military retirement pay -->
+   <!-- PA also exempts Social Security income -->
+   <!-- PA has flat 3.07% state income tax rate -->
+   <!-- This test verifies that military retirement and SS are fully excluded from PA taxable income -->
+
+   <id>PA-MIL-FULL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>PA</state>
+   <city>Harrisburg</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $42,000 military retirement (exempt in PA) + $28,000 Social Security (exempt in PA) = $70,000 AGI -->
+   <!-- Federal AGI: $70,000 (Social Security partially taxable federally) -->
+   <!-- Note: For simplicity, assuming ~85% of SS is taxable federally = $23,800 -->
+   <!-- Adjusted Federal AGI: $42,000 + $23,800 = $65,800 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $50,800 -->
+   <!-- Federal Tax: $11,925 @ 10% = $1,192.50 + $38,875 @ 12% = $4,665.00 = $5,857.50 -->
+   <!--
+   PA Calculation:
+   - PA AGI excludes both military retirement and Social Security
+   - PA Military Retirement Exclusion: $42,000 (100% exempt)
+   - PA Social Security Exclusion: $28,000 (100% exempt in PA)
+   - PA Taxable Income: $0
+   - PA Tax: $0 * 0.0307 = $0
+   - Total Tax: $5,857.50 + $0 = $5,857.50
+   - Withholding: $7,000
+   - Refund: $1,142.50
+   -->
+   <expected_agi>65800</expected_agi>
+   <expected_taxable_income>50800</expected_taxable_income>
+   <expected_total_tax>5857.50</expected_total_tax>
+   <expected_state_tax>0</expected_state_tax>
+   <expected_refund>1142.50</expected_refund>
+
+   <!-- Retired Military Taxpayer living on retirement benefits -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert</name>
+         <last_name>Williams</last_name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>3/10/1958</date_of_birth>
+         <occupation>Military Retiree - Fully Retired</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+         <military_retirement_pay>42000</military_retirement_pay>
+         <social_security>28000</social_security>
+         <is_senior>true</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+
+   <!--
+   MSRRA Compliance Notes:
+   - Military Servicemembers Civil Relief Act (SCRA) and Military Spouses Residency Relief Act (MSRRA)
+     protect service members from dual state taxation
+   - PA honors these federal protections
+   - Military retirement pay earned through federal service is 100% exempt in PA
+
+   SCRA Compliance:
+   - Service members stationed in PA but domiciled elsewhere can exclude military pay from PA taxation
+   - This test case shows PA resident receiving full exemption on military retirement
+
+   Test Coverage:
+   - This test validates that $42,000 military retirement pay is fully excluded from PA state taxable income
+   - PA also exempts Social Security income ($28,000 in this case)
+   - Result: $0 PA state tax owed (all income is from exempt sources)
+   - PA provides this exemption regardless of age or years of service
+   - Representative of flat-rate state with full military retirement exemption
+   - Tests the double-exemption scenario (military retirement + Social Security)
+   - Demonstrates PA's senior-friendly tax policy
+   -->
+</job>

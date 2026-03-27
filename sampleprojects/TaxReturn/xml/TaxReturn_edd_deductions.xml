@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: deductions
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 2 entities categorized as 'deductions'.
+-->
+	<file_metadata>
+		<file_path>core/04000_deductions_entities</file_path>
+	</file_metadata>
+	<entity name="noncash_contribution" xls_file="Deductions.xls" access="rw" comment="Form 8283 Noncash Charitable Contribution">
+		<field name="noncash_contribution" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Contribution ID" />
+		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of donated property" />
+		<field name="property_type" type="string" subtype="" access="r" input="main" default_value="other" comment="Type: clothing, household, vehicle, securities, real_estate, art, collectibles, other" />
+		<field name="condition" type="string" subtype="" access="r" input="main" default_value="good" comment="Condition: excellent, good, fair, poor" />
+		<field name="date_acquired" type="date" subtype="" access="r" input="main" default_value="" comment="Date property was acquired" />
+		<field name="acquisition_method" type="string" subtype="" access="r" input="main" default_value="purchase" comment="How acquired: purchase, gift, inheritance, exchange" />
+		<field name="date_contributed" type="date" subtype="" access="r" input="main" default_value="" comment="Date of contribution" />
+		<field name="cost_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Original cost basis" />
+		<field name="fair_market_value" type="double" subtype="" access="r" input="main" default_value="0" comment="Fair market value at time of donation" />
+		<field name="valuation_method" type="string" subtype="" access="r" input="main" default_value="comparable_sales" comment="Method: comparable_sales, appraisal, replacement_cost" />
+		<field name="donee_organization" type="string" subtype="" access="r" input="main" default_value="" comment="Name of charitable organization" />
+		<field name="donee_ein" type="string" subtype="" access="r" input="main" default_value="" comment="Organization EIN" />
+		<field name="donee_address" type="string" subtype="" access="r" input="main" default_value="" comment="Organization address" />
+		<field name="requires_appraisal" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Requires qualified appraisal (Section B - over $5,000)" />
+		<field name="appraiser_name" type="string" subtype="" access="r" input="main" default_value="" comment="Qualified appraiser name" />
+		<field name="appraisal_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date of appraisal" />
+		<field name="is_appreciated_property" type="boolean" subtype="" access="r" input="main" default_value="false" comment="FMV exceeds basis (capital gain property)" />
+		<field name="holding_period" type="string" subtype="" access="r" input="main" default_value="long_term" comment="Holding period: short_term, long_term" />
+		<field name="is_ordinary_income_property" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Would produce ordinary income if sold" />
+		<field name="elected_reduced_deduction" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Elected to reduce FMV by appreciation" />
+		<field name="deduction_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Allowable deduction amount (computed)" />
+		<field name="agi_limitation" type="double" subtype="" access="rw" input="" default_value="0" comment="AGI percentage limitation (30% or 50%)" />
+		<field name="carryover_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount carried over to future years" />
+	</entity>
+	<entity name="deduction" xls_file="Deductions.xls" access="rw" comment="Itemized deduction">
+		<field name="deduction" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Deduction ID" />
+		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category: medical, taxes, interest, charity, casualty, other" />
+		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of deduction" />
+		<field name="amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Claimed amount" />
+		<field name="irs_form" type="string" subtype="" access="rw" input="" default_value="Schedule A" comment="IRS form reference" />
+		<field name="irs_line" type="string" subtype="" access="rw" input="" default_value="" comment="IRS form line reference" />
+		<field name="irs_publication" type="string" subtype="" access="rw" input="" default_value="" comment="IRS publication reference" />
+		<field name="limitation_applies" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Whether a limitation applies (computed)" />
+		<field name="allowed_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Allowed amount after limitations (computed)" />
+	</entity>
+</entity_data_dictionary>

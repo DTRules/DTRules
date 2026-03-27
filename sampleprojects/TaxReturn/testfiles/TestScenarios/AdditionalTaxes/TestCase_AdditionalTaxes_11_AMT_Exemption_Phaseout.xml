@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 6251 - AMT Exemption Phaseout -->
+<!-- Scenario: Very high income taxpayer experiencing AMT exemption phaseout -->
+<!-- Single filer with AMTI well above phaseout threshold ($626,350) -->
+<!-- Expected: AMT with reduced exemption due to phaseout -->
+<job>
+    <id>AdditionalTaxes_11</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>NY</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $750,000 (W-2 + investment income) -->
+    <!-- Regular tax: -->
+    <!--   Deduction: $15,000 standard -->
+    <!--   Taxable: $735,000 -->
+    <!--   Tax: ~$226,400 (including 37% bracket) -->
+    <!-- AMT calculation: -->
+    <!--   AMTI: ~$750,000 (minimal adjustments) -->
+    <!--   Phaseout: ($750k - $626,350) × 25% = $30,913 -->
+    <!--   AMT exemption: $88,100 - $30,913 = $57,187 -->
+    <!--   AMT income: $750k - $57,187 = $692,813 -->
+    <!--   AMT: 26% on $232,600 + 28% on $460,213 = $60,476 + $128,860 = $189,336 -->
+    <!-- Regular tax higher, so no AMT liability -->
+    <!-- Total tax: $226,400 -->
+    <expected_agi>750000</expected_agi>
+    <expected_taxable_income>735000</expected_taxable_income>
+    <expected_total_tax>226400</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Elizabeth Taylor</name>
+            <ssn>567-89-0123</ssn>
+            <date_of_birth>10/08/1968</date_of_birth>
+            <occupation>Investment Banker</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>650000</w2_wages>
+            <w2_withholding>180000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>40000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- Investment income -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>interest</type>
+            <source>Investment Accounts</source>
+            <gross_amount>25000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+        </income>
+        <income>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>dividend</type>
+            <source>Stock Portfolio</source>
+            <gross_amount>45000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <is_qualified_dividend>true</is_qualified_dividend>
+        </income>
+        <income>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock Sales - Long Term</source>
+            <gross_amount>30000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>long_term</holding_period>
+        </income>
+    </incomes>
+
+    <deductions>
+        <!-- High charitable giving -->
+        <deduction>
+            <id>1</id>
+            <category>charity</category>
+            <description>Charitable contributions</description>
+            <amount>50000</amount>
+        </deduction>
+    </deductions>
+
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+</job>

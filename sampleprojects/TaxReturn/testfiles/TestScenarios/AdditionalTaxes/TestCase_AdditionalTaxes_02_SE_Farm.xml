@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule SE - Self-Employment Tax (Farm Income) -->
+<!-- Scenario: Small farm operator with net farm income -->
+<!-- Net Farm Income: $68,000 -->
+<!-- Expected: SE tax $9,604 (15.3% of $92.35% of $68k = $62,798) -->
+<!-- SE deduction: $4,802 (50% of SE tax) -->
+<job>
+    <id>AdditionalTaxes_02</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>IA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $68,000 - $4,802 SE deduction = $63,198 -->
+    <!-- Deduction: $30,000 standard (MFJ) -->
+    <!-- QBI: $13,600 (20% of $68,000 net farm income) -->
+    <!-- Taxable: $63,198 - $30,000 - $13,600 = $19,598 -->
+    <!-- Income tax: ~$1,960 (10% on $19,598) -->
+    <!-- SE tax: $9,604 -->
+    <!-- Total tax: $11,564 -->
+    <expected_agi>63198</expected_agi>
+    <expected_taxable_income>19598</expected_taxable_income>
+    <expected_total_tax>11564</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Robert Jensen</name>
+            <ssn>234-56-7890</ssn>
+            <date_of_birth>03/12/1975</date_of_birth>
+            <occupation>Farmer</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <farm_gross_income>145000</farm_gross_income>
+            <estimated_payments>10000</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Lisa Jensen</name>
+            <ssn>345-67-8901</ssn>
+            <date_of_birth>07/18/1978</date_of_birth>
+            <occupation>Teacher</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <expenses>
+        <!-- Farm expenses (Schedule F) -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>farm_expense</category>
+            <description>Seeds and fertilizer</description>
+            <amount>28000</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>farm_expense</category>
+            <description>Equipment fuel and maintenance</description>
+            <amount>18000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>farm_expense</category>
+            <description>Livestock feed</description>
+            <amount>15000</amount>
+        </expense>
+        <expense>
+            <id>4</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>farm_expense</category>
+            <description>Utilities and property insurance</description>
+            <amount>8000</amount>
+        </expense>
+        <expense>
+            <id>5</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>farm_expense</category>
+            <description>Labor and contract services</description>
+            <amount>8000</amount>
+        </expense>
+    </expenses>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

@@ -1,0 +1,114 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Missouri Test Case 02: Married Filing Jointly with mid-level income -->
+   <!-- Tests MO standard deduction for MFJ and all 8 progressive brackets -->
+
+   <id>MO-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>MO</state>
+   <city>St. Louis</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $75,000 + $55,000 = $130,000 -->
+   <!-- Federal AGI: $130,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $100,000 -->
+   <!-- Federal Tax: 10% × $23,200 + 12% × $70,650 + 22% × $6,150 = $2,320 + $8,478 + $1,353 = $12,151 -->
+   <!-- MO Standard Deduction: $30,000 (MFJ) -->
+   <!-- MO Taxable: $130,000 - $30,000 = $100,000 -->
+   <!-- MO Tax calculation (all income in top bracket): -->
+   <!--   Bracket 1: $1,313 × 0% = $0 -->
+   <!--   Bracket 2: $1,313 × 2% = $26.26 -->
+   <!--   Bracket 3: $1,313 × 2.5% = $32.83 -->
+   <!--   Bracket 4: $1,313 × 3% = $39.39 -->
+   <!--   Bracket 5: $1,313 × 3.5% = $45.96 -->
+   <!--   Bracket 6: $1,313 × 4% = $52.52 -->
+   <!--   Bracket 7: $1,313 × 4.6% = $60.40 -->
+   <!--   Bracket 8: ($100,000 - $9,191) = $90,809 × 4.7% = $4,268.02 -->
+   <!--   Total MO Tax: $4,525.38 -->
+   <!-- Withholding: $15,000 federal + $4,500 state -->
+   <expected_agi>130000</expected_agi>
+   <expected_taxable_income>100000</expected_taxable_income>
+   <expected_federal_tax>12151</expected_federal_tax>
+   <expected_state_tax>4525</expected_state_tax>
+   <expected_total_tax>16676</expected_total_tax>
+
+   <!-- Married Couple -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Anderson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>3/10/1985</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+         <state_withholding>2700</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Anderson</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>7/18/1987</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
+         <state_withholding>1800</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two dependent children -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Anderson</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>4/12/2015</date_of_birth>
+         <relationship>Daughter</relationship>
+         <months_lived_in_home>12</months_lived_in_home>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Jacob Anderson</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>9/25/2018</date_of_birth>
+         <relationship>Son</relationship>
+         <months_lived_in_home>12</months_lived_in_home>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

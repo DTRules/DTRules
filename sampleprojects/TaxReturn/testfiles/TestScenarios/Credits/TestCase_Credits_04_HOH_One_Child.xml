@@ -1,0 +1,56 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Filing Status Test: Head of Household with 1 qualifying child -->
+   <!-- 2025 Standard Deduction HOH: $22,500 -->
+   <!-- HOH requires unmarried with qualifying dependent -->
+   <!-- More favorable brackets than Single -->
+
+   <id>Credits-04</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $65,000 W-2 -->
+   <!-- AGI: $65,000 -->
+   <!-- Standard Deduction: $22,500 -->
+   <!-- Taxable Income: $42,500 -->
+   <!-- Tax (2025 HOH brackets): $4,865 -->
+   <!-- Also qualifies for Child Tax Credit: $2,000 -->
+   <expected_agi>65000</expected_agi>
+   <expected_standard_deduction>22500</expected_standard_deduction>
+   <expected_taxable_income>42500</expected_taxable_income>
+   <expected_ctc>2000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Patricia Martinez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>3/25/1988</date_of_birth>
+         <occupation>Project Manager</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>6500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Tommy Martinez</name>
+         <ssn>555-66-7777</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>8/14/2015</date_of_birth>
+         <age>10</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
