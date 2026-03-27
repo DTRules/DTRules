@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>PA</state>
+   <city>Philadelphia</city>
+
+   <!-- Expected values for validation -->
+   <!-- PA Tax Calculation:
+        Class 1 (Compensation): $65,000
+        Class 2 (Interest): $500
+        Class 3 (Dividends): $300
+        Total PA Income: $65,800
+        PA Tax (3.07%): $2,020.06
+   -->
+   <expected_agi>65800</expected_agi>
+   <expected_pa_total_income>65800</expected_pa_total_income>
+   <expected_pa_tax>2020.06</expected_pa_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>John Smith</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/15/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Income: W-2 wages -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <type>w2</type>
+         <taxpayer_id>1</taxpayer_id>
+         <employer_name>Tech Corp</employer_name>
+         <gross_amount>65000</gross_amount>
+         <federal_withholding>8500</federal_withholding>
+         <state_withholding>1995</state_withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <type>interest</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>First Bank</payer_name>
+         <gross_amount>500</gross_amount>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <type>dividend</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>Vanguard</payer_name>
+         <gross_amount>300</gross_amount>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <deductions></deductions>
+</job>
