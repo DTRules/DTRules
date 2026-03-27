@@ -15,40 +15,42 @@
       limitations under the License.
    </copyright>
 
-   <!-- OH Test Case 1: Single W-2 Earner in Bracket 1 -->
-   <id>OH-01</id>
+   <!-- OH Test Case 3: High Income with All Brackets -->
+   <id>OH-03</id>
    <tax_year>2025</tax_year>
    <filing_status>single</filing_status>
    <state>OH</state>
-   <city>Columbus</city>
+   <city>Cincinnati</city>
    <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
-   <!-- Federal AGI: $35,000 -->
-   <!-- OH AGI: $35,000 -->
-   <!-- OH Exemption: $2,350 (AGI ≤ $40,000) -->
-   <!-- OH Taxable Income: $35,000 - $2,350 = $32,650 -->
+   <!-- Federal AGI: $150,000 -->
+   <!-- OH AGI: $150,000 -->
+   <!-- OH Exemption: $1,850 per person (AGI > $80,000) -->
+   <!-- Total Exemptions: 1 × $1,850 = $1,850 -->
+   <!-- OH Taxable Income: $150,000 - $1,850 = $148,150 -->
    <!-- OH Tax: -->
    <!--   Bracket 1 (0% on $0-$26,050): $0 -->
-   <!--   Bracket 2 (2.75% on $26,051-$32,650): $6,600 × 0.0275 = $181.50 -->
-   <!--   Total: $181.50 -->
-   <expected_agi>35000</expected_agi>
-   <expected_oh_agi>35000</expected_oh_agi>
-   <expected_oh_taxable_income>32650</expected_oh_taxable_income>
-   <expected_oh_tax>181.5</expected_oh_tax>
+   <!--   Bracket 2 (2.75% on $26,051-$100,000): $73,950 × 0.0275 = $2,033.625 -->
+   <!--   Bracket 3 (3.125% above $100,000): $48,150 × 0.03125 = $1,504.6875 -->
+   <!--   Total: $3,538.3125 -->
+   <expected_agi>150000</expected_agi>
+   <expected_oh_agi>150000</expected_oh_agi>
+   <expected_oh_taxable_income>148150</expected_oh_taxable_income>
+   <expected_oh_tax>3538.3125</expected_oh_tax>
 
    <!-- Taxpayers -->
    <taxpayers>
       <taxpayer id="1">
          <id>1</id>
-         <name>Alice Johnson</name>
-         <ssn>111-22-3333</ssn>
-         <date_of_birth>5/20/1995</date_of_birth>
-         <occupation>Nurse</occupation>
+         <name>David Chen</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>2/14/1980</date_of_birth>
+         <occupation>Software Engineer</occupation>
          <is_self_employed>false</is_self_employed>
          <is_primary>true</is_primary>
-         <w2_wages>35000</w2_wages>
-         <w2_withholding>4500</w2_withholding>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>30000</w2_withholding>
          <se_gross_income>0</se_gross_income>
          <estimated_payments>0</estimated_payments>
       </taxpayer>
@@ -60,8 +62,8 @@
          <id>1</id>
          <taxpayer_id>1</taxpayer_id>
          <type>w2_wages</type>
-         <gross_amount>35000</gross_amount>
-         <withholding>4500</withholding>
+         <gross_amount>150000</gross_amount>
+         <withholding>30000</withholding>
       </income>
    </incomes>
 
