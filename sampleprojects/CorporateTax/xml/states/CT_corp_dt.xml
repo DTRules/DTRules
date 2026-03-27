@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Connecticut Corporate Tax
+
+  CT Corporate Tax Overview:
+  - Flat rate: 7.5% (CT General Statutes § 12-214)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $500,000 (higher than typical $100K threshold)
+  - No transaction count threshold
+  - Form: CT-1120 (Corporation Business Tax Return)
+
+  Table Number Range: 51800-51899 (CT Corporate Tax)
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51800: Determine CT Corporate Tax Filing Requirement           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_CT_Filing_Requirement</table_name>
+<xls_file>CT_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file CT state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>51800</TABLE_NUMBER>
+<FILE_PATH>states/CT/51800_Determine_CT_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize CT filing requirement determination</action_description>
+<action_postfix>
+"CT Filing Requirement Determination Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has physical presence in CT -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in CT (office, employees, property)</condition_comment>
+<condition_description>Physical Presence in CT</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code "CT" strcasecmp 0 eq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Has economic nexus in CT -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets CT economic nexus threshold ($500,000)</condition_comment>
+<condition_description>Economic Nexus in CT</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code "CT" strcasecmp 0 eq and
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Physical nexus - filing required -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - CT filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - CT filing required -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"CT filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
+"Reference: CT Form CT-1120, CT General Statutes § 12-214" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Economic nexus - filing required -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established - CT filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - CT filing required -->
+<!-- CT threshold: $500,000 in gross receipts (higher than typical) -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"CT filing required: Economic nexus (post-Wayfair)" job.audit_trail swap addto
+"CT threshold: $500,000 in gross receipts (no transaction count requirement)" job.audit_trail swap addto
+"Higher than typical $100,000 threshold - CT business-friendly approach" job.audit_trail swap addto
+"Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto
+"Reference: CT DRS Economic Nexus Guidance" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: No nexus - no filing required -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no CT filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no CT filing required -->
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No CT nexus - no filing requirement" job.audit_trail swap addto
+"Any estimated payments would be refunded" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51820: Calculate CT State-Specific Income Adjustments          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CT_Income_Adjustments</table_name>
+<xls_file>CT_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate CT state-specific additions and subtractions to federal taxable income per CT Form CT-1120 Schedules I and J.</COMMENTS>
+<TABLE_NUMBER>51820</TABLE_NUMBER>
+<FILE_PATH>states/CT/51820_Calculate_CT_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize CT income adjustments calculation</action_description>
+<action_postfix>
+"CT Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has nexus (economic or physical) -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>Has CT Nexus</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Calculate adjustments for corporations with nexus -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate CT state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate CT state additions -->
+0.0 /additions xdef
+
+<!-- CT Addition 1: Federal bond interest (tax-exempt federally, taxable in CT) -->
+<!-- Uncomment when federal_bond_interest field is available: -->
+<!-- revenue.federal_bond_interest additions add /additions xdef -->
+
+<!-- CT Addition 2: IRC 199A deduction addback (CT does not conform) -->
+<!-- Uncomment when section_199a_deduction field is available: -->
+<!-- result.section_199a_deduction additions add /additions xdef -->
+
+<!-- CT Addition 3: Bonus depreciation addback (CT decouples from federal) -->
+<!-- Uncomment when bonus_depreciation field is available: -->
+<!-- result.bonus_depreciation_total additions add /additions xdef -->
+
+additions /apportionment.state_additions xdef
+
+<!-- Calculate CT state subtractions -->
+0.0 /subtractions xdef
+
+<!-- CT Subtraction 1: CT municipal bond interest -->
+<!-- Uncomment when ct_municipal_interest field is available: -->
+<!-- revenue.ct_municipal_interest subtractions add /subtractions xdef -->
+
+<!-- CT Subtraction 2: CT NOL deduction (if different from federal) -->
+<!-- Uncomment when ct_nol_deduction field is available: -->
+<!-- result.ct_nol_deduction subtractions add /subtractions xdef -->
+
+<!-- CT Subtraction 3: Dividend deduction for subsidiaries -->
+<!-- Uncomment when dividend fields are available: -->
+<!-- result.ct_dividend_deduction subtractions add /subtractions xdef -->
+
+subtractions /apportionment.state_subtractions xdef
+
+"CT state-specific income adjustments calculated" job.audit_trail swap addto
+"Additions to federal taxable income:" job.audit_trail swap addto
+"  - Interest on U.S. government obligations (federally tax-exempt, CT taxable)" job.audit_trail swap addto
+"  - IRC Section 199A qualified business income deduction (CT addback)" job.audit_trail swap addto
+"  - Bonus depreciation (CT decouples from federal bonus depreciation)" job.audit_trail swap addto
+"  - Other items per CT Form CT-1120 Schedule I" job.audit_trail swap addto
+"Subtractions from federal taxable income:" job.audit_trail swap addto
+"  - Interest on CT state and municipal bonds" job.audit_trail swap addto
+"  - CT net operating loss deduction" job.audit_trail swap addto
+"  - Dividend deduction for certain subsidiary corporations" job.audit_trail swap addto
+"  - Other items per CT Form CT-1120 Schedule J" job.audit_trail swap addto
+"Reference: CT Form CT-1120 Instructions (Schedules I and J)" job.audit_trail swap addto
+"Reference: CT General Statutes § 12-217 (Computation of tax)" job.audit_trail swap addto
+"Reference: CT DRS Special Notice 2018(5) - Federal Tax Reform" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: No adjustments for corporations without nexus -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no state adjustments calculated</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"No CT nexus - no state adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51880: Calculate CT State Tax                                  -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CT_State_Tax</table_name>
+<xls_file>CT_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate CT state corporate income tax. Applies CT 7.5% flat tax rate to apportioned and adjusted taxable income per CT General Statutes § 12-214.</COMMENTS>
+<TABLE_NUMBER>51880</TABLE_NUMBER>
+<FILE_PATH>states/CT/51880_Calculate_CT_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize CT state tax calculation</action_description>
+<action_postfix>
+"CT State Tax Calculation Started" job.audit_trail swap addto
+0.0 /apportionment.state_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has nexus (economic or physical) -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe tax</condition_comment>
+<condition_description>Has CT Nexus</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Has positive state taxable income -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>Positive State Taxable Income</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Calculate tax for corporations with nexus and positive income -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate CT tax using 7.5% flat rate</action_comment>
+<action_postfix>
+<!-- CT uses 7.5% flat rate on all corporate income -->
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/apportionment.state_tax xdef
+
+<!-- Subtract CT state credits (R&D, jobs, film, manufacturing, etc.) -->
+apportionment.state_tax apportionment.state_credits sub 0.0 max
+/apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"CT state corporate income tax calculation:" job.audit_trail swap addto
+"1. Federal taxable income: [Form 1120 line 28]" job.audit_trail swap addto
+"2. Apportioned to CT: × [Single-sales apportionment %]" job.audit_trail swap addto
+"3. State additions: + [Additions per Schedule I]" job.audit_trail swap addto
+"4. State subtractions: - [Subtractions per Schedule J]" job.audit_trail swap addto
+"5. CT taxable income: = " apportionment.state_taxable_income cvs strconcat job.audit_trail swap addto
+"6. CT tax rate: × 7.5%" job.audit_trail swap addto
+"7. CT income tax: = " apportionment.state_tax cvs strconcat job.audit_trail swap addto
+"8. CT credits: - [Credits]" job.audit_trail swap addto
+"9. CT tax liability: = $" apportionment.state_tax cvs strconcat job.audit_trail swap addto
+"Connecticut uses a flat 7.5% tax rate on all corporate income" job.audit_trail swap addto
+"This rate has been stable since 2018" job.audit_trail swap addto
+"Reference: CT Form CT-1120 Corporation Business Tax Return" job.audit_trail swap addto
+"Reference: CT General Statutes § 12-214 (Tax imposed - 7.5% rate)" job.audit_trail swap addto
+"Reference: CT DRS Form CT-1120 Instructions" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: No nexus - no tax liability -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>No CT nexus - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No CT nexus - no tax liability" job.audit_trail swap addto
+"Any estimated payments are refunded" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: No taxable income - no tax liability -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>No CT taxable income - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No CT taxable income - no tax liability" job.audit_trail swap addto
+"CT NOL rules may apply (can carry forward losses to future years)" job.audit_trail swap addto
+"Reference: CT General Statutes § 12-217(a)(2) (NOL carryforward)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

@@ -28,6 +28,7 @@
 <Type>FIRST</Type>
 <COMMENTS>South Dakota state income tax calculation. SD has no state income tax (2025).</COMMENTS>
 <TABLE_NUMBER>44100</TABLE_NUMBER>
+<FILE_PATH>states/SD/44100_Calculate_SD_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

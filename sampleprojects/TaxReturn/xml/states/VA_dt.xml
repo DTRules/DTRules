@@ -104,6 +104,7 @@ job.audit_trail swap addto
 <Type>FIRST</Type>
 <COMMENTS>Virginia state income tax calculation. Implements progressive 4-bracket tax structure per VA tax code (2025).</COMMENTS>
 <TABLE_NUMBER>44600</TABLE_NUMBER>
+<FILE_PATH>states/VA/44600_Calculate_VA_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

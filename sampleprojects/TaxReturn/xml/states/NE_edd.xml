@@ -12,6 +12,9 @@
   https://remotelaws.com/state-income-tax/us-states/nebraska/
 -->
 <entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/NE/42700_NE_constants</file_path>
+  </file_metadata>
   <entity name="result">
 
     <!-- Standard deductions -->
