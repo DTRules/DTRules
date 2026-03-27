@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Self-Employed Health Insurance Deduction -->
+<!-- Scenario: Self-employed individual deducting health insurance premiums -->
+<!-- Expected: Full deduction for health insurance premiums -->
+<!-- AGI before adjustments: $85,000 (net SE income) -->
+<!-- AGI after health insurance: $77,000 -->
+<job>
+    <id>3535</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- SE gross income: $100,000 -->
+    <!-- SE business expenses: $15,000 -->
+    <!-- Net SE income: $85,000 -->
+    <!-- SE tax: $12,009 (92.35% * $85k * 15.3%) -->
+    <!-- SE tax deduction: $6,005 (50% of SE tax) -->
+    <!-- Self-employed health insurance: $8,000 -->
+    <!-- AGI: $85,000 - $6,005 (SE tax adj) - $8,000 (health ins) = $70,995 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $55,995 -->
+    <expected_agi>70995</expected_agi>
+    <expected_taxable_income>55995</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Thomas Baker</name>
+            <ssn>999-00-1111</ssn>
+            <date_of_birth>2/28/1980</date_of_birth>
+            <occupation>Freelance Consultant</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>100000</se_gross_income>
+            <se_business_expenses>15000</se_business_expenses>
+            <self_employed_health_insurance>8000</self_employed_health_insurance>
+            <estimated_payments>15000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

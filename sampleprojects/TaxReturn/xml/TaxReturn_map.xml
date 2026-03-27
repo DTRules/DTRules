@@ -58,6 +58,14 @@
 			<setattribute tag='educator_expenses' RAttribute='educator_expenses' enclosure='taxpayer' type='double'></setattribute>
 			<!-- Medical Expenses -->
 			<setattribute tag='medical_expenses' RAttribute='medical_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Additional Income Types -->
+			<setattribute tag='unemployment_compensation' RAttribute='unemployment_compensation' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='gambling_winnings' RAttribute='gambling_winnings' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='alimony_received' RAttribute='alimony_received' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='alimony_divorce_date' RAttribute='alimony_divorce_date' enclosure='taxpayer' type='date'></setattribute>
+			<setattribute tag='state_tax_refund' RAttribute='state_tax_refund' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='long_term_capital_gains' RAttribute='long_term_capital_gains' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='qualified_dividends' RAttribute='qualified_dividends' enclosure='taxpayer' type='double'></setattribute>
 
 			<!-- Dependent mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='dependent' type='integer'></setattribute>
@@ -71,6 +79,7 @@
 			<setattribute tag='school_type' RAttribute='school_type' enclosure='dependent' type='string'></setattribute>
 			<setattribute tag='tuition_paid' RAttribute='tuition_paid' enclosure='dependent' type='double'></setattribute>
 			<setattribute tag='qualified_expenses' RAttribute='qualified_expenses' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='qualified_education_expenses' RAttribute='qualified_education_expenses' enclosure='dependent' type='double'></setattribute>
 			<setattribute tag='is_college_student' RAttribute='is_college_student' enclosure='dependent' type='boolean'></setattribute>
 			<setattribute tag='college_year' RAttribute='college_year' enclosure='dependent' type='integer'></setattribute>
 			<setattribute tag='aotc_used_years' RAttribute='aotc_used_years' enclosure='dependent' type='integer'></setattribute>

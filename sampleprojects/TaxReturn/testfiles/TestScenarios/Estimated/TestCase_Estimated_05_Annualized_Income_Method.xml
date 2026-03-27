@@ -1,0 +1,143 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 2210 Schedule AI - Annualized Income Installment Method -->
+   <!-- Scenario: Seasonal income heavily weighted to Q4 (holiday retail business) -->
+   <!-- Per IRC 6654(d)(2): Annualized income method for uneven income -->
+   <!-- Reduces or eliminates penalty for Q1-Q3 when income comes later in year -->
+
+   <id>EST-05</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>CA</state>
+
+   <!-- Expected calculations: -->
+   <!-- SE income by quarter: -->
+   <!--   Q1: $15,000 -->
+   <!--   Q2: $20,000 -->
+   <!--   Q3: $25,000 -->
+   <!--   Q4: $140,000 -->
+   <!-- Total SE income: $200,000 -->
+   <!-- SE tax: $200,000 x 0.9235 x 0.153 = $28,260 -->
+   <!-- SE deduction: $14,130 -->
+   <!-- AGI: $200,000 - $14,130 = $185,870 -->
+   <!-- QBI: $200,000 x 0.20 = $40,000 -->
+   <!-- Standard: $15,000 -->
+   <!-- Taxable: $185,870 - $15,000 - $40,000 = $130,870 -->
+   <!-- Income tax: ~$22,020 -->
+   <!-- Total tax: $22,020 + $28,260 = $50,280 -->
+   <!--
+   <!-- Regular method would require: $50,280 x 0.90 / 4 = $11,313/quarter -->
+   <!-- But annualized method looks at cumulative income: -->
+   <!--   Q1: ($15,000 x 12/3) = $60,000 annualized → tax ~$8,400 → required $2,100 -->
+   <!--   Q2: ($35,000 x 12/6) = $70,000 annualized → tax ~$10,500 → required $5,250 cumulative -->
+   <!--   Q3: ($60,000 x 12/9) = $80,000 annualized → tax ~$12,600 → required $9,450 cumulative -->
+   <!--   Q4: $200,000 actual → tax $50,280 → required $50,280 -->
+   <!-- Payments made based on regular income flow: -->
+   <!--   Q1: $3,000 (exceeds annualized requirement) -->
+   <!--   Q2: $4,000 (exceeds annualized requirement) -->
+   <!--   Q3: $5,000 (exceeds annualized requirement) -->
+   <!--   Q4: $35,000 (total $47,000, underpaid by $3,280) -->
+   <!-- Penalty only on Q4 underpayment: minimal -->
+   <expected_agi>185870</expected_agi>
+   <expected_taxable_income>130870</expected_taxable_income>
+   <expected_total_tax>50280</expected_total_tax>
+   <expected_estimated_penalty>25</expected_estimated_penalty>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Emily Rodriguez</name>
+         <ssn>505-77-8899</ssn>
+         <date_of_birth>08/30/1988</date_of_birth>
+         <occupation>Holiday Retail Business Owner</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>200000</se_gross_income>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Quarterly SE income breakdown for annualized calculation -->
+   <quarterly_income>
+      <quarter id="1">
+         <quarter>1</quarter>
+         <se_income>15000</se_income>
+      </quarter>
+      <quarter id="2">
+         <quarter>2</quarter>
+         <se_income>20000</se_income>
+      </quarter>
+      <quarter id="3">
+         <quarter>3</quarter>
+         <se_income>25000</se_income>
+      </quarter>
+      <quarter id="4">
+         <quarter>4</quarter>
+         <se_income>140000</se_income>
+      </quarter>
+   </quarterly_income>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Estimated payments based on actual quarterly income -->
+   <estimated_payments>
+      <estimated_payment id="1">
+         <id>1</id>
+         <quarter>1</quarter>
+         <due_date>04/15/2025</due_date>
+         <payment_date>04/15/2025</payment_date>
+         <payment_amount>3000</payment_amount>
+      </estimated_payment>
+      <estimated_payment id="2">
+         <id>2</id>
+         <quarter>2</quarter>
+         <due_date>06/15/2025</due_date>
+         <payment_date>06/15/2025</payment_date>
+         <payment_amount>4000</payment_amount>
+      </estimated_payment>
+      <estimated_payment id="3">
+         <id>3</id>
+         <quarter>3</quarter>
+         <due_date>09/15/2025</due_date>
+         <payment_date>09/15/2025</payment_date>
+         <payment_amount>5000</payment_amount>
+      </estimated_payment>
+      <estimated_payment id="4">
+         <id>4</id>
+         <quarter>4</quarter>
+         <due_date>01/15/2026</due_date>
+         <payment_date>01/15/2026</payment_date>
+         <payment_amount>35000</payment_amount>
+      </estimated_payment>
+   </estimated_payments>
+
+   <prior_year>
+      <tax_year>2024</tax_year>
+      <total_tax>42000</total_tax>
+      <agi>170000</agi>
+   </prior_year>
+
+   <!-- Use annualized income method for penalty calculation -->
+   <form_2210_options>
+      <use_annualized_income_method>true</use_annualized_income_method>
+   </form_2210_options>
+</job>

@@ -1,0 +1,178 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Form 8283 - Noncash Charitable Contributions (Vehicle Donation)
+
+      IRC Section 170 - Charitable Contributions
+
+      Rules Tested:
+      - Vehicle donations > $500 require Form 8283
+      - Donations > $5,000 require qualified appraisal (IRC §170(f)(11)(C))
+      - Deduction generally limited to gross proceeds from sale by charity
+      - Special rules if charity uses vehicle for significant exempt use
+      - Appraisal must be by qualified appraiser within 60 days of donation
+      - Form 1098-C required from donee organization
+
+      Test Scenario:
+      - Married couple donates used car to charitable organization
+      - Vehicle FMV: $8,000 (Blue Book value)
+      - Charity sells vehicle for $7,500 (actual proceeds)
+      - Qualified appraisal obtained: $8,000 FMV
+      - Donation date: 6/15/2025
+      - Appraisal date: 7/10/2025 (within 60 days)
+      - Form 1098-C received showing sale proceeds of $7,500
+
+      Expected Results:
+      - Charitable deduction: $7,500 (limited to actual sale proceeds)
+      - Form 8283 required (donation > $5,000)
+      - Appraisal required and obtained
+      - Deduction reported on Schedule A
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CA</state>
+   <city>San Diego</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $95,000 W-2 -->
+   <!-- AGI: $95,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Itemized: $12,800 mortgage int + $10,000 SALT + $7,500 vehicle + $2,000 cash = $32,300 -->
+   <!-- Choose itemized ($32,300) over standard ($30,000) -->
+   <!-- Taxable Income: $95,000 - $32,300 = $62,700 -->
+   <!-- Tax: $7,132 (2025 MFJ rates) -->
+   <!-- Withholding: $9,500 -->
+   <!-- Refund: $2,368 -->
+   <expected_agi>95000</expected_agi>
+   <expected_taxable_income>62700</expected_taxable_income>
+   <expected_total_tax>7132</expected_total_tax>
+   <expected_refund>2368</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Chen</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>8/20/1982</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>95000</w2_wages>
+         <w2_withholding>9500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Chen</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>5/15/1984</date_of_birth>
+         <occupation>Stay-at-Home Parent</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophie Chen</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>2/10/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <is_college_student>false</is_college_student>
+         <school_type>none</school_type>
+         <tuition_paid>0</tuition_paid>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Primary Residence -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>456 Ocean View Drive, San Diego, CA 92101</address>
+         <purchase_date>3/1/2021</purchase_date>
+         <purchase_price>650000</purchase_price>
+         <current_fmv>750000</current_fmv>
+         <mortgage_balance>580000</mortgage_balance>
+         <mortgage_origination_date>3/1/2021</mortgage_origination_date>
+         <mortgage_interest>12800</mortgage_interest>
+         <property_taxes>9200</property_taxes>
+         <rental_income>0</rental_income>
+         <rental_expenses>0</rental_expenses>
+         <depreciation>0</depreciation>
+      </property>
+   </properties>
+
+   <!-- No vehicles (donated the vehicle) -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Noncash Charitable Contributions - Vehicle -->
+   <noncash_contributions>
+      <!-- Vehicle donation requiring appraisal -->
+      <contribution id="1">
+         <id>1</id>
+         <organization>American Red Cross</organization>
+         <ein>53-0196605</ein>
+         <donation_date>6/15/2025</donation_date>
+         <property_type>vehicle</property_type>
+         <description>2018 Honda Accord, VIN: 1HGCV1F30JA012345, 65,000 miles</description>
+         <original_cost>22000</original_cost>
+         <fair_market_value>8000</fair_market_value>
+         <acquisition_date>4/1/2018</acquisition_date>
+         <condition>good</condition>
+         <appraisal_required>true</appraisal_required>
+         <appraisal_date>7/10/2025</appraisal_date>
+         <appraiser_name>John Smith, Certified Vehicle Appraiser</appraiser_name>
+         <appraiser_ein>98-7654321</appraiser_ein>
+         <appraisal_fee>150</appraisal_fee>
+         <!-- Charity sold vehicle, Form 1098-C shows sale proceeds -->
+         <charity_use>sold</charity_use>
+         <sale_proceeds>7500</sale_proceeds>
+         <form_1098c_received>true</form_1098c_received>
+         <!-- Deduction limited to lesser of FMV ($8,000) or sale proceeds ($7,500) -->
+         <deductible_amount>7500</deductible_amount>
+      </contribution>
+   </noncash_contributions>
+
+   <!-- Regular charitable contributions (cash) -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>Church donations (cash)</description>
+         <amount>2000</amount>
+      </deduction>
+   </deductions>
+</job>
