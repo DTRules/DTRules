@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  District of Columbia Corporate Franchise Tax Entity Data Dictionary
+
+  DC Code § 47-1807.02: Flat rate 8.25% corporate franchise tax
+  Apportionment: Single-sales factor (100% sales apportionment) since 2015
+  Economic Nexus: $100,000 gross receipts threshold
+  Form: DC Form D-20 (Corporation Franchise Tax Return)
+
+  Note: DC uses "franchise tax" terminology but it functions as a corporate income tax.
+  The tax is levied on corporate net income apportioned to DC using single-sales factor.
+-->
+<entity_dictionary name="CorporateTax_DC_Constants">
+
+  <!--
+    Apportionment Entity: District of Columbia Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment and DC-specific tables 55000-55099.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='DC'
+           comment='District of Columbia code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='DC economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='DC economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='DC uses 100% single-sales factor apportionment (effective 2015, DC Code § 47-1810.02)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0825'
+           comment='DC corporate franchise tax rate: 8.25% flat rate (DC Code § 47-1807.02)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='DC-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='DC-specific subtractions: DC municipal bond interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='DC tax credits: R&D, jobs, historic preservation, low-income housing, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: DC-Specific Extensions
+
+    DC has minimum tax requirements based on gross receipts that differ from
+    the standard income-based calculation.
+  -->
+  <entity name="result">
+
+    <!-- DC Minimum Tax -->
+    <field name='dc_gross_receipts' type='double' default_value='0.0'
+           comment='DC gross receipts for minimum tax calculation'/>
+
+    <field name='dc_minimum_tax' type='double' default_value='0.0'
+           comment='DC minimum franchise tax: $250 if receipts <= $1M, $1000 if receipts > $1M'/>
+
+  </entity>
+
+</entity_dictionary>

@@ -1,0 +1,16 @@
+# Build artifacts
+build/
+*.o
+
+# Binary
+dtrules-asm
+dtrules-test
+
+# Editor files
+*.swp
+*~
+.vscode/
+.idea/
+
+# Test output
+test/comparison/output/

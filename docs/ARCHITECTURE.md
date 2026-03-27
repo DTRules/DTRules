@@ -561,3 +561,206 @@ public Result evaluate(Input input) {
 4. **Decision Table Compilation** - Done once at load time
 5. **Stack Operations** - O(1) for push/pop
 6. **Entity Lookup** - HashMap, O(1) average
+
+---
+
+## Layered Architecture: Rule Set Management vs Runtime
+
+DTRules has a clear separation between **Rule Set Management** and the **Runtime**. This distinction is critical for understanding how multiple runtime implementations can execute the same rules.
+
+### The Two Layers
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      RULE SET MANAGEMENT LAYER                          │
+│                                                                         │
+│  Responsibilities:                                                      │
+│  - Load rule definitions (XML, Excel)                                   │
+│  - Compile EL expressions to bytecode                                   │
+│  - Manage entity definitions (schema)                                   │
+│  - Store decision table definitions                                     │
+│  - Provide session factory                                              │
+│                                                                         │
+│  Components: RulesDirectory, RuleSet, EntityFactory, Compiler           │
+│                                                                         │
+│  Characteristics:                                                       │
+│  - Stateless (definitions only)                                         │
+│  - Thread-safe, shareable                                               │
+│  - Loads once, used many times                                          │
+│                                                                         │
+│  Output: Bytecode chunks, entity definitions, decision table metadata   │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │ Provides bytecode to
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           RUNTIME LAYER                                 │
+│                                                                         │
+│  Responsibilities:                                                      │
+│  - Execute bytecode                                                     │
+│  - Manage execution state (stacks)                                      │
+│  - Implement operators                                                  │
+│  - Handle entity instances                                              │
+│                                                                         │
+│  Components: Runtime State, Bytecode Executor, Operator Table           │
+│                                                                         │
+│  Characteristics:                                                       │
+│  - Stateful (owns execution state)                                      │
+│  - NOT thread-safe (one per evaluation)                                 │
+│  - Self-contained and complete                                          │
+│  - Interchangeable implementations                                      │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Critical Design Principle: Self-Contained Runtimes
+
+Each runtime implementation MUST be self-contained. The execution state (data stack, entity stack, control stack) belongs to the Runtime, not to Rule Set Management.
+
+```
+WRONG: State split between layers
+┌──────────────────────┐     ┌──────────────────────┐
+│  Rule Set Management │     │       Runtime        │
+│                      │     │                      │
+│  ┌────────────────┐  │     │  ┌────────────────┐  │
+│  │  Partial State │◀─┼─────┼─▶│  Partial State │  │
+│  └────────────────┘  │     │  └────────────────┘  │
+│                      │     │        │             │
+└──────────────────────┘     │        ▼ fallback    │
+                             │  ┌────────────────┐  │
+                             │  │  Other Runtime │  │
+                             │  └────────────────┘  │
+                             └──────────────────────┘
+
+RIGHT: Runtime owns complete state
+┌──────────────────────┐     ┌──────────────────────┐
+│  Rule Set Management │     │       Runtime        │
+│                      │     │                      │
+│  ┌────────────────┐  │     │  ┌────────────────┐  │
+│  │   Bytecode     │──┼────▶│  │ Complete State │  │
+│  │   Definitions  │  │     │  │ - Data Stack   │  │
+│  │   Metadata     │  │     │  │ - Entity Stack │  │
+│  └────────────────┘  │     │  │ - Ctrl Stack   │  │
+│                      │     │  │ - Operators    │  │
+└──────────────────────┘     │  └────────────────┘  │
+                             │                      │
+                             │  No fallbacks.       │
+                             │  No syncing.         │
+                             │  Complete execution. │
+                             └──────────────────────┘
+```
+
+### Why This Matters
+
+A runtime could execute on a different machine than where the rules are managed. Consider:
+
+```
+┌─────────────────────┐          ┌─────────────────────┐
+│  Management Server  │          │  Execution Node     │
+│                     │          │                     │
+│  - Load rules       │  ─────▶  │  - Runtime only     │
+│  - Compile bytecode │ bytecode │  - Execute rules    │
+│  - No execution     │          │  - No compilation   │
+└─────────────────────┘          └─────────────────────┘
+```
+
+If the runtime tries to "fall back" to another runtime or "sync" state with management code, this architecture breaks. The runtime must be complete and self-contained.
+
+### Multiple Runtime Implementations
+
+DTRules supports multiple runtime implementations, all executing the same bytecode:
+
+```
+                    ┌──────────────────────────────┐
+                    │     Rule Set Management      │
+                    │                              │
+                    │  Compiles to bytecode once   │
+                    └──────────────┬───────────────┘
+                                   │
+                                   │ Same bytecode
+                    ┌──────────────┼──────────────┐
+                    │              │              │
+                    ▼              ▼              ▼
+          ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+          │ Go Runtime  │ │Java Runtime │ │ ASM Runtime │
+          │             │ │             │ │             │
+          │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │
+          │ │DTState  │ │ │ │DTState  │ │ │ │VMState  │ │
+          │ │(Go)     │ │ │ │(Java)   │ │ │ │(Native) │ │
+          │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │
+          │             │ │             │ │             │
+          │ Operators   │ │ Operators   │ │ Operators   │
+          │ (Go impl)   │ │ (Java impl) │ │ (ASM impl)  │
+          └─────────────┘ └─────────────┘ └─────────────┘
+
+          Each runtime is COMPLETE and SELF-CONTAINED.
+          No cross-runtime dependencies at execution time.
+```
+
+### The PostScript Model
+
+DTRules follows the PostScript execution model: a single stack machine with uniform execution.
+
+Key principles:
+1. **One operand stack** - All values go on the same stack
+2. **Uniform execution** - Everything is either data or executable
+3. **No special cases** - Operators like `forall` just execute; no "nested call" handling
+4. **Context via entity stack** - Entities provide the namespace for lookups
+
+```
+PostScript-style execution (CORRECT):
+┌─────────────────────────────────────────────────────┐
+│                    Single Stack                      │
+│  ┌─────────────────────────────────────────────┐    │
+│  │  value  value  value  value  value  ...     │    │
+│  └─────────────────────────────────────────────┘    │
+│                        ▲                             │
+│                        │                             │
+│            All operations work here.                 │
+│            forall? Same stack.                       │
+│            executetable? Same stack.                 │
+│            No "nested contexts". Just execute.       │
+└─────────────────────────────────────────────────────┘
+
+NOT PostScript (WRONG):
+┌─────────────────────────────────────────────────────┐
+│  ┌─────────┐   ┌─────────┐   ┌─────────┐           │
+│  │ Stack 1 │   │ Stack 2 │   │ Stack 3 │           │
+│  │ (outer) │──▶│ (inner) │──▶│ (nested)│           │
+│  └─────────┘   └─────────┘   └─────────┘           │
+│       ▲              ▲              ▲               │
+│       │              │              │               │
+│    sync           sync           sync               │
+│                                                     │
+│  Multiple stacks with syncing = WRONG               │
+└─────────────────────────────────────────────────────┘
+```
+
+### DTState: Part of the Runtime
+
+DTState (or VMState, or whatever the runtime calls its state) is **part of the Runtime layer**, not Rule Set Management. It contains:
+
+- **Data Stack** - Operand stack for all values
+- **Entity Stack** - Context stack for name lookups
+- **Control Stack** - Call frames for decision tables
+
+DTState is created fresh for each evaluation and destroyed afterward. It is NOT shared, NOT synced to another runtime, and NOT split across layers.
+
+```
+Session (coordination)
+├── Rule Set reference (from Management layer)
+└── Runtime instance (owns execution state)
+    └── DTState / VMState
+        ├── Data Stack
+        ├── Entity Stack
+        └── Control Stack
+```
+
+### Implications for Runtime Implementation
+
+When implementing a new runtime:
+
+1. **Own your state completely** - Don't reference another runtime's state
+2. **Implement all operators** - Don't fall back to another runtime
+3. **Execute bytecode completely** - No partial execution with handoffs
+4. **Single stack model** - Follow PostScript semantics
+5. **No syncing** - If you're syncing state, the architecture is wrong

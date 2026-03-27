@@ -27,7 +27,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     <li><strong>Excel-based Rule Definition</strong> - Define rules in familiar spreadsheet format</li>
     <li><strong>Domain Specific Languages</strong> - EL (Expression Language) for readable conditions and actions</li>
     <li><strong>Entity Data Model</strong> - Define your data structures in Excel</li>
-    <li><strong>Auto-mapping</strong> - Automatic mapping between Java objects and rule entities</li>
+    <li><strong>Auto-mapping</strong> <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span> - Automatic mapping between Java objects and rule entities</li>
     <li><strong>Test Harness</strong> - Built-in testing framework for validating rules</li>
     <li><strong>Trace &amp; Debug</strong> - Comprehensive tracing for debugging rule execution</li>
   </ul>
@@ -110,14 +110,31 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
   <p>Choose the quick start guide that matches your use case:</p>
 
   <ul>
-    <li><a href="/docs/getting-started/quickstart-ui">Quick Start (UI)</a> - Visual editing with the React UI</li>
-    <li><a href="/docs/getting-started/quickstart-go">Quick Start (Go)</a> - High-performance CLI and API</li>
-    <li><a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a> - Full tooling with Excel compilers</li>
+    <li>
+      <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a> - Understand the Java/Go workflow
+    </li>
+    <li>
+      <a href="/docs/getting-started/quickstart-ui">Quick Start (UI)</a>
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-1">Go</span>
+      - Visual editing with the React UI
+    </li>
+    <li>
+      <a href="/docs/getting-started/quickstart-go">Quick Start (Go)</a>
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-1">Go</span>
+      - High-performance CLI and API
+    </li>
+    <li>
+      <a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a>
+      <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full ml-1">Java</span>
+      - Full tooling with Excel compilers
+    </li>
   </ul>
 
   <h2>Project Structure</h2>
 
-  <p>A typical DTRules project has this structure:</p>
+  <h3>Java Project <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h3>
+
+  <p>A Java project includes Excel source files and compiles them to XML:</p>
 
   <pre><code>project/
 ├── DecisionTables/           # Excel files with business rules
@@ -127,9 +144,26 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 ├── xml/                      # Compiled XML rule files (generated)
 ├── testfiles/                # Test case input files
 ├── DTRules.xml               # Project configuration
-└── src/main/java/            # Java code (optional)
+├── pom.xml                   # Maven configuration
+└── src/main/java/
     └── CompileRules.java     # Compiles Excel → XML
     └── TestRules.java        # Runs test cases</code></pre>
+
+  <h3>Go Project <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></h3>
+
+  <p>A Go project consumes pre-compiled XML files (compiled by Java):</p>
+
+  <pre><code>project/
+├── xml/                      # Pre-compiled XML files
+│   ├── MyRules_edd.xml       # (from Java compilation)
+│   └── MyRules_dt.xml
+├── testfiles/                # Test case input files
+└── main.go                   # Your Go application (optional)</code></pre>
+
+  <p>
+    <strong>Note:</strong> Go projects require XML files that were compiled using the Java compiler.
+    See <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a> for the full workflow.
+  </p>
 
   <h2>Links</h2>
 

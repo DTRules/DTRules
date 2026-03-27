@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule E - Multiple Rental Properties -->
+<!-- Scenario: Taxpayer with three rental properties -->
+<!-- Property 1 net: $8,000, Property 2 net: $5,000, Property 3 net: ($2,000) -->
+<!-- Total net rental income: $11,000 -->
+<job>
+    <id>10018</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>FL</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $105,000 W-2 + $11,000 rental net = $116,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $86,000 -->
+    <!-- Tax: ~$9,980 -->
+    <expected_agi>116000</expected_agi>
+    <expected_taxable_income>86000</expected_taxable_income>
+    <expected_total_tax>9980</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Robert Wilson</name>
+            <ssn>901-23-4567</ssn>
+            <date_of_birth>04/20/1972</date_of_birth>
+            <occupation>Real Estate Investor</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>105000</w2_wages>
+            <w2_withholding>18000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <!-- Property 1 - Positive income -->
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <address>100 First Street, Tampa, FL 33601</address>
+            <purchase_date>3/1/2019</purchase_date>
+            <purchase_price>220000</purchase_price>
+            <current_fmv>280000</current_fmv>
+            <mortgage_balance>150000</mortgage_balance>
+            <mortgage_origination_date>3/1/2019</mortgage_origination_date>
+            <mortgage_interest>6000</mortgage_interest>
+            <property_taxes>3200</property_taxes>
+            <rental_income>22000</rental_income>
+            <rental_insurance>1400</rental_insurance>
+            <rental_repairs>1500</rental_repairs>
+            <rental_management>1320</rental_management>
+            <rental_utilities>0</rental_utilities>
+            <depreciation>6580</depreciation>
+        </property>
+
+        <!-- Property 2 - Positive income -->
+        <property>
+            <id>2</id>
+            <type>rental</type>
+            <address>200 Second Avenue, Tampa, FL 33602</address>
+            <purchase_date>8/15/2020</purchase_date>
+            <purchase_price>180000</purchase_price>
+            <current_fmv>210000</current_fmv>
+            <mortgage_balance>130000</mortgage_balance>
+            <mortgage_origination_date>8/15/2020</mortgage_origination_date>
+            <mortgage_interest>5200</mortgage_interest>
+            <property_taxes>2600</property_taxes>
+            <rental_income>18000</rental_income>
+            <rental_insurance>1100</rental_insurance>
+            <rental_repairs>1800</rental_repairs>
+            <rental_management>1080</rental_management>
+            <rental_utilities>0</rental_utilities>
+            <depreciation>5220</depreciation>
+        </property>
+
+        <!-- Property 3 - Small loss -->
+        <property>
+            <id>3</id>
+            <type>rental</type>
+            <address>300 Third Place, Tampa, FL 33603</address>
+            <purchase_date>11/1/2023</purchase_date>
+            <purchase_price>195000</purchase_price>
+            <current_fmv>200000</current_fmv>
+            <mortgage_balance>165000</mortgage_balance>
+            <mortgage_origination_date>11/1/2023</mortgage_origination_date>
+            <mortgage_interest>7000</mortgage_interest>
+            <property_taxes>2800</property_taxes>
+            <rental_income>15000</rental_income>
+            <rental_insurance>1200</rental_insurance>
+            <rental_repairs>3500</rental_repairs>
+            <rental_management>900</rental_management>
+            <rental_utilities>600</rental_utilities>
+            <depreciation>5000</depreciation>
+        </property>
+    </properties>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+    <expenses></expenses>
+</job>

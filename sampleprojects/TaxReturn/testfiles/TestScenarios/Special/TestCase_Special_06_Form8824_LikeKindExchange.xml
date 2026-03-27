@@ -1,0 +1,190 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Form 8824 - Like-Kind Exchanges (Section 1031)
+
+      IRC Section 1031 - Like-Kind Exchange
+
+      Rules Tested:
+      - Post-TCJA (2018+): Only REAL PROPERTY qualifies for §1031 treatment
+      - Must be investment or business property (not personal use)
+      - Exchange must be of "like-kind" (real property for real property)
+      - Boot received (cash, debt relief, unlike property) triggers partial recognition
+      - Realized gain = FMV received - Adjusted basis relinquished
+      - Recognized gain = Lesser of (realized gain OR boot received)
+      - Deferred gain = Realized gain - Recognized gain
+      - Basis in new property = FMV new property - Deferred gain
+
+      Test Scenario:
+      - Exchange of rental property for another rental property
+      - Relinquished property: Apartment building
+      -   Adjusted basis: $500,000
+      -   FMV: $750,000
+      -   Debt on property: $300,000
+      - Replacement property: Office building
+      -   FMV: $800,000
+      -   Debt assumed: $350,000
+      - Cash paid by taxpayer: $0
+      - Boot calculation:
+      -   Debt relief: $300,000 (relinquished)
+      -   Debt assumed: $350,000 (replacement)
+      -   Net boot received: $0 (actually received net boot PAID of $50k)
+      -   Cash boot received: $0
+      - Since net liability INCREASED, no boot received
+      - Realized gain: $750,000 - $500,000 = $250,000
+      - Recognized gain: $0 (no boot received)
+      - Deferred gain: $250,000
+      - Basis in new property: $800,000 - $250,000 = $550,000
+
+      Expected Results:
+      - Form 8824 required
+      - No gain recognized in 2025 (fully deferred)
+      - Basis in new property: $550,000 (carryover basis + debt increase)
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $125,000 W-2 + $18,000 rental net (new property partial year) -->
+   <!-- AGI: $143,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $143,000 - $30,000 = $113,000 -->
+   <!-- Tax: $13,422 (2025 MFJ rates) -->
+   <!-- Withholding: $15,000 -->
+   <!-- Refund: $1,578 -->
+   <expected_agi>143000</expected_agi>
+   <expected_taxable_income>113000</expected_taxable_income>
+   <expected_total_tax>13422</expected_total_tax>
+   <expected_refund>1578</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Richard Thompson</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>2/14/1972</date_of_birth>
+         <occupation>Commercial Real Estate Investor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>125000</w2_wages>
+         <w2_withholding>15000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Margaret Thompson</name>
+         <ssn>789-01-2345</ssn>
+         <date_of_birth>5/20/1974</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- Replacement property (acquired in exchange) -->
+   <properties>
+      <!-- New office building acquired via §1031 exchange -->
+      <property id="1">
+         <id>1</id>
+         <type>commercial_rental</type>
+         <address>890 Commerce Drive, Houston, TX 77001</address>
+         <acquisition_date>8/15/2025</acquisition_date>
+         <acquisition_method>section_1031_exchange</acquisition_method>
+         <fair_market_value>800000</fair_market_value>
+         <!-- Carryover basis calculation -->
+         <basis_calculation>FMV $800k - Deferred gain $250k = $550k</basis_calculation>
+         <adjusted_basis>550000</adjusted_basis>
+         <current_fmv>800000</current_fmv>
+         <mortgage_balance>350000</mortgage_balance>
+         <mortgage_origination_date>8/15/2025</mortgage_origination_date>
+         <!-- Partial year rental income (4.5 months) -->
+         <rental_income>36000</rental_income>
+         <mortgage_interest>8200</mortgage_interest>
+         <property_taxes>5400</property_taxes>
+         <rental_insurance>3200</rental_insurance>
+         <rental_management>2800</rental_management>
+         <rental_repairs>1200</rental_repairs>
+         <depreciation>7200</depreciation>
+      </property>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Like-Kind Exchange (Section 1031) -->
+   <like_kind_exchanges>
+      <!-- Exchange of apartment building for office building -->
+      <exchange id="1">
+         <id>1</id>
+         <exchange_date>8/15/2025</exchange_date>
+         <exchange_type>simultaneous</exchange_type>
+         <qualified_intermediary>Texas 1031 Exchange Services LLC</qualified_intermediary>
+         <intermediary_ein>75-1234567</intermediary_ein>
+         <!-- Relinquished property (given up) -->
+         <relinquished_property_description>12-unit apartment building</relinquished_property_description>
+         <relinquished_property_address>456 Apartment Lane, Houston, TX 77002</relinquished_property_address>
+         <relinquished_property_fmv>750000</relinquished_property_fmv>
+         <relinquished_property_adjusted_basis>500000</relinquished_property_adjusted_basis>
+         <relinquished_property_date_acquired>3/1/2015</relinquished_property_date_acquired>
+         <relinquished_property_debt>300000</relinquished_property_debt>
+         <!-- Replacement property (received) -->
+         <replacement_property_description>Office building</replacement_property_description>
+         <replacement_property_address>890 Commerce Drive, Houston, TX 77001</replacement_property_address>
+         <replacement_property_fmv>800000</replacement_property_fmv>
+         <replacement_property_debt_assumed>350000</replacement_property_debt_assumed>
+         <!-- Boot calculation -->
+         <cash_received>0</cash_received>
+         <cash_paid>0</cash_paid>
+         <debt_relief>300000</debt_relief>
+         <debt_assumed>350000</debt_assumed>
+         <!-- Net: liability INCREASED by $50k, so NO boot received -->
+         <net_boot_received>0</net_boot_received>
+         <unlike_property_received_fmv>0</unlike_property_received_fmv>
+         <!-- Gain calculation -->
+         <realized_gain>250000</realized_gain>
+         <recognized_gain>0</recognized_gain>
+         <deferred_gain>250000</deferred_gain>
+         <!-- Basis in replacement property -->
+         <replacement_property_basis>550000</replacement_property_basis>
+         <!-- Holding period -->
+         <holding_period_carryover>true</holding_period_carryover>
+         <original_acquisition_date>3/1/2015</original_acquisition_date>
+      </exchange>
+   </like_kind_exchanges>
+
+   <!-- No other deductions -->
+   <deductions>
+   </deductions>
+</job>

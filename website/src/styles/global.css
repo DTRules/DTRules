@@ -273,3 +273,205 @@
   border-top: 1px solid var(--color-border);
   margin: 2rem 0;
 }
+
+/* Enhanced Syntax Highlighting */
+pre {
+  position: relative;
+  background: linear-gradient(135deg, oklch(15% 0.03 264.7) 0%, oklch(13% 0.025 270) 100%);
+  border: 1px solid oklch(100% 0 0 / 8%);
+  box-shadow: 0 4px 6px -1px oklch(0% 0 0 / 20%), 0 2px 4px -2px oklch(0% 0 0 / 10%);
+}
+
+pre code {
+  display: block;
+  line-height: 1.6;
+}
+
+/* Code syntax colors matching site theme */
+pre code .comment,
+code .comment {
+  color: oklch(55% 0.02 264.7);
+  font-style: italic;
+}
+
+pre code .keyword,
+code .keyword {
+  color: oklch(74% 0.16 300);
+}
+
+pre code .string,
+code .string {
+  color: oklch(74% 0.16 150);
+}
+
+pre code .number,
+code .number {
+  color: oklch(74% 0.14 80);
+}
+
+pre code .function,
+code .function {
+  color: oklch(74% 0.16 250);
+}
+
+pre code .operator,
+code .operator {
+  color: oklch(80% 0.12 60);
+}
+
+pre code .variable,
+code .variable {
+  color: oklch(85% 0.08 200);
+}
+
+/* Inline code in prose */
+.prose code:not(pre code) {
+  color: oklch(85% 0.12 250);
+  background-color: oklch(20% 0.03 264.7);
+  border: 1px solid oklch(100% 0 0 / 8%);
+}
+
+/* Copy button styling (for future enhancement) */
+pre:hover::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Language label for code blocks */
+pre[data-language]::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  color: oklch(60% 0.02 264.7);
+  background: oklch(18% 0.025 264.7);
+  border-bottom-left-radius: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Callout/Alert Components */
+.callout {
+  position: relative;
+  padding: 1rem 1rem 1rem 3rem;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+  background: oklch(15% 0.03 264.7 / 70%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid oklch(100% 0 0 / 10%);
+}
+
+.callout-icon {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.callout-content {
+  color: var(--color-muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.callout-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Callout variants */
+.callout-tip {
+  border-left: 3px solid oklch(74% 0.16 150);
+}
+
+.callout-tip .callout-icon {
+  color: oklch(74% 0.16 150);
+}
+
+.callout-tip .callout-title {
+  color: oklch(74% 0.16 150);
+}
+
+.callout-warning {
+  border-left: 3px solid oklch(74% 0.16 80);
+}
+
+.callout-warning .callout-icon {
+  color: oklch(74% 0.16 80);
+}
+
+.callout-warning .callout-title {
+  color: oklch(74% 0.16 80);
+}
+
+.callout-info {
+  border-left: 3px solid oklch(74% 0.16 250);
+}
+
+.callout-info .callout-icon {
+  color: oklch(74% 0.16 250);
+}
+
+.callout-info .callout-title {
+  color: oklch(74% 0.16 250);
+}
+
+.callout-danger {
+  border-left: 3px solid oklch(65% 0.2 27);
+}
+
+.callout-danger .callout-icon {
+  color: oklch(65% 0.2 27);
+}
+
+.callout-danger .callout-title {
+  color: oklch(65% 0.2 27);
+}
+
+/* Heading anchors for documentation */
+.prose h2,
+.prose h3 {
+  position: relative;
+  scroll-margin-top: 5rem;
+}
+
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor {
+  opacity: 1;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  color: var(--color-muted-foreground);
+  text-decoration: none;
+  font-weight: 400;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.heading-anchor:hover {
+  color: var(--color-blue-400);
+}
+
+/* Adjust for h2 with border-bottom */
+.prose h2 .heading-anchor {
+  top: calc(50% - 0.25rem);
+}

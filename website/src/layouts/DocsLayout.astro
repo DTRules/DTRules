@@ -18,7 +18,7 @@ const { title, description, prev, next } = Astro.props;
     <div class="flex gap-8">
       <DocsSidebar />
 
-      <article class="flex-1 min-w-0">
+      <article class="flex-1 min-w-0" id="docs-content">
         <div class="prose max-w-none">
           <h1 class="!mt-0">{title}</h1>
           <slot />
@@ -57,4 +57,41 @@ const { title, description, prev, next } = Astro.props;
       </article>
     </div>
   </div>
+
+  <script>
+    // Add anchor links to h2 and h3 headings
+    function addHeadingAnchors() {
+      const content = document.getElementById('docs-content');
+      if (!content) return;
+
+      const headings = content.querySelectorAll('h2, h3');
+      headings.forEach((heading) => {
+        // Create slug from heading text
+        const text = heading.textContent || '';
+        const slug = text
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+
+        // Set ID on heading
+        heading.id = slug;
+
+        // Create anchor link
+        const anchor = document.createElement('a');
+        anchor.href = `#${slug}`;
+        anchor.className = 'heading-anchor';
+        anchor.setAttribute('aria-label', `Link to ${text}`);
+        anchor.textContent = '#';
+
+        // Insert anchor before heading content
+        heading.insertBefore(anchor, heading.firstChild);
+      });
+    }
+
+    // Run on page load
+    addHeadingAnchors();
+
+    // Re-run on Astro page transitions
+    document.addEventListener('astro:page-load', addHeadingAnchors);
+  </script>
 </BaseLayout>

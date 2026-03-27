@@ -1,0 +1,103 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Minnesota State Tax Test Case - Married Filing Jointly, Bracket 3 -->
+   <!-- Test that MFJ filers with dependents spanning multiple brackets are taxed correctly -->
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>MN</state>
+   <city>St. Paul</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $220,000 ($95,000 + $125,000) -->
+   <!-- Standard deduction: $29,900 (MFJ) -->
+   <!-- Dependent exemptions: 2 × $5,200 = $10,400 -->
+   <!-- Taxable income: $220,000 - $29,900 - $10,400 = $179,700 -->
+   <!-- Tax calculation (MFJ brackets):
+        - Bracket 1 ($0-$47,620 @ 5.35%): $47,620 × 0.0535 = $2,547.67
+        - Bracket 2 ($47,620-$189,180 @ 6.80%): ($179,700 - $47,620) × 0.0680 = $8,981.44
+        - Total: $2,547.67 + $8,981.44 = $11,529.11
+   -->
+   <expected_agi>220000</expected_agi>
+   <expected_taxable_income>179700</expected_taxable_income>
+   <expected_mn_state_tax>11529.11</expected_mn_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Primary taxpayer -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Martinez</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>4/8/1985</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>125000</w2_wages>
+         <w2_withholding>18000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>David Martinez</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>9/15/1983</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>95000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <!-- Child 1 -->
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophia Martinez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>3/22/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <!-- Child 2 -->
+      <dependent id="2">
+         <id>2</id>
+         <name>Lucas Martinez</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>7/10/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+</job>

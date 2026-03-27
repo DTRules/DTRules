@@ -1,0 +1,51 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Filing Status Test: Married Filing Jointly with standard deduction -->
+   <!-- 2025 Standard Deduction MFJ: $30,000 -->
+   <!-- Tests MFJ filing status with dual W-2 income -->
+
+   <id>Credits-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $85,000 combined W-2 -->
+   <!-- AGI: $85,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $55,000 -->
+   <!-- Tax (2025 MFJ brackets): $5,975 -->
+   <expected_agi>85000</expected_agi>
+   <expected_standard_deduction>30000</expected_standard_deduction>
+   <expected_taxable_income>55000</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Johnson</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>4/18/1985</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Linda Johnson</name>
+         <ssn>222-33-5555</ssn>
+         <date_of_birth>9/22/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>2800</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
