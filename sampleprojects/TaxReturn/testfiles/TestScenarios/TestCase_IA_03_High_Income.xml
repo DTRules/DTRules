@@ -1,0 +1,76 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- IA Test Case 3: Single High Income Earner -->
+   <id>IA-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>IA</state>
+   <city>Iowa City</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $200,000 -->
+   <!-- IA AGI: $200,000 -->
+   <!-- IA Standard Deduction: $15,750 (Federal Single) -->
+   <!-- IA Taxable Income: $184,250 -->
+   <!-- IA Tax: $184,250 × 3.8% = $7,001.50 -->
+   <expected_agi>200000</expected_agi>
+   <expected_ia_agi>200000</expected_ia_agi>
+   <expected_ia_taxable_income>184250</expected_ia_taxable_income>
+   <expected_ia_tax>7001.5</expected_ia_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Wilson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>3/25/1980</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>200000</w2_wages>
+         <w2_withholding>45000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>200000</gross_amount>
+         <withholding>45000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
