@@ -1,0 +1,101 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Vermont Married Filing Jointly Test Case -->
+   <id>202</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>VT</state>
+   <city>Montpelier</city>
+
+   <!-- Test Case 2: MFJ filers with two dependents -->
+   <!-- Income: $150,000 W-2 wages -->
+   <!-- Federal AGI: $150,000 -->
+   <!-- VT Standard Deduction: $14,200 -->
+   <!-- VT Personal Exemptions: 4 people × $5,000 = $20,000 -->
+   <!-- VT Taxable Income: $150,000 - $14,200 - $20,000 = $115,800 -->
+   <!-- VT Tax Calculation: -->
+   <!--   First $75,850 @ 3.35% = $2,540.98 -->
+   <!--   Remaining $39,950 @ 6.60% = $2,636.70 -->
+   <!--   Total VT Tax = $5,177.68 -->
+   <expected_agi>150000</expected_agi>
+   <expected_vt_state_tax>5177.68</expected_vt_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Johnson</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>3/10/1980</date_of_birth>
+         <age>45</age>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>90000</w2_wages>
+         <w2_withholding>13500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Mary Johnson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>5/22/1982</date_of_birth>
+         <age>43</age>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>9000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma Johnson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>1/15/2010</date_of_birth>
+         <age>15</age>
+         <relationship>Daughter</relationship>
+         <is_qualifying_child>true</is_qualifying_child>
+         <months_lived_with_taxpayer>12</months_lived_with_taxpayer>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Oliver Johnson</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>6/20/2015</date_of_birth>
+         <age>10</age>
+         <relationship>Son</relationship>
+         <is_qualifying_child>true</is_qualifying_child>
+         <months_lived_with_taxpayer>12</months_lived_with_taxpayer>
+      </dependent>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No itemized deductions -->
+   <itemized_deductions>
+   </itemized_deductions>
+</job>
