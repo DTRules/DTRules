@@ -535,16 +535,6 @@ func compileRules(rs *session.RuleSet, outFile string) {
 	}
 }
 
-func writeVarint(f *os.File, v int) {
-	buf := make([]byte, 0, 10)
-	for v >= 0x80 {
-		buf = append(buf, byte(v)|0x80)
-		v >>= 7
-	}
-	buf = append(buf, byte(v))
-	f.Write(buf)
-}
-
 func exportToExcel(rs *session.RuleSet, prefix string) {
 	exporter := excel.NewExporter(rs)
 
