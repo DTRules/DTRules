@@ -2,7 +2,9 @@
 build/
 *.o
 *.a
+*.lst
 
 # Editor files
-*.swp
 *~
+*.swp
+.vscode/

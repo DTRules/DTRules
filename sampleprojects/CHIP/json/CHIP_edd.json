@@ -1,0 +1,136 @@
+{
+  "version": "2",
+  "entities": [
+    {
+      "name": "case",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "case", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "clients", "type": "array", "subtype": "client", "access": "r", "input": "", "default_value": "", "comment": ""},
+        {"name": "county_cd", "type": "string", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "The county for this case"},
+        {"name": "id", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "Case_ID"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "relationships", "type": "array", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "The relationships between people in the case"}
+      ]
+    },
+    {
+      "name": "client",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "age", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "We simply get the age of the client"},
+        {"name": "applying", "type": "boolean", "subtype": "", "access": "r", "input": "main", "default_value": "false", "comment": "Is this client applying for the program"},
+        {"name": "client", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "client_fpl", "type": "integer", "subtype": "", "access": "rw", "input": "", "default_value": "0", "comment": "The FPL percentage for this client."},
+        {"name": "disabled", "type": "boolean", "subtype": "", "access": "r", "input": "main", "default_value": "false", "comment": ""},
+        {"name": "eligible", "type": "boolean", "subtype": "", "access": "rw", "input": "", "default_value": "true", "comment": "We assume the client is eligible until determined ineligible"},
+        {"name": "eligibleForMedicaid", "type": "boolean", "subtype": "", "access": "rw", "input": "", "default_value": "false", "comment": ""},
+        {"name": "expectedChildren", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "1", "comment": "Only valid if Pregnant"},
+        {"name": "gender", "type": "string", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": ""},
+        {"name": "id", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": ""},
+        {"name": "incomeGroupCount", "type": "integer", "subtype": "", "access": "rw", "input": "", "default_value": "0", "comment": "Number of Individuals in this Individual's income group"},
+        {"name": "incomes", "type": "array", "subtype": "income", "access": "r", "input": "main", "default_value": "", "comment": ""},
+        {"name": "livesAtResidence", "type": "boolean", "subtype": "", "access": "r", "input": "main", "default_value": "true", "comment": "This client lives at the case residence"},
+        {"name": "lostInsuranceDate", "type": "date", "subtype": "", "access": "rw", "input": "", "default_value": "1/1/2000", "comment": "Date the client lost insurance"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "notes", "type": "array", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "Notes Concerning Eligibility"},
+        {"name": "pregnant", "type": "boolean", "subtype": "", "access": "r", "input": "main", "default_value": "false", "comment": ""},
+        {"name": "programLevel", "type": "string", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "The program Level for which the client is eligible"},
+        {"name": "totalGroupIncome", "type": "integer", "subtype": "", "access": "rw", "input": "", "default_value": "0", "comment": "Total Income for this client's Income Group"},
+        {"name": "totalIncome", "type": "integer", "subtype": "", "access": "rw", "input": "", "default_value": "0", "comment": "Total Income for this client"},
+        {"name": "uninsured", "type": "boolean", "subtype": "", "access": "rw", "input": "", "default_value": "true", "comment": "The client is uninsured"},
+        {"name": "validatedCitizenship", "type": "boolean", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": ""},
+        {"name": "validatedImmigrationStatus", "type": "boolean", "subtype": "", "access": "rw", "input": "", "default_value": "false", "comment": "The client is a validated Immigrant"}
+      ]
+    },
+    {
+      "name": "constants",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "AtCostCoverage", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "At Cost Coverage", "comment": "Coverage Level for the Program"},
+        {"name": "child", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "child", "comment": "Relationship Type"},
+        {"name": "ChildSupport", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "CS", "comment": "Income Type"},
+        {"name": "CHIP", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "CHIP", "comment": "Program Type"},
+        {"name": "constants", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "coveredCounties", "type": "array", "subtype": "", "access": "r", "input": "", "default_value": "{ \"AA\" \"AK\" \"BC\" \"BK\" \"BT\" \"CR\" \"CO\"  \"TX\"  \"LO\"  \"AR\" \"XR\" \"XO\"  \"XX\"  \"XO\"  \"XR\"  }", "comment": "Counties covered by CHIP"},
+        {"name": "diagCodes", "type": "array", "subtype": "", "access": "r", "input": "", "default_value": "[ \"V2501\" \"V2502\" ]", "comment": "diag codes"},
+        {"name": "Dividends", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "DIV", "comment": "Income Type"},
+        {"name": "ExcludedIncomeTypes", "type": "array", "subtype": "", "access": "r", "input": "", "default_value": "{ \"CS\" \"SSI\" }", "comment": "Excluded Income Types"},
+        {"name": "FOODSTAMPS", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "FS", "comment": "Program Type"},
+        {"name": "FPL_Base", "type": "integer", "subtype": "", "access": "r", "input": "", "default_value": "867", "comment": "Base Federal Poverty Level for 1 person per month"},
+        {"name": "FPL_PerAdditionalPerson", "type": "integer", "subtype": "", "access": "r", "input": "", "default_value": "300", "comment": "Federal Poverty Level for each additional person per month"},
+        {"name": "FreeCoverage", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "Free Coverage", "comment": "Coverage Level for the Program"},
+        {"name": "LowCostCoverage", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "Low Cost Coverage", "comment": "Coverage Level for the Program"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "MEDICAID", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "MEDICAID", "comment": "Program Type"},
+        {"name": "parent", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "parent", "comment": "Relationship Type"},
+        {"name": "Settlements", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "SET", "comment": "Income Type"},
+        {"name": "sibling", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "sibling", "comment": "Relationship Type"},
+        {"name": "SocialSecurity", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "SS", "comment": "Income Type"},
+        {"name": "SSI", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "SSI", "comment": "Income Type"},
+        {"name": "Tips", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "TIP", "comment": "Income Type"},
+        {"name": "Wages", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "WA", "comment": "Income Type"}
+      ]
+    },
+    {
+      "name": "income",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "amount", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "In Dollars, per month"},
+        {"name": "earned", "type": "boolean", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "Earned or Unearned"},
+        {"name": "id", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "Key"},
+        {"name": "income", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "type", "type": "string", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "Wages, SSI, Tips, Social Security, Child Support, etc."}
+      ]
+    },
+    {
+      "name": "job",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "currentdate", "type": "date", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "The current date.  May be different from the actual date"},
+        {"name": "effectivedate", "type": "date", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "The Eligibility date if the clients prove eligible"},
+        {"name": "id", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "Key"},
+        {"name": "job", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "program", "type": "string", "subtype": "", "access": "r", "input": "main", "default_value": "none", "comment": "The program for which we are evaluating Eligibility"},
+        {"name": "results", "type": "array", "subtype": "result", "access": "r", "input": "", "default_value": "", "comment": "The results of Eligibility for those clients applying"}
+      ]
+    },
+    {
+      "name": "relationship",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "id", "type": "integer", "subtype": "", "access": "r", "input": "main", "default_value": "", "comment": "Key"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "relationship", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "source", "type": "entity", "subtype": "client", "access": "rw", "input": "main", "default_value": "", "comment": "Source is the <relationship type> of the target"},
+        {"name": "target", "type": "entity", "subtype": "client", "access": "rw", "input": "main", "default_value": "", "comment": ""},
+        {"name": "type", "type": "string", "subtype": "", "access": "rw", "input": "main", "default_value": "", "comment": "Type (child, parent, aunt, uncle, grandmother, sibling)"}
+      ]
+    },
+    {
+      "name": "result",
+      "access": "rw",
+      "comment": "",
+      "fields": [
+        {"name": "client", "type": "entity", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "This Client"},
+        {"name": "client_fpl", "type": "integer", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "The FPL limit for this client"},
+        {"name": "client_Id", "type": "string", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "The Result for this Client"},
+        {"name": "eligible", "type": "boolean", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "Is this Client Eligible"},
+        {"name": "id", "type": "integer", "subtype": "", "access": "rw", "input": "main", "default_value": "", "comment": "key"},
+        {"name": "mapping*key", "type": "string", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Mapping Key"},
+        {"name": "notes", "type": "array", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "Reasons for rejecting the client"},
+        {"name": "program", "type": "string", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "Program"},
+        {"name": "programLevel", "type": "string", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "Coverage Level for the Program"},
+        {"name": "result", "type": "entity", "subtype": "", "access": "r", "input": "", "default_value": "", "comment": "Self Reference"},
+        {"name": "totalGroupIncome", "type": "integer", "subtype": "", "access": "rw", "input": "", "default_value": "", "comment": "The group Income for this client"}
+      ]
+    }
+  ]
+}
