@@ -1,0 +1,140 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>PA</state>
+   <city>Harrisburg</city>
+
+   <!-- Expected values for validation -->
+   <!-- PA Tax Calculation:
+        Class 1 (Compensation): $85,000 + $55,000 = $140,000
+        Class 2 (Interest): $800
+        Class 3 (Dividends): $1,200
+        Class 4 (Net Profits - SE income): $35,000
+        Class 5 (Net Gains - Capital Gains): $8,000
+        Total PA Income: $185,000
+        PA Tax (3.07%): $5,679.50
+   -->
+   <expected_pa_total_income>185000</expected_pa_total_income>
+   <expected_pa_tax>5679.50</expected_pa_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jennifer Williams</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>4/20/1982</date_of_birth>
+         <occupation>Marketing Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>David Williams</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>11/8/1980</date_of_birth>
+         <occupation>Freelance Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>false</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophie Williams</name>
+         <ssn>678-90-1234</ssn>
+         <date_of_birth>8/15/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Lucas Williams</name>
+         <ssn>789-01-2345</ssn>
+         <date_of_birth>2/3/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Income: W-2, Self-Employment, Interest, Dividends, Capital Gains -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <type>w2</type>
+         <taxpayer_id>1</taxpayer_id>
+         <employer_name>Marketing Solutions Inc</employer_name>
+         <gross_amount>85000</gross_amount>
+         <federal_withholding>12000</federal_withholding>
+         <state_withholding>2610</state_withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <type>w2</type>
+         <taxpayer_id>2</taxpayer_id>
+         <employer_name>Part-time Consulting Work</employer_name>
+         <gross_amount>55000</gross_amount>
+         <federal_withholding>7500</federal_withholding>
+         <state_withholding>1689</state_withholding>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <type>interest</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>Citizens Bank</payer_name>
+         <gross_amount>800</gross_amount>
+      </income>
+      <income id="4">
+         <id>4</id>
+         <type>qualified_dividend</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>Schwab</payer_name>
+         <gross_amount>1200</gross_amount>
+      </income>
+      <income id="5">
+         <id>5</id>
+         <type>long_term_capital_gain</type>
+         <taxpayer_id>1</taxpayer_id>
+         <description>Sale of stock</description>
+         <gross_amount>8000</gross_amount>
+      </income>
+   </incomes>
+
+   <!-- Self-employment income -->
+   <self_employments>
+      <self_employment id="1">
+         <id>1</id>
+         <taxpayer_id>2</taxpayer_id>
+         <business_name>Williams Consulting LLC</business_name>
+         <gross_receipts>50000</gross_receipts>
+         <total_expenses>15000</total_expenses>
+         <net_profit>35000</net_profit>
+      </self_employment>
+   </self_employments>
+
+   <deductions></deductions>
+</job>

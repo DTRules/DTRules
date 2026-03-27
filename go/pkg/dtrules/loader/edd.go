@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package loader implements XML loaders for EDD and Decision Table files.
+// Package loader implements XML and JSON loaders for EDD (Entity Data Dictionary)
+// and Decision Table files. It supports loading entity definitions and decision
+// tables from both the traditional DTRules XML format and from JSON.
 package loader
 
 import (
