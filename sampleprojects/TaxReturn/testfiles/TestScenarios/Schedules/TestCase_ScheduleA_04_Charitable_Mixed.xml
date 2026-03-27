@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule A - Charitable Contributions (Cash and Noncash) -->
+<!-- Scenario: Taxpayer with both cash and noncash charitable donations -->
+<!-- Cash: $8,000, Noncash: $5,000 (clothing/household goods) -->
+<!-- Expected: Full deduction of charitable contributions -->
+<job>
+    <id>10004</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>NY</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $175,000 -->
+    <!-- Itemized: SALT $10,000 + Mortgage $15,000 + Charity $13,000 = $38,000 -->
+    <!-- Standard: $30,000 (MFJ) -->
+    <!-- Taxable: $175,000 - $38,000 = $137,000 -->
+    <!-- Tax: ~$19,780 -->
+    <expected_agi>175000</expected_agi>
+    <expected_taxable_income>137000</expected_taxable_income>
+    <expected_total_tax>19780</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Patricia Williams</name>
+            <ssn>666-77-8888</ssn>
+            <date_of_birth>09/14/1978</date_of_birth>
+            <occupation>Attorney</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>120000</w2_wages>
+            <w2_withholding>22000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>James Williams</name>
+            <ssn>777-88-9999</ssn>
+            <date_of_birth>11/03/1976</date_of_birth>
+            <occupation>Financial Analyst</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>55000</w2_wages>
+            <w2_withholding>8000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>primary_residence</type>
+            <address>123 Park Avenue, New York, NY 10016</address>
+            <purchase_date>3/15/2019</purchase_date>
+            <purchase_price>850000</purchase_price>
+            <current_fmv>950000</current_fmv>
+            <mortgage_balance>600000</mortgage_balance>
+            <mortgage_origination_date>3/15/2019</mortgage_origination_date>
+            <mortgage_interest>15000</mortgage_interest>
+            <property_taxes>12000</property_taxes>
+        </property>
+    </properties>
+
+    <deductions>
+        <!-- State income tax -->
+        <deduction>
+            <id>1</id>
+            <category>state_tax</category>
+            <description>NY state income tax</description>
+            <amount>8500</amount>
+        </deduction>
+
+        <!-- Cash charitable contributions -->
+        <deduction>
+            <id>2</id>
+            <category>charity</category>
+            <description>United Way (cash)</description>
+            <amount>5000</amount>
+        </deduction>
+        <deduction>
+            <id>3</id>
+            <category>charity</category>
+            <description>Local homeless shelter (cash)</description>
+            <amount>2000</amount>
+        </deduction>
+        <deduction>
+            <id>4</id>
+            <category>charity</category>
+            <description>Church (cash)</description>
+            <amount>1000</amount>
+        </deduction>
+
+        <!-- Noncash charitable contributions -->
+        <deduction>
+            <id>5</id>
+            <category>charity_noncash</category>
+            <description>Goodwill - clothing and household goods</description>
+            <amount>3000</amount>
+        </deduction>
+        <deduction>
+            <id>6</id>
+            <category>charity_noncash</category>
+            <description>Salvation Army - furniture</description>
+            <amount>2000</amount>
+        </deduction>
+    </deductions>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <incomes></incomes>
+</job>

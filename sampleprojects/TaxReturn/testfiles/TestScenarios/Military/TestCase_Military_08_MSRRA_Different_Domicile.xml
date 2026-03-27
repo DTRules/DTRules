@@ -1,0 +1,120 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 8: MSRRA - Military Spouse Maintaining Domicile State -->
+   <!-- Tests: Military Spouses Residency Relief Act (MSRRA) -->
+   <!-- Scenario: Military member stationed in CA, spouse works in CA, -->
+   <!-- but both maintain TX domicile (no state income tax) -->
+   <id>MIL-08</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <!-- Expected values for validation -->
+   <!-- Service member W-2: $70,000 (stationed in CA, but TX resident) -->
+   <!-- Spouse W-2: $55,000 (works in CA, but protected by MSRRA) -->
+   <!-- Under MSRRA: Spouse income not taxable by CA if maintaining same domicile -->
+   <!-- TX has no state income tax -->
+   <!-- Federal AGI: $125,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $95,000 -->
+   <expected_agi>125000</expected_agi>
+   <expected_taxable_income>95000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Active duty military member -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Captain Sarah Rodriguez</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>7/25/1992</date_of_birth>
+         <occupation>Navy Officer (O-3)</occupation>
+         <is_military>true</is_military>
+         <military_rank>commissioned_officer</military_rank>
+         <servicemember_domicile_state>TX</servicemember_domicile_state>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>70000</w2_wages>
+         <w2_withholding>9200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Military spouse (protected by MSRRA) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Miguel Rodriguez</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>10/12/1991</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_military_spouse>true</is_military_spouse>
+         <spouse_same_domicile>true</spouse_same_domicile>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>70000</gross_amount>
+         <withholding>9200</withholding>
+         <description>Military pay (stationed in CA, TX domicile)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>55000</gross_amount>
+         <withholding>7500</withholding>
+         <description>Civilian employment (CA earned, TX domicile, MSRRA protected)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Isabella Rodriguez</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>4/8/2021</date_of_birth>
+         <age>4</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

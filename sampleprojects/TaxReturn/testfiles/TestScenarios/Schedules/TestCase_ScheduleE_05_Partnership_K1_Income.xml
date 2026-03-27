@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule E - Partnership/S-Corp Income (Schedule K-1) -->
+<!-- Scenario: Taxpayer with partnership income from Schedule K-1 -->
+<!-- K-1 income: $35,000 (passive), Guaranteed payments: $15,000 (ordinary) -->
+<!-- Expected: K-1 income and guaranteed payments included in AGI -->
+<job>
+    <id>10020</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>NY</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $95,000 W-2 + $35,000 K-1 income + $15,000 guaranteed payments = $145,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $115,000 -->
+    <!-- Tax: ~$14,580 -->
+    <expected_agi>145000</expected_agi>
+    <expected_taxable_income>115000</expected_taxable_income>
+    <expected_total_tax>14580</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Patricia Lee</name>
+            <ssn>234-56-7890</ssn>
+            <date_of_birth>05/18/1978</date_of_birth>
+            <occupation>Partner - Law Firm</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>18000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- Partnership ordinary income (K-1 Box 1) -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>partnership_income</type>
+            <source>Smith & Associates Law Partnership</source>
+            <gross_amount>35000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+        </income>
+
+        <!-- Guaranteed payments (K-1 Box 4) -->
+        <income>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>guaranteed_payments</type>
+            <source>Smith & Associates - Guaranteed Payments</source>
+            <gross_amount>15000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>true</is_earned>
+        </income>
+    </incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <expenses></expenses>
+</job>
