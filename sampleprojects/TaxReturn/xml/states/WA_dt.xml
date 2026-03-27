@@ -29,6 +29,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Washington state income tax calculation. WA has no state income tax - this is a passthrough that sets state_tax_liability to 0.0 (2025).</COMMENTS>
 <TABLE_NUMBER>44700</TABLE_NUMBER>
+<FILE_PATH>states/WA/44700_Calculate_WA_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

@@ -19,6 +19,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Hawaii state income tax calculation. Implements progressive tax structure with 12 brackets per Hawaii Department of Taxation (2025).</COMMENTS>
 <TABLE_NUMBER>41100</TABLE_NUMBER>
+<FILE_PATH>states/HI/41100_Calculate_HI_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

@@ -17,33 +17,11 @@ func TestTaxReturnResults(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
-	// Create rule set
+	// Create rule set and load from directory (multi-file structure)
 	rs := session.NewRuleSet("TaxReturn")
-
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
+	err := rs.LoadFromDirectory(xmlDir)
 	if err != nil {
-		t.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load DT: %v", err)
+		t.Fatalf("Failed to load rules from directory: %v", err)
 	}
 
 	// Create session
@@ -257,33 +235,11 @@ func TestOBBBADeductions(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
-	// Create rule set
+	// Create rule set and load from directory (multi-file structure)
 	rs := session.NewRuleSet("TaxReturn")
-
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
+	err := rs.LoadFromDirectory(xmlDir)
 	if err != nil {
-		t.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load DT: %v", err)
+		t.Fatalf("Failed to load rules from directory: %v", err)
 	}
 
 	// Define OBBBA test cases
@@ -464,33 +420,11 @@ func TestNewTaxScenarios(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
-	// Create rule set
+	// Create rule set and load from directory (multi-file structure)
 	rs := session.NewRuleSet("TaxReturn")
-
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
+	err := rs.LoadFromDirectory(xmlDir)
 	if err != nil {
-		t.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load DT: %v", err)
+		t.Fatalf("Failed to load rules from directory: %v", err)
 	}
 
 	// Define test cases for new scenarios
@@ -675,6 +609,13 @@ func Test2025Constants(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
+	// Create rule set once and reuse for all test cases
+	rs := session.NewRuleSet("TaxReturn")
+	err := rs.LoadFromDirectory(xmlDir)
+	if err != nil {
+		t.Fatalf("Failed to load rules from directory: %v", err)
+	}
+
 	// Test cases using existing Level 1 test files
 	// These verify that 2025 standard deductions are applied correctly
 	// Tax amounts calculated using 2025 brackets per Rev. Proc. 2024-40
@@ -718,22 +659,6 @@ func Test2025Constants(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			rs := session.NewRuleSet("TaxReturn")
-
-			eddFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
-			if err != nil {
-				t.Fatalf("Failed to open EDD: %v", err)
-			}
-			defer eddFile.Close()
-			rs.LoadEDD(eddFile)
-
-			dtFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
-			if err != nil {
-				t.Fatalf("Failed to open DT: %v", err)
-			}
-			defer dtFile.Close()
-			rs.LoadDecisionTables(dtFile)
-
 			sess, err := rs.NewSession()
 			if err != nil {
 				t.Fatalf("Failed to create session: %v", err)
@@ -809,14 +734,10 @@ func Test2025HSALimits(t *testing.T) {
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
-
-	eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
-	defer eddFile.Close()
-	rs.LoadEDD(eddFile)
-
-	dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
-	defer dtFile.Close()
-	rs.LoadDecisionTables(dtFile)
+	err := rs.LoadFromDirectory(xmlDir)
+	if err != nil {
+		t.Fatalf("Failed to load rules from directory: %v", err)
+	}
 
 	sess, _ := rs.NewSession()
 
@@ -867,14 +788,10 @@ func Test2025IRALimits(t *testing.T) {
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
-
-	eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
-	defer eddFile.Close()
-	rs.LoadEDD(eddFile)
-
-	dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
-	defer dtFile.Close()
-	rs.LoadDecisionTables(dtFile)
+	err := rs.LoadFromDirectory(xmlDir)
+	if err != nil {
+		t.Fatalf("Failed to load rules from directory: %v", err)
+	}
 
 	sess, _ := rs.NewSession()
 
@@ -927,14 +844,10 @@ func Test2025StudentLoanPhaseout(t *testing.T) {
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
-
-	eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
-	defer eddFile.Close()
-	rs.LoadEDD(eddFile)
-
-	dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
-	defer dtFile.Close()
-	rs.LoadDecisionTables(dtFile)
+	err := rs.LoadFromDirectory(xmlDir)
+	if err != nil {
+		t.Fatalf("Failed to load rules from directory: %v", err)
+	}
 
 	sess, _ := rs.NewSession()
 
@@ -982,6 +895,13 @@ func Test2025CapitalGainsBrackets(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
+	// Create rule set once and reuse for all test cases
+	rs := session.NewRuleSet("TaxReturn")
+	err := rs.LoadFromDirectory(xmlDir)
+	if err != nil {
+		t.Fatalf("Failed to load rules from directory: %v", err)
+	}
+
 	testCases := []struct {
 		name        string
 		file        string
@@ -1001,15 +921,6 @@ func Test2025CapitalGainsBrackets(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			rs := session.NewRuleSet("TaxReturn")
-
-			eddFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
-			defer eddFile.Close()
-			rs.LoadEDD(eddFile)
-
-			dtFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
-			defer dtFile.Close()
-			rs.LoadDecisionTables(dtFile)
 
 			sess, _ := rs.NewSession()
 
