@@ -1050,6 +1050,8 @@
 
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "SD" "WY" "AK" }' comment='States with no income tax'></field>
 
+		<!-- Alaska State Tax Constants (2025) -->
+		<field name='ak_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0' comment='Alaska has no state income tax (2025)'></field>
 <!-- Alabama State Tax Constants (2025) -->
 		<field name='al_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.02' comment='Alabama tax rate bracket 1: 2%'></field>
 		<field name='al_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.04' comment='Alabama tax rate bracket 2: 4%'></field>
@@ -1740,6 +1742,10 @@
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
 
+	<!-- Alaska State Tax Results -->
+	<field name='ak_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Alaska AGI (federal AGI - no state tax)'></field>
+	<field name='ak_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Alaska taxable income (always $0 - no state tax)'></field>
+	<field name='ak_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Alaska state income tax (always $0 - no state tax)'></field>
 		<!-- New Hampshire State Tax Results -->
 		<field name='nh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire AGI (federal AGI + adjustments)'></field>
 		<field name='nh_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NH standard deduction amount'></field>
