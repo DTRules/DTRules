@@ -1229,6 +1229,41 @@
 		<field name='wv_standard_deduction_joint' type='double' subtype='' access='r' input='' default_value='4000' comment='WV standard deduction MFJ (2025)'></field>
 		<field name='wv_personal_exemption' type='double' subtype='' access='r' input='' default_value='2000' comment='WV personal exemption per person (2025)'></field>
 
+		
+		<!-- Maryland State Tax Constants (2025) -->
+		<field name='md_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='3350' comment='MD standard deduction Single (2025)'></field>
+		<field name='md_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='6700' comment='MD standard deduction MFJ (2025)'></field>
+		<field name='md_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0200' comment='MD tax rate bracket 1 (2.0%)'></field>
+		<field name='md_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0300' comment='MD tax rate bracket 2 (3.0%)'></field>
+		<field name='md_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='MD tax rate bracket 3 (4.0%)'></field>
+		<field name='md_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0475' comment='MD tax rate bracket 4 (4.75%)'></field>
+		<field name='md_bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.0500' comment='MD tax rate bracket 5 (5.0%)'></field>
+		<field name='md_bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.0525' comment='MD tax rate bracket 6 (5.25%)'></field>
+		<field name='md_bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.0550' comment='MD tax rate bracket 7 (5.5%)'></field>
+		<field name='md_bracket_8_rate' type='double' subtype='' access='r' input='' default_value='0.0575' comment='MD tax rate bracket 8 (5.75%)'></field>
+		<field name='md_bracket_9_rate' type='double' subtype='' access='r' input='' default_value='0.0625' comment='MD tax rate bracket 9 (6.25%)'></field>
+		<field name='md_bracket_10_rate' type='double' subtype='' access='r' input='' default_value='0.0650' comment='MD tax rate bracket 10 (6.50%)'></field>
+		<!-- Single/MFS thresholds -->
+		<field name='md_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='1000' comment='MD bracket 2 threshold Single ($1,001+)'></field>
+		<field name='md_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='2000' comment='MD bracket 3 threshold Single ($2,001+)'></field>
+		<field name='md_bracket_4_threshold_single' type='double' subtype='' access='r' input='' default_value='3000' comment='MD bracket 4 threshold Single ($3,001+)'></field>
+		<field name='md_bracket_5_threshold_single' type='double' subtype='' access='r' input='' default_value='100000' comment='MD bracket 5 threshold Single ($100,001+)'></field>
+		<field name='md_bracket_6_threshold_single' type='double' subtype='' access='r' input='' default_value='125000' comment='MD bracket 6 threshold Single ($125,001+)'></field>
+		<field name='md_bracket_7_threshold_single' type='double' subtype='' access='r' input='' default_value='150000' comment='MD bracket 7 threshold Single ($150,001+)'></field>
+		<field name='md_bracket_8_threshold_single' type='double' subtype='' access='r' input='' default_value='250000' comment='MD bracket 8 threshold Single ($250,001+)'></field>
+		<field name='md_bracket_9_threshold_single' type='double' subtype='' access='r' input='' default_value='500000' comment='MD bracket 9 threshold Single ($500,001+)'></field>
+		<field name='md_bracket_10_threshold_single' type='double' subtype='' access='r' input='' default_value='1000000' comment='MD bracket 10 threshold Single ($1,000,001+)'></field>
+		<!-- MFJ thresholds -->
+		<field name='md_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='1000' comment='MD bracket 2 threshold MFJ ($1,001+)'></field>
+		<field name='md_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='2000' comment='MD bracket 3 threshold MFJ ($2,001+)'></field>
+		<field name='md_bracket_4_threshold_mfj' type='double' subtype='' access='r' input='' default_value='3000' comment='MD bracket 4 threshold MFJ ($3,001+)'></field>
+		<field name='md_bracket_5_threshold_mfj' type='double' subtype='' access='r' input='' default_value='150000' comment='MD bracket 5 threshold MFJ ($150,001+)'></field>
+		<field name='md_bracket_6_threshold_mfj' type='double' subtype='' access='r' input='' default_value='175000' comment='MD bracket 6 threshold MFJ ($175,001+)'></field>
+		<field name='md_bracket_7_threshold_mfj' type='double' subtype='' access='r' input='' default_value='225000' comment='MD bracket 7 threshold MFJ ($225,001+)'></field>
+		<field name='md_bracket_8_threshold_mfj' type='double' subtype='' access='r' input='' default_value='300000' comment='MD bracket 8 threshold MFJ ($300,001+)'></field>
+		<field name='md_bracket_9_threshold_mfj' type='double' subtype='' access='r' input='' default_value='600000' comment='MD bracket 9 threshold MFJ ($600,001+)'></field>
+		<field name='md_bracket_10_threshold_mfj' type='double' subtype='' access='r' input='' default_value='1200000' comment='MD bracket 10 threshold MFJ ($1,200,001+)'></field>
+
 		<!-- QBI Deduction (199A) -->
 		<field name='qbi_rate' type='double' subtype='' access='r' input='' default_value='0.20' comment='QBI deduction rate (IRC 199A)'></field>
 

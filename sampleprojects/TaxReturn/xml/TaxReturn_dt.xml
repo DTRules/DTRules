@@ -13773,4 +13773,183 @@ otherwise
 </policy_statements>
 </decision_table>
 
+
+
+<!-- TABLE 46000: Calculate_MD_Tax - Maryland State Income Tax            -->
+<!-- Reference: Maryland Form 502 (2025)                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MD_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Maryland state income tax per Form 502. Maryland uses progressive tax brackets with 10 brackets ranging from 2% to 6.5%. Starting with federal AGI, applies standard deduction based on filing status ($3,350 Single, $6,700 MFJ), then calculates tax using progressive brackets. Single brackets: $1K@2%, $1K@3%, $1K@4%, $97K@4.75%, $25K@5%, $25K@5.25%, $100K@5.5%, $250K@5.75%, $500K@6.25%, over $1M@6.5%. MFJ has different thresholds for brackets 4-10.</COMMENTS>
+<TABLE_NUMBER>46000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize MD tax calculation</action_description>
+<action_postfix>
+"MARYLAND FORM 502 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.md_agi xdef
+0 /result.md_bracket_1_tax xdef
+0 /result.md_bracket_2_tax xdef
+0 /result.md_bracket_3_tax xdef
+0 /result.md_bracket_4_tax xdef
+0 /result.md_bracket_5_tax xdef
+0 /result.md_bracket_6_tax xdef
+0 /result.md_bracket_7_tax xdef
+0 /result.md_bracket_8_tax xdef
+0 /result.md_bracket_9_tax xdef
+0 /result.md_bracket_10_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single</condition_comment>
+<condition_description>job.filing_status is equal to "single"</condition_description>
+<condition_postfix>
+job.filing_status single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MD tax MFJ</action_comment>
+<action_description>Calculate MD tax with MFJ standard deduction and progressive 10-bracket structure</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.md_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+md_standard_deduction_mfj /result.md_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.md_standard_deduction cvs strconcat job.audit_trail swap addto
+result.md_agi result.md_standard_deduction f- 0 fmax /result.md_taxable_income xdef
+"  MD Taxable Income: $" result.md_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+
+result.md_taxable_income 0 fmax md_bracket_2_threshold_mfj fmin md_bracket_1_rate f* /result.md_bracket_1_tax xdef
+
+result.md_taxable_income md_bracket_2_threshold_mfj f> if
+  result.md_taxable_income md_bracket_2_threshold_mfj f- md_bracket_3_threshold_mfj md_bracket_2_threshold_mfj f- fmin md_bracket_2_rate f* /result.md_bracket_2_tax xdef
+endif
+
+result.md_taxable_income md_bracket_3_threshold_mfj f> if
+  result.md_taxable_income md_bracket_3_threshold_mfj f- md_bracket_4_threshold_mfj md_bracket_3_threshold_mfj f- fmin md_bracket_3_rate f* /result.md_bracket_3_tax xdef
+endif
+
+result.md_taxable_income md_bracket_4_threshold_mfj f> if
+  result.md_taxable_income md_bracket_4_threshold_mfj f- md_bracket_5_threshold_mfj md_bracket_4_threshold_mfj f- fmin md_bracket_4_rate f* /result.md_bracket_4_tax xdef
+endif
+
+result.md_taxable_income md_bracket_5_threshold_mfj f> if
+  result.md_taxable_income md_bracket_5_threshold_mfj f- md_bracket_6_threshold_mfj md_bracket_5_threshold_mfj f- fmin md_bracket_5_rate f* /result.md_bracket_5_tax xdef
+endif
+
+result.md_taxable_income md_bracket_6_threshold_mfj f> if
+  result.md_taxable_income md_bracket_6_threshold_mfj f- md_bracket_7_threshold_mfj md_bracket_6_threshold_mfj f- fmin md_bracket_6_rate f* /result.md_bracket_6_tax xdef
+endif
+
+result.md_taxable_income md_bracket_7_threshold_mfj f> if
+  result.md_taxable_income md_bracket_7_threshold_mfj f- md_bracket_8_threshold_mfj md_bracket_7_threshold_mfj f- fmin md_bracket_7_rate f* /result.md_bracket_7_tax xdef
+endif
+
+result.md_taxable_income md_bracket_8_threshold_mfj f> if
+  result.md_taxable_income md_bracket_8_threshold_mfj f- md_bracket_9_threshold_mfj md_bracket_8_threshold_mfj f- fmin md_bracket_8_rate f* /result.md_bracket_8_tax xdef
+endif
+
+result.md_taxable_income md_bracket_9_threshold_mfj f> if
+  result.md_taxable_income md_bracket_9_threshold_mfj f- md_bracket_10_threshold_mfj md_bracket_9_threshold_mfj f- fmin md_bracket_9_rate f* /result.md_bracket_9_tax xdef
+endif
+
+result.md_taxable_income md_bracket_10_threshold_mfj f> if
+  result.md_taxable_income md_bracket_10_threshold_mfj f- md_bracket_10_rate f* /result.md_bracket_10_tax xdef
+endif
+
+result.md_bracket_1_tax result.md_bracket_2_tax f+ result.md_bracket_3_tax f+ result.md_bracket_4_tax f+ result.md_bracket_5_tax f+ result.md_bracket_6_tax f+ result.md_bracket_7_tax f+ result.md_bracket_8_tax f+ result.md_bracket_9_tax f+ result.md_bracket_10_tax f+ /result.md_tax xdef
+"  Bracket Taxes: $" result.md_bracket_1_tax cvs strconcat " + $" strconcat result.md_bracket_2_tax cvs strconcat " + $" strconcat result.md_bracket_3_tax cvs strconcat " + $" strconcat result.md_bracket_4_tax cvs strconcat " + $" strconcat result.md_bracket_5_tax cvs strconcat " + $" strconcat result.md_bracket_6_tax cvs strconcat " + $" strconcat result.md_bracket_7_tax cvs strconcat " + $" strconcat result.md_bracket_8_tax cvs strconcat " + $" strconcat result.md_bracket_9_tax cvs strconcat " + $" strconcat result.md_bracket_10_tax cvs strconcat job.audit_trail swap addto
+"  Total MD Tax: $" result.md_tax cvs strconcat " (Maryland Form 502)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MD tax Single</action_comment>
+<action_description>Calculate MD tax with Single standard deduction and progressive 10-bracket structure</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.md_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+md_standard_deduction_single /result.md_standard_deduction xdef
+"  Standard Deduction (Single): $" result.md_standard_deduction cvs strconcat job.audit_trail swap addto
+result.md_agi result.md_standard_deduction f- 0 fmax /result.md_taxable_income xdef
+"  MD Taxable Income: $" result.md_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+
+result.md_taxable_income 0 fmax md_bracket_2_threshold_single fmin md_bracket_1_rate f* /result.md_bracket_1_tax xdef
+
+result.md_taxable_income md_bracket_2_threshold_single f> if
+  result.md_taxable_income md_bracket_2_threshold_single f- md_bracket_3_threshold_single md_bracket_2_threshold_single f- fmin md_bracket_2_rate f* /result.md_bracket_2_tax xdef
+endif
+
+result.md_taxable_income md_bracket_3_threshold_single f> if
+  result.md_taxable_income md_bracket_3_threshold_single f- md_bracket_4_threshold_single md_bracket_3_threshold_single f- fmin md_bracket_3_rate f* /result.md_bracket_3_tax xdef
+endif
+
+result.md_taxable_income md_bracket_4_threshold_single f> if
+  result.md_taxable_income md_bracket_4_threshold_single f- md_bracket_5_threshold_single md_bracket_4_threshold_single f- fmin md_bracket_4_rate f* /result.md_bracket_4_tax xdef
+endif
+
+result.md_taxable_income md_bracket_5_threshold_single f> if
+  result.md_taxable_income md_bracket_5_threshold_single f- md_bracket_6_threshold_single md_bracket_5_threshold_single f- fmin md_bracket_5_rate f* /result.md_bracket_5_tax xdef
+endif
+
+result.md_taxable_income md_bracket_6_threshold_single f> if
+  result.md_taxable_income md_bracket_6_threshold_single f- md_bracket_7_threshold_single md_bracket_6_threshold_single f- fmin md_bracket_6_rate f* /result.md_bracket_6_tax xdef
+endif
+
+result.md_taxable_income md_bracket_7_threshold_single f> if
+  result.md_taxable_income md_bracket_7_threshold_single f- md_bracket_8_threshold_single md_bracket_7_threshold_single f- fmin md_bracket_7_rate f* /result.md_bracket_7_tax xdef
+endif
+
+result.md_taxable_income md_bracket_8_threshold_single f> if
+  result.md_taxable_income md_bracket_8_threshold_single f- md_bracket_9_threshold_single md_bracket_8_threshold_single f- fmin md_bracket_8_rate f* /result.md_bracket_8_tax xdef
+endif
+
+result.md_taxable_income md_bracket_9_threshold_single f> if
+  result.md_taxable_income md_bracket_9_threshold_single f- md_bracket_10_threshold_single md_bracket_9_threshold_single f- fmin md_bracket_9_rate f* /result.md_bracket_9_tax xdef
+endif
+
+result.md_taxable_income md_bracket_10_threshold_single f> if
+  result.md_taxable_income md_bracket_10_threshold_single f- md_bracket_10_rate f* /result.md_bracket_10_tax xdef
+endif
+
+result.md_bracket_1_tax result.md_bracket_2_tax f+ result.md_bracket_3_tax f+ result.md_bracket_4_tax f+ result.md_bracket_5_tax f+ result.md_bracket_6_tax f+ result.md_bracket_7_tax f+ result.md_bracket_8_tax f+ result.md_bracket_9_tax f+ result.md_bracket_10_tax f+ /result.md_tax xdef
+"  Bracket Taxes: $" result.md_bracket_1_tax cvs strconcat " + $" strconcat result.md_bracket_2_tax cvs strconcat " + $" strconcat result.md_bracket_3_tax cvs strconcat " + $" strconcat result.md_bracket_4_tax cvs strconcat " + $" strconcat result.md_bracket_5_tax cvs strconcat " + $" strconcat result.md_bracket_6_tax cvs strconcat " + $" strconcat result.md_bracket_7_tax cvs strconcat " + $" strconcat result.md_bracket_8_tax cvs strconcat " + $" strconcat result.md_bracket_9_tax cvs strconcat " + $" strconcat result.md_bracket_10_tax cvs strconcat job.audit_trail swap addto
+"  Total MD Tax: $" result.md_tax cvs strconcat " (Maryland Form 502)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>MD progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"Maryland progressive tax for MFJ per Maryland Form 502"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>MD progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix>"Maryland progressive tax for Single per Maryland Form 502"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 </decision_tables>
