@@ -1,0 +1,97 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Connecticut State Tax Test Case 2: Married Filing Jointly, Middle Income -->
+   <!-- Tests CT tax bracket 4 (6% marginal rate) -->
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CT</state>
+   <city>Stamford</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $150,000 W-2 total -->
+   <!-- AGI: $150,000 -->
+   <!-- CT AGI: $150,000 -->
+   <!-- CT Personal Credit: $24,000 -->
+   <!-- CT Taxable Income: $150,000 - $24,000 = $126,000 -->
+   <!-- CT Tax calculation (bracket 3):
+        Bracket 1: 20000 * 0.02 = $400
+        Bracket 2: (100000-20000) * 0.045 = 80000 * 0.045 = $3,600
+        Bracket 3: (126000-100000) * 0.055 = 26000 * 0.055 = $1,430
+        Total: $400 + $3,600 + $1,430 = $5,430
+   -->
+   <expected_agi>150000</expected_agi>
+   <expected_ct_agi>150000</expected_ct_agi>
+   <expected_ct_taxable_income>126000</expected_ct_taxable_income>
+   <expected_ct_tax>5430</expected_ct_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Jane Doe</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>3/20/1985</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>15000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Robert Doe</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>7/10/1983</date_of_birth>
+         <occupation>IT Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>11000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Doe</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>5/12/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties>
+   </properties>
+
+   <vehicles>
+   </vehicles>
+
+   <deductions>
+   </deductions>
+</job>

@@ -14,8 +14,9 @@
 // limitations under the License.
 
 // Package mapping implements the DTRules data-to-entity mapping system.
-// It loads mapping definitions from XML or JSON and uses them to parse
-// input data (XML or JSON) into DTRules entities.
+// It loads mapping definitions and uses them to parse input data (XML or JSON)
+// into DTRules entities. XML data loading requires mapping definitions; JSON
+// data loading can use the EDD entity definitions directly for type information.
 package mapping
 
 import (
@@ -131,19 +132,16 @@ func (m *Mapping) LoadMapping(r io.Reader) error {
 	return loader.Load(r)
 }
 
-// LoadMappingJSON loads a mapping definition from a JSON reader.
-func (m *Mapping) LoadMappingJSON(r io.Reader) error {
-	loader := newJSONMapLoader(m)
-	return loader.Load(r)
-}
-
 // LoadData loads data from an XML reader according to the mapping.
 func (m *Mapping) LoadData(r io.Reader) error {
 	loader := newDataLoader(m)
 	return loader.Load(r)
 }
 
-// LoadDataJSON loads data from a JSON reader according to the mapping.
+// LoadDataJSON loads data from a JSON reader into entities.
+// Unlike LoadData (XML), this does not require mapping definitions.
+// Instead, it uses the EDD entity definitions directly for type information.
+// Top-level JSON keys are entity names; values are objects or arrays of objects.
 func (m *Mapping) LoadDataJSON(r io.Reader) error {
 	loader := newJSONDataLoader(m)
 	return loader.Load(r)

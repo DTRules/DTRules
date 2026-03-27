@@ -19,13 +19,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
-// jsonDataLoader loads JSON data according to a mapping.
+// jsonDataLoader loads JSON data into entities using the mapping configuration.
 type jsonDataLoader struct {
 	mapping *Mapping
 	session dtrules.Session
@@ -48,89 +47,75 @@ func newJSONDataLoader(m *Mapping) *jsonDataLoader {
 	}
 }
 
-// Load parses JSON data according to the mapping.
+// Load parses JSON data according to the mapping configuration.
 func (l *jsonDataLoader) Load(r io.Reader) error {
-	var data map[string]interface{}
-	decoder := json.NewDecoder(r)
-	decoder.UseNumber()
-	if err := decoder.Decode(&data); err != nil {
+	data, err := io.ReadAll(r)
+	if err != nil {
+		return fmt.Errorf("JSON read error: %w", err)
+	}
+
+	var rawData map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawData); err != nil {
 		return fmt.Errorf("JSON parse error: %w", err)
 	}
 
-	return l.processObject(data)
-}
-
-// processObject processes a JSON object, mapping keys to entity creation and attribute setting.
-func (l *jsonDataLoader) processObject(obj map[string]interface{}) error {
-	for key, value := range obj {
-		if err := l.processKeyValue(key, value); err != nil {
+	for tag, raw := range rawData {
+		if err := l.processTag(tag, raw); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
-// processKeyValue processes a single key-value pair from JSON data.
-func (l *jsonDataLoader) processKeyValue(key string, value interface{}) error {
-	// Check if this key maps to entity creation
-	info := l.mapping.GetEntityInfo(key)
+// processTag handles a top-level JSON key, checking both entity and attribute mappings.
+func (l *jsonDataLoader) processTag(tag string, raw json.RawMessage) error {
+	trimmed := strings.TrimSpace(string(raw))
+	if len(trimmed) == 0 {
+		return nil
+	}
+
+	// Check if this tag creates an entity
+	info := l.mapping.GetEntityInfo(tag)
 	if info != nil {
-		return l.processEntityValue(key, info, value)
+		switch trimmed[0] {
+		case '{':
+			var obj map[string]interface{}
+			if err := json.Unmarshal(raw, &obj); err != nil {
+				return fmt.Errorf("failed to parse entity '%s': %w", tag, err)
+			}
+			return l.processEntityObject(tag, info, obj)
+
+		case '[':
+			var arr []json.RawMessage
+			if err := json.Unmarshal(raw, &arr); err != nil {
+				return fmt.Errorf("failed to parse array '%s': %w", tag, err)
+			}
+			for i, item := range arr {
+				var obj map[string]interface{}
+				if err := json.Unmarshal(item, &obj); err != nil {
+					return fmt.Errorf("failed to parse %s[%d]: %w", tag, i, err)
+				}
+				if err := l.processEntityObject(tag, info, obj); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
 	}
 
-	// Check if this key maps to an attribute
-	aInfo := l.mapping.GetAttributeInfo(key)
+	// Not a mapped entity — check if it's a simple attribute value
+	aInfo := l.mapping.GetAttributeInfo(tag)
 	if aInfo != nil {
-		return l.setAttributeFromJSON(key, aInfo, value)
-	}
-
-	// If it's an object, recurse into it (handles wrapper elements)
-	if obj, ok := value.(map[string]interface{}); ok {
-		return l.processObject(obj)
-	}
-
-	// If it's an array, process each element
-	if arr, ok := value.([]interface{}); ok {
-		for _, item := range arr {
-			if obj, ok := item.(map[string]interface{}); ok {
-				if err := l.processObject(obj); err != nil {
-					return err
-				}
-			}
-		}
+		return l.processAttributeValue(tag, aInfo, raw)
 	}
 
 	return nil
 }
 
-// processEntityValue processes a value that should create an entity.
-func (l *jsonDataLoader) processEntityValue(key string, info *EntityInfo, value interface{}) error {
-	switch v := value.(type) {
-	case map[string]interface{}:
-		return l.createAndLoadEntity(key, info, v)
-	case []interface{}:
-		for _, item := range v {
-			if obj, ok := item.(map[string]interface{}); ok {
-				if err := l.createAndLoadEntity(key, info, obj); err != nil {
-					return err
-				}
-			}
-		}
-	}
-	return nil
-}
-
-// createAndLoadEntity creates an entity and loads its attributes from JSON data.
-func (l *jsonDataLoader) createAndLoadEntity(tag string, info *EntityInfo, data map[string]interface{}) error {
-	// Extract ID from data
-	idStr := ""
-	if info.ID != "" {
-		if idVal, ok := data[info.ID]; ok {
-			idStr = fmt.Sprintf("%v", idVal)
-		}
-	}
-
-	entity, err := l.findOrCreateEntity(info, idStr)
+// processEntityObject creates an entity from a JSON object and processes its fields.
+func (l *jsonDataLoader) processEntityObject(tag string, info *EntityInfo, obj map[string]interface{}) error {
+	entity, err := l.findOrCreateEntity(info, obj)
 	if err != nil {
 		return err
 	}
@@ -138,8 +123,11 @@ func (l *jsonDataLoader) createAndLoadEntity(tag string, info *EntityInfo, data 
 		return nil
 	}
 
-	// Set the mapping key
-	code := idStr
+	// Set mapping key
+	code := ""
+	if idField, ok := obj[info.ID]; ok {
+		code = fmt.Sprintf("%v", idField)
+	}
 	if code == "" {
 		l.codeCnt++
 		code = fmt.Sprintf("v%d", l.codeCnt)
@@ -149,86 +137,77 @@ func (l *jsonDataLoader) createAndLoadEntity(tag string, info *EntityInfo, data 
 		entity.Put(mappingKey, dtrules.NewRString(code))
 	}
 
-	// Push entity onto stack
+	// Push entity onto the entity stack
 	l.state.EntityPush(entity)
 
-	// Update references (add to lists, set references)
-	l.updateReferences(entity, info)
+	// Process child fields
+	for childTag, childValue := range obj {
+		if childTag == info.ID {
+			continue // skip the ID field
+		}
 
-	// Process data fields
-	for fieldKey, fieldValue := range data {
-		// Check for nested entity creation
-		nestedInfo := l.mapping.GetEntityInfo(fieldKey)
-		if nestedInfo != nil {
-			if err := l.processEntityValue(fieldKey, nestedInfo, fieldValue); err != nil {
-				// Pop the entity we pushed before returning error
-				l.state.EntityPop()
+		// Check if child tag creates a nested entity
+		childInfo := l.mapping.GetEntityInfo(childTag)
+		if childInfo != nil {
+			if err := l.processNestedEntity(childTag, childInfo, childValue); err != nil {
 				return err
 			}
 			continue
 		}
 
-		// Check for attribute mapping
-		aInfo := l.mapping.GetAttributeInfo(fieldKey)
+		// Check if child tag sets an attribute
+		aInfo := l.mapping.GetAttributeInfo(childTag)
 		if aInfo != nil {
-			if err := l.setAttributeFromJSON(fieldKey, aInfo, fieldValue); err != nil {
-				// Pop the entity we pushed before returning error
-				l.state.EntityPop()
+			raw, err := json.Marshal(childValue)
+			if err != nil {
+				continue
+			}
+			if err := l.processAttributeValue(childTag, aInfo, raw); err != nil {
 				return err
 			}
+			continue
+		}
+
+		// Direct attribute assignment — try setting the value on the entity stack
+		attrName := dtrules.GetRName(childTag)
+		if attrName == nil {
+			continue
+		}
+		foundEntity, err := l.state.FindEntity(attrName)
+		if err != nil || foundEntity == nil {
+			continue
+		}
+		value := l.goValueToDTRules(childValue)
+		if value != nil {
+			l.state.Def(attrName, value, false)
 		}
 	}
 
-	// Pop entity from stack
-	createdEntity, err := l.state.EntityPop()
-	if err != nil {
-		return err
-	}
-
-	// Check if this entity was used as an attribute value (entity type)
-	l.setEntityReferenceIfNeeded(tag, createdEntity)
+	// Pop entity from the entity stack
+	l.state.EntityPop()
 
 	return nil
 }
 
-// setEntityReferenceIfNeeded checks if the tag maps to an entity-type attribute and sets the reference.
-func (l *jsonDataLoader) setEntityReferenceIfNeeded(tag string, entity dtrules.Entity) {
-	aInfo := l.mapping.GetAttributeInfo(tag)
-	if aInfo == nil {
-		return
+// processNestedEntity handles a nested entity within a parent entity.
+func (l *jsonDataLoader) processNestedEntity(tag string, info *EntityInfo, value interface{}) error {
+	switch v := value.(type) {
+	case map[string]interface{}:
+		return l.processEntityObject(tag, info, v)
+	case []interface{}:
+		for i, item := range v {
+			if itemObj, ok := item.(map[string]interface{}); ok {
+				if err := l.processEntityObject(tag, info, itemObj); err != nil {
+					return fmt.Errorf("nested entity %s[%d]: %w", tag, i, err)
+				}
+			}
+		}
 	}
-
-	// Find the enclosure entity on the stack
-	topEntity, err := l.state.EntityFetch(0)
-	if err != nil || topEntity == nil {
-		return
-	}
-
-	enclosure := topEntity.GetName().StringValue()
-	attrib := aInfo.Lookup(enclosure)
-	if attrib == nil {
-		attrib = aInfo.Lookup("")
-	}
-	if attrib == nil || attrib.Type != TypeEntity {
-		return
-	}
-
-	attrName := dtrules.GetRName(attrib.RAttribute)
-	if attrName == nil {
-		return
-	}
-
-	foundEntity, err := l.state.FindEntity(attrName)
-	if err != nil || foundEntity == nil {
-		return
-	}
-
-	l.state.Def(attrName, entity, false)
+	return nil
 }
 
-// setAttributeFromJSON sets an attribute value from a JSON value.
-func (l *jsonDataLoader) setAttributeFromJSON(key string, aInfo *AttributeInfo, value interface{}) error {
-	// Get the top entity from stack to find enclosure
+// processAttributeValue sets an attribute from a JSON value.
+func (l *jsonDataLoader) processAttributeValue(tag string, aInfo *AttributeInfo, raw json.RawMessage) error {
 	topEntity, err := l.state.EntityFetch(0)
 	if err != nil || topEntity == nil {
 		return nil
@@ -243,149 +222,81 @@ func (l *jsonDataLoader) setAttributeFromJSON(key string, aInfo *AttributeInfo, 
 		return nil
 	}
 
+	// Unmarshal the raw JSON to a Go value
+	var goValue interface{}
+	if err := json.Unmarshal(raw, &goValue); err != nil {
+		return nil
+	}
+
+	body := fmt.Sprintf("%v", goValue)
+
 	attrName := dtrules.GetRName(attrib.RAttribute)
 	if attrName == nil {
 		return nil
 	}
 
-	// Find the entity that has this attribute
-	entity, err := l.state.FindEntity(attrName)
-	if err != nil || entity == nil {
-		return nil
+	value := l.convertToAttributeType(attrib.Type, body, goValue)
+	if value != nil {
+		l.state.Def(attrName, value, false)
 	}
 
-	var dtValue dtrules.Object
+	return nil
+}
 
-	switch attrib.Type {
+// convertToAttributeType converts a value to the specified attribute type.
+func (l *jsonDataLoader) convertToAttributeType(attrType AttributeType, body string, goValue interface{}) dtrules.Object {
+	switch attrType {
 	case TypeInteger:
-		dtValue = l.convertToInteger(value)
+		if f, ok := goValue.(float64); ok {
+			return dtrules.GetRIntegerValue(int64(f))
+		}
+		if v, err := dtrules.GetRIntegerValueFromString(body); err == nil {
+			return v
+		}
+		return dtrules.GetRIntegerValue(0)
+
 	case TypeDouble:
-		dtValue = l.convertToDouble(value)
+		if f, ok := goValue.(float64); ok {
+			return dtrules.GetRDoubleValue(f)
+		}
+		if v, err := dtrules.GetRDoubleValueFromString(body); err == nil {
+			return v
+		}
+		return dtrules.GetRDoubleValue(0)
+
 	case TypeBoolean:
-		dtValue = l.convertToBoolean(value)
+		if b, ok := goValue.(bool); ok {
+			return dtrules.GetRBoolean(b)
+		}
+		val := strings.ToLower(body) == "true"
+		return dtrules.GetRBoolean(val)
+
 	case TypeDate:
-		dtValue = l.convertToDate(value)
-	case TypeEntity:
-		// Entity types are handled in createAndLoadEntity
-		return nil
-	default:
-		dtValue = l.convertToString(value)
-	}
-
-	_, err = l.state.Def(attrName, dtValue, false)
-	return err
-}
-
-// convertToInteger converts a JSON value to an RInteger.
-func (l *jsonDataLoader) convertToInteger(value interface{}) dtrules.Object {
-	switch v := value.(type) {
-	case json.Number:
-		n, err := v.Int64()
-		if err != nil {
-			n = 0
+		if body == "" {
+			return dtrules.GetRNull()
 		}
-		return dtrules.GetRIntegerValue(n)
-	case float64:
-		return dtrules.GetRIntegerValue(int64(v))
-	case string:
-		n, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			n = 0
+		dateParser := l.session.GetDateParser()
+		if dateParser != nil {
+			parsedDate, err := dateParser.Parse(body)
+			if err == nil {
+				return dtrules.GetRTime(parsedDate)
+			}
 		}
-		return dtrules.GetRIntegerValue(n)
-	case nil:
-		return dtrules.GetRIntegerValue(0)
+		return dtrules.NewRString(body)
+
 	default:
-		return dtrules.GetRIntegerValue(0)
+		return dtrules.NewRString(body)
 	}
 }
 
-// convertToDouble converts a JSON value to an RDouble.
-func (l *jsonDataLoader) convertToDouble(value interface{}) dtrules.Object {
-	switch v := value.(type) {
-	case json.Number:
-		f, err := v.Float64()
-		if err != nil {
-			f = 0
-		}
-		return dtrules.GetRDoubleValue(f)
-	case float64:
-		return dtrules.GetRDoubleValue(v)
-	case string:
-		f, err := strconv.ParseFloat(v, 64)
-		if err != nil {
-			f = 0
-		}
-		return dtrules.GetRDoubleValue(f)
-	case nil:
-		return dtrules.GetRDoubleValue(0)
-	default:
-		return dtrules.GetRDoubleValue(0)
-	}
-}
-
-// convertToBoolean converts a JSON value to a boolean Object.
-func (l *jsonDataLoader) convertToBoolean(value interface{}) dtrules.Object {
-	switch v := value.(type) {
-	case bool:
-		if v {
-			return dtrules.True
-		}
-		return dtrules.False
-	case string:
-		if strings.EqualFold(v, "true") {
-			return dtrules.True
-		}
-		return dtrules.False
-	case nil:
-		return dtrules.False
-	default:
-		return dtrules.False
-	}
-}
-
-// convertToDate converts a JSON value to a date Object.
-func (l *jsonDataLoader) convertToDate(value interface{}) dtrules.Object {
-	str := ""
-	switch v := value.(type) {
-	case string:
-		str = v
-	case nil:
-		return dtrules.GetRNull()
-	default:
-		str = fmt.Sprintf("%v", v)
-	}
-
-	if str == "" {
-		return dtrules.GetRNull()
-	}
-
-	dateParser := l.session.GetDateParser()
-	if dateParser != nil {
-		parsedDate, err := dateParser.Parse(str)
-		if err != nil {
-			return dtrules.NewRString(str)
-		}
-		return dtrules.GetRTime(parsedDate)
-	}
-	return dtrules.NewRString(str)
-}
-
-// convertToString converts a JSON value to a string Object.
-func (l *jsonDataLoader) convertToString(value interface{}) dtrules.Object {
-	switch v := value.(type) {
-	case string:
-		return dtrules.NewRString(v)
-	case nil:
-		return dtrules.NewRString("")
-	default:
-		return dtrules.NewRString(fmt.Sprintf("%v", v))
-	}
-}
-
-// findOrCreateEntity finds or creates an entity based on the info and ID.
-func (l *jsonDataLoader) findOrCreateEntity(info *EntityInfo, idStr string) (dtrules.Entity, error) {
+// findOrCreateEntity finds or creates an entity based on the info and data.
+func (l *jsonDataLoader) findOrCreateEntity(info *EntityInfo, data map[string]interface{}) (dtrules.Entity, error) {
 	entityName := info.Name
+	code := ""
+	if idField, ok := data[info.ID]; ok {
+		code = fmt.Sprintf("%v", idField)
+	}
+
 	cardinality := l.mapping.GetEntityCardinality(entityName)
 
 	entityRName := dtrules.GetRName(entityName)
@@ -393,91 +304,73 @@ func (l *jsonDataLoader) findOrCreateEntity(info *EntityInfo, idStr string) (dtr
 		return nil, fmt.Errorf("invalid entity name syntax: %s", entityName)
 	}
 
-	var entity dtrules.Entity
-	var err error
-
 	if cardinality == "1" {
-		// Singleton - reuse if exists
 		if e, ok := l.entities[entityName]; ok {
 			return e, nil
 		}
-		entity, err = l.session.CreateEntity(entityRName)
+		entity, err := l.session.CreateEntity(entityRName)
 		if err != nil {
 			return nil, err
 		}
 		l.entities[entityName] = entity
-	} else {
-		// Multiple instances
-		key := ""
-		if idStr != "" {
-			key = entityName + "$" + idStr
-			if e, ok := l.entities[key]; ok {
-				return e, nil
-			}
-		}
+		return entity, nil
+	}
 
-		entity, err = l.session.CreateEntity(entityRName)
-		if err != nil {
-			return nil, err
-		}
-
-		if idStr != "" {
-			l.entities[key] = entity
+	// Multiple instances
+	key := ""
+	if code != "" {
+		key = entityName + "$" + code
+		if e, ok := l.entities[key]; ok {
+			return e, nil
 		}
 	}
 
+	entity, err := l.session.CreateEntity(entityRName)
+	if err != nil {
+		return nil, err
+	}
+
+	if code != "" {
+		l.entities[key] = entity
+	}
 	return entity, nil
 }
 
-// updateReferences adds the entity to any matching lists on the entity stack.
-func (l *jsonDataLoader) updateReferences(entity dtrules.Entity, info *EntityInfo) {
-	entityName := entity.GetName().StringValue()
-
-	// Determine list name
-	listName := info.List
-	if listName == "" {
-		listName = entityName + "s" // default pluralization
-	}
-	listRName := dtrules.GetRName(listName)
-	if listRName == nil {
-		return
+// goValueToDTRules converts a Go value to a DTRules object.
+func (l *jsonDataLoader) goValueToDTRules(value interface{}) dtrules.Object {
+	if value == nil {
+		return dtrules.GetRNull()
 	}
 
-	// Look for arrays on the entity stack
-	depth := l.state.EntityDepth()
-	for i := 0; i < depth; i++ {
-		stackEntity, err := l.state.EntityFetch(i)
+	switch v := value.(type) {
+	case bool:
+		return dtrules.GetRBoolean(v)
+	case float64:
+		if v == float64(int64(v)) {
+			return dtrules.GetRIntegerValue(int64(v))
+		}
+		return dtrules.GetRDoubleValue(v)
+	case string:
+		return dtrules.GetRString(v)
+	case []interface{}:
+		arr, err := dtrules.NewArray(l.session, true, false)
 		if err != nil {
-			continue
+			return dtrules.GetRNull()
 		}
-
-		listObj, err := stackEntity.Get(listRName)
-		if err != nil || listObj == nil {
-			continue
-		}
-
-		if listObj.Type() == dtrules.TypeArray {
-			arr, err := listObj.RArrayValue()
-			if err != nil {
-				continue
-			}
-			if !arr.Contains(entity) {
-				arr.Add(entity)
+		for _, item := range v {
+			dtItem := l.goValueToDTRules(item)
+			if dtItem != nil {
+				arr.Add(dtItem)
 			}
 		}
-	}
-
-	// Update references to this entity type on the entity stack
-	if depth > 0 {
-		topEntity, err := l.state.EntityFetch(depth - 1)
-		if err == nil && topEntity != nil {
-			entityRName := entity.GetName()
-			if topEntity.ContainsAttribute(entityRName) {
-				isSame, _ := topEntity.GetName().Equals(entityRName)
-				if !isSame {
-					topEntity.Put(entityRName, entity)
-				}
-			}
+		return arr
+	case map[string]interface{}:
+		jsonBytes, err := json.Marshal(v)
+		if err != nil {
+			return dtrules.GetRString(fmt.Sprintf("%v", v))
 		}
+		return dtrules.GetRString(string(jsonBytes))
+	default:
+		return dtrules.GetRString(fmt.Sprintf("%v", v))
 	}
 }

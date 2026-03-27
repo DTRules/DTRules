@@ -30,20 +30,23 @@ import (
 	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
-// TestHarness provides test execution and comparison capabilities.
+// TestHarness provides test execution and comparison capabilities for DTRules.
+// It loads a rule set, runs test files against it, generates trace and results
+// output, computes coverage statistics, and compares results against reference
+// outputs to detect regressions.
 type TestHarness struct {
-	Path               string
-	RuleSetName        string
-	DecisionTableName  string
-	RulesDirectoryFile string
-	TestDirectory      string
-	OutputDirectory    string
-	ResultDirectory    string
-	Trace              bool
-	Coverage           bool
-	Verbose            bool
-	Console            bool
-	Numbered           bool
+	Path               string // Base path for the project
+	RuleSetName        string // Name of the rule set to test
+	DecisionTableName  string // Entry point decision table to execute
+	RulesDirectoryFile string // DTRules configuration file name (default "DTRules.xml")
+	TestDirectory      string // Directory containing XML test input files
+	OutputDirectory    string // Directory for generated output (traces, results)
+	ResultDirectory    string // Directory containing reference results for comparison
+	Trace              bool   // Enable trace output during test execution
+	Coverage           bool   // Generate coverage report after tests
+	Verbose            bool   // Enable verbose trace output
+	Console            bool   // Print progress to stdout
+	Numbered           bool   // Prefix output files with sequential numbers
 	fileCount          int
 	currentFile        string
 	ruleSet            *session.RuleSet
@@ -634,11 +637,12 @@ func (th *TestHarness) GenerateTestDataReport(w io.Writer) error {
 	return nil
 }
 
-// CaptureOutput captures the output of a test run.
+// CaptureOutput captures the output of a test run into in-memory buffers
+// instead of writing to files. Used by RunFileWithCapture.
 type CaptureOutput struct {
-	Results bytes.Buffer
-	Trace   bytes.Buffer
-	Errors  bytes.Buffer
+	Results bytes.Buffer // Entity report and test results XML
+	Trace   bytes.Buffer // Execution trace XML
+	Errors  bytes.Buffer // Error messages from execution
 }
 
 // RunFileWithCapture runs a test file and captures all output.

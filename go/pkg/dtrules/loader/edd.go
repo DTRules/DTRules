@@ -13,11 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package loader implements XML and JSON loaders for EDD and Decision Table files.
+// Package loader implements XML and JSON loaders for EDD (Entity Data Dictionary)
+// and Decision Table files. It supports loading entity definitions and decision
+// tables from both the traditional DTRules XML format and from JSON.
 package loader
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -50,51 +51,44 @@ func NewEDDLoader(session dtrules.Session, factory *entity.Factory) *EDDLoader {
 	}
 }
 
-// Structures matching the actual DTRules EDD format (XML and JSON)
+// XML structures matching the actual DTRules EDD format
 
 // FileMetadata represents the file_metadata element in EDD files
 type FileMetadata struct {
-	FilePath string `xml:"file_path" json:"file_path,omitempty"`
+	FilePath string `xml:"file_path"`
 }
 
 // EDDFile represents the root entity_data_dictionary element
 type EDDFile struct {
-	XMLName      xml.Name     `xml:"entity_data_dictionary" json:"-"`
-	Version      string       `xml:"version,attr" json:"version,omitempty"`
-	FileMetadata FileMetadata `xml:"file_metadata" json:"file_metadata,omitempty"`
-	Entities     []EDDEntity  `xml:"entity" json:"entities"`
+	XMLName      xml.Name     `xml:"entity_data_dictionary"`
+	Version      string       `xml:"version,attr"`
+	FileMetadata FileMetadata `xml:"file_metadata"`
+	Entities     []EDDEntity  `xml:"entity"`
 }
 
 // EDDEntity represents an entity definition
 type EDDEntity struct {
-	Name    string     `xml:"name,attr" json:"name"`
-	Access  string     `xml:"access,attr" json:"access,omitempty"`
-	Comment string     `xml:"comment,attr" json:"comment,omitempty"`
-	XlsFile string     `xml:"xls_file,attr" json:"xls_file,omitempty"`
-	Fields  []EDDField `xml:"field" json:"fields"`
+	Name    string     `xml:"name,attr"`
+	Access  string     `xml:"access,attr"`
+	Comment string     `xml:"comment,attr"`
+	XlsFile string     `xml:"xls_file,attr"`
+	Fields  []EDDField `xml:"field"`
 }
 
 // EDDField represents a field/attribute in an entity
 type EDDField struct {
-	Name         string `xml:"name,attr" json:"name"`
-	Type         string `xml:"type,attr" json:"type"`
-	SubType      string `xml:"subtype,attr" json:"subtype,omitempty"`
-	Access       string `xml:"access,attr" json:"access,omitempty"`
-	Input        string `xml:"input,attr" json:"input,omitempty"`
-	DefaultValue string `xml:"default_value,attr" json:"default_value,omitempty"`
-	Comment      string `xml:"comment,attr" json:"comment,omitempty"`
+	Name         string `xml:"name,attr"`
+	Type         string `xml:"type,attr"`
+	SubType      string `xml:"subtype,attr"`
+	Access       string `xml:"access,attr"`
+	Input        string `xml:"input,attr"`
+	DefaultValue string `xml:"default_value,attr"`
+	Comment      string `xml:"comment,attr"`
 }
 
-// Load loads an EDD from an io.Reader. The input may be XML or JSON;
-// the format is detected automatically from the content.
+// Load loads an EDD from an io.Reader.
 // The input size is limited by MaxXMLSize (default 10 MB) to prevent memory exhaustion.
 func (l *EDDLoader) Load(r io.Reader) error {
-	// Detect format
-	format, r, err := DetectFormat(r)
-	if err != nil {
-		return fmt.Errorf("failed to read EDD: %w", err)
-	}
-
 	// Apply size limit if configured
 	if MaxXMLSize > 0 {
 		r = io.LimitReader(r, MaxXMLSize+1) // +1 to detect overflow
@@ -107,26 +101,14 @@ func (l *EDDLoader) Load(r io.Reader) error {
 
 	// Check if we hit the size limit
 	if MaxXMLSize > 0 && int64(len(data)) > MaxXMLSize {
-		return fmt.Errorf("EDD input exceeds maximum size limit of %d bytes", MaxXMLSize)
+		return fmt.Errorf("EDD XML exceeds maximum size limit of %d bytes", MaxXMLSize)
 	}
 
 	var edd EDDFile
-	switch format {
-	case FormatJSON:
-		if err := json.Unmarshal(data, &edd); err != nil {
-			return fmt.Errorf("failed to parse EDD JSON: %w", err)
-		}
-	default:
-		if err := xml.Unmarshal(data, &edd); err != nil {
-			return fmt.Errorf("failed to parse EDD XML: %w", err)
-		}
+	if err := xml.Unmarshal(data, &edd); err != nil {
+		return fmt.Errorf("failed to parse EDD XML: %w", err)
 	}
 
-	return l.processEDDFile(&edd)
-}
-
-// processEDDFile processes a parsed EDD file structure (shared by XML and JSON paths).
-func (l *EDDLoader) processEDDFile(edd *EDDFile) error {
 	// Capture file-level path from metadata
 	fileLevelPath := edd.FileMetadata.FilePath
 
