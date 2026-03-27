@@ -1094,6 +1094,23 @@
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
 
+		<!-- North Dakota State Tax Constants (2025) - Progressive Tax -->
+		<field name='nd_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='ND standard deduction Single (2025)'></field>
+		<field name='nd_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='ND standard deduction MFJ (2025)'></field>
+		<field name='nd_standard_deduction_mfs' type='double' subtype='' access='r' input='' default_value='15750' comment='ND standard deduction MFS (2025)'></field>
+		<field name='nd_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='ND standard deduction HOH (2025)'></field>
+		<field name='nd_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='ND tax rate bracket 1 (0%)'></field>
+		<field name='nd_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0195' comment='ND tax rate bracket 2 (1.95%)'></field>
+		<field name='nd_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0250' comment='ND tax rate bracket 3 (2.5%)'></field>
+		<field name='nd_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='48475' comment='ND bracket 2 threshold Single ($48,475)'></field>
+		<field name='nd_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='244825' comment='ND bracket 3 threshold Single ($244,825)'></field>
+		<field name='nd_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='80975' comment='ND bracket 2 threshold MFJ ($80,975)'></field>
+		<field name='nd_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='298075' comment='ND bracket 3 threshold MFJ ($298,075)'></field>
+		<field name='nd_bracket_2_threshold_mfs' type='double' subtype='' access='r' input='' default_value='40475' comment='ND bracket 2 threshold MFS ($40,475)'></field>
+		<field name='nd_bracket_3_threshold_mfs' type='double' subtype='' access='r' input='' default_value='149025' comment='ND bracket 3 threshold MFS ($149,025)'></field>
+		<field name='nd_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='64950' comment='ND bracket 2 threshold HOH ($64,950)'></field>
+		<field name='nd_bracket_3_threshold_hoh' type='double' subtype='' access='r' input='' default_value='271450' comment='ND bracket 3 threshold HOH ($271,450)'></field>
+
 		<!-- New York State Tax Constants (2025) -->
 		<field name='ny_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NY standard deduction for single filers (2025)'></field>
 		<field name='ny_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16050' comment='NY standard deduction for married filing jointly (2025)'></field>
@@ -1935,6 +1952,15 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- North Dakota State Tax Results -->
+		<field name='nd_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='North Dakota AGI (federal AGI + adjustments)'></field>
+		<field name='nd_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='ND standard deduction amount'></field>
+		<field name='nd_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='North Dakota taxable income'></field>
+		<field name='nd_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='ND bracket 1 tax (0%)'></field>
+		<field name='nd_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='ND bracket 2 tax (1.95%)'></field>
+		<field name='nd_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='ND bracket 3 tax (2.5%)'></field>
+		<field name='nd_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='North Dakota state income tax'></field>
 
 		<!-- New York State Tax Results -->
 		<field name='ny_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New York AGI (federal AGI + adjustments)'></field>

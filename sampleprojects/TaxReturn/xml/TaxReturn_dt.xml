@@ -15693,4 +15693,222 @@ endif
 </policy_statements>
 </decision_table>
 
+
+<!-- ====================================================================== -->
+<!-- TABLE 44600: Calculate_ND_Tax - North Dakota State Income Tax        -->
+<!-- Reference: North Dakota Form ND-1 (2025)                              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_ND_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates North Dakota state income tax per Form ND-1. North Dakota uses progressive tax brackets: 0% on first bracket, 1.95% on middle bracket, 2.5% on top bracket. Brackets vary by filing status. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>44600</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize ND tax calculation</action_description>
+<action_postfix>
+"NORTH DAKOTA FORM ND-1 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.nd_agi xdef
+0 /result.nd_bracket_1_tax xdef
+0 /result.nd_bracket_2_tax xdef
+0 /result.nd_bracket_3_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single filer</condition_comment>
+<condition_description>job.filing_status is equal to "single"</condition_description>
+<condition_postfix>
+job.filing_status single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status is equal to "head_of_household"</condition_description>
+<condition_postfix>
+job.filing_status head_of_household streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate ND tax MFJ</action_comment>
+<action_description>Calculate ND tax with MFJ standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+nd_standard_deduction_mfj /result.nd_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.nd_standard_deduction cvs strconcat job.audit_trail swap addto
+result.nd_agi result.nd_standard_deduction f- 0 fmax /result.nd_taxable_income xdef
+"  ND Taxable Income: $" result.nd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.nd_taxable_income nd_bracket_3_threshold_mfj f> if
+  nd_bracket_2_threshold_mfj nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+  nd_bracket_3_threshold_mfj nd_bracket_2_threshold_mfj f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+  result.nd_taxable_income nd_bracket_3_threshold_mfj f- nd_bracket_3_rate f* /result.nd_bracket_3_tax xdef
+  "  Bracket 1 (0% on $0-$80,975): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (1.95% on $80,975-$298,075): $" result.nd_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (2.5% above $298,075): $" result.nd_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.nd_taxable_income nd_bracket_2_threshold_mfj f> if
+    nd_bracket_2_threshold_mfj nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    result.nd_taxable_income nd_bracket_2_threshold_mfj f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+    "  Bracket 1 (0% on $0-$80,975): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (1.95% on $80,975-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.nd_taxable_income nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    "  Bracket 1 (0% on $0-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+  endif
+endif
+result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /result.nd_tax xdef
+"  Total ND Tax: $" result.nd_tax cvs strconcat " (Form ND-1)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate ND tax Single</action_comment>
+<action_description>Calculate ND tax with Single standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+nd_standard_deduction_single /result.nd_standard_deduction xdef
+"  Standard Deduction (Single): $" result.nd_standard_deduction cvs strconcat job.audit_trail swap addto
+result.nd_agi result.nd_standard_deduction f- 0 fmax /result.nd_taxable_income xdef
+"  ND Taxable Income: $" result.nd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.nd_taxable_income nd_bracket_3_threshold_single f> if
+  nd_bracket_2_threshold_single nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+  nd_bracket_3_threshold_single nd_bracket_2_threshold_single f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+  result.nd_taxable_income nd_bracket_3_threshold_single f- nd_bracket_3_rate f* /result.nd_bracket_3_tax xdef
+  "  Bracket 1 (0% on $0-$48,475): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (1.95% on $48,475-$244,825): $" result.nd_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (2.5% above $244,825): $" result.nd_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.nd_taxable_income nd_bracket_2_threshold_single f> if
+    nd_bracket_2_threshold_single nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    result.nd_taxable_income nd_bracket_2_threshold_single f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+    "  Bracket 1 (0% on $0-$48,475): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (1.95% on $48,475-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.nd_taxable_income nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    "  Bracket 1 (0% on $0-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+  endif
+endif
+result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /result.nd_tax xdef
+"  Total ND Tax: $" result.nd_tax cvs strconcat " (Form ND-1)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate ND tax HOH</action_comment>
+<action_description>Calculate ND tax with HOH standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+nd_standard_deduction_hoh /result.nd_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.nd_standard_deduction cvs strconcat job.audit_trail swap addto
+result.nd_agi result.nd_standard_deduction f- 0 fmax /result.nd_taxable_income xdef
+"  ND Taxable Income: $" result.nd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.nd_taxable_income nd_bracket_3_threshold_hoh f> if
+  nd_bracket_2_threshold_hoh nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+  nd_bracket_3_threshold_hoh nd_bracket_2_threshold_hoh f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+  result.nd_taxable_income nd_bracket_3_threshold_hoh f- nd_bracket_3_rate f* /result.nd_bracket_3_tax xdef
+  "  Bracket 1 (0% on $0-$64,950): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (1.95% on $64,950-$271,450): $" result.nd_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (2.5% above $271,450): $" result.nd_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.nd_taxable_income nd_bracket_2_threshold_hoh f> if
+    nd_bracket_2_threshold_hoh nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    result.nd_taxable_income nd_bracket_2_threshold_hoh f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+    "  Bracket 1 (0% on $0-$64,950): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (1.95% on $64,950-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.nd_taxable_income nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    "  Bracket 1 (0% on $0-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+  endif
+endif
+result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /result.nd_tax xdef
+"  Total ND Tax: $" result.nd_tax cvs strconcat " (Form ND-1)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate ND tax MFS/other</action_comment>
+<action_description>Calculate ND tax with MFS standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+nd_standard_deduction_mfs /result.nd_standard_deduction xdef
+"  Standard Deduction (MFS): $" result.nd_standard_deduction cvs strconcat job.audit_trail swap addto
+result.nd_agi result.nd_standard_deduction f- 0 fmax /result.nd_taxable_income xdef
+"  ND Taxable Income: $" result.nd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.nd_taxable_income nd_bracket_3_threshold_mfs f> if
+  nd_bracket_2_threshold_mfs nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+  nd_bracket_3_threshold_mfs nd_bracket_2_threshold_mfs f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+  result.nd_taxable_income nd_bracket_3_threshold_mfs f- nd_bracket_3_rate f* /result.nd_bracket_3_tax xdef
+  "  Bracket 1 (0% on $0-$40,475): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (1.95% on $40,475-$149,025): $" result.nd_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (2.5% above $149,025): $" result.nd_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.nd_taxable_income nd_bracket_2_threshold_mfs f> if
+    nd_bracket_2_threshold_mfs nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    result.nd_taxable_income nd_bracket_2_threshold_mfs f- nd_bracket_2_rate f* /result.nd_bracket_2_tax xdef
+    "  Bracket 1 (0% on $0-$40,475): $" result.nd_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (1.95% on $40,475-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.nd_taxable_income nd_bracket_1_rate f* /result.nd_bracket_1_tax xdef
+    "  Bracket 1 (0% on $0-$" result.nd_taxable_income cvs strconcat "): $" strconcat result.nd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+  endif
+endif
+result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /result.nd_tax xdef
+"  Total ND Tax: $" result.nd_tax cvs strconcat " (Form ND-1)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>ND progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"North Dakota progressive tax for MFJ per Form ND-1"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>ND progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix>"North Dakota progressive tax for Single per Form ND-1"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>ND progressive tax HOH with standard deduction</policy_description>
+<policy_statement_postfix>"North Dakota progressive tax for HOH per Form ND-1"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>ND progressive tax MFS with standard deduction</policy_description>
+<policy_statement_postfix>"North Dakota progressive tax for MFS per Form ND-1"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 </decision_tables>
