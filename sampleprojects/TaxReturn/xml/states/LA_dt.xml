@@ -23,6 +23,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Louisiana state income tax calculation. Implements flat 3% tax structure per LA tax code (2025).</COMMENTS>
 <TABLE_NUMBER>41900</TABLE_NUMBER>
+<FILE_PATH>states/LA/41900_Calculate_LA_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

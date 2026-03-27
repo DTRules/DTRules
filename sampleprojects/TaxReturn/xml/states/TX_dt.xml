@@ -29,6 +29,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Texas state income tax calculation. TX has no state income tax - this table simply sets state_tax_liability to 0.</COMMENTS>
 <TABLE_NUMBER>44300</TABLE_NUMBER>
+<FILE_PATH>states/TX/44300_Calculate_TX_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

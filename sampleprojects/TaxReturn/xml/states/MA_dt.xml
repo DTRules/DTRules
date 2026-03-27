@@ -16,6 +16,7 @@
 <Type>FIRST</Type>
 <COMMENTS>Massachusetts state income tax calculation. Implements flat 5.0% rate with 4% surtax on high incomes per MA tax code (2025).</COMMENTS>
 <TABLE_NUMBER>42100</TABLE_NUMBER>
+<FILE_PATH>states/MA/42100_Calculate_MA_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>
