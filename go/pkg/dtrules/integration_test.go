@@ -19,9 +19,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/mapping"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/mapping"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // TestCHIPIntegration tests the full pipeline with the CHIP sample project
@@ -385,8 +385,8 @@ func findCHIPDir(t *testing.T) string {
 	// Try from GOPATH or known location
 	home, _ := os.UserHomeDir()
 	knownPaths := []string{
-		filepath.Join(home, "repos/github.com/PaulSnow/DTRules/sampleprojects/CHIP"),
-		"/home/paul/repos/github.com/PaulSnow/DTRules/sampleprojects/CHIP",
+		filepath.Join(home, "repos/github.com/DTRules/DTRules/sampleprojects/CHIP"),
+		"/home/paul/repos/github.com/DTRules/DTRules/sampleprojects/CHIP",
 	}
 
 	for _, p := range knownPaths {

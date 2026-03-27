@@ -1,81 +1,116 @@
 # DTRules Documentation
 
-DTRules has implementations in both **Java** and **Go**. This documentation primarily covers the Java implementation. For Go-specific documentation, see the [Go README](../go/README.md).
+This directory contains comprehensive documentation for DTRules. The project has implementations in **Java**, **Go**, and **Assembly**.
 
-## Implementations
+## Quick Links
 
-| Implementation | Documentation | Best For |
-|----------------|---------------|----------|
-| **Java** | This directory | Full tooling, Excel compilers, IDE integration |
-| **Go** | [go/README.md](../go/README.md) | High-performance runtime, microservices |
+| I want to... | Go here |
+|--------------|---------|
+| Get started quickly | [Quick Start (Java)](QUICKSTART.md) or [Quick Start (UI)](../QUICKSTART-UI.md) |
+| Build from source | [Building Guide](BUILDING.md) |
+| Learn the expression language | [EL Reference](EL-REFERENCE.md) |
+| Understand the architecture | [Architecture Guide](ARCHITECTURE.md) |
+| Use the Go implementation | [Go README](../go/README.md) |
 
-## Getting Started (Java)
+---
+
+## Getting Started
 
 | Document | Description |
 |----------|-------------|
-| [Quick Start Guide](QUICKSTART.md) | Step-by-step guide to running your first DTRules project |
+| [Quick Start (Java)](QUICKSTART.md) | Step-by-step guide to running your first DTRules project |
+| [Quick Start (UI)](../QUICKSTART-UI.md) | Get the visual UI running in 5 minutes |
 | [Building from Source](BUILDING.md) | Detailed build instructions and IDE setup |
 
-## Reference Documentation (Java)
+---
+
+## Core Concepts
 
 | Document | Description |
 |----------|-------------|
-| [Expression Language Reference](EL-REFERENCE.md) | Complete EL syntax, operators, and functions |
 | [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
-| [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
+| [Expression Language Reference](EL-REFERENCE.md) | Complete EL syntax, operators, and functions |
 | [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md) | Excel, ODS, and Google Sheets support |
+| [Bytecode Specification](bytecode-spec.md) | Portable bytecode format for cross-runtime execution |
+
+---
+
+## Java Implementation
+
+| Document | Description |
+|----------|-------------|
+| [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
+| [ANTLR Migration Guide](antlr-migration.md) | EL/EBL parser modernization (JFlex/CUP → ANTLR 4) |
+
+### Java Quick Start
+
+```bash
+git clone https://github.com/PaulSnow/DTRules.git
+cd DTRules
+mvn clean install
+```
+
+---
 
 ## Go Implementation
 
 | Document | Description |
 |----------|-------------|
-| [Go README](../go/README.md) | Installation, CLI usage, quick start |
-| [Design Review](../go/pkg/dtrules/DESIGN_REVIEW.md) | Architecture, design decisions, security review |
-| [Performance Analysis](../go/pkg/dtrules/benchmark/PERFORMANCE_ANALYSIS.md) | Detailed benchmarks and optimizations |
+| [Go README](../go/README.md) | Installation, CLI usage, REST API |
+| [Design Review](go-design-review.md) | Architecture, design decisions, security review |
+| [Performance Analysis](go-performance.md) | Detailed benchmarks and optimizations |
+| [Native ASM Runtime](nativeasm-runtime.md) | Plan 9 assembly runtime (20-50x faster) |
 
 ### Go Quick Start
 
 ```bash
-# Build CLI
 cd go && go build -o dtrules ./cmd/dtrules
-
-# Run with existing Java-compiled rules
 ./dtrules -rules /path/to/xml -list
 ./dtrules -rules /path/to/xml -entry Main
 ```
+
+### Performance Highlights
+
+| Optimization | Speedup |
+|-------------|---------|
+| Operator Lookup | 130x faster |
+| Value Arithmetic | 24x faster |
+| String Interning | 3.7x faster |
+| Native ASM Push/Pop | 20x vs CGO |
+
+---
+
+## Assembly Implementation
+
+| Document | Description |
+|----------|-------------|
+| [Assembly Guide](asm-guide.md) | x86-64 NASM implementation - architecture, compatibility, testing |
+| [ASM README](../asm/README.md) | Build instructions and overview |
+
+The assembly implementation is educational, demonstrating how a rules engine can be built at the lowest level with no libc dependencies.
+
+---
 
 ## Visual UI
 
 A modern React-based UI for editing decision tables and testing rules:
 
 ```bash
-# Terminal 1: Start the Go API backend
+# Terminal 1: Start Go API backend
 cd go && go run ./cmd/api
 
-# Terminal 2: Start the React frontend
+# Terminal 2: Start React frontend
 cd ui && npm install && npm run dev
 ```
 
-Then open http://localhost:5173 in your browser. See [ui/README.md](../ui/README.md) for details.
+Then open http://localhost:5173
 
-## Development Documentation
+| Document | Description |
+|----------|-------------|
+| [UI README](../ui/README.md) | Setup, features, and usage |
+| [UI Architecture](../ui/ARCHITECTURE.md) | Component structure and design |
 
-| Document | Location | Description |
-|----------|----------|-------------|
-| Compiler Utilities | [compilerutil/README.md](../compilerutil/README.md) | Spreadsheet conversion tools |
-| ANTLR 4 Migration | [dsl/ANTLR_MIGRATION.md](../dsl/ANTLR_MIGRATION.md) | Parser modernization guide |
-| Changelog | [CHANGELOG.md](../CHANGELOG.md) | Version history and changes |
-
-## Legacy Documentation
-
-Additional documentation is available in legacy formats:
-
-| Document | Location | Description |
-|----------|----------|-------------|
-| DTRules Overview | `dtrules-engine/docs/DTRules.doc` | Core engine documentation |
-| Operator Reference | `dtrules-engine/docs/OperatorList.doc` | List of available operators |
-| EL Overview | `dtrules-engine/docs/Overview_of_DTRules_and_EL.pdf` | Expression Language overview |
-| EL Examples | `sampleprojects/SyntaxTests/EL Documentation-1.odt` | Comprehensive EL syntax examples |
+---
 
 ## Sample Projects
 
@@ -88,23 +123,41 @@ Additional documentation is available in legacy formats:
 
 ### All Sample Projects
 
-#### Rule Set Projects
-
 | Project | Purpose | Complexity |
 |---------|---------|------------|
 | [TestProject](../sampleprojects/TestProject/) | Minimal template for new projects | Low |
 | [SyntaxTests](../sampleprojects/SyntaxTests/) | EL language feature examples | Reference |
 | [CHIP](../sampleprojects/CHIP/) | Health insurance eligibility | High |
 | [KidAid](../sampleprojects/KidAid/) | Child assistance eligibility | High |
-
-#### Application Wrappers
-
-| Project | Purpose | Features |
-|---------|---------|----------|
-| [ChipApp](../sampleprojects/ChipApp/) | CHIP integration example | Multi-threaded, performance testing |
-| [KidAid_Application](../sampleprojects/KidAid_Application/) | KidAid integration example | Simple integration pattern |
+| [ChipApp](../sampleprojects/ChipApp/) | CHIP integration example | Medium |
+| [KidAid_Application](../sampleprojects/KidAid_Application/) | KidAid integration example | Medium |
 
 See the [Sample Projects Overview](../sampleprojects/README.md) for the complete guide.
+
+---
+
+## Development Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Changelog](../CHANGELOG.md) | Version history and changes |
+| [Compiler Utilities](../compilerutil/README.md) | Spreadsheet conversion tools |
+| [DSL Overview](../dsl/README.md) | Domain Specific Language modules |
+
+---
+
+## Legacy Documentation
+
+Additional documentation is available in legacy formats:
+
+| Document | Location | Description |
+|----------|----------|-------------|
+| DTRules Overview | `dtrules-engine/docs/DTRules.doc` | Core engine documentation |
+| Operator Reference | `dtrules-engine/docs/OperatorList.doc` | List of available operators |
+| EL Overview | `dtrules-engine/docs/Overview_of_DTRules_and_EL.pdf` | Expression Language overview |
+| EL Examples | `sampleprojects/SyntaxTests/EL Documentation-1.odt` | Comprehensive EL syntax examples |
+
+---
 
 ## Architecture Overview
 
@@ -120,15 +173,15 @@ See the [Sample Projects Overview](../sampleprojects/README.md) for the complete
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-For detailed architecture diagrams and component descriptions, see the [Architecture Guide](ARCHITECTURE.md).
+---
 
 ## Key Concepts
 
 ### Entity Definition Document (EDD)
-Defines the data model used by decision tables. Contains entities, attributes, types, and relationships. Created in spreadsheets (Excel, ODS, or Google Sheets). See [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md).
+Defines the data model used by decision tables. Contains entities, attributes, types, and relationships. Created in spreadsheets.
 
 ### Decision Tables
-Tabular representation of business rules. Each column is a rule with conditions to match and actions to execute. Uses EL syntax. Can be authored in Excel, LibreOffice, or Google Sheets.
+Tabular representation of business rules. Each column is a rule with conditions to match and actions to execute. Uses EL syntax.
 
 ### Expression Language (EL)
 Domain-specific language for writing conditions and actions. Designed to be readable by business analysts and policy experts.
@@ -136,35 +189,7 @@ Domain-specific language for writing conditions and actions. Designed to be read
 ### Session
 Runtime execution context. Each evaluation creates a new session, loads data, executes decision tables, and extracts results.
 
-### Mapping
-Configuration for converting between external data formats (XML, Java objects) and internal entity representation.
-
-## Quick Code Example
-
-```java
-// Initialize (once at startup)
-RulesDirectory rd = new RulesDirectory(path, "DTRules.xml");
-RuleSet rs = rd.getRuleSet("MyRules");
-
-// Execute (per evaluation)
-IRSession session = rs.newSession();
-session.loadXml(inputStream, "main");
-session.execute("Main_Decision_Table");
-
-// Get results
-DTState state = session.getState();
-IREntity results = state.find("results");
-String status = results.get("status").stringValue();
-```
-
-See the [API Guide](API-GUIDE.md) for comprehensive examples.
-
-## DSL Implementations
-
-| DSL | Description | Parser | Sample Projects |
-|-----|-------------|--------|-----------------|
-| **EL** | Expression Language - standard DSL | ANTLR 4 | CHIP, KidAid, SyntaxTests, TestProject |
-| **EBL** | Entity Business Language - enhanced DSL | ANTLR 4 | (available for advanced use cases) |
+---
 
 ## Contributing
 

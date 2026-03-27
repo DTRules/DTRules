@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
 // TestEDDXMLAndJSONProduceIdenticalResults verifies that loading an EDD from XML

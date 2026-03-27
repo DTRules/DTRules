@@ -23,7 +23,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // Mapping holds the configuration for mapping XML data to entities.

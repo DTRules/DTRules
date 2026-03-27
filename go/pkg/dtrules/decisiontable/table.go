@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // DASH represents a "don't care" entry in the condition/action tables
@@ -60,6 +60,7 @@ type RDecisionTable struct {
 
 	name      *dtrules.RName // The decision table's name
 	filename  string         // Filename where the table is defined
+	filePath  string         // FILE_PATH: canonical path for Excel generation
 	tableType TableType      // Type of decision table
 
 	maxCol int // Number of columns in this decision table
@@ -79,21 +80,24 @@ type RDecisionTable struct {
 	initialActions        []string
 	initialActionsPostfix []string
 	initialActionsComment []string
-	rinitialActions       []dtrules.Object
+	rinitialActions       []dtrules.Object         // Go interpreter
+	binitialActions       []*dtrules.BytecodeChunk // ASM bytecode
 
 	// Conditions
-	conditionTable    [][]string       // conditionTable[row][col] - "y", "n", "-", "*"
-	conditions        []string         // Condition expressions (formal)
-	conditionsPostfix []string         // Compiled postfix
-	conditionsComment []string         // Comments
-	rconditions       []dtrules.Object // Compiled condition code
+	conditionTable    [][]string               // conditionTable[row][col] - "y", "n", "-", "*"
+	conditions        []string                 // Condition expressions (formal)
+	conditionsPostfix []string                 // Compiled postfix
+	conditionsComment []string                 // Comments
+	rconditions       []dtrules.Object         // Compiled condition code (Go interpreter)
+	bconditions       []*dtrules.BytecodeChunk // Compiled bytecode (for ASM execution)
 
 	// Actions
-	actionTable    [][]string       // actionTable[row][col] - "x" or ""
-	actions        []string         // Action expressions (formal)
-	actionsPostfix []string         // Compiled postfix
-	actionsComment []string         // Comments
-	ractions       []dtrules.Object // Compiled action code
+	actionTable    [][]string               // actionTable[row][col] - "x" or ""
+	actions        []string                 // Action expressions (formal)
+	actionsPostfix []string                 // Compiled postfix
+	actionsComment []string                 // Comments
+	ractions       []dtrules.Object         // Compiled action code (Go interpreter)
+	bactions       []*dtrules.BytecodeChunk // Compiled bytecode (for ASM execution)
 
 	// Policy statements
 	policyStatements        []string
@@ -796,4 +800,66 @@ func (dt *RDecisionTable) Compare(o dtrules.Object) (int, error) {
 // RStringValue returns an RString for this decision table's name
 func (dt *RDecisionTable) RStringValue() *dtrules.RString {
 	return dtrules.NewRString(dt.name.StringValue())
+}
+
+// GetFilename returns the source filename
+func (dt *RDecisionTable) GetFilename() string {
+	return dt.filename
+}
+
+// GetFilePath returns the canonical file path with fallback to filename
+func (dt *RDecisionTable) GetFilePath() string {
+	// Check if FILE_PATH is in fields (multi-file architecture)
+	if filePath, ok := dt.fields["FILE_PATH"]; ok && filePath != "" {
+		return filePath
+	}
+	if dt.filePath != "" {
+		return dt.filePath
+	}
+	return dt.filename // Fallback to legacy xls_file
+}
+
+// SetFilePath sets the canonical file path
+func (dt *RDecisionTable) SetFilePath(path string) {
+	dt.filePath = path
+}
+
+// GetContexts returns the context expressions
+func (dt *RDecisionTable) GetContexts() []string {
+	return dt.contexts
+}
+
+// GetContextsComment returns the context comments
+func (dt *RDecisionTable) GetContextsComment() []string {
+	return dt.contextsComment
+}
+
+// GetInitialActions returns the initial action expressions
+func (dt *RDecisionTable) GetInitialActions() []string {
+	return dt.initialActions
+}
+
+// GetInitialActionsComment returns the initial action comments
+func (dt *RDecisionTable) GetInitialActionsComment() []string {
+	return dt.initialActionsComment
+}
+
+// GetConditionsComment returns the condition comments
+func (dt *RDecisionTable) GetConditionsComment() []string {
+	return dt.conditionsComment
+}
+
+// GetActionsComment returns the action comments
+func (dt *RDecisionTable) GetActionsComment() []string {
+	return dt.actionsComment
+}
+
+// GetPolicyStatements returns the policy statements
+func (dt *RDecisionTable) GetPolicyStatements() []string {
+	return dt.policyStatements
+}
+
+// GetFields returns all metadata fields
+func (dt *RDecisionTable) GetFields() map[string]string {
+	return dt.fields
 }

@@ -1,0 +1,77 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Child Tax Credit Test: Phaseout scenario -->
+   <!-- 2025 CTC phaseout: starts at $400,000 MFJ -->
+   <!-- Reduces by $50 for each $1,000 over threshold -->
+   <!-- Income $430,000 = $30,000 over threshold -->
+   <!-- Reduction: ($30,000 / $1,000) × $50 = $1,500 per child -->
+   <!-- Expected CTC: $2,000 - $1,500 = $500 per child = $1,000 total -->
+
+   <id>Credits-07</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $430,000 combined W-2 (in phaseout range) -->
+   <!-- AGI: $430,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $400,000 -->
+   <!-- CTC before phaseout: $4,000 (2 children) -->
+   <!-- CTC after phaseout: $1,000 (reduced) -->
+   <expected_agi>430000</expected_agi>
+   <expected_taxable_income>400000</expected_taxable_income>
+   <expected_ctc>1000</expected_ctc>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>William Chen</name>
+         <ssn>333-44-9999</ssn>
+         <date_of_birth>1/5/1980</date_of_birth>
+         <occupation>Physician</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>280000</w2_wages>
+         <w2_withholding>60000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Chen</name>
+         <ssn>333-44-8888</ssn>
+         <date_of_birth>4/12/1982</date_of_birth>
+         <occupation>Attorney</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>30000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sophia Chen</name>
+         <ssn>444-55-9999</ssn>
+         <relationship>daughter</relationship>
+         <date_of_birth>3/22/2013</date_of_birth>
+         <age>12</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Noah Chen</name>
+         <ssn>444-55-8888</ssn>
+         <relationship>son</relationship>
+         <date_of_birth>7/8/2015</date_of_birth>
+         <age>10</age>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

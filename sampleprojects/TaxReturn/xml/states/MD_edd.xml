@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Maryland (MD)
+
+  Maryland has a progressive income tax with 8 brackets.
+  Tax rates range from 2% to 5.75%
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Maryland state tax constants -->
+  <entity name="result">
+    <!-- Standard deductions -->
+    <field name="md_standard_deduction_single" type="double" default_value="2700.0"
+           comment="MD standard deduction single (2025)"/>
+    <field name="md_standard_deduction_joint" type="double" default_value="5400.0"
+           comment="MD standard deduction married filing jointly (2025)"/>
+    <field name="md_standard_deduction_hoh" type="double" default_value="2700.0"
+           comment="MD standard deduction head of household (2025)"/>
+    <field name="md_standard_deduction_mfs" type="double" default_value="2700.0"
+           comment="MD standard deduction married filing separately (2025)"/>
+
+    <!-- Personal exemption -->
+    <field name="md_personal_exemption" type="double" default_value="3200.0"
+           comment="MD personal exemption amount (2025)"/>
+
+    <!-- Progressive tax brackets (using single filer rates) -->
+    <field name="md_bracket_1_limit" type="double" default_value="1000.0"
+           comment="MD tax bracket 1 upper limit (2025)"/>
+    <field name="md_bracket_1_rate" type="double" default_value="0.02"
+           comment="MD tax rate for bracket 1 - 2% (2025)"/>
+
+    <field name="md_bracket_2_limit" type="double" default_value="2000.0"
+           comment="MD tax bracket 2 upper limit (2025)"/>
+    <field name="md_bracket_2_rate" type="double" default_value="0.03"
+           comment="MD tax rate for bracket 2 - 3% (2025)"/>
+
+    <field name="md_bracket_3_limit" type="double" default_value="3000.0"
+           comment="MD tax bracket 3 upper limit (2025)"/>
+    <field name="md_bracket_3_rate" type="double" default_value="0.04"
+           comment="MD tax rate for bracket 3 - 4% (2025)"/>
+
+    <field name="md_bracket_4_limit" type="double" default_value="100000.0"
+           comment="MD tax bracket 4 upper limit (2025)"/>
+    <field name="md_bracket_4_rate" type="double" default_value="0.0475"
+           comment="MD tax rate for bracket 4 - 4.75% (2025)"/>
+
+    <field name="md_bracket_5_limit" type="double" default_value="125000.0"
+           comment="MD tax bracket 5 upper limit (2025)"/>
+    <field name="md_bracket_5_rate" type="double" default_value="0.05"
+           comment="MD tax rate for bracket 5 - 5% (2025)"/>
+
+    <field name="md_bracket_6_limit" type="double" default_value="150000.0"
+           comment="MD tax bracket 6 upper limit (2025)"/>
+    <field name="md_bracket_6_rate" type="double" default_value="0.0525"
+           comment="MD tax rate for bracket 6 - 5.25% (2025)"/>
+
+    <field name="md_bracket_7_limit" type="double" default_value="250000.0"
+           comment="MD tax bracket 7 upper limit (2025)"/>
+    <field name="md_bracket_7_rate" type="double" default_value="0.055"
+           comment="MD tax rate for bracket 7 - 5.5% (2025)"/>
+
+    <field name="md_bracket_8_rate" type="double" default_value="0.0575"
+           comment="MD tax rate for bracket 8 (income > $250,000) - 5.75% (2025)"/>
+
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="md_military_retirement_exemption_under_55" type="double" default_value="12500.0"
+           comment="MD military retirement exemption amount for under age 55 (2025). Source: MOAA State Report Card"/>
+    <field name="md_military_retirement_exemption_55_plus" type="double" default_value="20000.0"
+           comment="MD military retirement exemption amount for age 55+ (2025). Source: MOAA State Report Card"/>
+    <field name="md_military_retirement_taxable" type="double" default_value="0.0"
+           comment="MD taxable military retirement after exemption (computed)"/>
+
+  </entity>
+</entity_data_dictionary>

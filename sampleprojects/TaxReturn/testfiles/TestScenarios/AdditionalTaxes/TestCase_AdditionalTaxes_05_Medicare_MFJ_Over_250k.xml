@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 8959 - Additional Medicare Tax (MFJ Over $250k) -->
+<!-- Scenario: Married filing jointly with combined wages exceeding $250k threshold -->
+<!-- Combined Wages: $185,000 + $110,000 = $295,000 -->
+<!-- Expected: 0.9% Additional Medicare Tax on $45,000 ($295k - $250k) = $405 -->
+<job>
+    <id>AdditionalTaxes_05</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $295,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $265,000 -->
+    <!-- Income tax: ~$46,447 (2025 MFJ brackets) -->
+    <!-- Additional Medicare: $405 (0.9% on $45,000 over $250k threshold) -->
+    <!-- Total tax: $46,852 -->
+    <expected_agi>295000</expected_agi>
+    <expected_taxable_income>265000</expected_taxable_income>
+    <expected_total_tax>46852</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>David Thompson</name>
+            <ssn>678-90-1234</ssn>
+            <date_of_birth>04/15/1978</date_of_birth>
+            <occupation>Engineering Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>185000</w2_wages>
+            <w2_withholding>38000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Michelle Thompson</name>
+            <ssn>789-01-2345</ssn>
+            <date_of_birth>08/22/1980</date_of_birth>
+            <occupation>Marketing Director</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>110000</w2_wages>
+            <w2_withholding>22000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <expenses></expenses>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

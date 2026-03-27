@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for New Mexico
+
+  NM Corporate Income Tax Overview:
+  - Tax rate: 5.9% flat rate (effective 2025) - changed from graduated rates
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 gross receipts threshold
+  - Form: NM CIT-1 (Corporate Income and Franchise Tax Return)
+
+  Key Features:
+  - Single flat rate of 5.9% on all corporate income (effective 2025)
+  - Previously had graduated rates; now simplified to flat rate
+  - Single-sales apportionment formula (100% sales factor)
+  - Economic nexus threshold: $100,000 in gross receipts
+  - Significant decoupling from federal provisions (bonus depreciation, IRC 163(j))
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/NM/53900_NM_constants</file_path>
+  </file_metadata>
+
+  <!-- New Mexico state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="nm_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="NM economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="nm_transaction_threshold" type="integer" default_value="0"
+           comment="NM has no transaction count threshold (simplified to sales-only)"/>
+
+    <!-- State Tax Rate -->
+    <field name="nm_state_tax_rate" type="double" default_value="0.059"
+           comment="NM corporate income tax rate: 5.9% flat rate (NMSA § 7-2A-5, effective 2025)"/>
+
+  </entity>
+
+</entity_data_dictionary>

@@ -20,12 +20,13 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/decisiontable"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/compiler"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/decisiontable"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
 // DTLoader loads Decision Table files (XML or JSON).
@@ -67,11 +68,27 @@ type DTTable struct {
 }
 
 // DTAttributeFields represents metadata about the table
+// Note: Type can be <Type>, <TYPE>, or <type> depending on the XML source
 type DTAttributeFields struct {
-	Type        string `xml:"Type" json:"type"`
-	Comments    string `xml:"COMMENTS" json:"comments,omitempty"`
-	FileName    string `xml:"File_Name" json:"file_name,omitempty"`
-	TableNumber string `xml:"TABLE_NUMBER" json:"table_number,omitempty"`
+	Type          string `xml:"Type" json:"type"`
+	TypeUppercase string `xml:"TYPE" json:"-"`
+	TypeLowercase string `xml:"type" json:"-"`
+	Comments      string `xml:"COMMENTS" json:"comments,omitempty"`
+	CommentsLower string `xml:"comments" json:"-"`
+	FileName      string `xml:"File_Name" json:"file_name,omitempty"`
+	TableNumber   string `xml:"TABLE_NUMBER" json:"table_number,omitempty"`
+	FilePath      string `xml:"FILE_PATH" json:"file_path,omitempty"`
+}
+
+// GetType returns the type field, checking all case variants
+func (f *DTAttributeFields) GetType() string {
+	if f.Type != "" {
+		return f.Type
+	}
+	if f.TypeUppercase != "" {
+		return f.TypeUppercase
+	}
+	return f.TypeLowercase
 }
 
 // DTContexts represents the context section
@@ -198,6 +215,9 @@ func (l *DTLoader) Load(r io.Reader) error {
 	}
 
 	if len(l.errors) > 0 {
+		for i, err := range l.errors {
+			log.Printf("DT Load Error %d: %v", i+1, err)
+		}
 		return fmt.Errorf("decision table loading completed with %d errors", len(l.errors))
 	}
 	return nil
@@ -214,12 +234,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	builder := decisiontable.NewBuilder(name.StringValue(), l.session)
 
 	// Set table type
-	builder.SetTypeFromString(table.AttributeFields.Type)
+	builder.SetTypeFromString(table.AttributeFields.GetType())
 
 	// Set metadata fields
 	builder.SetField("TABLE_NUMBER", table.AttributeFields.TableNumber)
 	builder.SetField("COMMENTS", table.AttributeFields.Comments)
-	builder.SetFilename(table.AttributeFields.FileName)
+	builder.SetFilename(table.XlsFile)
+
+	// Set FILE_PATH if present (with fallback to xls_file)
+	if table.AttributeFields.FilePath != "" {
+		builder.SetFilePath(table.AttributeFields.FilePath)
+	}
 
 	// Process contexts - use postfix if available
 	contexts := make([]string, len(table.Contexts.Contexts))
@@ -417,10 +442,12 @@ func (l *DTLoader) compileContextsPostfix(tableName string, contexts []string) (
 		return nil, nil
 	}
 
-	// Check if any contexts have content
+	// Check if any contexts have meaningful content
+	// Skip contexts that are just "execute" (placeholder for "no longer supported")
 	hasContent := false
 	for _, ctx := range contexts {
-		if strings.TrimSpace(ctx) != "" {
+		ctx = strings.TrimSpace(ctx)
+		if ctx != "" && ctx != "execute" {
 			hasContent = true
 			break
 		}
@@ -435,7 +462,8 @@ func (l *DTLoader) compileContextsPostfix(tableName string, contexts []string) (
 	// Wrap with each context postfix (in reverse order, like Java)
 	for i := len(contexts) - 1; i >= 0; i-- {
 		ctx := strings.TrimSpace(contexts[i])
-		if ctx != "" {
+		// Skip empty contexts and placeholder "execute" (used for "no longer supported" entries)
+		if ctx != "" && ctx != "execute" {
 			contextsrc = "{ " + contextsrc + " } " + ctx
 		}
 	}

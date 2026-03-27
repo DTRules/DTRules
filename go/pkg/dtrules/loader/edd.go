@@ -23,8 +23,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
 // DefaultMaxXMLSize is the default maximum size for XML input (10 MB).
@@ -52,11 +52,17 @@ func NewEDDLoader(session dtrules.Session, factory *entity.Factory) *EDDLoader {
 
 // Structures matching the actual DTRules EDD format (XML and JSON)
 
+// FileMetadata represents the file_metadata element in EDD files
+type FileMetadata struct {
+	FilePath string `xml:"file_path" json:"file_path,omitempty"`
+}
+
 // EDDFile represents the root entity_data_dictionary element
 type EDDFile struct {
-	XMLName  xml.Name    `xml:"entity_data_dictionary" json:"-"`
-	Version  string      `xml:"version,attr" json:"version,omitempty"`
-	Entities []EDDEntity `xml:"entity" json:"entities"`
+	XMLName      xml.Name     `xml:"entity_data_dictionary" json:"-"`
+	Version      string       `xml:"version,attr" json:"version,omitempty"`
+	FileMetadata FileMetadata `xml:"file_metadata" json:"file_metadata,omitempty"`
+	Entities     []EDDEntity  `xml:"entity" json:"entities"`
 }
 
 // EDDEntity represents an entity definition
@@ -64,6 +70,7 @@ type EDDEntity struct {
 	Name    string     `xml:"name,attr" json:"name"`
 	Access  string     `xml:"access,attr" json:"access,omitempty"`
 	Comment string     `xml:"comment,attr" json:"comment,omitempty"`
+	XlsFile string     `xml:"xls_file,attr" json:"xls_file,omitempty"`
 	Fields  []EDDField `xml:"field" json:"fields"`
 }
 
@@ -120,8 +127,12 @@ func (l *EDDLoader) Load(r io.Reader) error {
 
 // processEDDFile processes a parsed EDD file structure (shared by XML and JSON paths).
 func (l *EDDLoader) processEDDFile(edd *EDDFile) error {
+	// Capture file-level path from metadata
+	fileLevelPath := edd.FileMetadata.FilePath
+
+	// Process each entity
 	for _, ent := range edd.Entities {
-		if err := l.processEntity(&ent); err != nil {
+		if err := l.processEntity(&ent, fileLevelPath); err != nil {
 			l.errors = append(l.errors, err)
 		}
 	}
@@ -154,7 +165,7 @@ func (e *EDDLoadError) Unwrap() error {
 }
 
 // processEntity processes a single entity definition.
-func (l *EDDLoader) processEntity(ent *EDDEntity) error {
+func (l *EDDLoader) processEntity(ent *EDDEntity, fileLevelPath string) error {
 	entityName := dtrules.GetRName(strings.TrimSpace(ent.Name))
 	if entityName == nil {
 		return fmt.Errorf("invalid entity name syntax: %s", ent.Name)
@@ -164,6 +175,19 @@ func (l *EDDLoader) processEntity(ent *EDDEntity) error {
 	refEntity, err := l.factory.FindCreateRefEntity(false, entityName)
 	if err != nil {
 		return fmt.Errorf("failed to create entity %s: %w", ent.Name, err)
+	}
+
+	// Set entity comment and xls_file for export grouping
+	if ent.Comment != "" {
+		refEntity.SetComment(ent.Comment)
+	}
+	if ent.XlsFile != "" {
+		refEntity.SetXlsFile(ent.XlsFile)
+	}
+
+	// Set file path from file-level metadata
+	if fileLevelPath != "" {
+		refEntity.SetFilePath(fileLevelPath)
 	}
 
 	// Process each field

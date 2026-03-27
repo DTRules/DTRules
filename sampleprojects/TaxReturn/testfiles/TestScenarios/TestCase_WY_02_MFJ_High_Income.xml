@@ -1,0 +1,127 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- WY Test Case 2: Married Filing Jointly High Income Both Brackets -->
+   <id>WY-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>WY</state>
+   <city>Jackson</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $140,000 -->
+   <!-- WY AGI: $140,000 -->
+   <!-- WY Standard Deduction: $11,000 (MFJ) -->
+   <!-- WY Taxable Income: $129,000 -->
+   <!-- WY Tax: -->
+   <!--   Bracket 1: $60,000 × 3.0% = $1,800 -->
+   <!--   Bracket 2: $69,000 × 4.5% = $3,105 -->
+   <!--   Total: $4,905 -->
+   <expected_agi>140000</expected_agi>
+   <expected_wy_agi>140000</expected_wy_agi>
+   <expected_wy_taxable_income>129000</expected_wy_taxable_income>
+   <expected_wy_bracket_1_tax>1800</expected_wy_bracket_1_tax>
+   <expected_wy_bracket_2_tax>3105</expected_wy_bracket_2_tax>
+   <expected_wy_tax>4905</expected_wy_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Brown</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>7/25/1982</date_of_birth>
+         <occupation>Software Developer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>12750</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa Brown</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>11/30/1984</date_of_birth>
+         <occupation>Marketing Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>8250</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>85000</gross_amount>
+         <withholding>12750</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>55000</gross_amount>
+         <withholding>8250</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Brown</name>
+         <ssn>888-99-0000</ssn>
+         <date_of_birth>3/12/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Daniel Brown</name>
+         <ssn>999-00-1111</ssn>
+         <date_of_birth>8/22/2017</date_of_birth>
+         <age>8</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <is_college_student>false</is_college_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>
