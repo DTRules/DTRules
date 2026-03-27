@@ -1067,6 +1067,9 @@
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
+
+		<!-- Iowa State Tax Constants (2025) - Flat Tax with Federal Standard Deduction -->
+		<field name='ia_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0380' comment='Iowa flat tax rate (3.8%)'></field>
 		<!-- New Hampshire State Tax Constants (2025) - Hypothetical Progressive Tax -->
 		<field name='nh_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NH standard deduction Single (2025)'></field>
 		<field name='nh_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='16000' comment='NH standard deduction MFJ (2025)'></field>
@@ -1803,6 +1806,12 @@
 		<field name='il_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois taxable income'></field>
 		<field name='il_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Illinois state income tax'></field>
 
+
+		<!-- Iowa State Tax Results -->
+		<field name='ia_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa AGI (federal AGI + adjustments)'></field>
+		<field name='ia_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa standard deduction (uses federal)'></field>
+		<field name='ia_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa taxable income'></field>
+		<field name='ia_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Iowa state income tax'></field>
 		<!-- New Hampshire State Tax Results -->
 		<field name='nh_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire AGI (federal AGI + adjustments)'></field>
 		<field name='nh_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NH standard deduction amount'></field>
