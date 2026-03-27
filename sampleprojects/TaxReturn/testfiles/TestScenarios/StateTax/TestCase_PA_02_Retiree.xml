@@ -1,0 +1,113 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>2</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>PA</state>
+   <city>Pittsburgh</city>
+
+   <!-- Expected values for validation -->
+   <!-- PA Tax Calculation:
+        Retirement Income (excluded): $45,000 pension + $32,000 SS = $77,000
+        Class 2 (Interest): $2,500
+        Class 3 (Dividends): $1,800
+        Class 6 (Rental Income): $12,000
+        Total PA Income: $16,300
+        PA Tax (3.07%): $500.41
+   -->
+   <expected_pa_retirement_exclusion>77000</expected_pa_retirement_exclusion>
+   <expected_pa_total_income>16300</expected_pa_total_income>
+   <expected_pa_tax>500.41</expected_pa_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Johnson</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>6/12/1955</date_of_birth>
+         <occupation>Retired Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Mary Johnson</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>9/22/1958</date_of_birth>
+         <occupation>Retired Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Income: Pension, Social Security, Interest, Dividends, Rental -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <type>pension</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>PA Public School Employees Retirement System</payer_name>
+         <gross_amount>45000</gross_amount>
+         <federal_withholding>4500</federal_withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <type>social_security</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>Social Security Administration</payer_name>
+         <gross_amount>22000</gross_amount>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <type>social_security</type>
+         <taxpayer_id>2</taxpayer_id>
+         <payer_name>Social Security Administration</payer_name>
+         <gross_amount>10000</gross_amount>
+      </income>
+      <income id="4">
+         <id>4</id>
+         <type>interest</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>PNC Bank</payer_name>
+         <gross_amount>2500</gross_amount>
+      </income>
+      <income id="5">
+         <id>5</id>
+         <type>qualified_dividend</type>
+         <taxpayer_id>1</taxpayer_id>
+         <payer_name>Fidelity</payer_name>
+         <gross_amount>1800</gross_amount>
+      </income>
+   </incomes>
+
+   <!-- Rental property -->
+   <rental_properties>
+      <rental_property id="1">
+         <id>1</id>
+         <address>456 Rental St, Pittsburgh, PA</address>
+         <rental_income>18000</rental_income>
+         <total_expenses>6000</total_expenses>
+         <net_rental_income>12000</net_rental_income>
+      </rental_property>
+   </rental_properties>
+
+   <dependents></dependents>
+   <deductions></deductions>
+</job>

@@ -1,0 +1,77 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OR-01: Single W-2 Earner (Oregon Progressive Tax) -->
+   <!-- Test Case: Single filer with income spanning brackets 1-2 -->
+
+   <!-- Tax Return Configuration -->
+   <id>1001</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>OR</state>
+   <city>Portland</city>
+
+   <!-- Oregon Tax Calculation:
+        Federal AGI: $60,000
+        OR Standard Deduction (Single): $2,835
+        OR Taxable Income: $57,165
+
+        Bracket 1: $4,400 × 4.75% = $209.00
+        Bracket 2: ($11,100 - $4,400) = $6,700 × 6.75% = $452.25
+        Bracket 3: ($57,165 - $11,100) = $46,065 × 8.75% = $4,030.69
+        Total Tax Before Credits: $4,691.94
+        Personal Exemption Credit: 1 × $256 = $256
+        Oregon Tax After Credits: $4,435.94
+   -->
+
+   <!-- Expected values for validation -->
+   <expected_agi>60000</expected_agi>
+   <expected_taxable_income>46300</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alex Johnson</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>6/15/1990</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- No properties -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- No additional deductions -->
+   <deductions>
+   </deductions>
+</job>
