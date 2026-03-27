@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for New Hampshire
+
+  New Hampshire has NO traditional corporate income tax.
+  Instead, it levies two business taxes:
+  - Business Profits Tax (BPT): 7.5% flat rate on business profits
+  - Business Enterprise Tax (BET): 0.55% on enterprise value base
+    (compensation, interest, dividends) - not implemented here
+
+  This implementation focuses on the Business Profits Tax (BPT) only.
+
+  Key Features:
+  - BPT rate: 7.5% flat rate (for tax periods ending on or after 12/31/2023)
+  - Filing threshold: $109,000 gross business income (for periods beginning 1/1/2025+)
+  - Single-sales apportionment formula
+  - Economic nexus: $109,000 gross receipts threshold
+  - Static conformity to IRC as of December 31, 2018
+  - Full deductibility of Section 163(j) interest (NH decoupled from federal limitation)
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/NH/53800_NH_constants</file_path>
+  </file_metadata>
+
+  <!-- New Hampshire state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds -->
+    <field name="nh_economic_nexus_threshold" type="double" default_value="109000.0"
+           comment="NH economic nexus gross receipts threshold: $109,000 (2025)"/>
+
+    <field name="nh_transaction_threshold" type="integer" default_value="0"
+           comment="NH has no transaction count threshold - only gross receipts"/>
+
+    <!-- State Tax Rate - Business Profits Tax -->
+    <field name="nh_state_tax_rate" type="double" default_value="0.075"
+           comment="NH Business Profits Tax rate: 7.5% flat rate (RSA 77-A:2)"/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- NH static conformity to IRC as of December 31, 2018 -->
+    <field name="nh_irc_conformity_date" type="string" default_value="2018-12-31"
+           comment="NH uses static conformity to IRC as of December 31, 2018"/>
+
+  </entity>
+
+</entity_data_dictionary>

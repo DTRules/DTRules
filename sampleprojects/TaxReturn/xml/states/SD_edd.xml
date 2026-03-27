@@ -17,6 +17,9 @@
   This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
 -->
 <entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/SD/44100_SD_constants</file_path>
+  </file_metadata>
   <!-- South Dakota state constants -->
   <entity name="result">
     <!-- South Dakota has no state income tax -->

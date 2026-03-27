@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Hawaii Corporate Tax Entity Data Dictionary
+
+  Hawaii corporate income tax: 6.4% flat rate (HI Rev. Stat. § 235-71)
+  Apportionment: Single-sales factor
+  Economic nexus: $100,000 gross receipts threshold
+  Form: HI Form N-30 (Corporation Income Tax Return)
+-->
+<entity_dictionary name="CorporateTax_HI_Constants">
+
+  <!--
+    Apportionment Entity: Hawaii-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='HI'
+           comment='Hawaii state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Hawaii uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.064'
+           comment='Hawaii corporate income tax rate: 6.4% (HI Rev. Stat. § 235-71)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    No state-specific fields needed for Hawaii basic implementation.
+  -->
+  <entity name="result">
+    <!-- No Hawaii-specific extensions required for basic implementation -->
+  </entity>
+
+</entity_dictionary>
