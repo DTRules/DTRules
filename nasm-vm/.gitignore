@@ -1,6 +1,9 @@
-# Build output
+# Build artifacts
 build/
 *.o
 *.a
 *.lst
 
+# Editor files
+*.swp
+*~
