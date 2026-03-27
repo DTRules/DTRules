@@ -1497,6 +1497,14 @@
 		<field name='va_personal_exemption' type='double' subtype='' access='r' input='' default_value='930' comment='Virginia personal exemption (2025)'></field>
 		<field name='va_personal_exemption_senior' type='double' subtype='' access='r' input='' default_value='800' comment='Virginia additional exemption for age 65+ or blind (2025)'></field>
 
+		<!-- Michigan State Tax (2025) -->
+		<field name='mi_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0425' comment='Michigan flat tax rate (4.25%)'></field>
+		<field name='mi_personal_exemption' type='double' subtype='' access='r' input='' default_value='5800' comment='Michigan personal exemption (2025)'></field>
+		<field name='mi_standard_deduction_single_67' type='double' subtype='' access='r' input='' default_value='20000' comment='Michigan standard deduction Single age 67+ (2025)'></field>
+		<field name='mi_standard_deduction_mfj_67' type='double' subtype='' access='r' input='' default_value='40000' comment='Michigan standard deduction MFJ age 67+ (2025)'></field>
+		<field name='mi_retirement_tier1_limit' type='double' subtype='' access='r' input='' default_value='20000' comment='Michigan retirement deduction limit tier 1 (single)'></field>
+		<field name='mi_retirement_tier1_limit_mfj' type='double' subtype='' access='r' input='' default_value='40000' comment='Michigan retirement deduction limit tier 1 (MFJ)'></field>
+
 		<!-- Wisconsin State Tax Constants (2025) -->
 		<field name='wi_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.035' comment='Wisconsin tax rate bracket 1 (3.5%)'></field>
 		<field name='wi_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.044' comment='Wisconsin tax rate bracket 2 (4.4%)'></field>
@@ -1816,6 +1824,13 @@
 		<field name='va_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia taxable income after deductions and exemptions'></field>
 		<field name='va_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia standard deduction or itemized deduction'></field>
 		<field name='va_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Virginia personal exemptions'></field>
+
+		<!-- State Tax (Michigan) -->
+		<field name='mi_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan state income tax (TABLE 41300)'></field>
+		<field name='mi_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan taxable income after deductions and exemptions'></field>
+		<field name='mi_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan standard deduction or itemized deduction'></field>
+		<field name='mi_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Michigan personal exemptions'></field>
+		<field name='mi_retirement_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='Michigan retirement income subtraction'></field>
 
 		<!-- EITC -->
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
