@@ -1,0 +1,138 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 3: Combat Zone Partial Year Service -->
+   <!-- Tests: Table 25000 - Calculate_Combat_Zone_Pay_Exclusion -->
+   <!-- Scenario: E-6 enlisted member deployed for 6 months -->
+   <!-- Tests partial year combat zone pay exclusion -->
+   <id>MIL-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Jacksonville</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 shows $68,000 total wages -->
+   <!-- Combat zone pay (6 months): $30,000 (fully excludable for enlisted) -->
+   <!-- IDP (6 months): $1,125 (also excludable) -->
+   <!-- Taxable wages: $68,000 - $30,000 - $1,125 = $36,875 -->
+   <!-- Spouse W-2: $52,000 -->
+   <!-- AGI: $36,875 + $52,000 = $88,875 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $58,875 -->
+   <expected_agi>88875</expected_agi>
+   <expected_total_combat_zone_exclusion>31125</expected_total_combat_zone_exclusion>
+   <expected_taxable_income>58875</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Enlisted member (E-6) -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Johnson</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>3/20/1993</date_of_birth>
+         <occupation>Navy Petty Officer 1st Class (E-6)</occupation>
+         <is_military>true</is_military>
+         <military_rank>enlisted</military_rank>
+         <combat_zone_service>true</combat_zone_service>
+         <combat_zone_location>persian_gulf</combat_zone_location>
+         <combat_zone_months>6</combat_zone_months>
+         <combat_zone_start_date>1/1/2025</combat_zone_start_date>
+         <combat_zone_end_date>6/30/2025</combat_zone_end_date>
+         <combat_zone_pay>30000</combat_zone_pay>
+         <imminent_danger_pay>1125</imminent_danger_pay>
+         <bah_amount>15000</bah_amount>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>68000</w2_wages>
+         <w2_withholding>5000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <servicemember_domicile_state>FL</servicemember_domicile_state>
+      </taxpayer>
+
+      <!-- Spouse (civilian) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Johnson</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>7/18/1994</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>52000</w2_wages>
+         <w2_withholding>7200</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>68000</gross_amount>
+         <withholding>5000</withholding>
+         <description>Military pay (6 months combat zone, 6 months stateside)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>52000</gross_amount>
+         <withholding>7200</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Johnson</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>9/5/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Lucas Johnson</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>2/14/2023</date_of_birth>
+         <age>2</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

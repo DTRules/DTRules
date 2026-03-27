@@ -1,0 +1,99 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- MT Test Case 2: Married Filing Jointly Spanning Two Brackets -->
+   <id>MT-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>MT</state>
+   <city>Missoula</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $90,000 -->
+   <!-- MT AGI: $90,000 -->
+   <!-- MT Standard Deduction: $11,500 (MFJ) -->
+   <!-- MT Taxable Income: $78,500 -->
+   <!-- MT Tax:
+        First $42,200 × 4.7% = $1,983
+        Next $36,300 × 5.9% = $2,142
+        Total: $4,125 -->
+   <expected_agi>90000</expected_agi>
+   <expected_mt_agi>90000</expected_mt_agi>
+   <expected_mt_taxable_income>78500</expected_mt_taxable_income>
+   <expected_mt_tax>4125</expected_mt_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Thompson</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>2/14/1982</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Thompson</name>
+         <ssn>666-77-9999</ssn>
+         <date_of_birth>10/22/1984</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>55000</gross_amount>
+         <withholding>7000</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>35000</gross_amount>
+         <withholding>4000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

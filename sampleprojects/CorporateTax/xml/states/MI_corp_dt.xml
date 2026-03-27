@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================================
+  FILE: sampleprojects/CorporateTax/xml/states/MI_corp_dt.xml
+  ============================================================================
+
+  Michigan (MI) Corporate Tax Decision Tables
+
+  Michigan Corporate Income Tax:
+  - Flat rate: 6% (MCL 206.623)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $100,000 gross receipts
+  - Form: MI-1120 (Michigan Corporate Income Tax Return)
+
+  Table Number Range: 51300-51399
+
+  Tables:
+  - 51300: Determine_MI_Filing_Requirement
+  - 51320: Calculate_MI_Income_Adjustments
+  - 51380: Calculate_MI_State_Tax
+
+  Reference: MCL 206.623 (Corporate Income Tax rate: 6%)
+  Reference: MI Form 4567 (Corporation Income Tax Return)
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51300: Determine_MI_Filing_Requirement                          -->
+<!-- Michigan Reference: MCL 206.621 (Nexus requirements)                  -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_MI_Filing_Requirement</table_name>
+<xls_file>MI_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determines if corporation must file Michigan state tax return. Checks for physical presence or economic nexus (post-Wayfair $100,000 threshold).</COMMENTS>
+<TABLE_NUMBER>51300</TABLE_NUMBER>
+<FILE_PATH>states/MI/51300_Determine_MI_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Michigan filing requirement check</action_description>
+<action_postfix>
+"Michigan Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Michigan</condition_comment>
+<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == 'MI'</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence get
+apportionment.state_code get "MI" streq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in Michigan</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == 'MI'</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.state_code get "MI" streq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required</action_comment>
+<action_postfix>
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
+"Michigan filing required: Physical presence (office, employees, or property)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established - filing required</action_comment>
+<action_postfix>
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
+"Michigan filing required: Economic nexus ($100,000 gross receipts threshold)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+// No nexus - no filing required
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"Michigan filing not required: No nexus established" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Michigan filing required due to physical presence</policy_description>
+<policy_statement_postfix>"Michigan filing required due to physical presence (office, employees, or property in state). Reference: MCL 206.621 (Nexus requirements), MI Form 4567 Instructions"</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="2">
+<policy_description>Michigan filing required due to economic nexus</policy_description>
+<policy_statement_postfix>"Michigan filing required due to economic nexus (post-Wayfair). Threshold: $100,000 gross receipts or 200 transactions. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Michigan Department of Treasury Revenue Administrative Bulletin 2018-16"</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="3">
+<policy_description>No Michigan nexus - no filing requirement</policy_description>
+<policy_statement_postfix>"No Michigan nexus - no filing requirement. Any estimated payments would be refunded."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51320: Calculate_MI_Income_Adjustments                          -->
+<!-- Michigan Reference: MCL 206.623, MI Form 4567 Instructions            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MI_Income_Adjustments</table_name>
+<xls_file>MI_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Michigan state-specific additions and subtractions to federal taxable income. Includes federal bond interest addback, IRC 199A addback, bonus depreciation adjustments, and Michigan municipal bond interest subtraction.</COMMENTS>
+<TABLE_NUMBER>51320</TABLE_NUMBER>
+<FILE_PATH>states/MI/51320_Calculate_MI_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Michigan income adjustments</action_description>
+<action_postfix>
+"Michigan Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with Michigan</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Michigan state additions and subtractions</action_comment>
+<action_postfix>
+// Calculate Michigan state additions
+0.0 /additions xdef
+
+// Michigan requires addback of federal bond interest
+// additions = additions + revenue.federal_bond_interest;
+
+// Michigan may require IRC 199A addback (check current law)
+// additions = additions + result.section_199a_deduction;
+
+// Michigan partially decouples from federal bonus depreciation
+// additions = additions + result.bonus_depreciation_total;
+
+additions /apportionment.state_additions xdef
+
+// Calculate Michigan state subtractions
+0.0 /subtractions xdef
+
+// Michigan municipal bond interest (if taxed federally)
+// subtractions = subtractions + revenue.mi_municipal_interest;
+
+// Michigan allows NOL deduction
+// subtractions = subtractions + result.state_nol_deduction;
+
+subtractions /apportionment.state_subtractions xdef
+
+"Michigan state additions: $" apportionment.state_additions get cvs strconcat
+", subtractions: $" strconcat apportionment.state_subtractions get cvs strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+"Michigan: No nexus - no state adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Michigan state-specific income adjustments to federal taxable income</policy_description>
+<policy_statement_postfix>"Michigan state-specific income adjustments to federal taxable income. Additions may include: Interest on U.S. government obligations, IRC Section 199A deduction addback, Bonus depreciation (partial decoupling). Subtractions may include: Interest on Michigan municipal bonds, Michigan-specific NOL deduction. Reference: MI Form 4567 Instructions, MCL 206.623 (Adjustments to federal taxable income)"</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="2">
+<policy_description>No nexus - no state adjustments</policy_description>
+<policy_statement_postfix>"No nexus - no state adjustments calculated."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51380: Calculate_MI_State_Tax                                   -->
+<!-- Michigan Reference: MCL 206.623 (6% flat rate)                        -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MI_State_Tax</table_name>
+<xls_file>MI_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates final Michigan state corporate income tax. Applies 6% flat rate to apportioned and adjusted taxable income, subtracts state credits, and calculates refund or amount owed.</COMMENTS>
+<TABLE_NUMBER>51380</TABLE_NUMBER>
+<FILE_PATH>states/MI/51380_Calculate_MI_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Michigan state tax calculation</action_description>
+<action_postfix>
+"Michigan State Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus with Michigan</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get
+apportionment.has_physical_presence get
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Michigan tax at 6% flat rate</action_comment>
+<action_postfix>
+// Michigan uses 6% flat rate
+apportionment.state_taxable_income get
+apportionment.state_tax_rate get
+mul
+/apportionment.state_tax xdef
+
+// Subtract state credits
+apportionment.state_tax get
+apportionment.state_credits get
+sub
+0.0 max
+/apportionment.state_tax xdef
+
+// Calculate refund or amount owed
+apportionment.state_payments get
+apportionment.state_tax get
+sub
+/apportionment.state_refund_or_owed xdef
+
+"Michigan tax calculated: State taxable income $" apportionment.state_taxable_income get cvs strconcat
+" × 6.0% = $" strconcat apportionment.state_tax get cvs strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"Michigan: No taxable income - no tax liability (Michigan NOL rules may apply)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"Michigan: No nexus - no tax liability" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Michigan state corporate income tax calculation (6% flat rate)</policy_description>
+<policy_statement_postfix>"Michigan state corporate income tax calculation: 1. Federal taxable income [Form 1120 line 28], 2. Apportioned to Michigan × [Apportionment %], 3. State additions + [Additions], 4. State subtractions - [Subtractions], 5. Michigan taxable income = [Result], 6. Michigan tax rate × 6.0%, 7. Michigan income tax = [Tax before credits], 8. Michigan credits - [Credits], 9. Michigan tax liability = [Final tax]. Reference: MI Form 4567 Instructions, MCL 206.623 (Tax rate: 6%), Michigan Department of Treasury Corporate Income Tax Guide"</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="2">
+<policy_description>No Michigan taxable income - no tax liability</policy_description>
+<policy_statement_postfix>"No Michigan taxable income - no tax liability. Michigan NOL rules may apply (not implemented)."</policy_statement_postfix>
+</policy_statement>
+
+<policy_statement column="3">
+<policy_description>No Michigan nexus - no tax liability</policy_description>
+<policy_statement_postfix>"No Michigan nexus - no tax liability. Any estimated payments are refunded."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+</decision_tables>

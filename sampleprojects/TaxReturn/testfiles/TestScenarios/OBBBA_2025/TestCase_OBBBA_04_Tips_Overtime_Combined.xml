@@ -1,0 +1,53 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Single bartender with both tips AND overtime -->
+   <!-- Tests combined "No Tax on Tips" and "No Tax on Overtime" provisions -->
+   <!-- Both deductions can be claimed in same year -->
+
+   <id>4</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>NV</state>
+   <city>Las Vegas</city>
+
+   <!-- Expected values for validation -->
+   <!-- Base W-2: $35,000 -->
+   <!-- Tip Income: $45,000 -->
+   <!-- Overtime: $8,000 -->
+   <!-- Total Income: $88,000 -->
+   <!-- Tips Deduction: $25,000 (capped at max) -->
+   <!-- Overtime Deduction: $8,000 (under $12.5k cap for Single) -->
+   <!-- Total OBBBA Deductions: $33,000 -->
+   <!-- AGI: $55,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $40,000 -->
+   <expected_agi>55000</expected_agi>
+   <expected_taxable_income>40000</expected_taxable_income>
+   <expected_total_tax>4568</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Alex Thompson</name>
+      <ssn>444-55-6666</ssn>
+      <date_of_birth>1992-11-30</date_of_birth>
+      <occupation>Bartender</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>35000</w2_wages>
+      <w2_withholding>6000</w2_withholding>
+      <tip_income>45000</tip_income>
+      <overtime_income>8000</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+</job>
