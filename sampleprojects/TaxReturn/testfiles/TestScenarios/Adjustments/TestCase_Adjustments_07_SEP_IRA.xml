@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: SEP-IRA Contribution -->
+<!-- Scenario: Self-employed with SEP-IRA contribution -->
+<!-- Expected: SEP-IRA deduction (25% of net SE earnings after SE tax adjustment) -->
+<!-- Maximum SEP contribution: 25% of net SE earnings (after SE tax deduction) -->
+<job>
+    <id>3536</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- SE gross income: $120,000 -->
+    <!-- SE business expenses: $20,000 -->
+    <!-- Net SE income: $100,000 -->
+    <!-- SE tax: $14,130 (92.35% * $100k * 15.3%) -->
+    <!-- SE tax deduction: $7,065 (50% of SE tax) -->
+    <!-- Net earnings for SEP: $100,000 - $7,065 = $92,935 -->
+    <!-- SEP contribution limit: $92,935 * 0.20 = $18,587 (using 20% simplified rate) -->
+    <!-- Actual contribution: $18,587 -->
+    <!-- AGI: $100,000 - $7,065 (SE tax adj) - $18,587 (SEP-IRA) = $74,348 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $59,348 -->
+    <expected_agi>74348</expected_agi>
+    <expected_taxable_income>59348</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Patricia Wilson</name>
+            <ssn>000-11-2222</ssn>
+            <date_of_birth>10/5/1975</date_of_birth>
+            <occupation>Independent Contractor</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>120000</se_gross_income>
+            <se_business_expenses>20000</se_business_expenses>
+            <sep_ira_contribution>18587</sep_ira_contribution>
+            <estimated_payments>18000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

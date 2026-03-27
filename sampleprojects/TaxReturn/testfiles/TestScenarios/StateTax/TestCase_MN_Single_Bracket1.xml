@@ -1,0 +1,53 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Minnesota State Tax Test Case - Single Filer, Bracket 1 -->
+   <!-- Test that a low-income single filer is taxed at the 5.35% rate -->
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>MN</state>
+   <city>Minneapolis</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $20,000 -->
+   <!-- Standard deduction: $14,950 (Single) -->
+   <!-- Dependents: 0 -->
+   <!-- Taxable income: $20,000 - $14,950 = $5,050 -->
+   <!-- Tax (Bracket 1, 5.35%): $5,050 × 0.0535 = $270.18 -->
+   <expected_agi>20000</expected_agi>
+   <expected_taxable_income>5050</expected_taxable_income>
+   <expected_mn_state_tax>270.18</expected_mn_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Single filer with modest income -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alex Johnson</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>6/12/1992</date_of_birth>
+         <occupation>Retail Worker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>20000</w2_wages>
+         <w2_withholding>1500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+</job>

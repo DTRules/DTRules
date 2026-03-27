@@ -58,6 +58,14 @@
 			<setattribute tag='educator_expenses' RAttribute='educator_expenses' enclosure='taxpayer' type='double'></setattribute>
 			<!-- Medical Expenses -->
 			<setattribute tag='medical_expenses' RAttribute='medical_expenses' enclosure='taxpayer' type='double'></setattribute>
+			<!-- Additional Income Types -->
+			<setattribute tag='unemployment_compensation' RAttribute='unemployment_compensation' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='gambling_winnings' RAttribute='gambling_winnings' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='alimony_received' RAttribute='alimony_received' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='alimony_divorce_date' RAttribute='alimony_divorce_date' enclosure='taxpayer' type='date'></setattribute>
+			<setattribute tag='state_tax_refund' RAttribute='state_tax_refund' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='long_term_capital_gains' RAttribute='long_term_capital_gains' enclosure='taxpayer' type='double'></setattribute>
+			<setattribute tag='qualified_dividends' RAttribute='qualified_dividends' enclosure='taxpayer' type='double'></setattribute>
 
 			<!-- Dependent mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='dependent' type='integer'></setattribute>
@@ -71,6 +79,7 @@
 			<setattribute tag='school_type' RAttribute='school_type' enclosure='dependent' type='string'></setattribute>
 			<setattribute tag='tuition_paid' RAttribute='tuition_paid' enclosure='dependent' type='double'></setattribute>
 			<setattribute tag='qualified_expenses' RAttribute='qualified_expenses' enclosure='dependent' type='double'></setattribute>
+			<setattribute tag='qualified_education_expenses' RAttribute='qualified_education_expenses' enclosure='dependent' type='double'></setattribute>
 			<setattribute tag='is_college_student' RAttribute='is_college_student' enclosure='dependent' type='boolean'></setattribute>
 			<setattribute tag='college_year' RAttribute='college_year' enclosure='dependent' type='integer'></setattribute>
 			<setattribute tag='aotc_used_years' RAttribute='aotc_used_years' enclosure='dependent' type='integer'></setattribute>
@@ -215,6 +224,16 @@
 			<setattribute tag='total_credits_claimed' RAttribute='total_credits_claimed' enclosure='lihtc_recapture' type='double'></setattribute>
 			<setattribute tag='percentage_decrease' RAttribute='percentage_decrease' enclosure='lihtc_recapture' type='double'></setattribute>
 
+			<!-- State Tax Result mappings -->
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='state_tax_result' type='string'></setattribute>
+			<setattribute tag='state_agi' RAttribute='state_agi' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_taxable_income' RAttribute='state_taxable_income' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_tax_before_credits' RAttribute='state_tax_before_credits' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_credits' RAttribute='state_credits' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_tax_liability' RAttribute='state_tax_liability' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_withholding' RAttribute='state_withholding' enclosure='state_tax_result' type='double'></setattribute>
+			<setattribute tag='state_refund_or_owed' RAttribute='state_refund_or_owed' enclosure='state_tax_result' type='double'></setattribute>
+
 			<!-- Create entities from XML tags -->
 			<!-- Note: job is an initialentity, not created from XML -->
 			<createentity entity='taxpayer' tag='taxpayer' id='id' list='taxpayers'></createentity>
@@ -233,6 +252,7 @@
 			<createentity entity='credit' tag='credit' id='id'></createentity>
 			<createentity entity='constants' tag='constants' id='id'></createentity>
 			<createentity entity='result' tag='result' id='id'></createentity>
+			<createentity entity='state_tax_result' tag='state_tax_result' id='state_code' list='state_tax_results'></createentity>
 		</map>
 
 		<entities>
@@ -256,6 +276,7 @@
 			<entity name='unreported_tips' number='*'></entity>
 			<entity name='lihtc_recapture' number='*'></entity>
 			<entity name='credit' number='*'></entity>
+			<entity name='state_tax_result' number='*'></entity>
 		</entities>
 
 		<initialization>

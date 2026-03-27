@@ -36,7 +36,8 @@ type REntity struct {
 	attributes map[*dtrules.RName]*EntityEntry
 	values     []dtrules.Object
 	comment    string
-	xlsFile    string // Export grouping for EDD spreadsheets
+	xlsFile    string // Export grouping for EDD spreadsheets (legacy)
+	filePath   string // Canonical file path for Excel generation
 }
 
 // NewREntity creates a new reference entity (id=0 for references).
@@ -219,6 +220,20 @@ func (e *REntity) GetXlsFile() string {
 // SetXlsFile sets the export grouping file for EDD spreadsheets.
 func (e *REntity) SetXlsFile(xlsFile string) {
 	e.xlsFile = xlsFile
+}
+
+// GetFilePath returns the canonical file path for Excel generation.
+// Falls back to legacy xls_file if filePath is not set.
+func (e *REntity) GetFilePath() string {
+	if e.filePath != "" {
+		return e.filePath
+	}
+	return e.xlsFile // Fallback to legacy xls_file
+}
+
+// SetFilePath sets the canonical file path for Excel generation.
+func (e *REntity) SetFilePath(path string) {
+	e.filePath = path
 }
 
 // ContainsAttribute checks if entity has an attribute.

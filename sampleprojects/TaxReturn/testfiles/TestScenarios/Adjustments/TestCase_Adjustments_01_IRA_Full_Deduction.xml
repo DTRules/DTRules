@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Traditional IRA Full Deduction -->
+<!-- Scenario: Single taxpayer, no workplace plan, full $7,000 IRA contribution -->
+<!-- Expected: Full $7,000 deduction, no phaseout -->
+<!-- AGI before adjustments: $65,000 -->
+<!-- AGI after IRA deduction: $58,000 -->
+<job>
+    <id>3530</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Income: $65,000 W2 -->
+    <!-- AGI: $65,000 - $7,000 (IRA) = $58,000 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $43,000 -->
+    <expected_agi>58000</expected_agi>
+    <expected_taxable_income>43000</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Jessica Chen</name>
+            <ssn>111-22-3333</ssn>
+            <date_of_birth>3/12/1988</date_of_birth>
+            <occupation>Graphic Designer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>65000</w2_wages>
+            <w2_withholding>8500</w2_withholding>
+            <has_workplace_retirement_plan>false</has_workplace_retirement_plan>
+            <traditional_ira_contribution>7000</traditional_ira_contribution>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

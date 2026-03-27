@@ -1,0 +1,140 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Military Test Case 10: Coordination - Combat Zone + Spouse Foreign Earned Income -->
+   <!-- Tests: Table 25400 - Coordinate_Military_And_Foreign_Income -->
+   <!-- Scenario: Military member in combat zone + spouse with FEIE (Form 2555) -->
+   <!-- This tests the coordination of combat zone exclusion with spouse's foreign earned income exclusion -->
+   <id>MIL-10</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>WA</state>
+   <city>Seattle</city>
+
+   <!-- Expected values for validation -->
+   <!-- Service member W-2: $82,000 -->
+   <!-- Combat zone pay: $60,000 (enlisted, fully excludable) -->
+   <!-- IDP: $2,400 (also excludable) -->
+   <!-- Taxable military wages: $82,000 - $60,000 - $2,400 = $19,600 -->
+   <!-- Spouse foreign earned income: $95,000 -->
+   <!-- FEIE max exclusion (2025): $126,500 -->
+   <!-- Spouse FEIE exclusion: $95,000 (all excludable) -->
+   <!-- Combined exclusion: $62,400 (combat) + $95,000 (FEIE) = $157,400 -->
+   <!-- AGI: $19,600 + $0 = $19,600 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $0 (negative becomes zero) -->
+   <expected_agi>19600</expected_agi>
+   <expected_total_combat_zone_exclusion>62400</expected_total_combat_zone_exclusion>
+   <expected_foreign_earned_income_exclusion>95000</expected_foreign_earned_income_exclusion>
+   <expected_combined_military_foreign_exclusion>157400</expected_combined_military_foreign_exclusion>
+   <expected_taxable_income>0</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Enlisted member in combat zone -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sergeant First Class Kevin Park</name>
+         <ssn>123-45-6789</ssn>
+         <date_of_birth>9/10/1990</date_of_birth>
+         <occupation>Army Sergeant First Class (E-7)</occupation>
+         <is_military>true</is_military>
+         <military_rank>enlisted</military_rank>
+         <combat_zone_service>true</combat_zone_service>
+         <combat_zone_location>afghanistan</combat_zone_location>
+         <combat_zone_months>12</combat_zone_months>
+         <combat_zone_start_date>1/1/2025</combat_zone_start_date>
+         <combat_zone_end_date>12/31/2025</combat_zone_end_date>
+         <combat_zone_pay>60000</combat_zone_pay>
+         <imminent_danger_pay>2400</imminent_danger_pay>
+         <bah_amount>20000</bah_amount>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>82000</w2_wages>
+         <w2_withholding>2800</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+         <servicemember_domicile_state>WA</servicemember_domicile_state>
+      </taxpayer>
+
+      <!-- Spouse working abroad (qualifies for FEIE) -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Dr. Hannah Park</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>11/28/1991</date_of_birth>
+         <occupation>International Development Consultant</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <foreign_earned_income>95000</foreign_earned_income>
+         <foreign_earned_income_exclusion>95000</foreign_earned_income_exclusion>
+         <foreign_country>Germany</foreign_country>
+         <foreign_residence_start>3/1/2024</foreign_residence_start>
+         <foreign_residence_end>12/31/2025</foreign_residence_end>
+         <bona_fide_residence>true</bona_fide_residence>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>82000</gross_amount>
+         <withholding>2800</withholding>
+         <description>Military pay (includes combat zone pay)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>foreign_earned_income</type>
+         <gross_amount>95000</gross_amount>
+         <withholding>0</withholding>
+         <description>Foreign earned income (Germany, Form 2555)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Maya Park</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>7/15/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

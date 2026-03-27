@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 14: QBI Deduction - W-2 Wage Limitation (Form 8995-A) -->
+<!-- Triggers: Form 8995-A, Schedule K-1, Form 1040 Line 13 -->
+<!-- Tests: QBI deduction limited by W-2 wages when above income threshold -->
+<job>
+    <id>BUS14-QBI-W2-LIMITATION</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $165,000 W2 + $285,000 K-1 QBI = $450,000 -->
+    <!-- AGI: $450,000 -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable before QBI: $420,000 -->
+    <!-- AGI $450k > $394,600 MFJ threshold: W-2 wage limitation applies -->
+    <!-- QBI Deduction limited to GREATER of: -->
+    <!--   1) 50% of W-2 wages = $120,000 * 0.50 = $60,000 -->
+    <!--   2) 25% of W-2 wages + 2.5% of UBIA = $30,000 + $4,000 = $34,000 -->
+    <!-- W-2 limitation: $60,000 (greater amount) -->
+    <!-- 20% of QBI: $285,000 * 0.20 = $57,000 -->
+    <!-- QBI Deduction: $57,000 (limited to $60k W-2 cap, but 20% QBI is lower) -->
+    <!-- Taxable: $363,000 ($420k - $57k) -->
+    <expected_agi>450000</expected_agi>
+    <expected_taxable_income>363000</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Steven White</name>
+            <ssn>400-24-0001</ssn>
+            <date_of_birth>2/10/1972</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Partner in White Consulting LLP</occupation>
+            <w2_wages>85000</w2_wages>
+            <w2_withholding>14000</w2_withholding>
+            <w2_ss_wages>85000</w2_ss_wages>
+            <w2_medicare_wages>85000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Karen White</name>
+            <ssn>400-24-0002</ssn>
+            <date_of_birth>6/22/1974</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Physician</occupation>
+            <w2_wages>80000</w2_wages>
+            <w2_withholding>13000</w2_withholding>
+            <w2_ss_wages>80000</w2_ss_wages>
+            <w2_medicare_wages>80000</w2_medicare_wages>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - QBI with W-2 Limitation -->
+    <!-- IRC 199A: Above threshold requires Form 8995-A -->
+    <!-- AGI $450k > $394,600 MFJ threshold -->
+    <!-- QBI deduction limited to greater of: -->
+    <!--   1) 50% of W-2 wages, or -->
+    <!--   2) 25% of W-2 wages + 2.5% of UBIA -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>White Consulting LLP</entity_name>
+            <entity_ein>12-3456789</entity_ein>
+            <!-- Box 1: Ordinary business income -->
+            <ordinary_income>285000</ordinary_income>
+            <!-- Box 20: Section 199A QBI -->
+            <qbi_income>285000</qbi_income>
+            <!-- Box 20: W-2 wages for QBI limitation -->
+            <w2_wages_qbi>120000</w2_wages_qbi>
+            <!-- Box 20: UBIA (unadjusted basis of qualified property) -->
+            <ubia>160000</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

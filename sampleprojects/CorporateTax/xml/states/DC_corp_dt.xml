@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  District of Columbia Corporate Franchise Tax Decision Tables
+
+  DC uses "franchise tax" terminology but it functions as a corporate income tax.
+  The tax is levied on corporate net income apportioned to DC using single-sales factor.
+
+  Table allocation: 55000-55099 (District of Columbia)
+  - 55000: Determine_DC_Filing_Requirement
+  - 55020: Calculate_DC_Income_Adjustments
+  - 55080: Calculate_DC_State_Tax
+  - 55090: Calculate_DC_Minimum_Tax
+
+  References:
+  - DC Code § 47-1807.02 (Tax rate: 8.25%)
+  - DC Code § 47-1810.02 (Apportionment: single-sales factor)
+  - DC Form D-20 (Corporation Franchise Tax Return)
+  - DC Office of Tax and Revenue (OTR) guidance
+-->
+<decision_tables name="CorporateTax_DC_Tables">
+
+  <!--
+    ============================================================================
+    TABLE 55000: Determine DC Corporate Tax Filing Requirement
+    ============================================================================
+
+    Determines if corporation must file District of Columbia franchise tax return.
+
+    DC requires filing if corporation:
+    - Has physical presence in DC (office, employees, property)
+    - Meets economic nexus threshold ($100,000 gross receipts OR 200 transactions)
+    - Has any DC-sourced income (no minimum threshold for income tax purposes)
+
+    Note: DC has low filing thresholds - even $1 of DC-sourced revenue creates
+    a filing obligation, though minimum tax applies based on gross receipts.
+  -->
+  <decision_table name="Determine_DC_Filing_Requirement" number="55000">
+    <description>
+      Determine if corporation must file DC franchise tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'DC'</expression>
+        <comment>Has physical presence in DC (office, employees, property)</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'DC'</expression>
+        <comment>Meets DC economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          DC franchise tax filing required due to physical presence (office, employees, or property in District).
+
+          Every corporation or financial institution must file DC Form D-20 if it carries on
+          or engages in any trade, business, or commercial activity in DC or receives income
+          from DC sources.
+
+          Reference: DC Code § 47-1807.02 (Tax on corporations)
+          Reference: DC Code § 47-1805.02a (Definition of doing business)
+          Reference: DC Form D-20 Instructions (Corporation Franchise Tax Return)
+          Reference: DC OTR Tax Guide: Nexus (https://otr.cfo.dc.gov)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established per Wayfair - filing required
+            // DC has relatively low thresholds for economic nexus
+            // Apportionment will be calculated by tables 7000-7500
+          </action>
+        </actions>
+        <policy>
+          DC franchise tax filing required due to economic nexus (post-Wayfair).
+          Threshold: $100,000 gross receipts OR 200 transactions
+
+          DC maintains relatively low economic nexus thresholds, making it easier for
+          remote sellers to trigger registration obligations. Additionally, there is
+          no minimum dollar threshold for income purposes - even $1 of DC-sourced
+          revenue creates a filing obligation.
+
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: DC OTR Economic Nexus Guidance
+          Reference: DC Code § 47-1810.02 (Allocation and apportionment)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // No nexus - no filing required
+            apportionment.state_tax = 0.0;
+            result.dc_minimum_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No DC nexus - no filing requirement.
+          Any estimated payments would be refunded.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 55020: Calculate DC State-Specific Income Adjustments
+    ============================================================================
+
+    Calculates DC additions and subtractions to federal taxable income.
+
+    Common DC additions:
+    - Interest on U.S. government obligations (federal bonds)
+    - IRC Section 199A qualified business income deduction addback
+    - Bonus depreciation addback (DC decouples from federal bonus depreciation)
+    - State income taxes deducted on federal return
+
+    Common DC subtractions:
+    - DC municipal bond interest (exempt)
+    - Qualified High Technology Company (QHTC) income deductions
+    - DC NOL carryforward (different from federal rules)
+  -->
+  <decision_table name="Calculate_DC_Income_Adjustments" number="55020">
+    <description>
+      Calculate DC state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to calculate adjustments</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate DC state additions
+            double additions = 0.0;
+
+            // DC requires addback of federal interest income
+            // (U.S. government obligations are not taxable federally but may be to DC)
+            // additions += revenue.federal_bond_interest;
+
+            // DC requires addback of IRC 199A deduction if claimed on federal return
+            // (DC decouples from IRC 199A)
+            // additions += result.section_199a_deduction;
+
+            // DC requires addback of bonus depreciation
+            // (DC decouples from federal bonus depreciation provisions)
+            // additions += result.bonus_depreciation_total;
+
+            // DC requires addback of state income taxes deducted on federal return
+            // additions += result.state_income_tax_deduction;
+
+            apportionment.state_additions = additions;
+
+            // Calculate DC state subtractions
+            double subtractions = 0.0;
+
+            // Subtract DC municipal bond interest
+            // (exempt from DC tax but may have been included in federal income)
+            // subtractions += revenue.dc_municipal_interest;
+
+            // Subtract qualified QHTC income deductions
+            // (DC offers special deductions for qualified high technology companies)
+            // subtractions += result.dc_qhtc_deduction;
+
+            // Subtract DC NOL carryforward
+            // (DC has different NOL rules than federal - 5-year carryforward)
+            // subtractions += result.dc_nol_deduction;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          DC state-specific income adjustments to federal taxable income.
+
+          Additions may include:
+          - Interest on U.S. government obligations (DC Code § 47-1803.02(a)(2))
+          - IRC Section 199A deduction addback (DC decouples)
+          - Bonus depreciation addback (DC Code § 47-1803.03(a)(4)(A))
+          - State income taxes deducted on federal return
+          - Foreign dividends received deduction (certain types)
+
+          Subtractions may include:
+          - Interest on DC and other state/municipal obligations (DC Code § 47-1803.02(a)(2))
+          - Qualified High Technology Company (QHTC) income deductions
+          - DC net operating loss carryforward (5-year limit, DC Code § 47-1803.03(a)(10))
+          - Foreign source income (under certain conditions)
+
+          Reference: DC Form D-20 Schedule UB (Unincorporated Business adjustments apply similarly)
+          Reference: DC Code § 47-1803.02 (Definition of gross income)
+          Reference: DC Code § 47-1803.03 (Deductions)
+          Reference: DC Code § 47-1817.01 (Qualified High Technology Companies)
+          Reference: DC Form D-20 Instructions
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No nexus - no state adjustments calculated.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 55080: Calculate DC State Tax
+    ============================================================================
+
+    Calculates final DC corporate franchise tax.
+
+    Process:
+    1. Federal taxable income apportioned to DC (done by table 7500)
+    2. Add DC-specific additions (done by table 55020)
+    3. Subtract DC-specific subtractions (done by table 55020)
+    4. Calculate DC taxable income
+    5. Apply 8.25% flat tax rate
+    6. Subtract DC state credits
+    7. Apply minimum tax (done by table 55090)
+    8. Calculate refund or amount owed
+
+    Note: DC franchise tax is the GREATER of:
+    - Tax calculated on net income (8.25% rate), OR
+    - Minimum tax based on gross receipts ($250 or $1,000)
+  -->
+  <decision_table name="Calculate_DC_State_Tax" number="55080">
+    <description>
+      Calculate DC corporate franchise tax.
+      Applies 8.25% flat rate to apportioned and adjusted taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe tax</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive state taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: DC flat rate calculation (8.25%) -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // DC uses 8.25% flat rate
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Subtract DC state credits
+            apportionment.state_tax =
+              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
+
+            // Note: Minimum tax comparison happens in table 55090
+            // DC tax is the GREATER of income-based tax or minimum tax
+          </action>
+        </actions>
+        <policy>
+          DC corporate franchise tax calculation:
+
+          1. Federal taxable income: [Form 1120 line 28]
+          2. Apportioned to DC: × [Apportionment % using single-sales factor]
+          3. State additions: + [Additions from Schedule UB]
+          4. State subtractions: - [Subtractions from Schedule UB]
+          5. DC taxable income: = [Result]
+          6. DC tax rate: × 8.25%
+          7. DC income-based tax: = [Tax before credits]
+          8. DC credits: - [Credits]
+          9. DC tax (before minimum): = [Income-based tax]
+
+          DC uses 100% single-sales factor apportionment with market-based sourcing.
+          Tax rate is a flat 8.25% with no brackets or alternative minimum tax.
+
+          DC franchise tax is the GREATER of:
+          - Income-based tax (calculated above), OR
+          - Minimum tax ($250 if DC gross receipts <= $1M, $1,000 if > $1M)
+
+          Available DC credits include:
+          - Research and Development Tax Credit
+          - Job Growth Tax Credit
+          - Historic Homebuyer Tax Credit
+          - Low Income Housing Tax Credit
+          - Renewable Energy Tax Credit
+          - Arts and Humanities Tax Credit
+
+          Reference: DC Form D-20 (Corporation Franchise Tax Return) Instructions
+          Reference: DC Code § 47-1807.02 (8.25% tax rate)
+          Reference: DC Code § 47-1810.02 (Apportionment - single-sales factor since 2015)
+          Reference: DC Code § 47-1807.06 (Minimum tax)
+          Reference: DC OTR Corporate Franchise Tax Publications
+        </policy>
+      </rule>
+
+      <!-- Rule 2: No nexus -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            result.dc_minimum_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No DC nexus - no tax liability.
+          Any estimated payments are refunded.
+        </policy>
+      </rule>
+
+      <!-- Rule 3: Nexus but no taxable income -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // No income-based tax, but minimum tax still applies
+            // Minimum tax calculation happens in table 55090
+            apportionment.state_tax = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No DC taxable income - no income-based tax liability.
+          However, DC minimum tax still applies based on gross receipts (calculated in table 55090).
+
+          DC allows NOL carryforward for 5 years (DC Code § 47-1803.03(a)(10)).
+          This differs from federal NOL rules which allow longer carryforward periods.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ============================================================================
+    TABLE 55090: Calculate DC Minimum Tax
+    ============================================================================
+
+    Calculates DC minimum franchise tax based on gross receipts.
+
+    DC minimum tax:
+    - $250 if DC gross receipts are $1,000,000 or less
+    - $1,000 if DC gross receipts exceed $1,000,000
+
+    Final DC franchise tax is the GREATER of:
+    - Income-based tax (from table 55080), OR
+    - Minimum tax (calculated here)
+
+    This ensures corporations with DC nexus pay at least a minimum amount
+    even if they have losses or minimal income.
+  -->
+  <decision_table name="Calculate_DC_Minimum_Tax" number="55090">
+    <description>
+      Calculate DC minimum franchise tax based on gross receipts.
+      Final tax is greater of income-based tax or minimum tax.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>apportionment.has_economic_nexus == true ||
+                    apportionment.has_physical_presence == true</expression>
+        <comment>Must have nexus to owe minimum tax</comment>
+      </condition>
+
+      <condition name="high_gross_receipts">
+        <expression>result.dc_gross_receipts > 1000000.0</expression>
+        <comment>DC gross receipts exceed $1 million</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Rule 1: High gross receipts (> $1M) - $1,000 minimum -->
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <high_gross_receipts>Y</high_gross_receipts>
+        </conditions>
+        <actions>
+          <action>
+            // Minimum tax: $1,000 for gross receipts > $1M
+            result.dc_minimum_tax = 1000.0;
+
+            // DC franchise tax is GREATER of income-based tax or minimum tax
+            apportionment.state_tax = Math.max(apportionment.state_tax, result.dc_minimum_tax);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          DC minimum franchise tax: $1,000 (gross receipts exceed $1 million)
+
+          DC franchise tax is the GREATER of:
+          - Income-based tax calculated at 8.25% rate, OR
+          - Minimum tax of $1,000
+
+          This ensures corporations with significant DC activity pay at least
+          a minimum amount even if they report losses or minimal taxable income.
+
+          Reference: DC Code § 47-1807.06 (Minimum tax)
+          Reference: DC Form D-20 Instructions
+          Reference: DC OTR Franchise Tax FAQs
+        </policy>
+      </rule>
+
+      <!-- Rule 2: Low gross receipts (<= $1M) - $250 minimum -->
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <high_gross_receipts>N</high_gross_receipts>
+        </conditions>
+        <actions>
+          <action>
+            // Minimum tax: $250 for gross receipts <= $1M
+            result.dc_minimum_tax = 250.0;
+
+            // DC franchise tax is GREATER of income-based tax or minimum tax
+            apportionment.state_tax = Math.max(apportionment.state_tax, result.dc_minimum_tax);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          DC minimum franchise tax: $250 (gross receipts $1 million or less)
+
+          DC franchise tax is the GREATER of:
+          - Income-based tax calculated at 8.25% rate, OR
+          - Minimum tax of $250
+
+          This minimum tax applies even to smaller corporations with DC nexus,
+          ensuring all entities with DC activity contribute to District revenue.
+
+          Reference: DC Code § 47-1807.06 (Minimum tax)
+          Reference: DC Form D-20 Instructions
+          Reference: DC OTR Franchise Tax FAQs
+        </policy>
+      </rule>
+
+      <!-- Rule 3: No nexus - no minimum tax -->
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            result.dc_minimum_tax = 0.0;
+            // state_tax already set to 0.0 in table 55080
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No DC nexus - no minimum tax requirement.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

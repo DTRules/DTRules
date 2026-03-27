@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 6251 - AMT Triggered by Large SALT Deduction -->
+<!-- Scenario: High-income taxpayer in high-tax state with large SALT deduction -->
+<!-- Regular tax with itemized SALT capped at $10k -->
+<!-- AMT adds back SALT, triggering AMT calculation -->
+<!-- Expected: AMT applies due to SALT preference items -->
+<job>
+    <id>AdditionalTaxes_09</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>CA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $425,000 -->
+    <!-- Regular tax calculation: -->
+    <!--   Itemized deductions: $10k SALT + $35k mortgage + $15k charity = $60k -->
+    <!--   Taxable: $365,000, Tax: ~$74,047 -->
+    <!-- AMT calculation: -->
+    <!--   AMTI: $425k (add back SALT, etc) -->
+    <!--   AMT exemption: $137,000 - phaseout = reduced -->
+    <!--   AMT: ~$76,500 (26% on income over exemption) -->
+    <!-- AMT liability: $2,453 (AMT exceeds regular tax) -->
+    <!-- Total tax: $76,500 -->
+    <expected_agi>425000</expected_agi>
+    <expected_taxable_income>365000</expected_taxable_income>
+    <expected_total_tax>76500</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>William Chen</name>
+            <ssn>234-56-7890</ssn>
+            <date_of_birth>04/25/1975</date_of_birth>
+            <occupation>Venture Capitalist</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>285000</w2_wages>
+            <w2_withholding>60000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Jennifer Chen</name>
+            <ssn>345-67-8901</ssn>
+            <date_of_birth>07/12/1978</date_of_birth>
+            <occupation>Surgeon</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>140000</w2_wages>
+            <w2_withholding>28000</w2_withholding>
+            <se_gross_income>0</se_gross_income>
+            <estimated_payments>0</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <!-- Primary residence with large mortgage -->
+        <property>
+            <id>1</id>
+            <type>primary_residence</type>
+            <address>123 Pacific Heights, San Francisco, CA 94109</address>
+            <purchase_date>06/15/2019</purchase_date>
+            <purchase_price>1850000</purchase_price>
+            <current_fmv>2200000</current_fmv>
+            <mortgage_balance>1450000</mortgage_balance>
+            <mortgage_origination_date>06/15/2019</mortgage_origination_date>
+            <mortgage_interest>35000</mortgage_interest>
+            <property_taxes>24000</property_taxes>
+            <rental_income>0</rental_income>
+            <rental_expenses>0</rental_expenses>
+            <depreciation>0</depreciation>
+        </property>
+    </properties>
+
+    <deductions>
+        <!-- State income tax paid (subject to $10k cap) -->
+        <deduction>
+            <id>1</id>
+            <category>state_tax</category>
+            <description>California state income tax paid</description>
+            <amount>38000</amount>
+        </deduction>
+        <!-- Charitable contributions -->
+        <deduction>
+            <id>2</id>
+            <category>charity</category>
+            <description>Charitable donations</description>
+            <amount>15000</amount>
+        </deduction>
+    </deductions>
+
+    <incomes></incomes>
+    <expenses></expenses>
+    <dependents></dependents>
+    <vehicles></vehicles>
+</job>

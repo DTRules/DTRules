@@ -1,0 +1,83 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Utah Military Retirement Test Case -->
+   <!-- Test Case UT-Military-01: Military retirement with AGI $45,000 single ($10,000 exempt) -->
+   <!-- UT provides income-based retirement credit: -->
+   <!-- Single: AGI up to $47,500 = $10,000 exemption -->
+   <!-- Single: AGI $47,500-$67,500 = phased out -->
+   <!-- Single: AGI over $67,500 = no exemption -->
+   <!-- This test uses AGI $45,000 (within cap) = full $10,000 exemption -->
+
+   <id>UT-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>UT</state>
+   <city>Salt Lake City</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $20,000 military retirement + $25,000 W2 = $45,000 -->
+   <!-- AGI: $45,000 (within income cap for full exemption) -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $30,000 -->
+   <!-- Federal Tax: ~$3,300 -->
+   <!-- UT: Flat 4.55% tax rate (2025) -->
+   <!-- UT Military Retirement Exemption: $10,000 (full - AGI < $47,500) -->
+   <!-- UT Taxable Retirement: $20,000 - $10,000 = $10,000 -->
+   <!-- UT Taxable Income: $10,000 + $25,000 = $35,000 -->
+   <!-- UT Tax: $35,000 * 0.0455 = $1,593 -->
+   <!-- Total Tax: $4,893 -->
+   <!-- Withholding: $5,500 -->
+   <!-- Refund: $607 -->
+   <expected_agi>45000</expected_agi>
+   <expected_taxable_income>30000</expected_taxable_income>
+   <expected_total_tax>4893</expected_total_tax>
+   <expected_state_tax>1593</expected_state_tax>
+   <expected_refund>607</expected_refund>
+
+   <!-- Retired Military Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Karen</name>
+         <last_name>Taylor</last_name>
+         <ssn>444-55-6677</ssn>
+         <date_of_birth>9/10/1970</date_of_birth>
+         <occupation>Military Retiree - Part Time Sales</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>25000</w2_wages>
+         <w2_withholding>5500</w2_withholding>
+         <military_retirement_pay>20000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

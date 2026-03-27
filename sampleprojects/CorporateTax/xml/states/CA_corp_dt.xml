@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  California Corporate Tax Decision Tables
+
+  Table Range: 50000-50099 (100 tables allocated)
+  Tables Used: 50000, 50020, 50080, 50090 (4 tables)
+
+  California Key Features:
+  - 8.84% flat corporate tax rate
+  - Single-sales factor apportionment (100% sales)
+  - Mandatory unitary combined reporting
+  - Water's edge election available
+  - $800 minimum franchise tax
+  - Market-based sourcing for services
+-->
+<decision_tables name="CorporateTax_CA_Tables">
+
+  <!--
+    Table 50000: Determine California Filing Requirement
+  -->
+  <decision_table name="Determine_CA_Filing_Requirement" number="50000">
+    <description>
+      Determine if corporation must file California state corporate tax return.
+      Checks for physical presence or economic nexus.
+    </description>
+
+    <conditions>
+      <condition name="has_physical_presence">
+        <expression>apportionment.has_physical_presence == true &&
+                    apportionment.state_code == 'CA'</expression>
+        <comment>Has physical presence in CA</comment>
+      </condition>
+
+      <condition name="has_economic_nexus">
+        <expression>apportionment.has_economic_nexus == true &&
+                    apportionment.state_code == 'CA'</expression>
+        <comment>Meets CA economic nexus threshold</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_physical_presence>Y</has_physical_presence>
+        </conditions>
+        <actions>
+          <action>
+            // Physical nexus established - filing required
+          </action>
+        </actions>
+        <policy>
+          CA filing required due to physical presence (office, employees, or property in CA).
+
+          Reference: CA Revenue and Taxation Code § 23101
+          Reference: FTB Publication 1060 - Guide for Corporations Starting Business in California
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>Y</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // Economic nexus established - filing required
+          </action>
+        </actions>
+        <policy>
+          CA filing required due to economic nexus.
+          Threshold: $610,395 in CA sales (2025, indexed annually to CA per capita personal income).
+
+          Also nexus if substantial activity under CA Constitution (Quill overruled by Wayfair).
+
+          Reference: CA Revenue and Taxation Code § 23101
+          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
+          Reference: FTB Notice 2019-01 - Economic Nexus
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_physical_presence>N</has_physical_presence>
+          <has_economic_nexus>N</has_economic_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No CA nexus - no filing requirement.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 50020: Calculate CA State-Specific Income Adjustments
+  -->
+  <decision_table name="Calculate_CA_Income_Adjustments" number="50020">
+    <description>
+      Calculate CA state-specific additions and subtractions to federal taxable income.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>(apportionment.has_economic_nexus == true ||
+                     apportionment.has_physical_presence == true) &&
+                    apportionment.state_code == 'CA'</expression>
+        <comment>Must have CA nexus</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            // CA Additions to federal taxable income
+            double additions = 0.0;
+
+            // Add back IRC 199A deduction (CA does not conform)
+            // additions += result.section_199a_deduction;
+
+            // Add back federal interest (taxable to CA)
+            // additions += revenue.federal_bond_interest;
+
+            // Add back bonus depreciation (CA partially decouples)
+            // CA allows only portion of federal bonus depreciation
+
+            apportionment.state_additions = additions;
+
+            // CA Subtractions from federal taxable income
+            double subtractions = 0.0;
+
+            // Subtract CA municipal bond interest (already in federal income but CA-exempt)
+            // subtractions += revenue.ca_municipal_interest;
+
+            // Subtract CA NOL deduction (different rules than federal)
+            // subtractions += result.ca_nol_deduction;
+
+            apportionment.state_subtractions = subtractions;
+          </action>
+        </actions>
+        <policy>
+          CA state-specific income adjustments.
+
+          Common CA additions:
+          - IRC Section 199A qualified business income deduction (CA does not conform)
+          - Interest on federal obligations (taxable to CA)
+          - Bonus depreciation differences (CA partial conformity)
+          - Related party expenses (IRC 163j differences)
+
+          Common CA subtractions:
+          - Interest on CA municipal bonds
+          - CA net operating loss deduction (different from federal)
+          - Dividends received deduction differences
+
+          Reference: CA Form 100 Schedule J (Apportionment and Allocation)
+          Reference: FTB Publication 1001 - Supplemental Guidelines to California Adjustments
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_additions = 0.0;
+            apportionment.state_subtractions = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No CA nexus - no adjustments.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 50080: Calculate CA State Tax
+  -->
+  <decision_table name="Calculate_CA_State_Tax" number="50080">
+    <description>
+      Calculate CA state corporate income tax.
+      Applies 8.84% flat rate to apportioned and adjusted taxable income.
+      Enforces $800 minimum franchise tax.
+    </description>
+
+    <conditions>
+      <condition name="has_nexus">
+        <expression>(apportionment.has_economic_nexus == true ||
+                     apportionment.has_physical_presence == true) &&
+                    apportionment.state_code == 'CA'</expression>
+        <comment>Must have CA nexus</comment>
+      </condition>
+
+      <condition name="has_state_taxable_income">
+        <expression>apportionment.state_taxable_income > 0</expression>
+        <comment>Has positive CA taxable income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>Y</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate CA income tax at 8.84%
+            apportionment.state_tax =
+              apportionment.state_taxable_income * apportionment.state_tax_rate;
+
+            // Apply minimum franchise tax ($800)
+            apportionment.state_tax =
+              Math.max(result.ca_minimum_franchise_tax, apportionment.state_tax);
+
+            // Subtract CA credits
+            apportionment.state_tax =
+              Math.max(result.ca_minimum_franchise_tax,
+                       apportionment.state_tax - apportionment.state_credits);
+
+            // Calculate refund or amount owed
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          CA corporate income tax calculation:
+
+          1. Federal taxable income (Form 1120 line 28)
+          2. CA apportionment percentage (100% sales factor)
+          3. Apportioned income to CA
+          4. CA additions
+          5. CA subtractions
+          6. CA taxable income
+          7. CA tax rate: 8.84% (flat rate)
+          8. Tentative CA tax
+          9. Minimum franchise tax: $800
+          10. CA tax = greater of tentative tax or minimum
+          11. CA credits
+          12. Final CA tax (not less than minimum)
+
+          Minimum franchise tax:
+          - $800 for most corporations
+          - First year exemption for new corporations
+          - S corporations also pay $800 minimum
+
+          Reference: CA Form 100 (Corporation Franchise or Income Tax Return)
+          Reference: CA Revenue and Taxation Code § 23151 (Tax rate: 8.84%)
+          Reference: CA Revenue and Taxation Code § 23153 (Minimum franchise tax: $800)
+          Reference: CA Form 100S (S Corporation Franchise or Income Tax Return)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_nexus>Y</has_nexus>
+          <has_state_taxable_income>N</has_state_taxable_income>
+        </conditions>
+        <actions>
+          <action>
+            // No income but still owe minimum franchise tax
+            apportionment.state_tax = result.ca_minimum_franchise_tax;
+            apportionment.state_refund_or_owed =
+              apportionment.state_payments - apportionment.state_tax;
+          </action>
+        </actions>
+        <policy>
+          No CA taxable income, but $800 minimum franchise tax still applies.
+
+          Reference: CA Revenue and Taxation Code § 23153
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_nexus>N</has_nexus>
+        </conditions>
+        <actions>
+          <action>
+            apportionment.state_tax = 0.0;
+            apportionment.state_refund_or_owed = apportionment.state_payments;
+          </action>
+        </actions>
+        <policy>
+          No CA nexus - no tax or minimum franchise tax.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 50090: Apply CA Water's Edge Election (Optional Advanced Feature)
+  -->
+  <decision_table name="Apply_CA_Waters_Edge_Election" number="50090">
+    <description>
+      Apply CA water's edge election for worldwide combined reporting.
+      Most taxpayers elect water's edge to limit worldwide income inclusion.
+    </description>
+
+    <conditions>
+      <condition name="has_waters_edge">
+        <expression>result.ca_waters_edge_election == true</expression>
+        <comment>Has elected water s edge treatment</comment>
+      </condition>
+
+      <condition name="has_unitary_group">
+        <expression>result.ca_unitary_group_count > 1</expression>
+        <comment>Has unitary group members</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_waters_edge>Y</has_waters_edge>
+          <has_unitary_group>Y</has_unitary_group>
+        </conditions>
+        <actions>
+          <action>
+            // Water's edge limits combined reporting to:
+            // - US corporations
+            // - Domestic international sales corporations (DISCs)
+            // - Foreign sales corporations (FSCs)
+            // - Export trade corporations
+            // - 80%+ owned foreign corporations if elected
+
+            // Simplified implementation: Placeholder for complex combined reporting
+            // Full implementation would require separate entities for each unitary member
+          </action>
+        </actions>
+        <policy>
+          CA water's edge election limits worldwide combined reporting.
+
+          Includes only:
+          - US corporations in unitary group
+          - Certain specified foreign entities if elected
+
+          Election is binding for 84 months (7 years).
+
+          Reference: CA Revenue and Taxation Code § 25110
+          Reference: FTB Publication 1061 - Guidelines for Corporations Filing a Combined Report
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_waters_edge>N</has_waters_edge>
+          <has_unitary_group>Y</has_unitary_group>
+        </conditions>
+        <actions>
+          <action>
+            // Worldwide combined reporting
+            // Includes all unitary group members worldwide
+          </action>
+        </actions>
+        <policy>
+          Worldwide combined reporting includes all unitary group members globally.
+
+          Reference: CA Revenue and Taxation Code § 25101
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_unitary_group>N</has_unitary_group>
+        </conditions>
+        <actions>
+          <action>
+            // Standalone corporation - no combined reporting
+          </action>
+        </actions>
+        <policy>
+          Standalone corporation - no combined reporting required.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+</decision_tables>

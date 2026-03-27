@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 03: Schedule K-1 Partnership - Rental Real Estate Income (Box 2) -->
+<!-- Triggers: Schedule K-1 (Form 1065), Schedule E Part II, Form 8825 -->
+<!-- Tests: Partnership rental real estate income (passive activity) -->
+<job>
+    <id>BUS03-K1-RENTAL-ESTATE</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>FL</state>
+
+    <!-- Expected values -->
+    <!-- Income: $95,000 W2 + $18,000 K-1 rental = $113,000 -->
+    <!-- AGI: $113,000 -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- Taxable: $83,000 -->
+    <!-- Tax: ~$9,434 -->
+    <expected_agi>113000</expected_agi>
+    <expected_taxable_income>83000</expected_taxable_income>
+    <expected_total_tax>9434</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>David Chen</name>
+            <ssn>400-13-0001</ssn>
+            <date_of_birth>11/5/1972</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Doctor</occupation>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>14000</w2_withholding>
+            <w2_ss_wages>95000</w2_ss_wages>
+            <w2_medicare_wages>95000</w2_medicare_wages>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Susan Chen</name>
+            <ssn>400-13-0002</ssn>
+            <date_of_birth>2/14/1974</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Partner in Realty Holdings LLC</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - Rental Income -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Realty Holdings LLC</entity_name>
+            <entity_ein>45-1234567</entity_ein>
+            <!-- Box 1: Ordinary business income -->
+            <ordinary_income>0</ordinary_income>
+            <!-- Box 2: Net rental real estate income (from Form 8825) -->
+            <rental_income>18000</rental_income>
+            <!-- Box 20: Section 199A QBI (rental not eligible) -->
+            <qbi_income>0</qbi_income>
+            <w2_wages_qbi>0</w2_wages_qbi>
+            <ubia>0</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>
