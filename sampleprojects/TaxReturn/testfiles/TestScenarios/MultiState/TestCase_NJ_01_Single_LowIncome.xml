@@ -1,0 +1,70 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- New Jersey Test Case 01: Single filer with low income -->
+   <!-- Tests NJ progressive tax brackets 1-2 (1.4% and 1.75%) -->
+
+   <id>NJ-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>NJ</state>
+   <city>Newark</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $30,000 W2 -->
+   <!-- Federal AGI: $30,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable: $15,000 -->
+   <!-- Federal Tax: $1,502 (10% on $11,925 + 12% on $3,075) -->
+   <!-- NJ uses AGI minus personal exemption: $30,000 - $1,000 = $29,000 -->
+   <!-- NJ Tax: $280 (1.4% on $20,000) + $157.50 (1.75% on $9,000) = $437.50 -->
+   <expected_agi>30000</expected_agi>
+   <expected_taxable_income>15000</expected_taxable_income>
+   <expected_federal_tax>1502</expected_federal_tax>
+   <expected_state_tax>437</expected_state_tax>
+   <expected_total_tax>1939</expected_total_tax>
+
+   <!-- Single Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Chen</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/15/1995</date_of_birth>
+         <occupation>Retail Worker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3000</w2_withholding>
+         <state_withholding>500</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

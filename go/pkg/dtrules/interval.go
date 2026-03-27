@@ -1,4 +1,4 @@
-// Copyright 2026 Paul Snow
+// Copyright 2024 Paul Snow
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-// IntervalUnit represents the unit of an interval (days, months, years)
+// IntervalUnit represents the unit of time for an interval (days, months, or years).
 type IntervalUnit int
 
 const (
@@ -28,20 +28,14 @@ const (
 	IntervalYears
 )
 
-// Interval represents a time interval
-type Interval interface {
-	Object
-	GetAmount() int
-	GetUnit() IntervalUnit
-}
-
-// RInterval implements the Interval interface
+// RInterval represents a time interval with an amount and unit.
 type RInterval struct {
+	BaseObject
 	amount int
 	unit   IntervalUnit
 }
 
-// NewRInterval creates a new interval
+// NewRInterval creates a new interval with the given amount and unit.
 func NewRInterval(amount int, unit IntervalUnit) *RInterval {
 	return &RInterval{
 		amount: amount,
@@ -49,175 +43,216 @@ func NewRInterval(amount int, unit IntervalUnit) *RInterval {
 	}
 }
 
-// GetAmount returns the interval amount
+// GetAmount returns the interval amount.
 func (i *RInterval) GetAmount() int {
 	return i.amount
 }
 
-// GetUnit returns the interval unit
+// GetUnit returns the interval unit.
 func (i *RInterval) GetUnit() IntervalUnit {
 	return i.unit
 }
 
-// AsInterval converts an Object to an Interval if possible
-func AsInterval(obj Object) Interval {
-	if interval, ok := obj.(Interval); ok {
-		return interval
-	}
-	return nil
-}
-
-// Implement Object interface
-func (i *RInterval) StringValue() string {
-	units := []string{"days", "months", "years"}
-	unitStr := "unknown"
-	if int(i.unit) < len(units) {
-		unitStr = units[i.unit]
-	}
-	return fmt.Sprintf("%d %s", i.amount, unitStr)
-}
-
-func (i *RInterval) PostFix() string {
-	return i.StringValue()
-}
-
+// Type returns the object type.
 func (i *RInterval) Type() *RType {
 	return TypeInterval
 }
 
-func (i *RInterval) TypeId() int {
-	return int(TypeInterval.GetID())
-}
-
-func (i *RInterval) BooleanValue() (bool, error) {
-	return false, ConversionError("RInterval.BooleanValue", "Cannot convert interval to boolean")
-}
-
-func (i *RInterval) IntValue() (int, error) {
-	return i.amount, nil
-}
-
-func (i *RInterval) LongValue() (int64, error) {
-	return int64(i.amount), nil
-}
-
-func (i *RInterval) IntegerValue() (int64, error) {
-	return int64(i.amount), nil
-}
-
-func (i *RInterval) DoubleValue() (float64, error) {
-	return float64(i.amount), nil
-}
-
-func (i *RInterval) TableValue() (map[Object]Object, error) {
-	return nil, ConversionError("RInterval.TableValue", "Cannot convert interval to table")
-}
-
-func (i *RInterval) RIntegerValue() (*RInteger, error) {
-	return GetRIntegerValue(int64(i.amount)), nil
-}
-
-func (i *RInterval) RDoubleValue() (*RDouble, error) {
-	return GetRDoubleValue(float64(i.amount)), nil
-}
-
-func (i *RInterval) RBooleanValue() (*RBoolean, error) {
-	return nil, ConversionError("RInterval.RBooleanValue", "Cannot convert interval to boolean")
-}
-
-func (i *RInterval) RStringValue() *RString {
-	return GetRString(i.StringValue())
-}
-
-func (i *RInterval) RNameValue() (*RName, error) {
-	return nil, ConversionError("RInterval.RNameValue", "Cannot convert interval to name")
-}
-
-func (i *RInterval) RArrayValue() (*RArray, error) {
-	return nil, ConversionError("RInterval.RArrayValue", "Cannot convert interval to array")
-}
-
-func (i *RInterval) RTableValue() (*RTable, error) {
-	return nil, ConversionError("RInterval.RTableValue", "Cannot convert interval to table")
-}
-
-func (i *RInterval) ArrayValue() ([]Object, error) {
-	return nil, ConversionError("RInterval.ArrayValue", "Cannot convert interval to array")
-}
-
-func (i *RInterval) REntityValue() (Entity, error) {
-	return nil, ConversionError("RInterval.REntityValue", "Cannot convert interval to entity")
-}
-
-func (i *RInterval) TimeValue() (time.Time, error) {
-	return time.Time{}, ConversionError("RInterval.TimeValue", "Cannot convert interval to time")
-}
-
-func (i *RInterval) RTimeValue() (*RDate, error) {
-	return nil, ConversionError("RInterval.RTimeValue", "Cannot convert interval to time")
-}
-
+// Execute pushes this object onto the data stack.
 func (i *RInterval) Execute(state State) error {
 	return state.DataPush(i)
 }
 
+// ArrayExecute pushes this object onto the data stack.
 func (i *RInterval) ArrayExecute(state State) error {
 	return state.DataPush(i)
 }
 
+// GetExecutable returns this object.
 func (i *RInterval) GetExecutable() Object {
 	return i
 }
 
+// GetNonExecutable returns this object.
 func (i *RInterval) GetNonExecutable() Object {
 	return i
 }
 
+// IsExecutable returns false for intervals.
 func (i *RInterval) IsExecutable() bool {
 	return false
 }
 
-func (i *RInterval) Clone(session Session) (Object, error) {
-	return i, nil
-}
-
-func (i *RInterval) RClone() Object {
-	return i
-}
-
+// Equals compares this interval to another object.
 func (i *RInterval) Equals(other Object) (bool, error) {
 	if other == nil {
 		return false, nil
 	}
-	if otherInterval, ok := other.(*RInterval); ok {
-		return i.amount == otherInterval.amount && i.unit == otherInterval.unit, nil
+	otherInterval, ok := other.(*RInterval)
+	if !ok {
+		return false, nil
 	}
+	return i.amount == otherInterval.amount && i.unit == otherInterval.unit, nil
+}
+
+// Compare compares this interval with another object.
+func (i *RInterval) Compare(other Object) (int, error) {
+	if other == nil {
+		return 1, nil
+	}
+	otherInterval, ok := other.(*RInterval)
+	if !ok {
+		return 0, UndefinedError("Compare", "Cannot compare interval with non-interval")
+	}
+	// Convert both to days for comparison
+	days1 := i.toDays()
+	days2 := otherInterval.toDays()
+	if days1 < days2 {
+		return -1, nil
+	}
+	if days1 > days2 {
+		return 1, nil
+	}
+	return 0, nil
+}
+
+// toDays converts an interval to approximate days for comparison.
+func (i *RInterval) toDays() int {
+	switch i.unit {
+	case IntervalDays:
+		return i.amount
+	case IntervalMonths:
+		return i.amount * 30 // Approximate
+	case IntervalYears:
+		return i.amount * 365 // Approximate
+	default:
+		return 0
+	}
+}
+
+// StringValue returns the string representation of the interval.
+func (i *RInterval) StringValue() string {
+	unitStr := "days"
+	switch i.unit {
+	case IntervalMonths:
+		unitStr = "months"
+	case IntervalYears:
+		unitStr = "years"
+	}
+	return fmt.Sprintf("%d %s", i.amount, unitStr)
+}
+
+// PostFix returns the postfix representation.
+func (i *RInterval) PostFix() string {
+	return i.StringValue()
+}
+
+// Clone returns this object (intervals are immutable).
+func (i *RInterval) Clone(session Session) (Object, error) {
+	return i, nil
+}
+
+// RClone returns this object.
+func (i *RInterval) RClone() Object {
+	return i
+}
+
+// FormattedValue returns the formatted string representation.
+func (i *RInterval) FormattedValue(state State) string {
+	return i.StringValue()
+}
+
+// IsNull returns false since intervals are never null.
+func (i *RInterval) IsNull() bool {
+	return false
+}
+
+// IntValue returns the amount as an integer.
+func (i *RInterval) IntValue() (int, error) {
+	return i.amount, nil
+}
+
+// LongValue returns the amount as an int64.
+func (i *RInterval) LongValue() (int64, error) {
+	return int64(i.amount), nil
+}
+
+// DoubleValue returns the amount as a double.
+func (i *RInterval) DoubleValue() (float64, error) {
+	return float64(i.amount), nil
+}
+
+// BooleanValue returns false for intervals.
+func (i *RInterval) BooleanValue() (bool, error) {
 	return false, nil
 }
 
-func (i *RInterval) Compare(other Object) (int, error) {
-	if otherInterval, ok := other.(*RInterval); ok {
-		// Compare intervals by converting to days (approximate)
-		days1 := i.amount
-		if i.unit == IntervalMonths {
-			days1 *= 30
-		} else if i.unit == IntervalYears {
-			days1 *= 365
-		}
+// TimeValue is not supported for intervals.
+func (i *RInterval) TimeValue() (time.Time, error) {
+	return time.Time{}, UndefinedError("TimeValue", "Intervals do not support TimeValue")
+}
 
-		days2 := otherInterval.amount
-		if otherInterval.unit == IntervalMonths {
-			days2 *= 30
-		} else if otherInterval.unit == IntervalYears {
-			days2 *= 365
-		}
+// ArrayValue is not supported for intervals.
+func (i *RInterval) ArrayValue() ([]Object, error) {
+	return nil, UndefinedError("ArrayValue", "Intervals do not support ArrayValue")
+}
 
-		if days1 < days2 {
-			return -1, nil
-		} else if days1 > days2 {
-			return 1, nil
-		}
-		return 0, nil
+// TableValue is not supported for intervals.
+func (i *RInterval) TableValue() (map[Object]Object, error) {
+	return nil, UndefinedError("TableValue", "Intervals do not support TableValue")
+}
+
+// RIntegerValue returns the amount as an RInteger.
+func (i *RInterval) RIntegerValue() (*RInteger, error) {
+	return GetRIntegerValueFromInt(i.amount), nil
+}
+
+// RDoubleValue returns the amount as an RDouble.
+func (i *RInterval) RDoubleValue() (*RDouble, error) {
+	return GetRDoubleValue(float64(i.amount)), nil
+}
+
+// RBooleanValue returns False.
+func (i *RInterval) RBooleanValue() (*RBoolean, error) {
+	return False, nil
+}
+
+// RStringValue returns the string representation as an RString.
+func (i *RInterval) RStringValue() *RString {
+	return NewRString(i.StringValue())
+}
+
+// RNameValue is not supported for intervals.
+func (i *RInterval) RNameValue() (*RName, error) {
+	return nil, UndefinedError("RNameValue", "Intervals do not support RNameValue")
+}
+
+// RArrayValue is not supported for intervals.
+func (i *RInterval) RArrayValue() (*RArray, error) {
+	return nil, UndefinedError("RArrayValue", "Intervals do not support RArrayValue")
+}
+
+// RTableValue is not supported for intervals.
+func (i *RInterval) RTableValue() (*RTable, error) {
+	return nil, UndefinedError("RTableValue", "Intervals do not support RTableValue")
+}
+
+// RTimeValue is not supported for intervals.
+func (i *RInterval) RTimeValue() (*RDate, error) {
+	return nil, UndefinedError("RTimeValue", "Intervals do not support RTimeValue")
+}
+
+// REntityValue is not supported for intervals.
+func (i *RInterval) REntityValue() (Entity, error) {
+	return nil, UndefinedError("REntityValue", "Intervals do not support REntityValue")
+}
+
+// AsInterval attempts to convert an Object to an RInterval.
+// Returns the interval and true if successful, nil and false otherwise.
+func AsInterval(obj Object) (*RInterval, bool) {
+	if obj == nil {
+		return nil, false
 	}
-	return 0, ConversionError("RInterval.Compare", "Cannot compare interval with non-interval")
+	interval, ok := obj.(*RInterval)
+	return interval, ok
 }

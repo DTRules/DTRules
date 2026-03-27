@@ -1,0 +1,130 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 3: Form 2555 - FEIE with Physical Presence Test (Exactly 330 Days) -->
+   <!-- Tests: Process_Foreign_Earned_Income -->
+   <!-- Scenario: US citizen meeting exact minimum physical presence test -->
+   <!-- 330 full days in 12-month period, qualifies for FEIE -->
+   <id>FOREIGN-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CA</state>
+   <city>San Diego</city>
+
+   <!-- Expected values for validation -->
+   <!-- Foreign earned income: $110,000 -->
+   <!-- Days outside US: 330 (meets exact 330-day physical presence test) -->
+   <!-- FEIE max exclusion (2025): $126,500 -->
+   <!-- FEIE exclusion: $110,000 (full amount, under limit) -->
+   <!-- Spouse US income: $45,000 -->
+   <!-- AGI: $0 + $45,000 = $45,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $15,000 -->
+   <!-- Tax: $1,500 (10% bracket) -->
+   <expected_agi>45000</expected_agi>
+   <expected_foreign_earned_income>110000</expected_foreign_earned_income>
+   <expected_foreign_earned_income_exclusion>110000</expected_foreign_earned_income_exclusion>
+   <expected_days_outside_us>330</expected_days_outside_us>
+   <expected_taxable_income>15000</expected_taxable_income>
+   <expected_total_tax>1500</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Primary taxpayer working abroad -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Anderson</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>9/5/1983</date_of_birth>
+         <occupation>Oil & Gas Engineer</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <foreign_earned_income>110000</foreign_earned_income>
+         <foreign_country>United Arab Emirates</foreign_country>
+         <days_outside_us>330</days_outside_us>
+         <foreign_residence_start>2/1/2025</foreign_residence_start>
+         <foreign_residence_end>12/31/2025</foreign_residence_end>
+         <physical_presence_test>true</physical_presence_test>
+         <bona_fide_residence>false</bona_fide_residence>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <!-- Spouse working in US -->
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Anderson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>12/10/1985</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>6500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_earned_income</type>
+         <gross_amount>110000</gross_amount>
+         <withholding>0</withholding>
+         <description>Engineering work in UAE (Form 2555, exactly 330 days)</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>45000</gross_amount>
+         <withholding>6500</withholding>
+         <description>Hospital employment in California</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma Anderson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>4/20/2020</date_of_birth>
+         <age>5</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

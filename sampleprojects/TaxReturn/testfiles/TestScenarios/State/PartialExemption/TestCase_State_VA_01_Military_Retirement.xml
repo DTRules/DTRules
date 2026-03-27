@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Virginia Military Retirement Test Case -->
+   <!-- Test Case VA-Military-01: Military retiree age 60+ ($10,000 exemption, increasing to $30,000) -->
+   <!-- VA provides age-based military retirement exemptions: -->
+   <!-- Age 55-59: No exemption (but can use general retirement subtraction up to $12,000) -->
+   <!-- Age 60+: Up to $10,000 subtraction (2025), increasing gradually to $30,000 by 2031 -->
+   <!-- This test uses age 62 (born 1963) = $10,000 exemption -->
+
+   <id>VA-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>VA</state>
+   <city>Richmond</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $36,000 military retirement + $48,000 W2 = $84,000 -->
+   <!-- AGI: $84,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $69,000 -->
+   <!-- Federal Tax: ~$9,600 -->
+   <!-- VA: Progressive tax (2% to 5.75%) -->
+   <!-- VA Military Retirement Exemption: $10,000 (age 60+ for 2025) -->
+   <!-- VA Taxable Retirement: $36,000 - $10,000 = $26,000 -->
+   <!-- VA Taxable Income: $26,000 + $48,000 = $74,000 -->
+   <!-- VA Tax (progressive brackets): ~$4,000 -->
+   <!-- Total Tax: $13,600 -->
+   <!-- Withholding: $14,500 -->
+   <!-- Refund: $900 -->
+   <expected_agi>84000</expected_agi>
+   <expected_taxable_income>69000</expected_taxable_income>
+   <expected_total_tax>13600</expected_total_tax>
+   <expected_state_tax>4000</expected_state_tax>
+   <expected_refund>900</expected_refund>
+
+   <!-- Retired Military Taxpayer (Age 62) -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Mark</name>
+         <last_name>Lewis</last_name>
+         <ssn>777-88-9900</ssn>
+         <date_of_birth>6/28/1963</date_of_birth>
+         <occupation>Military Retiree - Government Contractor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>48000</w2_wages>
+         <w2_withholding>14500</w2_withholding>
+         <military_retirement_pay>36000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

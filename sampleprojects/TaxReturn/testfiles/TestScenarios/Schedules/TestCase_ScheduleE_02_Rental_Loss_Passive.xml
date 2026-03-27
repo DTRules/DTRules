@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule E - Rental Property with Loss (Passive Activity Rules) -->
+<!-- Scenario: High income taxpayer with rental loss (passive loss suspended) -->
+<!-- Rental income: $18,000, Expenses: $28,000, Loss: ($10,000) -->
+<!-- AGI > $150,000 so passive loss cannot be deducted -->
+<!-- Expected: Loss is suspended (not deductible due to high income) -->
+<job>
+    <id>10017</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>CA</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $220,000 (rental loss suspended due to passive activity rules) -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $190,000 -->
+    <!-- Tax: ~$31,780 -->
+    <expected_agi>220000</expected_agi>
+    <expected_taxable_income>190000</expected_taxable_income>
+    <expected_total_tax>31780</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Michael Roberts</name>
+            <ssn>789-01-2345</ssn>
+            <date_of_birth>09/08/1975</date_of_birth>
+            <occupation>Corporate Attorney</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>150000</w2_wages>
+            <w2_withholding>32000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Jennifer Roberts</name>
+            <ssn>890-12-3456</ssn>
+            <date_of_birth>11/15/1977</date_of_birth>
+            <occupation>Pharmacist</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>70000</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <address>890 Investment Ave, San Diego, CA 92101</address>
+            <purchase_date>6/15/2022</purchase_date>
+            <purchase_price>550000</purchase_price>
+            <current_fmv>580000</current_fmv>
+            <mortgage_balance>450000</mortgage_balance>
+            <mortgage_origination_date>6/15/2022</mortgage_origination_date>
+            <mortgage_interest>18000</mortgage_interest>
+            <property_taxes>6500</property_taxes>
+            <rental_income>18000</rental_income>
+            <rental_insurance>2400</rental_insurance>
+            <rental_repairs>4500</rental_repairs>
+            <rental_management>1800</rental_management>
+            <rental_utilities>0</rental_utilities>
+            <depreciation>10000</depreciation>
+        </property>
+    </properties>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+    <expenses></expenses>
+</job>

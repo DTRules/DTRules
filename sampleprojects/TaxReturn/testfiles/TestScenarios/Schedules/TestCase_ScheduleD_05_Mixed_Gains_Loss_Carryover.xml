@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule D - Mixed ST/LT Gains with Capital Loss Carryover -->
+<!-- Scenario: Taxpayer with both ST and LT gains, plus capital loss carryover -->
+<!-- STCG: $10,000, LTCG: $30,000, Loss carryover: $8,000 -->
+<!-- Expected: Loss offsets gains, net gain $32,000 -->
+<job>
+    <id>10015</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $130,000 W-2 + $32,000 net gains = $162,000 -->
+    <!-- Deduction: $30,000 standard -->
+    <!-- Taxable: $132,000 -->
+    <!-- Tax: ~$15,180 ordinary + $4,500 LTCG (15% on $30k) = ~$19,680 -->
+    <expected_agi>162000</expected_agi>
+    <expected_taxable_income>132000</expected_taxable_income>
+    <expected_total_tax>19680</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Steven Davis</name>
+            <ssn>456-78-9012</ssn>
+            <date_of_birth>03/25/1975</date_of_birth>
+            <occupation>Portfolio Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>85000</w2_wages>
+            <w2_withholding>15000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Laura Davis</name>
+            <ssn>567-89-0123</ssn>
+            <date_of_birth>05/18/1977</date_of_birth>
+            <occupation>Marketing VP</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>45000</w2_wages>
+            <w2_withholding>7000</w2_withholding>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes>
+        <!-- Short-term capital gain -->
+        <income>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock trading - short-term</source>
+            <gross_amount>10000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>short_term</holding_period>
+        </income>
+
+        <!-- Long-term capital gain -->
+        <income>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <type>capital_gain</type>
+            <source>Stock sale - long-term holdings</source>
+            <gross_amount>30000</gross_amount>
+            <tax_withheld>0</tax_withheld>
+            <is_earned>false</is_earned>
+            <holding_period>long_term</holding_period>
+        </income>
+    </incomes>
+
+    <adjustments>
+        <!-- Capital loss carryover from prior year -->
+        <adjustment>
+            <id>1</id>
+            <category>capital_loss_carryover</category>
+            <description>Prior year capital loss carryover</description>
+            <amount>8000</amount>
+        </adjustment>
+    </adjustments>
+
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <expenses></expenses>
+</job>
