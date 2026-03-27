@@ -1105,6 +1105,12 @@
 <!-- South Dakota State Tax Constants (2025) - Hypothetical Progressive Tax -->
 
 <!-- Mississippi State Tax Constants (2025) -->
+
+<!-- Florida State Tax Constants (2025) -->
+		<!-- Florida has NO state income tax (constitutionally prohibited). Tax rate is 0% for all residents. -->
+		<field name='fl_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0' comment='Florida has no state income tax (0%)'></field>
+
+		<!-- Mississippi State Tax Constants (2025) -->
 		<field name='ms_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2300' comment='MS standard deduction Single (2025)'></field>
 		<field name='ms_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='4600' comment='MS standard deduction MFJ (2025)'></field>
 		<field name='ms_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='3400' comment='MS standard deduction HOH (2025)'></field>
@@ -1156,6 +1162,20 @@
 		<field name='oh_exemption_threshold_low' type='double' subtype='' access='r' input='' default_value='40000' comment='OH exemption tier 1 threshold'></field>
 		<field name='oh_exemption_threshold_high' type='double' subtype='' access='r' input='' default_value='80000' comment='OH exemption tier 2 threshold'></field>
 		<field name='oh_exemption_phaseout_threshold' type='double' subtype='' access='r' input='' default_value='750000' comment='OH exemption phaseout starts at $750,000 MAGI'></field>
+		<!-- Nebraska State Tax Constants (2025) - Progressive Tax -->
+		<field name='ne_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8600' comment='NE standard deduction Single (2025)'></field>
+		<field name='ne_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='17200' comment='NE standard deduction MFJ (2025)'></field>
+		<field name='ne_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0246' comment='NE tax rate bracket 1 (2.46%)'></field>
+		<field name='ne_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0351' comment='NE tax rate bracket 2 (3.51%)'></field>
+		<field name='ne_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0501' comment='NE tax rate bracket 3 (5.01%)'></field>
+		<field name='ne_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='NE tax rate bracket 4 (5.20%)'></field>
+		<field name='ne_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='4030' comment='NE bracket 2 threshold Single (above this uses 3.51%)'></field>
+		<field name='ne_bracket_3_threshold_single' type='double' subtype='' access='r' input='' default_value='24120' comment='NE bracket 3 threshold Single (above this uses 5.01%)'></field>
+		<field name='ne_bracket_4_threshold_single' type='double' subtype='' access='r' input='' default_value='38870' comment='NE bracket 4 threshold Single (above this uses 5.20%)'></field>
+		<field name='ne_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='8040' comment='NE bracket 2 threshold MFJ (above this uses 3.51%)'></field>
+		<field name='ne_bracket_3_threshold_mfj' type='double' subtype='' access='r' input='' default_value='48250' comment='NE bracket 3 threshold MFJ (above this uses 5.01%)'></field>
+		<field name='ne_bracket_4_threshold_mfj' type='double' subtype='' access='r' input='' default_value='77730' comment='NE bracket 4 threshold MFJ (above this uses 5.20%)'></field>
+
 
 
 		<!-- Delaware State Tax Constants (2025) -->
@@ -1772,6 +1792,12 @@
 <!-- South Dakota State Tax Results -->
 
 <!-- Mississippi State Tax Results -->
+
+<!-- Florida State Tax Results -->
+		<field name='fl_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Florida AGI (same as federal AGI)'></field>
+		<field name='fl_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Florida state income tax (always $0)'></field>
+
+		<!-- Mississippi State Tax Results -->
 		<field name='ms_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Mississippi AGI (federal AGI)'></field>
 		<field name='ms_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MS standard deduction amount'></field>
 		<field name='ms_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Mississippi taxable income'></field>
@@ -1815,6 +1841,16 @@
 		<field name='oh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 2 tax (2.75%)'></field>
 		<field name='oh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='OH bracket 3 tax (3.125%)'></field>
 		<field name='oh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Ohio state income tax'></field>
+		<!-- Nebraska State Tax Results -->
+		<field name='ne_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Nebraska AGI (federal AGI + adjustments)'></field>
+		<field name='ne_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NE standard deduction amount'></field>
+		<field name='ne_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Nebraska taxable income'></field>
+		<field name='ne_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 1 tax (2.46%)'></field>
+		<field name='ne_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 2 tax (3.51%)'></field>
+		<field name='ne_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 3 tax (5.01%)'></field>
+		<field name='ne_bracket_4_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NE bracket 4 tax (5.20%)'></field>
+		<field name='ne_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Nebraska state income tax'></field>
+
 
 		<!-- Delaware State Tax Results -->
 		<field name='de_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Delaware AGI (federal AGI + adjustments)'></field>
