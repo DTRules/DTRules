@@ -41,14 +41,6 @@ var (
 	traceFlag  = flag.Bool("trace", false, "Enable trace output during execution")
 	debug      = flag.Bool("debug", false, "Enable debug output during execution")
 
-	// Compile and export options
-	compile      = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
-	exportXLS    = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix, deprecated)")
-	exportDT     = flag.String("export-dt", "", "Export decision tables to Excel file (.xlsx)")
-	exportEDD    = flag.String("export-edd", "", "Export EDD to Excel file (.xlsx)")
-	exportDTDir  = flag.String("export-dt-dir", "", "Export decision tables to directory (grouped by xls_file)")
-	exportEDDDir = flag.String("export-edd-dir", "", "Export EDD to directory (grouped by xls_file)")
-
 	// Trace analysis options
 	traceFile = flag.String("trace-file", "", "Analyze a trace file")
 	traceNode = flag.Int("trace-node", 0, "Set state to specific node number in trace")
@@ -62,6 +54,14 @@ var (
 
 	// Change report options
 	comparePath = flag.String("compare", "", "Compare with reference rules at path")
+
+	// Compile and export options
+	compile      = flag.String("compile", "", "Compile rules to bytecode file (.dtbc)")
+	exportXLS    = flag.String("export", "", "Export decision tables and EDD to Excel files (prefix, deprecated)")
+	exportDT     = flag.String("export-dt", "", "Export decision tables to Excel file (.xlsx)")
+	exportEDD    = flag.String("export-edd", "", "Export EDD to Excel file (.xlsx)")
+	exportDTDir  = flag.String("export-dt-dir", "", "Export decision tables to directory (grouped by xls_file)")
+	exportEDDDir = flag.String("export-edd-dir", "", "Export EDD to directory (grouped by xls_file)")
 )
 
 func main() {
@@ -131,6 +131,12 @@ func main() {
 		return
 	}
 
+	// Handle compare mode
+	if *comparePath != "" {
+		handleCompare(rs)
+		return
+	}
+
 	// Handle compile mode
 	if *compile != "" {
 		compileRules(rs, *compile)
@@ -152,12 +158,6 @@ func main() {
 	// Handle directory export modes (grouped by xls_file)
 	if *exportDTDir != "" || *exportEDDDir != "" {
 		exportToDirectories(rs, *exportDTDir, *exportEDDDir)
-		return
-	}
-
-	// Handle compare mode
-	if *comparePath != "" {
-		handleCompare(rs)
 		return
 	}
 
@@ -543,16 +543,6 @@ func compileRules(rs *session.RuleSet, outFile string) {
 		}
 		fmt.Println()
 	}
-}
-
-func writeVarint(f *os.File, v int) {
-	buf := make([]byte, 0, 10)
-	for v >= 0x80 {
-		buf = append(buf, byte(v)|0x80)
-		v >>= 7
-	}
-	buf = append(buf, byte(v))
-	f.Write(buf)
 }
 
 func exportToExcel(rs *session.RuleSet, prefix string) {

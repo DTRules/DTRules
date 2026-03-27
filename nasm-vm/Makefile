@@ -1,81 +1,77 @@
-# DTRules NASM VM Makefile
-# Copyright 2024 Paul Snow
-# Licensed under Apache License 2.0
+# DTRules NASM VM - Makefile
+# Copyright 2024 Paul Snow - Apache License 2.0
 
-# Compiler/Assembler settings
 NASM = nasm
-CC = gcc
-NASMFLAGS = -f elf64 -g -F dwarf -I./
-CFLAGS = -Wall -Wextra -g -O2 -std=c11
-LDFLAGS = -no-pie
+NASMFLAGS = -f elf64 -g -F dwarf -I include/
+LD = ld
+AR = ar
 
-# Output directories
-BUILD_DIR = build
-OBJ_DIR = $(BUILD_DIR)/obj
+SRCDIR = src
+INCDIR = include
+TESTDIR = test
+BUILDDIR = build
 
-# Source files - vm_jump_table includes vm_core via %include
-ASM_SOURCES = vm_entry.asm vm_jump_table.asm
-C_SOURCES = test_harness.c
+# Source files
+SRCS = $(SRCDIR)/vm_core.asm \
+       $(SRCDIR)/vm_entry.asm \
+       $(SRCDIR)/vm_jump_table.asm \
+       $(SRCDIR)/vm_trace.asm
 
 # Object files
-ASM_OBJECTS = $(patsubst %.asm,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
-C_OBJECTS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(C_SOURCES))
+OBJS = $(BUILDDIR)/vm_core.o \
+       $(BUILDDIR)/vm_entry.o \
+       $(BUILDDIR)/vm_jump_table.o \
+       $(BUILDDIR)/vm_trace.o
 
-# Main targets
-.PHONY: all clean test directories
+# Library output
+LIB = $(BUILDDIR)/libdtrules_vm.a
 
-all: directories $(BUILD_DIR)/test_vm
+# Test files
+TEST_SRCS = $(wildcard $(TESTDIR)/*.asm)
+TEST_OBJS = $(TEST_SRCS:$(TESTDIR)/%.asm=$(BUILDDIR)/test_%.o)
+TEST_BINS = $(TEST_SRCS:$(TESTDIR)/%.asm=$(BUILDDIR)/test_%)
 
-directories:
-	@mkdir -p $(BUILD_DIR) $(OBJ_DIR)
+.PHONY: all clean test
 
-# Link the test executable
-$(BUILD_DIR)/test_vm: $(ASM_OBJECTS) $(C_OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $^
+all: $(BUILDDIR) $(LIB)
 
-# Assemble NASM files
-# vm_entry.asm includes vm_core.asm
-# vm_jump_table.asm includes vm_core.asm
-$(OBJ_DIR)/vm_entry.o: vm_entry.asm vm_core.asm vm_constants.inc vm_state.inc
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
+
+$(LIB): $(OBJS)
+	$(AR) rcs $@ $^
+
+$(BUILDDIR)/vm_core.o: $(SRCDIR)/vm_core.asm $(INCDIR)/dtrules.inc
 	$(NASM) $(NASMFLAGS) -o $@ $<
 
-$(OBJ_DIR)/vm_jump_table.o: vm_jump_table.asm vm_core.asm vm_constants.inc vm_state.inc
+$(BUILDDIR)/vm_entry.o: $(SRCDIR)/vm_entry.asm $(INCDIR)/dtrules.inc
 	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Compile C files
-$(OBJ_DIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(BUILDDIR)/vm_jump_table.o: $(SRCDIR)/vm_jump_table.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Run tests
-test: $(BUILD_DIR)/test_vm
-	./$(BUILD_DIR)/test_vm
+$(BUILDDIR)/vm_trace.o: $(SRCDIR)/vm_trace.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Clean build artifacts
+# Test targets
+test: $(BUILDDIR) $(TEST_BINS)
+	@echo "Running tests..."
+	@for test in $(TEST_BINS); do \
+		echo "  Running $$test"; \
+		$$test && echo "    PASS" || echo "    FAIL"; \
+	done
+
+$(BUILDDIR)/test_%: $(BUILDDIR)/test_%.o $(LIB)
+	$(LD) -o $@ $< $(LIB) -lc --dynamic-linker /lib64/ld-linux-x86-64.so.2
+
+$(BUILDDIR)/test_%.o: $(TESTDIR)/%.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
+
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILDDIR)
 
-# Debug build with extra symbols
-debug: NASMFLAGS += -DDEBUG
-debug: CFLAGS += -DDEBUG -O0
-debug: all
-
-# Show structure sizes (for verification)
-sizes: $(OBJ_DIR)/vm_entry.o
-	@echo "Checking structure sizes..."
-	@nm $(OBJ_DIR)/vm_entry.o | grep -i size || true
-
-# Disassemble for inspection
-disasm: $(OBJ_DIR)/vm_jump_table.o
-	objdump -d -M intel $(OBJ_DIR)/vm_jump_table.o
-
-# Help
-help:
-	@echo "DTRules NASM VM Build System"
-	@echo ""
-	@echo "Targets:"
-	@echo "  all      - Build test executable (default)"
-	@echo "  test     - Build and run tests"
-	@echo "  clean    - Remove build artifacts"
-	@echo "  debug    - Build with debug symbols"
-	@echo "  disasm   - Disassemble object files"
-	@echo "  help     - Show this help"
+# Show info
+info:
+	@echo "Sources: $(SRCS)"
+	@echo "Objects: $(OBJS)"
+	@echo "Library: $(LIB)"
