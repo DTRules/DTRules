@@ -1,0 +1,93 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: West Virginia State Tax - Married Filing Jointly, Medium Income -->
+   <!-- Tests WV progressive tax with dependents, brackets 3-4 -->
+
+   <id>WV-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>WV</state>
+   <city>Morgantown</city>
+
+   <!-- Expected values for validation -->
+   <!-- Combined W-2 Wages: $80,000 -->
+   <!-- Federal AGI: $80,000 -->
+   <!-- WV Personal Exemptions: 2 taxpayers + 2 dependents = 4 × $2,000 = $8,000 -->
+   <!-- WV Taxable Income: $80,000 - $8,000 = $72,000 -->
+   <!-- WV Tax Calculation:
+        Bracket 1: $10,000 × 2.22% = $222.00
+        Bracket 2: $15,000 × 2.96% = $444.00
+        Bracket 3: $15,000 × 3.33% = $499.50
+        Bracket 4: $20,000 × 4.44% = $888.00
+        Bracket 5: $12,000 × 4.82% = $578.40
+        Total WV Tax: $222 + $444 + $499.50 + $888 + $578.40 = $2,631.90
+   -->
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>51600</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Johnson</name>
+         <ssn>234-56-7890</ssn>
+         <date_of_birth>3/20/1985</date_of_birth>
+         <age>40</age>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Johnson</name>
+         <ssn>345-67-8901</ssn>
+         <date_of_birth>7/10/1987</date_of_birth>
+         <age>38</age>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emma Johnson</name>
+         <ssn>456-78-9012</ssn>
+         <date_of_birth>6/15/2015</date_of_birth>
+         <relationship>daughter</relationship>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Noah Johnson</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>9/22/2018</date_of_birth>
+         <relationship>son</relationship>
+         <is_qualifying_child>true</is_qualifying_child>
+      </dependent>
+   </dependents>
+
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+   <income_sources></income_sources>
+</job>

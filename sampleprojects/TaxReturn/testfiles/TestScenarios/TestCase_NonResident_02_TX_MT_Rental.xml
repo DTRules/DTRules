@@ -1,0 +1,108 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Non-Resident Test Case 2: TX Resident with Rental Property in Montana -->
+   <!-- Scenario: Texas resident (no state income tax) owns rental property in Montana -->
+   <!-- Expected: MT should tax only MT-source rental income as non-resident -->
+   <!-- Montana brackets: 4.7% on first $21,100 (Single), 5.9% above -->
+   <!-- MT Standard Deduction: $4,500 (Single) -->
+   <id>NonRes-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>single</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+   <has_state_income_tax>false</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $75,000 W-2 + $18,000 rental net = $93,000 -->
+   <!-- MT source income: $18,000 (rental net income) -->
+   <!-- MT AGI: $18,000 -->
+   <!-- MT Standard Deduction: $4,500 -->
+   <!-- MT Taxable Income: $13,500 -->
+   <!-- MT Tax: $13,500 × 4.7% = $634.50 (all in bracket 1) -->
+   <expected_agi>93000</expected_agi>
+   <expected_mt_state_source_income>18000</expected_mt_state_source_income>
+   <expected_mt_agi>18000</expected_mt_agi>
+   <expected_mt_taxable_income>13500</expected_mt_taxable_income>
+   <expected_mt_tax>634.50</expected_mt_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Bob Martinez</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/12/1980</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_state_source>TX</w2_state_source>
+         <w2_withholding>11000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Austin Accounting LLC</source>
+         <gross_amount>75000</gross_amount>
+         <tax_withheld>11000</tax_withheld>
+         <state_source>TX</state_source>
+         <is_earned>true</is_earned>
+      </income>
+   </incomes>
+
+   <!-- Properties -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>rental</type>
+         <address>123 Mountain View, Bozeman, MT</address>
+         <state_location>MT</state_location>
+         <purchase_date>1/15/2020</purchase_date>
+         <purchase_price>350000</purchase_price>
+         <current_fmv>425000</current_fmv>
+         <mortgage_balance>280000</mortgage_balance>
+         <mortgage_interest>14000</mortgage_interest>
+         <property_taxes>4200</property_taxes>
+         <rental_income>36000</rental_income>
+         <rental_insurance>1800</rental_insurance>
+         <rental_repairs>2500</rental_repairs>
+         <rental_utilities>1200</rental_utilities>
+         <rental_management>3600</rental_management>
+         <depreciation>12700</depreciation>
+         <rental_expenses>36000</rental_expenses>
+         <rental_net_income>18000</rental_net_income>
+         <active_participation>true</active_participation>
+      </property>
+   </properties>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

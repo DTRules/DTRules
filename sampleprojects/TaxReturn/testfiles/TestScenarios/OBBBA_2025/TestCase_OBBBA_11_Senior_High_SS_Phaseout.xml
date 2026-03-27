@@ -1,0 +1,94 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: MFJ senior couple with high SS benefits causing phaseout -->
+   <!-- Tests Senior Additional Deduction phase-out -->
+   <!-- Additional $6,000 deduction per senior, Phase-out at $150,000 MAGI for MFJ -->
+   <!-- This couple has $165k income, $15k into phase-out zone -->
+
+   <id>11</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>AZ</state>
+   <city>Phoenix</city>
+
+   <!-- Expected values for validation -->
+   <!-- Social Security: $58,000 (both seniors - high earners) -->
+   <!-- Pension Income: $45,000 -->
+   <!-- Investment Income: $62,000 -->
+   <!-- Total Income: $165,000 ($15k into phase-out zone) -->
+   <!-- Senior OBBBA Deduction: $12,000 max ($6k x 2 seniors) -->
+   <!-- Phase-out calculation: $15,000 over $150k threshold -->
+   <!-- Assume linear phase-out over $50k range: 30% reduction -->
+   <!-- Senior Deduction: $12,000 * 70% = $8,400 -->
+   <!-- AGI: $165,000 - $8,400 = $156,600 -->
+   <!-- Standard Deduction (MFJ): $30,000 + $3,200 (2 x $1,600 for 65+) = $33,200 -->
+   <!-- Taxable Income: $156,600 - $33,200 = $123,400 -->
+   <!-- Tax: 10%(23,200)+12%(71,100)+22%(29,100) = $21,930 -->
+   <expected_agi>156600</expected_agi>
+   <expected_taxable_income>123400</expected_taxable_income>
+   <expected_total_tax>21930</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>William Anderson</name>
+      <ssn>444-55-6666</ssn>
+      <date_of_birth>1956-04-22</date_of_birth>
+      <occupation>Retired Executive</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>32000</social_security_income>
+      <is_senior>true</is_senior>
+   </taxpayer>
+
+   <taxpayer>
+      <id>2</id>
+      <name>Margaret Anderson</name>
+      <ssn>444-55-7777</ssn>
+      <date_of_birth>1958-11-14</date_of_birth>
+      <occupation>Retired Teacher</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>false</is_primary>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>26000</social_security_income>
+      <is_senior>true</is_senior>
+   </taxpayer>
+
+   <!-- Pension income -->
+   <income>
+      <id>1</id>
+      <taxpayer_id>1</taxpayer_id>
+      <type>pension</type>
+      <source>Corporate Pension Plan</source>
+      <gross_amount>45000</gross_amount>
+      <tax_withheld>6000</tax_withheld>
+      <is_earned>false</is_earned>
+   </income>
+
+   <!-- Investment income -->
+   <income>
+      <id>2</id>
+      <taxpayer_id>1</taxpayer_id>
+      <type>investment</type>
+      <source>Dividends and Interest</source>
+      <gross_amount>62000</gross_amount>
+      <tax_withheld>0</tax_withheld>
+      <is_earned>false</is_earned>
+   </income>
+</job>
