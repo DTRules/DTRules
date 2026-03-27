@@ -15,40 +15,37 @@
       limitations under the License.
    </copyright>
 
-   <!-- OH Test Case 1: Single W-2 Earner in Bracket 1 -->
-   <id>OH-01</id>
+   <!-- NV Test Case 1: Single W-2 Earner in Bracket 1 Only -->
+   <id>NV-01</id>
    <tax_year>2025</tax_year>
    <filing_status>single</filing_status>
-   <state>OH</state>
-   <city>Columbus</city>
+   <state>NV</state>
+   <city>Las Vegas</city>
    <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
-   <!-- Federal AGI: $35,000 -->
-   <!-- OH AGI: $35,000 -->
-   <!-- OH Exemption: $2,350 (AGI ≤ $40,000) -->
-   <!-- OH Taxable Income: $35,000 - $2,350 = $32,650 -->
-   <!-- OH Tax: -->
-   <!--   Bracket 1 (0% on $0-$26,050): $0 -->
-   <!--   Bracket 2 (2.75% on $26,051-$32,650): $6,600 × 0.0275 = $181.50 -->
-   <!--   Total: $181.50 -->
-   <expected_agi>35000</expected_agi>
-   <expected_oh_agi>35000</expected_oh_agi>
-   <expected_oh_taxable_income>32650</expected_oh_taxable_income>
-   <expected_oh_tax>181.5</expected_oh_tax>
+   <!-- Federal AGI: $45,000 -->
+   <!-- NV AGI: $45,000 -->
+   <!-- NV Standard Deduction: $7,500 (Single) -->
+   <!-- NV Taxable Income: $37,500 -->
+   <!-- NV Tax: $37,500 × 2.5% = $937.50 (all in bracket 1, under $50,000 threshold) -->
+   <expected_agi>45000</expected_agi>
+   <expected_nv_agi>45000</expected_nv_agi>
+   <expected_nv_taxable_income>37500</expected_nv_taxable_income>
+   <expected_nv_tax>937.50</expected_nv_tax>
 
    <!-- Taxpayers -->
    <taxpayers>
       <taxpayer id="1">
          <id>1</id>
-         <name>Alice Johnson</name>
-         <ssn>111-22-3333</ssn>
-         <date_of_birth>5/20/1995</date_of_birth>
+         <name>Sarah Johnson</name>
+         <ssn>111-22-4444</ssn>
+         <date_of_birth>5/20/1990</date_of_birth>
          <occupation>Nurse</occupation>
          <is_self_employed>false</is_self_employed>
          <is_primary>true</is_primary>
-         <w2_wages>35000</w2_wages>
-         <w2_withholding>4500</w2_withholding>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
          <se_gross_income>0</se_gross_income>
          <estimated_payments>0</estimated_payments>
       </taxpayer>
@@ -60,8 +57,8 @@
          <id>1</id>
          <taxpayer_id>1</taxpayer_id>
          <type>w2_wages</type>
-         <gross_amount>35000</gross_amount>
-         <withholding>4500</withholding>
+         <gross_amount>45000</gross_amount>
+         <withholding>6000</withholding>
       </income>
    </incomes>
 

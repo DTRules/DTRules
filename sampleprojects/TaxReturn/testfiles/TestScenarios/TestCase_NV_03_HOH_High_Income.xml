@@ -15,40 +15,40 @@
       limitations under the License.
    </copyright>
 
-   <!-- OH Test Case 1: Single W-2 Earner in Bracket 1 -->
-   <id>OH-01</id>
+   <!-- NV Test Case 3: Head of Household High Income All Three Brackets -->
+   <id>NV-03</id>
    <tax_year>2025</tax_year>
-   <filing_status>single</filing_status>
-   <state>OH</state>
-   <city>Columbus</city>
+   <filing_status>head_of_household</filing_status>
+   <state>NV</state>
+   <city>Henderson</city>
    <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
-   <!-- Federal AGI: $35,000 -->
-   <!-- OH AGI: $35,000 -->
-   <!-- OH Exemption: $2,350 (AGI ≤ $40,000) -->
-   <!-- OH Taxable Income: $35,000 - $2,350 = $32,650 -->
-   <!-- OH Tax: -->
-   <!--   Bracket 1 (0% on $0-$26,050): $0 -->
-   <!--   Bracket 2 (2.75% on $26,051-$32,650): $6,600 × 0.0275 = $181.50 -->
-   <!--   Total: $181.50 -->
-   <expected_agi>35000</expected_agi>
-   <expected_oh_agi>35000</expected_oh_agi>
-   <expected_oh_taxable_income>32650</expected_oh_taxable_income>
-   <expected_oh_tax>181.5</expected_oh_tax>
+   <!-- Federal AGI: $250,000 -->
+   <!-- NV AGI: $250,000 -->
+   <!-- NV Standard Deduction: $11,250 (HOH) -->
+   <!-- NV Taxable Income: $238,750 -->
+   <!-- Bracket 1: $75,000 × 2.5% = $1,875 -->
+   <!-- Bracket 2: $105,000 × 4.0% = $4,200 -->
+   <!-- Bracket 3: $58,750 × 6.0% = $3,525 -->
+   <!-- Total NV Tax: $9,600 (spans all three brackets) -->
+   <expected_agi>250000</expected_agi>
+   <expected_nv_agi>250000</expected_nv_agi>
+   <expected_nv_taxable_income>238750</expected_nv_taxable_income>
+   <expected_nv_tax>9600</expected_nv_tax>
 
    <!-- Taxpayers -->
    <taxpayers>
       <taxpayer id="1">
          <id>1</id>
-         <name>Alice Johnson</name>
-         <ssn>111-22-3333</ssn>
-         <date_of_birth>5/20/1995</date_of_birth>
-         <occupation>Nurse</occupation>
+         <name>Patricia Martinez</name>
+         <ssn>333-44-7777</ssn>
+         <date_of_birth>9/8/1982</date_of_birth>
+         <occupation>Medical Director</occupation>
          <is_self_employed>false</is_self_employed>
          <is_primary>true</is_primary>
-         <w2_wages>35000</w2_wages>
-         <w2_withholding>4500</w2_withholding>
+         <w2_wages>250000</w2_wages>
+         <w2_withholding>55000</w2_withholding>
          <se_gross_income>0</se_gross_income>
          <estimated_payments>0</estimated_payments>
       </taxpayer>
@@ -60,13 +60,21 @@
          <id>1</id>
          <taxpayer_id>1</taxpayer_id>
          <type>w2_wages</type>
-         <gross_amount>35000</gross_amount>
-         <withholding>4500</withholding>
+         <gross_amount>250000</gross_amount>
+         <withholding>55000</withholding>
       </income>
    </incomes>
 
    <!-- Dependents -->
-   <dependents></dependents>
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Martinez</name>
+         <ssn>444-55-8888</ssn>
+         <date_of_birth>6/15/2015</date_of_birth>
+         <relationship>daughter</relationship>
+      </dependent>
+   </dependents>
 
    <!-- Properties -->
    <properties></properties>
