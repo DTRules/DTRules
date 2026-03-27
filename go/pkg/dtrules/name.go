@@ -198,8 +198,10 @@ func (r *RName) Type() *RType {
 }
 
 // Execute looks up and executes this name.
+// For executable names, it looks up the value and executes/pushes it.
+// For non-executable names (literal /name), it pushes the name itself to the stack.
 func (r *RName) Execute(state State) error {
-	return r.GetExecutable().(*RName).ArrayExecute(state)
+	return r.ArrayExecute(state)
 }
 
 // ArrayExecute looks up this name on the entity stack and executes or pushes the result.

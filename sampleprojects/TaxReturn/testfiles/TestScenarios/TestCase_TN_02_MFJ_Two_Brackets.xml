@@ -1,0 +1,98 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- TN Test Case 2: MFJ Crossing into Bracket 2 -->
+   <id>TN-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>TN</state>
+   <city>Memphis</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $130,000 ($80,000 + $50,000) -->
+   <!-- TN AGI: $130,000 -->
+   <!-- TN Standard Deduction: $12,000 (MFJ) -->
+   <!-- TN Taxable Income: $118,000 -->
+   <!-- Bracket 1: $50,000 × 2% = $1,000 -->
+   <!-- Bracket 2: $68,000 × 4% = $2,720 -->
+   <!-- TN Tax: $1,000 + $2,720 = $3,720 -->
+   <expected_agi>130000</expected_agi>
+   <expected_tn_agi>130000</expected_tn_agi>
+   <expected_tn_taxable_income>118000</expected_tn_taxable_income>
+   <expected_tn_tax>3720</expected_tn_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Brown</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>9/20/1985</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>80000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sarah Brown</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/5/1987</date_of_birth>
+         <occupation>Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>80000</gross_amount>
+         <withholding>12000</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>50000</gross_amount>
+         <withholding>7500</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents></dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Montana Corporate Tax Decision Tables
+
+  Montana has a 6.75% flat corporate income tax rate (7.0% for water's edge election).
+
+  Table Allocation: 53500-53599
+  - 53500: Determine_MT_Filing_Requirement
+  - 53520: Calculate_MT_Income_Adjustments
+  - 53580: Calculate_MT_State_Tax
+
+  This file will be merged into CorporateTax_dt.xml by merge script
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53500: Determine_MT_Filing_Requirement                           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_MT_Filing_Requirement</table_name>
+<xls_file>MT_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Montana state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>53500</TABLE_NUMBER>
+<FILE_PATH>states/MT/53500_Determine_MT_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MT filing requirement check</action_description>
+<action_postfix>
+"MT Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in MT</condition_comment>
+<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == "MT"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code "MT" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has economic nexus in MT</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == "MT"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code "MT" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - MT filing required</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"MT filing required due to physical presence (office, employees, or property in state)" job.audit_trail swap addto
+
+<!-- Reference: Montana Code Annotated § 15-30-2101 (Apportionment and allocation) -->
+<!-- Reference: Montana Department of Revenue Nexus Guidance -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - MT filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+<!-- Economic nexus threshold: $100,000 gross receipts OR 200 transactions in MT -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+"MT filing required due to economic nexus (post-Wayfair)" job.audit_trail swap addto
+
+<!-- Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018) -->
+<!-- Reference: Montana Department of Revenue Economic Nexus Guidance -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No MT nexus - no filing requirement. Any estimated payments refunded." job.audit_trail swap addto
+
+<!-- Reference: Montana Code Annotated § 15-30-2101 (Nexus requirements) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53520: Calculate_MT_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MT_Income_Adjustments</table_name>
+<xls_file>MT_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate MT state-specific additions and subtractions to federal taxable income. Montana starts with federal taxable income and applies state modifications.</COMMENTS>
+<TABLE_NUMBER>53520</TABLE_NUMBER>
+<FILE_PATH>states/MT/53520_Calculate_MT_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MT income adjustments</action_description>
+<action_postfix>
+"MT Income Adjustments Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has MT nexus</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MT state-specific additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate MT state additions -->
+0.0 /additions xdef
+
+<!-- MT requires addback of: -->
+<!-- - Federal interest income (taxable to MT) -->
+<!-- - State tax refunds received during the year -->
+<!-- - IRC 199A deduction (MT does not conform fully) -->
+<!-- - Certain expenses related to exempt income -->
+
+<!-- Example additions (would be calculated from entity fields): -->
+<!-- additions += revenue.federal_bond_interest; -->
+<!-- additions += result.state_tax_refunds; -->
+<!-- additions += result.section_199a_deduction; -->
+
+additions /apportionment.state_additions xdef
+
+<!-- Calculate MT state subtractions -->
+0.0 /subtractions xdef
+
+<!-- MT allows subtraction of: -->
+<!-- - MT municipal bond interest (exempt for MT purposes) -->
+<!-- - State income taxes paid -->
+<!-- - MT net operating loss deduction (subject to MT limitations) -->
+
+<!-- Example subtractions (would be calculated from entity fields): -->
+<!-- subtractions += revenue.mt_municipal_interest; -->
+<!-- subtractions += result.state_taxes_paid; -->
+<!-- subtractions += result.mt_nol_deduction; -->
+
+subtractions /apportionment.state_subtractions xdef
+
+"MT state-specific income adjustments calculated" job.audit_trail swap addto
+
+<!-- Reference: Montana Form CIT Schedule I (Additions to Federal Taxable Income) -->
+<!-- Reference: Montana Form CIT Schedule II (Subtractions from Federal Taxable Income) -->
+<!-- Reference: Montana Code Annotated § 15-30-2120 (Adjustments to federal taxable income) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"No MT nexus - no state adjustments calculated" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 53580: Calculate_MT_State_Tax                                    -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MT_State_Tax</table_name>
+<xls_file>MT_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate MT state corporate income tax. Applies MT 6.75% flat rate (or 7.0% for water's edge election) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>53580</TABLE_NUMBER>
+<FILE_PATH>states/MT/53580_Calculate_MT_State_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize MT state tax calculation</action_description>
+<action_postfix>
+"MT State Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has MT nexus</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Made water's edge election</condition_comment>
+<condition_description>result.mt_waters_edge_election == true</condition_description>
+<condition_postfix>
+result.mt_waters_edge_election true eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MT tax at 6.75% (no water's edge)</action_comment>
+<action_postfix>
+<!-- MT uses 6.75% flat rate (standard rate) -->
+0.0675 /result.mt_effective_rate xdef
+
+apportionment.state_taxable_income result.mt_effective_rate mul
+/apportionment.state_tax xdef
+
+<!-- Subtract MT state credits -->
+<!-- MT offers various credits: jobs creation, research, energy production, infrastructure, etc. -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"MT state tax calculated at 6.75% (standard rate)" job.audit_trail swap addto
+
+<!-- Reference: Montana Form CIT (Corporation Income Tax Return) -->
+<!-- Reference: Montana Code Annotated § 15-30-2101 (Tax rate of 6.75%) -->
+<!-- Reference: Montana Code Annotated § 15-30-2110 (Single-sales apportionment) -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MT tax at 7.0% (water's edge election)</action_comment>
+<action_postfix>
+<!-- MT uses 7.0% rate for water's edge election -->
+0.07 /result.mt_effective_rate xdef
+
+apportionment.state_taxable_income result.mt_effective_rate mul
+/apportionment.state_tax xdef
+
+<!-- Subtract MT state credits -->
+apportionment.state_tax apportionment.state_credits sub 0 max
+/apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"MT state tax calculated at 7.0% (water's edge election)" job.audit_trail swap addto
+
+<!-- Reference: Montana Form CIT (Corporation Income Tax Return) -->
+<!-- Reference: Montana Code Annotated § 15-30-2101 (Tax rate of 7.0% for water's edge) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No MT nexus - no tax liability</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No MT nexus - no tax liability. Any estimated payments refunded." job.audit_trail swap addto
+
+<!-- Reference: Montana Code Annotated § 15-30-2101 (Nexus requirements) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value=""></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>Nexus but no taxable income</action_comment>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No MT taxable income - no tax liability. MT NOL rules may apply." job.audit_trail swap addto
+
+<!-- Reference: Montana Form CIT (Corporation Income Tax Return) -->
+<!-- Reference: Montana Code Annotated § 15-30-2120 (MT NOL provisions) -->
+</action_postfix>
+<action_column column_number="1" column_value=""></action_column>
+<action_column column_number="2" column_value=""></action_column>
+<action_column column_number="3" column_value=""></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

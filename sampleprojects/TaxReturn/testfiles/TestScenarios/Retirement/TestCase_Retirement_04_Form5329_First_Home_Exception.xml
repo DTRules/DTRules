@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Form 5329 - Early Distribution Exception -->
+<!-- Scenario: First-time homebuyer exception to early withdrawal penalty -->
+<!-- Expected: $10,000 distribution taxable but NO penalty -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Form 5329 Part I: First-Time Homebuyer Exception (2025) -->
+   <!-- Taxpayer age 35 takes $10,000 early IRA distribution -->
+   <!-- Uses funds for first-time home purchase (qualified exception) -->
+   <!-- Distribution is taxable but penalty does NOT apply -->
+   <!-- First-time homebuyer exception: up to $10,000 lifetime -->
+   <!-- Early Distribution Penalty: $0 (exception applies) -->
+
+   <id>Retirement-04</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $90,000 W-2 + $10,000 IRA distribution -->
+   <!-- AGI: $100,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable Income: $70,000 -->
+   <!-- Early Distribution Penalty: $0 (first-time homebuyer exception) -->
+   <expected_agi>100000</expected_agi>
+   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_early_withdrawal_penalty>0</expected_early_withdrawal_penalty>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Park</name>
+         <ssn>777-88-9999</ssn>
+         <date_of_birth>5/20/1990</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_primary>true</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <ira_distribution>10000</ira_distribution>
+         <ira_distribution_taxable>10000</ira_distribution_taxable>
+         <early_distribution_first_home>true</early_distribution_first_home>
+         <age>35</age>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Emily Park</name>
+         <ssn>777-88-0000</ssn>
+         <date_of_birth>8/14/1992</date_of_birth>
+         <occupation>Graphic Designer</occupation>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+         <age>33</age>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

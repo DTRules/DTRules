@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Multiple Above-the-Line Deductions Combined -->
+<!-- Scenario: Self-employed taxpayer with multiple adjustments -->
+<!-- Expected: Multiple deductions properly stacked to reduce AGI -->
+<!-- Tests interaction of: SE tax deduction, SEP-IRA, self-employed health insurance, HSA -->
+<job>
+    <id>3539</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Primary SE income: -->
+    <!--   SE gross: $180,000 -->
+    <!--   SE expenses: $30,000 -->
+    <!--   Net SE: $150,000 -->
+    <!--   SE tax: $21,195 (92.35% * $150k * 15.3%) -->
+    <!--   SE tax deduction: $10,598 (50% of SE tax) -->
+    <!-- -->
+    <!-- Spouse W2: $60,000 -->
+    <!-- -->
+    <!-- Total income before adjustments: $150,000 + $60,000 = $210,000 -->
+    <!-- -->
+    <!-- Adjustments: -->
+    <!--   SE tax deduction: $10,598 -->
+    <!--   Self-employed health insurance: $12,000 -->
+    <!--   SEP-IRA: $27,880 (20% of $139,402 net earnings) -->
+    <!--   HSA contribution: $8,550 (family) -->
+    <!--   Traditional IRA (spouse): $7,000 -->
+    <!-- Total adjustments: $66,028 -->
+    <!-- -->
+    <!-- AGI: $210,000 - $66,028 = $143,972 -->
+    <!-- Standard deduction: $30,000 -->
+    <!-- QBI deduction: $20% of $150k SE = $30,000 (limited by taxable income) -->
+    <!-- Taxable: $143,972 - $30,000 - $27,994 (limited QBI) = $85,978 -->
+    <expected_agi>143972</expected_agi>
+    <expected_taxable_income>85978</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Christopher Davis</name>
+            <ssn>333-44-5566</ssn>
+            <date_of_birth>11/12/1976</date_of_birth>
+            <occupation>Management Consultant</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>180000</se_gross_income>
+            <se_business_expenses>30000</se_business_expenses>
+            <sep_ira_contribution>27880</sep_ira_contribution>
+            <self_employed_health_insurance>12000</self_employed_health_insurance>
+            <hsa_contribution>8550</hsa_contribution>
+            <hsa_coverage_type>family</hsa_coverage_type>
+            <estimated_payments>35000</estimated_payments>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Michelle Davis</name>
+            <ssn>444-55-6677</ssn>
+            <date_of_birth>3/8/1978</date_of_birth>
+            <occupation>Nurse</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+            <w2_wages>60000</w2_wages>
+            <w2_withholding>8500</w2_withholding>
+            <has_workplace_retirement_plan>true</has_workplace_retirement_plan>
+            <traditional_ira_contribution>7000</traditional_ira_contribution>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents>
+        <dependent>
+            <id>1</id>
+            <name>Jacob Davis</name>
+            <ssn>555-66-7788</ssn>
+            <date_of_birth>6/20/2015</date_of_birth>
+            <age>10</age>
+            <relationship>child</relationship>
+            <months_lived_with>12</months_lived_with>
+            <has_ssn>true</has_ssn>
+        </dependent>
+        <dependent>
+            <id>2</id>
+            <name>Sophia Davis</name>
+            <ssn>666-77-8899</ssn>
+            <date_of_birth>9/14/2017</date_of_birth>
+            <age>8</age>
+            <relationship>child</relationship>
+            <months_lived_with>12</months_lived_with>
+            <has_ssn>true</has_ssn>
+        </dependent>
+    </dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

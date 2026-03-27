@@ -27,8 +27,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // Stats holds coverage statistics for a single decision table.

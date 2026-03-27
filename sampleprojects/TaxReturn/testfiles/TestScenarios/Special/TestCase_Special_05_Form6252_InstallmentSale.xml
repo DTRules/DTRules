@@ -1,0 +1,163 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!--
+      Test Case: Form 6252 - Installment Sales
+
+      IRC Section 453 - Installment Method
+
+      Rules Tested:
+      - Installment sale: at least one payment received after tax year of sale
+      - Gross profit percentage = (Selling price - Adjusted basis) / Contract price
+      - Each payment: Principal × Gross profit % = Recognized gain
+      - Interest income reported separately as ordinary income
+      - Capital gain treatment (if asset held > 1 year)
+      - Depreciation recapture may apply (Sec 1250)
+
+      Test Scenario:
+      - Sale of rental property on installment plan
+      - Selling price: $400,000
+      - Adjusted basis: $280,000 (original $320k - $40k accumulated depreciation)
+      - Gross profit: $400,000 - $280,000 = $120,000
+      - Contract price: $400,000
+      - Gross profit percentage: $120,000 / $400,000 = 30%
+      - Sale date: 6/1/2025
+      - Down payment (2025): $80,000
+      - Annual payments (2026-2030): $64,000 each year
+      - Interest rate: 5% on unpaid balance
+      - 2025 principal received: $80,000
+      - 2025 recognized gain: $80,000 × 30% = $24,000
+      - 2025 interest income: $7,500 (5% on avg balance for 7 months)
+
+      Expected Results:
+      - Form 6252 required
+      - Capital gain in 2025: $24,000 (from installment sale)
+      - Interest income in 2025: $7,500
+      - Remaining gain deferred to future years
+   -->
+
+   <!-- Tax Return Configuration -->
+   <id>SPECIAL_05</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>AZ</state>
+   <city>Phoenix</city>
+
+   <!-- Expected values for validation -->
+   <!-- Income: $75,000 W-2 + $24,000 LTCG + $7,500 interest = AGI components -->
+   <!-- AGI: $106,500 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $106,500 - $15,000 = $91,500 -->
+   <!-- Tax: $11,642 ordinary + $3,600 LTCG (15% on $24k) = $15,242 -->
+   <!-- Withholding: $7,500 -->
+   <!-- Estimated: $6,000 -->
+   <!-- Total payments: $13,500 -->
+   <!-- Owed: $1,742 -->
+   <expected_agi>106500</expected_agi>
+   <expected_taxable_income>91500</expected_taxable_income>
+   <expected_total_tax>15242</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Patricia Wilson</name>
+         <ssn>567-89-0123</ssn>
+         <date_of_birth>11/3/1975</date_of_birth>
+         <occupation>Real Estate Investor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>75000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>6000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents>
+   </dependents>
+
+   <!-- No current properties (sold the rental) -->
+   <properties>
+   </properties>
+
+   <!-- No vehicles -->
+   <vehicles>
+   </vehicles>
+
+   <!-- Installment Sales -->
+   <installment_sales>
+      <!-- Rental property sold on installment plan -->
+      <sale id="1">
+         <id>1</id>
+         <property_type>rental_property</property_type>
+         <property_address>567 Desert View Lane, Phoenix, AZ 85001</property_address>
+         <sale_date>6/1/2025</sale_date>
+         <selling_price>400000</selling_price>
+         <selling_expenses>12000</selling_expenses>
+         <contract_price>400000</contract_price>
+         <!-- Original purchase and depreciation -->
+         <original_purchase_date>4/1/2018</original_purchase_date>
+         <original_purchase_price>320000</original_purchase_price>
+         <land_value>80000</land_value>
+         <building_value>240000</building_value>
+         <accumulated_depreciation>40000</accumulated_depreciation>
+         <!-- Adjusted basis = Original cost - Accumulated depreciation -->
+         <adjusted_basis>280000</adjusted_basis>
+         <!-- Gross profit = Selling price - Adjusted basis - Selling expenses -->
+         <gross_profit>108000</gross_profit>
+         <!-- Gross profit percentage = Gross profit / Contract price -->
+         <gross_profit_percentage>0.27</gross_profit_percentage>
+         <!-- Payment schedule -->
+         <down_payment>80000</down_payment>
+         <down_payment_date>6/1/2025</down_payment_date>
+         <annual_payment_amount>64000</annual_payment_amount>
+         <number_of_annual_payments>5</number_of_annual_payments>
+         <first_annual_payment_date>6/1/2026</first_annual_payment_date>
+         <interest_rate>0.05</interest_rate>
+         <!-- 2025 calculations -->
+         <principal_received_2025>80000</principal_received_2025>
+         <!-- Recognized gain = Principal × Gross profit % -->
+         <recognized_gain_2025>21600</recognized_gain_2025>
+         <!-- Interest income for 2025 (7 months on unpaid balance) -->
+         <unpaid_balance_after_down>320000</unpaid_balance_after_down>
+         <interest_income_2025>7500</interest_income_2025>
+         <!-- Character of gain -->
+         <holding_period_years>7</holding_period_years>
+         <gain_type>long_term_capital_gain</gain_type>
+         <!-- Depreciation recapture (Sec 1250) -->
+         <depreciation_recapture_amount>0</depreciation_recapture_amount>
+         <unrecaptured_section_1250_gain>21600</unrecaptured_section_1250_gain>
+      </sale>
+   </installment_sales>
+
+   <!-- No other deductions -->
+   <deductions>
+   </deductions>
+
+   <!-- Interest income from installment sale -->
+   <interest_income>
+      <interest id="1">
+         <id>1</id>
+         <description>Installment sale interest income</description>
+         <amount>7500</amount>
+         <payer>Buyer of rental property</payer>
+      </interest>
+   </interest_income>
+</job>

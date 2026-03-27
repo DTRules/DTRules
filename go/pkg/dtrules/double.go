@@ -16,9 +16,13 @@
 package dtrules
 
 import (
+	"math"
 	"strconv"
 	"strings"
 )
+
+// floatEpsilon is the threshold for float equality comparisons
+const floatEpsilon = 1e-9
 
 // RDouble represents a double (float64) value in the rules engine.
 type RDouble struct {
@@ -122,7 +126,7 @@ func (r *RDouble) Equals(o Object) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return r.value == v, nil
+	return math.Abs(r.value-v) < floatEpsilon, nil
 }
 
 // Compare compares this double with another object.
@@ -131,10 +135,11 @@ func (r *RDouble) Compare(o Object) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if r.value == v {
+	diff := r.value - v
+	if math.Abs(diff) < floatEpsilon {
 		return 0, nil
 	}
-	if r.value < v {
+	if diff < 0 {
 		return -1, nil
 	}
 	return 1, nil

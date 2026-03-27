@@ -1,0 +1,91 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Test Case: Form 1116 Foreign Tax Credit -->
+   <!-- US resident with foreign dividends and taxes withheld -->
+
+   <id>FTC-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NY</state>
+   <city>New York</city>
+
+   <!-- Expected values for validation -->
+   <!-- W-2 Wages: $150,000 -->
+   <!-- Foreign Dividends: $20,000 -->
+   <!-- Foreign Taxes Paid: $3,000 -->
+   <!-- Gross Income: $150,000 + $20,000 = $170,000 -->
+   <!-- AGI: $170,000 -->
+   <!-- Standard Deduction: $30,000 -->
+   <!-- Taxable: $170,000 - $30,000 = $140,000 -->
+   <!-- US Tax (approx): $22,000 -->
+   <!-- FTC Limit: $22,000 x ($20,000 / $140,000) = $3,143 -->
+   <!-- FTC Allowed: min($3,000, $3,143) = $3,000 -->
+   <expected_agi>170000</expected_agi>
+   <expected_taxable_income>140000</expected_taxable_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David</name>
+         <ssn>101-12-1314</ssn>
+         <date_of_birth>4/20/1972</date_of_birth>
+         <occupation>Investment Banker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>30000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Lisa</name>
+         <ssn>101-12-1315</ssn>
+         <date_of_birth>11/8/1974</date_of_birth>
+         <occupation>Homemaker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+
+   <!-- Form 1116 Foreign Income -->
+   <foreign_incomes>
+      <foreign_income id="1">
+         <id>1</id>
+         <country>United Kingdom</country>
+         <country_code>GB</country_code>
+         <income_category>passive</income_category>
+         <gross_income>20000</gross_income>
+         <wages>0</wages>
+         <interest>0</interest>
+         <dividends>20000</dividends>
+         <rental_income>0</rental_income>
+         <capital_gains>0</capital_gains>
+         <other_income>0</other_income>
+         <directly_allocable_deductions>0</directly_allocable_deductions>
+         <foreign_taxes_paid>3000</foreign_taxes_paid>
+         <foreign_taxes_accrued>0</foreign_taxes_accrued>
+         <foreign_taxes_withheld>0</foreign_taxes_withheld>
+      </foreign_income>
+   </foreign_incomes>
+</job>

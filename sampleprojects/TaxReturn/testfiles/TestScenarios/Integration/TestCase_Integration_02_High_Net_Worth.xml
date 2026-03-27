@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 02: High Net Worth Individual -->
+<!-- Tests: AMT, NIIT, CTC phaseout, itemized deductions with SALT cap -->
+<!-- Scenario: High-income professional with investment income -->
+<!-- Expected: AMT calculation, 3.8% NIIT on investment income, reduced CTC -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-02-HIGH-NET-WORTH</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>CA</state>
+   <city>Palo Alto</city>
+
+   <!-- Expected values -->
+   <!-- W-2 wages: $450,000 + $150,000 = $600,000 -->
+   <!-- Investment income: $80,000 LTCG + $45,000 qualified div + $15,000 ordinary div + $25,000 interest -->
+   <!-- Total income: $765,000 -->
+   <!-- AGI: $765,000 (no above-the-line deductions) -->
+   <!-- Itemized: $10,000 SALT cap + $28,000 mortgage + $45,000 charity = $83,000 -->
+   <!-- Taxable (regular): $682,000 -->
+   <!-- Regular tax: ~$135,000 (including preferential rates on LTCG and qualified div) -->
+   <!-- AMT: Likely applies due to high SALT and income level -->
+   <!-- NIIT: 3.8% on ($80k + $45k + $15k + $25k) = 3.8% on $165k = $6,270 -->
+   <!-- Additional Medicare Tax: 0.9% on wages over $250k MFJ = 0.9% on $350k = $3,150 -->
+   <!-- CTC: $4,000 for 2 children, but phased out starting at $400k AGI -->
+   <!--       Phaseout: ($765k - $400k) / $1,000 * $50 = $18,250 reduction -->
+   <!--       CTC reduced to $0 (completely phased out) -->
+   <expected_agi>765000</expected_agi>
+   <expected_taxable_income>682000</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Alexander Chen</name>
+         <ssn>300-12-2001</ssn>
+         <date_of_birth>8/15/1975</date_of_birth>
+         <occupation>Venture Capitalist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>450000</w2_wages>
+         <w2_withholding>110000</w2_withholding>
+         <w2_ss_wages>176100</w2_ss_wages>
+         <w2_ss_withheld>10918</w2_ss_withheld>
+         <w2_medicare_wages>450000</w2_medicare_wages>
+         <w2_medicare_withheld>6525</w2_medicare_withheld>
+         <employer_name>Sequoia Capital</employer_name>
+         <employer_ein>94-1234567</employer_ein>
+         <!-- Investment income -->
+         <long_term_gains>80000</long_term_gains>
+         <ordinary_dividends>60000</ordinary_dividends>
+         <qualified_dividends>45000</qualified_dividends>
+         <interest_income>25000</interest_income>
+         <estimated_payments>45000</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Sophia Chen</name>
+         <ssn>300-12-2002</ssn>
+         <date_of_birth>5/22/1978</date_of_birth>
+         <occupation>Surgeon</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>150000</w2_wages>
+         <w2_withholding>35000</w2_withholding>
+         <w2_ss_wages>150000</w2_ss_wages>
+         <w2_ss_withheld>9300</w2_ss_withheld>
+         <w2_medicare_wages>150000</w2_medicare_wages>
+         <w2_medicare_withheld>2175</w2_medicare_withheld>
+         <employer_name>Stanford Hospital</employer_name>
+         <employer_ein>94-2345678</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two young children (CTC eligible but phased out) -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Lucas Chen</name>
+         <ssn>300-12-2003</ssn>
+         <date_of_birth>3/10/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Emma Chen</name>
+         <ssn>300-12-2004</ssn>
+         <date_of_birth>9/18/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- High-value properties -->
+   <properties>
+      <!-- Primary residence -->
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>2500 Sand Hill Road, Palo Alto, CA 94025</address>
+         <purchase_date>6/1/2020</purchase_date>
+         <purchase_price>3500000</purchase_price>
+         <current_fmv>4200000</current_fmv>
+         <mortgage_balance>2800000</mortgage_balance>
+         <mortgage_origination_date>6/1/2020</mortgage_origination_date>
+         <mortgage_interest>126000</mortgage_interest>
+         <property_taxes>48000</property_taxes>
+      </property>
+
+      <!-- Investment property -->
+      <property id="2">
+         <id>2</id>
+         <type>rental</type>
+         <address>1500 Park Avenue, New York, NY 10029</address>
+         <purchase_date>3/1/2018</purchase_date>
+         <purchase_price>1800000</purchase_price>
+         <current_fmv>2200000</current_fmv>
+         <mortgage_balance>1200000</mortgage_balance>
+         <mortgage_origination_date>3/1/2018</mortgage_origination_date>
+         <mortgage_interest>54000</mortgage_interest>
+         <property_taxes>28000</property_taxes>
+         <rental_income>96000</rental_income>
+         <rental_management>9600</rental_management>
+         <rental_insurance>4800</rental_insurance>
+         <rental_repairs>8500</rental_repairs>
+         <depreciation>38000</depreciation>
+      </property>
+   </properties>
+
+   <!-- Itemized deductions -->
+   <deductions>
+      <!-- State and local taxes - capped at $10,000 -->
+      <deduction id="1">
+         <id>1</id>
+         <category>state_income_tax</category>
+         <description>CA state income tax paid</description>
+         <amount>85000</amount>
+      </deduction>
+
+      <!-- Mortgage interest on primary (only) - limited to $750k loan -->
+      <deduction id="2">
+         <id>2</id>
+         <category>mortgage_interest</category>
+         <description>Primary residence mortgage (limited to $750k balance)</description>
+         <amount>28000</amount>
+      </deduction>
+
+      <!-- Charitable contributions -->
+      <deduction id="3">
+         <id>3</id>
+         <category>charity</category>
+         <description>Community Foundation</description>
+         <amount>35000</amount>
+      </deduction>
+
+      <deduction id="4">
+         <id>4</id>
+         <category>charity</category>
+         <description>Stanford University</description>
+         <amount>10000</amount>
+      </deduction>
+   </deductions>
+</job>
