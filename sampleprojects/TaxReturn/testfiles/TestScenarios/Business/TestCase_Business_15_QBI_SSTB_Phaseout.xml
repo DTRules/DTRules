@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 15: QBI Deduction - SSTB Phaseout (Form 8995-A) -->
+<!-- Triggers: Form 8995-A, Schedule K-1, Form 1040 Line 13 -->
+<!-- Tests: QBI deduction phaseout for Specified Service Trade or Business (SSTB) -->
+<job>
+    <id>BUS15-QBI-SSTB-PHASEOUT</id>
+    <tax_year>2025</tax_year>
+    <filing_status>SINGLE</filing_status>
+    <state>CA</state>
+
+    <!-- Expected values -->
+    <!-- Income: $58,000 W2 + $165,000 K-1 QBI (SSTB) = $223,000 -->
+    <!-- AGI: $223,000 -->
+    <!-- Standard Deduction: $15,000 -->
+    <!-- Taxable before QBI: $208,000 -->
+    <!-- AGI $223k is in SSTB phaseout range ($197,300 - $247,300 single) -->
+    <!-- Phaseout: ($223k - $197,300) / $50,000 = 51.4% phased out -->
+    <!-- QBI eligible: $165,000 * (1 - 0.514) = $80,190 -->
+    <!-- 20% of eligible QBI: $80,190 * 0.20 = $16,038 -->
+    <!-- QBI Deduction: $16,038 -->
+    <!-- Taxable: $191,962 ($208k - $16,038) -->
+    <expected_agi>223000</expected_agi>
+    <expected_taxable_income>191962</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Dr. Rachel Green</name>
+            <ssn>400-25-0001</ssn>
+            <date_of_birth>10/28/1980</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>Physician (Partner in Medical Practice)</occupation>
+            <w2_wages>58000</w2_wages>
+            <w2_withholding>8500</w2_withholding>
+            <w2_ss_wages>58000</w2_ss_wages>
+            <w2_medicare_wages>58000</w2_medicare_wages>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from Partnership - SSTB with Phaseout -->
+    <!-- IRC 199A: Specified Service Trade or Business (SSTB) -->
+    <!-- SSTB includes: health, law, accounting, consulting, financial services, etc. -->
+    <!-- Phaseout range (2025 single): $197,300 - $247,300 -->
+    <!-- Above $247,300: No QBI deduction for SSTB -->
+    <!-- In phaseout range: QBI deduction proportionally reduced -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>partnership</source_type>
+            <entity_name>Green Medical Associates LLP</entity_name>
+            <entity_ein>89-0123456</entity_ein>
+            <!-- Box 1: Ordinary business income -->
+            <ordinary_income>165000</ordinary_income>
+            <!-- Box 20: Section 199A QBI -->
+            <qbi_income>165000</qbi_income>
+            <w2_wages_qbi>85000</w2_wages_qbi>
+            <ubia>45000</ubia>
+            <!-- Box 20: SSTB = true (medical practice) -->
+            <sstb>true</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

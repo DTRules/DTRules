@@ -1,0 +1,148 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Foreign Test Case 6: Form 1116 - FTC Limitation (Foreign Tax > US Tax on Foreign Income) -->
+   <!-- Tests: Calculate_Foreign_Tax_Credit -->
+   <!-- Scenario: Foreign tax paid exceeds US tax on same income -->
+   <!-- FTC limited to lesser amount (US tax on foreign income) -->
+   <!-- Excess can be carried forward -->
+   <id>FOREIGN-06</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Tampa</city>
+
+   <!-- Expected values for validation -->
+   <!-- US wages: $80,000 -->
+   <!-- Foreign dividends: $20,000 (from France) -->
+   <!-- Foreign tax paid: $6,000 (France 30% withholding) -->
+   <!-- AGI: $80,000 + $20,000 = $100,000 -->
+   <!-- Standard deduction: $30,000 (MFJ) -->
+   <!-- Taxable: $70,000 -->
+   <!-- Tax before FTC: $8,000 -->
+   <!-- US tax on foreign income calculation: -->
+   <!--   ($20,000 / $100,000) × $8,000 = $1,600 -->
+   <!-- FTC limitation: lesser of $6,000 paid OR $1,600 US tax -->
+   <!-- FTC allowed: $1,600 (limited by US tax) -->
+   <!-- Excess FTC: $4,400 (can carry forward) -->
+   <!-- Final tax: $8,000 - $1,600 = $6,400 -->
+   <expected_agi>100000</expected_agi>
+   <expected_foreign_source_income>20000</expected_foreign_source_income>
+   <expected_foreign_tax_paid>6000</expected_foreign_tax_paid>
+   <expected_foreign_tax_credit>1600</expected_foreign_tax_credit>
+   <expected_foreign_tax_credit_carryforward>4400</expected_foreign_tax_credit_carryforward>
+   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_total_tax>6400</expected_total_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Brian Murphy</name>
+         <ssn>234-11-2222</ssn>
+         <date_of_birth>7/30/1987</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Danielle Murphy</name>
+         <ssn>345-22-3333</ssn>
+         <date_of_birth>9/18/1989</date_of_birth>
+         <occupation>Librarian</occupation>
+         <is_us_citizen>true</is_us_citizen>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>50000</gross_amount>
+         <withholding>7500</withholding>
+         <description>School district employment</description>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>30000</gross_amount>
+         <withholding>4500</withholding>
+         <description>Public library employment</description>
+      </income>
+      <income id="3">
+         <id>3</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>foreign_dividends</type>
+         <gross_amount>20000</gross_amount>
+         <withholding>0</withholding>
+         <foreign_tax_paid>6000</foreign_tax_paid>
+         <foreign_country>France</foreign_country>
+         <description>French stock dividends, 30% tax withheld (Form 1116 - FTC limited)</description>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Ryan Murphy</name>
+         <ssn>456-33-4444</ssn>
+         <date_of_birth>5/12/2019</date_of_birth>
+         <age>6</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>true</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Lily Murphy</name>
+         <ssn>567-44-5555</ssn>
+         <date_of_birth>11/8/2021</date_of_birth>
+         <age>4</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <is_student>false</is_student>
+         <has_ssn>true</has_ssn>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

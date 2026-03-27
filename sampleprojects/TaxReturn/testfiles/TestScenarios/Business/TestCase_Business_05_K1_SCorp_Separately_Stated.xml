@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 05: Schedule K-1 S-Corp - Separately Stated Items -->
+<!-- Triggers: Schedule K-1 (Form 1120-S), Schedule E Part II, Schedule B, Schedule D -->
+<!-- Tests: S-Corp with multiple income types (dividends, interest, capital gains) -->
+<job>
+    <id>BUS05-K1-SCORP-SEPARATELY-STATED</id>
+    <tax_year>2025</tax_year>
+    <filing_status>SINGLE</filing_status>
+    <state>CA</state>
+
+    <!-- Expected values -->
+    <!-- Income: $45,000 W2 + $38,000 K-1 ordinary + $3,500 interest + $2,800 dividends + $8,500 LTCG = $97,800 -->
+    <!-- AGI: $97,800 -->
+    <!-- Standard Deduction: $15,000 -->
+    <!-- QBI: $7,600 (20% of $38,000 S-Corp ordinary income) -->
+    <!-- Taxable: $75,200 ($97,800 - $15k - $7,600) -->
+    <!-- Regular tax + preferential rates on dividends/LTCG -->
+    <expected_agi>97800</expected_agi>
+    <expected_taxable_income>75200</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Patricia Williams</name>
+            <ssn>400-15-0001</ssn>
+            <date_of_birth>9/12/1982</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>S-Corp Owner</occupation>
+            <w2_wages>45000</w2_wages>
+            <w2_withholding>7000</w2_withholding>
+            <w2_ss_wages>45000</w2_ss_wages>
+            <w2_medicare_wages>45000</w2_medicare_wages>
+            <employer_name>Williams Investment Services Inc</employer_name>
+            <employer_ein>56-7890123</employer_ein>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from S-Corp with Separately Stated Items -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>s_corp</source_type>
+            <entity_name>Williams Investment Services Inc</entity_name>
+            <entity_ein>56-7890123</entity_ein>
+            <!-- Box 1: Ordinary business income -->
+            <ordinary_income>38000</ordinary_income>
+            <!-- Box 5: Interest income -->
+            <interest_income>3500</interest_income>
+            <!-- Box 6: Dividends -->
+            <ordinary_dividends>2800</ordinary_dividends>
+            <qualified_dividends>2800</qualified_dividends>
+            <!-- Box 9: Long-term capital gains -->
+            <long_term_gain>8500</long_term_gain>
+            <!-- Box 20: Section 199A QBI (only ordinary income) -->
+            <qbi_income>38000</qbi_income>
+            <w2_wages_qbi>45000</w2_wages_qbi>
+            <ubia>15000</ubia>
+            <sstb>true</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>

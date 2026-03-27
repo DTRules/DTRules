@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Arizona
+
+  Arizona has a flat 2.5% income tax rate with standard deductions that vary by filing status.
+  Standard deductions:
+    - Single: $15,750
+    - Married filing jointly: $31,500
+    - Head of household: $15,750
+
+  Table Number: 40300 (AZ is 3rd state alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 40300: Calculate_AZ_Tax - Arizona State Income Tax              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AZ_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arizona state income tax calculation. Implements flat 2.5% tax structure with standard deductions per AZ tax code (2025).</COMMENTS>
+<TABLE_NUMBER>40300</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Arizona tax calculation</action_description>
+<action_postfix>
+"Arizona Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing status is Single</condition_description>
+<condition_postfix>
+result.filing_status "single" eqs
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Married Filing Jointly</condition_comment>
+<condition_description>Filing status is MFJ</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" eqs
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Filing status is Head of Household</condition_comment>
+<condition_description>Filing status is HOH</condition_description>
+<condition_postfix>
+result.filing_status "head_of_household" eqs
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate AZ tax for Single filer</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.az_standard_deduction_single sub 0 max
+
+<!-- Apply flat 2.5% tax rate -->
+result.az_tax_rate mul
+
+/result.state_tax_liability xdef
+
+"Arizona tax calculated (Single): $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate AZ tax for MFJ</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.az_standard_deduction_joint sub 0 max
+
+<!-- Apply flat 2.5% tax rate -->
+result.az_tax_rate mul
+
+/result.state_tax_liability xdef
+
+"Arizona tax calculated (MFJ): $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate AZ tax for Head of Household</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.az_standard_deduction_hoh sub 0 max
+
+<!-- Apply flat 2.5% tax rate -->
+result.az_tax_rate mul
+
+/result.state_tax_liability xdef
+
+"Arizona tax calculated (HOH): $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 40301: Calculate_AZ_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AZ_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arizona military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per ARS § 43-1022 (2025).</COMMENTS>
+<TABLE_NUMBER>40301</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Arizona military retirement exclusion calculation</action_description>
+<action_postfix>
+"Arizona Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+0 /result.az_military_retirement_exclusion xdef
+0 /result.az_sbp_exclusion xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has military retirement income</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
+<action_postfix>
+<!-- Arizona provides 100% exclusion for military retirement income -->
+taxpayer.military_retirement_pay /result.az_military_retirement_exclusion xdef
+
+<!-- SBP payments are also fully exempt in Arizona -->
+taxpayer.sbp_payments 0 gt
+{
+  taxpayer.sbp_payments /result.az_sbp_exclusion xdef
+} if
+
+<!-- Calculate total military exclusion -->
+result.az_military_retirement_exclusion result.az_sbp_exclusion add
+/result.az_total_military_exclusion xdef
+
+<!-- Reduce Arizona taxable income by the exclusion -->
+result.agi result.az_total_military_exclusion sub 0 max
+/result.az_adjusted_agi xdef
+
+<!-- Audit trail -->
+"Arizona military retirement exclusion: $" result.az_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
+result.az_sbp_exclusion 0 gt
+{
+  "Arizona SBP exclusion: $" result.az_sbp_exclusion cvs strconcat job.audit_trail swap addto
+} if
+"Arizona total military exclusion: $" result.az_total_military_exclusion cvs strconcat job.audit_trail swap addto
+
+<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
+<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

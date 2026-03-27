@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Alimony Paid (Pre-2019 Divorce) -->
+<!-- Scenario: Taxpayer paying alimony under pre-2019 divorce decree (still deductible) -->
+<!-- Expected: Full alimony deduction for pre-2019 divorces -->
+<!-- Note: Post-2018 divorces (TCJA) are NOT deductible -->
+<!-- AGI before adjustments: $95,000 -->
+<!-- AGI after alimony: $71,000 -->
+<job>
+    <id>3538</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Income: $95,000 W2 -->
+    <!-- Alimony paid: $24,000 (divorce finalized 2017, still deductible) -->
+    <!-- AGI: $95,000 - $24,000 (alimony) = $71,000 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $56,000 -->
+    <expected_agi>71000</expected_agi>
+    <expected_taxable_income>56000</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Steven Harris</name>
+            <ssn>222-33-4455</ssn>
+            <date_of_birth>9/30/1972</date_of_birth>
+            <occupation>Sales Manager</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>95000</w2_wages>
+            <w2_withholding>14000</w2_withholding>
+            <alimony_paid>24000</alimony_paid>
+            <divorce_date>6/15/2017</divorce_date>
+            <ex_spouse_ssn>333-44-5566</ex_spouse_ssn>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>
