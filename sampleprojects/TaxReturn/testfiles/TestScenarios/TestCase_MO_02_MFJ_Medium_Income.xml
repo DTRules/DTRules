@@ -1,0 +1,115 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- MO Test Case 2: Married Filing Jointly with Medium Income - Testing Middle Brackets -->
+   <id>MO-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>MO</state>
+   <city>St. Louis</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Federal AGI: $75,000 -->
+   <!-- MO AGI: $75,000 -->
+   <!-- MO Standard Deduction: $31,500 (MFJ) -->
+   <!-- MO Taxable Income: $43,500 -->
+   <!-- MO Tax Calculation (cumulative through all 8 brackets):
+        - Bracket 1 (0% on $0-$1,313): $0
+        - Bracket 2 (2% on $1,314-$2,626): $1,313 × 2% = $26.26
+        - Bracket 3 (2.5% on $2,627-$3,939): $1,313 × 2.5% = $32.83
+        - Bracket 4 (3% on $3,940-$5,252): $1,313 × 3% = $39.39
+        - Bracket 5 (3.5% on $5,253-$6,565): $1,313 × 3.5% = $45.96
+        - Bracket 6 (4% on $6,566-$7,878): $1,313 × 4% = $52.52
+        - Bracket 7 (4.5% on $7,879-$9,191): $1,313 × 4.5% = $59.09
+        - Bracket 8 (4.7% on $9,192-$43,500): $34,309 × 4.7% = $1,612.52
+        Total: $1,868.57
+   -->
+   <expected_agi>75000</expected_agi>
+   <expected_mo_agi>75000</expected_mo_agi>
+   <expected_mo_taxable_income>43500</expected_mo_taxable_income>
+   <expected_mo_tax>1868.57</expected_mo_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Williams</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/22/1988</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Williams</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/3/1990</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>45000</gross_amount>
+         <withholding>6000</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>30000</gross_amount>
+         <withholding>4000</withholding>
+      </income>
+   </incomes>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Emily Williams</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>5/15/2018</date_of_birth>
+         <relationship>daughter</relationship>
+         <lived_with_you>true</lived_with_you>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

@@ -1078,17 +1078,6 @@
 		<field name='nh_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0750' comment='NH tax rate bracket 3 (7.5%)'></field>
 		<field name='nh_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='75000' comment='NH bracket 2 threshold (above this uses 5%)'></field>
 		<field name='nh_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='150000' comment='NH bracket 3 threshold (above this uses 7.5%)'></field>
-		<!-- Kansas State Tax Constants (2025) - Senate Bill 1 -->
-		<field name='ks_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='9765' comment='KS standard deduction Single (2025)'></field>
-		<field name='ks_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='26540' comment='KS standard deduction MFJ (2025)'></field>
-		<field name='ks_personal_exemption_single' type='double' subtype='' access='r' input='' default_value='9160' comment='KS personal exemption for single filers (2025)'></field>
-		<field name='ks_personal_exemption_mfj' type='double' subtype='' access='r' input='' default_value='18320' comment='KS personal exemption for MFJ (2025)'></field>
-		<field name='ks_dependent_exemption' type='double' subtype='' access='r' input='' default_value='2320' comment='KS exemption per dependent (2025)'></field>
-		<field name='ks_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='KS tax rate bracket 1 (5.20%)'></field>
-		<field name='ks_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0558' comment='KS tax rate bracket 2 (5.58%)'></field>
-		<field name='ks_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='23000' comment='KS bracket 2 threshold Single (above this uses 5.58%)'></field>
-		<field name='ks_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='46000' comment='KS bracket 2 threshold MFJ (above this uses 5.58%)'></field>
-
 
 		<!-- New York State Tax Constants (2025) -->
 		<field name='ny_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8000' comment='NY standard deduction for single filers (2025)'></field>
@@ -1126,6 +1115,37 @@
 		<field name='ny_rate7' type='double' subtype='' access='r' input='' default_value='0.0965' comment='NY tax rate 7 (9.65%)'></field>
 		<field name='ny_rate8' type='double' subtype='' access='r' input='' default_value='0.103' comment='NY tax rate 8 (10.3%)'></field>
 		<field name='ny_rate9' type='double' subtype='' access='r' input='' default_value='0.109' comment='NY tax rate 9 (10.9%)'></field>
+		<!-- Kansas State Tax Constants (2025) - Senate Bill 1 -->
+		<field name='ks_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='9765' comment='KS standard deduction Single (2025)'></field>
+		<field name='ks_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='26540' comment='KS standard deduction MFJ (2025)'></field>
+		<field name='ks_personal_exemption_single' type='double' subtype='' access='r' input='' default_value='9160' comment='KS personal exemption for single filers (2025)'></field>
+		<field name='ks_personal_exemption_mfj' type='double' subtype='' access='r' input='' default_value='18320' comment='KS personal exemption for MFJ (2025)'></field>
+		<field name='ks_dependent_exemption' type='double' subtype='' access='r' input='' default_value='2320' comment='KS exemption per dependent (2025)'></field>
+		<field name='ks_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0520' comment='KS tax rate bracket 1 (5.20%)'></field>
+		<field name='ks_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0558' comment='KS tax rate bracket 2 (5.58%)'></field>
+		<field name='ks_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='23000' comment='KS bracket 2 threshold Single (above this uses 5.58%)'></field>
+		<field name='ks_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='46000' comment='KS bracket 2 threshold MFJ (above this uses 5.58%)'></field>
+
+
+		<!-- Missouri State Tax Constants (2025) - Progressive Tax per Form MO-1040 -->
+		<field name='mo_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='15750' comment='MO standard deduction Single (2025)'></field>
+		<field name='mo_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='31500' comment='MO standard deduction MFJ (2025)'></field>
+		<field name='mo_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='23625' comment='MO standard deduction Head of Household (2025)'></field>
+		<field name='mo_bracket_1_threshold' type='double' subtype='' access='r' input='' default_value='1313' comment='MO bracket 1 threshold ($0-$1,313 at 0%)'></field>
+		<field name='mo_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='2626' comment='MO bracket 2 threshold ($1,314-$2,626 at 2%)'></field>
+		<field name='mo_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='3939' comment='MO bracket 3 threshold ($2,627-$3,939 at 2.5%)'></field>
+		<field name='mo_bracket_4_threshold' type='double' subtype='' access='r' input='' default_value='5252' comment='MO bracket 4 threshold ($3,940-$5,252 at 3%)'></field>
+		<field name='mo_bracket_5_threshold' type='double' subtype='' access='r' input='' default_value='6565' comment='MO bracket 5 threshold ($5,253-$6,565 at 3.5%)'></field>
+		<field name='mo_bracket_6_threshold' type='double' subtype='' access='r' input='' default_value='7878' comment='MO bracket 6 threshold ($6,566-$7,878 at 4%)'></field>
+		<field name='mo_bracket_7_threshold' type='double' subtype='' access='r' input='' default_value='9191' comment='MO bracket 7 threshold ($7,879-$9,191 at 4.5%)'></field>
+		<field name='mo_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0000' comment='MO tax rate bracket 1 (0%)'></field>
+		<field name='mo_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0200' comment='MO tax rate bracket 2 (2%)'></field>
+		<field name='mo_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0250' comment='MO tax rate bracket 3 (2.5%)'></field>
+		<field name='mo_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0300' comment='MO tax rate bracket 4 (3%)'></field>
+		<field name='mo_bracket_5_rate' type='double' subtype='' access='r' input='' default_value='0.0350' comment='MO tax rate bracket 5 (3.5%)'></field>
+		<field name='mo_bracket_6_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='MO tax rate bracket 6 (4%)'></field>
+		<field name='mo_bracket_7_rate' type='double' subtype='' access='r' input='' default_value='0.0450' comment='MO tax rate bracket 7 (4.5%)'></field>
+		<field name='mo_bracket_8_rate' type='double' subtype='' access='r' input='' default_value='0.0470' comment='MO tax rate bracket 8 (4.7%)'></field>
 
 		<!-- Georgia State Tax Constants (2025) -->
 		<field name='ga_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0519' comment='Georgia flat tax rate (5.19%)'></field>
@@ -1892,6 +1912,14 @@
 		<field name='nh_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 2 tax (5%)'></field>
 		<field name='nh_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='NH bracket 3 tax (7.5%)'></field>
 		<field name='nh_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New Hampshire state income tax'></field>
+
+		<!-- New York State Tax Results -->
+		<field name='ny_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New York AGI (federal AGI + adjustments)'></field>
+		<field name='ny_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NY standard deduction applied'></field>
+		<field name='ny_dependent_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total NY dependent exemptions'></field>
+		<field name='ny_pension_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='NY pension income subtraction applied'></field>
+		<field name='ny_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New York taxable income'></field>
+		<field name='ny_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New York state income tax'></field>
 		<!-- Kansas State Tax Results -->
 		<field name='ks_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Kansas AGI (federal AGI + adjustments)'></field>
 		<field name='ks_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='KS standard deduction amount'></field>
@@ -1902,13 +1930,19 @@
 		<field name='ks_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Kansas state income tax'></field>
 
 
-		<!-- New York State Tax Results -->
-		<field name='ny_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='New York AGI (federal AGI + adjustments)'></field>
-		<field name='ny_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NY standard deduction applied'></field>
-		<field name='ny_dependent_exemption_total' type='double' subtype='' access='rw' input='' default_value='0' comment='Total NY dependent exemptions'></field>
-		<field name='ny_pension_subtraction' type='double' subtype='' access='rw' input='' default_value='0' comment='NY pension income subtraction applied'></field>
-		<field name='ny_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='New York taxable income'></field>
-		<field name='ny_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='New York state income tax'></field>
+		<!-- Missouri State Tax Results -->
+		<field name='mo_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Missouri AGI (federal AGI)'></field>
+		<field name='mo_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MO standard deduction amount'></field>
+		<field name='mo_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Missouri taxable income'></field>
+		<field name='mo_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 1 tax (0%)'></field>
+		<field name='mo_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 2 tax (2%)'></field>
+		<field name='mo_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 3 tax (2.5%)'></field>
+		<field name='mo_bracket_4_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 4 tax (3%)'></field>
+		<field name='mo_bracket_5_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 5 tax (3.5%)'></field>
+		<field name='mo_bracket_6_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 6 tax (4%)'></field>
+		<field name='mo_bracket_7_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 7 tax (4.5%)'></field>
+		<field name='mo_bracket_8_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MO bracket 8 tax (4.7%)'></field>
+		<field name='mo_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Missouri state income tax'></field>
 
 		<!-- Georgia State Tax Results -->
 		<field name='ga_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Georgia AGI (federal AGI + adjustments)'></field>
