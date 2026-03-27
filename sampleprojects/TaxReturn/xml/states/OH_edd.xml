@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Ohio (OH)
+
+  Ohio has a progressive income tax with 3 brackets:
+  - 0% on first $26,050 (exemption amount)
+  - 2.75% on income from $26,051 to $100,000
+  - 3.125% on income above $100,000
+
+  Ohio uses personal exemptions rather than standard deductions.
+  Personal exemption amounts vary by MAGI (Modified Adjusted Gross Income):
+  - $2,350 if MAGI ≤ $40,000
+  - $2,100 if $40,000 < MAGI ≤ $80,000
+  - $1,850 if MAGI > $80,000
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Ohio state tax constants -->
+  <entity name="result">
+    <!-- Tax exemption threshold -->
+    <field name="oh_exemption_threshold" type="double" default_value="26050.0"
+           comment="OH tax exemption threshold - first $26,050 is tax-free (2025)"/>
+
+    <!-- Progressive tax brackets -->
+    <field name="oh_bracket_1_limit" type="double" default_value="26050.0"
+           comment="OH tax bracket 1 upper limit - 0% rate applies (2025)"/>
+    <field name="oh_bracket_1_rate" type="double" default_value="0.0"
+           comment="OH tax rate for bracket 1 - 0% (2025)"/>
+
+    <field name="oh_bracket_2_limit" type="double" default_value="100000.0"
+           comment="OH tax bracket 2 upper limit (2025)"/>
+    <field name="oh_bracket_2_rate" type="double" default_value="0.0275"
+           comment="OH tax rate for bracket 2 - 2.75% (2025)"/>
+
+    <field name="oh_bracket_3_rate" type="double" default_value="0.03125"
+           comment="OH tax rate for bracket 3 (income > $100,000) - 3.125% (2025)"/>
+
+    <!-- Personal exemptions by MAGI -->
+    <field name="oh_exemption_low" type="double" default_value="2350.0"
+           comment="OH personal exemption if MAGI under or equal to $40,000 (2025)"/>
+    <field name="oh_exemption_mid" type="double" default_value="2100.0"
+           comment="OH personal exemption if MAGI between $40,000 and $80,000 (2025)"/>
+    <field name="oh_exemption_high" type="double" default_value="1850.0"
+           comment="OH personal exemption if MAGI over $80,000 (2025)"/>
+
+    <field name="oh_exemption_magi_threshold_low" type="double" default_value="40000.0"
+           comment="OH MAGI threshold for low exemption (2025)"/>
+    <field name="oh_exemption_magi_threshold_mid" type="double" default_value="80000.0"
+           comment="OH MAGI threshold for mid exemption (2025)"/>
+
+  </entity>
+</entity_data_dictionary>

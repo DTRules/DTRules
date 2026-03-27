@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 06: US Citizen Working Abroad -->
+<!-- Tests: Foreign Earned Income Exclusion (Form 2555), Foreign Tax Credit (Form 1116) -->
+<!-- Scenario: US citizen working in Singapore, physical presence test -->
+<!-- Expected: FEIE exclusion up to $126,500, FTC for taxes paid to Singapore -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-06-FOREIGN-WORKER</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>WA</state>
+   <city>Seattle</city>
+
+   <!-- Expected values -->
+   <!-- Foreign earned income: $158,000 -->
+   <!-- FEIE: $126,500 (2025 limit) -->
+   <!-- Foreign housing exclusion: ~$12,000 (excess over base) -->
+   <!-- Remaining taxable income: $158k - $126.5k - $12k = $19,500 -->
+   <!-- Foreign taxes paid: $18,000 -->
+   <!-- US income: $8,000 interest (US source) -->
+   <!-- AGI: $19,500 + $8,000 = $27,500 -->
+   <!-- Standard deduction: $15,000 (single) -->
+   <!-- Taxable: $12,500 -->
+   <!-- Tax: ~$1,250 (10% bracket) -->
+   <!-- FTC: Reduces tax (limited to US tax on foreign income) -->
+   <expected_agi>27500</expected_agi>
+   <expected_taxable_income>12500</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Brandon Lee</name>
+         <ssn>300-16-6001</ssn>
+         <date_of_birth>10/18/1988</date_of_birth>
+         <occupation>Software Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_us_citizen>true</is_us_citizen>
+         <!-- Foreign employment -->
+         <foreign_earned_income>158000</foreign_earned_income>
+         <foreign_employer_name>Google Asia Pacific</foreign_employer_name>
+         <foreign_country>Singapore</foreign_country>
+         <days_abroad>342</days_abroad>
+         <foreign_address>50 Pasir Panjang Road, Singapore 117405</foreign_address>
+         <foreign_taxes_paid>18000</foreign_taxes_paid>
+         <foreign_tax_country>Singapore</foreign_tax_country>
+         <physical_presence_test_satisfied>true</physical_presence_test_satisfied>
+         <!-- US source income -->
+         <interest_income>8000</interest_income>
+         <estimated_payments>3000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- Foreign housing -->
+   <foreign_housing_expenses>
+      <foreign_housing_expense id="1">
+         <id>1</id>
+         <description>Apartment rent in Singapore</description>
+         <amount>42000</amount>
+      </foreign_housing_expense>
+
+      <foreign_housing_expense id="2">
+         <id>2</id>
+         <description>Utilities</description>
+         <amount>4800</amount>
+      </foreign_housing_expense>
+   </foreign_housing_expenses>
+
+   <!-- Foreign income exclusion details -->
+   <foreign_income_exclusion>
+      <earned_income>158000</earned_income>
+      <feie_amount>126500</feie_amount>
+      <housing_expenses>46800</housing_expenses>
+      <housing_base_amount>20160</housing_base_amount>
+      <housing_exclusion>12000</housing_exclusion>
+      <days_qualifying>342</days_qualifying>
+      <days_in_year>365</days_in_year>
+   </foreign_income_exclusion>
+
+   <!-- Foreign tax credit details -->
+   <foreign_tax_credit>
+      <foreign_country>Singapore</foreign_country>
+      <foreign_income>158000</foreign_income>
+      <foreign_taxes_paid>18000</foreign_taxes_paid>
+      <foreign_taxes_accrued>18000</foreign_taxes_accrued>
+      <income_category>general_income</income_category>
+   </foreign_tax_credit>
+
+   <!-- Deductions -->
+   <deductions>
+      <deduction id="1">
+         <id>1</id>
+         <category>charity</category>
+         <description>International Red Cross</description>
+         <amount>2000</amount>
+      </deduction>
+   </deductions>
+</job>

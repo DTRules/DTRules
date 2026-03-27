@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Decision tables for Guam (GU) Territory Tax
+
+  Guam uses a "mirror code" system - mirrors the US Internal Revenue Code.
+  Bona fide residents file with Guam Department of Revenue and Taxation, use federal tax rates.
+  Non-residents use Form 5074 for income allocation.
+
+  FILE_PATH: sampleprojects/TaxReturn/xml/states/GU_dt.xml
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 50200: Calculate_GU_Tax - Guam Territory Tax                    -->
+<!-- Reference: Guam Mirror Code, Form 5074, IRC Section 935               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_GU_Tax</table_name>
+<xls_file>Territory.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Guam territory income tax calculation. Guam uses mirror code system - same rates as federal tax. Bona fide residents file with Guam Department of Revenue and Taxation instead of IRS. Non-residents use Form 5074 for income allocation per IRC 935.</COMMENTS>
+<TABLE_NUMBER>50200</TABLE_NUMBER>
+<FILE_PATH>sampleprojects/TaxReturn/xml/states/GU_dt.xml</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize GU tax calculation</action_description>
+<action_postfix>
+"GUAM TERRITORY TAX - Mirror Code System" job.audit_trail swap addto
+"  Uses federal tax rates and rules (IRC mirror)" job.audit_trail swap addto
+0.0 /result.gu_income_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Bona fide resident of Guam</condition_comment>
+<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_postfix>
+result.gu_days_present 183 &gt;=
+result.gu_has_tax_home and
+result.gu_closer_connection and
+dup /result.gu_bona_fide_resident xdef
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate GU tax for bona fide resident using mirror code</action_comment>
+<action_postfix>
+true /result.gu_files_with_drt xdef
+false /result.gu_files_with_irs xdef
+
+result.federal_income_tax /result.gu_income_tax xdef
+
+"  Bona fide Guam resident - files with Guam DRT" job.audit_trail swap addto
+"  Mirror code: uses federal tax rates (" result.filing_status strconcat ")" strconcat job.audit_trail swap addto
+"  Guam tax liability: $" result.gu_income_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Non-resident - requires Form 5074 for allocation</action_comment>
+<action_postfix>
+false /result.gu_bona_fide_resident xdef
+true /result.gu_requires_form_5074 xdef
+true /result.gu_files_with_irs xdef
+
+result.gu_source_income 0 &gt; if
+  result.federal_income_tax result.gu_source_income f* result.agi f/ /result.gu_income_tax xdef
+  "  Non-resident with Guam source income - Form 5074 required" job.audit_trail swap addto
+  "  Guam tax allocated based on Guam-source income: $" result.gu_source_income cvs strconcat job.audit_trail swap addto
+  "  Guam tax liability: $" result.gu_income_tax cvs strconcat job.audit_trail swap addto
+else
+  0.0 /result.gu_income_tax xdef
+  "  Non-resident with no Guam source income - no Guam tax" job.audit_trail swap addto
+then
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Guam territory tax for bona fide residents using mirror code</policy_description>
+<policy_statement_postfix>"Bona fide Guam residents file with Guam Department of Revenue and Taxation instead of IRS per IRC 935. Guam uses mirror code system with same rates as federal tax."</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Non-resident allocation using Form 5074</policy_description>
+<policy_statement_postfix>"Non-bona fide residents with Guam-source income must file Form 5074 to allocate income between Guam and US. Tax allocated proportionally based on Guam-source income. Must meet 183-day presence test for bona fide resident status."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+</decision_tables>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule SE - Multiple Businesses -->
+<!-- Scenario: Taxpayer with two businesses - consulting + rental real estate -->
+<!-- Combined Net SE Income: $135,000 (consulting) + $22,000 (rental) = $157,000 -->
+<!-- Expected: SE tax $21,579 (15.3% on $92.35% of $157k = $144,990, capped at SS wage base) -->
+<!-- SE deduction: $10,790 (50% of SE tax) -->
+<job>
+    <id>AdditionalTaxes_03</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>CO</state>
+
+    <!-- Expected results -->
+    <!-- AGI: $157,000 - $10,790 SE deduction = $146,210 -->
+    <!-- Deduction: $15,000 standard -->
+    <!-- QBI: $31,400 (20% of $157,000 net SE income) -->
+    <!-- Taxable: $146,210 - $15,000 - $31,400 = $99,810 -->
+    <!-- Income tax: ~$17,373 -->
+    <!-- SE tax: $21,579 -->
+    <!-- Total tax: $38,952 -->
+    <expected_agi>146210</expected_agi>
+    <expected_taxable_income>99810</expected_taxable_income>
+    <expected_total_tax>38952</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Diana Patel</name>
+            <ssn>456-78-9012</ssn>
+            <date_of_birth>09/08/1982</date_of_birth>
+            <occupation>Business Consultant</occupation>
+            <is_self_employed>true</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>0</w2_wages>
+            <w2_withholding>0</w2_withholding>
+            <se_gross_income>175000</se_gross_income>
+            <estimated_payments>35000</estimated_payments>
+        </taxpayer>
+    </taxpayers>
+
+    <expenses>
+        <!-- Consulting business expenses -->
+        <expense>
+            <id>1</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Travel and transportation</description>
+            <amount>15000</amount>
+        </expense>
+        <expense>
+            <id>2</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Professional services and subscriptions</description>
+            <amount>8000</amount>
+        </expense>
+        <expense>
+            <id>3</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Office expenses</description>
+            <amount>6000</amount>
+        </expense>
+        <expense>
+            <id>4</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Business insurance</description>
+            <amount>4000</amount>
+        </expense>
+        <expense>
+            <id>5</id>
+            <taxpayer_id>1</taxpayer_id>
+            <category>business_expense</category>
+            <description>Continuing education</description>
+            <amount>7000</amount>
+        </expense>
+    </expenses>
+
+    <properties>
+        <!-- Rental property managed as business -->
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <address>789 Mountain View Drive, Denver, CO 80202</address>
+            <purchase_date>01/15/2020</purchase_date>
+            <purchase_price>350000</purchase_price>
+            <current_fmv>425000</current_fmv>
+            <mortgage_balance>245000</mortgage_balance>
+            <mortgage_origination_date>01/15/2020</mortgage_origination_date>
+            <mortgage_interest>11500</mortgage_interest>
+            <property_taxes>4800</property_taxes>
+            <rental_income>42000</rental_income>
+            <rental_insurance>2200</rental_insurance>
+            <rental_repairs>4500</rental_repairs>
+            <rental_utilities>1200</rental_utilities>
+            <rental_management>3600</rental_management>
+            <depreciation>10200</depreciation>
+        </property>
+    </properties>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

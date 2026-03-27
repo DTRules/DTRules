@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Test 04: Schedule K-1 S-Corp - Ordinary Income Distribution -->
+<!-- Triggers: Schedule K-1 (Form 1120-S), Schedule E Part II, Form 8995 QBI -->
+<!-- Tests: S-Corp ordinary income (not subject to SE tax) -->
+<job>
+    <id>BUS04-K1-SCORP-ORDINARY</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected values -->
+    <!-- Income: $72,000 W2 (from S-Corp) + $55,000 K-1 distribution = $127,000 -->
+    <!-- AGI: $127,000 (no SE tax on S-Corp distributions) -->
+    <!-- Standard Deduction: $30,000 -->
+    <!-- QBI: $11,000 (20% of $55,000 S-Corp income) -->
+    <!-- Taxable: $86,000 ($127k - $30k - $11k) -->
+    <!-- Tax: ~$9,716 -->
+    <expected_agi>127000</expected_agi>
+    <expected_taxable_income>86000</expected_taxable_income>
+    <expected_total_tax>9716</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer id="1">
+            <id>1</id>
+            <name>Thomas Anderson</name>
+            <ssn>400-14-0001</ssn>
+            <date_of_birth>4/25/1978</date_of_birth>
+            <is_primary>true</is_primary>
+            <occupation>S-Corp Owner/Employee</occupation>
+            <!-- Reasonable salary from S-Corp -->
+            <w2_wages>72000</w2_wages>
+            <w2_withholding>10500</w2_withholding>
+            <w2_ss_wages>72000</w2_ss_wages>
+            <w2_medicare_wages>72000</w2_medicare_wages>
+            <employer_name>Anderson Consulting Inc</employer_name>
+            <employer_ein>78-9012345</employer_ein>
+        </taxpayer>
+        <taxpayer id="2">
+            <id>2</id>
+            <name>Jennifer Anderson</name>
+            <ssn>400-14-0002</ssn>
+            <date_of_birth>7/30/1980</date_of_birth>
+            <is_primary>false</is_primary>
+            <occupation>Teacher</occupation>
+        </taxpayer>
+    </taxpayers>
+
+    <!-- Schedule K-1 from S-Corporation -->
+    <k1_incomes>
+        <k1_income id="1">
+            <id>1</id>
+            <source_type>s_corp</source_type>
+            <entity_name>Anderson Consulting Inc</entity_name>
+            <entity_ein>78-9012345</entity_ein>
+            <!-- Box 1: Ordinary business income (not subject to SE tax) -->
+            <ordinary_income>55000</ordinary_income>
+            <!-- Box 20: Section 199A QBI -->
+            <qbi_income>55000</qbi_income>
+            <w2_wages_qbi>72000</w2_wages_qbi>
+            <ubia>25000</ubia>
+            <sstb>false</sstb>
+            <!-- Other boxes zero -->
+            <rental_income>0</rental_income>
+            <other_rental_income>0</other_rental_income>
+            <guaranteed_payments_services>0</guaranteed_payments_services>
+            <guaranteed_payments_capital>0</guaranteed_payments_capital>
+            <interest_income>0</interest_income>
+            <ordinary_dividends>0</ordinary_dividends>
+            <qualified_dividends>0</qualified_dividends>
+            <royalties>0</royalties>
+            <short_term_gain>0</short_term_gain>
+            <long_term_gain>0</long_term_gain>
+            <section_1231_gain>0</section_1231_gain>
+            <se_earnings>0</se_earnings>
+        </k1_income>
+    </k1_incomes>
+
+    <dependents></dependents>
+    <properties></properties>
+    <deductions></deductions>
+</job>
