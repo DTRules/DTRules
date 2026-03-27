@@ -1,62 +1,77 @@
-# Makefile for DTRules NASM VM
-# Build and test assembly-based virtual machine
+# DTRules NASM VM - Makefile
+# Copyright 2024 Paul Snow - Apache License 2.0
 
 NASM = nasm
+NASMFLAGS = -f elf64 -g -F dwarf -I include/
 LD = ld
+AR = ar
 
-NASM_FLAGS = -f elf64 -g -F dwarf -I ./
-LD_FLAGS = -nostdlib
-
-SRC_DIR = src
-INC_DIR = include
-TEST_DIR = test
-BUILD_DIR = build
-
-# Include files
-INC_FILES = $(wildcard $(INC_DIR)/*.inc)
+SRCDIR = src
+INCDIR = include
+TESTDIR = test
+BUILDDIR = build
 
 # Source files
-VM_SRCS = $(SRC_DIR)/vm_core.asm $(SRC_DIR)/data.asm
-HARNESS_SRC = $(SRC_DIR)/test_harness.asm
+SRCS = $(SRCDIR)/vm_core.asm \
+       $(SRCDIR)/vm_entry.asm \
+       $(SRCDIR)/vm_jump_table.asm \
+       $(SRCDIR)/vm_trace.asm
 
 # Object files
-VM_OBJS = $(BUILD_DIR)/vm_core.o $(BUILD_DIR)/data.o
-HARNESS_OBJ = $(BUILD_DIR)/test_harness.o
+OBJS = $(BUILDDIR)/vm_core.o \
+       $(BUILDDIR)/vm_entry.o \
+       $(BUILDDIR)/vm_jump_table.o \
+       $(BUILDDIR)/vm_trace.o
 
-# Test executables
-TEST_COMPARISON = $(BUILD_DIR)/test_comparison
+# Library output
+LIB = $(BUILDDIR)/libdtrules_vm.a
+
+# Test files
+TEST_SRCS = $(wildcard $(TESTDIR)/*.asm)
+TEST_OBJS = $(TEST_SRCS:$(TESTDIR)/%.asm=$(BUILDDIR)/test_%.o)
+TEST_BINS = $(TEST_SRCS:$(TESTDIR)/%.asm=$(BUILDDIR)/test_%)
 
 .PHONY: all clean test
 
-all: $(BUILD_DIR) $(TEST_COMPARISON)
+all: $(BUILDDIR) $(LIB)
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
 
-# Compile VM core
-$(BUILD_DIR)/vm_core.o: $(SRC_DIR)/vm_core.asm $(INC_FILES)
-	$(NASM) $(NASM_FLAGS) -o $@ $<
+$(LIB): $(OBJS)
+	$(AR) rcs $@ $^
 
-# Compile data segment
-$(BUILD_DIR)/data.o: $(SRC_DIR)/data.asm $(INC_FILES)
-	$(NASM) $(NASM_FLAGS) -o $@ $<
+$(BUILDDIR)/vm_core.o: $(SRCDIR)/vm_core.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Compile test harness
-$(BUILD_DIR)/test_harness.o: $(SRC_DIR)/test_harness.asm $(INC_FILES)
-	$(NASM) $(NASM_FLAGS) -o $@ $<
+$(BUILDDIR)/vm_entry.o: $(SRCDIR)/vm_entry.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Compile comparison tests
-$(BUILD_DIR)/test_comparison.o: $(TEST_DIR)/test_comparison.asm $(INC_FILES)
-	$(NASM) $(NASM_FLAGS) -o $@ $<
+$(BUILDDIR)/vm_jump_table.o: $(SRCDIR)/vm_jump_table.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Link comparison test
-$(TEST_COMPARISON): $(VM_OBJS) $(HARNESS_OBJ) $(BUILD_DIR)/test_comparison.o
-	$(LD) $(LD_FLAGS) -o $@ $^
+$(BUILDDIR)/vm_trace.o: $(SRCDIR)/vm_trace.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
-# Run tests
-test: $(TEST_COMPARISON)
-	@echo "Running comparison tests..."
-	@./$(TEST_COMPARISON) && echo "Comparison tests passed!" || (echo "Comparison tests FAILED"; exit 1)
+# Test targets
+test: $(BUILDDIR) $(TEST_BINS)
+	@echo "Running tests..."
+	@for test in $(TEST_BINS); do \
+		echo "  Running $$test"; \
+		$$test && echo "    PASS" || echo "    FAIL"; \
+	done
+
+$(BUILDDIR)/test_%: $(BUILDDIR)/test_%.o $(LIB)
+	$(LD) -o $@ $< $(LIB) -lc --dynamic-linker /lib64/ld-linux-x86-64.so.2
+
+$(BUILDDIR)/test_%.o: $(TESTDIR)/%.asm $(INCDIR)/dtrules.inc
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILDDIR)
+
+# Show info
+info:
+	@echo "Sources: $(SRCS)"
+	@echo "Objects: $(OBJS)"
+	@echo "Library: $(LIB)"
