@@ -23,22 +23,24 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // RulesConfig holds configuration for a rule set to be compared.
+// It reads a DTRules.xml configuration file to locate the EDD, decision
+// tables, and mapping files for a given rule set.
 type RulesConfig struct {
-	RuleSetName    string
-	Path           string
-	ConfigFile     string
-	Description    string
-	XMLPath        string
-	DTSPath        string
-	EDDPath        string
-	MappingPath    string
-	dtsRoot        *XMLNode
-	eddRoot        *XMLNode
-	mappingRoot    *XMLNode
+	RuleSetName string // Name of the rule set within the config file
+	Path        string // Base directory for the project
+	ConfigFile  string // DTRules configuration file name (e.g. "DTRules.xml")
+	Description string // Human-readable description (e.g. "development" or "deployed")
+	XMLPath     string // Relative path to compiled XML files
+	DTSPath     string // Decision tables filename
+	EDDPath     string // EDD filename
+	MappingPath string // Mapping filename
+	dtsRoot     *XMLNode
+	eddRoot     *XMLNode
+	mappingRoot *XMLNode
 }
 
 // NewRulesConfig creates a new rules configuration.
@@ -211,12 +213,13 @@ func (rc *RulesConfig) loadXML(filename string) (*XMLNode, error) {
 	return ParseXMLTree(file)
 }
 
-// XMLNode represents a node in an XML tree for comparison.
+// XMLNode represents a node in an XML tree used for structural comparison
+// of EDD, decision table, and mapping files between rule set versions.
 type XMLNode struct {
-	Name       string
-	Attributes map[string]string
-	Body       string
-	Children   []*XMLNode
+	Name       string            // XML element name
+	Attributes map[string]string // XML attributes
+	Body       string            // Text content of the element
+	Children   []*XMLNode        // Child elements
 }
 
 // ParseXMLTree parses an XML file into an XMLNode tree.
