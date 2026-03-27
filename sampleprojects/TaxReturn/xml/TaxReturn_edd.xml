@@ -1046,7 +1046,20 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "SD" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
-		<!-- Illinois State Tax Constants (2025) -->
+<!-- Alabama State Tax Constants (2025) -->
+		<field name='al_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.02' comment='Alabama tax rate bracket 1: 2%'></field>
+		<field name='al_tax_rate_2' type='double' subtype='' access='r' input='' default_value='0.04' comment='Alabama tax rate bracket 2: 4%'></field>
+		<field name='al_tax_rate_3' type='double' subtype='' access='r' input='' default_value='0.05' comment='Alabama tax rate bracket 3: 5%'></field>
+		<field name='al_bracket_1_single' type='double' subtype='' access='r' input='' default_value='500' comment='Alabama bracket 1 ceiling Single/MFS: $500'></field>
+		<field name='al_bracket_2_single' type='double' subtype='' access='r' input='' default_value='3000' comment='Alabama bracket 2 ceiling Single/MFS: $3,000'></field>
+		<field name='al_bracket_1_mfj' type='double' subtype='' access='r' input='' default_value='1000' comment='Alabama bracket 1 ceiling MFJ: $1,000'></field>
+		<field name='al_bracket_2_mfj' type='double' subtype='' access='r' input='' default_value='6000' comment='Alabama bracket 2 ceiling MFJ: $6,000'></field>
+		<field name='al_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='4500' comment='Alabama standard deduction Single/MFS (2025)'></field>
+		<field name='al_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='11500' comment='Alabama standard deduction MFJ/HOH (2025)'></field>
+		<field name='al_personal_exemption_single' type='double' subtype='' access='r' input='' default_value='1500' comment='Alabama personal exemption Single/MFS (2025)'></field>
+		<field name='al_personal_exemption_mfj' type='double' subtype='' access='r' input='' default_value='3000' comment='Alabama personal exemption MFJ/HOH (2025)'></field>
+
+<!-- Illinois State Tax Constants (2025) -->
 		<field name='il_tax_rate' type='double' subtype='' access='r' input='' default_value='0.0495' comment='Illinois flat tax rate (4.95%)'></field>
 		<field name='il_personal_exemption' type='double' subtype='' access='r' input='' default_value='2775' comment='Illinois personal exemption per person (2025)'></field>
 
@@ -1622,6 +1635,10 @@
 		<!-- Net Operating Loss -->
 		<field name='nol_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL deduction used this year'></field>
 		<field name='nol_carryforward_remaining' type='double' subtype='' access='rw' input='' default_value='0' comment='NOL carryforward to future years'></field>
+
+		<!-- State Tax -->
+		<field name='al_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Alabama taxable income after state deductions/exemptions'></field>
+		<field name='al_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Alabama state income tax'></field>
 
 		<!-- Final -->
 		<field name='total_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Total tax after credits (Form 1040 Line 24)'></field>
