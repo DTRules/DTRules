@@ -21,7 +21,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // jsonDataLoader loads JSON data into entities using the mapping configuration.

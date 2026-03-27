@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Hawaii
+
+  HI implements progressive tax with 12 brackets (1.40% to 11%).
+  Married filing jointly brackets are doubled.
+
+  Table Number: 41100 (HI is state #11 alphabetically)
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 41100: Calculate_HI_Tax - Hawaii State Income Tax              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_HI_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Hawaii state income tax calculation. Implements progressive tax structure with 12 brackets per Hawaii Department of Taxation (2025).</COMMENTS>
+<TABLE_NUMBER>41100</TABLE_NUMBER>
+<FILE_PATH>states/HI/41100_Calculate_HI_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Hawaii tax calculation</action_description>
+<action_postfix>
+"Hawaii Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.hi_state_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Filing status is Single -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Single</condition_comment>
+<condition_description>Filing Status is Single</condition_description>
+<condition_postfix>
+result.filing_status "single" strcasecmp 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Filing status is Married Filing Jointly -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Married Filing Jointly</condition_comment>
+<condition_description>Filing Status is MFJ</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Calculate HI tax for Single filers -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate HI tax for Single filers using progressive brackets</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.hi_standard_deduction_single sub 0 max
+dup /hi_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /hi_tax xdef
+
+<!-- Bracket 1: First $9,600 @ 1.40% -->
+hi_taxable_income result.hi_bracket_1_limit min
+result.hi_bracket_1_rate mul
+/hi_tax xdef
+
+<!-- Bracket 2: $9,600 to $14,400 @ 3.20% -->
+hi_taxable_income result.hi_bracket_1_limit gt
+{
+  hi_taxable_income result.hi_bracket_2_limit min result.hi_bracket_1_limit sub
+  result.hi_bracket_2_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 3: $14,400 to $19,200 @ 5.50% -->
+hi_taxable_income result.hi_bracket_2_limit gt
+{
+  hi_taxable_income result.hi_bracket_3_limit min result.hi_bracket_2_limit sub
+  result.hi_bracket_3_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 4: $19,200 to $24,000 @ 6.40% -->
+hi_taxable_income result.hi_bracket_3_limit gt
+{
+  hi_taxable_income result.hi_bracket_4_limit min result.hi_bracket_3_limit sub
+  result.hi_bracket_4_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 5: $24,000 to $36,000 @ 6.80% -->
+hi_taxable_income result.hi_bracket_4_limit gt
+{
+  hi_taxable_income result.hi_bracket_5_limit min result.hi_bracket_4_limit sub
+  result.hi_bracket_5_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 6: $36,000 to $48,000 @ 7.20% -->
+hi_taxable_income result.hi_bracket_5_limit gt
+{
+  hi_taxable_income result.hi_bracket_6_limit min result.hi_bracket_5_limit sub
+  result.hi_bracket_6_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 7: $48,000 to $125,000 @ 7.60% -->
+hi_taxable_income result.hi_bracket_6_limit gt
+{
+  hi_taxable_income result.hi_bracket_7_limit min result.hi_bracket_6_limit sub
+  result.hi_bracket_7_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 8: $125,000 to $175,000 @ 7.90% -->
+hi_taxable_income result.hi_bracket_7_limit gt
+{
+  hi_taxable_income result.hi_bracket_8_limit min result.hi_bracket_7_limit sub
+  result.hi_bracket_8_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 9: $175,000 to $225,000 @ 8.25% -->
+hi_taxable_income result.hi_bracket_8_limit gt
+{
+  hi_taxable_income result.hi_bracket_9_limit min result.hi_bracket_8_limit sub
+  result.hi_bracket_9_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 10: $225,000 to $275,000 @ 9.00% -->
+hi_taxable_income result.hi_bracket_9_limit gt
+{
+  hi_taxable_income result.hi_bracket_10_limit min result.hi_bracket_9_limit sub
+  result.hi_bracket_10_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 11: $275,000 to $325,000 @ 10.00% -->
+hi_taxable_income result.hi_bracket_10_limit gt
+{
+  hi_taxable_income result.hi_bracket_11_limit min result.hi_bracket_10_limit sub
+  result.hi_bracket_11_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 12: Over $325,000 @ 11.00% -->
+hi_taxable_income result.hi_bracket_11_limit gt
+{
+  hi_taxable_income result.hi_bracket_11_limit sub
+  result.hi_bracket_12_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Store result -->
+hi_tax /result.hi_state_tax xdef
+hi_tax /result.state_tax_liability xdef
+
+"Hawaii tax calculated (Single): $" result.hi_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Calculate HI tax for Married Filing Jointly -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate HI tax for Married Filing Jointly using progressive brackets</action_comment>
+<action_postfix>
+<!-- Calculate taxable income: AGI - standard deduction -->
+result.agi result.hi_standard_deduction_joint sub 0 max
+dup /hi_taxable_income xdef
+
+<!-- Initialize tax to 0 -->
+0.0 /hi_tax xdef
+
+<!-- Bracket 1: First $19,200 @ 1.40% -->
+hi_taxable_income result.hi_bracket_1_limit_joint min
+result.hi_bracket_1_rate mul
+/hi_tax xdef
+
+<!-- Bracket 2: $19,200 to $28,800 @ 3.20% -->
+hi_taxable_income result.hi_bracket_1_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_2_limit_joint min result.hi_bracket_1_limit_joint sub
+  result.hi_bracket_2_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 3: $28,800 to $38,400 @ 5.50% -->
+hi_taxable_income result.hi_bracket_2_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_3_limit_joint min result.hi_bracket_2_limit_joint sub
+  result.hi_bracket_3_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 4: $38,400 to $48,000 @ 6.40% -->
+hi_taxable_income result.hi_bracket_3_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_4_limit_joint min result.hi_bracket_3_limit_joint sub
+  result.hi_bracket_4_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 5: $48,000 to $72,000 @ 6.80% -->
+hi_taxable_income result.hi_bracket_4_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_5_limit_joint min result.hi_bracket_4_limit_joint sub
+  result.hi_bracket_5_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 6: $72,000 to $96,000 @ 7.20% -->
+hi_taxable_income result.hi_bracket_5_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_6_limit_joint min result.hi_bracket_5_limit_joint sub
+  result.hi_bracket_6_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 7: $96,000 to $250,000 @ 7.60% -->
+hi_taxable_income result.hi_bracket_6_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_7_limit_joint min result.hi_bracket_6_limit_joint sub
+  result.hi_bracket_7_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 8: $250,000 to $350,000 @ 7.90% -->
+hi_taxable_income result.hi_bracket_7_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_8_limit_joint min result.hi_bracket_7_limit_joint sub
+  result.hi_bracket_8_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 9: $350,000 to $450,000 @ 8.25% -->
+hi_taxable_income result.hi_bracket_8_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_9_limit_joint min result.hi_bracket_8_limit_joint sub
+  result.hi_bracket_9_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 10: $450,000 to $550,000 @ 9.00% -->
+hi_taxable_income result.hi_bracket_9_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_10_limit_joint min result.hi_bracket_9_limit_joint sub
+  result.hi_bracket_10_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 11: $550,000 to $650,000 @ 10.00% -->
+hi_taxable_income result.hi_bracket_10_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_11_limit_joint min result.hi_bracket_10_limit_joint sub
+  result.hi_bracket_11_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Bracket 12: Over $650,000 @ 11.00% -->
+hi_taxable_income result.hi_bracket_11_limit_joint gt
+{
+  hi_taxable_income result.hi_bracket_11_limit_joint sub
+  result.hi_bracket_12_rate mul
+  hi_tax add /hi_tax xdef
+} if
+
+<!-- Store result -->
+hi_tax /result.hi_state_tax xdef
+hi_tax /result.state_tax_liability xdef
+
+"Hawaii tax calculated (MFJ): $" result.hi_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 41101: Calculate_HI_Military_Retirement_Exclusion               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_HI_Military_Retirement_Exclusion</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Hawaii military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. National Guard/Reserve pay exempt up to $8,636 (2025). Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per HI Rev. Stat. § 235-7 (2025).</COMMENTS>
+<TABLE_NUMBER>41101</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Hawaii military retirement exclusion calculation</action_description>
+<action_postfix>
+"Hawaii Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
+0 /result.hi_military_retirement_exclusion xdef
+0 /result.hi_sbp_exclusion xdef
+0 /result.hi_guard_reserve_exclusion xdef
+8636 /result.hi_guard_reserve_limit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer has military retirement income</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+taxpayer.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply full exclusion for military retirement pay and limited exclusion for Guard/Reserve pay</action_comment>
+<action_postfix>
+<!-- Hawaii provides 100% exclusion for military retirement income -->
+taxpayer.military_retirement_pay /result.hi_military_retirement_exclusion xdef
+
+<!-- SBP payments are also fully exempt in Hawaii -->
+taxpayer.sbp_payments 0 gt
+{
+  taxpayer.sbp_payments /result.hi_sbp_exclusion xdef
+} if
+
+<!-- National Guard/Reserve drill pay excluded up to $8,636 (2025) -->
+taxpayer.military_drill_pay 0 gt
+{
+  taxpayer.military_drill_pay result.hi_guard_reserve_limit min
+  /result.hi_guard_reserve_exclusion xdef
+} if
+
+<!-- Calculate total military exclusion -->
+result.hi_military_retirement_exclusion result.hi_sbp_exclusion add result.hi_guard_reserve_exclusion add
+/result.hi_total_military_exclusion xdef
+
+<!-- Reduce Hawaii taxable income by the exclusion -->
+result.agi result.hi_total_military_exclusion sub 0 max
+/result.hi_adjusted_agi xdef
+
+<!-- Audit trail -->
+"Hawaii military retirement exclusion: $" result.hi_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
+result.hi_sbp_exclusion 0 gt
+{
+  "Hawaii SBP exclusion: $" result.hi_sbp_exclusion cvs strconcat job.audit_trail swap addto
+} if
+result.hi_guard_reserve_exclusion 0 gt
+{
+  "Hawaii Guard/Reserve pay exclusion (up to $8,636): $" result.hi_guard_reserve_exclusion cvs strconcat job.audit_trail swap addto
+} if
+"Hawaii total military exclusion: $" result.hi_total_military_exclusion cvs strconcat job.audit_trail swap addto
+
+<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
+<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

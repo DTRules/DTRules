@@ -21,8 +21,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
 )
 
 // DefaultMaxJSONSize is the default maximum size for JSON input (10 MB).

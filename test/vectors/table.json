@@ -1,0 +1,147 @@
+{
+  "name": "Table Operations",
+  "description": "Test vectors for hash table operators (newtable, tableget, tableput, etc.)",
+  "tests": [
+    {
+      "name": "newtable_empty",
+      "description": "Create empty table",
+      "operator": "newtable",
+      "inputs": [],
+      "expected": {},
+      "type": "table"
+    },
+    {
+      "name": "tableput_single",
+      "description": "Put single key-value pair",
+      "operator": "tableput",
+      "table": {},
+      "key": "name",
+      "value": "John",
+      "expected": {"name": "John"},
+      "type": "table"
+    },
+    {
+      "name": "tableput_multiple",
+      "description": "Put multiple key-value pairs",
+      "operator": "tableput",
+      "table": {"name": "John"},
+      "key": "age",
+      "value": 30,
+      "expected": {"name": "John", "age": 30},
+      "type": "table"
+    },
+    {
+      "name": "tableput_overwrite",
+      "description": "Overwrite existing key",
+      "operator": "tableput",
+      "table": {"name": "John"},
+      "key": "name",
+      "value": "Jane",
+      "expected": {"name": "Jane"},
+      "type": "table"
+    },
+    {
+      "name": "tableget_existing",
+      "description": "Get existing key",
+      "operator": "tableget",
+      "table": {"name": "John", "age": 30},
+      "key": "name",
+      "expected": "John",
+      "type": "string"
+    },
+    {
+      "name": "tableget_integer",
+      "description": "Get integer value",
+      "operator": "tableget",
+      "table": {"name": "John", "age": 30},
+      "key": "age",
+      "expected": 30,
+      "type": "integer"
+    },
+    {
+      "name": "tableget_missing",
+      "description": "Get missing key returns null",
+      "operator": "tableget",
+      "table": {"name": "John"},
+      "key": "missing",
+      "expected": null,
+      "type": "null"
+    },
+    {
+      "name": "tablecontains_true",
+      "description": "Table contains key",
+      "operator": "tablecontains",
+      "table": {"name": "John", "age": 30},
+      "key": "name",
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "tablecontains_false",
+      "description": "Table does not contain key",
+      "operator": "tablecontains",
+      "table": {"name": "John"},
+      "key": "missing",
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "tableremove_existing",
+      "description": "Remove existing key",
+      "operator": "tableremove",
+      "table": {"name": "John", "age": 30},
+      "key": "age",
+      "expected": {"name": "John"},
+      "type": "table"
+    },
+    {
+      "name": "tableremove_missing",
+      "description": "Remove missing key (no change)",
+      "operator": "tableremove",
+      "table": {"name": "John"},
+      "key": "missing",
+      "expected": {"name": "John"},
+      "type": "table"
+    },
+    {
+      "name": "tablesize_empty",
+      "description": "Size of empty table",
+      "operator": "tablesize",
+      "table": {},
+      "expected": 0,
+      "type": "integer"
+    },
+    {
+      "name": "tablesize_single",
+      "description": "Size of single entry table",
+      "operator": "tablesize",
+      "table": {"name": "John"},
+      "expected": 1,
+      "type": "integer"
+    },
+    {
+      "name": "tablesize_multiple",
+      "description": "Size of multiple entry table",
+      "operator": "tablesize",
+      "table": {"name": "John", "age": 30, "city": "NYC"},
+      "expected": 3,
+      "type": "integer"
+    },
+    {
+      "name": "tablekeys_basic",
+      "description": "Get all keys from table",
+      "operator": "tablekeys",
+      "table": {"a": 1, "b": 2, "c": 3},
+      "expected_count": 3,
+      "type": "array"
+    },
+    {
+      "name": "tablevalues_basic",
+      "description": "Get all values from table",
+      "operator": "tablevalues",
+      "table": {"a": 1, "b": 2, "c": 3},
+      "expected_count": 3,
+      "type": "array"
+    }
+  ]
+}

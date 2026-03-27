@@ -15,7 +15,7 @@
 package interpreter
 
 import (
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // ExecuteBytecode executes a bytecode chunk on the state's value stack.
@@ -155,8 +155,24 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 			if err != nil {
 				return err
 			}
-			if err := s.ValuePush(a.Div(b)); err != nil {
-				return err
+			// Integer division for integers, float division otherwise
+			if a.IsInteger() && b.IsInteger() {
+				bVal := b.AsInteger()
+				if bVal == 0 {
+					return dtrules.NewRulesError("Division By Zero", "OpDiv", "cannot divide by zero")
+				}
+				if err := s.ValuePush(dtrules.NewValueInteger(a.AsInteger() / bVal)); err != nil {
+					return err
+				}
+			} else {
+				// Use TryDiv to check for division by zero (returns error instead of Inf/NaN)
+				result, divErr := a.TryDiv(b)
+				if divErr != nil {
+					return dtrules.NewRulesError("Division By Zero", "OpDiv", "cannot divide by zero")
+				}
+				if err := s.ValuePush(result); err != nil {
+					return err
+				}
 			}
 		case dtrules.OpNeg:
 			a, err := s.ValuePop()
@@ -187,6 +203,44 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 			}
 			if err := s.ValuePush(dtrules.NewValueInteger(a.AsInteger() - 1)); err != nil {
 				return err
+			}
+		case dtrules.OpMod:
+			b, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			bVal := b.AsInteger()
+			if bVal == 0 {
+				return dtrules.NewRulesError("Division By Zero", "OpMod", "cannot mod by zero")
+			}
+			if err := s.ValuePush(dtrules.NewValueInteger(a.AsInteger() % bVal)); err != nil {
+				return err
+			}
+		case dtrules.OpAbs:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			if a.IsInteger() {
+				v := a.AsInteger()
+				if v < 0 {
+					v = -v
+				}
+				if err := s.ValuePush(dtrules.NewValueInteger(v)); err != nil {
+					return err
+				}
+			} else {
+				v := a.AsDouble()
+				if v < 0 {
+					v = -v
+				}
+				if err := s.ValuePush(dtrules.NewValueDouble(v)); err != nil {
+					return err
+				}
 			}
 
 		// Comparison operations

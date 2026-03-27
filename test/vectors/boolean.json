@@ -1,0 +1,142 @@
+{
+  "name": "Boolean Operations",
+  "description": "Test vectors for boolean operators (and, or, not, xor)",
+  "tests": [
+    {
+      "name": "and_true_true",
+      "description": "AND of true and true",
+      "operator": "and",
+      "inputs": [true, true],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "and_true_false",
+      "description": "AND of true and false",
+      "operator": "and",
+      "inputs": [true, false],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "and_false_true",
+      "description": "AND of false and true",
+      "operator": "and",
+      "inputs": [false, true],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "and_false_false",
+      "description": "AND of false and false",
+      "operator": "and",
+      "inputs": [false, false],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "or_true_true",
+      "description": "OR of true and true",
+      "operator": "or",
+      "inputs": [true, true],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "or_true_false",
+      "description": "OR of true and false",
+      "operator": "or",
+      "inputs": [true, false],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "or_false_true",
+      "description": "OR of false and true",
+      "operator": "or",
+      "inputs": [false, true],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "or_false_false",
+      "description": "OR of false and false",
+      "operator": "or",
+      "inputs": [false, false],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "not_true",
+      "description": "NOT of true",
+      "operator": "not",
+      "inputs": [true],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "not_false",
+      "description": "NOT of false",
+      "operator": "not",
+      "inputs": [false],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "xor_true_true",
+      "description": "XOR of true and true",
+      "operator": "xor",
+      "inputs": [true, true],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "xor_true_false",
+      "description": "XOR of true and false",
+      "operator": "xor",
+      "inputs": [true, false],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "xor_false_true",
+      "description": "XOR of false and true",
+      "operator": "xor",
+      "inputs": [false, true],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "xor_false_false",
+      "description": "XOR of false and false",
+      "operator": "xor",
+      "inputs": [false, false],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "beq_true_true",
+      "description": "Boolean equals true and true",
+      "operator": "beq",
+      "inputs": [true, true],
+      "expected": true,
+      "type": "boolean"
+    },
+    {
+      "name": "beq_true_false",
+      "description": "Boolean equals true and false",
+      "operator": "beq",
+      "inputs": [true, false],
+      "expected": false,
+      "type": "boolean"
+    },
+    {
+      "name": "beq_false_false",
+      "description": "Boolean equals false and false",
+      "operator": "beq",
+      "inputs": [false, false],
+      "expected": true,
+      "type": "boolean"
+    }
+  ]
+}

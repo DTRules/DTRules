@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // Trace provides analysis capabilities for DTRules trace files.

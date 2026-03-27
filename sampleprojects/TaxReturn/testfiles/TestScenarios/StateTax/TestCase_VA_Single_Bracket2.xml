@@ -1,0 +1,58 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Virginia State Tax Test Case - Single Filer, Bracket 2 -->
+   <!-- Test that a single filer with income spanning brackets 1-2 is taxed correctly -->
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>VA</state>
+   <city>Richmond</city>
+
+   <!-- Expected values for validation -->
+   <!-- AGI: $15,000 -->
+   <!-- Standard deduction: $8,750 (Single) -->
+   <!-- Personal exemption: $930 (1 person) -->
+   <!-- VA Taxable income: $15,000 - $8,750 - $930 = $5,320 -->
+   <!-- Tax calculation (VA brackets):
+        - Bracket 1 ($0-$3,000 @ 2%): $3,000 × 0.02 = $60.00
+        - Bracket 2 ($3,000-$5,000 @ 3%): ($5,000 - $3,000) × 0.03 = $60.00
+        - Bracket 3 ($5,000-$5,320 @ 5%): ($5,320 - $5,000) × 0.05 = $16.00
+        - Total: $60.00 + $60.00 + $16.00 = $136.00
+   -->
+   <expected_agi>15000</expected_agi>
+   <expected_taxable_income>5320</expected_taxable_income>
+   <expected_va_state_tax>136.00</expected_va_state_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <!-- Single filer with modest income -->
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Emily Thompson</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>7/14/1995</date_of_birth>
+         <occupation>Office Assistant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>15000</w2_wages>
+         <w2_withholding>800</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+</job>

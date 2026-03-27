@@ -19,7 +19,7 @@ package entity
 import (
 	"fmt"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 // EntityEntry holds attribute type and metadata for an entity attribute.

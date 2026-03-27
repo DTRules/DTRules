@@ -25,9 +25,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/interpreter"
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // TestHarness provides test execution and comparison capabilities for DTRules.

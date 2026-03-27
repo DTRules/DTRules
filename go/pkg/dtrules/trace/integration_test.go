@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // getTestDataPath returns the path to the sample project test data.

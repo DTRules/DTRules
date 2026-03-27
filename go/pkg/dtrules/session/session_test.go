@@ -15,11 +15,12 @@
 package session
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules"
+	"github.com/DTRules/DTRules/go/pkg/dtrules"
 )
 
 func TestNewRuleSet(t *testing.T) {
@@ -310,6 +311,8 @@ func TestSessionGetRuleSet(t *testing.T) {
 	}
 }
 
+// JSON loading tests (from PR #159)
+
 func TestLoadEDDJSON(t *testing.T) {
 	rs := NewRuleSet("test")
 
@@ -524,5 +527,184 @@ func TestNewRuleSetInvalidName(t *testing.T) {
 	rs := NewRuleSet(".invalid")
 	if rs != nil {
 		t.Error("Expected nil for invalid rule set name")
+	}
+}
+
+// File loading tests (from 5.0-SNAPSHOT)
+
+func TestLoadEDDFile(t *testing.T) {
+	// Create a temporary EDD file
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="testentity" access="rw" comment="">
+		<field name="testentity" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference"></field>
+		<field name="value" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+	</entity>
+</entity_data_dictionary>`
+
+	tmpFile := "/tmp/test_edd.xml"
+	err := os.WriteFile(tmpFile, []byte(eddXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile)
+
+	rs := NewRuleSet("test")
+	err = rs.LoadEDDFile(tmpFile)
+	if err != nil {
+		t.Fatalf("LoadEDDFile failed: %v", err)
+	}
+
+	// Verify entity was loaded
+	names := rs.GetEntityNames()
+	found := false
+	for _, name := range names {
+		if name.StringValue() == "testentity" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Expected 'testentity' to be loaded")
+	}
+}
+
+func TestLoadDecisionTablesFile(t *testing.T) {
+	// Create a simple decision table
+	dtXML := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+	<decision_table>
+		<table_name>TestTable</table_name>
+		<attribute_fields>
+			<TABLE_NUMBER>1000</TABLE_NUMBER>
+		</attribute_fields>
+		<initial_actions></initial_actions>
+		<conditions></conditions>
+		<actions></actions>
+	</decision_table>
+</decision_tables>`
+
+	tmpFile := "/tmp/test_dt.xml"
+	err := os.WriteFile(tmpFile, []byte(dtXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile)
+
+	rs := NewRuleSet("test")
+
+	// Need minimal EDD for DT to work
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="result" access="rw" comment="">
+		<field name="result" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference"></field>
+	</entity>
+</entity_data_dictionary>`
+	rs.LoadEDD(strings.NewReader(eddXML))
+
+	err = rs.LoadDecisionTablesFile(tmpFile)
+	if err != nil {
+		t.Fatalf("LoadDecisionTablesFile failed: %v", err)
+	}
+
+	// Verify DT was loaded
+	dtNames := rs.GetDecisionTableNames()
+	if len(dtNames) == 0 {
+		t.Error("No decision tables loaded")
+		return
+	}
+	found := false
+	for _, name := range dtNames {
+		if name.StringValue() == "TestTable" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Expected 'TestTable' to be loaded")
+	}
+}
+
+func TestLoadRulesFromFiles(t *testing.T) {
+	// Create EDD file
+	eddXML := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="item" access="rw" comment="">
+		<field name="item" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference"></field>
+		<field name="count" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+	</entity>
+</entity_data_dictionary>`
+
+	eddFile := "/tmp/test_edd2.xml"
+	err := os.WriteFile(eddFile, []byte(eddXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create EDD file: %v", err)
+	}
+	defer os.Remove(eddFile)
+
+	// Create DT file
+	dtXML := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+	<decision_table>
+		<table_name>TestTable2</table_name>
+		<attribute_fields>
+			<TABLE_NUMBER>1000</TABLE_NUMBER>
+		</attribute_fields>
+		<initial_actions></initial_actions>
+		<conditions></conditions>
+		<actions></actions>
+	</decision_table>
+</decision_tables>`
+
+	dtFile := "/tmp/test_dt2.xml"
+	err = os.WriteFile(dtFile, []byte(dtXML), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create DT file: %v", err)
+	}
+	defer os.Remove(dtFile)
+
+	// Load using convenience function
+	rs, err := LoadRulesFromFiles("test", eddFile, dtFile)
+	if err != nil {
+		t.Fatalf("LoadRulesFromFiles failed: %v", err)
+	}
+
+	if rs == nil {
+		t.Fatal("LoadRulesFromFiles returned nil")
+	}
+
+	// Verify name
+	if rs.GetName().StringValue() != "test" {
+		t.Errorf("Expected name 'test', got '%s'", rs.GetName().StringValue())
+	}
+
+	// Verify entity loaded
+	names := rs.GetEntityNames()
+	foundEntity := false
+	for _, name := range names {
+		if name.StringValue() == "item" {
+			foundEntity = true
+			break
+		}
+	}
+	if !foundEntity {
+		t.Error("Expected 'item' entity to be loaded")
+	}
+
+	// Verify DT loaded
+	dtNames := rs.GetDecisionTableNames()
+	if len(dtNames) == 0 {
+		t.Error("No decision tables loaded")
+		return
+	}
+	foundDT := false
+	for _, name := range dtNames {
+		if name.StringValue() == "TestTable2" {
+			foundDT = true
+			break
+		}
+	}
+	if !foundDT {
+		t.Error("Expected 'TestTable2' to be loaded")
 	}
 }

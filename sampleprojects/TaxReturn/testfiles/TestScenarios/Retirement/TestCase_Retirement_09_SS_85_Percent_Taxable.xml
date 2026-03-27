@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Social Security 85% Taxable -->
+<!-- Scenario: Provisional income exceeds 85% threshold -->
+<!-- Expected: Maximum 85% of benefits taxable -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Social Security Taxability - 85% Taxable (2025) -->
+   <!-- Publication 915: Social Security and Equivalent Railroad Retirement Benefits -->
+   <!-- Provisional Income = AGI + Tax-exempt interest + 50% of SS benefits -->
+   <!-- 85% tier: Provisional income > $34,000 (Single) or > $44,000 (MFJ) -->
+   <!-- This scenario (Single): -->
+   <!-- - SS benefits: $30,000 -->
+   <!-- - Pension income: $35,000 -->
+   <!-- - Investment income: $8,000 -->
+   <!-- - Provisional income: $43,000 + ($30,000 × 50%) = $58,000 -->
+   <!-- - $58,000 > $34,000 → 85% tier applies -->
+   <!-- - Calculate taxable amount using 85% formula: -->
+   <!--   Lesser of: -->
+   <!--   (a) 85% of benefits = $25,500 -->
+   <!--   (b) 85% × ($58,000 - $34,000) + smaller of: -->
+   <!--       - $4,500 (50% × $9,000 excess over $25k) -->
+   <!--       - $6,000 (50% of $12,000 first-tier benefits) -->
+   <!--       = $20,400 + $4,500 = $24,900 -->
+   <!-- - Taxable SS = $24,900 (lesser amount) -->
+
+   <id>Retirement-09</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+
+   <!-- Income: $35,000 pension + $8,000 dividends + $24,900 taxable SS -->
+   <!-- Provisional Income: $58,000 -->
+   <!-- AGI: $67,900 -->
+   <!-- Standard Deduction: $15,000 + $1,950 (senior) = $16,950 -->
+   <!-- Taxable Income: $50,950 -->
+   <expected_agi>67900</expected_agi>
+   <expected_taxable_income>50950</expected_taxable_income>
+   <expected_ss_taxable>24900</expected_ss_taxable>
+   <expected_provisional_income>58000</expected_provisional_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Patricia Anderson</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>9/20/1956</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_primary>true</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <social_security_income>30000</social_security_income>
+         <age>69</age>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>pension</type>
+         <source>Corporate Pension</source>
+         <gross_amount>35000</gross_amount>
+         <tax_withheld>4000</tax_withheld>
+         <is_earned>false</is_earned>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>qualified_dividend</type>
+         <source>Investment Portfolio</source>
+         <gross_amount>8000</gross_amount>
+         <tax_withheld>0</tax_withheld>
+         <is_earned>false</is_earned>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

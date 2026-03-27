@@ -23,7 +23,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/PaulSnow/DTRules/go/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // RulesConfig holds configuration for a rule set to be compared.

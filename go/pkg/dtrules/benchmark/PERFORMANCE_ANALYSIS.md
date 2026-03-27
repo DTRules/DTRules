@@ -1,4 +1,6 @@
-# DTRules Go Implementation - Final Performance Analysis
+# DTRules Go Implementation - Performance Analysis
+
+> **Note:** The canonical version of this document is at [docs/go-performance.md](../../../../docs/go-performance.md)
 
 ## Test Environment
 - **CPU**: Intel Core Ultra 9 275HX (24 cores)

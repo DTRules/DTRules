@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Tennessee Corporate Franchise and Excise Tax Decision Tables
+
+  Tennessee has TWO separate taxes on corporations:
+  1. Franchise Tax: 0.25% on net worth (TN Code § 67-4-2104)
+  2. Excise Tax: 6.5% on net earnings (TN Code § 67-4-2007)
+
+  Both are filed together on Form FAE 170 (Franchise and Excise Tax Return).
+
+  Table Numbering: 51900-51999
+  - 51900: Determine_TN_Filing_Requirement
+  - 51920: Calculate_TN_Income_Adjustments
+  - 51960: Calculate_TN_Franchise_Tax (0.25% on net worth)
+  - 51980: Calculate_TN_Excise_Tax (6.5% on apportioned income)
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51900: Determine_TN_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_TN_Filing_Requirement</table_name>
+<xls_file>TN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file TN franchise and excise tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>51900</TABLE_NUMBER>
+<FILE_PATH>states/TN/51900_Determine_TN_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Tennessee filing requirement check</action_description>
+<action_postfix>
+"Tennessee Filing Requirement Check Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in TN (office, employees, property)</condition_comment>
+<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'TN'</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true eq
+apportionment.state_code "TN" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets TN economic nexus threshold ($100K or 200 transactions)</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'TN'</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.state_code "TN" eq
+and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required for both taxes</action_comment>
+<action_postfix>
+<!-- Physical nexus established - filing required for both taxes -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+
+"TN franchise and excise tax filing required due to physical presence in Tennessee. Both taxes apply: 1. Franchise tax: 0.25% on net worth (greater of book value or property) 2. Excise tax: 6.5% on net earnings (apportioned income). Reference: TN Code § 67-4-2007 (Excise tax), TN Code § 67-4-2104 (Franchise tax), Form FAE 170 (Franchise and Excise Tax Return), TN Revenue Ruling 07-24 (Physical presence nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_postfix>
+<!-- Economic nexus established per Wayfair - filing required -->
+<!-- Apportionment will be calculated by tables 7000-7500 -->
+
+"TN franchise and excise tax filing required due to economic nexus. Threshold: $100,000 gross receipts OR 200 transactions in TN. Economic nexus applies to both franchise and excise taxes. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), TN Code § 67-4-2007(b) (Economic nexus), TN Notice 20-11 (Marketplace Facilitator Act and Economic Nexus)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_postfix>
+<!-- No nexus - no filing required -->
+0.0 /apportionment.state_tax xdef
+0.0 /result.tn_franchise_tax xdef
+0.0 /result.tn_excise_tax xdef
+0.0 /result.tn_total_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51920: Calculate_TN_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TN_Income_Adjustments</table_name>
+<xls_file>TN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate TN state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>51920</TABLE_NUMBER>
+<FILE_PATH>states/TN/51920_Calculate_TN_Income_Adjustments</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Tennessee income adjustments</action_description>
+<action_postfix>
+"Tennessee Income Adjustments Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate TN state additions and subtractions</action_comment>
+<action_postfix>
+<!-- Calculate TN state additions -->
+0.0 /additions xdef
+
+<!-- Add back federal bond interest (not taxable federally, taxable to TN) -->
+revenue.federal_bond_interest null ne
+{
+  additions revenue.federal_bond_interest add /additions xdef
+} if
+
+<!-- Add back IRC 199A qualified business income deduction -->
+<!-- TN does not conform to IRC § 199A -->
+result.section_199a_deduction null ne
+{
+  additions result.section_199a_deduction add /additions xdef
+} if
+
+<!-- Add back state franchise and excise taxes paid -->
+<!-- (not deductible for TN purposes) -->
+result.state_income_taxes_paid null ne
+{
+  additions result.state_income_taxes_paid add /additions xdef
+} if
+
+additions /apportionment.state_additions xdef
+
+<!-- Calculate TN state subtractions -->
+0.0 /subtractions xdef
+
+<!-- Subtract TN municipal bond interest (exempt from TN tax) -->
+revenue.tn_municipal_interest null ne
+{
+  subtractions revenue.tn_municipal_interest add /subtractions xdef
+} if
+
+<!-- Subtract qualified dividends from 80%+ owned subsidiaries -->
+revenue.qualified_subsidiary_dividends null ne
+{
+  subtractions revenue.qualified_subsidiary_dividends add /subtractions xdef
+} if
+
+<!-- Subtract TN NOL carryforward (if applicable) -->
+result.tn_nol_deduction null ne
+{
+  subtractions result.tn_nol_deduction add /subtractions xdef
+} if
+
+subtractions /apportionment.state_subtractions xdef
+
+"TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC § 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code § 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no TN state adjustments calculated</action_comment>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+
+"No nexus - no TN state adjustments calculated." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51960: Calculate_TN_Franchise_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TN_Franchise_Tax</table_name>
+<xls_file>TN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate TN franchise tax: 0.25% on net worth. Net worth is the greater of book value or property value in TN.</COMMENTS>
+<TABLE_NUMBER>51960</TABLE_NUMBER>
+<FILE_PATH>states/TN/51960_Calculate_TN_Franchise_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Tennessee franchise tax calculation</action_description>
+<action_postfix>
+"Tennessee Franchise Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe franchise tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive net worth in TN</condition_comment>
+<condition_description>result.tn_net_worth > 0</condition_description>
+<condition_postfix>
+result.tn_net_worth 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate franchise tax: 0.25% on net worth</action_comment>
+<action_postfix>
+<!-- Calculate franchise tax: 0.25% on net worth -->
+result.tn_net_worth result.tn_franchise_tax_rate mul
+/result.tn_franchise_tax xdef
+
+<!-- Minimum tax is $100 but applies to COMBINED franchise + excise -->
+<!-- (handled in table 51980) -->
+
+"TN franchise tax calculation: 1. Determine net worth: Greater of: Book value (capital stock + surplus + undivided profits) or Fair market value of property owned/used in TN. 2. Apply franchise tax rate: Net worth × 0.25%. 3. Combined minimum tax (franchise + excise): $100. The franchise tax is separate from and in addition to the excise tax. Reference: TN Code § 67-4-2104 (Franchise tax rate), TN Code § 67-4-2111 (Determination of net worth), Form FAE 170 Schedule F (Franchise Tax Calculation), TN Revenue Ruling 17-01 (Net worth valuation methods)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No net worth - franchise tax is zero</action_comment>
+<action_postfix>
+0.0 /result.tn_franchise_tax xdef
+
+"No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No TN nexus - no franchise tax liability</action_comment>
+<action_postfix>
+0.0 /result.tn_franchise_tax xdef
+
+"No TN nexus - no franchise tax liability." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 51980: Calculate_TN_Excise_Tax                                  -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TN_Excise_Tax</table_name>
+<xls_file>TN_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate TN excise tax: 6.5% on apportioned net earnings. Combines with franchise tax for total TN tax liability.</COMMENTS>
+<TABLE_NUMBER>51980</TABLE_NUMBER>
+<FILE_PATH>states/TN/51980_Calculate_TN_Excise_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize Tennessee excise tax calculation</action_description>
+<action_postfix>
+"Tennessee Excise Tax Calculation Started" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe excise tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
+or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive apportioned taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate excise tax: 6.5% on apportioned income</action_comment>
+<action_postfix>
+<!-- Calculate excise tax: 6.5% on apportioned income -->
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/result.tn_excise_tax xdef
+
+<!-- Subtract TN credits from excise tax only -->
+result.tn_excise_tax apportionment.state_credits sub 0.0 max
+/result.tn_excise_tax xdef
+
+<!-- Calculate total TN tax (franchise + excise) -->
+result.tn_franchise_tax result.tn_excise_tax add
+/result.tn_total_tax xdef
+
+<!-- Apply minimum tax of $100 (combined) -->
+result.tn_minimum_tax result.tn_total_tax max
+/result.tn_total_tax xdef
+
+<!-- Set state_tax to total TN tax for standard reporting -->
+result.tn_total_tax /apportionment.state_tax xdef
+
+<!-- Calculate refund or amount owed -->
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"TN franchise and excise tax calculation: EXCISE TAX (6.5% on net earnings): 1. Federal taxable income: [Form 1120 line 28] 2. TN additions: + [Table 51920] 3. TN subtractions: - [Table 51920] 4. TN taxable income before apportionment: = [Subtotal] 5. Apportioned to TN: × [Single-sales factor %] 6. TN taxable income: = [Result] 7. Excise tax rate: × 6.5% 8. Excise tax before credits: = [Tax] 9. TN credits: - [Credits] 10. TN excise tax: = [Final excise tax]. FRANCHISE TAX (0.25% on net worth): 11. TN net worth: [From table 51960] 12. Franchise tax rate: × 0.25% 13. TN franchise tax: = [Franchise tax]. TOTAL TAX: 14. Combined tax: Excise tax + Franchise tax 15. Minimum tax: $100 16. TN total tax: = Greater of combined or minimum. Reference: TN Code § 67-4-2007 (Excise tax rate: 6.5%), TN Code § 67-4-2104 (Franchise tax rate: 0.25%), TN Code § 67-4-2006 (Net earnings definition), Form FAE 170 (Franchise and Excise Tax Return), TN Revenue Ruling 10-22 (Single-sales apportionment)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>No net earnings - excise tax is zero</action_comment>
+<action_postfix>
+<!-- No net earnings - excise tax is zero -->
+0.0 /result.tn_excise_tax xdef
+
+<!-- Total tax is just franchise tax -->
+result.tn_franchise_tax /result.tn_total_tax xdef
+
+<!-- Apply minimum tax of $100 if any franchise tax -->
+result.tn_franchise_tax 0 gt
+{
+  result.tn_minimum_tax result.tn_total_tax max
+  /result.tn_total_tax xdef
+} if
+
+result.tn_total_tax /apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
+
+"No TN net earnings - no excise tax liability. Franchise tax still applies if there is net worth. Minimum tax ($100) applies if franchise tax is owed." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no excise tax or franchise tax liability</action_comment>
+<action_postfix>
+0.0 /result.tn_excise_tax xdef
+0.0 /result.tn_total_tax xdef
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments /apportionment.state_refund_or_owed xdef
+
+"No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>
