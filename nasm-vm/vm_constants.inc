@@ -74,11 +74,14 @@
 %define OP_GT               34
 %define OP_GE               35
 
-; Boolean (40-49)
+; Boolean (40-49) - PRIMARY FOCUS FOR ISSUE #166
 %define OP_AND              40
 %define OP_OR               41
 %define OP_NOT              42
 %define OP_XOR              43
+%define OP_ISNULL           44
+%define OP_NOTNULL          45
+%define OP_BEQ              46  ; Boolean equals
 
 ; Control flow (50-59)
 %define OP_EXEC             50
