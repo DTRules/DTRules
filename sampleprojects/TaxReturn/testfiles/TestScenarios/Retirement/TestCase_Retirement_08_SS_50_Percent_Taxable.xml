@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Social Security 50% Taxable -->
+<!-- Scenario: Provisional income in 50% tier ($25k-$34k single) -->
+<!-- Expected: 50% formula applies, up to 50% of benefits taxable -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Social Security Taxability - 50% Taxable (2025) -->
+   <!-- Publication 915: Social Security and Equivalent Railroad Retirement Benefits -->
+   <!-- Provisional Income = AGI + Tax-exempt interest + 50% of SS benefits -->
+   <!-- 50% tier: $25,000 - $34,000 (Single) or $32,000 - $44,000 (MFJ) -->
+   <!-- This scenario (Single): -->
+   <!-- - SS benefits: $24,000 -->
+   <!-- - Pension income: $18,000 -->
+   <!-- - Provisional income: $18,000 + ($24,000 × 50%) = $30,000 -->
+   <!-- - $25,000 < $30,000 < $34,000 → 50% tier -->
+   <!-- - Taxable SS = 50% × ($30,000 - $25,000) = $2,500 -->
+   <!-- - Capped at 50% of benefits: min($2,500, $12,000) = $2,500 -->
+
+   <id>Retirement-08</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>AZ</state>
+
+   <!-- Income: $18,000 pension + $2,500 taxable SS -->
+   <!-- Provisional Income: $30,000 -->
+   <!-- AGI: $20,500 ($18,000 pension + $2,500 SS) -->
+   <!-- Standard Deduction: $15,000 + $1,950 (senior) = $16,950 -->
+   <!-- Taxable Income: $3,550 -->
+   <expected_agi>20500</expected_agi>
+   <expected_taxable_income>3550</expected_taxable_income>
+   <expected_ss_taxable>2500</expected_ss_taxable>
+   <expected_provisional_income>30000</expected_provisional_income>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>George Martinez</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>6/15/1958</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_primary>true</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <social_security_income>24000</social_security_income>
+         <age>67</age>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income>
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>pension</type>
+         <source>State Pension</source>
+         <gross_amount>18000</gross_amount>
+         <tax_withheld>1500</tax_withheld>
+         <is_earned>false</is_earned>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

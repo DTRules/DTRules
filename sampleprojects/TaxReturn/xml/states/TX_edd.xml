@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Texas (TX)
+
+  Texas has NO state income tax. This is one of 9 states in the US without
+  a state income tax (Alaska, Florida, Nevada, New Hampshire, South Dakota,
+  Tennessee, Texas, Washington, Wyoming).
+
+  This file documents this fact for consistency with the separate-files-per-state
+  architecture, but no tax calculation is needed.
+
+  Military Tax Provisions:
+    - TX has no state income tax
+    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
+    - MSRRA: N/A (no income tax)
+    - SCRA: N/A (no income tax)
+    - Military spouses and service members have no state income tax burden
+    - TX offers property tax exemptions for disabled veterans (separate from income tax)
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <!-- Texas state tax constants (TX has no income tax) -->
+  <entity name="result">
+    <!-- No state income tax -->
+    <field name="tx_has_income_tax" type="boolean" default_value="false"
+           comment="TX has no state income tax (2025)"/>
+
+    <field name="tx_tax_rate" type="double" default_value="0.0"
+           comment="TX state income tax rate - 0.0 (no income tax)"/>
+
+  </entity>
+</entity_data_dictionary>

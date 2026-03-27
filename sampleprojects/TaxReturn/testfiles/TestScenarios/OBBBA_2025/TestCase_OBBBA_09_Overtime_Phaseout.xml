@@ -1,0 +1,70 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: MFJ with overtime - tests phase-out scenario -->
+   <!-- Phase-out begins at $300,000 MAGI for MFJ filers -->
+   <!-- This couple is $20k into the phase-out range -->
+
+   <id>9</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+   <city>Dallas</city>
+
+   <!-- Expected values for validation -->
+   <!-- Primary W-2: $120,000 base + $30,000 overtime -->
+   <!-- Spouse W-2: $170,000 -->
+   <!-- Total Income: $320,000 ($20k into phase-out zone) -->
+   <!-- Overtime Deduction: $25,000 max for MFJ, but reduced by phase-out -->
+   <!-- Phase-out calculation: $20,000 over $300k threshold -->
+   <!-- Assume linear phase-out over $100k range: 20% reduction -->
+   <!-- Overtime Deduction: $25,000 * 80% = $20,000 -->
+   <!-- AGI: $320,000 - $20,000 = $300,000 -->
+   <!-- Standard Deduction (MFJ): $30,000 -->
+   <!-- Taxable Income: $300,000 - $30,000 = $270,000 -->
+   <!-- Tax: 10%(23,200)+12%(71,100)+22%(106,750)+24%(69,950) = $59,269 -->
+   <expected_agi>300000</expected_agi>
+   <expected_taxable_income>270000</expected_taxable_income>
+   <expected_total_tax>59269</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>David Thompson</name>
+      <ssn>222-44-6666</ssn>
+      <date_of_birth>1980-03-15</date_of_birth>
+      <occupation>Engineering Manager</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>120000</w2_wages>
+      <w2_withholding>28000</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>30000</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+
+   <taxpayer>
+      <id>2</id>
+      <name>Jennifer Thompson</name>
+      <ssn>222-44-7777</ssn>
+      <date_of_birth>1982-09-08</date_of_birth>
+      <occupation>Corporate Attorney</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>false</is_primary>
+      <w2_wages>170000</w2_wages>
+      <w2_withholding>38000</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+</job>

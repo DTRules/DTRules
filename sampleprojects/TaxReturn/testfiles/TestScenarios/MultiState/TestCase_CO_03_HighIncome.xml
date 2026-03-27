@@ -1,0 +1,70 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Colorado Test Case 03: High income single filer -->
+   <!-- Tests Colorado flat 4.4% tax on higher income -->
+
+   <id>CO-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>CO</state>
+   <city>Colorado Springs</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $250,000 W2 -->
+   <!-- Federal AGI: $250,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $235,000 -->
+   <!-- Federal Tax: $50,673 (brackets: 10%+12%+22%+24%+32%+35%) -->
+   <!-- CO uses federal taxable income: $235,000 -->
+   <!-- CO Tax: $10,340 (4.4% of $235,000) -->
+   <expected_agi>250000</expected_agi>
+   <expected_taxable_income>235000</expected_taxable_income>
+   <expected_federal_tax>50673</expected_federal_tax>
+   <expected_state_tax>10340</expected_state_tax>
+   <expected_total_tax>61013</expected_total_tax>
+
+   <!-- Single High-Income Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>David Martinez</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>2/28/1980</date_of_birth>
+         <occupation>Physician</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>250000</w2_wages>
+         <w2_withholding>60000</w2_withholding>
+         <state_withholding>11000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>
