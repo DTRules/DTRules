@@ -1,0 +1,79 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: MFJ senior couple with Social Security and pension -->
+   <!-- Tests the Senior Additional Deduction from OBBBA 2025 -->
+   <!-- Additional $6,000 deduction per senior, Phase-out at $150,000 MAGI for MFJ -->
+   <!-- This effectively eliminates tax on SS for ~90% of beneficiaries -->
+
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>FL</state>
+   <city>Tampa</city>
+
+   <!-- Expected values for validation -->
+   <!-- Social Security: $36,000 (both seniors) -->
+   <!-- Pension Income: $24,000 -->
+   <!-- Total Income: $60,000 -->
+   <!-- Senior OBBBA Deduction: $12,000 ($6k x 2 seniors) -->
+   <!-- AGI: $60,000 - $12,000 = $48,000 -->
+   <!-- Standard Deduction (MFJ): $30,000 + $3,200 (2 x $1,600 for 65+) = $33,200 -->
+   <!-- Taxable Income: $48,000 - $33,200 = $14,800 -->
+   <!-- Tax: 10% of $14,800 = $1,480 -->
+   <expected_agi>48000</expected_agi>
+   <expected_taxable_income>14800</expected_taxable_income>
+   <expected_total_tax>1480</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Robert Johnson</name>
+      <ssn>333-44-5555</ssn>
+      <date_of_birth>1957-02-14</date_of_birth>
+      <occupation>Retired</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>20000</social_security_income>
+      <is_senior>true</is_senior>
+   </taxpayer>
+
+   <taxpayer>
+      <id>2</id>
+      <name>Linda Johnson</name>
+      <ssn>333-44-6666</ssn>
+      <date_of_birth>1959-09-22</date_of_birth>
+      <occupation>Retired</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>false</is_primary>
+      <w2_wages>0</w2_wages>
+      <w2_withholding>0</w2_withholding>
+      <tip_income>0</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>16000</social_security_income>
+      <is_senior>true</is_senior>
+   </taxpayer>
+
+   <!-- Pension income modeled as income entity -->
+   <income>
+      <id>1</id>
+      <taxpayer_id>1</taxpayer_id>
+      <type>pension</type>
+      <source>State Employee Pension</source>
+      <gross_amount>24000</gross_amount>
+      <tax_withheld>2400</tax_withheld>
+      <is_earned>false</is_earned>
+   </income>
+</job>

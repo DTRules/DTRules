@@ -1,0 +1,72 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>102</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>DC</state>
+   <city>Washington</city>
+
+   <!-- Expected values for validation -->
+   <!-- DC Test Case 02: MFJ with $60,000 income -->
+   <!-- Income: $40,000 + $20,000 W2 = $60,000 -->
+   <!-- AGI: $60,000 -->
+   <!-- Federal Standard Deduction (MFJ): $30,000 -->
+   <!-- Federal Taxable Income: $30,000 -->
+   <!-- Federal Tax: 10% on $23,850 = $2,385 + 12% on $6,150 = $738 = $3,123 -->
+   <!-- DC AGI: $60,000 (federal AGI) -->
+   <!-- DC Standard Deduction (MFJ): $31,500 -->
+   <!-- DC Taxable Income: $60,000 - $31,500 = $28,500 -->
+   <!-- DC Tax Calculation (progressive brackets): -->
+   <!--   First $10,000 at 4% = $400 -->
+   <!--   Next $18,500 at 6% = $1,110 -->
+   <!--   Total DC Tax = $1,510 -->
+   <expected_agi>60000</expected_agi>
+   <expected_taxable_income>30000</expected_taxable_income>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>John Smith</name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>5/20/1985</date_of_birth>
+         <occupation>Accountant</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>40000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jane Smith</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/10/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>20000</w2_wages>
+         <w2_withholding>2000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+</job>

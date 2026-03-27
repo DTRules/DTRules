@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Utah
+
+  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/UT/42300_UT_constants</file_path>
+  </file_metadata>
+  <!-- Utah state-specific constants -->
+  <entity name="result">
+    <!-- Tax rate -->
+    <field name="ut_tax_rate" type="double" default_value="0.045"
+           comment="UT flat rate 4.5% (2025)"/>
+
+    <!-- Personal exemption -->
+    <field name="ut_personal_exemption" type="double" default_value="2111.0"
+           comment="UT personal exemption per dependent (2025)"/>
+
+    <!-- Taxpayer Tax Credit (6% of deductions + exemptions) -->
+    <field name="ut_taxpayer_credit_rate" type="double" default_value="0.06"
+           comment="UT taxpayer tax credit rate - 6% of deductions and exemptions (2025)"/>
+
+    <!-- Taxpayer Tax Credit phase-out thresholds -->
+    <field name="ut_credit_phaseout_single" type="double" default_value="15896.0"
+           comment="UT taxpayer credit phase-out threshold single (2025)"/>
+    <field name="ut_credit_phaseout_joint" type="double" default_value="31792.0"
+           comment="UT taxpayer credit phase-out threshold married filing jointly (2025)"/>
+    <field name="ut_credit_phaseout_hoh" type="double" default_value="23844.0"
+           comment="UT taxpayer credit phase-out threshold head of household (2025)"/>
+    <field name="ut_credit_phaseout_rate" type="double" default_value="0.013"
+           comment="UT taxpayer credit phase-out rate 1.3% (2025)"/>
+
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="ut_military_retirement_exemption" type="double" default_value="10000.0"
+           comment="UT military retirement exemption amount (2025). Source: MOAA State Report Card"/>
+    <field name="ut_military_exemption_agi_cap_single" type="double" default_value="50000.0"
+           comment="UT military retirement exemption AGI cap single (2025). Source: MOAA State Report Card"/>
+    <field name="ut_military_exemption_agi_cap_joint" type="double" default_value="65000.0"
+           comment="UT military retirement exemption AGI cap joint (2025). Source: MOAA State Report Card"/>
+    <field name="ut_military_retirement_taxable" type="double" default_value="0.0"
+           comment="UT taxable military retirement after exemption (computed)"/>
+
+  </entity>
+</entity_data_dictionary>

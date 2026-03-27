@@ -1,0 +1,67 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - OBBBA 2025 Test Case
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+   </copyright>
+
+   <!-- Test Case: Tips from multiple W-2s (two jobs) -->
+   <!-- Tests aggregation of tips across multiple employers -->
+   <!-- Total tips subject to $25,000 cap for Single filer -->
+
+   <id>8</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>NY</state>
+   <city>New York</city>
+
+   <!-- Expected values for validation -->
+   <!-- Job 1 W-2: $28,000 base + $18,000 tips -->
+   <!-- Job 2 W-2: $22,000 base + $15,000 tips -->
+   <!-- Total W-2 Wages: $50,000 -->
+   <!-- Total Tips: $33,000 (from both jobs) -->
+   <!-- Total Income: $83,000 -->
+   <!-- Tips Deduction: $25,000 (capped, even though total tips = $33k) -->
+   <!-- AGI: $83,000 - $25,000 = $58,000 -->
+   <!-- Standard Deduction: $15,000 -->
+   <!-- Taxable Income: $58,000 - $15,000 = $43,000 -->
+   <!-- Tax: 10% of $11,600 = $1,160 + 12% of $31,400 = $3,768 = $4,928 -->
+   <expected_agi>58000</expected_agi>
+   <expected_taxable_income>43000</expected_taxable_income>
+   <expected_total_tax>4928</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <taxpayer>
+      <id>1</id>
+      <name>Sarah Martinez</name>
+      <ssn>888-99-1111</ssn>
+      <date_of_birth>1992-07-28</date_of_birth>
+      <occupation>Server - Two Jobs</occupation>
+      <is_self_employed>false</is_self_employed>
+      <is_primary>true</is_primary>
+      <w2_wages>28000</w2_wages>
+      <w2_withholding>3000</w2_withholding>
+      <tip_income>18000</tip_income>
+      <overtime_income>0</overtime_income>
+      <social_security_income>0</social_security_income>
+      <is_senior>false</is_senior>
+   </taxpayer>
+
+   <!-- Second W-2 from different employer -->
+   <w2>
+      <id>2</id>
+      <taxpayer_id>1</taxpayer_id>
+      <employer>Downtown Cafe</employer>
+      <ein>98-7654321</ein>
+      <wages>22000</wages>
+      <federal_withholding>2500</federal_withholding>
+      <social_security_wages>22000</social_security_wages>
+      <medicare_wages>22000</medicare_wages>
+      <tips>15000</tips>
+      <allocated_tips>0</allocated_tips>
+   </w2>
+</job>
