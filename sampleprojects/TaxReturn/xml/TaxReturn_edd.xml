@@ -260,6 +260,8 @@
 		<field name='is_qualified_residence' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Meets qualified residence definition (computed)'></field>
 		<field name='mortgage_interest_deductible' type='double' subtype='' access='rw' input='' default_value='0' comment='Deductible mortgage interest (computed)'></field>
 		<field name='active_participation' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Taxpayer actively participates in rental (PAL exception)'></field>
+		<!-- Non-resident state tax -->
+		<field name='state_location' type='string' subtype='' access='r' input='main' default_value='' comment='State where property is located (for non-resident tax on rental income)'></field>
 		<!-- Form 8396 - Mortgage Interest Credit -->
 		<field name='has_mortgage_credit_certificate' type='boolean' subtype='' access='r' input='main' default_value='false' comment='Has MCC from state/local government (Form 8396)'></field>
 		<field name='mcc_rate' type='double' subtype='' access='r' input='main' default_value='0' comment='Certificate credit rate, usually 10%-50% (Form 8396)'></field>
@@ -1046,7 +1048,7 @@
 		<!-- States without income tax -->
 		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "NV" "WY" "AK" "TN" "NH" }' comment='States with no income tax'></field>
 
-		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "SD" "WY" "AK" "TN" }' comment='States with no income tax'></field>
+		<field name='no_income_tax_states' type='array' subtype='' access='r' input='' default_value='{ "TX" "FL" "WA" "SD" "WY" "AK" }' comment='States with no income tax'></field>
 
 <!-- Alabama State Tax Constants (2025) -->
 		<field name='al_tax_rate_1' type='double' subtype='' access='r' input='' default_value='0.02' comment='Alabama tax rate bracket 1: 2%'></field>
@@ -1088,6 +1090,22 @@
 		<field name='mt_bracket_2_threshold_single' type='double' subtype='' access='r' input='' default_value='21100' comment='MT bracket 2 threshold Single/MFS (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_mfj' type='double' subtype='' access='r' input='' default_value='42200' comment='MT bracket 2 threshold MFJ (above this uses 5.9%)'></field>
 		<field name='mt_bracket_2_threshold_hoh' type='double' subtype='' access='r' input='' default_value='31700' comment='MT bracket 2 threshold HOH (above this uses 5.9%)'></field>
+
+		<!-- Mississippi State Tax Constants (2025) -->
+		<field name='ms_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='2300' comment='MS standard deduction Single (2025)'></field>
+		<field name='ms_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='4600' comment='MS standard deduction MFJ (2025)'></field>
+		<field name='ms_standard_deduction_hoh' type='double' subtype='' access='r' input='' default_value='3400' comment='MS standard deduction HOH (2025)'></field>
+		<field name='ms_tax_rate' type='double' subtype='' access='r' input='' default_value='0.044' comment='MS tax rate (4.4% on income above $10,000)'></field>
+		<field name='ms_zero_bracket' type='double' subtype='' access='r' input='' default_value='10000' comment='MS zero bracket threshold (0% on first $10,000)'></field>
+
+		<!-- Tennessee State Tax Constants (2025) - Hypothetical Progressive Tax -->
+		<field name='tn_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='6000' comment='TN standard deduction Single (2025)'></field>
+		<field name='tn_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='12000' comment='TN standard deduction MFJ (2025)'></field>
+		<field name='tn_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.0200' comment='TN tax rate bracket 1 (2.0%)'></field>
+		<field name='tn_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.0400' comment='TN tax rate bracket 2 (4.0%)'></field>
+		<field name='tn_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.0600' comment='TN tax rate bracket 3 (6.0%)'></field>
+		<field name='tn_bracket_2_threshold' type='double' subtype='' access='r' input='' default_value='50000' comment='TN bracket 2 threshold (above this uses 4%)'></field>
+		<field name='tn_bracket_3_threshold' type='double' subtype='' access='r' input='' default_value='100000' comment='TN bracket 3 threshold (above this uses 6%)'></field>
 
 		<!-- South Dakota State Tax Constants (2025) - Hypothetical Progressive Tax -->
 		<field name='sd_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='5000' comment='SD standard deduction Single (2025)'></field>
@@ -1430,6 +1448,19 @@
 
 		<!-- Net Operating Loss -->
 		<field name='nol_limitation_rate' type='double' subtype='' access='r' input='' default_value='0.80' comment='NOL limited to 80% of taxable income'></field>
+
+		<!-- Virginia State Tax (2025) -->
+		<field name='va_bracket_1_rate' type='double' subtype='' access='r' input='' default_value='0.02' comment='Virginia 2% tax rate'></field>
+		<field name='va_bracket_1_ceiling' type='double' subtype='' access='r' input='' default_value='3000' comment='Virginia 2% bracket ceiling'></field>
+		<field name='va_bracket_2_rate' type='double' subtype='' access='r' input='' default_value='0.03' comment='Virginia 3% tax rate'></field>
+		<field name='va_bracket_2_ceiling' type='double' subtype='' access='r' input='' default_value='5000' comment='Virginia 3% bracket ceiling'></field>
+		<field name='va_bracket_3_rate' type='double' subtype='' access='r' input='' default_value='0.05' comment='Virginia 5% tax rate'></field>
+		<field name='va_bracket_3_ceiling' type='double' subtype='' access='r' input='' default_value='17000' comment='Virginia 5% bracket ceiling'></field>
+		<field name='va_bracket_4_rate' type='double' subtype='' access='r' input='' default_value='0.0575' comment='Virginia 5.75% tax rate'></field>
+		<field name='va_standard_deduction_single' type='double' subtype='' access='r' input='' default_value='8750' comment='Virginia standard deduction Single (2025)'></field>
+		<field name='va_standard_deduction_mfj' type='double' subtype='' access='r' input='' default_value='17500' comment='Virginia standard deduction MFJ (2025)'></field>
+		<field name='va_personal_exemption' type='double' subtype='' access='r' input='' default_value='930' comment='Virginia personal exemption (2025)'></field>
+		<field name='va_personal_exemption_senior' type='double' subtype='' access='r' input='' default_value='800' comment='Virginia additional exemption for age 65+ or blind (2025)'></field>
 	</entity>
 
 	<!-- ================================================================== -->
@@ -1711,6 +1742,12 @@
 		<field name='total_payments' type='double' subtype='' access='rw' input='' default_value='0' comment='Total payments and credits (Form 1040 Line 33)'></field>
 		<field name='refund_or_owed' type='double' subtype='' access='rw' input='' default_value='0' comment='Refund (positive) or amount owed (negative)'></field>
 
+		<!-- State Tax -->
+		<field name='va_state_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia state income tax (TABLE 45200)'></field>
+		<field name='va_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia taxable income after deductions and exemptions'></field>
+		<field name='va_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='Virginia standard deduction or itemized deduction'></field>
+		<field name='va_exemptions' type='double' subtype='' access='rw' input='' default_value='0' comment='Total Virginia personal exemptions'></field>
+
 		<!-- EITC -->
 		<field name='eitc_qualifying_children' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of qualifying children for EITC'></field>
 
@@ -1743,6 +1780,23 @@
 		<field name='mt_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 1 tax (4.7%)'></field>
 		<field name='mt_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MT bracket 2 tax (5.9%)'></field>
 		<field name='mt_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Montana state income tax'></field>
+
+		<!-- Mississippi State Tax Results -->
+		<field name='ms_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Mississippi AGI (federal AGI)'></field>
+		<field name='ms_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='MS standard deduction amount'></field>
+		<field name='ms_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Mississippi taxable income'></field>
+		<field name='ms_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MS bracket 1 tax (0% on first $10k)'></field>
+		<field name='ms_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='MS bracket 2 tax (4.4% above $10k)'></field>
+		<field name='ms_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Mississippi state income tax'></field>
+
+		<!-- Tennessee State Tax Results -->
+		<field name='tn_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='Tennessee AGI (federal AGI + adjustments)'></field>
+		<field name='tn_standard_deduction' type='double' subtype='' access='rw' input='' default_value='0' comment='TN standard deduction amount'></field>
+		<field name='tn_taxable_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Tennessee taxable income'></field>
+		<field name='tn_bracket_1_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='TN bracket 1 tax (2%)'></field>
+		<field name='tn_bracket_2_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='TN bracket 2 tax (4%)'></field>
+		<field name='tn_bracket_3_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='TN bracket 3 tax (6%)'></field>
+		<field name='tn_tax' type='double' subtype='' access='rw' input='' default_value='0' comment='Tennessee state income tax'></field>
 
 		<!-- South Dakota State Tax Results -->
 		<field name='sd_agi' type='double' subtype='' access='rw' input='' default_value='0' comment='South Dakota AGI (federal AGI + adjustments)'></field>
@@ -1886,6 +1940,8 @@
 		<field name='state_tax_result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
 		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
 		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='' comment='Two-letter state code (e.g., CA, NY, TX)'></field>
+		<field name='is_resident' type='boolean' subtype='' access='rw' input='' default_value='true' comment='Whether taxpayer is resident (vs non-resident) - used by non-resident tax calculation'></field>
+		<field name='state_source_income' type='double' subtype='' access='rw' input='' default_value='0' comment='Income earned in this state (for non-residents) - used by non-resident tax calculation'></field>
 		<field name='residency_status' type='string' subtype='' access='rw' input='main' default_value='full_year_resident' comment='Residency status: full_year_resident, part_year_resident, non_resident'></field>
 		<field name='residency_start_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency began (for part-year residents)'></field>
 		<field name='residency_end_date' type='date' subtype='' access='rw' input='main' default_value='' comment='Date residency ended (for part-year residents)'></field>

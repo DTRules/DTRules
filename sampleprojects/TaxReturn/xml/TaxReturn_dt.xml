@@ -9616,6 +9616,118 @@ done
 </policy_statements>
 </decision_table>
 
+<!-- TABLE 40500: Calculate_State_Source_Income - Non-Resident Allocation  -->
+<!-- Reference: State non-resident tax forms                                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_State_Source_Income</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates state-source income for all states to support non-resident tax calculation. For each state with income tax, determines total income earned in that state from W-2 wages, self-employment, rental properties, and other sources. Creates state_tax_result entities for all states where taxpayer has income, marking resident vs non-resident status.</COMMENTS>
+<TABLE_NUMBER>40500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize state-source income calculation</action_description>
+<action_postfix>
+"Calculating state-source income for non-resident tax allocation" job.audit_trail swap addto
+{} local@ state_income_hash >
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always calculate state-source income</condition_comment>
+<condition_description>Calculate state-source income for all states</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate state-source income for each state</action_comment>
+<action_description>Allocate income to states based on source location</action_description>
+<action_postfix>
+{
+  dup w2_state_source w2_state >
+  dup se_state_source se_state >
+  w2_state length 0 > if
+    w2_state state_income_hash dup null eq if
+      pop
+      0 w2_state state_income_hash >
+    endif
+    w2_state state_income_hash dup w2_wages f+ w2_state state_income_hash >
+    "  Taxpayer " name strconcat " W-2 income from " strconcat w2_state strconcat ": $" strconcat w2_wages cvs strconcat strconcat job.audit_trail swap addto
+  endif
+  se_state length 0 > se_net_profit 0 f> and if
+    se_state state_income_hash dup null eq if
+      pop
+      0 se_state state_income_hash >
+    endif
+    se_state state_income_hash dup se_net_profit f+ se_state state_income_hash >
+    "  Taxpayer " name strconcat " SE income from " strconcat se_state strconcat ": $" strconcat se_net_profit cvs strconcat strconcat job.audit_trail swap addto
+  endif
+} job.taxpayers forall
+{
+  dup type income_type >
+  dup state_source income_state >
+  income_state length 0 > if
+    income_state state_income_hash dup null eq if
+      pop
+      0 income_state state_income_hash >
+    endif
+    income_state state_income_hash dup gross_amount f+ income_state state_income_hash >
+    "  Income from " income_state strconcat " (" strconcat income_type strconcat "): $" strconcat gross_amount cvs strconcat strconcat job.audit_trail swap addto
+  endif
+} job.incomes forall
+{
+  dup state_location property_state >
+  property_state length 0 > rental_net_income 0 f> and if
+    property_state state_income_hash dup null eq if
+      pop
+      0 property_state state_income_hash >
+    endif
+    property_state state_income_hash dup rental_net_income f+ property_state state_income_hash >
+    "  Rental income from " property_state strconcat ": $" strconcat rental_net_income cvs strconcat strconcat job.audit_trail swap addto
+  endif
+} job.properties forall
+job.state state_income_hash exch get null eq if
+  job.state state_income_hash exch 0 exch put
+endif
+{} /job.state_tax_results xdef
+{
+  local@ state_income_amt >
+  local@ state_code >
+  /state_tax_result createentity local@ st_result >
+  state_code /st_result.state_code xdef
+  state_code job.state streq /st_result.is_resident xdef
+  state_income_amt /st_result.state_source_income xdef
+  st_result.is_resident if
+    "  Resident state: " state_code strconcat job.audit_trail swap addto
+  else
+    "  Non-resident state: " state_code strconcat " - Source income: $" strconcat state_income_amt cvs strconcat job.audit_trail swap addto
+  endif
+  st_result job.state_tax_results swap addto
+} state_income_hash forallmap
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate state-source income for non-resident taxes</policy_description>
+<policy_statement_postfix>"State-source income calculated for non-resident tax allocation"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+
 <!-- ====================================================================== -->
 <!-- TABLE 40000: Dispatch_State_Tax - State Tax Dispatcher               -->
 <!-- Reference: State-specific income tax forms                             -->
@@ -9813,7 +9925,7 @@ then
 <condition_number>8</condition_number>
 <condition_comment>No state income tax (AK, FL, NV, TN, TX, WA, WY)</condition_comment>
 
-<condition_comment>No state income tax (AK, FL, SD, TN, TX, WA, WY)</condition_comment>
+<condition_comment>No state income tax (AK, FL, SD, TX, WA, WY)</condition_comment>
 <condition_description>State has no state income tax</condition_description>
 <condition_postfix>
 state_period isnull not
@@ -9823,7 +9935,6 @@ if
   state_period.state_code NV streq or
 
   state_period.state_code SD streq or
-  state_period.state_code TN streq or
   state_period.state_code TX streq or
   state_period.state_code WA streq or
   state_period.state_code WY streq or
@@ -9833,7 +9944,6 @@ else
   job.state NV streq or
 
   job.state SD streq or
-  job.state TN streq or
   job.state TX streq or
   job.state WA streq or
   job.state WY streq or
@@ -13126,6 +13236,271 @@ result.md_bracket_1_tax result.md_bracket_2_tax f+ result.md_bracket_3_tax f+ re
 <policy_statement column="2">
 <policy_description>MD progressive tax Single with standard deduction</policy_description>
 <policy_statement_postfix>"Maryland progressive tax for Single per Maryland Form 502"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+
+<!-- ====================================================================== -->
+<!-- TABLE 45900: Calculate_TN_Tax - Tennessee State Income Tax           -->
+<!-- Reference: Tennessee Form TN-1040 (2025) - Hypothetical              -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TN_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Tennessee state income tax per hypothetical Form TN-1040. Tennessee uses progressive tax brackets: 2% on first $50,000, 4% on $50,000-$100,000, 6% above $100,000. Starting with federal AGI, applies standard deduction based on filing status ($6,000 Single, $12,000 MFJ), then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>45900</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize TN tax calculation</action_description>
+<action_postfix>
+"TENNESSEE FORM TN-1040 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.tn_agi xdef
+0 /result.tn_bracket_1_tax xdef
+0 /result.tn_bracket_2_tax xdef
+0 /result.tn_bracket_3_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate TN tax MFJ</action_comment>
+<action_description>Calculate TN tax with MFJ standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.tn_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+tn_standard_deduction_mfj /result.tn_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.tn_standard_deduction cvs strconcat job.audit_trail swap addto
+result.tn_agi result.tn_standard_deduction f- 0 fmax /result.tn_taxable_income xdef
+"  TN Taxable Income: $" result.tn_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.tn_taxable_income tn_bracket_3_threshold f> if
+  tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+  tn_bracket_3_threshold tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+  result.tn_taxable_income tn_bracket_3_threshold f- tn_bracket_3_rate f* /result.tn_bracket_3_tax xdef
+  "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (4% on $50,000-$100,000): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (6% above $100,000): $" result.tn_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.tn_taxable_income tn_bracket_2_threshold f> if
+    tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    result.tn_taxable_income tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+    "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (4%): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.tn_taxable_income tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    "  Bracket 1 (2%): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /result.tn_tax xdef
+"  Total TN Tax: $" result.tn_tax cvs strconcat " (Form TN-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate TN tax Single/other</action_comment>
+<action_description>Calculate TN tax with Single standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.tn_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+tn_standard_deduction_single /result.tn_standard_deduction xdef
+"  Standard Deduction (Single): $" result.tn_standard_deduction cvs strconcat job.audit_trail swap addto
+result.tn_agi result.tn_standard_deduction f- 0 fmax /result.tn_taxable_income xdef
+"  TN Taxable Income: $" result.tn_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.tn_taxable_income tn_bracket_3_threshold f> if
+  tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+  tn_bracket_3_threshold tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+  result.tn_taxable_income tn_bracket_3_threshold f- tn_bracket_3_rate f* /result.tn_bracket_3_tax xdef
+  "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (4% on $50,000-$100,000): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (6% above $100,000): $" result.tn_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.tn_taxable_income tn_bracket_2_threshold f> if
+    tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    result.tn_taxable_income tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
+    "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (4%): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  else
+    result.tn_taxable_income tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
+    "  Bracket 1 (2%): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  endif
+endif
+result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /result.tn_tax xdef
+"  Total TN Tax: $" result.tn_tax cvs strconcat " (Form TN-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Tennessee tax MFJ</policy_description>
+<policy_statement_postfix>"Calculate Tennessee state income tax for MFJ filer per Form TN-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Calculate Tennessee tax Single/other</policy_description>
+<policy_statement_postfix>"Calculate Tennessee state income tax for Single/other filer per Form TN-1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+<!-- TABLE 45500: Calculate_MS_Tax - Mississippi State Income Tax         -->
+<!-- Reference: Mississippi Form 80-105 (2025)                             -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_MS_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Mississippi state income tax per Form 80-105. Mississippi uses a simple progressive tax system: 0% on first $10,000 of taxable income, 4.4% on income above $10,000. Starting with federal AGI, applies standard deduction based on filing status ($2,300 Single/MFS, $4,600 MFJ, $3,400 HOH), then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>45500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize MS tax calculation</action_description>
+<action_postfix>
+"MISSISSIPPI FORM 80-105 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ms_agi xdef
+0 /result.ms_bracket_1_tax xdef
+0 /result.ms_bracket_2_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single</condition_comment>
+<condition_description>job.filing_status is equal to "single"</condition_description>
+<condition_postfix>
+job.filing_status single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status is equal to "head_of_household"</condition_description>
+<condition_postfix>
+job.filing_status head_of_household streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate MS tax MFJ</action_comment>
+<action_description>Calculate MS tax with MFJ standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.ms_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ms_standard_deduction_mfj /result.ms_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.ms_standard_deduction cvs strconcat job.audit_trail swap addto
+result.ms_agi result.ms_standard_deduction f- 0 fmax /result.ms_taxable_income xdef
+"  MS Taxable Income: $" result.ms_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.ms_taxable_income ms_zero_bracket f> if
+  0 /result.ms_bracket_1_tax xdef
+  result.ms_taxable_income ms_zero_bracket f- ms_tax_rate f* /result.ms_bracket_2_tax xdef
+  "  Bracket 1 (0% on $0-$10,000): $0.00" job.audit_trail swap addto
+  "  Bracket 2 (4.4% above $10,000): $" result.ms_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  0 /result.ms_bracket_1_tax xdef
+  "  Bracket 1 (0% on $0-$" result.ms_taxable_income cvs strconcat "): $0.00" strconcat job.audit_trail swap addto
+endif
+result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
+"  Total MS Tax: $" result.ms_tax cvs strconcat " (Mississippi Form 80-105)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MS tax Single</action_comment>
+<action_description>Calculate MS tax with Single standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.ms_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ms_standard_deduction_single /result.ms_standard_deduction xdef
+"  Standard Deduction (Single): $" result.ms_standard_deduction cvs strconcat job.audit_trail swap addto
+result.ms_agi result.ms_standard_deduction f- 0 fmax /result.ms_taxable_income xdef
+"  MS Taxable Income: $" result.ms_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.ms_taxable_income ms_zero_bracket f> if
+  0 /result.ms_bracket_1_tax xdef
+  result.ms_taxable_income ms_zero_bracket f- ms_tax_rate f* /result.ms_bracket_2_tax xdef
+  "  Bracket 1 (0% on $0-$10,000): $0.00" job.audit_trail swap addto
+  "  Bracket 2 (4.4% above $10,000): $" result.ms_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  0 /result.ms_bracket_1_tax xdef
+  "  Bracket 1 (0% on $0-$" result.ms_taxable_income cvs strconcat "): $0.00" strconcat job.audit_trail swap addto
+endif
+result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
+"  Total MS Tax: $" result.ms_tax cvs strconcat " (Mississippi Form 80-105)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate MS tax HOH</action_comment>
+<action_description>Calculate MS tax with HOH standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.ms_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ms_standard_deduction_hoh /result.ms_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.ms_standard_deduction cvs strconcat job.audit_trail swap addto
+result.ms_agi result.ms_standard_deduction f- 0 fmax /result.ms_taxable_income xdef
+"  MS Taxable Income: $" result.ms_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.ms_taxable_income ms_zero_bracket f> if
+  0 /result.ms_bracket_1_tax xdef
+  result.ms_taxable_income ms_zero_bracket f- ms_tax_rate f* /result.ms_bracket_2_tax xdef
+  "  Bracket 1 (0% on $0-$10,000): $0.00" job.audit_trail swap addto
+  "  Bracket 2 (4.4% above $10,000): $" result.ms_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  0 /result.ms_bracket_1_tax xdef
+  "  Bracket 1 (0% on $0-$" result.ms_taxable_income cvs strconcat "): $0.00" strconcat job.audit_trail swap addto
+endif
+result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
+"  Total MS Tax: $" result.ms_tax cvs strconcat " (Mississippi Form 80-105)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>MS progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"Mississippi progressive tax for MFJ per Mississippi Form 80-105"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>MS progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix>"Mississippi progressive tax for Single per Mississippi Form 80-105"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>MS progressive tax HOH with standard deduction</policy_description>
+<policy_statement_postfix>"Mississippi progressive tax for HOH per Mississippi Form 80-105"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
