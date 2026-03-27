@@ -13180,4 +13180,60 @@ result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /r
 </policy_statements>
 </decision_table>
 
+<!-- ====================================================================== -->
+<!-- TABLE 46500: Calculate_AK_Tax - Alaska State Income Tax              -->
+<!-- Reference: Alaska has no state income tax (2025)                      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AK_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Alaska has no state income tax. This table documents that Alaska residents pay zero state income tax. Alaska is one of nine states with no personal income tax (along with FL, NV, SD, TN, TX, WA, WY, and NH for certain income types).</COMMENTS>
+<TABLE_NUMBER>46500</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize AK tax calculation</action_description>
+<action_postfix>
+"ALASKA - No State Income Tax" job.audit_trail swap addto
+result.agi /result.ak_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Alaska has no income tax</condition_comment>
+<condition_description>Alaska does not impose state income tax</condition_description>
+<condition_postfix>
+otherwise
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No state income tax</action_comment>
+<action_description>Set Alaska state tax to $0 - no income tax</action_description>
+<action_postfix>
+"  Alaska does not impose state income tax" job.audit_trail swap addto
+"  Federal AGI: $" result.ak_agi cvs strconcat job.audit_trail swap addto
+0 /result.ak_taxable_income xdef
+0 /result.ak_tax xdef
+"  Alaska State Tax: $0.00 (no state income tax)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Alaska has no state income tax</policy_description>
+<policy_statement_postfix>"Alaska does not impose state income tax"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 </decision_tables>
