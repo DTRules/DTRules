@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Student Loan Interest with Phaseout -->
+<!-- Scenario: Single taxpayer in phaseout range -->
+<!-- Expected: Partial student loan interest deduction -->
+<!-- 2025 phaseout Single: $75,000 - $90,000 -->
+<!-- At $82,500 AGI (midpoint), 50% phaseout = $1,250 deductible -->
+<job>
+    <id>3533</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Income: $82,500 W2 -->
+    <!-- Student loan phaseout: $82.5k - $75k = $7.5k into $15k range = 50% phaseout -->
+    <!-- Interest paid: $3,000, max deduction $2,500 -->
+    <!-- Phased out: $2,500 * 50% = $1,250 deductible -->
+    <!-- AGI: $82,500 - $1,250 (partial student loan) = $81,250 -->
+    <!-- Standard deduction: $15,000 -->
+    <!-- Taxable: $66,250 -->
+    <expected_agi>81250</expected_agi>
+    <expected_taxable_income>66250</expected_taxable_income>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Kevin Anderson</name>
+            <ssn>777-88-9999</ssn>
+            <date_of_birth>7/22/1993</date_of_birth>
+            <occupation>Data Analyst</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>82500</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+            <student_loan_interest_paid>3000</student_loan_interest_paid>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

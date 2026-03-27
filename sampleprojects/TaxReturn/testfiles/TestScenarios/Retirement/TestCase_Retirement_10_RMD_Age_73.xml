@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Required Minimum Distribution (RMD) for Age 73 -->
+<!-- Scenario: 73-year-old retiree must take RMD from traditional IRA -->
+<!-- Expected: RMD based on IRS Uniform Lifetime Table -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com - Licensed under Apache License 2.0
+   </copyright>
+
+   <!-- Required Minimum Distribution (RMD) - Age 73 (2025) -->
+   <!-- SECURE 2.0 Act: RMD age is 73 for those born 1951-1959 -->
+   <!-- IRS Uniform Lifetime Table (2024+): Age 73 = 26.5 divisor -->
+   <!-- Taxpayer born in 1952, turns 73 in 2025 (first RMD year) -->
+   <!-- IRA balance 12/31/2024: $500,000 -->
+   <!-- RMD = $500,000 / 26.5 = $18,868 -->
+   <!-- Failure to take RMD results in 25% excise tax (Form 5329) -->
+   <!-- This test assumes RMD is properly taken -->
+
+   <id>Retirement-10</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>TX</state>
+
+   <!-- Income: $45,000 pension + $18,868 RMD + $28,000 SS (50% taxable) -->
+   <!-- Provisional Income: $45,000 + $18,868 + $14,000 = $77,868 (> $44k threshold) -->
+   <!-- Taxable SS (85% tier): ~$23,800 (85% of $28,000) -->
+   <!-- AGI: $45,000 + $18,868 + $23,800 = $87,668 -->
+   <!-- Standard Deduction: $30,000 + $3,100 (both seniors) = $33,100 -->
+   <!-- Taxable Income: $54,568 -->
+   <expected_agi>87668</expected_agi>
+   <expected_taxable_income>54568</expected_taxable_income>
+   <expected_rmd>18868</expected_rmd>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Richard Thompson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>4/10/1952</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_primary>true</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <social_security_income>28000</social_security_income>
+         <ira_balance_prior_year>500000</ira_balance_prior_year>
+         <ira_distribution>18868</ira_distribution>
+         <ira_distribution_taxable>18868</ira_distribution_taxable>
+         <rmd_required>true</rmd_required>
+         <rmd_divisor>26.5</rmd_divisor>
+         <age>73</age>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Barbara Thompson</name>
+         <ssn>444-55-7777</ssn>
+         <date_of_birth>11/22/1954</date_of_birth>
+         <occupation>Retired</occupation>
+         <is_primary>false</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <age>71</age>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income>
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>pension</type>
+         <source>Teacher Retirement System</source>
+         <gross_amount>45000</gross_amount>
+         <tax_withheld>5000</tax_withheld>
+         <is_earned>false</is_earned>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
