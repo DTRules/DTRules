@@ -18,8 +18,8 @@ package loader
 import (
 	"encoding/xml"
 	"fmt"
-	"log"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
@@ -76,6 +76,7 @@ type DTAttributeFields struct {
 	CommentsLower string `xml:"comments"`
 	FileName      string `xml:"File_Name"`
 	TableNumber   string `xml:"TABLE_NUMBER"`
+	FilePath      string `xml:"FILE_PATH"`
 }
 
 // GetType returns the type field, checking all case variants
@@ -224,6 +225,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	builder.SetField("TABLE_NUMBER", table.AttributeFields.TableNumber)
 	builder.SetField("COMMENTS", table.AttributeFields.Comments)
 	builder.SetFilename(table.XlsFile)
+
+	// Set FILE_PATH if present (with fallback to xls_file)
+	if table.AttributeFields.FilePath != "" {
+		builder.SetFilePath(table.AttributeFields.FilePath)
+	}
 
 	// Process contexts - use postfix if available
 	contexts := make([]string, len(table.Contexts.Contexts))

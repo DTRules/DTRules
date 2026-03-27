@@ -12,6 +12,9 @@
   https://tax.hawaii.gov/tax-year-information/
 -->
 <entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/HI/41100_HI_constants</file_path>
+  </file_metadata>
   <entity name="result">
 
     <!-- Standard deductions -->

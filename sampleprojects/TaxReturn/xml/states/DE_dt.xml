@@ -99,6 +99,7 @@ job.audit_trail swap addto
 <Type>FIRST</Type>
 <COMMENTS>Delaware state income tax calculation. Implements progressive tax structure with 7 brackets per DE Division of Revenue (2025).</COMMENTS>
 <TABLE_NUMBER>40800</TABLE_NUMBER>
+<FILE_PATH>states/DE/40800_Calculate_DE_Tax</FILE_PATH>
 </attribute_fields>
 
 <contexts></contexts>

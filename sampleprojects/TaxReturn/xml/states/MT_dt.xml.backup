@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for MT
+
+  AUTOMATICALLY GENERATED - DO NOT EDIT MANUALLY
+  Generated from TaxReturn_dt.xml
+  Use extract_dt_tables.py to regenerate this file
+-->
+<decision_tables>
+
+<decision_table>
+<table_name>Calculate_MT_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Montana state income tax per Form 2. Montana uses progressive tax brackets: 4.7% on first bracket, 5.9% above threshold. Thresholds vary by filing status: Single/MFS $21,100, MFJ $42,200, HOH $31,700. Starting with federal AGI, applies standard deduction based on filing status ($4,500 Single, $11,500 MFJ), then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>44900</TABLE_NUMBER>
+<FILE_PATH>states/MT/44900_Calculate_MT_Tax</FILE_PATH>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize MT tax calculation</action_description>
+<action_postfix>
+"MONTANA FORM 2 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.mt_agi xdef
+0 /result.mt_bracket_1_tax xdef
+0 /result.mt_bracket_2_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>job.filing_status is equal to "married_filing_jointly"</condition_description>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single</condition_comment>
+<condition_description>job.filing_status is equal to "single"</condition_description>
+<condition_postfix>
+job.filing_status single streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>job.filing_status is equal to "head_of_household"</condition_description>
+<condition_postfix>
+job.filing_status head_of_household streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_description>Calculate credit for dishwashers ($50 per unit)</action_description>
+<action_postfix>
+"Calculating Energy Efficient Appliance Credit - Dishwasher (Form 8909)" job.audit_trail swap addto
+taxpayer.energy_efficient_appliances_produced 50.0 f* /credit_amt xdef
+credit_amt result.energy_appliance_credit f+ /result.energy_appliance_credit xdef
+"  Units produced: " taxpayer.energy_efficient_appliances_produced cvs strconcat job.audit_trail swap addto
+"  Credit per unit: $50" job.audit_trail swap addto
+"  Total credit: $" credit_amt cvs strconcat job.audit_trail swap addto
+<action_comment>Calculate MT tax MFJ</action_comment>
+<action_description>Calculate MT tax with MFJ standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mt_standard_deduction_mfj /result.mt_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.mt_taxable_income mt_bracket_2_threshold_mfj f> if
+  mt_bracket_2_threshold_mfj mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  result.mt_taxable_income mt_bracket_2_threshold_mfj f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
+  "  Bracket 1 (4.7% on $0-$42,200): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.9% above $42,200): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate MT tax Single</action_comment>
+<action_description>Calculate MT tax with Single standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mt_standard_deduction_single /result.mt_standard_deduction xdef
+"  Standard Deduction (Single): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.mt_taxable_income mt_bracket_2_threshold_single f> if
+  mt_bracket_2_threshold_single mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  result.mt_taxable_income mt_bracket_2_threshold_single f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
+  "  Bracket 1 (4.7% on $0-$21,100): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.9% above $21,100): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate MT tax Head of Household</action_comment>
+<action_description>Calculate MT tax with HOH standard deduction and progressive brackets</action_description>
+<action_postfix>
+"  Starting Federal AGI: $" result.mt_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+mt_standard_deduction_hoh /result.mt_standard_deduction xdef
+"  Standard Deduction (HOH): $" result.mt_standard_deduction cvs strconcat job.audit_trail swap addto
+result.mt_agi result.mt_standard_deduction f- 0 fmax /result.mt_taxable_income xdef
+"  MT Taxable Income: $" result.mt_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.mt_taxable_income mt_bracket_2_threshold_hoh f> if
+  mt_bracket_2_threshold_hoh mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  result.mt_taxable_income mt_bracket_2_threshold_hoh f- mt_bracket_2_rate f* /result.mt_bracket_2_tax xdef
+  "  Bracket 1 (4.7% on $0-$31,700): $" result.mt_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.9% above $31,700): $" result.mt_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.mt_taxable_income mt_bracket_1_rate f* /result.mt_bracket_1_tax xdef
+  "  Bracket 1 (4.7% on $0-$" result.mt_taxable_income cvs strconcat "): $" strconcat result.mt_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
+"  Total MT Tax: $" result.mt_tax cvs strconcat " (Montana Form 2)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_description>No qualifying appliances</action_description>
+<action_postfix>
+"Energy Appliance Credit not applicable (Form 8909 - manufacturers only)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+</decision_tables>

@@ -16,6 +16,9 @@
   This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
 -->
 <entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/OH/43600_OH_constants</file_path>
+  </file_metadata>
   <!-- Ohio state tax constants -->
   <entity name="result">
     <!-- Tax exemption threshold -->
