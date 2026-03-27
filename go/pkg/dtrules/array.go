@@ -33,13 +33,19 @@ type RArray struct {
 }
 
 // NewArray creates a new RArray with the specified properties.
+// If session is nil, the array is created with ID 0 and no tracing.
 func NewArray(session Session, duplicates bool, executable bool) (*RArray, error) {
-	id := session.GetUniqueID()
+	var id int
+	if session != nil {
+		id = session.GetUniqueID()
+	}
 	ar := newArrayWithID(id, duplicates, executable)
 
-	state := session.GetState()
-	if state != nil && state.TestState(TraceFlag) {
-		state.TraceInfo("newarray", "arrayId", intToStr(ar.id), "")
+	if session != nil {
+		state := session.GetState()
+		if state != nil && state.TestState(TraceFlag) {
+			state.TraceInfo("newarray", "arrayId", intToStr(ar.id), "")
+		}
 	}
 	return ar, nil
 }
