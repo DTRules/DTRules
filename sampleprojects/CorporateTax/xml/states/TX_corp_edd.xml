@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Texas Corporate Tax Entity Data Dictionary
+
+  IMPORTANT: Texas has NO corporate income tax.
+
+  Texas imposes a franchise tax (margin tax) instead of a traditional income tax.
+  The franchise tax is based on taxable margin, calculated as:
+  - Total revenue minus the GREATER of:
+    * Cost of goods sold (COGS), OR
+    * Compensation (wages and benefits)
+
+  Tax Rate: 0.75% on taxable margin for most businesses
+            0.375% for businesses primarily engaged in retail/wholesale
+
+  Economic Nexus: $500,000 in Texas receipts
+
+  Note: Businesses with total revenue < $1.23M are exempt from franchise tax
+-->
+<entity_dictionary name="CorporateTax_TX_Constants">
+
+  <!--
+    Apportionment Entity: Texas-Specific Configuration
+
+    Note: Texas does NOT use traditional apportionment since it's not an income tax.
+    These fields are maintained for consistency with the framework but many are not used.
+  -->
+  <entity name="apportionment" xls_file='TX_Corp.xls'>
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='TX'
+           comment='Texas state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
+           comment='Texas economic nexus: $500,000 in Texas receipts (NOT the federal $100K standard)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='Texas does not use transaction count threshold'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Texas uses single-sales factor for apportionment (sourcing receipts to Texas)'/>
+
+    <!-- State Tax Rate (NOT USED - Texas has no income tax) -->
+    <field name='state_tax_rate' type='double' default_value='0.0'
+           comment='Texas has NO corporate income tax (franchise tax is calculated separately)'/>
+
+    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Not applicable - Texas has no income tax'/>
+
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Not applicable - Texas has no income tax'/>
+
+    <!-- State Tax Credits (NOT USED - no income tax) -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Texas franchise tax credits (film, enterprise zone, R&D, etc.)'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Texas Franchise Tax (Margin Tax) Fields
+
+    These fields implement the Texas franchise tax calculation.
+    The franchise tax is NOT an income tax - it's based on gross margin.
+  -->
+  <entity name="result" xls_file='TX_Corp.xls'>
+
+    <!-- Texas Total Revenue -->
+    <field name='tx_total_revenue' type='double' default_value='0.0'
+           comment='Total revenue for Texas franchise tax (gross receipts from all sources)'/>
+
+    <!-- Texas Cost of Goods Sold -->
+    <field name='tx_cogs' type='double' default_value='0.0'
+           comment='Texas COGS for margin tax calculation (optional deduction method)'/>
+
+    <!-- Texas Compensation -->
+    <field name='tx_compensation' type='double' default_value='0.0'
+           comment='Texas compensation (wages and benefits) for margin tax calculation (optional deduction method)'/>
+
+    <!-- Texas Deduction Method Selection -->
+    <field name='tx_deduction_method' type='string' default_value='cogs'
+           comment='Method used to calculate margin: cogs, compensation, or 70_percent (taxpayer selects most beneficial)'/>
+
+    <!-- Texas Margin Calculation -->
+    <field name='tx_margin_deduction' type='double' default_value='0.0'
+           comment='Amount deducted from revenue based on selected method'/>
+
+    <field name='tx_taxable_margin' type='double' default_value='0.0'
+           comment='Taxable margin after deduction (revenue minus COGS or compensation)'/>
+
+    <field name='tx_apportioned_margin' type='double' default_value='0.0'
+           comment='Margin apportioned to Texas based on receipts'/>
+
+    <!-- Texas Franchise Tax Rate -->
+    <field name='tx_margin_tax_rate' type='double' default_value='0.0075'
+           comment='TX franchise tax rate on taxable margin (0.75% for most businesses, 0.375% for retail/wholesale)'/>
+
+    <field name='tx_is_retail_wholesale' type='boolean' default_value='false'
+           comment='Business primarily engaged in retail or wholesale (qualifies for 0.375% rate)'/>
+
+    <!-- Texas Franchise Tax Calculation -->
+    <field name='tx_franchise_tax' type='double' default_value='0.0'
+           comment='Texas franchise tax liability (NOT an income tax)'/>
+
+    <!-- Texas E-Z Computation (Simplified Calculation) -->
+    <field name='tx_qualifies_for_ez_computation' type='boolean' default_value='false'
+           comment='Qualifies for Texas E-Z computation ($20M revenue or less)'/>
+
+    <field name='tx_ez_computation_rate' type='double' default_value='0.00575'
+           comment='E-Z computation rate (0.575% of revenue over $1.23M threshold)'/>
+
+    <!-- Texas No Tax Due Threshold -->
+    <field name='tx_no_tax_due_threshold' type='double' default_value='1230000.0'
+           comment='Texas no tax due threshold ($1.23M in revenue for 2025)'/>
+
+    <field name='tx_qualifies_for_no_tax_due' type='boolean' default_value='false'
+           comment='Total revenue below $1.23M threshold - no franchise tax due'/>
+
+  </entity>
+
+</entity_dictionary>

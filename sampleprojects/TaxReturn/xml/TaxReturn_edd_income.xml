@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: income
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 6 entities categorized as 'income'.
+-->
+	<file_metadata>
+		<file_path>core/02000_income_entities</file_path>
+	</file_metadata>
+	<entity name="income" xls_file="Income.xls" access="rw" comment="Income source">
+		<field name="income" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Income ID" />
+		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID" />
+		<field name="type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: W2, 1099-NEC, 1099-MISC, rental, interest, dividend, capital_gain" />
+		<field name="source" type="string" subtype="" access="r" input="main" default_value="" comment="Source name (employer, payer, property)" />
+		<field name="gross_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross income amount" />
+		<field name="tax_withheld" type="double" subtype="" access="r" input="main" default_value="0" comment="Tax withheld at source" />
+		<field name="is_earned" type="boolean" subtype="" access="r" input="main" default_value="true" comment="Earned income (wages, SE) vs unearned (interest, dividends)" />
+		<field name="state_code" type="string" subtype="" access="r" input="main" default_value="" comment="State where income was earned (for multi-state allocation)" />
+		<field name="state_period_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Reference to state_period for date-based allocation" />
+		<field name="irs_form" type="string" subtype="" access="rw" input="" default_value="" comment="IRS form reference" />
+		<field name="irs_line" type="string" subtype="" access="rw" input="" default_value="" comment="IRS form line reference" />
+		<field name="holding_period" type="string" subtype="" access="r" input="main" default_value="" comment="Holding period: short_term or long_term (Schedule D)" />
+		<field name="is_qualified_dividend" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Qualifies for LTCG rates (Form 1099-DIV Box 1b)" />
+	</entity>
+	<entity name="k1_income" xls_file="Income.xls" access="rw" comment="Schedule K-1 income from partnerships, S-corps, trusts">
+		<field name="k1_income" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="K-1 ID" />
+		<field name="source_type" type="string" subtype="" access="r" input="main" default_value="" comment="Source: partnership, s_corp, trust" />
+		<field name="ein" type="string" subtype="" access="r" input="main" default_value="" comment="Entity EIN" />
+		<field name="entity_name" type="string" subtype="" access="r" input="main" default_value="" comment="Partnership/S-corp/Trust name" />
+		<field name="ordinary_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 1: Ordinary business income/loss" />
+		<field name="rental_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 2: Net rental real estate income/loss" />
+		<field name="other_rental_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 3: Other net rental income/loss" />
+		<field name="guaranteed_payments_services" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 4a: Guaranteed payments for services" />
+		<field name="guaranteed_payments_capital" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 4b: Guaranteed payments for capital" />
+		<field name="interest_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 5: Interest income" />
+		<field name="ordinary_dividends" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 6a: Ordinary dividends" />
+		<field name="qualified_dividends" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 6b: Qualified dividends" />
+		<field name="royalties" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 7: Royalties" />
+		<field name="short_term_gain" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 8: Net short-term capital gain/loss" />
+		<field name="long_term_gain" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 9a: Net long-term capital gain/loss" />
+		<field name="unrecaptured_1250" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 9b: Unrecaptured Section 1250 gain" />
+		<field name="section_1231_gain" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 10: Net Section 1231 gain/loss" />
+		<field name="other_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 11: Other income" />
+		<field name="section_179" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 12: Section 179 deduction" />
+		<field name="other_deductions" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 13: Other deductions" />
+		<field name="se_earnings" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 14: Self-employment earnings" />
+		<field name="foreign_taxes_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 16: Foreign taxes paid" />
+		<field name="foreign_source_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 16: Foreign source income" />
+		<field name="qbi_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 20 Code Z: QBI for Section 199A" />
+		<field name="w2_wages_qbi" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 20: W-2 wages for QBI limitation" />
+		<field name="ubia" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 20: UBIA of qualified property" />
+		<field name="sstb" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Box 20: Specified Service Trade or Business" />
+	</entity>
+	<entity name="farm_income" xls_file="Income.xls" access="rw" comment="Schedule F farm income and expenses">
+		<field name="farm_income" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Farm ID" />
+		<field name="farm_name" type="string" subtype="" access="r" input="main" default_value="" comment="Farm or business name" />
+		<field name="accounting_method" type="string" subtype="" access="r" input="main" default_value="cash" comment="Method: cash or accrual" />
+		<field name="sales_livestock_raised" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 2: Sales of livestock raised" />
+		<field name="sales_livestock_bought" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 3: Cost of livestock bought for resale" />
+		<field name="sales_crops" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 4: Sales of crops" />
+		<field name="coop_distributions" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 5a: Cooperative distributions" />
+		<field name="agricultural_payments" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 6: Agricultural program payments" />
+		<field name="ccc_loans" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 7a: CCC loans reported" />
+		<field name="crop_insurance" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 8a: Crop insurance proceeds" />
+		<field name="custom_hire" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 9: Custom hire income" />
+		<field name="other_farm_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 10: Other farm income" />
+		<field name="car_truck_expense" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 12: Car and truck expenses" />
+		<field name="chemicals" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 13: Chemicals" />
+		<field name="conservation" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 14: Conservation expenses" />
+		<field name="custom_hire_expense" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 15: Custom hire expense" />
+		<field name="depreciation" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 16: Depreciation" />
+		<field name="employee_benefits" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 17: Employee benefit programs" />
+		<field name="feed" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 18: Feed" />
+		<field name="fertilizers" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 19: Fertilizers and lime" />
+		<field name="freight" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 20: Freight and trucking" />
+		<field name="fuel" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 21: Gasoline, fuel, oil" />
+		<field name="insurance" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 22: Insurance (other than health)" />
+		<field name="interest_mortgage" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 23a: Mortgage interest" />
+		<field name="interest_other" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 23b: Other interest" />
+		<field name="labor_hired" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 24: Labor hired" />
+		<field name="pension_profit_sharing" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 25: Pension and profit-sharing" />
+		<field name="rent_lease_vehicles" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 26a: Rent - vehicles, machinery" />
+		<field name="rent_lease_land" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 26b: Rent - land, animals" />
+		<field name="repairs" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 27: Repairs and maintenance" />
+		<field name="seeds_plants" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 28: Seeds and plants" />
+		<field name="storage" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 29: Storage and warehousing" />
+		<field name="supplies" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 30: Supplies" />
+		<field name="taxes" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 31: Taxes" />
+		<field name="utilities" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 32: Utilities" />
+		<field name="veterinary" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 33: Veterinary, breeding, medicine" />
+		<field name="other_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 34: Other expenses" />
+		<field name="gross_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Total farm gross income (computed)" />
+		<field name="total_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="Total farm expenses (computed)" />
+		<field name="net_profit" type="double" subtype="" access="rw" input="" default_value="0" comment="Net farm profit/loss (computed)" />
+	</entity>
+	<entity name="foreign_income" xls_file="Income.xls" access="rw" comment="Foreign income for Form 1116">
+		<field name="foreign_income" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Foreign income ID" />
+		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Country name" />
+		<field name="country_code" type="string" subtype="" access="r" input="main" default_value="" comment="Country code (2-letter)" />
+		<field name="income_category" type="string" subtype="" access="r" input="main" default_value="passive" comment="Category: passive, general, section_901j" />
+		<field name="gross_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross foreign income" />
+		<field name="wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign wages" />
+		<field name="interest" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign interest" />
+		<field name="dividends" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign dividends" />
+		<field name="rental_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign rental income" />
+		<field name="capital_gains" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign capital gains" />
+		<field name="other_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Other foreign income" />
+		<field name="directly_allocable_deductions" type="double" subtype="" access="r" input="main" default_value="0" comment="Deductions directly allocable to foreign income" />
+		<field name="pro_rata_share_deductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Pro-rata share of other deductions (computed)" />
+		<field name="foreign_taxes_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign taxes paid (cash basis)" />
+		<field name="foreign_taxes_accrued" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign taxes accrued" />
+		<field name="foreign_taxes_withheld" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign taxes withheld at source" />
+		<field name="foreign_source_taxable" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign source taxable income (computed)" />
+		<field name="credit_limitation" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit limitation for this source (computed)" />
+		<field name="credit_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit allowed (lesser of paid or limit)" />
+	</entity>
+	<entity name="foreign_earned_income" xls_file="Income.xls" access="rw" comment="Form 2555 Foreign Earned Income Exclusion">
+		<field name="foreign_earned_income" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Record ID" />
+		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID" />
+		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Foreign country of residence" />
+		<field name="tax_home" type="string" subtype="" access="r" input="main" default_value="" comment="Tax home location" />
+		<field name="bona_fide_resident" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Bona fide residence test (full tax year)" />
+		<field name="physical_presence_days" type="integer" subtype="" access="r" input="main" default_value="0" comment="Days physically present in foreign country" />
+		<field name="qualifying_period_start" type="date" subtype="" access="r" input="main" default_value="" comment="Start of qualifying period" />
+		<field name="qualifying_period_end" type="date" subtype="" access="r" input="main" default_value="" comment="End of qualifying period" />
+		<field name="foreign_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign earned wages" />
+		<field name="foreign_se_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign self-employment income" />
+		<field name="housing_provided" type="double" subtype="" access="r" input="main" default_value="0" comment="Employer-provided housing value" />
+		<field name="housing_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Qualified housing expenses paid" />
+		<field name="qualifies_exclusion" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for FEIE (computed)" />
+		<field name="exclusion_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign earned income exclusion (max $126,500 for 2024)" />
+		<field name="housing_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="Housing exclusion/deduction amount" />
+	</entity>
+	<entity name="unreported_tips" xls_file="Income.xls" access="rw" comment="Form 4137 Social Security and Medicare Tax on Unreported Tip Income">
+		<field name="unreported_tips" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Record ID" />
+		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID" />
+		<field name="employer_name" type="string" subtype="" access="r" input="main" default_value="" comment="Employer name" />
+		<field name="employer_ein" type="string" subtype="" access="r" input="main" default_value="" comment="Employer EIN" />
+		<field name="total_tips_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Total tips received (cash + charged)" />
+		<field name="tips_reported_to_employer" type="double" subtype="" access="r" input="main" default_value="0" comment="Tips already reported to employer" />
+		<field name="unreported_tips_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Unreported tips (total - reported)" />
+		<field name="w2_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Wages from W-2 Box 1" />
+		<field name="w2_ss_tips" type="double" subtype="" access="r" input="main" default_value="0" comment="Social security tips from W-2 Box 7" />
+		<field name="w2_allocated_tips" type="double" subtype="" access="r" input="main" default_value="0" comment="Allocated tips from W-2 Box 8" />
+		<field name="ss_wages_and_tips" type="double" subtype="" access="rw" input="" default_value="0" comment="Total SS wages and tips subject to tax" />
+		<field name="ss_tax_on_tips" type="double" subtype="" access="rw" input="" default_value="0" comment="Social security tax on unreported tips (6.2%)" />
+		<field name="medicare_tax_on_tips" type="double" subtype="" access="rw" input="" default_value="0" comment="Medicare tax on unreported tips (1.45%)" />
+		<field name="total_fica_on_tips" type="double" subtype="" access="rw" input="" default_value="0" comment="Total FICA tax on unreported tips" />
+	</entity>
+</entity_data_dictionary>

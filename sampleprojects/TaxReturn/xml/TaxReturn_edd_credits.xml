@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+  Auto-generated file - extracted from TaxReturn_edd.xml
+  Category: credits
+  Generated: 2026-03-24 06:29:53
+
+  This file contains 7 entities categorized as 'credits'.
+-->
+	<file_metadata>
+		<file_path>core/05000_credits_entities</file_path>
+	</file_metadata>
+	<entity name="energy_improvement" xls_file="Credits.xls" access="rw" comment="Residential energy improvement">
+		<field name="energy_improvement" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Improvement ID" />
+		<field name="type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: solar, wind, geothermal, battery, heat_pump, insulation, windows, doors, water_heater, hvac, audit" />
+		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category: clean_energy (25D) or efficiency (25C)" />
+		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of improvement" />
+		<field name="cost" type="double" subtype="" access="r" input="main" default_value="0" comment="Total cost of improvement" />
+		<field name="installation_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date installed" />
+		<field name="credit_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Computed credit amount" />
+	</entity>
+	<entity name="elderly_disabled" xls_file="Credits.xls" access="rw" comment="Schedule R Credit for Elderly or Disabled">
+		<field name="elderly_disabled" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Record ID" />
+		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID" />
+		<field name="age_65_or_older" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Age 65 or older at end of year" />
+		<field name="permanently_disabled" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Permanently and totally disabled" />
+		<field name="disability_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Taxable disability income (if under 65)" />
+		<field name="ss_tier1_rr" type="double" subtype="" access="r" input="main" default_value="0" comment="Nontaxable SS and Tier 1 RR benefits" />
+		<field name="nontaxable_pension" type="double" subtype="" access="r" input="main" default_value="0" comment="Nontaxable pension/annuity/disability" />
+		<field name="qualifies" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for credit (computed)" />
+		<field name="initial_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Initial amount ($5k-$7.5k based on filing status)" />
+		<field name="nontaxable_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction for nontaxable income" />
+		<field name="agi_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction for excess AGI" />
+		<field name="credit_base" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit base after reductions" />
+		<field name="credit_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit amount (15% of base)" />
+	</entity>
+	<entity name="clean_vehicle" xls_file="Credits.xls" access="rw" comment="Form 8936 Clean Vehicle Credit">
+		<field name="clean_vehicle" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Vehicle ID" />
+		<field name="vehicle_description" type="string" subtype="" access="r" input="main" default_value="" comment="Year, make, model" />
+		<field name="vin" type="string" subtype="" access="r" input="main" default_value="" comment="Vehicle Identification Number" />
+		<field name="purchase_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date placed in service" />
+		<field name="purchase_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Purchase price" />
+		<field name="vehicle_type" type="string" subtype="" access="r" input="main" default_value="new" comment="Type: new, used, commercial" />
+		<field name="battery_capacity" type="double" subtype="" access="r" input="main" default_value="0" comment="Battery capacity in kWh" />
+		<field name="final_assembly_us" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Final assembly in North America" />
+		<field name="critical_minerals_pct" type="double" subtype="" access="r" input="main" default_value="0" comment="Critical minerals domestic content %" />
+		<field name="battery_components_pct" type="double" subtype="" access="r" input="main" default_value="0" comment="Battery components domestic content %" />
+		<field name="msrp" type="double" subtype="" access="r" input="main" default_value="0" comment="MSRP (for price cap test)" />
+		<field name="qualifies" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for credit (computed)" />
+		<field name="critical_minerals_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Critical minerals credit ($3,750)" />
+		<field name="battery_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Battery components credit ($3,750)" />
+		<field name="total_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Total clean vehicle credit" />
+	</entity>
+	<entity name="adoption" xls_file="Credits.xls" access="rw" comment="Form 8839 Qualified Adoption Expenses">
+		<field name="adoption" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Adoption ID" />
+		<field name="child_name" type="string" subtype="" access="r" input="main" default_value="" comment="Name of adopted child" />
+		<field name="child_ssn" type="string" subtype="" access="r" input="main" default_value="" comment="Child SSN or ATIN" />
+		<field name="adoption_type" type="string" subtype="" access="r" input="main" default_value="domestic" comment="Type: domestic, foreign, special_needs" />
+		<field name="adoption_finalized" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Adoption finalized" />
+		<field name="finalization_year" type="integer" subtype="" access="r" input="main" default_value="0" comment="Year adoption finalized" />
+		<field name="qualified_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Qualified adoption expenses" />
+		<field name="employer_assistance" type="double" subtype="" access="r" input="main" default_value="0" comment="Employer-provided adoption assistance" />
+		<field name="prior_year_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Expenses claimed in prior years" />
+		<field name="max_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Maximum credit per child ($16,810 for 2024)" />
+		<field name="credit_before_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit before income limitation" />
+		<field name="phaseout_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction from MAGI phase-out" />
+		<field name="credit_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Adoption credit allowed" />
+		<field name="carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused credit carryforward" />
+	</entity>
+	<entity name="mortgage_credit_certificate" xls_file="Credits.xls" access="rw" comment="Form 8396 Mortgage Credit Certificate for first-time homebuyers">
+		<field name="mortgage_credit_certificate" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="MCC ID" />
+		<field name="certificate_number" type="string" subtype="" access="r" input="main" default_value="" comment="MCC certificate number" />
+		<field name="issuing_authority" type="string" subtype="" access="r" input="main" default_value="" comment="State/local housing authority that issued MCC" />
+		<field name="issue_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date MCC was issued" />
+		<field name="credit_rate" type="double" subtype="" access="r" input="main" default_value="0.20" comment="MCC credit rate (typically 10-50%)" />
+		<field name="mortgage_interest_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Total mortgage interest paid during year" />
+		<field name="certified_indebtedness" type="double" subtype="" access="r" input="main" default_value="0" comment="Certified indebtedness amount on MCC" />
+		<field name="prior_year_carryforward" type="double" subtype="" access="r" input="main" default_value="0" comment="Carryforward from prior 3 years" />
+		<field name="tentative_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Tentative credit (interest x rate)" />
+		<field name="credit_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="Annual credit limit ($2,000 if rate &gt; 20%)" />
+		<field name="current_year_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Current year credit allowed" />
+		<field name="carryforward_to_next" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused credit carried to next year" />
+		<field name="mortgage_interest_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduced mortgage interest deduction (interest - credit)" />
+	</entity>
+	<entity name="prior_year_amt" xls_file="Credits.xls" access="rw" comment="Form 8801 Prior Year Minimum Tax Credit carryforward">
+		<field name="prior_year_amt" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="AMT credit ID" />
+		<field name="origin_year" type="integer" subtype="" access="r" input="main" default_value="" comment="Tax year AMT was paid" />
+		<field name="amt_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="AMT paid in origin year" />
+		<field name="exclusion_preferences" type="double" subtype="" access="r" input="main" default_value="0" comment="AMT from exclusion preferences (deferral items)" />
+		<field name="prior_credit_used" type="double" subtype="" access="r" input="main" default_value="0" comment="Credit already used in prior years" />
+		<field name="credit_available" type="double" subtype="" access="r" input="main" default_value="0" comment="Credit available for carryforward" />
+		<field name="net_regular_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Net regular tax liability" />
+		<field name="tentative_minimum_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Tentative minimum tax" />
+		<field name="credit_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit allowed this year" />
+		<field name="carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit remaining for future years" />
+	</entity>
+	<entity name="credit" xls_file="Credits.xls" access="rw" comment="Tax credit">
+		<field name="credit" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Credit ID" />
+		<field name="type" type="string" subtype="" access="rw" input="" default_value="" comment="Credit type: CTC, ODC, ACTC, EITC, education, etc." />
+		<field name="description" type="string" subtype="" access="rw" input="" default_value="" comment="Description" />
+		<field name="amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit amount (computed)" />
+		<field name="is_refundable" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Whether credit is refundable" />
+		<field name="irs_form" type="string" subtype="" access="rw" input="" default_value="" comment="IRS form reference" />
+		<field name="irs_line" type="string" subtype="" access="rw" input="" default_value="" comment="IRS form line reference" />
+		<field name="irs_publication" type="string" subtype="" access="rw" input="" default_value="" comment="IRS publication reference" />
+		<field name="irc_section" type="string" subtype="" access="rw" input="" default_value="" comment="IRC section reference" />
+	</entity>
+</entity_data_dictionary>

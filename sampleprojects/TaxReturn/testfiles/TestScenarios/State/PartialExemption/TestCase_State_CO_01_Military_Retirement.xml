@@ -1,0 +1,82 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Colorado Military Retirement Test Case -->
+   <!-- Test Case CO-Military-01: Military retiree age 60+ with retirement income -->
+   <!-- CO provides age-based pension/annuity subtraction: -->
+   <!-- Age 55-64: $20,000 subtraction -->
+   <!-- Age 65+: $24,000 subtraction -->
+   <!-- This test uses age 62 (born 1963) = $20,000 exemption -->
+
+   <id>CO-MIL-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>S</filing_status>
+   <state>CO</state>
+   <city>Colorado Springs</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $38,000 military retirement + $25,000 W2 = $63,000 -->
+   <!-- AGI: $63,000 -->
+   <!-- Federal Standard Deduction: $15,000 (Single) -->
+   <!-- Federal Taxable Income: $48,000 -->
+   <!-- Federal Tax: ~$5,700 -->
+   <!-- CO: Flat 4.4% tax rate -->
+   <!-- CO Military Retirement Exemption: $20,000 (age 55-64) -->
+   <!-- CO Taxable Retirement: $38,000 - $20,000 = $18,000 -->
+   <!-- CO Taxable Income: $18,000 + $25,000 = $43,000 -->
+   <!-- CO Tax: $43,000 * 0.044 = $1,892 -->
+   <!-- Total Tax: $7,592 -->
+   <!-- Withholding: $8,500 -->
+   <!-- Refund: $908 -->
+   <expected_agi>63000</expected_agi>
+   <expected_taxable_income>48000</expected_taxable_income>
+   <expected_total_tax>7592</expected_total_tax>
+   <expected_state_tax>1892</expected_state_tax>
+   <expected_refund>908</expected_refund>
+
+   <!-- Retired Military Taxpayer (Age 62) -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert</name>
+         <last_name>Thompson</last_name>
+         <ssn>222-33-4444</ssn>
+         <date_of_birth>3/15/1963</date_of_birth>
+         <occupation>Military Retiree - Security Guard</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>25000</w2_wages>
+         <w2_withholding>8500</w2_withholding>
+         <military_retirement_pay>38000</military_retirement_pay>
+         <is_senior>false</is_senior>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions -->
+   <deductions></deductions>
+</job>

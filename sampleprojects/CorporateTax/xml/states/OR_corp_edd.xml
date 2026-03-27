@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific constants for Oregon
+
+  Oregon Revised Statutes Chapter 317
+  - Tax rate: 6.6% flat rate on net income (ORS 317.061)
+  - Minimum tax: $150 to $100,000 based on Oregon sales (ORS 317.090)
+  - Apportionment: Single-sales factor
+  - Economic nexus: $750,000 in Oregon sales
+  - Form: Oregon Form 20 (Corporation Excise Tax Return)
+
+  Key Features:
+  - 6.6% flat corporate income/excise tax rate (7.6% for financial institutions)
+  - Minimum tax requirement based on Oregon sales
+  - Single-sales apportionment formula
+  - Higher economic nexus threshold: $750,000
+  - Unitary group provisions apply
+
+  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
+-->
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>states/OR/54200_OR_constants</file_path>
+  </file_metadata>
+
+  <!-- Oregon state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="or_economic_nexus_threshold" type="double" default_value="750000.0"
+           comment="OR economic nexus threshold: $750,000 in Oregon sales (higher than typical)"/>
+
+    <field name="or_transaction_threshold" type="integer" default_value="200"
+           comment="OR economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Tax Rate -->
+    <field name="or_state_tax_rate" type="double" default_value="0.066"
+           comment="OR corporate excise tax rate: 6.6% flat rate (7.6% for financial institutions) - ORS 317.061"/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- Oregon Minimum Tax -->
+    <field name="or_sales_in_oregon" type="double" default_value="0.0"
+           comment="Sales attributed to Oregon for minimum tax calculation"/>
+
+    <field name="or_minimum_tax" type="double" default_value="150.0"
+           comment="OR minimum excise tax based on Oregon sales - ORS 317.090"/>
+
+    <field name="or_is_financial_institution" type="boolean" default_value="false"
+           comment="Is financial institution subject to 7.6% rate instead of 6.6%"/>
+
+    <field name="or_financial_institution_rate" type="double" default_value="0.076"
+           comment="OR tax rate for financial institutions: 7.6% - ORS 317.061(2)"/>
+
+  </entity>
+
+</entity_data_dictionary>

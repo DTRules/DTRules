@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: IRA Full Deduction -->
+<!-- Scenario: Taxpayer not covered by employer plan, full IRA deduction -->
+<!-- Expected: Full $7,000 IRA deduction -->
+<job>
+    <id>9007</id>
+    <tax_year>2025</tax_year>
+    <filing_status>Single</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <expected_agi>58000</expected_agi>
+    <expected_taxable_income>43000</expected_taxable_income>
+    <expected_total_tax>4900</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Jennifer Brown</name>
+            <ssn>111-11-2222</ssn>
+            <date_of_birth>07/22/1985</date_of_birth>
+            <occupation>Freelance Writer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>65000</w2_wages>
+            <w2_withholding>9000</w2_withholding>
+            <traditional_ira_contribution>7000</traditional_ira_contribution>
+            <covered_by_employer_plan>false</covered_by_employer_plan>
+            <age_50_or_over>false</age_50_or_over>
+        </taxpayer>
+    </taxpayers>
+
+    <incomes></incomes>
+    <dependents></dependents>
+    <properties></properties>
+    <vehicles></vehicles>
+    <deductions></deductions>
+</job>

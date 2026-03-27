@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  State-specific decision tables for Georgia (GA)
+
+  Military Retirement Provisions (2025):
+  - Complex age-based tiered exemptions
+  - Under 62: $17,500 + additional $17,500 if earned income >= $17,500
+  - Age 62-64: $35,000
+  - Age 65+: $65,000
+
+  Table Number: 9800 (GA is 9th state alphabetically)
+
+  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
+-->
+<decision_tables>
+
+<!-- ====================================================================== -->
+<!-- TABLE 9790: Calculate_GA_Military_Retirement_Exemption                -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_GA_Military_Retirement_Exemption</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Georgia military retirement exemption (2025). Age-based tiers: Under 62 = $17.5k base + $17.5k if earned income >= $17.5k, 62-64 = $35k, 65+ = $65k. Moving to $65k for all ages in 2026. Honors MSRRA and SCRA. Source: MOAA State Report Card, GA DOR.</COMMENTS>
+<TABLE_NUMBER>9790</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize GA military retirement exemption calculation</action_description>
+<action_postfix>
+"GA Military Retirement Exemption Calculation Started" job.audit_trail swap addto
+0.0 /result.ga_military_retirement_exemption xdef
+0.0 /result.ga_military_retirement_taxable xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Has military retirement pay -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has military retirement pay</condition_comment>
+<condition_description>military_retirement_pay > 0</condition_description>
+<condition_postfix>
+result.military_retirement_pay 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Age < 62 -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Age less than 62</condition_comment>
+<condition_description>age &lt; 62</condition_description>
+<condition_postfix>
+result.age 62 lt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Earned income >= $17,500 (for additional exemption) -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Earned income >= $17,500</condition_comment>
+<condition_description>earned_income >= $17,500</condition_description>
+<condition_postfix>
+result.earned_income result.ga_military_exemption_under_62_earned_threshold ge
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 4: Age 62-64 -->
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Age 62 to 64</condition_comment>
+<condition_description>age >= 62 AND age &lt; 65</condition_description>
+<condition_postfix>
+result.age 62 ge
+result.age 65 lt
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 5: Age 65+ -->
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Age 65 or older</condition_comment>
+<condition_description>age >= 65</condition_description>
+<condition_postfix>
+result.age 65 ge
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Under 62 with earned income >= $17,500 - $35,000 total exemption -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply GA $35,000 military retirement exemption (age &lt; 62, earned income >= $17.5k)</action_comment>
+<action_postfix>
+<!-- Base $17,500 + additional $17,500 = $35,000 total -->
+result.ga_military_exemption_under_62_base
+result.ga_military_exemption_under_62_earned_threshold
+add
+/ga_total_exemption_available xdef
+
+result.military_retirement_pay
+ga_total_exemption_available
+min
+/result.ga_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ga_military_retirement_exemption sub
+0 max
+/result.ga_military_retirement_taxable xdef
+
+"GA military retirement exemption (age < 62, earned >= $17.5k): $"
+result.ga_military_retirement_exemption cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Earned: $" strconcat result.earned_income cvs strconcat
+", Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", Taxable: $" strconcat result.ga_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Under 62 with earned income < $17,500 - $17,500 base exemption only -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Apply GA $17,500 military retirement exemption (age &lt; 62, earned &lt; $17.5k)</action_comment>
+<action_postfix>
+<!-- Base $17,500 only -->
+result.military_retirement_pay
+result.ga_military_exemption_under_62_base
+min
+/result.ga_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ga_military_retirement_exemption sub
+0 max
+/result.ga_military_retirement_taxable xdef
+
+"GA military retirement exemption (age < 62, earned < $17.5k): $"
+result.ga_military_retirement_exemption cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Earned: $" strconcat result.earned_income cvs strconcat
+", Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", Taxable: $" strconcat result.ga_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: Age 62-64 - $35,000 exemption -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>Apply GA $35,000 military retirement exemption (age 62-64)</action_comment>
+<action_postfix>
+result.military_retirement_pay
+result.ga_military_exemption_62_to_64
+min
+/result.ga_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ga_military_retirement_exemption sub
+0 max
+/result.ga_military_retirement_taxable xdef
+
+"GA military retirement exemption (age 62-64): $"
+result.ga_military_retirement_exemption cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", Taxable: $" strconcat result.ga_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 4: Age 65+ - $65,000 exemption -->
+<action_details>
+<action_number>4</action_number>
+<action_comment>Apply GA $65,000 military retirement exemption (age 65+)</action_comment>
+<action_postfix>
+result.military_retirement_pay
+result.ga_military_exemption_65_plus
+min
+/result.ga_military_retirement_exemption xdef
+
+result.military_retirement_pay result.ga_military_retirement_exemption sub
+0 max
+/result.ga_military_retirement_taxable xdef
+
+"GA military retirement exemption (age 65+): $"
+result.ga_military_retirement_exemption cvs strconcat
+" (Age: " strconcat result.age cvs strconcat
+", Retirement: $" strconcat result.military_retirement_pay cvs strconcat
+", Taxable: $" strconcat result.ga_military_retirement_taxable cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 5: No military retirement pay -->
+<action_details>
+<action_number>5</action_number>
+<action_comment>No military retirement pay</action_comment>
+<action_postfix>
+0.0 /result.ga_military_retirement_exemption xdef
+0.0 /result.ga_military_retirement_taxable xdef
+"No GA military retirement pay - exemption not applicable" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+</decision_tables>

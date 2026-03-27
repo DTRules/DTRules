@@ -1,0 +1,40 @@
+<job>
+   <copyright>Copyright 2025 DTRules.com</copyright>
+   <id>3</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>CA</state>
+   <city>Test City</city>
+   
+   <!-- Scenario 3: Single, high SE income $215k net -->
+   <expected_agi>199813</expected_agi>
+   <expected_taxable_income>137490</expected_taxable_income>
+   
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Self Employed</name>
+         <ssn>666-77-8888</ssn>
+         <date_of_birth>1/1/1980</date_of_birth>
+         <occupation>Consultant</occupation>
+         <is_self_employed>true</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>0</w2_wages>
+         <w2_withholding>0</w2_withholding>
+         <se_gross_income>250000</se_gross_income>
+         <estimated_payments>50000</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+   <dependents></dependents>
+   <se_expenses>
+      <se_expense id="1"><id>1</id><type>supplies</type><amount>8000</amount></se_expense>
+      <se_expense id="2"><id>2</id><type>travel</type><amount>12000</amount></se_expense>
+      <se_expense id="3"><id>3</id><type>office</type><amount>9000</amount></se_expense>
+      <se_expense id="4"><id>4</id><type>insurance</type><amount>6000</amount></se_expense>
+   </se_expenses>
+   <itemized_deductions>
+      <itemized_deduction id="1"><id>1</id><type>property_tax</type><amount>10000</amount></itemized_deduction>
+      <itemized_deduction id="2"><id>2</id><type>mortgage_interest</type><amount>15000</amount></itemized_deduction>
+      <itemized_deduction id="3"><id>3</id><type>charity</type><amount>3000</amount></itemized_deduction>
+   </itemized_deductions>
+</job>

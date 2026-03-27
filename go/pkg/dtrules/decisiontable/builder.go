@@ -198,6 +198,12 @@ func (b *Builder) SetFilename(filename string) *Builder {
 	return b
 }
 
+// SetFilePath sets the canonical file path.
+func (b *Builder) SetFilePath(path string) *Builder {
+	b.dt.filePath = path
+	return b
+}
+
 // SetOptimize sets whether to optimize the decision tree.
 func (b *Builder) SetOptimize(optimize bool) *Builder {
 	b.dt.optimize = optimize
