@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Arkansas Corporate Tax Entity Data Dictionary
+
+  AR Code § 26-51-205: 5.5% flat rate
+  Apportionment: Single-sales factor
+  Economic Nexus: $100,000 gross receipts threshold
+-->
+<entity_dictionary name="CorporateTax_AR_Constants">
+
+  <!--
+    Apportionment Entity: Arkansas-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='AR'
+           comment='Arkansas state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100K'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Arkansas uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.055'
+           comment='Arkansas corporate income tax rate: 5.5% flat rate (AR Code § 26-51-205)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Arkansas-Specific Extensions
+
+    No special Arkansas-specific fields are required for the basic implementation.
+    Arkansas follows a straightforward flat-rate structure without special surcharges
+    or alternative minimum tax.
+  -->
+  <entity name="result">
+    <!-- No Arkansas-specific fields needed for basic implementation -->
+  </entity>
+
+</entity_dictionary>

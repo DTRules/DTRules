@@ -1,0 +1,130 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Multi-State Test Case 2: MT → TX Move (Part-Year Resident) -->
+   <!-- Scenario: Taxpayer lived in MT Jan 1 - Aug 31 (243 days), moved to TX Sep 1 - Dec 31 (122 days) -->
+   <!-- MT has progressive income tax, TX has no income tax -->
+   <id>MultiState-02-MT-TX</id>
+   <tax_year>2025</tax_year>
+   <filing_status>married_filing_jointly</filing_status>
+   <state>MT</state>
+   <city>Billings</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values for validation -->
+   <!-- Total Federal AGI: $120,000 -->
+   <!-- MT Period: 243 days / 365 = 66.58% -->
+   <!-- MT Allocated Income: $120,000 × 66.58% = $79,896 -->
+   <!-- MT AGI: $79,896 -->
+   <!-- MT Standard Deduction MFJ: $10,600 -->
+   <!-- MT Taxable Income: $69,296 -->
+   <!-- MT Tax: Bracket 1: $23,600 × 4.7% = $1,109.20 -->
+   <!--        Bracket 2: ($69,296 - $23,600) × 5.9% = $2,696.06 -->
+   <!--        Total: $3,805.26 -->
+   <!-- TX has no state income tax, so no TX tax -->
+   <expected_agi>120000</expected_agi>
+   <expected_mt_agi>79896</expected_mt_agi>
+   <expected_mt_taxable_income>69296</expected_mt_taxable_income>
+   <expected_mt_tax>3805.26</expected_mt_tax>
+
+   <!-- Taxpayers -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Martinez</name>
+         <ssn>333-44-5555</ssn>
+         <date_of_birth>8/22/1985</date_of_birth>
+         <occupation>Petroleum Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>85000</w2_wages>
+         <w2_withholding>15000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Maria Martinez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>11/5/1987</date_of_birth>
+         <occupation>Nurse Practitioner</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>35000</w2_wages>
+         <w2_withholding>4000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Incomes -->
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>85000</gross_amount>
+         <withholding>15000</withholding>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>2</taxpayer_id>
+         <type>w2_wages</type>
+         <gross_amount>35000</gross_amount>
+         <withholding>4000</withholding>
+      </income>
+   </incomes>
+
+   <!-- State Periods - Multi-State Allocation -->
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>MT</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>8/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>TX</state_code>
+         <start_date>9/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>part_year</resident_status>
+      </state_period>
+   </state_periods>
+
+   <!-- Dependents -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Martinez</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>3/12/2018</date_of_birth>
+         <relationship>daughter</relationship>
+         <months_lived_with_taxpayer>12</months_lived_with_taxpayer>
+      </dependent>
+   </dependents>
+
+   <!-- Properties -->
+   <properties></properties>
+
+   <!-- Vehicles -->
+   <vehicles></vehicles>
+
+   <!-- Deductions -->
+   <deductions></deductions>
+</job>

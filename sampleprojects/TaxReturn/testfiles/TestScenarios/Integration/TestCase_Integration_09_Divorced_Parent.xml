@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Integration Test 09: Divorced Parent -->
+<!-- Tests: Head of Household, CTC, EITC, child support, alimony -->
+<!-- Scenario: Divorced parent with custody, paying alimony from pre-2019 divorce -->
+<!-- Expected: HOH filing status, full CTC and EITC, alimony deductible -->
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <id>INT-09-DIVORCED-PARENT</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>IL</state>
+   <city>Chicago</city>
+
+   <!-- Expected values -->
+   <!-- W-2 income: $68,000 -->
+   <!-- Alimony paid (pre-2019 divorce): $18,000 (deductible) -->
+   <!-- Child support paid: $12,000 (not deductible) -->
+   <!-- AGI: $68,000 - $18,000 = $50,000 -->
+   <!-- Standard deduction HOH: $22,500 -->
+   <!-- Taxable: $27,500 -->
+   <!-- Tax: $2,755 (10% on $16,550 + 12% on $10,950) -->
+   <!-- CTC: $4,000 (2 qualifying children) -->
+   <!-- EITC: ~$6,500 (2 children, $50k AGI) -->
+   <!-- Total credits exceed tax - refundable portion -->
+   <expected_agi>50000</expected_agi>
+   <expected_taxable_income>27500</expected_taxable_income>
+   <expected_total_tax>2755</expected_total_tax>
+   <expected_refund>0</expected_refund>
+
+   <!-- Taxpayer -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Nicole Anderson</name>
+         <ssn>300-19-9001</ssn>
+         <date_of_birth>7/14/1985</date_of_birth>
+         <occupation>Social Worker</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>68000</w2_wages>
+         <w2_withholding>9200</w2_withholding>
+         <w2_ss_wages>68000</w2_ss_wages>
+         <w2_ss_withheld>4216</w2_ss_withheld>
+         <w2_medicare_wages>68000</w2_medicare_wages>
+         <w2_medicare_withheld>986</w2_medicare_withheld>
+         <employer_name>Cook County Social Services</employer_name>
+         <employer_ein>36-1234567</employer_ein>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- Two qualifying children -->
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Zoe Anderson</name>
+         <ssn>300-19-9002</ssn>
+         <date_of_birth>9/22/2013</date_of_birth>
+         <age>12</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+         <is_qualifying_child_ctc>true</is_qualifying_child_ctc>
+         <is_qualifying_child_eitc>true</is_qualifying_child_eitc>
+      </dependent>
+
+      <dependent id="2">
+         <id>2</id>
+         <name>Mason Anderson</name>
+         <ssn>300-19-9003</ssn>
+         <date_of_birth>3/8/2016</date_of_birth>
+         <age>9</age>
+         <relationship>child</relationship>
+         <months_lived_with>12</months_lived_with>
+         <has_ssn>true</has_ssn>
+         <is_qualifying_child_ctc>true</is_qualifying_child_ctc>
+         <is_qualifying_child_eitc>true</is_qualifying_child_eitc>
+      </dependent>
+   </dependents>
+
+   <!-- Divorce details -->
+   <divorce_information>
+      <divorce_date>6/15/2018</divorce_date>
+      <divorce_decree_state>IL</divorce_decree_state>
+      <ex_spouse_name>Robert Anderson</ex_spouse_name>
+      <ex_spouse_ssn>300-19-9010</ex_spouse_ssn>
+      <alimony_paid>18000</alimony_paid>
+      <alimony_deductible>true</alimony_deductible>
+      <alimony_reason>Pre-2019 divorce decree</alimony_reason>
+      <child_support_paid>12000</child_support_paid>
+      <child_support_deductible>false</child_support_deductible>
+      <custodial_parent>Nicole Anderson</custodial_parent>
+      <custody_arrangement>Primary custody with mother</custody_arrangement>
+   </divorce_information>
+
+   <!-- Primary residence -->
+   <properties>
+      <property id="1">
+         <id>1</id>
+         <type>primary_residence</type>
+         <address>4567 North Lincoln Avenue, Chicago, IL 60625</address>
+         <purchase_date>10/1/2019</purchase_date>
+         <purchase_price>285000</purchase_price>
+         <current_fmv>325000</current_fmv>
+         <mortgage_balance>245000</mortgage_balance>
+         <mortgage_origination_date>10/1/2019</mortgage_origination_date>
+         <mortgage_interest>11025</mortgage_interest>
+         <property_taxes>6800</property_taxes>
+      </property>
+   </properties>
+
+   <!-- Deductions -->
+   <deductions>
+      <!-- Alimony (above-the-line deduction for pre-2019 divorce) -->
+      <deduction id="1">
+         <id>1</id>
+         <category>alimony_paid</category>
+         <description>Alimony to ex-spouse (pre-2019 divorce)</description>
+         <amount>18000</amount>
+         <recipient_ssn>300-19-9010</recipient_ssn>
+         <is_deductible>true</is_deductible>
+      </deduction>
+
+      <!-- Charity -->
+      <deduction id="2">
+         <id>2</id>
+         <category>charity</category>
+         <description>Church donations</description>
+         <amount>2400</amount>
+      </deduction>
+
+      <!-- Student loan interest -->
+      <deduction id="3">
+         <id>3</id>
+         <category>student_loan_interest</category>
+         <description>Federal student loans</description>
+         <amount>1800</amount>
+      </deduction>
+   </deductions>
+
+   <!-- Child care expenses -->
+   <child_care_expenses>4500</child_care_expenses>
+   <child_care_provider_name>After School Care Program</child_care_provider_name>
+   <child_care_provider_ein>36-2345678</child_care_provider_ein>
+</job>

@@ -1,0 +1,89 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- Wisconsin Test Case 02: Married filing jointly with mid-level income -->
+   <!-- Tests Wisconsin progressive tax brackets 1, 2, and 3 (MFJ) -->
+
+   <id>WI-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>WI</state>
+   <city>Milwaukee</city>
+
+   <!-- Expected values for validation (2025) -->
+   <!-- Income: $80,000 W2 combined -->
+   <!-- Federal AGI: $80,000 (no adjustments) -->
+   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
+   <!-- Federal Taxable: $50,000 -->
+   <!-- Federal Tax: $5,150 (10% on $23,850 + 12% on $26,150) -->
+   <!-- WI Standard Deduction: $26,510 -->
+   <!-- WI Taxable: $80,000 - $26,510 = $53,490 -->
+   <!-- WI Tax Bracket 1: $19,090 × 3.5% = $668.15 -->
+   <!-- WI Tax Bracket 2: ($38,190 - $19,090) × 4.4% = $840.40 -->
+   <!-- WI Tax Bracket 3: ($53,490 - $38,190) × 5.3% = $810.90 -->
+   <!-- WI Tax Total: $2,319.45 -->
+   <!-- Withholding: $12,000 federal + $2,500 state -->
+   <expected_agi>80000</expected_agi>
+   <expected_taxable_income>50000</expected_taxable_income>
+   <expected_federal_tax>5150</expected_federal_tax>
+   <expected_state_tax>2319</expected_state_tax>
+   <expected_total_tax>7469</expected_total_tax>
+
+   <!-- Married Filing Jointly -->
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Anderson</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>7/8/1985</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <state_withholding>1500</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Jennifer Anderson</name>
+         <ssn>555-66-7777</ssn>
+         <date_of_birth>9/12/1987</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+         <state_withholding>1000</state_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <!-- No dependents -->
+   <dependents></dependents>
+
+   <!-- No properties -->
+   <properties></properties>
+
+   <!-- No vehicles -->
+   <vehicles></vehicles>
+
+   <!-- No itemized deductions (standard is better) -->
+   <deductions></deductions>
+</job>
