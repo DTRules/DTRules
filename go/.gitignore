@@ -15,3 +15,7 @@ vendor/
 # IDE
 .idea/
 .vscode/
+
+# Compiled binaries
+excel2dt
+excel2edd
