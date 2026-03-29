@@ -22,7 +22,7 @@ import (
 func TestComprehensiveStateTaxes(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set once for all tests

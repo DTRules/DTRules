@@ -14,7 +14,7 @@ import (
 func TestTaxReturnResults(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set and load from directory (multi-file structure)
@@ -232,7 +232,7 @@ func checkValueResult(t *testing.T, name string, actual, expected, tolerance flo
 func TestOBBBADeductions(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set and load from directory (multi-file structure)
@@ -417,7 +417,7 @@ func TestOBBBADeductions(t *testing.T) {
 func TestNewTaxScenarios(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set and load from directory (multi-file structure)
@@ -606,7 +606,7 @@ func TestNewTaxScenarios(t *testing.T) {
 // This tests the Level 1 simple scenarios which verify standard deduction and tax brackets
 func Test2025Constants(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set once and reuse for all test cases
@@ -730,7 +730,7 @@ func Test2025Constants(t *testing.T) {
 // Uses existing HSA test file
 func Test2025HSALimits(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
@@ -784,7 +784,7 @@ func Test2025HSALimits(t *testing.T) {
 // Test2025IRALimits verifies IRA deduction using existing test file
 func Test2025IRALimits(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
@@ -840,7 +840,7 @@ func Test2025IRALimits(t *testing.T) {
 // Test2025StudentLoanPhaseout verifies student loan interest deduction
 func Test2025StudentLoanPhaseout(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
@@ -892,7 +892,7 @@ func Test2025StudentLoanPhaseout(t *testing.T) {
 // Test2025CapitalGainsBrackets verifies capital gains tax brackets
 func Test2025CapitalGainsBrackets(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set once and reuse for all test cases
@@ -972,7 +972,7 @@ func Test2025CapitalGainsBrackets(t *testing.T) {
 // SC standard deduction: $15,000 (Single) or $30,000 (MFJ)
 func TestSouthCarolinaTax(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Test cases for SC tax implementation

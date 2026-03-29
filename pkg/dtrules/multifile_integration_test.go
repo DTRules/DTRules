@@ -27,7 +27,7 @@ import (
 func TestMultiFileLoading(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Verify directory exists
@@ -94,7 +94,7 @@ func TestMultiFileLoading(t *testing.T) {
 // produces the same result as loading from monolithic files
 func TestMultiFileVsMonolithicEquivalence(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Check if both structures exist
@@ -170,7 +170,7 @@ func TestMultiFileVsMonolithicEquivalence(t *testing.T) {
 // Try directory loading first, fall back to monolithic if needed
 func TestBackwardCompatibilityFallback(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")

@@ -37,7 +37,7 @@ import (
 func TestCorporateTaxLoading(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	t.Logf("Loading CorporateTax from: %s", xmlDir)
@@ -103,7 +103,7 @@ func TestCorporateTaxLoading(t *testing.T) {
 func TestCorporateTaxSimpleExecution(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set and load from directory
@@ -214,7 +214,7 @@ func TestCorporateTaxSimpleExecution(t *testing.T) {
 func TestCorporateTaxDepreciation(t *testing.T) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Create rule set and load from directory
@@ -291,7 +291,7 @@ func TestCorporateTaxStateSpecific(t *testing.T) {
 func testStateExecution(t *testing.T, stateCode string) {
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Verify state files exist
@@ -347,7 +347,7 @@ func testStateExecution(t *testing.T, stateCode string) {
 // TestCorporateTaxStatesValidation validates all state files
 func TestCorporateTaxStatesValidation(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 	statesDir := filepath.Join(xmlDir, "states")
 
@@ -468,7 +468,7 @@ func TestCorporateTaxStatesValidation(t *testing.T) {
 // TestCorporateTaxFilePathMetadata verifies FILE_PATH metadata is present
 func TestCorporateTaxFilePathMetadata(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Read one of the state files to verify FILE_PATH metadata
@@ -503,7 +503,7 @@ func TestCorporateTaxFilePathMetadata(t *testing.T) {
 // TestCorporateTaxFileCount verifies expected number of files
 func TestCorporateTaxFileCount(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 	statesDir := filepath.Join(xmlDir, "states")
 
@@ -548,7 +548,7 @@ func TestCorporateTaxFileCount(t *testing.T) {
 // TestCorporateTaxAllScenarios runs all test scenarios in the TestScenarios directory
 func TestCorporateTaxAllScenarios(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 	testScenariosDir := filepath.Join(sampleDir, "testfiles", "TestScenarios")
 
@@ -647,7 +647,7 @@ func TestCorporateTaxAllScenarios(t *testing.T) {
 // TestCorporateTaxPhase1Foundation runs Phase 1 foundation tests
 func TestCorporateTaxPhase1Foundation(t *testing.T) {
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "CorporateTax")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	t.Run("EDDLoading", func(t *testing.T) {

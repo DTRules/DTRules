@@ -31,7 +31,7 @@ func setupTaxReturn(b *testing.B) *session.RuleSet {
 	b.Helper()
 
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
@@ -70,7 +70,7 @@ func loadTestData(b *testing.B, sess *session.RSession, testFile string) {
 	b.Helper()
 
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	// Load mapping
@@ -401,7 +401,7 @@ func setupTaxReturnForTest(t *testing.T) *session.RuleSet {
 	t.Helper()
 
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	rs := session.NewRuleSet("TaxReturn")
@@ -437,7 +437,7 @@ func loadTestDataForTest(t *testing.T, sess *session.RSession, testFile string) 
 	t.Helper()
 
 	cwd, _ := os.Getwd()
-	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "TaxReturn")
+	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
 	mapPath := filepath.Join(xmlDir, "TaxReturn_map.xml")

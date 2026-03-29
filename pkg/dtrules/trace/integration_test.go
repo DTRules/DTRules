@@ -34,9 +34,9 @@ func getTestDataPath() string {
 		return ""
 	}
 
-	// Navigate from go/pkg/dtrules/trace to sampleprojects/KidAid
+	// Navigate from pkg/dtrules/trace to sampleprojects/KidAid
 	dir := filepath.Dir(filename)
-	samplePath := filepath.Join(dir, "..", "..", "..", "..", "sampleprojects", "KidAid")
+	samplePath := filepath.Join(dir, "..", "..", "..", "sampleprojects", "KidAid")
 
 	if _, err := os.Stat(samplePath); err != nil {
 		return ""
