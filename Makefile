@@ -7,14 +7,14 @@
 #   make install
 
 # Version info
-# Default to branch name, override with VERSION=x.y.z for releases
+# Uses git describe to get version from tags (e.g., "v1.0.0" or "v1.0.0-5-gabcdef")
 GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_DATE ?= $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 
-# Version defaults to branch name (e.g., "5.0-SNAPSHOT")
-# Override for releases: make build VERSION=5.0.0
-VERSION ?= $(GIT_BRANCH)
+# Version from git tags (falls back to commit hash if no tags)
+# Override with: make build VERSION=v1.0.0
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 
 # Build flags
 PKG := github.com/DTRules/DTRules/pkg/dtrules/version
