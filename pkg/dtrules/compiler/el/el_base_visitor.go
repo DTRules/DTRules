@@ -623,6 +623,14 @@ func (v *BaseELVisitor) VisitAddDestColon(ctx *AddDestColonContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -632,6 +640,14 @@ func (v *BaseELVisitor) VisitSubDestDouble(ctx *SubDestDoubleContext) interface{
 }
 
 func (v *BaseELVisitor) VisitSubDestColon(ctx *SubDestColonContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1603,6 +1619,10 @@ func (v *BaseELVisitor) VisitBoolEntityIsOf(ctx *BoolEntityIsOfContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolTypedIsLiteral(ctx *BoolTypedIsLiteralContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolDateGte(ctx *BoolDateGteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1672,6 +1692,10 @@ func (v *BaseELVisitor) VisitBoolStrIsOneOf(ctx *BoolStrIsOneOfContext) interfac
 }
 
 func (v *BaseELVisitor) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolColonIsNotLiteral(ctx *BoolColonIsNotLiteralContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1763,6 +1787,10 @@ func (v *BaseELVisitor) VisitBoolAnd(ctx *BoolAndContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1824,6 +1852,10 @@ func (v *BaseELVisitor) VisitBoolStrIsNull(ctx *BoolStrIsNullContext) interface{
 }
 
 func (v *BaseELVisitor) VisitBoolStrGt(ctx *BoolStrGtContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolColonIsLiteral(ctx *BoolColonIsLiteralContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1943,6 +1975,10 @@ func (v *BaseELVisitor) VisitBoolParen(ctx *BoolParenContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1980,6 +2016,10 @@ func (v *BaseELVisitor) VisitBoolDateIsNotNull(ctx *BoolDateIsNotNullContext) in
 }
 
 func (v *BaseELVisitor) VisitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

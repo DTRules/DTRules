@@ -469,6 +469,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#addDestColon.
 	VisitAddDestColon(ctx *AddDestColonContext) interface{}
 
+	// Visit a parse tree produced by ELParser#addDestPossessiveLong.
+	VisitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) interface{}
+
+	// Visit a parse tree produced by ELParser#addDestPossessiveDouble.
+	VisitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) interface{}
+
 	// Visit a parse tree produced by ELParser#subDestLong.
 	VisitSubDestLong(ctx *SubDestLongContext) interface{}
 
@@ -477,6 +483,12 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#subDestColon.
 	VisitSubDestColon(ctx *SubDestColonContext) interface{}
+
+	// Visit a parse tree produced by ELParser#subDestPossessiveLong.
+	VisitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) interface{}
+
+	// Visit a parse tree produced by ELParser#subDestPossessiveDouble.
+	VisitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) interface{}
 
 	// Visit a parse tree produced by ELParser#addArrayNoMember.
 	VisitAddArrayNoMember(ctx *AddArrayNoMemberContext) interface{}
@@ -1204,6 +1216,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolEntityIsOf.
 	VisitBoolEntityIsOf(ctx *BoolEntityIsOfContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolTypedIsLiteral.
+	VisitBoolTypedIsLiteral(ctx *BoolTypedIsLiteralContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolDateGte.
 	VisitBoolDateGte(ctx *BoolDateGteContext) interface{}
 
@@ -1257,6 +1272,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolNameNeq.
 	VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolColonIsNotLiteral.
+	VisitBoolColonIsNotLiteral(ctx *BoolColonIsNotLiteralContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolThereIsNoInArrayWhere.
 	VisitBoolThereIsNoInArrayWhere(ctx *BoolThereIsNoInArrayWhereContext) interface{}
@@ -1324,6 +1342,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolAnd.
 	VisitBoolAnd(ctx *BoolAndContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolStrIsNot.
+	VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolIntGt.
 	VisitBoolIntGt(ctx *BoolIntGtContext) interface{}
 
@@ -1371,6 +1392,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolStrGt.
 	VisitBoolStrGt(ctx *BoolStrGtContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolColonIsLiteral.
+	VisitBoolColonIsLiteral(ctx *BoolColonIsLiteralContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolEntityEq.
 	VisitBoolEntityEq(ctx *BoolEntityEqContext) interface{}
@@ -1459,6 +1483,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolParen.
 	VisitBoolParen(ctx *BoolParenContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolStrIs.
+	VisitBoolStrIs(ctx *BoolStrIsContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolThereIsNoWhere.
 	VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) interface{}
 
@@ -1488,6 +1515,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolThereIsInArrayWhere.
 	VisitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhereContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolTypedIsNotLiteral.
+	VisitBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolEntityIsNotNull.
 	VisitBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContext) interface{}

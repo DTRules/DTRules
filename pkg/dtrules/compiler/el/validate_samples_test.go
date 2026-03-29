@@ -140,14 +140,49 @@ func TestValidateSampleProjectEL(t *testing.T) {
 		parsedActions, totalActions,
 		float64(parsedActions)/float64(totalActions)*100)
 
+	// Count failures by type and source
+	var condFailures, actionFailures int
+	corpFailures := 0
+	for _, el := range failedEL {
+		if strings.Contains(el, ":cond:") {
+			condFailures++
+		} else {
+			actionFailures++
+		}
+		if strings.Contains(el, "_corp_dt.xml") {
+			corpFailures++
+		}
+	}
+
 	if len(failedEL) > 0 {
-		t.Logf("Failed to parse %d expressions:", len(failedEL))
-		for i, el := range failedEL {
-			if i >= 20 {
-				t.Logf("  ... and %d more", len(failedEL)-20)
-				break
+		t.Logf("Failed to parse %d expressions (%d conditions, %d actions):",
+			len(failedEL), condFailures, actionFailures)
+		t.Logf("  CorporateTax project (human-readable descriptions): %d", corpFailures)
+		t.Logf("  Other projects: %d", len(failedEL)-corpFailures)
+
+		// Show all condition failures (there should be few)
+		t.Logf("")
+		t.Logf("Condition failures:")
+		for _, el := range failedEL {
+			if strings.Contains(el, ":cond:") {
+				t.Logf("  %s", el)
 			}
-			t.Logf("  %s", el)
+		}
+
+		// Show first 10 non-corp action failures
+		t.Logf("")
+		t.Logf("Non-CorporateTax action failures (first 10):")
+		actionCount := 0
+		for _, el := range failedEL {
+			if strings.Contains(el, ":action:") && !strings.Contains(el, "_corp_dt.xml") {
+				if actionCount < 10 {
+					t.Logf("  %s", el)
+				}
+				actionCount++
+			}
+		}
+		if actionCount > 10 {
+			t.Logf("  ... and %d more", actionCount-10)
 		}
 	}
 }

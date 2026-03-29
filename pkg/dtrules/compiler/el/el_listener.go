@@ -469,6 +469,12 @@ type ELListener interface {
 	// EnterAddDestColon is called when entering the addDestColon production.
 	EnterAddDestColon(c *AddDestColonContext)
 
+	// EnterAddDestPossessiveLong is called when entering the addDestPossessiveLong production.
+	EnterAddDestPossessiveLong(c *AddDestPossessiveLongContext)
+
+	// EnterAddDestPossessiveDouble is called when entering the addDestPossessiveDouble production.
+	EnterAddDestPossessiveDouble(c *AddDestPossessiveDoubleContext)
+
 	// EnterSubDestLong is called when entering the subDestLong production.
 	EnterSubDestLong(c *SubDestLongContext)
 
@@ -477,6 +483,12 @@ type ELListener interface {
 
 	// EnterSubDestColon is called when entering the subDestColon production.
 	EnterSubDestColon(c *SubDestColonContext)
+
+	// EnterSubDestPossessiveLong is called when entering the subDestPossessiveLong production.
+	EnterSubDestPossessiveLong(c *SubDestPossessiveLongContext)
+
+	// EnterSubDestPossessiveDouble is called when entering the subDestPossessiveDouble production.
+	EnterSubDestPossessiveDouble(c *SubDestPossessiveDoubleContext)
 
 	// EnterAddArrayNoMember is called when entering the addArrayNoMember production.
 	EnterAddArrayNoMember(c *AddArrayNoMemberContext)
@@ -1204,6 +1216,9 @@ type ELListener interface {
 	// EnterBoolEntityIsOf is called when entering the boolEntityIsOf production.
 	EnterBoolEntityIsOf(c *BoolEntityIsOfContext)
 
+	// EnterBoolTypedIsLiteral is called when entering the boolTypedIsLiteral production.
+	EnterBoolTypedIsLiteral(c *BoolTypedIsLiteralContext)
+
 	// EnterBoolDateGte is called when entering the boolDateGte production.
 	EnterBoolDateGte(c *BoolDateGteContext)
 
@@ -1257,6 +1272,9 @@ type ELListener interface {
 
 	// EnterBoolNameNeq is called when entering the boolNameNeq production.
 	EnterBoolNameNeq(c *BoolNameNeqContext)
+
+	// EnterBoolColonIsNotLiteral is called when entering the boolColonIsNotLiteral production.
+	EnterBoolColonIsNotLiteral(c *BoolColonIsNotLiteralContext)
 
 	// EnterBoolThereIsNoInArrayWhere is called when entering the boolThereIsNoInArrayWhere production.
 	EnterBoolThereIsNoInArrayWhere(c *BoolThereIsNoInArrayWhereContext)
@@ -1324,6 +1342,9 @@ type ELListener interface {
 	// EnterBoolAnd is called when entering the boolAnd production.
 	EnterBoolAnd(c *BoolAndContext)
 
+	// EnterBoolStrIsNot is called when entering the boolStrIsNot production.
+	EnterBoolStrIsNot(c *BoolStrIsNotContext)
+
 	// EnterBoolIntGt is called when entering the boolIntGt production.
 	EnterBoolIntGt(c *BoolIntGtContext)
 
@@ -1371,6 +1392,9 @@ type ELListener interface {
 
 	// EnterBoolStrGt is called when entering the boolStrGt production.
 	EnterBoolStrGt(c *BoolStrGtContext)
+
+	// EnterBoolColonIsLiteral is called when entering the boolColonIsLiteral production.
+	EnterBoolColonIsLiteral(c *BoolColonIsLiteralContext)
 
 	// EnterBoolEntityEq is called when entering the boolEntityEq production.
 	EnterBoolEntityEq(c *BoolEntityEqContext)
@@ -1459,6 +1483,9 @@ type ELListener interface {
 	// EnterBoolParen is called when entering the boolParen production.
 	EnterBoolParen(c *BoolParenContext)
 
+	// EnterBoolStrIs is called when entering the boolStrIs production.
+	EnterBoolStrIs(c *BoolStrIsContext)
+
 	// EnterBoolThereIsNoWhere is called when entering the boolThereIsNoWhere production.
 	EnterBoolThereIsNoWhere(c *BoolThereIsNoWhereContext)
 
@@ -1488,6 +1515,9 @@ type ELListener interface {
 
 	// EnterBoolThereIsInArrayWhere is called when entering the boolThereIsInArrayWhere production.
 	EnterBoolThereIsInArrayWhere(c *BoolThereIsInArrayWhereContext)
+
+	// EnterBoolTypedIsNotLiteral is called when entering the boolTypedIsNotLiteral production.
+	EnterBoolTypedIsNotLiteral(c *BoolTypedIsNotLiteralContext)
 
 	// EnterBoolEntityIsNotNull is called when entering the boolEntityIsNotNull production.
 	EnterBoolEntityIsNotNull(c *BoolEntityIsNotNullContext)
@@ -2017,6 +2047,12 @@ type ELListener interface {
 	// ExitAddDestColon is called when exiting the addDestColon production.
 	ExitAddDestColon(c *AddDestColonContext)
 
+	// ExitAddDestPossessiveLong is called when exiting the addDestPossessiveLong production.
+	ExitAddDestPossessiveLong(c *AddDestPossessiveLongContext)
+
+	// ExitAddDestPossessiveDouble is called when exiting the addDestPossessiveDouble production.
+	ExitAddDestPossessiveDouble(c *AddDestPossessiveDoubleContext)
+
 	// ExitSubDestLong is called when exiting the subDestLong production.
 	ExitSubDestLong(c *SubDestLongContext)
 
@@ -2025,6 +2061,12 @@ type ELListener interface {
 
 	// ExitSubDestColon is called when exiting the subDestColon production.
 	ExitSubDestColon(c *SubDestColonContext)
+
+	// ExitSubDestPossessiveLong is called when exiting the subDestPossessiveLong production.
+	ExitSubDestPossessiveLong(c *SubDestPossessiveLongContext)
+
+	// ExitSubDestPossessiveDouble is called when exiting the subDestPossessiveDouble production.
+	ExitSubDestPossessiveDouble(c *SubDestPossessiveDoubleContext)
 
 	// ExitAddArrayNoMember is called when exiting the addArrayNoMember production.
 	ExitAddArrayNoMember(c *AddArrayNoMemberContext)
@@ -2752,6 +2794,9 @@ type ELListener interface {
 	// ExitBoolEntityIsOf is called when exiting the boolEntityIsOf production.
 	ExitBoolEntityIsOf(c *BoolEntityIsOfContext)
 
+	// ExitBoolTypedIsLiteral is called when exiting the boolTypedIsLiteral production.
+	ExitBoolTypedIsLiteral(c *BoolTypedIsLiteralContext)
+
 	// ExitBoolDateGte is called when exiting the boolDateGte production.
 	ExitBoolDateGte(c *BoolDateGteContext)
 
@@ -2805,6 +2850,9 @@ type ELListener interface {
 
 	// ExitBoolNameNeq is called when exiting the boolNameNeq production.
 	ExitBoolNameNeq(c *BoolNameNeqContext)
+
+	// ExitBoolColonIsNotLiteral is called when exiting the boolColonIsNotLiteral production.
+	ExitBoolColonIsNotLiteral(c *BoolColonIsNotLiteralContext)
 
 	// ExitBoolThereIsNoInArrayWhere is called when exiting the boolThereIsNoInArrayWhere production.
 	ExitBoolThereIsNoInArrayWhere(c *BoolThereIsNoInArrayWhereContext)
@@ -2872,6 +2920,9 @@ type ELListener interface {
 	// ExitBoolAnd is called when exiting the boolAnd production.
 	ExitBoolAnd(c *BoolAndContext)
 
+	// ExitBoolStrIsNot is called when exiting the boolStrIsNot production.
+	ExitBoolStrIsNot(c *BoolStrIsNotContext)
+
 	// ExitBoolIntGt is called when exiting the boolIntGt production.
 	ExitBoolIntGt(c *BoolIntGtContext)
 
@@ -2919,6 +2970,9 @@ type ELListener interface {
 
 	// ExitBoolStrGt is called when exiting the boolStrGt production.
 	ExitBoolStrGt(c *BoolStrGtContext)
+
+	// ExitBoolColonIsLiteral is called when exiting the boolColonIsLiteral production.
+	ExitBoolColonIsLiteral(c *BoolColonIsLiteralContext)
 
 	// ExitBoolEntityEq is called when exiting the boolEntityEq production.
 	ExitBoolEntityEq(c *BoolEntityEqContext)
@@ -3007,6 +3061,9 @@ type ELListener interface {
 	// ExitBoolParen is called when exiting the boolParen production.
 	ExitBoolParen(c *BoolParenContext)
 
+	// ExitBoolStrIs is called when exiting the boolStrIs production.
+	ExitBoolStrIs(c *BoolStrIsContext)
+
 	// ExitBoolThereIsNoWhere is called when exiting the boolThereIsNoWhere production.
 	ExitBoolThereIsNoWhere(c *BoolThereIsNoWhereContext)
 
@@ -3036,6 +3093,9 @@ type ELListener interface {
 
 	// ExitBoolThereIsInArrayWhere is called when exiting the boolThereIsInArrayWhere production.
 	ExitBoolThereIsInArrayWhere(c *BoolThereIsInArrayWhereContext)
+
+	// ExitBoolTypedIsNotLiteral is called when exiting the boolTypedIsNotLiteral production.
+	ExitBoolTypedIsNotLiteral(c *BoolTypedIsNotLiteralContext)
 
 	// ExitBoolEntityIsNotNull is called when exiting the boolEntityIsNotNull production.
 	ExitBoolEntityIsNotNull(c *BoolEntityIsNotNullContext)

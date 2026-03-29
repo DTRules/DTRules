@@ -944,6 +944,18 @@ func (s *BaseELListener) EnterAddDestColon(ctx *AddDestColonContext) {}
 // ExitAddDestColon is called when production addDestColon is exited.
 func (s *BaseELListener) ExitAddDestColon(ctx *AddDestColonContext) {}
 
+// EnterAddDestPossessiveLong is called when production addDestPossessiveLong is entered.
+func (s *BaseELListener) EnterAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) {}
+
+// ExitAddDestPossessiveLong is called when production addDestPossessiveLong is exited.
+func (s *BaseELListener) ExitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) {}
+
+// EnterAddDestPossessiveDouble is called when production addDestPossessiveDouble is entered.
+func (s *BaseELListener) EnterAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) {}
+
+// ExitAddDestPossessiveDouble is called when production addDestPossessiveDouble is exited.
+func (s *BaseELListener) ExitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) {}
+
 // EnterSubDestLong is called when production subDestLong is entered.
 func (s *BaseELListener) EnterSubDestLong(ctx *SubDestLongContext) {}
 
@@ -961,6 +973,18 @@ func (s *BaseELListener) EnterSubDestColon(ctx *SubDestColonContext) {}
 
 // ExitSubDestColon is called when production subDestColon is exited.
 func (s *BaseELListener) ExitSubDestColon(ctx *SubDestColonContext) {}
+
+// EnterSubDestPossessiveLong is called when production subDestPossessiveLong is entered.
+func (s *BaseELListener) EnterSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) {}
+
+// ExitSubDestPossessiveLong is called when production subDestPossessiveLong is exited.
+func (s *BaseELListener) ExitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) {}
+
+// EnterSubDestPossessiveDouble is called when production subDestPossessiveDouble is entered.
+func (s *BaseELListener) EnterSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) {}
+
+// ExitSubDestPossessiveDouble is called when production subDestPossessiveDouble is exited.
+func (s *BaseELListener) ExitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) {}
 
 // EnterAddArrayNoMember is called when production addArrayNoMember is entered.
 func (s *BaseELListener) EnterAddArrayNoMember(ctx *AddArrayNoMemberContext) {}
@@ -2414,6 +2438,12 @@ func (s *BaseELListener) EnterBoolEntityIsOf(ctx *BoolEntityIsOfContext) {}
 // ExitBoolEntityIsOf is called when production boolEntityIsOf is exited.
 func (s *BaseELListener) ExitBoolEntityIsOf(ctx *BoolEntityIsOfContext) {}
 
+// EnterBoolTypedIsLiteral is called when production boolTypedIsLiteral is entered.
+func (s *BaseELListener) EnterBoolTypedIsLiteral(ctx *BoolTypedIsLiteralContext) {}
+
+// ExitBoolTypedIsLiteral is called when production boolTypedIsLiteral is exited.
+func (s *BaseELListener) ExitBoolTypedIsLiteral(ctx *BoolTypedIsLiteralContext) {}
+
 // EnterBoolDateGte is called when production boolDateGte is entered.
 func (s *BaseELListener) EnterBoolDateGte(ctx *BoolDateGteContext) {}
 
@@ -2521,6 +2551,12 @@ func (s *BaseELListener) EnterBoolNameNeq(ctx *BoolNameNeqContext) {}
 
 // ExitBoolNameNeq is called when production boolNameNeq is exited.
 func (s *BaseELListener) ExitBoolNameNeq(ctx *BoolNameNeqContext) {}
+
+// EnterBoolColonIsNotLiteral is called when production boolColonIsNotLiteral is entered.
+func (s *BaseELListener) EnterBoolColonIsNotLiteral(ctx *BoolColonIsNotLiteralContext) {}
+
+// ExitBoolColonIsNotLiteral is called when production boolColonIsNotLiteral is exited.
+func (s *BaseELListener) ExitBoolColonIsNotLiteral(ctx *BoolColonIsNotLiteralContext) {}
 
 // EnterBoolThereIsNoInArrayWhere is called when production boolThereIsNoInArrayWhere is entered.
 func (s *BaseELListener) EnterBoolThereIsNoInArrayWhere(ctx *BoolThereIsNoInArrayWhereContext) {}
@@ -2654,6 +2690,12 @@ func (s *BaseELListener) EnterBoolAnd(ctx *BoolAndContext) {}
 // ExitBoolAnd is called when production boolAnd is exited.
 func (s *BaseELListener) ExitBoolAnd(ctx *BoolAndContext) {}
 
+// EnterBoolStrIsNot is called when production boolStrIsNot is entered.
+func (s *BaseELListener) EnterBoolStrIsNot(ctx *BoolStrIsNotContext) {}
+
+// ExitBoolStrIsNot is called when production boolStrIsNot is exited.
+func (s *BaseELListener) ExitBoolStrIsNot(ctx *BoolStrIsNotContext) {}
+
 // EnterBoolIntGt is called when production boolIntGt is entered.
 func (s *BaseELListener) EnterBoolIntGt(ctx *BoolIntGtContext) {}
 
@@ -2749,6 +2791,12 @@ func (s *BaseELListener) EnterBoolStrGt(ctx *BoolStrGtContext) {}
 
 // ExitBoolStrGt is called when production boolStrGt is exited.
 func (s *BaseELListener) ExitBoolStrGt(ctx *BoolStrGtContext) {}
+
+// EnterBoolColonIsLiteral is called when production boolColonIsLiteral is entered.
+func (s *BaseELListener) EnterBoolColonIsLiteral(ctx *BoolColonIsLiteralContext) {}
+
+// ExitBoolColonIsLiteral is called when production boolColonIsLiteral is exited.
+func (s *BaseELListener) ExitBoolColonIsLiteral(ctx *BoolColonIsLiteralContext) {}
 
 // EnterBoolEntityEq is called when production boolEntityEq is entered.
 func (s *BaseELListener) EnterBoolEntityEq(ctx *BoolEntityEqContext) {}
@@ -2924,6 +2972,12 @@ func (s *BaseELListener) EnterBoolParen(ctx *BoolParenContext) {}
 // ExitBoolParen is called when production boolParen is exited.
 func (s *BaseELListener) ExitBoolParen(ctx *BoolParenContext) {}
 
+// EnterBoolStrIs is called when production boolStrIs is entered.
+func (s *BaseELListener) EnterBoolStrIs(ctx *BoolStrIsContext) {}
+
+// ExitBoolStrIs is called when production boolStrIs is exited.
+func (s *BaseELListener) ExitBoolStrIs(ctx *BoolStrIsContext) {}
+
 // EnterBoolThereIsNoWhere is called when production boolThereIsNoWhere is entered.
 func (s *BaseELListener) EnterBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) {}
 
@@ -2983,6 +3037,12 @@ func (s *BaseELListener) EnterBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhe
 
 // ExitBoolThereIsInArrayWhere is called when production boolThereIsInArrayWhere is exited.
 func (s *BaseELListener) ExitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhereContext) {}
+
+// EnterBoolTypedIsNotLiteral is called when production boolTypedIsNotLiteral is entered.
+func (s *BaseELListener) EnterBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralContext) {}
+
+// ExitBoolTypedIsNotLiteral is called when production boolTypedIsNotLiteral is exited.
+func (s *BaseELListener) ExitBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralContext) {}
 
 // EnterBoolEntityIsNotNull is called when production boolEntityIsNotNull is entered.
 func (s *BaseELListener) EnterBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContext) {}

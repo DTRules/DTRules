@@ -297,12 +297,16 @@ addtodest
     | typedLong                                             # addDestLong
     | typedDouble                                           # addDestDouble
     | colonRef addtodest2                                   # addDestColon
+    | POSSESSIVE typedLong                                  # addDestPossessiveLong
+    | POSSESSIVE typedDouble                                # addDestPossessiveDouble
     ;
 
 subtodest
     : typedLong                                             # subDestLong
     | typedDouble                                           # subDestDouble
     | colonRef addtodest2                                   # subDestColon
+    | POSSESSIVE typedLong                                  # subDestPossessiveLong
+    | POSSESSIVE typedDouble                                # subDestPossessiveDouble
     ;
 
 addtostatement
@@ -705,6 +709,8 @@ bexpr
     | strexpr EQ blist                                      # boolStrEqList
     | strexpr EQ strexpr                                    # boolStrEq
     | strexpr NEQ strexpr                                   # boolStrNeq
+    | strexpr IS strexpr                                    # boolStrIs
+    | strexpr IS NOT strexpr                                # boolStrIsNot
     | strexpr EQ_IGNORE_CASE strexpr                        # boolStrEqIc
     | strexpr NEQ_IGNORE_CASE strexpr                       # boolStrNeqIc
     | strexpr AT iexpr STARTS_WITH strexpr                  # boolStartsWithAt
@@ -725,6 +731,12 @@ bexpr
 
     // Regex
     | strexpr MATCHES strexpr                               # boolMatches
+
+    // Boolean "is" tests (flag.a is true, flag.b is false)
+    | typedBoolean IS RBOOLEAN                              # boolTypedIsLiteral
+    | typedBoolean IS NOT RBOOLEAN                          # boolTypedIsNotLiteral
+    | colonRef typedBoolean IS RBOOLEAN                     # boolColonIsLiteral
+    | colonRef typedBoolean IS NOT RBOOLEAN                 # boolColonIsNotLiteral
 
     // Boolean operations
     | bexpr EQ bexpr                                        # boolBoolEq
@@ -852,12 +864,14 @@ TIMES               : '*' ;
 ASSIGN              : '=' ;
 
 // Comparison operators - natural language (longer patterns first to ensure correct matching)
-GTE                 : '>=' | '&gt='
+GTE                 : '>=' | '&gt=' | '\u2265'
                     | 'is' WS+ 'greater' WS+ 'than' WS+ 'or' WS+ 'equal' WS+ 'to'
-                    | 'greater' WS+ 'than' WS+ 'or' WS+ 'equal' WS+ 'to' ;
-LTE                 : '<=' | '&lt='
+                    | 'greater' WS+ 'than' WS+ 'or' WS+ 'equal' WS+ 'to'
+                    | 'at' WS+ 'or' WS+ 'above' ;
+LTE                 : '<=' | '&lt=' | '\u2264'
                     | 'is' WS+ 'less' WS+ 'than' WS+ 'or' WS+ 'equal' WS+ 'to'
-                    | 'less' WS+ 'than' WS+ 'or' WS+ 'equal' WS+ 'to' ;
+                    | 'less' WS+ 'than' WS+ 'or' WS+ 'equal' WS+ 'to'
+                    | 'at' WS+ 'or' WS+ 'below' ;
 GT                  : '>' | '&gt'
                     | 'is' WS+ 'greater' WS+ 'than'
                     | 'greater' WS+ 'than' ;
@@ -994,14 +1008,14 @@ INT_LITERAL         : DIGIT+ ;
 FLOAT_LITERAL       : DIGIT+ '.' DIGIT* | DIGIT* '.' DIGIT+ ;
 STRING_LITERAL      : '"' ~["]* '"' | '\'' ~[']* '\'' ;
 
+// Articles - ignored (must come before IDENT to take precedence)
+ARTICLE             : ('a' | 'an' | 'the') -> skip ;
+
 // Possessive
 POSSESSIVE          : IDENT_CHAR+ ('.' IDENT_CHAR+)? '\'' 's' ;
 
 // Identifier - must come after all keywords
 IDENT               : IDENT_CHAR+ ('.' IDENT_CHAR+)? ;
-
-// Articles - ignored
-ARTICLE             : ('a' | 'an' | 'the') -> skip ;
 
 // Comments
 LINE_COMMENT        : '//' ~[\r\n]* -> skip ;

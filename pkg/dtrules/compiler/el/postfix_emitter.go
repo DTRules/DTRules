@@ -197,7 +197,21 @@ func (e *PostfixEmitter) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
 func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
 	e.Visit(ctx.Strexpr(0))
 	e.Visit(ctx.Strexpr(1))
+	e.emit("strneq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
 	e.emit("streq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("strneq")
 	e.emit("not")
 	return nil
 }
@@ -234,6 +248,44 @@ func (e *PostfixEmitter) VisitBoolOr(ctx *BoolOrContext) interface{} {
 func (e *PostfixEmitter) VisitBoolNot(ctx *BoolNotContext) interface{} {
 	e.Visit(ctx.Bexpr())
 	e.emit("not")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolTypedIsLiteral(ctx *BoolTypedIsLiteralContext) interface{} {
+	// typedBoolean IS RBOOLEAN -> flag.a is true => flag.a true eq
+	e.Visit(ctx.TypedBoolean())
+	text := strings.ToLower(ctx.RBOOLEAN().GetText())
+	e.emit(text)
+	e.emit("eq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralContext) interface{} {
+	// typedBoolean IS NOT RBOOLEAN -> flag.a is not true => flag.a true neq
+	e.Visit(ctx.TypedBoolean())
+	text := strings.ToLower(ctx.RBOOLEAN().GetText())
+	e.emit(text)
+	e.emit("neq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolColonIsLiteral(ctx *BoolColonIsLiteralContext) interface{} {
+	// colonRef typedBoolean IS RBOOLEAN
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedBoolean())
+	text := strings.ToLower(ctx.RBOOLEAN().GetText())
+	e.emit(text)
+	e.emit("eq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolColonIsNotLiteral(ctx *BoolColonIsNotLiteralContext) interface{} {
+	// colonRef typedBoolean IS NOT RBOOLEAN
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedBoolean())
+	text := strings.ToLower(ctx.RBOOLEAN().GetText())
+	e.emit(text)
+	e.emit("neq")
 	return nil
 }
 
@@ -1054,5 +1106,349 @@ func (e *PostfixEmitter) VisitIfElse(ctx *IfElseContext) interface{} {
 	e.emit("{")
 	e.Visit(ctx.StatementList())
 	e.emit("}")
+	return nil
+}
+
+// ============================================================================
+// Relationship and Entity Tests
+// ============================================================================
+
+func (e *PostfixEmitter) VisitBoolEntityIsOf(ctx *BoolEntityIsOfContext) interface{} {
+	// "eexpr IS strexpr OF eexpr" -> "e1 e2 relationship streq"
+	e.Visit(ctx.Eexpr(0))
+	e.Visit(ctx.Eexpr(1))
+	e.emit("relationship")
+	e.Visit(ctx.Strexpr())
+	e.emit("streq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitEntityRelationship(ctx *EntityRelationshipContext) interface{} {
+	// "strexpr OF eexpr" -> get entity via relationship
+	e.Visit(ctx.Eexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getrelationship")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolEntityHasa(ctx *BoolEntityHasaContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("hasrelationship")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolEntityNotHas(ctx *BoolEntityNotHasContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("hasrelationship")
+	e.emit("not")
+	return nil
+}
+
+// ============================================================================
+// Date Arithmetic Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitDateDays(ctx *DateDaysContext) interface{} {
+	e.Visit(ctx.Number())
+	e.emit("days")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDatePlusDays(ctx *DatePlusDaysContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("adddays")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateMinusDays(ctx *DateMinusDaysContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("subdays")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDatePlusMonths(ctx *DatePlusMonthsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("addmonths")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateMinusMonths(ctx *DateMinusMonthsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("submonths")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDatePlusYears(ctx *DatePlusYearsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("addyears")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateMinusYears(ctx *DateMinusYearsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("subyears")
+	return nil
+}
+
+// ============================================================================
+// Add Statement Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitAddEntityToDest(ctx *AddEntityToDestContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.Visit(ctx.Addtodest())
+	e.emit("addto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddStrToDest(ctx *AddStrToDestContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.Visit(ctx.Addtodest())
+	e.emit("addto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddNumToDest(ctx *AddNumToDestContext) interface{} {
+	e.Visit(ctx.Number())
+	e.Visit(ctx.Addtodest())
+	e.emit("+")
+	e.emit("=")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddDestArray(ctx *AddDestArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr2())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddDestLong(ctx *AddDestLongContext) interface{} {
+	e.Visit(ctx.TypedLong())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddDestDouble(ctx *AddDestDoubleContext) interface{} {
+	e.Visit(ctx.TypedDouble())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) interface{} {
+	// Emit the possessive entity reference and field
+	poss := ctx.POSSESSIVE().GetText()
+	// Remove 's suffix to get entity name
+	entityName := poss[:len(poss)-2]
+	e.emit(entityName)
+	e.emit("entitypush")
+	e.Visit(ctx.TypedLong())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) interface{} {
+	// Emit the possessive entity reference and field
+	poss := ctx.POSSESSIVE().GetText()
+	// Remove 's suffix to get entity name
+	entityName := poss[:len(poss)-2]
+	e.emit(entityName)
+	e.emit("entitypush")
+	e.Visit(ctx.TypedDouble())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) interface{} {
+	// Emit the possessive entity reference and field
+	poss := ctx.POSSESSIVE().GetText()
+	// Remove 's suffix to get entity name
+	entityName := poss[:len(poss)-2]
+	e.emit(entityName)
+	e.emit("entitypush")
+	e.Visit(ctx.TypedLong())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) interface{} {
+	// Emit the possessive entity reference and field
+	poss := ctx.POSSESSIVE().GetText()
+	// Remove 's suffix to get entity name
+	entityName := poss[:len(poss)-2]
+	e.emit(entityName)
+	e.emit("entitypush")
+	e.Visit(ctx.TypedDouble())
+	return nil
+}
+
+// ============================================================================
+// Context Statement Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitAddToContextOf(ctx *AddToContextOfContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("addtocontext")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddToContextFor(ctx *AddToContextForContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("addtocontext")
+	return nil
+}
+
+// ============================================================================
+// Mixed Type Comparison Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitBoolFloatEqInt(ctx *BoolFloatEqIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("eq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolIntEqFloat(ctx *BoolIntEqFloatContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("eq")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolFloatNeqInt(ctx *BoolFloatNeqIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("ne")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolIntNeqFloat(ctx *BoolIntNeqFloatContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("ne")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolFloatGtInt(ctx *BoolFloatGtIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("gt")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolIntGtFloat(ctx *BoolIntGtFloatContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("gt")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolFloatLtInt(ctx *BoolFloatLtIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("lt")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolIntLtFloat(ctx *BoolIntLtFloatContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("lt")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolFloatGteInt(ctx *BoolFloatGteIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("ge")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolIntGteFloat(ctx *BoolIntGteFloatContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("ge")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolFloatLteInt(ctx *BoolFloatLteIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("le")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolIntLteFloat(ctx *BoolIntLteFloatContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("le")
+	return nil
+}
+
+// ============================================================================
+// Possessive Reference Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitPossessiveChain(ctx *PossessiveChainContext) interface{} {
+	// Handle possessive chains like "ThisClient's, parent's"
+	e.emit(ctx.POSSESSIVE().GetText())
+	e.Visit(ctx.PossessiveRef())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitPossessiveSingle(ctx *PossessiveSingleContext) interface{} {
+	e.emit(ctx.POSSESSIVE().GetText())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftIexprColon(ctx *LeftIexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftIexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftFexprColon(ctx *LeftFexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftFexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftBexprColon(ctx *LeftBexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftBexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftEexprColon(ctx *LeftEexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftEexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftStrexprColon(ctx *LeftStrexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftStrexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftDexprColon(ctx *LeftDexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftDexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitColonRef(ctx *ColonRefContext) interface{} {
+	e.Visit(ctx.PossessiveRef())
+	return nil
+}
+
+// ============================================================================
+// Policy Statements Visitor
+// ============================================================================
+
+func (e *PostfixEmitter) VisitArrayPolicyStatements(ctx *ArrayPolicyStatementsContext) interface{} {
+	e.emit("policystatements")
 	return nil
 }
