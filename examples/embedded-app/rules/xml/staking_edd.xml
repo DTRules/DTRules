@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Staking Rules - Entity Data Dictionary
+  Defines entities for staking calculations
+-->
+<edd>
+  <entity name="stake_request">
+    <field name="amount" type="double" default_value="0"
+           comment="Amount to stake"/>
+    <field name="duration_days" type="integer" default_value="0"
+           comment="Staking duration in days"/>
+    <field name="token_type" type="string" default_value=""
+           comment="Token type (ETH, BTC, etc)"/>
+    <field name="is_validator" type="boolean" default_value="false"
+           comment="Whether user is a validator"/>
+  </entity>
+
+  <entity name="result">
+    <field name="eligible" type="boolean" default_value="false"
+           comment="Whether stake is eligible"/>
+    <field name="apy" type="double" default_value="0"
+           comment="Annual percentage yield"/>
+    <field name="estimated_reward" type="double" default_value="0"
+           comment="Estimated reward amount"/>
+    <field name="lockup_days" type="integer" default_value="0"
+           comment="Required lockup period"/>
+    <field name="tier" type="string" default_value=""
+           comment="Staking tier (bronze, silver, gold, platinum)"/>
+    <field name="reason" type="string" default_value=""
+           comment="Eligibility reason if not eligible"/>
+  </entity>
+</edd>

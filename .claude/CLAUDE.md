@@ -31,6 +31,63 @@ tail -50 /tmp/go-test.log
 
 **NEVER run builds or tests without redirecting output.**
 
+## Excel/XML Synchronization (CRITICAL)
+
+**Excel is the source of truth.** Users edit Excel files, AI edits XML files. The sync system ensures these stay coordinated.
+
+### The Rule
+
+**Before exporting XML to Excel, you MUST check if Excel was modified by the user.**
+
+If the user modified Excel since your last export, your export will be **REJECTED** to prevent overwriting their changes.
+
+### Workflow
+
+1. **Import Excel → XML** (get user's latest changes)
+2. **Edit XML** (make your changes)
+3. **Export XML → Excel** (record your changes)
+
+The manifest file (`.sync-manifest.json` in the excel directory) tracks when exports occurred.
+
+### Before Making XML Changes
+
+Always check for pending user changes first:
+
+```go
+syncer := sync.NewSyncer(xmlDir, excelDir)
+if err := syncer.RequireNoUserEdits(); err != nil {
+    // User has pending changes - import Excel to XML first!
+    log.Fatal(err)
+}
+// Safe to edit XML and export
+```
+
+### If Export is Rejected
+
+If you see `ExcelModifiedError`:
+
+1. **DO NOT** try to force the export
+2. **DO** import Excel → XML to get user's changes
+3. **THEN** re-apply your changes to the updated XML
+4. **THEN** export again
+
+### Manifest File
+
+The `.sync-manifest.json` file in the Excel directory tracks:
+- When each Excel file was last exported to
+- The Excel file's modification time at export
+
+**DO NOT** delete or modify this file manually.
+
+### Example Error
+
+```
+Excel file "excel/states/CO.xlsx" was modified after last export at 2024-01-15T10:30:00Z.
+User changes would be lost. Import Excel to XML first, then re-apply your changes.
+```
+
+This error means: **STOP. The user made changes. Import first.**
+
 ## State Tax Implementation
 
 ### CRITICAL: Use Separate Files Per State
