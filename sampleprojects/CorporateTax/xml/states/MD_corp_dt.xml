@@ -42,7 +42,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Physical Presence in MD</condition_comment>
-<condition_description>has_physical_presence == true && state_code == 'MD'</condition_description>
+<condition_description>has_physical_presence == true &amp;&amp; state_code == 'MD'</condition_description>
 <condition_postfix>
 apportionment.has_physical_presence get
 apportionment.state_code get "MD" eq
@@ -56,7 +56,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has Economic Nexus in MD</condition_comment>
-<condition_description>has_economic_nexus == true && state_code == 'MD'</condition_description>
+<condition_description>has_economic_nexus == true &amp;&amp; state_code == 'MD'</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus get
 apportionment.state_code get "MD" eq

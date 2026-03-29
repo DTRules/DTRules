@@ -36,7 +36,7 @@
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in FL (office, employees, property)</condition_comment>
-        <condition_description>apportionment.has_physical_presence == true && apportionment.state_code == 'FL'</condition_description>
+        <condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'FL'</condition_description>
         <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code FL streq
@@ -49,7 +49,7 @@ and
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets FL economic nexus threshold ($50K or 200 transactions)</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == 'FL'</condition_description>
+        <condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'FL'</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code FL streq

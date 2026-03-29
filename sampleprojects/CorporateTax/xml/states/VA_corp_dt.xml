@@ -42,13 +42,13 @@
 
     <conditions>
       <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
                     apportionment.state_code == 'VA'</expression>
         <comment>Has physical presence in VA (office, employees, property)</comment>
       </condition>
 
       <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
+        <expression>apportionment.has_economic_nexus == true &amp;&amp;
                     apportionment.state_code == 'VA'</expression>
         <comment>Meets VA economic nexus threshold</comment>
       </condition>

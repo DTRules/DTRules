@@ -40,7 +40,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Wisconsin</condition_comment>
-<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == 'WI'</condition_description>
+<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'WI'</condition_description>
 <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code "WI" eq
@@ -54,7 +54,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Wisconsin economic nexus threshold</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == 'WI'</condition_description>
+<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'WI'</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code "WI" eq

@@ -53,7 +53,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Michigan</condition_comment>
-<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == 'MI'</condition_description>
+<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'MI'</condition_description>
 <condition_postfix>
 apportionment.has_physical_presence get
 apportionment.state_code get "MI" streq
@@ -67,7 +67,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in Michigan</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == 'MI'</condition_description>
+<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'MI'</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus get
 apportionment.state_code get "MI" streq

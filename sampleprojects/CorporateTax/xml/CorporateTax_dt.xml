@@ -784,7 +784,7 @@
 
     <conditions>
       <condition name="has_asset_class">
-        <expression>asset.asset_class != null && asset.asset_class != ''</expression>
+        <expression>asset.asset_class != null &amp;&amp; asset.asset_class != ''</expression>
         <comment>Asset class is already specified</comment>
       </condition>
     </conditions>

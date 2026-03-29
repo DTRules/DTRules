@@ -57,8 +57,56 @@ func (c *Compiler) CompileCondition(el string) (string, error) {
 
 // CompileAction compiles an EL action statement to postfix.
 // The input should be one or more statements like "set result.eligible = true".
+// If the input is just an identifier (table name), it's treated as "perform TableName".
 func (c *Compiler) CompileAction(el string) (string, error) {
-	return c.compile("action " + el)
+	el = strings.TrimSpace(el)
+	if el == "" {
+		return "", nil
+	}
+
+	// If it looks like just a table name (single identifier), wrap with perform
+	if isIdentifier(el) {
+		return c.compile("action perform " + el + ";")
+	}
+
+	// Ensure the statement ends with a semicolon
+	if !strings.HasSuffix(el, ";") {
+		el = el + ";"
+	}
+
+	// Try with action prefix
+	result, err := c.compile("action " + el)
+	if err == nil {
+		return result, nil
+	}
+
+	// Try without action prefix (might be a raw statement)
+	result, err = c.compile(el)
+	if err == nil {
+		return result, nil
+	}
+
+	// Return original error
+	return "", err
+}
+
+// isIdentifier checks if the string is a simple identifier (table name)
+func isIdentifier(s string) bool {
+	if s == "" {
+		return false
+	}
+	for i, r := range s {
+		if i == 0 {
+			if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '_') {
+				return false
+			}
+		} else {
+			if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_') {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // Compile compiles a raw EL expression to postfix.

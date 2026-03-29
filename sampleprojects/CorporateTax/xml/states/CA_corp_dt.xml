@@ -26,13 +26,13 @@
 
     <conditions>
       <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
                     apportionment.state_code == 'CA'</expression>
         <comment>Has physical presence in CA</comment>
       </condition>
 
       <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
+        <expression>apportionment.has_economic_nexus == true &amp;&amp;
                     apportionment.state_code == 'CA'</expression>
         <comment>Meets CA economic nexus threshold</comment>
       </condition>
@@ -107,7 +107,7 @@
     <conditions>
       <condition name="has_nexus">
         <expression>(apportionment.has_economic_nexus == true ||
-                     apportionment.has_physical_presence == true) &&
+                     apportionment.has_physical_presence == true) &amp;&amp;
                     apportionment.state_code == 'CA'</expression>
         <comment>Must have CA nexus</comment>
       </condition>
@@ -195,7 +195,7 @@
     <conditions>
       <condition name="has_nexus">
         <expression>(apportionment.has_economic_nexus == true ||
-                     apportionment.has_physical_presence == true) &&
+                     apportionment.has_physical_presence == true) &amp;&amp;
                     apportionment.state_code == 'CA'</expression>
         <comment>Must have CA nexus</comment>
       </condition>

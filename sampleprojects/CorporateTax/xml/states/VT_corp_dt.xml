@@ -39,13 +39,13 @@
 
     <conditions>
       <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
+        <expression>apportionment.has_physical_presence == true &amp;&amp;
                     apportionment.state_code == 'VT'</expression>
         <comment>Has physical presence in VT (office, employees, property)</comment>
       </condition>
 
       <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
+        <expression>apportionment.has_economic_nexus == true &amp;&amp;
                     apportionment.state_code == 'VT'</expression>
         <comment>Meets VT economic nexus threshold or "doing business" standard</comment>
       </condition>
