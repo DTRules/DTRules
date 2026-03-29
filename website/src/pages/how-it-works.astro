@@ -1,0 +1,375 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Table2, FileText, Code2, Zap, ArrowRight, ArrowDown, Play, CheckCircle } from 'lucide-react';
+---
+
+<BaseLayout title="How It Works - DTRules" description="Learn how DTRules decision tables work - from Excel authoring to high-performance execution.">
+  <!-- Hero -->
+  <section class="hero-gradient py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+        How <span class="gradient-text">DTRules</span> Works
+      </h1>
+      <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+        Define business logic in spreadsheets. Execute it at production scale.
+        Understand exactly how decisions are made.
+      </p>
+    </div>
+  </section>
+
+  <!-- The Problem -->
+  <section class="py-16 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">The Problem with Traditional Code</h2>
+        <p class="text-muted-foreground max-w-2xl mx-auto">
+          Complex business logic becomes unmaintainable when written as nested if-else statements.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold text-red-400 mb-4">Traditional Approach</h3>
+          <pre class="text-sm overflow-x-auto"><code class="text-muted-foreground">func calculateTax(income float64, status string, age int) float64 &#123;
+    if status == "MFJ" &#123;
+        if income &lt;= 23850 &#123;
+            return income * 0.10
+        &#125; else if income &lt;= 96950 &#123;
+            return 2385 + (income - 23850) * 0.12
+        &#125; else if income &lt;= 206700 &#123;
+            return 11157 + (income - 96950) * 0.22
+        &#125; else if income &lt;= 394600 &#123;
+            // ... more brackets ...
+        &#125;
+        // But what about:
+        // - AMT calculation?
+        // - Capital gains rates?
+        // - Phase-outs?
+        // - State taxes?
+        // Code becomes unmaintainable!
+    &#125; else if status == "Single" &#123;
+        // Duplicate logic for single filers
+    &#125; else if status == "HOH" &#123;
+        // And again for head of household
+    &#125;
+    // Hundreds of lines of nested conditions...
+&#125;</code></pre>
+          <div class="mt-4 text-sm text-red-400">
+            Hard to read. Hard to validate. Hard to change.
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold text-green-400 mb-4">Decision Table Approach</h3>
+          <pre class="text-sm overflow-x-auto"><code class="text-muted-foreground">&lt;decision_table&gt;
+  &lt;table_name&gt;Apply_Tax_Brackets_MFJ&lt;/table_name&gt;
+  &lt;Type&gt;FIRST&lt;/Type&gt;
+
+  &lt;conditions&gt;
+    &lt;condition&gt;taxable_income &lt;= 23850&lt;/condition&gt;
+    &lt;condition&gt;taxable_income &lt;= 96950&lt;/condition&gt;
+    &lt;condition&gt;taxable_income &lt;= 206700&lt;/condition&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;action&gt;tax = taxable_income * 0.10&lt;/action&gt;
+    &lt;action&gt;tax = 2385 + (taxable_income - 23850) * 0.12&lt;/action&gt;
+    &lt;action&gt;tax = 11157 + (taxable_income - 96950) * 0.22&lt;/action&gt;
+  &lt;/actions&gt;
+&lt;/decision_table&gt;</code></pre>
+          <div class="mt-4 text-sm text-green-400">
+            Clear. Verifiable. Maintainable by policy experts.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Workflow -->
+  <section class="py-16 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">The DTRules Workflow</h2>
+        <p class="text-muted-foreground">From business requirements to production execution</p>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Step 1 -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xl">
+              1
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold mb-2">Define Your Data Model (EDD)</h3>
+              <p class="text-muted-foreground mb-4">
+                Create an Entity Data Dictionary in Excel or XML that defines your business objects,
+                their attributes, and relationships.
+              </p>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>&lt;entity name="taxpayer"&gt;
+  &lt;field name="name" type="string" /&gt;
+  &lt;field name="age" type="integer" /&gt;
+  &lt;field name="income" type="double" /&gt;
+  &lt;field name="filing_status" type="string" /&gt;
+  &lt;field name="dependents" type="array" subtype="dependent" /&gt;
+&lt;/entity&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <ArrowDown className="h-8 w-8 text-muted-foreground" />
+        </div>
+
+        <!-- Step 2 -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xl">
+              2
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold mb-2">Create Decision Tables</h3>
+              <p class="text-muted-foreground mb-4">
+                Author decision tables in Excel or the visual editor. Each table handles one specific decision,
+                with conditions as rows and rules as columns.
+              </p>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-border">
+                      <th class="text-left py-2 px-4 text-muted-foreground"></th>
+                      <th class="text-center py-2 px-4">Rule 1</th>
+                      <th class="text-center py-2 px-4">Rule 2</th>
+                      <th class="text-center py-2 px-4">Rule 3</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b border-border/50">
+                      <td class="py-2 px-4 font-medium">Conditions</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr class="border-b border-border/50">
+                      <td class="py-2 px-4 text-muted-foreground">income &lt;= 50000</td>
+                      <td class="text-center"><span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">Y</span></td>
+                      <td class="text-center"><span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">N</span></td>
+                      <td class="text-center"><span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">N</span></td>
+                    </tr>
+                    <tr class="border-b border-border/50">
+                      <td class="py-2 px-4 text-muted-foreground">income &lt;= 100000</td>
+                      <td class="text-center"><span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">*</span></td>
+                      <td class="text-center"><span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">Y</span></td>
+                      <td class="text-center"><span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">N</span></td>
+                    </tr>
+                    <tr class="border-b border-border/50">
+                      <td class="py-2 px-4 font-medium">Actions</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-muted-foreground">set rate = ?</td>
+                      <td class="text-center"><span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">0.10</span></td>
+                      <td class="text-center"><span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">0.15</span></td>
+                      <td class="text-center"><span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">0.25</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <ArrowDown className="h-8 w-8 text-muted-foreground" />
+        </div>
+
+        <!-- Step 3 -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold text-xl">
+              3
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold mb-2">Compile to XML</h3>
+              <p class="text-muted-foreground mb-4">
+                The Excel files are compiled to XML format. This validates all expressions,
+                checks for missing conditions, and generates optimized bytecode.
+              </p>
+              <pre class="text-sm bg-background/50 rounded-lg p-4"><code>java -jar compilerutil.jar -compile MyProject.xls</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <ArrowDown className="h-8 w-8 text-muted-foreground" />
+        </div>
+
+        <!-- Step 4 -->
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-xl">
+              4
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold mb-2">Execute with Java or Go Runtime</h3>
+              <p class="text-muted-foreground mb-4">
+                Load the XML files into the runtime, provide input data, and execute the decision tables.
+                Get deterministic results with full execution traces.
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div class="text-sm font-medium text-blue-400 mb-2">Go</div>
+                  <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>engine := dtrules.NewEngine()
+engine.LoadProject("TaxReturn")
+
+rsess := engine.NewSession()
+rsess.MapInput(taxpayerData)
+rsess.Execute("Compute_Tax_Return")
+
+result := rsess.GetOutput()</code></pre>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-purple-400 mb-2">Java</div>
+                  <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>RuleSession session = engine.newSession();
+session.mapInput(taxpayerData);
+session.execute("Compute_Tax_Return");
+
+EntityState result = session.getState();</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Execution Model -->
+  <section class="py-16 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Execution Model</h2>
+        <p class="text-muted-foreground">How decision tables evaluate and execute</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-xl font-bold mb-4 text-blue-400">BALANCED Tables</h3>
+          <p class="text-muted-foreground mb-4">
+            Every possible combination of conditions must be explicitly defined.
+            The compiler ensures completeness.
+          </p>
+          <div class="text-sm">
+            <strong>Use for:</strong> Compliance requirements where every case must be documented.
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-xl font-bold mb-4 text-purple-400">FIRST Tables</h3>
+          <p class="text-muted-foreground mb-4">
+            Executes only the first matching column. Columns are evaluated left-to-right.
+          </p>
+          <div class="text-sm">
+            <strong>Use for:</strong> Priority-based rules, tax brackets, cascading discounts.
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-xl font-bold mb-4 text-green-400">ALL Tables</h3>
+          <p class="text-muted-foreground mb-4">
+            Executes all matching columns. Multiple rules can fire for the same input.
+          </p>
+          <div class="text-sm">
+            <strong>Use for:</strong> Accumulating values, applying multiple adjustments.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why It's Better -->
+  <section class="py-16 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Why Decision Tables?</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="glass rounded-xl p-6">
+          <CheckCircle className="h-8 w-8 text-green-400 mb-4" />
+          <h3 class="font-semibold mb-2">Business-Readable</h3>
+          <p class="text-sm text-muted-foreground">
+            Policy experts can review and validate rules without understanding code.
+          </p>
+        </div>
+
+        <div class="glass rounded-xl p-6">
+          <CheckCircle className="h-8 w-8 text-green-400 mb-4" />
+          <h3 class="font-semibold mb-2">Deterministic</h3>
+          <p class="text-sm text-muted-foreground">
+            Same inputs always produce same outputs. Essential for compliance and auditing.
+          </p>
+        </div>
+
+        <div class="glass rounded-xl p-6">
+          <CheckCircle className="h-8 w-8 text-green-400 mb-4" />
+          <h3 class="font-semibold mb-2">Traceable</h3>
+          <p class="text-sm text-muted-foreground">
+            Full execution traces show exactly which rules fired and why.
+          </p>
+        </div>
+
+        <div class="glass rounded-xl p-6">
+          <CheckCircle className="h-8 w-8 text-green-400 mb-4" />
+          <h3 class="font-semibold mb-2">Testable</h3>
+          <p class="text-sm text-muted-foreground">
+            Each table is a unit that can be tested independently.
+          </p>
+        </div>
+
+        <div class="glass rounded-xl p-6">
+          <CheckCircle className="h-8 w-8 text-green-400 mb-4" />
+          <h3 class="font-semibold mb-2">Versioned</h3>
+          <p class="text-sm text-muted-foreground">
+            XML files work with version control. See exactly what changed.
+          </p>
+        </div>
+
+        <div class="glass rounded-xl p-6">
+          <CheckCircle className="h-8 w-8 text-green-400 mb-4" />
+          <h3 class="font-semibold mb-2">Performant</h3>
+          <p class="text-sm text-muted-foreground">
+            Go runtime executes 15,000+ tax returns per second with sub-millisecond latency.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 border-t border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl font-bold mb-4">Ready to Try It?</h2>
+      <p class="text-lg text-muted-foreground mb-8">
+        Start with the interactive demo or dive into the documentation.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          href="/demo"
+          class="w-full sm:w-auto px-8 py-3 gradient-button text-white font-semibold rounded-lg flex items-center justify-center gap-2"
+        >
+          <Play className="h-5 w-5" />
+          Try the Demo
+        </a>
+        <a
+          href="/docs/getting-started"
+          class="w-full sm:w-auto px-8 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors"
+        >
+          Read the Docs
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

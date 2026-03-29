@@ -123,7 +123,25 @@
     <field name="ca_military_retirement_taxable" type="double" default_value="0.0"
            comment="CA taxable military retirement after exemption (computed)"/>
 
+    <!-- Renter's Credit (2025) -->
+    <field name="ca_renter_credit_single" type="double" default_value="60.0"
+           comment="CA renter's credit for single/MFS filers (2025). Source: CA FTB"/>
+    <field name="ca_renter_credit_joint" type="double" default_value="120.0"
+           comment="CA renter's credit for joint/HOH filers (2025). Source: CA FTB"/>
+    <field name="ca_renter_credit_agi_limit_single" type="double" default_value="50746.0"
+           comment="CA renter's credit AGI limit single/MFS (2025). Source: CA FTB"/>
+    <field name="ca_renter_credit_agi_limit_joint" type="double" default_value="101492.0"
+           comment="CA renter's credit AGI limit joint/HOH (2025). Source: CA FTB"/>
+    <field name="ca_renter_credit" type="double" default_value="0.0"
+           comment="CA renter's credit amount (computed based on eligibility)"/>
+
+    <!-- SDI (State Disability Insurance) Information -->
+    <field name="ca_sdi_rate" type="double" default_value="0.012"
+           comment="CA SDI rate 1.2% (2025). No income cap. Source: CA EDD"/>
+
     <!-- State tax result fields -->
+    <field name="ca_taxable_income" type="double" default_value="0.0"
+           comment="CA taxable income after deductions (computed)"/>
     <field name="ca_state_tax" type="double" default_value="0.0"
            comment="CA state income tax liability before Mental Health Services Tax (computed)"/>
     <field name="ca_mental_health_tax" type="double" default_value="0.0"

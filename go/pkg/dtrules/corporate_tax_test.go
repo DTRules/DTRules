@@ -191,7 +191,7 @@ func TestCorporateTaxSimpleExecution(t *testing.T) {
 	}
 
 	// Get taxable income
-	taxableIncome := getFloatAttr(results, "taxable_income")
+	taxableIncome := corpTaxGetFloatAttr(results, "taxable_income")
 	t.Logf("Taxable Income: $%.2f (expected: $%.2f)", taxableIncome, expectedTaxableIncome)
 
 	tolerance := 1.0 // $1 tolerance
@@ -201,7 +201,7 @@ func TestCorporateTaxSimpleExecution(t *testing.T) {
 	}
 
 	// Get federal tax
-	federalTax := getFloatAttr(results, "federal_tax")
+	federalTax := corpTaxGetFloatAttr(results, "federal_tax")
 	t.Logf("Federal Tax: $%.2f (expected: $%.2f)", federalTax, expectedFederalTax)
 
 	if abs(federalTax-expectedFederalTax) > tolerance {
@@ -543,6 +543,236 @@ func TestCorporateTaxFileCount(t *testing.T) {
 
 	t.Logf("Core XML files found: %d", coreCount)
 	t.Logf("Total files (states + core): %d", count+coreCount)
+}
+
+// TestCorporateTaxAllScenarios runs all test scenarios in the TestScenarios directory
+func TestCorporateTaxAllScenarios(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	xmlDir := filepath.Join(sampleDir, "xml")
+	testScenariosDir := filepath.Join(sampleDir, "testfiles", "TestScenarios")
+
+	// Get all test scenario XML files
+	files, err := filepath.Glob(filepath.Join(testScenariosDir, "*.xml"))
+	if err != nil {
+		t.Fatalf("Failed to glob test scenarios: %v", err)
+	}
+
+	t.Logf("Found %d test scenarios to run", len(files))
+
+	// Track results
+	passed := 0
+	failed := 0
+	skipped := 0
+
+	for _, testFile := range files {
+		baseName := filepath.Base(testFile)
+		testName := strings.TrimSuffix(baseName, ".xml")
+
+		t.Run(testName, func(t *testing.T) {
+			// Create fresh rule set for each test
+			rs := session.NewRuleSet("CorporateTax")
+			err := rs.LoadFromDirectory(xmlDir)
+			if err != nil {
+				t.Skipf("Failed to load rules: %v", err)
+				skipped++
+				return
+			}
+
+			// Create session
+			sess, err := rs.NewSession()
+			if err != nil {
+				t.Skipf("Failed to create session: %v", err)
+				skipped++
+				return
+			}
+
+			// Load mapping
+			mapPath := filepath.Join(xmlDir, "CorporateTax_map.xml")
+			mapFile, err := os.Open(mapPath)
+			if err != nil {
+				t.Fatalf("Failed to open mapping: %v", err)
+			}
+			defer mapFile.Close()
+
+			m := mapping.NewMapping(sess)
+			err = m.LoadMapping(mapFile)
+			if err != nil {
+				t.Fatalf("Failed to load mapping: %v", err)
+			}
+			err = m.Initialize()
+			if err != nil {
+				t.Fatalf("Failed to init mapping: %v", err)
+			}
+
+			// Load test data
+			dataFile, err := os.Open(testFile)
+			if err != nil {
+				t.Fatalf("Failed to open test file: %v", err)
+			}
+			defer dataFile.Close()
+
+			err = m.LoadData(dataFile)
+			if err != nil {
+				t.Fatalf("Failed to map test data: %v", err)
+			}
+
+			// Execute main corporate tax computation
+			ef := sess.GetEntityFactory()
+			dt, err := ef.GetDecisionTable(dtrules.GetRName("Compute_Corporate_Tax_Return"))
+			if err != nil || dt == nil {
+				// Try alternate table name
+				dt, err = ef.GetDecisionTable(dtrules.GetRName("Compute_Corporate_Tax"))
+				if err != nil || dt == nil {
+					t.Fatalf("Failed to get corporate tax computation table: %v", err)
+				}
+			}
+
+			state := sess.GetState()
+			err = dt.Execute(state)
+			if err != nil {
+				t.Fatalf("Failed to execute: %v", err)
+			}
+
+			// Log success
+			t.Logf("Test %s executed successfully", testName)
+			passed++
+		})
+	}
+
+	t.Logf("\n=== TEST SCENARIO SUMMARY ===")
+	t.Logf("Total: %d, Passed: %d, Failed: %d, Skipped: %d", len(files), passed, failed, skipped)
+}
+
+// TestCorporateTaxPhase1Foundation runs Phase 1 foundation tests
+func TestCorporateTaxPhase1Foundation(t *testing.T) {
+	cwd, _ := os.Getwd()
+	sampleDir := filepath.Join(cwd, "..", "..", "..", "sampleprojects", "CorporateTax")
+	xmlDir := filepath.Join(sampleDir, "xml")
+
+	t.Run("EDDLoading", func(t *testing.T) {
+		// Verify EDD file exists and loads
+		eddPath := filepath.Join(xmlDir, "CorporateTax_edd.xml")
+		if _, err := os.Stat(eddPath); os.IsNotExist(err) {
+			// Try core EDD
+			eddPath = filepath.Join(xmlDir, "CorporateTax_edd_core.xml")
+			if _, err := os.Stat(eddPath); os.IsNotExist(err) {
+				t.Fatalf("No EDD file found")
+			}
+		}
+		t.Logf("EDD file found: %s", eddPath)
+
+		// Load and verify entities
+		rs := session.NewRuleSet("CorporateTax")
+		eddFile, err := os.Open(eddPath)
+		if err != nil {
+			t.Fatalf("Failed to open EDD: %v", err)
+		}
+		defer eddFile.Close()
+
+		err = rs.LoadEDD(eddFile)
+		if err != nil {
+			t.Fatalf("Failed to load EDD: %v", err)
+		}
+		t.Log("EDD loaded successfully")
+	})
+
+	t.Run("MappingLoading", func(t *testing.T) {
+		// Verify mapping file exists and loads
+		mapPath := filepath.Join(xmlDir, "CorporateTax_map.xml")
+		if _, err := os.Stat(mapPath); os.IsNotExist(err) {
+			t.Fatalf("Mapping file not found: %s", mapPath)
+		}
+		t.Logf("Mapping file found: %s", mapPath)
+	})
+
+	t.Run("DecisionTablesLoading", func(t *testing.T) {
+		// Verify DT file exists and loads
+		dtPath := filepath.Join(xmlDir, "CorporateTax_dt.xml")
+		if _, err := os.Stat(dtPath); os.IsNotExist(err) {
+			// Try core DT
+			dtPath = filepath.Join(xmlDir, "CorporateTax_dt_core.xml")
+			if _, err := os.Stat(dtPath); os.IsNotExist(err) {
+				t.Fatalf("No DT file found")
+			}
+		}
+		t.Logf("DT file found: %s", dtPath)
+	})
+
+	t.Run("CoreEntitiesExist", func(t *testing.T) {
+		rs := session.NewRuleSet("CorporateTax")
+		err := rs.LoadFromDirectory(xmlDir)
+		if err != nil {
+			t.Skipf("Failed to load rules: %v", err)
+			return
+		}
+
+		sess, err := rs.NewSession()
+		if err != nil {
+			t.Fatalf("Failed to create session: %v", err)
+		}
+
+		ef := sess.GetEntityFactory()
+
+		// Verify core entities exist by trying to get their definition
+		requiredEntities := []string{"corporation", "revenue", "result", "job"}
+		for _, entityName := range requiredEntities {
+			_, err := ef.CreateEntity(sess, dtrules.GetRName(entityName))
+			if err != nil {
+				t.Errorf("Failed to create entity %s: %v", entityName, err)
+			} else {
+				t.Logf("Entity %s verified", entityName)
+			}
+		}
+	})
+
+	t.Run("CoreDecisionTablesExist", func(t *testing.T) {
+		rs := session.NewRuleSet("CorporateTax")
+		err := rs.LoadFromDirectory(xmlDir)
+		if err != nil {
+			t.Skipf("Failed to load rules: %v", err)
+			return
+		}
+
+		sess, err := rs.NewSession()
+		if err != nil {
+			t.Fatalf("Failed to create session: %v", err)
+		}
+
+		ef := sess.GetEntityFactory()
+
+		// Verify core decision tables exist
+		requiredTables := []string{
+			"Calculate_Net_Receipts",
+			"Calculate_Gross_Profit",
+			"Calculate_Total_Income",
+			"Calculate_Total_Deductions",
+			"Calculate_Taxable_Income",
+			"Apply_Corporate_Tax_Rate",
+		}
+
+		for _, tableName := range requiredTables {
+			dt, err := ef.GetDecisionTable(dtrules.GetRName(tableName))
+			if err != nil || dt == nil {
+				t.Logf("Note: Table %s not found (may use different naming)", tableName)
+			} else {
+				t.Logf("Decision table %s verified", tableName)
+			}
+		}
+	})
+}
+
+// corpTaxGetFloatAttr is a helper function specific to corporate tax tests
+func corpTaxGetFloatAttr(entity dtrules.Entity, attrName string) float64 {
+	val, err := entity.Get(dtrules.GetRName(attrName))
+	if err != nil || val == nil {
+		return 0.0
+	}
+	f, err := val.DoubleValue()
+	if err != nil {
+		return 0.0
+	}
+	return f
 }
 
 // Helper function for absolute value

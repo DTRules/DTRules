@@ -1750,4 +1750,525 @@
     <field name='dtrules_version' type='string' comment='DTRules version'/>
   </entity>
 
+  <!--
+    ================================================================
+    DEPRECIATION SCHEDULE ENTITY (Phase 2 - Issue #323)
+    ================================================================
+
+    Tracks annual depreciation for each asset over its recovery period.
+    Used for multi-year depreciation calculations and Form 4562 reporting.
+
+    Reference: Publication 946 - How to Depreciate Property
+    Reference: Form 4562 - Depreciation and Amortization
+  -->
+  <entity name="depreciation_schedule">
+    <!-- Schedule Identification -->
+    <field name='schedule_id' type='integer' comment='Unique schedule ID'/>
+    <field name='asset_id' type='integer' comment='Reference to parent asset ID'/>
+
+    <!-- Year Tracking -->
+    <field name='tax_year' type='integer' comment='Tax year for this depreciation entry'/>
+    <field name='recovery_year' type='integer' comment='Year within recovery period (1, 2, 3, etc.)'/>
+
+    <!-- MACRS Percentage and Depreciation -->
+    <field name='macrs_percentage' type='double' default_value='0.0'
+           comment='MACRS percentage for this year from Publication 946 tables'/>
+    <field name='depreciation_amount' type='double' default_value='0.0'
+           comment='Depreciation amount for this year'/>
+    <field name='accumulated_depreciation' type='double' default_value='0.0'
+           comment='Total accumulated depreciation through this year'/>
+    <field name='remaining_basis' type='double' default_value='0.0'
+           comment='Remaining depreciable basis after this year'/>
+
+    <!-- Convention and Method -->
+    <field name='convention_used' type='string' default_value='half-year'
+           comment='Convention used: half-year, mid-quarter, mid-month'/>
+    <field name='depreciation_method' type='string' default_value='MACRS-200DB'
+           comment='Method: MACRS-200DB, MACRS-150DB, MACRS-SL, ADS'/>
+
+    <!-- Mid-Quarter Convention Details -->
+    <field name='quarter_placed_in_service' type='integer' default_value='0'
+           comment='Quarter asset was placed in service (1-4) for mid-quarter convention'/>
+    <field name='mid_quarter_applies' type='boolean' default_value='false'
+           comment='True if mid-quarter convention applies to this asset'/>
+
+    <!-- Audit Trail -->
+    <field name='calculation_notes' type='string'
+           comment='Notes explaining calculation methodology'/>
+  </entity>
+
+  <!--
+    ================================================================
+    FORM 4562 ENTITY (Phase 2 - Issue #325)
+    ================================================================
+
+    Consolidates depreciation and amortization for Form 4562 reporting.
+    Tracks Section 179, bonus depreciation, MACRS, and listed property.
+
+    Reference: Form 4562 - Depreciation and Amortization
+    Reference: IRC Section 168 (MACRS)
+    Reference: IRC Section 179 (Expense Deduction)
+  -->
+  <entity name="form_4562">
+    <!-- Part I: Section 179 Expense Deduction -->
+    <field name='section_179_maximum' type='double' default_value='1220000.0'
+           comment='Form 4562 Line 1: Maximum amount (2025: $1,220,000)'/>
+    <field name='section_179_total_cost' type='double' default_value='0.0'
+           comment='Form 4562 Line 2: Total cost of section 179 property placed in service'/>
+    <field name='section_179_threshold' type='double' default_value='3050000.0'
+           comment='Form 4562 Line 3: Threshold (2025: $3,050,000)'/>
+    <field name='section_179_reduction' type='double' default_value='0.0'
+           comment='Form 4562 Line 4: Reduction (excess over threshold)'/>
+    <field name='section_179_tentative' type='double' default_value='0.0'
+           comment='Form 4562 Line 5: Tentative deduction (line 1 minus line 4)'/>
+    <field name='section_179_income_limitation' type='double' default_value='0.0'
+           comment='Form 4562 Line 11: Business income limitation'/>
+    <field name='section_179_allowed' type='double' default_value='0.0'
+           comment='Form 4562 Line 12: Section 179 expense deduction allowed'/>
+    <field name='section_179_carryover_from_prior' type='double' default_value='0.0'
+           comment='Section 179 carryover from prior year (due to income limitation)'/>
+    <field name='section_179_carryover_to_future' type='double' default_value='0.0'
+           comment='Section 179 carryover to future year (due to income limitation)'/>
+
+    <!-- Part II: Special Depreciation Allowance (Bonus) -->
+    <field name='bonus_depreciation_rate' type='double' default_value='0.40'
+           comment='Form 4562 Line 14: Bonus rate (2025: 40%)'/>
+    <field name='bonus_property_basis' type='double' default_value='0.0'
+           comment='Form 4562 Line 14: Basis of property for bonus depreciation'/>
+    <field name='bonus_depreciation_amount' type='double' default_value='0.0'
+           comment='Form 4562 Line 14: Total bonus depreciation allowed'/>
+    <field name='bonus_election_out' type='boolean' default_value='false'
+           comment='Taxpayer elected out of bonus depreciation'/>
+
+    <!-- Part III: MACRS Depreciation -->
+    <field name='macrs_gds_3year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19a: MACRS 3-year property'/>
+    <field name='macrs_gds_5year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19b: MACRS 5-year property'/>
+    <field name='macrs_gds_7year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19c: MACRS 7-year property'/>
+    <field name='macrs_gds_10year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19d: MACRS 10-year property'/>
+    <field name='macrs_gds_15year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19e: MACRS 15-year property'/>
+    <field name='macrs_gds_20year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19f: MACRS 20-year property'/>
+    <field name='macrs_gds_25year' type='double' default_value='0.0'
+           comment='Form 4562 Line 19g: MACRS 25-year property (water utility)'/>
+    <field name='macrs_residential' type='double' default_value='0.0'
+           comment='Form 4562 Line 19h: Residential rental property (27.5-year)'/>
+    <field name='macrs_nonresidential' type='double' default_value='0.0'
+           comment='Form 4562 Line 19i: Nonresidential real property (39-year)'/>
+    <field name='macrs_total' type='double' default_value='0.0'
+           comment='Form 4562 Line 21: Total MACRS depreciation'/>
+
+    <!-- Mid-Quarter Convention Determination -->
+    <field name='total_property_placed_in_service' type='double' default_value='0.0'
+           comment='Total basis of all property placed in service during year'/>
+    <field name='q4_property_placed_in_service' type='double' default_value='0.0'
+           comment='Basis of property placed in service in Q4'/>
+    <field name='q4_percentage' type='double' default_value='0.0'
+           comment='Percentage of property placed in service in Q4'/>
+    <field name='mid_quarter_required' type='boolean' default_value='false'
+           comment='True if mid-quarter convention required (Q4 > 40%)'/>
+
+    <!-- Part V: Listed Property (Vehicles, Computers, etc.) -->
+    <field name='listed_property_total' type='double' default_value='0.0'
+           comment='Form 4562 Part V: Total listed property depreciation'/>
+    <field name='vehicle_depreciation' type='double' default_value='0.0'
+           comment='Total depreciation for passenger vehicles'/>
+    <field name='vehicle_limitation_applies' type='boolean' default_value='false'
+           comment='True if luxury auto limits apply (IRC 280F)'/>
+    <field name='vehicle_max_year1' type='double' default_value='12200.0'
+           comment='Maximum year 1 depreciation for vehicles (2025: $12,200)'/>
+    <field name='vehicle_max_year2' type='double' default_value='19500.0'
+           comment='Maximum year 2 depreciation for vehicles (2025: $19,500)'/>
+    <field name='vehicle_max_year3' type='double' default_value='11700.0'
+           comment='Maximum year 3 depreciation for vehicles (2025: $11,700)'/>
+    <field name='vehicle_max_subsequent' type='double' default_value='6960.0'
+           comment='Maximum depreciation years 4+ for vehicles (2025: $6,960)'/>
+
+    <!-- Part VI: Amortization -->
+    <field name='amortization_total' type='double' default_value='0.0'
+           comment='Form 4562 Part VI: Total amortization'/>
+    <field name='section_197_intangibles' type='double' default_value='0.0'
+           comment='Amortization of Section 197 intangibles (15-year)'/>
+    <field name='startup_costs_amortization' type='double' default_value='0.0'
+           comment='Startup costs amortization (IRC 195)'/>
+    <field name='organizational_costs_amortization' type='double' default_value='0.0'
+           comment='Organizational costs amortization (IRC 248)'/>
+
+    <!-- Summary -->
+    <field name='total_depreciation_and_amortization' type='double' default_value='0.0'
+           comment='Form 4562 Line 22: Total depreciation and amortization'/>
+  </entity>
+
+  <!--
+    ================================================================
+    GENERAL BUSINESS CREDIT ENTITY (Phase 2 - Issue #326)
+    ================================================================
+
+    Implements Form 3800 - General Business Credit framework.
+    Tracks individual credits, limitations, and carryforward/carryback rules.
+
+    Reference: Form 3800 - General Business Credit
+    Reference: IRC Section 38 - General Business Credit
+  -->
+  <entity name="general_business_credit">
+    <!-- Credit Identification -->
+    <field name='credit_id' type='integer' comment='Unique credit ID'/>
+    <field name='credit_type' type='string'
+           comment='Credit type: R&D, WOTC, disabled_access, low_income_housing, etc.'/>
+    <field name='form_number' type='string'
+           comment='Source form number (6765, 5884, 8826, etc.)'/>
+    <field name='tax_year' type='integer' comment='Tax year credit was generated'/>
+
+    <!-- Credit Amounts -->
+    <field name='credit_amount' type='double' default_value='0.0'
+           comment='Gross credit amount before limitations'/>
+    <field name='credit_allowed' type='double' default_value='0.0'
+           comment='Credit amount allowed after limitations'/>
+    <field name='credit_carryforward' type='double' default_value='0.0'
+           comment='Credit carried forward to future years'/>
+    <field name='credit_carryback' type='double' default_value='0.0'
+           comment='Credit carried back to prior year'/>
+
+    <!-- Carryover Tracking -->
+    <field name='carryforward_years_remaining' type='integer' default_value='20'
+           comment='Years remaining for carryforward (20 years for most credits)'/>
+    <field name='carryback_available' type='boolean' default_value='true'
+           comment='True if 1-year carryback is available'/>
+    <field name='carryback_used' type='boolean' default_value='false'
+           comment='True if carryback was used'/>
+
+    <!-- Priority and Ordering -->
+    <field name='stacking_priority' type='integer' default_value='0'
+           comment='Priority order for stacking credits (lower = first)'/>
+    <field name='is_specified_credit' type='boolean' default_value='false'
+           comment='True if specified credit (eligible for full use)'/>
+  </entity>
+
+  <!--
+    ================================================================
+    FORM 3800 SUMMARY (Phase 2 - Issue #326)
+    ================================================================
+
+    Aggregates all general business credits and applies limitations.
+
+    Reference: Form 3800 - General Business Credit
+    Reference: IRC Section 38 - Credit limitations
+  -->
+  <entity name="form_3800">
+    <!-- Part I: Current Year Credits -->
+    <field name='total_current_year_credits' type='double' default_value='0.0'
+           comment='Form 3800 Part I: Total current year general business credits'/>
+
+    <!-- Individual Credit Components -->
+    <field name='investment_credit' type='double' default_value='0.0'
+           comment='Investment credit (Form 3468)'/>
+    <field name='research_credit' type='double' default_value='0.0'
+           comment='Research credit (Form 6765)'/>
+    <field name='low_income_housing_credit' type='double' default_value='0.0'
+           comment='Low-income housing credit (Form 8586)'/>
+    <field name='disabled_access_credit' type='double' default_value='0.0'
+           comment='Disabled access credit (Form 8826)'/>
+    <field name='renewable_electricity_credit' type='double' default_value='0.0'
+           comment='Renewable electricity production credit (Form 8835)'/>
+    <field name='employer_social_security_credit' type='double' default_value='0.0'
+           comment='Employer Social Security and Medicare credit (Form 8846)'/>
+    <field name='work_opportunity_credit' type='double' default_value='0.0'
+           comment='Work opportunity credit (Form 5884)'/>
+    <field name='empowerment_zone_credit' type='double' default_value='0.0'
+           comment='Empowerment zone employment credit (Form 8844)'/>
+    <field name='new_markets_credit' type='double' default_value='0.0'
+           comment='New markets credit (Form 8874)'/>
+    <field name='small_employer_pension_credit' type='double' default_value='0.0'
+           comment='Small employer pension startup credit (Form 8881)'/>
+    <field name='employer_provided_childcare_credit' type='double' default_value='0.0'
+           comment='Employer-provided child care credit (Form 8882)'/>
+    <field name='biodiesel_credit' type='double' default_value='0.0'
+           comment='Biodiesel and renewable diesel fuels credit (Form 8864)'/>
+    <field name='carbon_oxide_sequestration_credit' type='double' default_value='0.0'
+           comment='Carbon oxide sequestration credit (Form 8933) - IRC 45Q'/>
+    <field name='other_credits' type='double' default_value='0.0'
+           comment='Other general business credits'/>
+
+    <!-- Part II: Carryforwards and Carrybacks -->
+    <field name='carryforward_from_prior_years' type='double' default_value='0.0'
+           comment='Form 3800 Part II: Total carryforward from prior years'/>
+    <field name='carryback_from_future_year' type='double' default_value='0.0'
+           comment='Form 3800 Part II: Carryback from future year (amended return)'/>
+    <field name='total_credits_available' type='double' default_value='0.0'
+           comment='Total credits available (current year + carryovers)'/>
+
+    <!-- Part III: Limitation Calculation -->
+    <field name='net_income_tax' type='double' default_value='0.0'
+           comment='Form 3800 Line 13: Net income tax'/>
+    <field name='net_regular_tax' type='double' default_value='0.0'
+           comment='Form 3800 Line 14: Net regular tax liability'/>
+    <field name='tentative_minimum_tax' type='double' default_value='0.0'
+           comment='Form 3800 Line 15: Tentative minimum tax (not applicable to corps)'/>
+    <field name='base_amount' type='double' default_value='25000.0'
+           comment='Form 3800 Line 17: Base amount ($25,000)'/>
+    <field name='excess_over_base' type='double' default_value='0.0'
+           comment='Excess of net regular tax over base amount'/>
+    <field name='limitation_percentage' type='double' default_value='0.25'
+           comment='Limitation percentage (25% of excess)'/>
+    <field name='credit_limitation' type='double' default_value='0.0'
+           comment='Form 3800 Line 19: Credit limitation amount'/>
+
+    <!-- Part IV: Final Credit -->
+    <field name='general_business_credit_allowed' type='double' default_value='0.0'
+           comment='Form 3800 Line 20: General business credit allowed'/>
+    <field name='credit_carryforward_to_next_year' type='double' default_value='0.0'
+           comment='Credit carried forward to next year'/>
+    <field name='credit_carryback_to_prior_year' type='double' default_value='0.0'
+           comment='Credit carried back to prior year'/>
+
+    <!-- Carryover Detail by Year -->
+    <field name='carryforward_year_1' type='double' default_value='0.0'
+           comment='Carryforward from 1 year ago'/>
+    <field name='carryforward_year_2' type='double' default_value='0.0'
+           comment='Carryforward from 2 years ago'/>
+    <field name='carryforward_year_3' type='double' default_value='0.0'
+           comment='Carryforward from 3 years ago'/>
+    <field name='carryforward_year_4' type='double' default_value='0.0'
+           comment='Carryforward from 4 years ago'/>
+    <field name='carryforward_year_5' type='double' default_value='0.0'
+           comment='Carryforward from 5 years ago'/>
+    <field name='carryforward_year_6_10' type='double' default_value='0.0'
+           comment='Carryforward from 6-10 years ago'/>
+    <field name='carryforward_year_11_15' type='double' default_value='0.0'
+           comment='Carryforward from 11-15 years ago'/>
+    <field name='carryforward_year_16_20' type='double' default_value='0.0'
+           comment='Carryforward from 16-20 years ago'/>
+  </entity>
+
+  <!--
+    ================================================================
+    FORM 6765 - RESEARCH CREDIT (Phase 2 - Issue #327)
+    ================================================================
+
+    Implements research credit calculation under IRC Section 41.
+    Supports regular credit method and alternative simplified credit.
+
+    Reference: Form 6765 - Credit for Increasing Research Activities
+    Reference: IRC Section 41 - Research Credit
+  -->
+  <entity name="form_6765">
+    <!-- Section A: Regular Credit Method -->
+    <field name='regular_credit_method' type='boolean' default_value='false'
+           comment='Using regular credit method (vs. simplified)'/>
+
+    <!-- Qualified Research Expenses (QREs) -->
+    <field name='wages_for_qualified_services' type='double' default_value='0.0'
+           comment='Form 6765 Line 5: Wages for qualified research services'/>
+    <field name='supplies_for_qualified_services' type='double' default_value='0.0'
+           comment='Form 6765 Line 6: Supplies used in qualified research'/>
+    <field name='contract_research_expenses' type='double' default_value='0.0'
+           comment='Form 6765 Line 7: Contract research expenses (100%)'/>
+    <field name='contract_research_65_percent' type='double' default_value='0.0'
+           comment='Form 6765 Line 8: 65% of contract research expenses'/>
+    <field name='total_qualified_research_expenses' type='double' default_value='0.0'
+           comment='Form 6765 Line 9: Total QREs'/>
+
+    <!-- Base Amount Calculation (Regular Method) -->
+    <field name='fixed_base_percentage' type='double' default_value='0.0'
+           comment='Form 6765 Line 10: Fixed-base percentage (3-year avg or startup)'/>
+    <field name='average_annual_gross_receipts' type='double' default_value='0.0'
+           comment='Form 6765 Line 11: Average annual gross receipts (4 prior years)'/>
+    <field name='base_amount' type='double' default_value='0.0'
+           comment='Form 6765 Line 12: Base amount (fixed-base % x avg receipts)'/>
+    <field name='minimum_base_amount' type='double' default_value='0.0'
+           comment='Form 6765 Line 13: Minimum base amount (50% of current QREs)'/>
+    <field name='base_amount_used' type='double' default_value='0.0'
+           comment='Form 6765 Line 14: Base amount used (greater of 12 or 13)'/>
+
+    <!-- Regular Credit Calculation -->
+    <field name='excess_qres' type='double' default_value='0.0'
+           comment='Form 6765 Line 15: QREs exceeding base amount'/>
+    <field name='regular_credit_rate' type='double' default_value='0.20'
+           comment='Regular credit rate (20%)'/>
+    <field name='regular_research_credit' type='double' default_value='0.0'
+           comment='Form 6765 Line 17: Regular research credit (20% of excess)'/>
+
+    <!-- Section B: Alternative Simplified Credit Method -->
+    <field name='simplified_credit_method' type='boolean' default_value='true'
+           comment='Using alternative simplified credit method'/>
+    <field name='prior_3_year_avg_qres' type='double' default_value='0.0'
+           comment='Form 6765 Line 20: Average QREs for prior 3 years'/>
+    <field name='simplified_base_amount' type='double' default_value='0.0'
+           comment='Form 6765 Line 21: 50% of prior 3-year average QREs'/>
+    <field name='simplified_excess_qres' type='double' default_value='0.0'
+           comment='Form 6765 Line 22: QREs exceeding simplified base'/>
+    <field name='simplified_credit_rate' type='double' default_value='0.14'
+           comment='Alternative simplified credit rate (14%)'/>
+    <field name='simplified_research_credit' type='double' default_value='0.0'
+           comment='Form 6765 Line 24: Alternative simplified credit (14% of excess)'/>
+
+    <!-- Section C: Basic Research Payments -->
+    <field name='basic_research_payments' type='double' default_value='0.0'
+           comment='Form 6765 Section C: Basic research payments to qualified organizations'/>
+    <field name='basic_research_credit' type='double' default_value='0.0'
+           comment='Form 6765 Line 28: Basic research credit (20% of payments)'/>
+
+    <!-- Energy Research Credit -->
+    <field name='energy_research_expenses' type='double' default_value='0.0'
+           comment='Energy research expenses'/>
+    <field name='energy_research_credit' type='double' default_value='0.0'
+           comment='Energy research credit (20%)'/>
+
+    <!-- Total Research Credit -->
+    <field name='total_research_credit' type='double' default_value='0.0'
+           comment='Form 6765 Line 33: Total research credit (sum of all components)'/>
+
+    <!-- Section 280C Election -->
+    <field name='section_280c_election' type='boolean' default_value='false'
+           comment='IRC 280C(c)(3) election to reduce credit in lieu of reducing deduction'/>
+    <field name='section_280c_reduction' type='double' default_value='0.0'
+           comment='Reduced credit amount if 280C election made'/>
+
+    <!-- Payroll Tax Credit Election (Small Business) -->
+    <field name='payroll_tax_credit_election' type='boolean' default_value='false'
+           comment='IRC 41(h) election to apply against payroll tax (small business)'/>
+    <field name='gross_receipts_under_5m' type='boolean' default_value='false'
+           comment='Gross receipts under $5M for 5 years (required for payroll election)'/>
+    <field name='payroll_tax_credit_amount' type='double' default_value='0.0'
+           comment='Amount elected against payroll tax (max $250,000/year for 5 years)'/>
+
+    <!-- Final Credit -->
+    <field name='research_credit_allowed' type='double' default_value='0.0'
+           comment='Research credit allowed (flows to Form 3800)'/>
+  </entity>
+
+  <!--
+    ================================================================
+    FORM 5884 - WORK OPPORTUNITY CREDIT (Phase 2 - Issue #327)
+    ================================================================
+
+    Implements work opportunity tax credit for hiring from targeted groups.
+
+    Reference: Form 5884 - Work Opportunity Credit
+    Reference: IRC Section 51 - Work Opportunity Credit
+  -->
+  <entity name="form_5884">
+    <!-- Targeted Group Employees -->
+    <field name='total_qualified_first_year_wages' type='double' default_value='0.0'
+           comment='Form 5884 Line 1: Total qualified first-year wages'/>
+    <field name='total_qualified_second_year_wages' type='double' default_value='0.0'
+           comment='Form 5884 Line 3: Total qualified second-year wages (long-term family assistance only)'/>
+
+    <!-- First-Year Wage Credits by Target Group -->
+    <field name='qualified_iv_a_wages' type='double' default_value='0.0'
+           comment='Wages paid to IV-A (TANF) recipients'/>
+    <field name='qualified_veteran_wages' type='double' default_value='0.0'
+           comment='Wages paid to qualified veterans'/>
+    <field name='qualified_ex_felon_wages' type='double' default_value='0.0'
+           comment='Wages paid to qualified ex-felons'/>
+    <field name='qualified_ssi_recipient_wages' type='double' default_value='0.0'
+           comment='Wages paid to designated community resident'/>
+    <field name='qualified_voc_rehab_wages' type='double' default_value='0.0'
+           comment='Wages paid to vocational rehabilitation referrals'/>
+    <field name='qualified_summer_youth_wages' type='double' default_value='0.0'
+           comment='Wages paid to summer youth employees'/>
+    <field name='qualified_snap_recipient_wages' type='double' default_value='0.0'
+           comment='Wages paid to food stamp (SNAP) recipients'/>
+    <field name='qualified_long_term_unemployment_wages' type='double' default_value='0.0'
+           comment='Wages paid to long-term unemployed (27+ weeks)'/>
+
+    <!-- Maximum Qualified Wages -->
+    <field name='max_first_year_wages_general' type='double' default_value='6000.0'
+           comment='Maximum first-year wages for most groups ($6,000)'/>
+    <field name='max_first_year_wages_summer_youth' type='double' default_value='3000.0'
+           comment='Maximum first-year wages for summer youth ($3,000)'/>
+    <field name='max_first_year_wages_veteran' type='double' default_value='14000.0'
+           comment='Maximum first-year wages for qualified veterans ($14,000)'/>
+    <field name='max_second_year_wages' type='double' default_value='10000.0'
+           comment='Maximum second-year wages for long-term family assistance ($10,000)'/>
+
+    <!-- Credit Rates -->
+    <field name='first_year_rate_400_hours' type='double' default_value='0.40'
+           comment='Credit rate for employees working 400+ hours (40%)'/>
+    <field name='first_year_rate_120_hours' type='double' default_value='0.25'
+           comment='Credit rate for employees working 120-399 hours (25%)'/>
+    <field name='second_year_rate' type='double' default_value='0.50'
+           comment='Credit rate for second-year wages - long-term family assistance (50%)'/>
+
+    <!-- Calculated Credits -->
+    <field name='first_year_credit_general' type='double' default_value='0.0'
+           comment='First-year credit for general target groups'/>
+    <field name='first_year_credit_summer_youth' type='double' default_value='0.0'
+           comment='First-year credit for summer youth'/>
+    <field name='first_year_credit_veteran' type='double' default_value='0.0'
+           comment='First-year credit for veterans'/>
+    <field name='second_year_credit' type='double' default_value='0.0'
+           comment='Second-year credit for long-term family assistance'/>
+
+    <!-- Total Credit -->
+    <field name='total_work_opportunity_credit' type='double' default_value='0.0'
+           comment='Form 5884 Line 6: Total work opportunity credit'/>
+
+    <!-- Employee Details -->
+    <field name='total_certified_employees' type='integer' default_value='0'
+           comment='Total number of certified WOTC employees'/>
+    <field name='employees_400_plus_hours' type='integer' default_value='0'
+           comment='Number of employees working 400+ hours'/>
+    <field name='employees_120_to_399_hours' type='integer' default_value='0'
+           comment='Number of employees working 120-399 hours'/>
+
+    <!-- Certification Requirements -->
+    <field name='all_certifications_obtained' type='boolean' default_value='false'
+           comment='State workforce agency certifications obtained for all employees'/>
+    <field name='form_8850_filed' type='boolean' default_value='false'
+           comment='Pre-screening Notice (Form 8850) filed within 28 days'/>
+  </entity>
+
+  <!--
+    ================================================================
+    FORM 8826 - DISABLED ACCESS CREDIT (Phase 2 - Issue #327)
+    ================================================================
+
+    Implements disabled access credit for small businesses.
+
+    Reference: Form 8826 - Disabled Access Credit
+    Reference: IRC Section 44 - Disabled Access Credit
+  -->
+  <entity name="form_8826">
+    <!-- Eligibility Requirements -->
+    <field name='is_eligible_small_business' type='boolean' default_value='false'
+           comment='Eligible small business (gross receipts <= $1M or 30 or fewer employees)'/>
+    <field name='gross_receipts_prior_year' type='double' default_value='0.0'
+           comment='Gross receipts for preceding year (must be <= $1,000,000)'/>
+    <field name='full_time_employees' type='integer' default_value='0'
+           comment='Number of full-time employees (must be <= 30)'/>
+
+    <!-- Eligible Expenses -->
+    <field name='access_expenditures' type='double' default_value='0.0'
+           comment='Form 8826 Line 1: Total eligible access expenditures'/>
+    <field name='minimum_expenditure' type='double' default_value='250.0'
+           comment='Form 8826 Line 2: Minimum expenditure ($250)'/>
+    <field name='expenditures_above_minimum' type='double' default_value='0.0'
+           comment='Form 8826 Line 3: Expenditures above minimum'/>
+    <field name='maximum_expenditure' type='double' default_value='10250.0'
+           comment='Maximum eligible expenditure ($10,250 - leaves $10,000 excess over $250)'/>
+    <field name='eligible_expenditures' type='double' default_value='0.0'
+           comment='Form 8826 Line 4: Eligible expenditures (max $10,000)'/>
+
+    <!-- Credit Calculation -->
+    <field name='credit_rate' type='double' default_value='0.50'
+           comment='Credit rate (50%)'/>
+    <field name='disabled_access_credit' type='double' default_value='0.0'
+           comment='Form 8826 Line 5: Disabled access credit (50% of eligible, max $5,000)'/>
+    <field name='maximum_credit' type='double' default_value='5000.0'
+           comment='Maximum annual credit ($5,000)'/>
+
+    <!-- Types of Eligible Expenditures -->
+    <field name='barrier_removal_expenses' type='double' default_value='0.0'
+           comment='Expenses for removing architectural barriers'/>
+    <field name='communication_accessibility_expenses' type='double' default_value='0.0'
+           comment='Expenses for providing qualified interpreters, readers, etc.'/>
+    <field name='equipment_modification_expenses' type='double' default_value='0.0'
+           comment='Expenses for acquiring or modifying equipment'/>
+  </entity>
+
 </entity_dictionary>

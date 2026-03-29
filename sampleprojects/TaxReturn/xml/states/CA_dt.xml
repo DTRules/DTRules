@@ -463,4 +463,127 @@ job.audit_trail swap addto
 
 </decision_table>
 
+<!-- ====================================================================== -->
+<!-- TABLE 4801: Calculate_CA_Renter_Credit - California Renter's Credit   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_CA_Renter_Credit</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California Renter's Credit calculation (2025). Non-refundable credit for renters who meet AGI limits. Single/MFS: $60 (AGI limit $50,746). Joint/HOH: $120 (AGI limit $101,492). Must not own property and cannot be claimed as dependent. Source: CA FTB.</COMMENTS>
+<TABLE_NUMBER>4801</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+<initial_action>
+<action_description>Initialize California Renter's Credit calculation</action_description>
+<action_postfix>
+"California Renter's Credit Calculation Started" job.audit_trail swap addto
+0.0 /result.ca_renter_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<!-- Condition 1: Is a renter (not homeowner) -->
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer is a renter</condition_comment>
+<condition_description>is_renter == true</condition_description>
+<condition_postfix>
+result.is_renter true eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+
+<!-- Condition 2: Single filer within AGI limit -->
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Single filer within AGI limit</condition_comment>
+<condition_description>Single AND AGI &lt;= $50,746</condition_description>
+<condition_postfix>
+result.filing_status "single" strcasecmp 0 eq
+result.agi result.ca_renter_credit_agi_limit_single le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+
+<!-- Condition 3: Joint/HOH filer within AGI limit -->
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Joint/HOH filer within AGI limit</condition_comment>
+<condition_description>Joint/HOH AND AGI &lt;= $101,492</condition_description>
+<condition_postfix>
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
+result.filing_status "head_of_household" strcasecmp 0 eq or
+result.agi result.ca_renter_credit_agi_limit_joint le
+and
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<!-- Action 1: Apply $60 renter's credit (Single) -->
+<action_details>
+<action_number>1</action_number>
+<action_comment>Apply CA $60 renter's credit (Single filer)</action_comment>
+<action_postfix>
+result.ca_renter_credit_single /result.ca_renter_credit xdef
+
+<!-- Apply credit to state tax (non-refundable) -->
+result.state_tax_liability result.ca_renter_credit sub 0 max
+/result.state_tax_liability xdef
+
+"CA Renter's Credit applied (Single): $" result.ca_renter_credit cvs strconcat
+" (AGI: $" strconcat result.agi cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 2: Apply $120 renter's credit (Joint/HOH) -->
+<action_details>
+<action_number>2</action_number>
+<action_comment>Apply CA $120 renter's credit (Joint/HOH filer)</action_comment>
+<action_postfix>
+result.ca_renter_credit_joint /result.ca_renter_credit xdef
+
+<!-- Apply credit to state tax (non-refundable) -->
+result.state_tax_liability result.ca_renter_credit sub 0 max
+/result.state_tax_liability xdef
+
+"CA Renter's Credit applied (Joint/HOH): $" result.ca_renter_credit cvs strconcat
+" (AGI: $" strconcat result.agi cvs strconcat
+")" strconcat
+job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<!-- Action 3: Not eligible for renter's credit -->
+<action_details>
+<action_number>3</action_number>
+<action_comment>Not eligible for CA renter's credit</action_comment>
+<action_postfix>
+0.0 /result.ca_renter_credit xdef
+"CA Renter's Credit: Not eligible (not a renter or exceeds AGI limit)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
 </decision_tables>

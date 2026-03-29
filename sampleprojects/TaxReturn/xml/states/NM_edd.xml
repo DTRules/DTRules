@@ -8,6 +8,17 @@
   Effective January 1, 2025, per HB 252 (Laws 2024, Chapter 67)
   First major restructuring since 2005.
 
+  Standard Deductions (2025):
+  - Single: $15,750
+  - Married Filing Jointly: $31,500
+  - Head of Household: $15,750
+
+  Low-Income Comprehensive Tax Rebate (LICTR):
+  - Modified gross income <= $36,000
+  - Rebate amounts vary by filing status and income level
+
+  Source: New Mexico Taxation and Revenue Department
+
   This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
 -->
 <entity_data_dictionary version="1.0">
@@ -16,42 +27,59 @@
   </file_metadata>
   <!-- New Mexico state tax constants -->
   <entity name="result">
-    <!-- Standard deductions -->
-    <field name="nm_standard_deduction_single" type="double" default_value="15000"
-           comment="NM standard deduction single (2025)"/>
-    <field name="nm_standard_deduction_joint" type="double" default_value="30000"
-           comment="NM standard deduction married filing jointly (2025)"/>
-    <field name="nm_standard_deduction_hoh" type="double" default_value="15000"
-           comment="NM standard deduction head of household (2025)"/>
+    <!-- Standard deductions (2025 - updated) -->
+    <field name="nm_standard_deduction_single" type="double" default_value="15750.0"
+           comment="NM standard deduction single (2025). Source: NM TRD"/>
+    <field name="nm_standard_deduction_joint" type="double" default_value="31500.0"
+           comment="NM standard deduction married filing jointly (2025). Source: NM TRD"/>
+    <field name="nm_standard_deduction_hoh" type="double" default_value="15750.0"
+           comment="NM standard deduction head of household (2025). Source: NM TRD"/>
+    <field name="nm_standard_deduction_mfs" type="double" default_value="15750.0"
+           comment="NM standard deduction married filing separately (2025). Source: NM TRD"/>
+
+    <!-- Low-Income Comprehensive Tax Rebate (LICTR) -->
+    <field name="nm_lictr_income_limit" type="double" default_value="36000.0"
+           comment="NM LICTR modified gross income limit (2025). Source: NM TRD"/>
+    <field name="nm_lictr_max_rebate_single" type="double" default_value="450.0"
+           comment="NM LICTR maximum rebate for single filers (2025). Source: NM TRD"/>
+    <field name="nm_lictr_max_rebate_joint" type="double" default_value="700.0"
+           comment="NM LICTR maximum rebate for joint filers (2025). Source: NM TRD"/>
+    <field name="nm_lictr_max_rebate_hoh" type="double" default_value="575.0"
+           comment="NM LICTR maximum rebate for head of household (2025). Source: NM TRD"/>
+    <field name="nm_lictr_rebate" type="double" default_value="0.0"
+           comment="NM LICTR rebate amount (computed)"/>
+
+    <!-- Low and Middle Income Exemption -->
+    <field name="nm_low_middle_income_exemption" type="double" default_value="2500.0"
+           comment="NM low and middle income exemption per qualified exemption (2025). Source: NM TRD"/>
 
     <!-- Progressive tax brackets - Single filers -->
-    <field name="nm_single_bracket_1_limit" type="double" default_value="5500"
-           comment="NM bracket 1 upper limit single (2025)"/>
-    <field name="nm_single_bracket_2_limit" type="double" default_value="16500"
+    <field name="nm_single_bracket_1_limit" type="double" default_value="5500.0"
+           comment="NM bracket 1 upper limit single (2025). Source: NM TRD"/>
+    <field name="nm_single_bracket_2_limit" type="double" default_value="16500.0"
            comment="NM bracket 2 upper limit single (2025)"/>
-    <field name="nm_single_bracket_3_limit" type="double" default_value="33500"
+    <field name="nm_single_bracket_3_limit" type="double" default_value="33500.0"
            comment="NM bracket 3 upper limit single (2025)"/>
-    <field name="nm_single_bracket_4_limit" type="double" default_value="66500"
+    <field name="nm_single_bracket_4_limit" type="double" default_value="66500.0"
            comment="NM bracket 4 upper limit single (2025)"/>
-    <field name="nm_single_bracket_5_limit" type="double" default_value="210000"
+    <field name="nm_single_bracket_5_limit" type="double" default_value="210000.0"
            comment="NM bracket 5 upper limit single (2025)"/>
 
-    <!-- Progressive tax brackets - Joint filers (using same thresholds for now) -->
-    <!-- Note: Joint filers have different thresholds, but starting with single for initial implementation -->
-    <field name="nm_joint_bracket_1_limit" type="double" default_value="5500"
-           comment="NM bracket 1 upper limit joint (2025)"/>
-    <field name="nm_joint_bracket_2_limit" type="double" default_value="16500"
+    <!-- Progressive tax brackets - Joint filers -->
+    <field name="nm_joint_bracket_1_limit" type="double" default_value="8000.0"
+           comment="NM bracket 1 upper limit joint (2025). Source: NM TRD"/>
+    <field name="nm_joint_bracket_2_limit" type="double" default_value="24000.0"
            comment="NM bracket 2 upper limit joint (2025)"/>
-    <field name="nm_joint_bracket_3_limit" type="double" default_value="33500"
+    <field name="nm_joint_bracket_3_limit" type="double" default_value="48000.0"
            comment="NM bracket 3 upper limit joint (2025)"/>
-    <field name="nm_joint_bracket_4_limit" type="double" default_value="66500"
+    <field name="nm_joint_bracket_4_limit" type="double" default_value="96000.0"
            comment="NM bracket 4 upper limit joint (2025)"/>
-    <field name="nm_joint_bracket_5_limit" type="double" default_value="315000"
+    <field name="nm_joint_bracket_5_limit" type="double" default_value="315000.0"
            comment="NM bracket 5 upper limit joint (2025)"/>
 
     <!-- Tax rates for all 6 brackets -->
     <field name="nm_bracket_1_rate" type="double" default_value="0.015"
-           comment="NM tax rate bracket 1: 1.5% (2025)"/>
+           comment="NM tax rate bracket 1: 1.5% (2025). Source: NM TRD"/>
     <field name="nm_bracket_2_rate" type="double" default_value="0.032"
            comment="NM tax rate bracket 2: 3.2% (2025)"/>
     <field name="nm_bracket_3_rate" type="double" default_value="0.043"
@@ -61,7 +89,15 @@
     <field name="nm_bracket_5_rate" type="double" default_value="0.049"
            comment="NM tax rate bracket 5: 4.9% (2025)"/>
     <field name="nm_bracket_6_rate" type="double" default_value="0.059"
-           comment="NM tax rate bracket 6: 5.9% (2025)"/>
+           comment="NM tax rate bracket 6: 5.9% (2025). Top marginal rate."/>
+
+    <!-- Tax calculation fields -->
+    <field name="nm_taxable_income" type="double" default_value="0.0"
+           comment="NM taxable income after deductions (computed)"/>
+    <field name="nm_base_tax" type="double" default_value="0.0"
+           comment="NM base tax before credits/rebates (computed)"/>
+    <field name="nm_tax" type="double" default_value="0.0"
+           comment="NM final tax liability after credits/rebates (computed)"/>
 
     <!-- Military Retirement Provisions (2025) -->
     <field name="nm_military_retirement_exemption" type="double" default_value="30000.0"

@@ -2,7 +2,7 @@
 <!--
   State-specific constants for Oklahoma
 
-  Oklahoma has progressive tax brackets:
+  Oklahoma has progressive tax brackets (2025):
   - $0 to $1,000: 0.25%
   - $1,000 to $2,500: 0.75%
   - $2,500 to $3,750: 1.75%
@@ -15,6 +15,14 @@
   - MFJ: $12,700
   - HOH: $9,350
 
+  Personal Exemption Credits (2025):
+  - $1,000 credit per exemption
+  - Exemptions: taxpayer, spouse (if MFJ), each dependent
+
+  Note: Beginning in 2026, top rate drops to 4.5% and brackets restructured to 3.
+
+  Source: Oklahoma Tax Commission, Oklahoma Legislature HB 3277
+
   This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
 -->
 <entity_data_dictionary version="1.0">
@@ -24,15 +32,21 @@
   <entity name="result">
     <!-- Standard deductions -->
     <field name="ok_standard_deduction_single" type="double" default_value="6350.0"
-           comment="OK standard deduction single (2025)"/>
+           comment="OK standard deduction single (2025). Source: Oklahoma Tax Commission"/>
     <field name="ok_standard_deduction_joint" type="double" default_value="12700.0"
-           comment="OK standard deduction married filing jointly (2025)"/>
+           comment="OK standard deduction married filing jointly (2025). Source: Oklahoma Tax Commission"/>
     <field name="ok_standard_deduction_hoh" type="double" default_value="9350.0"
-           comment="OK standard deduction head of household (2025)"/>
+           comment="OK standard deduction head of household (2025). Source: Oklahoma Tax Commission"/>
+    <field name="ok_standard_deduction_mfs" type="double" default_value="6350.0"
+           comment="OK standard deduction married filing separately (2025). Source: Oklahoma Tax Commission"/>
+
+    <!-- Personal Exemption Credit (2025) -->
+    <field name="ok_personal_exemption_credit" type="double" default_value="1000.0"
+           comment="OK personal exemption credit per exemption (2025). Includes taxpayer, spouse (if MFJ), and dependents. Source: Oklahoma Tax Commission"/>
 
     <!-- Progressive tax brackets (same for all filing statuses) -->
     <field name="ok_bracket_1_limit" type="double" default_value="1000.0"
-           comment="OK tax bracket 1 upper limit (2025)"/>
+           comment="OK tax bracket 1 upper limit (2025). Source: Oklahoma Tax Commission"/>
     <field name="ok_bracket_1_rate" type="double" default_value="0.0025"
            comment="OK tax rate for bracket 1 - 0.25% (2025)"/>
 
@@ -57,7 +71,21 @@
            comment="OK tax rate for bracket 5 - 3.75% (2025)"/>
 
     <field name="ok_bracket_6_rate" type="double" default_value="0.0475"
-           comment="OK tax rate for bracket 6 - 4.75% (2025)"/>
+           comment="OK tax rate for bracket 6 - 4.75% (2025). Top marginal rate."/>
+
+    <!-- Tax calculation fields -->
+    <field name="ok_taxable_income" type="double" default_value="0.0"
+           comment="OK taxable income after deductions (computed)"/>
+    <field name="ok_base_tax" type="double" default_value="0.0"
+           comment="OK base tax before credits (computed)"/>
+    <field name="ok_exemption_credit" type="double" default_value="0.0"
+           comment="OK total personal exemption credit (computed)"/>
+    <field name="ok_tax" type="double" default_value="0.0"
+           comment="OK final tax liability after credits (computed)"/>
+
+    <!-- Military Retirement Provisions (2025) -->
+    <field name="ok_military_retirement_exemption" type="double" default_value="0.0"
+           comment="OK military retirement exemption - FULL exemption (computed). Oklahoma fully exempts military retirement. Source: MOAA State Report Card"/>
 
   </entity>
 </entity_data_dictionary>

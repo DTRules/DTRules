@@ -1,0 +1,313 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Quick Start (Tax Return)"
+  description="Get started with the TaxReturn sample project - a comprehensive tax calculation demonstration."
+  prev={{ title: "Quick Start (Java)", href: "/docs/getting-started/quickstart-java" }}
+  next={{ title: "Decision Tables", href: "/docs/concepts/decision-tables" }}
+>
+  <p>
+    The TaxReturn sample project demonstrates DTRules handling enterprise-scale regulatory complexity
+    with 139+ decision tables covering federal income tax, 40+ IRS forms, and multiple state taxes.
+  </p>
+
+  <div class="callout callout-info">
+    <p class="callout-title">Demonstration Project</p>
+    <p class="callout-content">
+      This tax implementation demonstrates DTRules' production-grade technology but is not certified
+      for actual tax filing. Use for learning and evaluation purposes.
+    </p>
+  </div>
+
+  <h2>Quick Start (5 minutes)</h2>
+
+  <h3>Prerequisites</h3>
+
+  <ul>
+    <li><strong>Go 1.21+</strong> installed</li>
+    <li>Git for cloning the repository</li>
+  </ul>
+
+  <h3>Step 1: Clone the Repository</h3>
+
+  <pre><code>git clone https://github.com/DTRules/DTRules.git
+cd DTRules</code></pre>
+
+  <h3>Step 2: Run a Simple Tax Calculation</h3>
+
+  <pre><code># Navigate to the Go directory
+cd go
+
+# Run the simple tax return test
+go test ./pkg/dtrules/... -run TestTaxReturn_Simple -v</code></pre>
+
+  <h3>Step 3: View Results</h3>
+
+  <p>
+    The test output shows the calculated values including AGI, standard deduction, taxable income,
+    and total tax liability.
+  </p>
+
+  <h3>Step 4: Run with Trace</h3>
+
+  <pre><code># Build the CLI with trace support
+cd go/cmd/dtrules
+go build -o dtrules
+
+# Run with full execution trace
+./dtrules -rules ../../sampleprojects/TaxReturn/xml \
+  -entry Compute_Tax_Return \
+  -trace \
+  -input ../../sampleprojects/TaxReturn/testfiles/TestScenarios/Level1/TestCase_L1_Simple.xml</code></pre>
+
+  <h2>Project Structure</h2>
+
+  <pre><code>sampleprojects/TaxReturn/
+├── xml/
+│   ├── TaxReturn_edd.xml       # Entity definitions (taxpayer, job, result)
+│   ├── TaxReturn_dt.xml        # Federal decision tables (139+)
+│   ├── TaxReturn_map.xml       # XML to entity mapping
+│   └── states/                 # State-specific files
+│       ├── CA_edd.xml          # California constants
+│       ├── CA_dt.xml           # California decision tables
+│       ├── CO_edd.xml          # Colorado constants
+│       ├── CO_dt.xml           # Colorado decision tables
+│       └── ...                 # Other states
+├── testfiles/
+│   └── TestScenarios/          # Test cases
+│       ├── Level1/             # Simple W-2 returns
+│       ├── Level2/             # Family returns with credits
+│       └── Comprehensive/      # Complex multi-form returns
+└── docs/                       # Documentation</code></pre>
+
+  <h2>Understanding the Implementation</h2>
+
+  <h3>How a Tax Calculation Works</h3>
+
+  <ol>
+    <li><strong>Input</strong>: Test scenario XML file (taxpayer data, W-2s, deductions)</li>
+    <li><strong>Mapping</strong>: TaxReturn_map.xml transforms XML into entities</li>
+    <li><strong>Execution</strong>: Decision tables execute in sequence</li>
+    <li><strong>Output</strong>: Result entity with all calculated values</li>
+  </ol>
+
+  <h3>Decision Table Flow</h3>
+
+  <pre><code>Table 1000: Compute_Tax_Return (entry point)
+  |
+  +-> Table 2000: Calculate_AGI
+  |     |
+  |     +-> Table 2100: Process_W2_Income
+  |     +-> Table 2200: Process_Self_Employment
+  |     +-> Table 2300: Process_Rental_Income
+  |
+  +-> Table 2500: Calculate_Deductions
+  |     |
+  |     +-> Table 2510: Calculate_Standard_Deduction
+  |     +-> Table 2520: Calculate_Itemized_Deductions
+  |
+  +-> Table 3000: Calculate_Tax_Liability
+  |     |
+  |     +-> Table 3100: Apply_Tax_Brackets_Single
+  |     +-> Table 3110: Apply_Tax_Brackets_MFJ
+  |     +-> Table 3120: Apply_Tax_Brackets_HOH
+  |
+  +-> Table 3500: Calculate_Credits
+  |     |
+  |     +-> Table 3510: Calculate_Child_Tax_Credit
+  |     +-> Table 3520: Calculate_EITC
+  |     +-> Table 3530: Calculate_Education_Credits
+  |
+  +-> Table 4000: Dispatch_State_Tax
+        |
+        +-> Table 40100: Calculate_CA_Tax
+        +-> Table 40200: Calculate_CO_Tax
+        +-> ...</code></pre>
+
+  <h2>Running Different Scenarios</h2>
+
+  <h3>Simple W-2 Return</h3>
+
+  <pre><code>go test ./pkg/dtrules/... -run TestCase_L1_Simple -v</code></pre>
+
+  <h3>Family with Children (CTC/EITC)</h3>
+
+  <pre><code>go test ./pkg/dtrules/... -run TestCase_Family_2025 -v</code></pre>
+
+  <h3>Self-Employed (Schedule C)</h3>
+
+  <pre><code>go test ./pkg/dtrules/... -run TestCase_C02_Self_Employed -v</code></pre>
+
+  <h3>All Tax Return Tests</h3>
+
+  <pre><code>go test ./pkg/dtrules/... -run TestTaxReturn -v</code></pre>
+
+  <h2>Example: Standard Deduction Decision Table</h2>
+
+  <p>
+    Here's how the standard deduction is encoded as a decision table:
+  </p>
+
+  <pre><code>&lt;decision_table&gt;
+  &lt;table_name&gt;Calculate_Standard_Deduction&lt;/table_name&gt;
+  &lt;attribute_fields&gt;
+    &lt;Type&gt;FIRST&lt;/Type&gt;
+    &lt;COMMENTS&gt;Form 1040 Line 12 - Standard Deduction
+    Ref: IRC Section 63(c)(2), Publication 17 Chapter 5&lt;/COMMENTS&gt;
+  &lt;/attribute_fields&gt;
+
+  &lt;conditions&gt;
+    &lt;condition id="1"&gt;result.filing_status eq 'single'&lt;/condition&gt;
+    &lt;condition id="2"&gt;result.filing_status eq 'mfj'&lt;/condition&gt;
+    &lt;condition id="3"&gt;result.filing_status eq 'hoh'&lt;/condition&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;action id="1"&gt;set result.standard_deduction = standard_deduction_single&lt;/action&gt;
+    &lt;action id="2"&gt;set result.standard_deduction = standard_deduction_mfj&lt;/action&gt;
+    &lt;action id="3"&gt;set result.standard_deduction = standard_deduction_hoh&lt;/action&gt;
+  &lt;/actions&gt;
+
+  &lt;columns&gt;
+    &lt;column id="single"&gt;
+      &lt;condition ref="1"&gt;Y&lt;/condition&gt;
+      &lt;condition ref="2"&gt;N&lt;/condition&gt;
+      &lt;condition ref="3"&gt;N&lt;/condition&gt;
+      &lt;action ref="1"&gt;X&lt;/action&gt;
+    &lt;/column&gt;
+    &lt;column id="mfj"&gt;
+      &lt;condition ref="1"&gt;N&lt;/condition&gt;
+      &lt;condition ref="2"&gt;Y&lt;/condition&gt;
+      &lt;condition ref="3"&gt;N&lt;/condition&gt;
+      &lt;action ref="2"&gt;X&lt;/action&gt;
+    &lt;/column&gt;
+    &lt;column id="hoh"&gt;
+      &lt;condition ref="1"&gt;N&lt;/condition&gt;
+      &lt;condition ref="2"&gt;N&lt;/condition&gt;
+      &lt;condition ref="3"&gt;Y&lt;/condition&gt;
+      &lt;action ref="3"&gt;X&lt;/action&gt;
+    &lt;/column&gt;
+  &lt;/columns&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h2>Common Tasks</h2>
+
+  <h3>Add a New Test Case</h3>
+
+  <ol>
+    <li>Copy an existing scenario XML from <code>testfiles/TestScenarios/</code></li>
+    <li>Modify income, deductions, and credits as needed</li>
+    <li>Run: <code>go test -run YourTestName -v</code></li>
+  </ol>
+
+  <h3>Modify a Tax Calculation</h3>
+
+  <ol>
+    <li>Find the relevant decision table in <code>xml/TaxReturn_dt.xml</code></li>
+    <li>Update the condition or action</li>
+    <li>Run tests to verify the change</li>
+    <li>Check output for correctness</li>
+  </ol>
+
+  <h3>Add a New State</h3>
+
+  <ol>
+    <li>Copy templates: <code>cp xml/states/TEMPLATE_*.xml xml/states/XX_*.xml</code></li>
+    <li>Add state constants to <code>XX_edd.xml</code></li>
+    <li>Add decision tables to <code>XX_dt.xml</code></li>
+    <li>Run merge script: <code>./scripts/merge-states.sh</code></li>
+    <li>Add test cases in <code>testfiles/TestScenarios/State/XX/</code></li>
+  </ol>
+
+  <h2>Performance</h2>
+
+  <p>The Go implementation achieves impressive tax calculation speeds:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Processing Time</th>
+        <th>Throughput (single core)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Simple W-2 Return</td>
+        <td>~250 us</td>
+        <td>~4,000/sec</td>
+      </tr>
+      <tr>
+        <td>Family (CTC/EITC)</td>
+        <td>~390 us</td>
+        <td>~2,500/sec</td>
+      </tr>
+      <tr>
+        <td>Self-Employed</td>
+        <td>~520 us</td>
+        <td>~1,900/sec</td>
+      </tr>
+      <tr>
+        <td>Complex Multi-State</td>
+        <td>~1.2 ms</td>
+        <td>~830/sec</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Traceability</h2>
+
+  <p>
+    Every calculation includes full audit trail linking back to IRS forms and publications:
+  </p>
+
+  <ul>
+    <li><strong>Form References</strong>: Form 1040 Line 12, Schedule A, etc.</li>
+    <li><strong>Publication Citations</strong>: Pub 17 Chapter 5, Pub 501, etc.</li>
+    <li><strong>IRC Sections</strong>: IRC 63(c)(2), IRC 1(a), etc.</li>
+    <li><strong>Revenue Procedures</strong>: Rev. Proc. 2024-40 for current year values</li>
+  </ul>
+
+  <h2>Coverage</h2>
+
+  <h3>Federal Forms (40+)</h3>
+
+  <ul>
+    <li>Form 1040: Individual Income Tax Return</li>
+    <li>Schedule A: Itemized Deductions</li>
+    <li>Schedule C: Business Income</li>
+    <li>Schedule D: Capital Gains</li>
+    <li>Schedule E: Rental/Passive Income</li>
+    <li>Schedule SE: Self-Employment Tax</li>
+    <li>Form 6251: Alternative Minimum Tax</li>
+    <li>Schedule 8812: Child Tax Credit</li>
+    <li>And 32+ more forms...</li>
+  </ul>
+
+  <h3>State Taxes (11 implemented)</h3>
+
+  <ul>
+    <li>California (CA) - Progressive rates with high-income surcharge</li>
+    <li>Colorado (CO) - Flat rate 4.4%</li>
+    <li>Connecticut (CT) - Progressive rates</li>
+    <li>Illinois (IL) - Flat rate 4.95%</li>
+    <li>Indiana (IN) - Flat rate with county adjustments</li>
+    <li>Michigan (MI) - Flat rate with city taxes</li>
+    <li>Minnesota (MN) - Progressive rates</li>
+    <li>Montana (MT) - Progressive rates</li>
+    <li>New Hampshire (NH) - Interest/dividends only</li>
+    <li>North Carolina (NC) - Flat rate</li>
+    <li>Pennsylvania (PA) - Flat rate 3.07%</li>
+  </ul>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/tax-return">Explore the Tax Demo Page</a></li>
+    <li><a href="/docs/concepts/decision-tables">Learn about Decision Tables</a></li>
+    <li><a href="https://github.com/DTRules/DTRules/tree/main/sampleprojects/TaxReturn">Browse Source Code on GitHub</a></li>
+    <li><a href="/docs/reference/go-api">Go API Reference</a></li>
+  </ul>
+</DocsLayout>

@@ -6,7 +6,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
   title="Testing Rules"
   description="Learn how to write tests for your DTRules decision tables."
   prev={{ title: "Creating Projects", href: "/docs/guides/creating-projects" }}
-  next={{ title: "Operators", href: "/docs/reference/operators" }}
+  next={{ title: "TaxReturn Example", href: "/docs/examples/tax-return" }}
 >
   <p>
     Testing is essential for validating that your rules behave correctly. DTRules supports
@@ -138,7 +138,7 @@ import (
     "os"
     "testing"
 
-    "github.com/dtrules/dtrules/go/pkg/dtrules/session"
+    "github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 func TestEligibility(t *testing.T) &#123;

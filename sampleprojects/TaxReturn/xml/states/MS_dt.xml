@@ -42,7 +42,7 @@
 <condition_comment>Single filer</condition_comment>
 <condition_description>filing_status == "Single"</condition_description>
 <condition_postfix>
-result.filing_status "Single" eq
+result.filing_status "single" strcasecmp 0 eq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
@@ -55,7 +55,7 @@ result.filing_status "Single" eq
 <condition_comment>Married filing jointly</condition_comment>
 <condition_description>filing_status == "MFJ"</condition_description>
 <condition_postfix>
-result.filing_status "MFJ" eq
+result.filing_status "married_filing_jointly" strcasecmp 0 eq
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -68,7 +68,7 @@ result.filing_status "MFJ" eq
 <condition_comment>Head of household</condition_comment>
 <condition_description>filing_status == "HOH"</condition_description>
 <condition_postfix>
-result.filing_status "HOH" eq
+result.filing_status "head_of_household" strcasecmp 0 eq
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
@@ -81,7 +81,7 @@ result.filing_status "HOH" eq
 <condition_comment>Married filing separately</condition_comment>
 <condition_description>filing_status == "MFS"</condition_description>
 <condition_postfix>
-result.filing_status "MFS" eq
+result.filing_status "married_filing_separately" strcasecmp 0 eq
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>

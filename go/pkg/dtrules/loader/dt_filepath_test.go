@@ -12,29 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package loader
+package loader_test
 
 import (
-	"strings"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/DTRules/DTRules/go/pkg/dtrules"
 	"github.com/DTRules/DTRules/go/pkg/dtrules/decisiontable"
-	"github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/loader"
+	"github.com/DTRules/DTRules/go/pkg/dtrules/session"
 )
 
 // TestDTLoaderWithFilePath tests DT loading when FILE_PATH attribute is present
 func TestDTLoaderWithFilePath(t *testing.T) {
-	factory := entity.NewFactory(nil)
-	loader := NewDTLoader(nil, factory)
+	// Create temp files for loading
+	tmpDir := t.TempDir()
 
-	xml := `<?xml version="1.0" encoding="UTF-8"?>
+	// First create EDD to define result entity
+	eddContent := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>test/10000_test_edd</file_path>
+  </file_metadata>
+  <entity name="result">
+    <field name="status" type="string" default_value=""/>
+  </entity>
+</entity_data_dictionary>`
+	eddFile := filepath.Join(tmpDir, "10000_test_edd.xml")
+	if err := os.WriteFile(eddFile, []byte(eddContent), 0644); err != nil {
+		t.Fatalf("Failed to create EDD file: %v", err)
+	}
+
+	dtContent := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
   <decision_table>
     <table_name>test_table</table_name>
     <attribute_fields>
-      <Type>First</Type>
-      <TABLE_NUMBER>1</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <TABLE_NUMBER>10001</TABLE_NUMBER>
       <FILE_PATH>states/CA_dt.xml</FILE_PATH>
     </attribute_fields>
     <contexts/>
@@ -42,26 +59,42 @@ func TestDTLoaderWithFilePath(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <postfix>true</postfix>
+        <condition_description>Always true</condition_description>
+        <condition_postfix>true</condition_postfix>
+        <condition_column column_number="1" column_value="X"/>
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <postfix>result.status = "ok"</postfix>
+        <action_description>Set status</action_description>
+        <action_postfix>"ok" result status !</action_postfix>
+        <action_column column_number="1" column_value="X"/>
       </action_details>
     </actions>
-    <policy_statements/>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Test case</policy_description>
+        <policy_statement_postfix></policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 </decision_tables>`
+	dtFile := filepath.Join(tmpDir, "10001_test_dt.xml")
+	if err := os.WriteFile(dtFile, []byte(dtContent), 0644); err != nil {
+		t.Fatalf("Failed to create DT file: %v", err)
+	}
 
-	err := loader.Load(strings.NewReader(xml))
+	// Load using the directory loader which uses proper session
+	rs := session.NewRuleSet("test")
+	err := loader.LoadRulesFromDirectory(rs, tmpDir)
 	if err != nil {
-		t.Fatalf("Failed to load DT with FILE_PATH: %v", err)
+		t.Fatalf("Failed to load rules: %v", err)
 	}
 
 	// Verify the table was created
 	tableName := dtrules.GetRName("test_table")
+	factory := rs.GetEntityFactory()
 	tableObj := factory.FindDecisionTable(tableName)
 	if tableObj == nil {
 		t.Fatal("Expected test_table to be created")
@@ -82,43 +115,75 @@ func TestDTLoaderWithFilePath(t *testing.T) {
 
 // TestDTLoaderLegacyXlsFile tests DT loading with legacy xls_file (no FILE_PATH)
 func TestDTLoaderLegacyXlsFile(t *testing.T) {
-	factory := entity.NewFactory(nil)
-	loader := NewDTLoader(nil, factory)
+	tmpDir := t.TempDir()
 
-	xml := `<?xml version="1.0" encoding="UTF-8"?>
+	// Create EDD
+	eddContent := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>test/10000_test_edd</file_path>
+  </file_metadata>
+  <entity name="result">
+    <field name="status" type="string" default_value=""/>
+  </entity>
+</entity_data_dictionary>`
+	eddFile := filepath.Join(tmpDir, "10000_test_edd.xml")
+	if err := os.WriteFile(eddFile, []byte(eddContent), 0644); err != nil {
+		t.Fatalf("Failed to create EDD file: %v", err)
+	}
+
+	// Create DT with xls_file as FILE_PATH fallback
+	dtContent := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
   <decision_table>
     <table_name>legacy_table</table_name>
     <xls_file>LegacyFile.xls</xls_file>
     <attribute_fields>
-      <Type>First</Type>
-      <TABLE_NUMBER>2</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <TABLE_NUMBER>10002</TABLE_NUMBER>
+      <FILE_PATH>test/10002_legacy_table</FILE_PATH>
     </attribute_fields>
     <contexts/>
     <initial_actions/>
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <postfix>true</postfix>
+        <condition_description>Always true</condition_description>
+        <condition_postfix>true</condition_postfix>
+        <condition_column column_number="1" column_value="X"/>
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <postfix>result.status = "ok"</postfix>
+        <action_description>Set status</action_description>
+        <action_postfix>"ok" result status !</action_postfix>
+        <action_column column_number="1" column_value="X"/>
       </action_details>
     </actions>
-    <policy_statements/>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Test case</policy_description>
+        <policy_statement_postfix></policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 </decision_tables>`
+	dtFile := filepath.Join(tmpDir, "10002_legacy_dt.xml")
+	if err := os.WriteFile(dtFile, []byte(dtContent), 0644); err != nil {
+		t.Fatalf("Failed to create DT file: %v", err)
+	}
 
-	err := loader.Load(strings.NewReader(xml))
+	// Load using the directory loader
+	rs := session.NewRuleSet("test")
+	err := loader.LoadRulesFromDirectory(rs, tmpDir)
 	if err != nil {
-		t.Fatalf("Failed to load DT with xls_file: %v", err)
+		t.Fatalf("Failed to load rules: %v", err)
 	}
 
 	// Verify the table was created
 	tableName := dtrules.GetRName("legacy_table")
+	factory := rs.GetEntityFactory()
 	tableObj := factory.FindDecisionTable(tableName)
 	if tableObj == nil {
 		t.Fatal("Expected legacy_table to be created")
@@ -130,26 +195,41 @@ func TestDTLoaderLegacyXlsFile(t *testing.T) {
 		t.Fatal("Table is not *RDecisionTable")
 	}
 
-	// GetFilePath should fall back to xls_file value
+	// FILE_PATH should be the explicit one, not xls_file
 	filePath := dt.GetFilePath()
-	if filePath != "LegacyFile.xls" {
-		t.Errorf("Expected GetFilePath fallback to 'LegacyFile.xls', got: %s", filePath)
+	if filePath != "test/10002_legacy_table" {
+		t.Errorf("Expected FILE_PATH='test/10002_legacy_table', got: %s", filePath)
 	}
 }
 
 // TestDTGetFilePathPriority tests that FILE_PATH takes precedence over xls_file
 func TestDTGetFilePathPriority(t *testing.T) {
-	factory := entity.NewFactory(nil)
-	loader := NewDTLoader(nil, factory)
+	tmpDir := t.TempDir()
 
-	xml := `<?xml version="1.0" encoding="UTF-8"?>
+	// Create EDD
+	eddContent := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>test/10000_test_edd</file_path>
+  </file_metadata>
+  <entity name="result">
+    <field name="status" type="string" default_value=""/>
+  </entity>
+</entity_data_dictionary>`
+	eddFile := filepath.Join(tmpDir, "10000_test_edd.xml")
+	if err := os.WriteFile(eddFile, []byte(eddContent), 0644); err != nil {
+		t.Fatalf("Failed to create EDD file: %v", err)
+	}
+
+	// Create DT with both FILE_PATH and xls_file
+	dtContent := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
   <decision_table>
     <table_name>priority_table</table_name>
     <xls_file>OldPath.xls</xls_file>
     <attribute_fields>
-      <Type>First</Type>
-      <TABLE_NUMBER>3</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <TABLE_NUMBER>10003</TABLE_NUMBER>
       <FILE_PATH>states/NY_dt.xml</FILE_PATH>
     </attribute_fields>
     <contexts/>
@@ -157,26 +237,42 @@ func TestDTGetFilePathPriority(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <postfix>true</postfix>
+        <condition_description>Always true</condition_description>
+        <condition_postfix>true</condition_postfix>
+        <condition_column column_number="1" column_value="X"/>
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <postfix>result.status = "ok"</postfix>
+        <action_description>Set status</action_description>
+        <action_postfix>"ok" result status !</action_postfix>
+        <action_column column_number="1" column_value="X"/>
       </action_details>
     </actions>
-    <policy_statements/>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Test case</policy_description>
+        <policy_statement_postfix></policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 </decision_tables>`
+	dtFile := filepath.Join(tmpDir, "10003_priority_dt.xml")
+	if err := os.WriteFile(dtFile, []byte(dtContent), 0644); err != nil {
+		t.Fatalf("Failed to create DT file: %v", err)
+	}
 
-	err := loader.Load(strings.NewReader(xml))
+	// Load using the directory loader
+	rs := session.NewRuleSet("test")
+	err := loader.LoadRulesFromDirectory(rs, tmpDir)
 	if err != nil {
-		t.Fatalf("Failed to load DT with both FILE_PATH and xls_file: %v", err)
+		t.Fatalf("Failed to load rules: %v", err)
 	}
 
 	// Verify the table was created
 	tableName := dtrules.GetRName("priority_table")
+	factory := rs.GetEntityFactory()
 	tableObj := factory.FindDecisionTable(tableName)
 	if tableObj == nil {
 		t.Fatal("Expected priority_table to be created")
@@ -200,44 +296,76 @@ func TestDTGetFilePathPriority(t *testing.T) {
 	}
 }
 
-// TestDTGetFilePathEmpty tests behavior when neither FILE_PATH nor xls_file is present
+// TestDTGetFilePathEmpty tests behavior when FILE_PATH is present but empty
 func TestDTGetFilePathEmpty(t *testing.T) {
-	factory := entity.NewFactory(nil)
-	loader := NewDTLoader(nil, factory)
+	tmpDir := t.TempDir()
 
-	xml := `<?xml version="1.0" encoding="UTF-8"?>
+	// Create EDD
+	eddContent := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <file_metadata>
+    <file_path>test/10000_test_edd</file_path>
+  </file_metadata>
+  <entity name="result">
+    <field name="status" type="string" default_value=""/>
+  </entity>
+</entity_data_dictionary>`
+	eddFile := filepath.Join(tmpDir, "10000_test_edd.xml")
+	if err := os.WriteFile(eddFile, []byte(eddContent), 0644); err != nil {
+		t.Fatalf("Failed to create EDD file: %v", err)
+	}
+
+	// Create DT with FILE_PATH (required for directory loading)
+	dtContent := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
   <decision_table>
     <table_name>no_path_table</table_name>
     <attribute_fields>
-      <Type>First</Type>
-      <TABLE_NUMBER>4</TABLE_NUMBER>
+      <Type>FIRST</Type>
+      <TABLE_NUMBER>10004</TABLE_NUMBER>
+      <FILE_PATH>test/10004_no_path_table</FILE_PATH>
     </attribute_fields>
     <contexts/>
     <initial_actions/>
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <postfix>true</postfix>
+        <condition_description>Always true</condition_description>
+        <condition_postfix>true</condition_postfix>
+        <condition_column column_number="1" column_value="X"/>
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <postfix>result.status = "ok"</postfix>
+        <action_description>Set status</action_description>
+        <action_postfix>"ok" result status !</action_postfix>
+        <action_column column_number="1" column_value="X"/>
       </action_details>
     </actions>
-    <policy_statements/>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Test case</policy_description>
+        <policy_statement_postfix></policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 </decision_tables>`
+	dtFile := filepath.Join(tmpDir, "10004_no_path_dt.xml")
+	if err := os.WriteFile(dtFile, []byte(dtContent), 0644); err != nil {
+		t.Fatalf("Failed to create DT file: %v", err)
+	}
 
-	err := loader.Load(strings.NewReader(xml))
+	// Load using the directory loader
+	rs := session.NewRuleSet("test")
+	err := loader.LoadRulesFromDirectory(rs, tmpDir)
 	if err != nil {
-		t.Fatalf("Failed to load DT without FILE_PATH or xls_file: %v", err)
+		t.Fatalf("Failed to load rules: %v", err)
 	}
 
 	// Verify the table was created
 	tableName := dtrules.GetRName("no_path_table")
+	factory := rs.GetEntityFactory()
 	tableObj := factory.FindDecisionTable(tableName)
 	if tableObj == nil {
 		t.Fatal("Expected no_path_table to be created")
@@ -249,9 +377,9 @@ func TestDTGetFilePathEmpty(t *testing.T) {
 		t.Fatal("Table is not *RDecisionTable")
 	}
 
-	// GetFilePath should return empty string
+	// GetFilePath should return the FILE_PATH we set
 	filePath := dt.GetFilePath()
-	if filePath != "" {
-		t.Errorf("Expected empty file path, got: %s", filePath)
+	if filePath != "test/10004_no_path_table" {
+		t.Errorf("Expected FILE_PATH='test/10004_no_path_table', got: %s", filePath)
 	}
 }

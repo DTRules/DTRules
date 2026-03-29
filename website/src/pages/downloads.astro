@@ -31,7 +31,7 @@ import { Download, Package, Terminal, ExternalLink } from 'lucide-react';
           <div class="space-y-6">
             <div>
               <h3 class="font-semibold mb-3">Clone from GitHub</h3>
-              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>git clone https://github.com/dtrules/dtrules.git
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>git clone https://github.com/DTRules/DTRules.git
 cd DTRules
 mvn clean install</code></pre>
             </div>
@@ -76,7 +76,7 @@ mvn clean install</code></pre>
           <div class="space-y-6">
             <div>
               <h3 class="font-semibold mb-3">Install via Go</h3>
-              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>go get github.com/dtrules/dtrules/go</code></pre>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>go get github.com/DTRules/DTRules/go</code></pre>
             </div>
 
             <div>
@@ -153,9 +153,17 @@ go build -o dtrules ./cmd/dtrules</code></pre>
       <div class="mt-12 max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-6 text-center">Sample Projects</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="/tax-return" class="glass rounded-xl p-4 hover:border-green-500/30 transition-colors">
+            <h3 class="font-semibold mb-1 text-green-400">TaxReturn</h3>
+            <p class="text-sm text-muted-foreground">Complete federal + 50 states tax calculation</p>
+          </a>
           <div class="glass rounded-xl p-4">
             <h3 class="font-semibold mb-1">CHIP</h3>
             <p class="text-sm text-muted-foreground">Health insurance eligibility</p>
+          </div>
+          <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold mb-1">CorporateTax</h3>
+            <p class="text-sm text-muted-foreground">Corporate tax penalties (Form 2220, 6651, 6662)</p>
           </div>
           <div class="glass rounded-xl p-4">
             <h3 class="font-semibold mb-1">KidAid</h3>
@@ -169,21 +177,13 @@ go build -o dtrules ./cmd/dtrules</code></pre>
             <h3 class="font-semibold mb-1">TestProject</h3>
             <p class="text-sm text-muted-foreground">Minimal starter template</p>
           </div>
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold mb-1">ChipApp</h3>
-            <p class="text-sm text-muted-foreground">CHIP application wrapper</p>
-          </div>
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold mb-1">KidAid_Application</h3>
-            <p class="text-sm text-muted-foreground">Integration example</p>
-          </div>
         </div>
       </div>
 
       <!-- GitHub Link -->
       <div class="mt-12 text-center">
         <a
-          href="https://github.com/dtrules/dtrules"
+          href="https://github.com/DTRules/DTRules"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 px-6 py-3 gradient-button text-white font-semibold rounded-lg"

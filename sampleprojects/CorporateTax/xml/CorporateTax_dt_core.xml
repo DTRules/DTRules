@@ -12186,7 +12186,1790 @@
     </rules>
   </decision_table>
 
+  <!--
+    ================================================================
+    ENHANCED DEPRECIATION TABLES (Phase 2 - Issues #324-325)
+    ================================================================
+
+    Additional MACRS depreciation tables including:
+    - Mid-quarter convention determination
+    - MACRS percentage tables for all recovery periods
+    - Listed property limitations
+    - Form 4562 summary
+
+    Reference: Publication 946 - How to Depreciate Property
+    Reference: IRC Section 168 - MACRS
+  -->
+
+  <!--
+    Table 6010: Determine Mid-Quarter Convention Applicability
+
+    Mid-quarter convention applies when more than 40% of the aggregate basis
+    of all property placed in service during the year is placed in service
+    in the last 3 months (4th quarter) of the tax year.
+
+    Reference: IRC Section 168(d)(3), Publication 946 Chapter 4
+  -->
+  <decision_table name="Determine_Mid_Quarter_Convention" number="6010">
+    <description>
+      Determine whether mid-quarter convention applies based on Q4 property placement.
+      If more than 40% of total property basis is placed in service in Q4,
+      mid-quarter convention must be used for ALL property placed in service
+      during the year (except real property which uses mid-month).
+    </description>
+
+    <conditions>
+      <condition name="has_property_placed_in_service">
+        <expression>form_4562.total_property_placed_in_service > 0</expression>
+        <comment>Has property placed in service this year</comment>
+      </condition>
+
+      <condition name="q4_exceeds_40_percent">
+        <expression>form_4562.q4_percentage > 0.40</expression>
+        <comment>Q4 property exceeds 40% of total</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_property_placed_in_service>Y</has_property_placed_in_service>
+          <q4_exceeds_40_percent>Y</q4_exceeds_40_percent>
+        </conditions>
+        <actions>
+          <action>
+            // Mid-quarter convention required
+            form_4562.mid_quarter_required = true;
+
+            // Calculate Q4 percentage for verification
+            form_4562.q4_percentage = form_4562.q4_property_placed_in_service /
+                                       form_4562.total_property_placed_in_service;
+          </action>
+        </actions>
+        <policy>
+          Mid-quarter convention applies when more than 40% of property
+          is placed in service in Q4.
+
+          When mid-quarter convention applies:
+          - All personal property uses mid-quarter tables
+          - Real property continues to use mid-month convention
+          - Different MACRS percentages apply based on quarter placed in service
+
+          This rule prevents taxpayers from bunching property placements
+          in Q4 to maximize first-year depreciation.
+
+          Reference: IRC Section 168(d)(3)(A)
+          Reference: Publication 946 Chapter 4 - Conventions
+          Reference: Treas. Reg. Section 1.168(d)-1
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_property_placed_in_service>Y</has_property_placed_in_service>
+          <q4_exceeds_40_percent>N</q4_exceeds_40_percent>
+        </conditions>
+        <actions>
+          <action>
+            // Half-year convention applies (default)
+            form_4562.mid_quarter_required = false;
+          </action>
+        </actions>
+        <policy>
+          Half-year convention applies (default) when Q4 property does not
+          exceed 40% of total property placed in service.
+
+          Half-year convention assumes all property is placed in service
+          at the midpoint of the year, regardless of actual date.
+
+          Reference: IRC Section 168(d)(1)
+          Reference: Publication 946 Chapter 4
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_property_placed_in_service>N</has_property_placed_in_service>
+        </conditions>
+        <actions>
+          <action>
+            form_4562.mid_quarter_required = false;
+          </action>
+        </actions>
+        <policy>
+          No property placed in service - convention determination not needed.
+        </policy>
+      </rule>
+    </rules>
   </decision_table>
 
-  <!-- For brevity in this draft file, see full implementation in final merged file -->
+  <!--
+    Table 6020: Calculate MACRS Percentage - 3-Year Property
+
+    MACRS percentages for 3-year property using 200% declining balance
+    with half-year and mid-quarter conventions.
+
+    Reference: Publication 946 Table A-1 (half-year), A-2 (mid-quarter)
+  -->
+  <decision_table name="Calculate_MACRS_3Year" number="6020">
+    <description>
+      Calculate MACRS depreciation percentage for 3-year property.
+      Uses 200% declining balance method.
+    </description>
+
+    <conditions>
+      <condition name="is_3year_property">
+        <expression>asset.recovery_period == 3</expression>
+        <comment>Asset is 3-year property</comment>
+      </condition>
+
+      <condition name="uses_half_year">
+        <expression>!form_4562.mid_quarter_required</expression>
+        <comment>Uses half-year convention</comment>
+      </condition>
+
+      <condition name="recovery_year">
+        <expression>depreciation_schedule.recovery_year</expression>
+        <comment>Year in recovery period</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Half-Year Convention Rules -->
+      <rule number="1">
+        <conditions>
+          <is_3year_property>Y</is_3year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>1</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.3333;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          3-year property, Year 1, half-year convention: 33.33%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_3year_property>Y</is_3year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>2</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.4445;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          3-year property, Year 2, half-year convention: 44.45%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <is_3year_property>Y</is_3year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>3</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1481;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          3-year property, Year 3, half-year convention: 14.81%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="4">
+        <conditions>
+          <is_3year_property>Y</is_3year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>4</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0741;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          3-year property, Year 4, half-year convention: 7.41%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6030: Calculate MACRS Percentage - 5-Year Property
+
+    MACRS percentages for 5-year property using 200% declining balance.
+    Common assets: automobiles, computers, office equipment, breeding cattle.
+
+    Reference: Publication 946 Table A-1 (half-year), A-2 (mid-quarter)
+  -->
+  <decision_table name="Calculate_MACRS_5Year" number="6030">
+    <description>
+      Calculate MACRS depreciation percentage for 5-year property.
+      Uses 200% declining balance method.
+    </description>
+
+    <conditions>
+      <condition name="is_5year_property">
+        <expression>asset.recovery_period == 5</expression>
+        <comment>Asset is 5-year property</comment>
+      </condition>
+
+      <condition name="uses_half_year">
+        <expression>!form_4562.mid_quarter_required</expression>
+        <comment>Uses half-year convention</comment>
+      </condition>
+
+      <condition name="recovery_year">
+        <expression>depreciation_schedule.recovery_year</expression>
+        <comment>Year in recovery period</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <!-- Half-Year Convention Rules -->
+      <rule number="1">
+        <conditions>
+          <is_5year_property>Y</is_5year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>1</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.2000;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          5-year property, Year 1, half-year convention: 20.00%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_5year_property>Y</is_5year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>2</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.3200;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          5-year property, Year 2, half-year convention: 32.00%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <is_5year_property>Y</is_5year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>3</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1920;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          5-year property, Year 3, half-year convention: 19.20%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="4">
+        <conditions>
+          <is_5year_property>Y</is_5year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>4</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1152;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          5-year property, Year 4, half-year convention: 11.52%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="5">
+        <conditions>
+          <is_5year_property>Y</is_5year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>5</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1152;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          5-year property, Year 5, half-year convention: 11.52%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="6">
+        <conditions>
+          <is_5year_property>Y</is_5year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>6</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0576;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          5-year property, Year 6, half-year convention: 5.76%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6040: Calculate MACRS Percentage - 7-Year Property
+
+    MACRS percentages for 7-year property using 200% declining balance.
+    Common assets: office furniture, fixtures, most machinery and equipment.
+
+    Reference: Publication 946 Table A-1
+  -->
+  <decision_table name="Calculate_MACRS_7Year" number="6040">
+    <description>
+      Calculate MACRS depreciation percentage for 7-year property.
+      Uses 200% declining balance method.
+    </description>
+
+    <conditions>
+      <condition name="is_7year_property">
+        <expression>asset.recovery_period == 7</expression>
+        <comment>Asset is 7-year property</comment>
+      </condition>
+
+      <condition name="uses_half_year">
+        <expression>!form_4562.mid_quarter_required</expression>
+        <comment>Uses half-year convention</comment>
+      </condition>
+
+      <condition name="recovery_year">
+        <expression>depreciation_schedule.recovery_year</expression>
+        <comment>Year in recovery period</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>1</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1429;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 1, half-year convention: 14.29%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>2</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.2449;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 2, half-year convention: 24.49%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>3</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1749;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 3, half-year convention: 17.49%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="4">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>4</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.1249;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 4, half-year convention: 12.49%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="5">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>5</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0893;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 5, half-year convention: 8.93%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="6">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>6</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0892;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 6, half-year convention: 8.92%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="7">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>7</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0893;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 7, half-year convention: 8.93%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="8">
+        <conditions>
+          <is_7year_property>Y</is_7year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>8</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0446;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          7-year property, Year 8, half-year convention: 4.46%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6050: Calculate MACRS Percentage - 15-Year Property
+
+    MACRS percentages for 15-year property using 150% declining balance.
+    Common assets: land improvements, gas stations, depreciable improvements.
+
+    Reference: Publication 946 Table A-1
+  -->
+  <decision_table name="Calculate_MACRS_15Year" number="6050">
+    <description>
+      Calculate MACRS depreciation percentage for 15-year property.
+      Uses 150% declining balance method.
+    </description>
+
+    <conditions>
+      <condition name="is_15year_property">
+        <expression>asset.recovery_period == 15</expression>
+        <comment>Asset is 15-year property</comment>
+      </condition>
+
+      <condition name="uses_half_year">
+        <expression>!form_4562.mid_quarter_required</expression>
+        <comment>Uses half-year convention</comment>
+      </condition>
+
+      <condition name="recovery_year">
+        <expression>depreciation_schedule.recovery_year</expression>
+        <comment>Year in recovery period</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <is_15year_property>Y</is_15year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>1</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0500;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          15-year property, Year 1, half-year convention: 5.00%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_15year_property>Y</is_15year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>2</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0950;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          15-year property, Year 2, half-year convention: 9.50%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <is_15year_property>Y</is_15year_property>
+          <uses_half_year>Y</uses_half_year>
+          <recovery_year>3</recovery_year>
+        </conditions>
+        <actions>
+          <action>
+            depreciation_schedule.macrs_percentage = 0.0855;
+            depreciation_schedule.convention_used = 'half-year';
+          </action>
+        </actions>
+        <policy>
+          15-year property, Year 3, half-year convention: 8.55%
+          Reference: Publication 946 Table A-1
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6060: Calculate MACRS Percentage - 27.5-Year Property
+
+    MACRS percentages for 27.5-year residential rental property using straight-line
+    with mid-month convention.
+
+    Reference: Publication 946 Table A-6
+  -->
+  <decision_table name="Calculate_MACRS_27_5Year" number="6060">
+    <description>
+      Calculate MACRS depreciation percentage for 27.5-year residential rental property.
+      Uses straight-line method with mid-month convention.
+    </description>
+
+    <conditions>
+      <condition name="is_residential_property">
+        <expression>asset.recovery_period == 27.5 || asset.asset_class == '27.5-year'</expression>
+        <comment>Asset is residential rental property</comment>
+      </condition>
+
+      <condition name="month_placed_in_service">
+        <expression>asset.month_placed_in_service</expression>
+        <comment>Month property was placed in service (1-12)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <is_residential_property>Y</is_residential_property>
+          <month_placed_in_service>1</month_placed_in_service>
+        </conditions>
+        <actions>
+          <action>
+            // January placement: 3.485% first year (11.5/12 months)
+            depreciation_schedule.macrs_percentage = 0.03485;
+            depreciation_schedule.convention_used = 'mid-month';
+          </action>
+        </actions>
+        <policy>
+          27.5-year property, placed in service January, Year 1: 3.485%
+          Mid-month convention: 11.5 months / 12 = 95.83% of annual 3.636%
+          Reference: Publication 946 Table A-6
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_residential_property>Y</is_residential_property>
+          <month_placed_in_service>12</month_placed_in_service>
+        </conditions>
+        <actions>
+          <action>
+            // December placement: 0.152% first year (0.5/12 months)
+            depreciation_schedule.macrs_percentage = 0.00152;
+            depreciation_schedule.convention_used = 'mid-month';
+          </action>
+        </actions>
+        <policy>
+          27.5-year property, placed in service December, Year 1: 0.152%
+          Mid-month convention: 0.5 months / 12 = 4.17% of annual 3.636%
+          Reference: Publication 946 Table A-6
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6070: Calculate MACRS Percentage - 39-Year Property
+
+    MACRS percentages for 39-year nonresidential real property using straight-line
+    with mid-month convention.
+
+    Reference: Publication 946 Table A-7a
+  -->
+  <decision_table name="Calculate_MACRS_39Year" number="6070">
+    <description>
+      Calculate MACRS depreciation percentage for 39-year nonresidential real property.
+      Uses straight-line method with mid-month convention.
+    </description>
+
+    <conditions>
+      <condition name="is_nonresidential_property">
+        <expression>asset.recovery_period == 39 || asset.asset_class == '39-year'</expression>
+        <comment>Asset is nonresidential real property</comment>
+      </condition>
+
+      <condition name="month_placed_in_service">
+        <expression>asset.month_placed_in_service</expression>
+        <comment>Month property was placed in service (1-12)</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <is_nonresidential_property>Y</is_nonresidential_property>
+          <month_placed_in_service>1</month_placed_in_service>
+        </conditions>
+        <actions>
+          <action>
+            // January placement: 2.461% first year (11.5/12 months)
+            depreciation_schedule.macrs_percentage = 0.02461;
+            depreciation_schedule.convention_used = 'mid-month';
+          </action>
+        </actions>
+        <policy>
+          39-year property, placed in service January, Year 1: 2.461%
+          Mid-month convention: 11.5 months / 12 = 95.83% of annual 2.564%
+          Reference: Publication 946 Table A-7a
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_nonresidential_property>Y</is_nonresidential_property>
+          <month_placed_in_service>12</month_placed_in_service>
+        </conditions>
+        <actions>
+          <action>
+            // December placement: 0.107% first year (0.5/12 months)
+            depreciation_schedule.macrs_percentage = 0.00107;
+            depreciation_schedule.convention_used = 'mid-month';
+          </action>
+        </actions>
+        <policy>
+          39-year property, placed in service December, Year 1: 0.107%
+          Mid-month convention: 0.5 months / 12 = 4.17% of annual 2.564%
+          Reference: Publication 946 Table A-7a
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6150: Calculate Section 179 Phaseout
+
+    Calculates phaseout of Section 179 deduction when total property placed
+    in service exceeds threshold.
+
+    2025 Limits:
+    - Maximum deduction: $1,220,000
+    - Phaseout threshold: $3,050,000
+    - Dollar-for-dollar reduction above threshold
+
+    Reference: IRC Section 179(b)(2), Form 4562 Part I
+  -->
+  <decision_table name="Calculate_Section_179_Phaseout" number="6150">
+    <description>
+      Calculate Section 179 phaseout when property placed in service exceeds threshold.
+      Dollar-for-dollar reduction of maximum deduction.
+    </description>
+
+    <conditions>
+      <condition name="exceeds_threshold">
+        <expression>form_4562.section_179_total_cost > form_4562.section_179_threshold</expression>
+        <comment>Total property cost exceeds phaseout threshold</comment>
+      </condition>
+
+      <condition name="completely_phased_out">
+        <expression>form_4562.section_179_total_cost >= (form_4562.section_179_threshold + form_4562.section_179_maximum)</expression>
+        <comment>Section 179 completely phased out</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <exceeds_threshold>Y</exceeds_threshold>
+          <completely_phased_out>N</completely_phased_out>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate phaseout reduction
+            form_4562.section_179_reduction = form_4562.section_179_total_cost - form_4562.section_179_threshold;
+            form_4562.section_179_tentative = form_4562.section_179_maximum - form_4562.section_179_reduction;
+
+            // Ensure not negative
+            if (form_4562.section_179_tentative < 0) {
+              form_4562.section_179_tentative = 0.0;
+            }
+          </action>
+        </actions>
+        <policy>
+          Section 179 phaseout when property placed in service exceeds threshold.
+
+          Formula:
+          Reduction = Total property cost - Threshold ($3,050,000 for 2025)
+          Tentative = Maximum ($1,220,000) - Reduction
+
+          Example:
+          Property placed in service: $3,500,000
+          Reduction: $3,500,000 - $3,050,000 = $450,000
+          Tentative: $1,220,000 - $450,000 = $770,000
+
+          Reference: IRC Section 179(b)(2) - Limitation based on cost
+          Reference: Form 4562 Part I Lines 3-5
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <exceeds_threshold>Y</exceeds_threshold>
+          <completely_phased_out>Y</completely_phased_out>
+        </conditions>
+        <actions>
+          <action>
+            // Section 179 completely phased out
+            form_4562.section_179_reduction = form_4562.section_179_maximum;
+            form_4562.section_179_tentative = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Section 179 completely phased out when property placed in service
+          exceeds threshold + maximum.
+
+          Phaseout threshold (2025): $3,050,000
+          Maximum deduction (2025): $1,220,000
+          Complete phaseout at: $4,270,000
+
+          Reference: IRC Section 179(b)(2)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <exceeds_threshold>N</exceeds_threshold>
+        </conditions>
+        <actions>
+          <action>
+            // No phaseout - full maximum available
+            form_4562.section_179_reduction = 0.0;
+            form_4562.section_179_tentative = form_4562.section_179_maximum;
+          </action>
+        </actions>
+        <policy>
+          Property placed in service below threshold - full Section 179 maximum available.
+          Reference: IRC Section 179(b)(1)
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6160: Apply Section 179 Income Limitation
+
+    Section 179 deduction cannot exceed business income.
+    Excess carries forward indefinitely.
+
+    Reference: IRC Section 179(b)(3), Form 4562 Part I Line 11-13
+  -->
+  <decision_table name="Apply_Section_179_Income_Limitation" number="6160">
+    <description>
+      Apply Section 179 income limitation - deduction cannot exceed business income.
+      Excess amount carries forward to future years.
+    </description>
+
+    <conditions>
+      <condition name="exceeds_income">
+        <expression>form_4562.section_179_tentative > form_4562.section_179_income_limitation</expression>
+        <comment>Section 179 deduction exceeds business income</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <exceeds_income>Y</exceeds_income>
+        </conditions>
+        <actions>
+          <action>
+            // Limited to business income
+            form_4562.section_179_allowed = form_4562.section_179_income_limitation;
+
+            // Calculate carryforward
+            form_4562.section_179_carryover_to_future =
+              form_4562.section_179_tentative - form_4562.section_179_income_limitation;
+          </action>
+        </actions>
+        <policy>
+          Section 179 deduction limited to business income for the year.
+
+          Excess carries forward indefinitely (no expiration).
+          Carryforward is used before current year election.
+
+          Example:
+          Section 179 elected: $500,000
+          Business income: $300,000
+          Deduction allowed: $300,000
+          Carryforward: $200,000
+
+          Reference: IRC Section 179(b)(3) - Taxable income limitation
+          Reference: Form 4562 Part I Lines 11-13
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <exceeds_income>N</exceeds_income>
+        </conditions>
+        <actions>
+          <action>
+            // Full deduction allowed
+            form_4562.section_179_allowed = form_4562.section_179_tentative;
+            form_4562.section_179_carryover_to_future = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Section 179 deduction within income limitation - full amount allowed.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6170: Apply Listed Property Limitations
+
+    Listed property (vehicles, computers) has additional requirements:
+    - Must be used more than 50% for business
+    - If not, must use ADS straight-line depreciation
+    - Luxury auto limits apply to passenger vehicles
+
+    Reference: IRC Section 280F, Form 4562 Part V
+  -->
+  <decision_table name="Apply_Listed_Property_Limitations" number="6170">
+    <description>
+      Apply listed property limitations under IRC 280F.
+      Includes business use test and luxury auto limits.
+    </description>
+
+    <conditions>
+      <condition name="is_listed_property">
+        <expression>asset.listed_property == true</expression>
+        <comment>Asset is listed property (vehicle, computer, etc.)</comment>
+      </condition>
+
+      <condition name="is_passenger_vehicle">
+        <expression>asset.asset_class == 'passenger-vehicle'</expression>
+        <comment>Asset is a passenger automobile</comment>
+      </condition>
+
+      <condition name="business_use_over_50">
+        <expression>asset.business_use_percentage > 0.50</expression>
+        <comment>Business use exceeds 50%</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <is_listed_property>Y</is_listed_property>
+          <is_passenger_vehicle>Y</is_passenger_vehicle>
+          <business_use_over_50>Y</business_use_over_50>
+        </conditions>
+        <actions>
+          <action>
+            // Apply luxury auto limits
+            form_4562.vehicle_limitation_applies = true;
+
+            // Cap depreciation at luxury auto limit
+            double max_depreciation = 0.0;
+            if (depreciation_schedule.recovery_year == 1) {
+              max_depreciation = form_4562.vehicle_max_year1; // $12,200 for 2025
+            } else if (depreciation_schedule.recovery_year == 2) {
+              max_depreciation = form_4562.vehicle_max_year2; // $19,500 for 2025
+            } else if (depreciation_schedule.recovery_year == 3) {
+              max_depreciation = form_4562.vehicle_max_year3; // $11,700 for 2025
+            } else {
+              max_depreciation = form_4562.vehicle_max_subsequent; // $6,960 for 2025
+            }
+
+            // Apply business use percentage
+            max_depreciation = max_depreciation * asset.business_use_percentage;
+
+            // Use lesser of calculated or limit
+            if (asset.current_year_depreciation > max_depreciation) {
+              asset.current_year_depreciation = max_depreciation;
+            }
+          </action>
+        </actions>
+        <policy>
+          Luxury auto limits apply to passenger vehicles (IRC 280F).
+
+          2025 Limits (business use portion):
+          Year 1: $12,200 ($20,200 with bonus)
+          Year 2: $19,500
+          Year 3: $11,700
+          Year 4+: $6,960
+
+          Limits are multiplied by business use percentage.
+
+          Example: 80% business use
+          Year 1 limit: $12,200 x 80% = $9,760
+
+          Reference: IRC Section 280F(a) - Luxury automobiles
+          Reference: Publication 946 Chapter 5 - Listed Property
+          Reference: Rev. Proc. 2024-37 (annual limits update)
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_listed_property>Y</is_listed_property>
+          <business_use_over_50>N</business_use_over_50>
+        </conditions>
+        <actions>
+          <action>
+            // Business use 50% or less - must use ADS straight-line
+            asset.depreciation_method = 'ADS-SL';
+            asset.eligible_for_section_179 = false;
+            asset.eligible_for_bonus = false;
+
+            // Not eligible for Section 179 or bonus depreciation
+          </action>
+        </actions>
+        <policy>
+          Listed property with 50% or less business use must use ADS straight-line.
+
+          Cannot use:
+          - MACRS accelerated depreciation
+          - Section 179 expense deduction
+          - Bonus depreciation
+
+          Recovery periods under ADS:
+          - Automobiles: 5 years
+          - Computers: 5 years
+
+          Reference: IRC Section 280F(b) - Property not predominantly used for business
+          Reference: Publication 946 Chapter 5
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <is_listed_property>N</is_listed_property>
+        </conditions>
+        <actions>
+          <action>
+            // Not listed property - no special limitations
+            form_4562.vehicle_limitation_applies = false;
+          </action>
+        </actions>
+        <policy>
+          Not listed property - IRC 280F limitations do not apply.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 6180: Summarize Form 4562 Depreciation
+
+    Aggregates all depreciation components for Form 4562 summary.
+
+    Reference: Form 4562 Line 22
+  -->
+  <decision_table name="Summarize_Form_4562" number="6180">
+    <description>
+      Aggregate all depreciation and amortization for Form 4562 summary.
+      Total flows to Form 1120 Line 20.
+    </description>
+
+    <conditions>
+      <condition name="always_summarize">
+        <expression>true</expression>
+        <comment>Always summarize depreciation</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_summarize>Y</always_summarize>
+        </conditions>
+        <actions>
+          <action>
+            // Aggregate MACRS depreciation by class
+            form_4562.macrs_total =
+              form_4562.macrs_gds_3year +
+              form_4562.macrs_gds_5year +
+              form_4562.macrs_gds_7year +
+              form_4562.macrs_gds_10year +
+              form_4562.macrs_gds_15year +
+              form_4562.macrs_gds_20year +
+              form_4562.macrs_gds_25year +
+              form_4562.macrs_residential +
+              form_4562.macrs_nonresidential;
+
+            // Total depreciation and amortization
+            form_4562.total_depreciation_and_amortization =
+              form_4562.section_179_allowed +
+              form_4562.bonus_depreciation_amount +
+              form_4562.macrs_total +
+              form_4562.listed_property_total +
+              form_4562.amortization_total;
+
+            // Copy to result for Form 1120 Line 20
+            result.depreciation = form_4562.total_depreciation_and_amortization;
+          </action>
+        </actions>
+        <policy>
+          Form 4562 depreciation summary:
+
+          Line 22 = Section 179 (Part I, Line 12)
+                  + Bonus depreciation (Part II, Line 14)
+                  + MACRS (Part III, Line 21)
+                  + Listed property (Part V)
+                  + Amortization (Part VI)
+
+          Total flows to Form 1120 Line 20 (Depreciation).
+
+          Reference: Form 4562 Instructions
+          Reference: Form 1120 Line 20
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    GENERAL BUSINESS CREDIT FRAMEWORK (Phase 2 - Issue #326)
+    ================================================================
+
+    Form 3800 implementation including:
+    - Credit aggregation
+    - Limitation calculation
+    - Carryforward/carryback rules
+
+    Reference: Form 3800 - General Business Credit
+    Reference: IRC Section 38 - General Business Credit
+  -->
+
+  <!--
+    Table 5350: Calculate General Business Credit Limitation
+
+    Credit limitation = Net income tax - Greater of:
+    (1) Tentative minimum tax, or
+    (2) 25% of net regular tax liability above $25,000
+
+    Reference: IRC Section 38(c), Form 3800 Part II
+  -->
+  <decision_table name="Calculate_GBC_Limitation" number="5350">
+    <description>
+      Calculate general business credit limitation under IRC 38(c).
+      Credit cannot reduce tax below greater of TMT or 25% of excess over $25,000.
+    </description>
+
+    <conditions>
+      <condition name="has_credits">
+        <expression>form_3800.total_credits_available > 0</expression>
+        <comment>Has general business credits to apply</comment>
+      </condition>
+
+      <condition name="tax_exceeds_base">
+        <expression>form_3800.net_regular_tax > form_3800.base_amount</expression>
+        <comment>Tax exceeds $25,000 base amount</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_credits>Y</has_credits>
+          <tax_exceeds_base>Y</tax_exceeds_base>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate 25% of excess over $25,000
+            form_3800.excess_over_base = form_3800.net_regular_tax - form_3800.base_amount;
+            double excess_limitation = form_3800.excess_over_base * form_3800.limitation_percentage;
+
+            // Credit limitation = Net income tax - Greater of TMT or 25% excess
+            // Note: Corporate AMT was repealed by TCJA, so TMT is generally $0
+            double greater_of = Math.max(form_3800.tentative_minimum_tax, excess_limitation);
+            form_3800.credit_limitation = form_3800.net_income_tax - greater_of;
+
+            // Cannot be negative
+            if (form_3800.credit_limitation < 0) {
+              form_3800.credit_limitation = 0.0;
+            }
+
+            // Apply credits up to limitation
+            if (form_3800.total_credits_available <= form_3800.credit_limitation) {
+              form_3800.general_business_credit_allowed = form_3800.total_credits_available;
+              form_3800.credit_carryforward_to_next_year = 0.0;
+            } else {
+              form_3800.general_business_credit_allowed = form_3800.credit_limitation;
+              form_3800.credit_carryforward_to_next_year =
+                form_3800.total_credits_available - form_3800.credit_limitation;
+            }
+          </action>
+        </actions>
+        <policy>
+          General business credit limitation (IRC 38(c)).
+
+          Credit Limitation = Net income tax - Greater of:
+          (1) Tentative minimum tax (generally $0 for corporations post-TCJA)
+          (2) 25% of net regular tax liability exceeding $25,000
+
+          Example:
+          Net income tax: $100,000
+          Excess over $25,000: $75,000
+          25% of excess: $18,750
+          Credit limitation: $100,000 - $18,750 = $81,250
+
+          Unused credits carry forward 20 years or back 1 year.
+
+          Reference: IRC Section 38(c) - Limitation based on tax liability
+          Reference: Form 3800 Part II - Allowable credit
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_credits>Y</has_credits>
+          <tax_exceeds_base>N</tax_exceeds_base>
+        </conditions>
+        <actions>
+          <action>
+            // Tax does not exceed $25,000 - full credit may be allowed
+            form_3800.excess_over_base = 0.0;
+            form_3800.credit_limitation = form_3800.net_income_tax - form_3800.tentative_minimum_tax;
+
+            if (form_3800.credit_limitation < 0) {
+              form_3800.credit_limitation = 0.0;
+            }
+
+            // Apply credits
+            if (form_3800.total_credits_available <= form_3800.credit_limitation) {
+              form_3800.general_business_credit_allowed = form_3800.total_credits_available;
+              form_3800.credit_carryforward_to_next_year = 0.0;
+            } else {
+              form_3800.general_business_credit_allowed = form_3800.credit_limitation;
+              form_3800.credit_carryforward_to_next_year =
+                form_3800.total_credits_available - form_3800.credit_limitation;
+            }
+          </action>
+        </actions>
+        <policy>
+          Net regular tax below $25,000 - credit limited only by TMT floor.
+          25% limitation on excess does not apply.
+
+          Reference: IRC Section 38(c)(1)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_credits>N</has_credits>
+        </conditions>
+        <actions>
+          <action>
+            form_3800.credit_limitation = 0.0;
+            form_3800.general_business_credit_allowed = 0.0;
+            form_3800.credit_carryforward_to_next_year = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No general business credits to apply.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 5360: Aggregate General Business Credits
+
+    Combines all component credits for Form 3800.
+
+    Reference: Form 3800 Part I
+  -->
+  <decision_table name="Aggregate_GBC_Credits" number="5360">
+    <description>
+      Aggregate all component credits for Form 3800.
+      Combines current year credits with carryforwards.
+    </description>
+
+    <conditions>
+      <condition name="always_aggregate">
+        <expression>true</expression>
+        <comment>Always aggregate credits</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <always_aggregate>Y</always_aggregate>
+        </conditions>
+        <actions>
+          <action>
+            // Sum all current year credits
+            form_3800.total_current_year_credits =
+              form_3800.investment_credit +
+              form_3800.research_credit +
+              form_3800.low_income_housing_credit +
+              form_3800.disabled_access_credit +
+              form_3800.renewable_electricity_credit +
+              form_3800.employer_social_security_credit +
+              form_3800.work_opportunity_credit +
+              form_3800.empowerment_zone_credit +
+              form_3800.new_markets_credit +
+              form_3800.small_employer_pension_credit +
+              form_3800.employer_provided_childcare_credit +
+              form_3800.biodiesel_credit +
+              form_3800.carbon_oxide_sequestration_credit +
+              form_3800.other_credits;
+
+            // Add carryforwards from prior years
+            form_3800.total_credits_available =
+              form_3800.total_current_year_credits +
+              form_3800.carryforward_from_prior_years +
+              form_3800.carryback_from_future_year;
+
+            // Copy to result entity
+            result.general_business_credit = form_3800.total_credits_available;
+          </action>
+        </actions>
+        <policy>
+          General business credit aggregation (Form 3800 Part I).
+
+          Total = Sum of all component credits:
+          - Investment credit (Form 3468)
+          - Research credit (Form 6765)
+          - Low-income housing credit (Form 8586)
+          - Disabled access credit (Form 8826)
+          - Work opportunity credit (Form 5884)
+          - Renewable electricity credit (Form 8835)
+          - Carbon oxide sequestration credit (Form 8933)
+          - And other component credits
+
+          Plus carryforwards from prior 20 years.
+
+          Reference: IRC Section 38(b) - Current year business credit
+          Reference: Form 3800 Part I
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    ================================================================
+    RESEARCH CREDIT CALCULATION (Phase 2 - Issue #327)
+    ================================================================
+
+    Form 6765 implementation including:
+    - Regular credit method
+    - Alternative simplified credit method
+
+    Reference: Form 6765 - Credit for Increasing Research Activities
+    Reference: IRC Section 41 - Research Credit
+  -->
+
+  <!--
+    Table 5110: Calculate Research Credit - Simplified Method
+
+    Alternative simplified credit method (14% of QREs exceeding
+    50% of prior 3-year average).
+
+    Reference: IRC Section 41(c)(5), Form 6765 Section B
+  -->
+  <decision_table name="Calculate_Research_Credit_Simplified" number="5110">
+    <description>
+      Calculate research credit using alternative simplified method.
+      14% of QREs exceeding 50% of prior 3-year average.
+    </description>
+
+    <conditions>
+      <condition name="using_simplified_method">
+        <expression>form_6765.simplified_credit_method == true</expression>
+        <comment>Using alternative simplified credit method</comment>
+      </condition>
+
+      <condition name="has_qres">
+        <expression>form_6765.total_qualified_research_expenses > 0</expression>
+        <comment>Has qualified research expenses</comment>
+      </condition>
+
+      <condition name="has_prior_year_qres">
+        <expression>form_6765.prior_3_year_avg_qres > 0</expression>
+        <comment>Has prior year QREs for comparison</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <using_simplified_method>Y</using_simplified_method>
+          <has_qres>Y</has_qres>
+          <has_prior_year_qres>Y</has_prior_year_qres>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate 50% of prior 3-year average
+            form_6765.simplified_base_amount = form_6765.prior_3_year_avg_qres * 0.50;
+
+            // Calculate excess QREs
+            if (form_6765.total_qualified_research_expenses > form_6765.simplified_base_amount) {
+              form_6765.simplified_excess_qres =
+                form_6765.total_qualified_research_expenses - form_6765.simplified_base_amount;
+            } else {
+              form_6765.simplified_excess_qres = 0.0;
+            }
+
+            // Calculate credit at 14%
+            form_6765.simplified_research_credit =
+              form_6765.simplified_excess_qres * form_6765.simplified_credit_rate;
+
+            // Set as total research credit
+            form_6765.total_research_credit = form_6765.simplified_research_credit;
+
+            // Apply to Form 3800
+            form_3800.research_credit = form_6765.total_research_credit;
+          </action>
+        </actions>
+        <policy>
+          Alternative simplified credit method (IRC 41(c)(5)).
+
+          Formula:
+          Base = 50% x Average QREs for prior 3 years
+          Excess QREs = Current year QREs - Base
+          Credit = 14% x Excess QREs
+
+          Example:
+          Current year QREs: $500,000
+          Prior 3-year average: $300,000
+          Base (50%): $150,000
+          Excess: $350,000
+          Credit: $49,000 (14% x $350,000)
+
+          Benefits:
+          - Simpler calculation than regular method
+          - Does not require fixed-base percentage calculation
+          - Does not require gross receipts history
+
+          Reference: IRC Section 41(c)(5) - Alternative simplified credit
+          Reference: Form 6765 Section B
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <using_simplified_method>Y</using_simplified_method>
+          <has_qres>Y</has_qres>
+          <has_prior_year_qres>N</has_prior_year_qres>
+        </conditions>
+        <actions>
+          <action>
+            // No prior year QREs - use 6% rate on all current QREs
+            form_6765.simplified_base_amount = 0.0;
+            form_6765.simplified_excess_qres = form_6765.total_qualified_research_expenses;
+            form_6765.simplified_research_credit = form_6765.simplified_excess_qres * 0.06;
+
+            form_6765.total_research_credit = form_6765.simplified_research_credit;
+            form_3800.research_credit = form_6765.total_research_credit;
+          </action>
+        </actions>
+        <policy>
+          First-year research (no prior QREs) - 6% rate applies.
+
+          When taxpayer has no QREs in any of the prior 3 years,
+          credit is 6% of current year QREs (no base subtraction).
+
+          Reference: IRC Section 41(c)(5)(B)(ii)
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_qres>N</has_qres>
+        </conditions>
+        <actions>
+          <action>
+            form_6765.total_research_credit = 0.0;
+            form_3800.research_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No qualified research expenses - no credit.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 5120: Calculate Work Opportunity Credit
+
+    Work opportunity tax credit for hiring from targeted groups.
+
+    Reference: IRC Section 51, Form 5884
+  -->
+  <decision_table name="Calculate_Work_Opportunity_Credit" number="5120">
+    <description>
+      Calculate work opportunity credit for hiring targeted group employees.
+      Credit rates vary by target group and hours worked.
+    </description>
+
+    <conditions>
+      <condition name="has_qualified_employees">
+        <expression>form_5884.total_certified_employees > 0</expression>
+        <comment>Has certified WOTC employees</comment>
+      </condition>
+
+      <condition name="has_certifications">
+        <expression>form_5884.all_certifications_obtained == true</expression>
+        <comment>All state workforce agency certifications obtained</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <has_qualified_employees>Y</has_qualified_employees>
+          <has_certifications>Y</has_certifications>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate first-year credit for general target groups (40% rate for 400+ hours)
+            double general_qualified_wages = Math.min(
+              form_5884.qualified_iv_a_wages +
+              form_5884.qualified_ex_felon_wages +
+              form_5884.qualified_ssi_recipient_wages +
+              form_5884.qualified_voc_rehab_wages +
+              form_5884.qualified_snap_recipient_wages +
+              form_5884.qualified_long_term_unemployment_wages,
+              form_5884.total_certified_employees * form_5884.max_first_year_wages_general
+            );
+            form_5884.first_year_credit_general = general_qualified_wages * form_5884.first_year_rate_400_hours;
+
+            // Calculate first-year credit for summer youth (40% rate, $3,000 max wages)
+            double summer_youth_qualified = Math.min(
+              form_5884.qualified_summer_youth_wages,
+              form_5884.max_first_year_wages_summer_youth
+            );
+            form_5884.first_year_credit_summer_youth = summer_youth_qualified * form_5884.first_year_rate_400_hours;
+
+            // Calculate first-year credit for veterans (40% rate, $14,000 max wages)
+            double veteran_qualified = Math.min(
+              form_5884.qualified_veteran_wages,
+              form_5884.max_first_year_wages_veteran
+            );
+            form_5884.first_year_credit_veteran = veteran_qualified * form_5884.first_year_rate_400_hours;
+
+            // Calculate second-year credit for long-term family assistance (50% rate)
+            double second_year_qualified = Math.min(
+              form_5884.total_qualified_second_year_wages,
+              form_5884.max_second_year_wages
+            );
+            form_5884.second_year_credit = second_year_qualified * form_5884.second_year_rate;
+
+            // Total work opportunity credit
+            form_5884.total_work_opportunity_credit =
+              form_5884.first_year_credit_general +
+              form_5884.first_year_credit_summer_youth +
+              form_5884.first_year_credit_veteran +
+              form_5884.second_year_credit;
+
+            // Apply to Form 3800
+            form_3800.work_opportunity_credit = form_5884.total_work_opportunity_credit;
+
+            // Copy to result
+            result.work_opportunity_credit = form_5884.total_work_opportunity_credit;
+          </action>
+        </actions>
+        <policy>
+          Work opportunity tax credit calculation (IRC 51).
+
+          Credit rates:
+          - 40% of first-year wages for employees working 400+ hours
+          - 25% of first-year wages for employees working 120-399 hours
+          - 50% of second-year wages for long-term family assistance recipients
+
+          Maximum qualified wages:
+          - General target groups: $6,000 per employee
+          - Summer youth employees: $3,000 per employee
+          - Qualified veterans: $6,000 to $14,000 depending on category
+          - Long-term family assistance (Year 2): $10,000 per employee
+
+          Requirements:
+          - State workforce agency certification (Form 8850 pre-screening notice)
+          - Certification request filed within 28 days of hire
+
+          Reference: IRC Section 51 - Work opportunity credit
+          Reference: Form 5884 - Work Opportunity Credit
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <has_qualified_employees>Y</has_qualified_employees>
+          <has_certifications>N</has_certifications>
+        </conditions>
+        <actions>
+          <action>
+            // Missing certifications - credit not allowed
+            form_5884.total_work_opportunity_credit = 0.0;
+            form_3800.work_opportunity_credit = 0.0;
+            result.work_opportunity_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          WOTC requires state workforce agency certification.
+
+          Employer must submit Form 8850 (Pre-Screening Notice) to state
+          workforce agency within 28 days of employee start date. Without
+          certification, credit is not allowed.
+
+          Reference: IRC Section 51(d)(12) - Certification requirement
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <has_qualified_employees>N</has_qualified_employees>
+        </conditions>
+        <actions>
+          <action>
+            form_5884.total_work_opportunity_credit = 0.0;
+            form_3800.work_opportunity_credit = 0.0;
+            result.work_opportunity_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          No qualified target group employees - no credit.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
+  <!--
+    Table 5130: Calculate Disabled Access Credit
+
+    Small business credit for ADA accessibility improvements.
+
+    Reference: IRC Section 44, Form 8826
+  -->
+  <decision_table name="Calculate_Disabled_Access_Credit" number="5130">
+    <description>
+      Calculate disabled access credit for eligible small businesses.
+      50% of eligible access expenditures between $250 and $10,250.
+    </description>
+
+    <conditions>
+      <condition name="is_eligible_small_business">
+        <expression>form_8826.is_eligible_small_business == true</expression>
+        <comment>Qualifies as eligible small business</comment>
+      </condition>
+
+      <condition name="has_access_expenditures">
+        <expression>form_8826.access_expenditures > form_8826.minimum_expenditure</expression>
+        <comment>Has eligible access expenditures above $250 minimum</comment>
+      </condition>
+    </conditions>
+
+    <rules>
+      <rule number="1">
+        <conditions>
+          <is_eligible_small_business>Y</is_eligible_small_business>
+          <has_access_expenditures>Y</has_access_expenditures>
+        </conditions>
+        <actions>
+          <action>
+            // Calculate expenditures above $250 minimum
+            form_8826.expenditures_above_minimum =
+              form_8826.access_expenditures - form_8826.minimum_expenditure;
+
+            // Cap at $10,000 ($10,250 - $250)
+            if (form_8826.expenditures_above_minimum > 10000.0) {
+              form_8826.eligible_expenditures = 10000.0;
+            } else {
+              form_8826.eligible_expenditures = form_8826.expenditures_above_minimum;
+            }
+
+            // Calculate credit at 50%
+            form_8826.disabled_access_credit =
+              form_8826.eligible_expenditures * form_8826.credit_rate;
+
+            // Cap at maximum credit of $5,000
+            if (form_8826.disabled_access_credit > form_8826.maximum_credit) {
+              form_8826.disabled_access_credit = form_8826.maximum_credit;
+            }
+
+            // Apply to Form 3800
+            form_3800.disabled_access_credit = form_8826.disabled_access_credit;
+          </action>
+        </actions>
+        <policy>
+          Disabled access credit for small businesses (IRC 44).
+
+          Eligibility:
+          - Gross receipts for prior year did not exceed $1,000,000, OR
+          - No more than 30 full-time employees
+
+          Credit calculation:
+          - 50% of eligible access expenditures
+          - First $250 not eligible (minimum threshold)
+          - Maximum eligible expenditures: $10,000 ($10,250 - $250)
+          - Maximum credit: $5,000 per year
+
+          Eligible expenditures include:
+          - Removing architectural barriers
+          - Providing qualified interpreters or readers
+          - Acquiring or modifying equipment
+
+          Reference: IRC Section 44 - Disabled access credit
+          Reference: Form 8826 - Disabled Access Credit
+        </policy>
+      </rule>
+
+      <rule number="2">
+        <conditions>
+          <is_eligible_small_business>N</is_eligible_small_business>
+        </conditions>
+        <actions>
+          <action>
+            // Not eligible small business - credit not available
+            form_8826.disabled_access_credit = 0.0;
+            form_3800.disabled_access_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Not an eligible small business - credit not available.
+
+          To qualify:
+          - Prior year gross receipts must not exceed $1,000,000, OR
+          - Must have no more than 30 full-time employees
+
+          Large businesses may use IRC 190 deduction for barrier removal
+          (up to $15,000 per year) instead.
+
+          Reference: IRC Section 44(b) - Eligible small business
+        </policy>
+      </rule>
+
+      <rule number="3">
+        <conditions>
+          <is_eligible_small_business>Y</is_eligible_small_business>
+          <has_access_expenditures>N</has_access_expenditures>
+        </conditions>
+        <actions>
+          <action>
+            // No eligible expenditures above minimum
+            form_8826.disabled_access_credit = 0.0;
+            form_3800.disabled_access_credit = 0.0;
+          </action>
+        </actions>
+        <policy>
+          Expenditures do not exceed $250 minimum - no credit.
+        </policy>
+      </rule>
+    </rules>
+  </decision_table>
+
 </decision_tables>

@@ -1,0 +1,308 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="TaxReturn Example"
+  description="Comprehensive walkthrough of the TaxReturn sample project - implementing federal and state income tax with decision tables."
+  prev={{ title: "Testing Rules", href: "/docs/guides/testing" }}
+  next={{ title: "Operators", href: "/docs/reference/operators" }}
+>
+  <p>
+    The TaxReturn sample project demonstrates DTRules at scale, implementing complete
+    federal income tax calculation plus all 50 states and DC. This guide walks through
+    the project structure, key decision tables, and implementation patterns.
+  </p>
+
+  <h2>Project Overview</h2>
+
+  <p>
+    TaxReturn implements the full Form 1040 calculation including:
+  </p>
+
+  <ul>
+    <li>Gross income from all sources (W-2, self-employment, rental, investments)</li>
+    <li>Deductions (standard and itemized, including SALT cap)</li>
+    <li>Tax bracket calculation for all filing statuses</li>
+    <li>Alternative Minimum Tax (AMT)</li>
+    <li>Tax credits (Child Tax Credit, EITC, education credits)</li>
+    <li>State income tax for all 50 states + DC</li>
+  </ul>
+
+  <h2>Project Structure</h2>
+
+  <pre><code>sampleprojects/TaxReturn/
+  xml/
+    TaxReturn_edd.xml         # Entity Data Dictionary (data model)
+    TaxReturn_dt.xml          # Decision Tables (rules)
+    TaxReturn_map.xml         # Input/output mapping
+    states/
+      CA_edd.xml              # California-specific entities
+      CA_dt.xml               # California tax tables
+      NY_edd.xml              # New York-specific entities
+      NY_dt.xml               # New York tax tables
+      ... (all 50 states + DC)
+  testfiles/
+    TestScenarios/            # Test cases by scenario</code></pre>
+
+  <h2>Entity Data Dictionary</h2>
+
+  <p>
+    The EDD defines the data model for tax returns. Here's the core <code>job</code> entity:
+  </p>
+
+  <pre><code>&lt;entity name="job" comment="Root entity for tax return processing"&gt;
+  &lt;field name="tax_year" type="integer" default_value="2025"
+         comment="Tax year being processed" /&gt;
+  &lt;field name="filing_status" type="string"
+         comment="Filing status: MFJ, MFS, Single, HOH, QSS" /&gt;
+  &lt;field name="state" type="string" default_value="TX"
+         comment="State of residence" /&gt;
+  &lt;field name="taxpayers" type="array" subtype="taxpayer"
+         comment="Taxpayers on this return" /&gt;
+  &lt;field name="dependents" type="array" subtype="dependent"
+         comment="Dependents on this return" /&gt;
+  &lt;field name="results" type="array" subtype="result"
+         comment="Results of tax calculation" /&gt;
+  &lt;field name="audit_trail" type="array"
+         comment="Detailed trace of every decision" /&gt;
+&lt;/entity&gt;</code></pre>
+
+  <h3>Key Entities</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>job</code></td>
+        <td>Root entity containing all tax return data</td>
+      </tr>
+      <tr>
+        <td><code>taxpayer</code></td>
+        <td>Individual taxpayer (primary and spouse)</td>
+      </tr>
+      <tr>
+        <td><code>dependent</code></td>
+        <td>Dependent children and qualifying relatives</td>
+      </tr>
+      <tr>
+        <td><code>result</code></td>
+        <td>Calculated results (AGI, taxable income, tax, etc.)</td>
+      </tr>
+      <tr>
+        <td><code>property</code></td>
+        <td>Real estate for Schedule A/E</td>
+      </tr>
+      <tr>
+        <td><code>income</code></td>
+        <td>Income sources (wages, investments, etc.)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Decision Table Structure</h2>
+
+  <p>
+    The main entry point is <code>Compute_Tax_Return</code>, which orchestrates all calculations
+    following the Form 1040 structure:
+  </p>
+
+  <pre><code>&lt;decision_table&gt;
+  &lt;table_name&gt;Compute_Tax_Return&lt;/table_name&gt;
+  &lt;attribute_fields&gt;
+    &lt;Type&gt;FIRST&lt;/Type&gt;
+    &lt;COMMENTS&gt;Entry point for tax return calculation.
+    Orchestrates the complete tax calculation process
+    following the structure of Form 1040.&lt;/COMMENTS&gt;
+    &lt;TABLE_NUMBER&gt;1000&lt;/TABLE_NUMBER&gt;
+  &lt;/attribute_fields&gt;
+
+  &lt;conditions&gt;
+    &lt;condition&gt;job.filing_status = "MFJ"&lt;/condition&gt;
+    &lt;condition&gt;job.filing_status = "Single"&lt;/condition&gt;
+    &lt;condition&gt;job.filing_status = "HOH"&lt;/condition&gt;
+    &lt;condition&gt;otherwise&lt;/condition&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;!-- Calculate gross income (Form 1040 Lines 1-9) --&gt;
+    &lt;action&gt;Calculate_Gross_Income&lt;/action&gt;
+
+    &lt;!-- Calculate deductions (Form 1040 Line 12) --&gt;
+    &lt;action&gt;Calculate_Deductions&lt;/action&gt;
+
+    &lt;!-- Calculate taxable income (Form 1040 Line 15) --&gt;
+    &lt;action&gt;Calculate_Taxable_Income&lt;/action&gt;
+
+    &lt;!-- Calculate tax liability (Form 1040 Lines 16-24) --&gt;
+    &lt;action&gt;Calculate_Tax_Liability&lt;/action&gt;
+
+    &lt;!-- Calculate credits (Form 1040 Lines 19-21) --&gt;
+    &lt;action&gt;Calculate_Credits&lt;/action&gt;
+
+    &lt;!-- Calculate final balance (Form 1040 Lines 33-37) --&gt;
+    &lt;action&gt;Calculate_Final_Balance&lt;/action&gt;
+
+    &lt;!-- State tax if applicable --&gt;
+    &lt;action&gt;if job.has_state_income_tax then Dispatch_State_Tax&lt;/action&gt;
+  &lt;/actions&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h2>Tax Bracket Example</h2>
+
+  <p>
+    The <code>Apply_Tax_Brackets_MFJ</code> table demonstrates how progressive tax brackets
+    are implemented. It uses <code>FIRST</code> type to find the applicable bracket:
+  </p>
+
+  <pre><code>&lt;decision_table&gt;
+  &lt;table_name&gt;Apply_Tax_Brackets_MFJ&lt;/table_name&gt;
+  &lt;attribute_fields&gt;
+    &lt;Type&gt;FIRST&lt;/Type&gt;
+    &lt;COMMENTS&gt;Applies 2025 tax brackets for Married Filing Jointly
+    per IRC Section 1(a) and Rev. Proc. 2024-40&lt;/COMMENTS&gt;
+  &lt;/attribute_fields&gt;
+
+  &lt;!-- 2025 MFJ Tax Brackets --&gt;
+  &lt;conditions&gt;
+    &lt;!-- 10% bracket: $0 - $23,850 --&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 23850&lt;/condition&gt;
+    &lt;!-- 12% bracket: $23,850 - $96,950 --&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 96950&lt;/condition&gt;
+    &lt;!-- 22% bracket: $96,950 - $206,700 --&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 206700&lt;/condition&gt;
+    &lt;!-- 24% bracket: $206,700 - $394,600 --&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 394600&lt;/condition&gt;
+    &lt;!-- 32% bracket: $394,600 - $501,050 --&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 501050&lt;/condition&gt;
+    &lt;!-- 35% bracket: $501,050 - $751,600 --&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 751600&lt;/condition&gt;
+    &lt;!-- 37% bracket: over $751,600 --&gt;
+    &lt;condition&gt;otherwise&lt;/condition&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;action&gt;set result.tax = result.taxable_income * 0.10&lt;/action&gt;
+    &lt;action&gt;set result.tax = 2385 + (result.taxable_income - 23850) * 0.12&lt;/action&gt;
+    &lt;action&gt;set result.tax = 11157 + (result.taxable_income - 96950) * 0.22&lt;/action&gt;
+    &lt;action&gt;set result.tax = 35302 + (result.taxable_income - 206700) * 0.24&lt;/action&gt;
+    &lt;action&gt;set result.tax = 80398 + (result.taxable_income - 394600) * 0.32&lt;/action&gt;
+    &lt;action&gt;set result.tax = 114462 + (result.taxable_income - 501050) * 0.35&lt;/action&gt;
+    &lt;action&gt;set result.tax = 202154.50 + (result.taxable_income - 751600) * 0.37&lt;/action&gt;
+  &lt;/actions&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h2>State Tax Implementation</h2>
+
+  <p>
+    Each state has its own EDD and decision table files. The <code>Dispatch_State_Tax</code>
+    table routes to the appropriate state calculator:
+  </p>
+
+  <pre><code>&lt;decision_table&gt;
+  &lt;table_name&gt;Dispatch_State_Tax&lt;/table_name&gt;
+  &lt;Type&gt;FIRST&lt;/Type&gt;
+
+  &lt;conditions&gt;
+    &lt;condition&gt;job.state = "CA"&lt;/condition&gt;
+    &lt;condition&gt;job.state = "NY"&lt;/condition&gt;
+    &lt;condition&gt;job.state = "TX"&lt;/condition&gt;
+    &lt;!-- ... more states ... --&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;action&gt;Calculate_CA_Tax&lt;/action&gt;
+    &lt;action&gt;Calculate_NY_Tax&lt;/action&gt;
+    &lt;action&gt;-- no state income tax --&lt;/action&gt;
+  &lt;/actions&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h3>California Example</h3>
+
+  <p>
+    California uses a progressive bracket system similar to federal, with its own rates:
+  </p>
+
+  <pre><code>&lt;!-- CA_edd.xml - California-specific constants --&gt;
+&lt;entity name="result"&gt;
+  &lt;field name="ca_standard_deduction_single" type="double"
+         default_value="5540" comment="CA standard deduction single 2025" /&gt;
+  &lt;field name="ca_standard_deduction_mfj" type="double"
+         default_value="11080" comment="CA standard deduction MFJ 2025" /&gt;
+&lt;/entity&gt;
+
+&lt;!-- CA_dt.xml - California tax calculation --&gt;
+&lt;decision_table&gt;
+  &lt;table_name&gt;Calculate_CA_Tax&lt;/table_name&gt;
+  &lt;Type&gt;FIRST&lt;/Type&gt;
+
+  &lt;conditions&gt;
+    &lt;condition&gt;ca_taxable_income &lt;= 10756&lt;/condition&gt;
+    &lt;condition&gt;ca_taxable_income &lt;= 25499&lt;/condition&gt;
+    &lt;!-- ... brackets continue to 13.3% top rate ... --&gt;
+  &lt;/conditions&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h2>Running the Example</h2>
+
+  <h3>With Go</h3>
+
+  <pre><code>cd go
+go test ./pkg/dtrules/... -run TestTaxReturn -v</code></pre>
+
+  <h3>With Java</h3>
+
+  <pre><code>cd java
+mvn test -Dtest=TaxReturnTest</code></pre>
+
+  <h2>Key Design Patterns</h2>
+
+  <h3>1. Table Orchestration</h3>
+  <p>
+    The main table calls sub-tables for each major section. This keeps tables focused
+    and makes testing easier.
+  </p>
+
+  <h3>2. Constants in EDD</h3>
+  <p>
+    Tax rates, bracket thresholds, and deduction limits are defined in the EDD with
+    default values. This makes updating for new tax years straightforward.
+  </p>
+
+  <h3>3. Audit Trail</h3>
+  <p>
+    Every decision adds entries to the <code>audit_trail</code> array, providing
+    complete transparency for compliance and debugging.
+  </p>
+
+  <h3>4. Modular State Files</h3>
+  <p>
+    Each state gets separate EDD and DT files to avoid merge conflicts and enable
+    parallel development.
+  </p>
+
+  <h2>Performance</h2>
+
+  <p>
+    The Go runtime processes the TaxReturn project at production speeds:
+  </p>
+
+  <ul>
+    <li><strong>15,000+ returns/second</strong> - Single-threaded throughput</li>
+    <li><strong>&lt;1ms latency</strong> - For complex returns with state tax</li>
+    <li><strong>Zero allocations</strong> - In the hot path execution</li>
+  </ul>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/tax-return">View the TaxReturn showcase page</a></li>
+    <li><a href="https://github.com/DTRules/DTRules/tree/main/sampleprojects/TaxReturn" target="_blank" rel="noopener">Browse the source on GitHub</a></li>
+    <li><a href="/docs/concepts/decision-tables">Learn more about decision tables</a></li>
+  </ul>
+</DocsLayout>

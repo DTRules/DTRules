@@ -97,11 +97,12 @@ result.filing_status "MFS" eq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Oklahoma tax - Single filer (progressive brackets)</action_comment>
+<action_comment>Calculate Oklahoma tax - Single filer (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
 <!-- Calculate taxable income (AGI minus standard deduction) -->
 result.agi result.ok_standard_deduction_single sub 0 max
-/ok_taxable_income xdef
+dup /ok_taxable_income xdef
+/result.ok_taxable_income xdef
 
 <!-- Initialize tax to 0 -->
 0 /ok_tax xdef
@@ -155,21 +156,41 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store result -->
+<!-- Store base tax before credits -->
+ok_tax /result.ok_base_tax xdef
+
+<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
+<!-- Single filer: 1 exemption (taxpayer) + dependents -->
+1 result.num_dependents add
+result.ok_personal_exemption_credit mul
+dup /ok_exemption_credit xdef
+/result.ok_exemption_credit xdef
+
+<!-- Apply exemption credit (non-refundable) -->
+ok_tax ok_exemption_credit sub 0 max
+dup /ok_tax xdef
+/result.ok_tax xdef
+
+<!-- Store final result -->
 ok_tax /result.state_tax_liability xdef
 
-"Oklahoma tax (Single) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+"Oklahoma tax (Single) calculated: $" result.state_tax_liability cvs strconcat
+" (Base: $" strconcat result.ok_base_tax cvs strconcat
+", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate Oklahoma tax - Married filing jointly (progressive brackets)</action_comment>
+<action_comment>Calculate Oklahoma tax - Married filing jointly (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
 <!-- Calculate taxable income (AGI minus standard deduction) -->
 result.agi result.ok_standard_deduction_joint sub 0 max
-/ok_taxable_income xdef
+dup /ok_taxable_income xdef
+/result.ok_taxable_income xdef
 
 <!-- Initialize tax to 0 -->
 0 /ok_tax xdef
@@ -223,21 +244,41 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store result -->
+<!-- Store base tax before credits -->
+ok_tax /result.ok_base_tax xdef
+
+<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
+<!-- MFJ filer: 2 exemptions (taxpayer + spouse) + dependents -->
+2 result.num_dependents add
+result.ok_personal_exemption_credit mul
+dup /ok_exemption_credit xdef
+/result.ok_exemption_credit xdef
+
+<!-- Apply exemption credit (non-refundable) -->
+ok_tax ok_exemption_credit sub 0 max
+dup /ok_tax xdef
+/result.ok_tax xdef
+
+<!-- Store final result -->
 ok_tax /result.state_tax_liability xdef
 
-"Oklahoma tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+"Oklahoma tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat
+" (Base: $" strconcat result.ok_base_tax cvs strconcat
+", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate Oklahoma tax - Head of household (progressive brackets)</action_comment>
+<action_comment>Calculate Oklahoma tax - Head of household (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
 <!-- Calculate taxable income (AGI minus standard deduction) -->
 result.agi result.ok_standard_deduction_hoh sub 0 max
-/ok_taxable_income xdef
+dup /ok_taxable_income xdef
+/result.ok_taxable_income xdef
 
 <!-- Initialize tax to 0 -->
 0 /ok_tax xdef
@@ -291,21 +332,41 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store result -->
+<!-- Store base tax before credits -->
+ok_tax /result.ok_base_tax xdef
+
+<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
+<!-- HOH filer: 1 exemption (taxpayer) + dependents -->
+1 result.num_dependents add
+result.ok_personal_exemption_credit mul
+dup /ok_exemption_credit xdef
+/result.ok_exemption_credit xdef
+
+<!-- Apply exemption credit (non-refundable) -->
+ok_tax ok_exemption_credit sub 0 max
+dup /ok_tax xdef
+/result.ok_tax xdef
+
+<!-- Store final result -->
 ok_tax /result.state_tax_liability xdef
 
-"Oklahoma tax (HOH) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+"Oklahoma tax (HOH) calculated: $" result.state_tax_liability cvs strconcat
+" (Base: $" strconcat result.ok_base_tax cvs strconcat
+", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate Oklahoma tax - Married filing separately (progressive brackets)</action_comment>
+<action_comment>Calculate Oklahoma tax - Married filing separately (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
 <!-- Calculate taxable income (AGI minus standard deduction) -->
-result.agi result.ok_standard_deduction_single sub 0 max
-/ok_taxable_income xdef
+result.agi result.ok_standard_deduction_mfs sub 0 max
+dup /ok_taxable_income xdef
+/result.ok_taxable_income xdef
 
 <!-- Initialize tax to 0 -->
 0 /ok_tax xdef
@@ -359,10 +420,29 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store result -->
+<!-- Store base tax before credits -->
+ok_tax /result.ok_base_tax xdef
+
+<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
+<!-- MFS filer: 1 exemption (taxpayer) + dependents -->
+1 result.num_dependents add
+result.ok_personal_exemption_credit mul
+dup /ok_exemption_credit xdef
+/result.ok_exemption_credit xdef
+
+<!-- Apply exemption credit (non-refundable) -->
+ok_tax ok_exemption_credit sub 0 max
+dup /ok_tax xdef
+/result.ok_tax xdef
+
+<!-- Store final result -->
 ok_tax /result.state_tax_liability xdef
 
-"Oklahoma tax (MFS) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
+"Oklahoma tax (MFS) calculated: $" result.state_tax_liability cvs strconcat
+" (Base: $" strconcat result.ok_base_tax cvs strconcat
+", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
+")" strconcat
+job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
