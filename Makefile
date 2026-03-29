@@ -14,7 +14,7 @@ BUILD_DATE ?= $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 
 # Version from git tags (falls back to commit hash if no tags)
 # Override with: make build VERSION=v1.0.0
-VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo "dev")
 
 # Build flags
 PKG := github.com/DTRules/DTRules/pkg/dtrules/version
