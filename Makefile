@@ -9,12 +9,19 @@
 # Version info
 # Uses git describe to get version from tags (e.g., "v1.0.0" or "v1.0.0-5-gabcdef")
 GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
-GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_DATE ?= $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 
-# Version from git tags (falls back to commit hash if no tags)
-# Override with: make build VERSION=v1.0.0
-VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo "dev")
+# Check if working directory is clean (empty = clean, non-empty = dirty)
+GIT_DIRTY := $(shell git status --porcelain 2>/dev/null)
+
+# If dirty, omit commit hash (code doesn't match any commit)
+ifdef GIT_DIRTY
+  GIT_COMMIT ?= uncommitted
+  VERSION ?= $(GIT_BRANCH)-dev
+else
+  GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+  VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo "dev")
+endif
 
 # Build flags
 PKG := github.com/DTRules/DTRules/pkg/dtrules/version
