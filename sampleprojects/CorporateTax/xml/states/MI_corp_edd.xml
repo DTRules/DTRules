@@ -51,7 +51,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='State tax credits: R&D, jobs, film, renewable energy, etc.'/>
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
 
   </entity>
 

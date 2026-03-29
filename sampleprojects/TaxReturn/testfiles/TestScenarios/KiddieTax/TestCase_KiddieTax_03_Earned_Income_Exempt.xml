@@ -28,7 +28,7 @@
    <!-- Calculation: $8,000 + $450 = $8,450 -->
    <!-- Standard Deduction: $8,450 (higher than $1,300) -->
 
-   <!-- Kiddie Tax: NONE (unearned income $600 < $2,500 threshold) -->
+   <!-- Kiddie Tax: NONE (unearned income $600 &lt; $2,500 threshold) -->
    <!-- Regular Tax: ($8,600 - $8,450) x 10% = $150 x 10% = $15 -->
 
    <id>KIDDIE-EARNED-03</id>

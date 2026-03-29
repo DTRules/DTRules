@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Test Case: Schedule E - Rental with Active Participation ($25k Loss Allowance) -->
 <!-- Scenario: Moderate income taxpayer actively participating in rental -->
-<!-- AGI < $100k allows up to $25k rental loss deduction -->
+<!-- AGI &lt; $100k allows up to $25k rental loss deduction -->
 <!-- Rental loss: ($12,000), fully deductible -->
 <job>
     <id>10019</id>

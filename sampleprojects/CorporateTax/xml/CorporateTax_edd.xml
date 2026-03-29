@@ -95,7 +95,7 @@
 
     <!-- Credits and Payments (Form 3800) -->
     <field name='general_business_credit' type='double' default_value='0.0' comment='General business credit (Form 3800)'/>
-    <field name='research_development_credit' type='double' default_value='0.0' comment='Research & development credit (Form 6765)'/>
+    <field name='research_development_credit' type='double' default_value='0.0' comment='Research &amp; development credit (Form 6765)'/>
     <field name='work_opportunity_credit' type='double' default_value='0.0' comment='Work opportunity tax credit (Form 5884)'/>
     <field name='total_credits' type='double' default_value='0.0' comment='Total tax credits (Form 1120)'/>
     <field name='estimated_tax_payments' type='double' default_value='0.0' comment='Estimated tax payments'/>
@@ -195,7 +195,7 @@
 
     <!-- State Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='CA credits: R&D, hiring, film, etc.'/>
+           comment='CA credits: R&amp;D, hiring, film, etc.'/>
 
   </entity>
 

@@ -341,7 +341,7 @@ job.audit_trail swap addto
 "7. MD income tax: = [Tax before credits]"
 job.audit_trail swap addto
 
-"8. MD credits: - [Credits (R&D, job creation, biotechnology, etc.)]"
+"8. MD credits: - [Credits (R&amp;D, job creation, biotechnology, etc.)]"
 job.audit_trail swap addto
 
 "9. MD tax liability: = [Final tax]"

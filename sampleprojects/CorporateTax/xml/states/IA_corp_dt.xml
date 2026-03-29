@@ -268,7 +268,7 @@ result.ia_apportioned_income 0.0 gt
 result.ia_taxable_income result.ia_tax_bracket_threshold gt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></column_column>
+<condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value=""></condition_column>
 <condition_column column_number="4" column_value=""></condition_column>
 </condition_details>

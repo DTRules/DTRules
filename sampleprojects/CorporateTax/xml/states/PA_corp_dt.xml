@@ -292,7 +292,7 @@
               apportionment.state_taxable_income * apportionment.state_tax_rate;
 
             // Subtract PA state credits
-            // Common PA credits: R&D, Manufacturing, Film, Job Creation, KOZ
+            // Common PA credits: R&amp;D, Manufacturing, Film, Job Creation, KOZ
             apportionment.state_tax =
               Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
 
@@ -317,7 +317,7 @@
              × 0.0899
           7. PA Corporate Net Income Tax (before credits)
              = Tax liability
-          8. PA tax credits (R&D, Manufacturing, Film, Job Creation, KOZ)
+          8. PA tax credits (R&amp;D, Manufacturing, Film, Job Creation, KOZ)
              - Credits
           9. PA CNIT liability
              = Final tax
@@ -331,7 +331,7 @@
           - Destination sourcing for goods
 
           PA TAX CREDITS (common):
-          - Research & Development Tax Credit
+          - Research &amp; Development Tax Credit
           - Manufacturing Tax Credit (Job Creation)
           - Film Production Tax Credit
           - Keystone Opportunity Zone (KOZ) Tax Credit

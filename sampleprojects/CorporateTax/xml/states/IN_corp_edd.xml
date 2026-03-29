@@ -43,7 +43,7 @@
            comment="IN subtractions from federal taxable income (IN municipal bond interest, state income taxes, state NOL, etc.)"/>
 
     <field name="in_state_credits" type="double" default_value="0.0"
-           comment="IN tax credits (economic development, R&D, headquarters relocation, neighborhood assistance, etc.)"/>
+           comment="IN tax credits (economic development, R&amp;D, headquarters relocation, neighborhood assistance, etc.)"/>
 
     <!-- Calculation Results -->
     <field name="in_taxable_income" type="double" default_value="0.0"

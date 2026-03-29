@@ -593,7 +593,7 @@ result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has nexus but below threshold</condition_comment>
-<condition_description>has_nexus AND gross_revenue < threshold</condition_description>
+<condition_description>has_nexus AND gross_revenue &lt; threshold</condition_description>
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
 result.nv_gross_revenue result.nv_commerce_tax_threshold lt and

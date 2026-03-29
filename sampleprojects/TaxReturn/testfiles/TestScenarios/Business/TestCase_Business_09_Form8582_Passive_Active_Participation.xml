@@ -10,7 +10,7 @@
 
     <!-- Expected values -->
     <!-- Income: $85,000 W2 - $18,000 K-1 rental loss (allowed due to active participation) = $67,000 -->
-    <!-- Active participation allows up to $25,000 loss deduction if AGI < $100,000 -->
+    <!-- Active participation allows up to $25,000 loss deduction if AGI &lt; $100,000 -->
     <!-- AGI: $67,000 -->
     <!-- Standard Deduction: $30,000 -->
     <!-- Taxable: $37,000 -->
@@ -59,7 +59,7 @@
             <!-- Box 2: Net rental real estate loss -->
             <rental_income>-18000</rental_income>
             <!-- Active participation - loss allowed up to $25,000 -->
-            <!-- Since AGI ($85k) < $100k, full loss is allowed -->
+            <!-- Since AGI ($85k) &lt; $100k, full loss is allowed -->
             <qbi_income>0</qbi_income>
             <w2_wages_qbi>0</w2_wages_qbi>
             <ubia>0</ubia>

@@ -30,7 +30,7 @@
    <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
    <!-- Federal Taxable: $5,000 -->
    <!-- Federal Tax: $500 (10% on $5,000) -->
-   <!-- OH Personal Exemption: $2,350 (AGI <= $40,000) -->
+   <!-- OH Personal Exemption: $2,350 (AGI &lt;= $40,000) -->
    <!-- OH Taxable: $20,000 - $2,350 = $17,650 -->
    <!-- OH Tax: $0 (taxable income $17,650 is below $26,050 threshold, 0% bracket) -->
    <!-- Withholding: $2,500 federal + $0 state -->

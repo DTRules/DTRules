@@ -49,7 +49,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='Alabama tax credits: jobs credit, R&D credit, historic preservation, etc.'/>
+           comment='Alabama tax credits: jobs credit, R&amp;D credit, historic preservation, etc.'/>
 
   </entity>
 

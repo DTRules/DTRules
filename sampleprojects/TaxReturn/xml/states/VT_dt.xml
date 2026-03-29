@@ -62,7 +62,7 @@ result.agi result.vt_military_agi_full_exemption_threshold le
 <condition_column column_number="4" column_value="-"></condition_column>
 </condition_details>
 
-<!-- Condition 3: AGI > $125,000 AND AGI < $175,000 (partial exemption) -->
+<!-- Condition 3: AGI > $125,000 AND AGI &lt; $175,000 (partial exemption) -->
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>AGI in phase-out range</condition_comment>

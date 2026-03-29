@@ -316,7 +316,7 @@ apportionment.state_taxable_income 0 gt
 apportionment.state_taxable_income apportionment.state_tax_rate mul
 /state_tax_before_credits xdef
 
-// Subtract state credits (EDIP, R&D, film credits, etc.)
+// Subtract state credits (EDIP, R&amp;D, film credits, etc.)
 state_tax_before_credits apportionment.state_credits sub
 0.0 max
 /apportionment.state_tax xdef
@@ -360,7 +360,7 @@ MA state corporate excise tax calculation:
 5. MA taxable income: = [Result]
 6. MA tax rate: × 8.0% (flat rate)
 7. MA excise tax: = [Tax before credits]
-8. MA credits: - [EDIP, R&D, film, renewable energy credits]
+8. MA credits: - [EDIP, R&amp;D, film, renewable energy credits]
 9. MA tax liability: = [Final tax]
 
 Reference: MA Form 355 Instructions (Corporate Excise Tax Return)

@@ -337,7 +337,7 @@ apportionment.state_taxable_income 3500000.0 le
 apportionment.state_taxable_income apportionment.tax_rate_tier1 mul
 /apportionment.state_tax xdef
 
-<!-- Subtract state credits (Pine Tree Zone, R&D, employment credits, etc.) -->
+<!-- Subtract state credits (Pine Tree Zone, R&amp;D, employment credits, etc.) -->
 apportionment.state_tax apportionment.state_credits sub 0 max
 /apportionment.state_tax xdef
 

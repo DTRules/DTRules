@@ -262,7 +262,7 @@
             apportionment.state_tax =
               apportionment.state_taxable_income * apportionment.state_tax_rate;
 
-            // Subtract state credits (R&D, renewable energy, employment, etc.)
+            // Subtract state credits (R&amp;D, renewable energy, employment, etc.)
             apportionment.state_tax =
               Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
 

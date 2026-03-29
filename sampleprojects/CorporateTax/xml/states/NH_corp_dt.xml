@@ -303,7 +303,7 @@ apportionment.state_taxable_income get 0 gt
 # 5. NH taxable business profits: = [Result]
 # 6. NH BPT rate: × 7.5% (flat rate)
 # 7. NH Business Profits Tax: = [Tax before credits]
-# 8. NH credits: - [R&D, Coos County jobs, Economic Revitalization Zone, BET credit]
+# 8. NH credits: - [R&amp;D, Coos County jobs, Economic Revitalization Zone, BET credit]
 # 9. NH BPT liability: = [Final tax]
 #
 # NH uses single-sales factor apportionment (100% sales factor).
@@ -313,7 +313,7 @@ apportionment.state_taxable_income get 0 gt
 # - Previous years: Higher rates (gradually reduced over time)
 #
 # NH provides various tax credits including:
-# - Research & Development Credit (RSA 77-A:5-b)
+# - Research &amp; Development Credit (RSA 77-A:5-b)
 # - Coos County Job Creation Credit (RSA 77-A:5-c)
 # - Economic Revitalization Zone Credit (RSA 162-N)
 # - Business Enterprise Tax (BET) credit against BPT (RSA 77-E:3-a)

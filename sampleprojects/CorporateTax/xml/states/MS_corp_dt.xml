@@ -268,7 +268,7 @@ or
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></column_column>
+<condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
 <condition_column column_number="3" column_value=""></condition_column>
 </condition_details>
@@ -309,7 +309,7 @@ then
 tax /apportionment.state_tax xdef
 
 <!-- Subtract MS state credits -->
-<!-- MS offers various credits: jobs creation, investment, R&D, film production, etc. -->
+<!-- MS offers various credits: jobs creation, investment, R&amp;D, film production, etc. -->
 apportionment.state_tax apportionment.state_credits sub 0 max
 /apportionment.state_tax xdef
 

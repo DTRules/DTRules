@@ -323,7 +323,7 @@
 
           DC franchise tax is the GREATER of:
           - Income-based tax (calculated above), OR
-          - Minimum tax ($250 if DC gross receipts <= $1M, $1,000 if > $1M)
+          - Minimum tax ($250 if DC gross receipts &lt;= $1M, $1,000 if > $1M)
 
           Available DC credits include:
           - Research and Development Tax Credit
@@ -456,7 +456,7 @@
         </policy>
       </rule>
 
-      <!-- Rule 2: Low gross receipts (<= $1M) - $250 minimum -->
+      <!-- Rule 2: Low gross receipts (&lt;= $1M) - $250 minimum -->
       <rule number="2">
         <conditions>
           <has_nexus>Y</has_nexus>
@@ -464,7 +464,7 @@
         </conditions>
         <actions>
           <action>
-            // Minimum tax: $250 for gross receipts <= $1M
+            // Minimum tax: $250 for gross receipts &lt;= $1M
             result.dc_minimum_tax = 250.0;
 
             // DC franchise tax is GREATER of income-based tax or minimum tax

@@ -104,7 +104,7 @@
 
     <!-- Credits and Payments (Form 3800) -->
     <field name='general_business_credit' type='double' default_value='0.0' comment='General business credit (Form 3800)'/>
-    <field name='research_development_credit' type='double' default_value='0.0' comment='Research & development credit (Form 6765)'/>
+    <field name='research_development_credit' type='double' default_value='0.0' comment='Research &amp; development credit (Form 6765)'/>
     <field name='work_opportunity_credit' type='double' default_value='0.0' comment='Work opportunity tax credit (Form 5884)'/>
     <field name='total_credits' type='double' default_value='0.0' comment='Total tax credits (Form 1120)'/>
     <field name='estimated_tax_payments' type='double' default_value='0.0' comment='Estimated tax payments'/>
@@ -348,8 +348,8 @@
     <!-- LIABILITIES -->
     <field name='l_accounts_payable_beg' type='double' default_value='0.0' comment='Accounts payable (Schedule L line 16, beginning)'/>
     <field name='l_accounts_payable_end' type='double' default_value='0.0' comment='Accounts payable (Schedule L line 16, ending)'/>
-    <field name='l_mortgages_notes_bonds_lt1yr_beg' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in < 1 year (Schedule L line 17, beginning)'/>
-    <field name='l_mortgages_notes_bonds_lt1yr_end' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in < 1 year (Schedule L line 17, ending)'/>
+    <field name='l_mortgages_notes_bonds_lt1yr_beg' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in &lt; 1 year (Schedule L line 17, beginning)'/>
+    <field name='l_mortgages_notes_bonds_lt1yr_end' type='double' default_value='0.0' comment='Mortgages, notes, bonds payable in &lt; 1 year (Schedule L line 17, ending)'/>
     <field name='l_other_current_liabilities_beg' type='double' default_value='0.0' comment='Other current liabilities (Schedule L line 18, beginning)'/>
     <field name='l_other_current_liabilities_end' type='double' default_value='0.0' comment='Other current liabilities (Schedule L line 18, ending)'/>
     <field name='l_loans_from_shareholders_beg' type='double' default_value='0.0' comment='Loans from shareholders (Schedule L line 19, beginning)'/>
@@ -399,7 +399,7 @@
     <!-- Dividends Received Deduction (DRD) - IRC §§ 243-246 -->
     <!-- Domestic Dividends - IRC § 243 -->
     <field name='drd_domestic_dividends_total' type='double' default_value='0.0' comment='Total domestic corporation dividends received'/>
-    <field name='drd_domestic_dividends_lt20' type='double' default_value='0.0' comment='Domestic dividends - ownership < 20%'/>
+    <field name='drd_domestic_dividends_lt20' type='double' default_value='0.0' comment='Domestic dividends - ownership &lt; 20%'/>
     <field name='drd_domestic_dividends_20to80' type='double' default_value='0.0' comment='Domestic dividends - ownership 20-79.9%'/>
     <field name='drd_domestic_dividends_80plus' type='double' default_value='0.0' comment='Domestic dividends - ownership ≥ 80% (affiliated group)'/>
     <field name='drd_domestic_ownership_lt20' type='double' default_value='0.0' comment='Ownership percentage for <20% DRD pool'/>
@@ -1085,7 +1085,7 @@
     <field name='interest_expense_allocated' type='double' default_value='0.0'
            comment='Interest expense allocated to branch under Treas. Reg. § 1.861-10'/>
     <field name='rd_expense_allocated' type='double' default_value='0.0'
-           comment='R&D expense allocated to branch under Treas. Reg. § 1.861-17'/>
+           comment='R&amp;D expense allocated to branch under Treas. Reg. § 1.861-17'/>
     <field name='stewardship_expense_allocated' type='double' default_value='0.0'
            comment='Stewardship expense allocated to branch'/>
     <field name='home_office_expense_allocated' type='double' default_value='0.0'
@@ -1918,7 +1918,7 @@
     <!-- Credit Identification -->
     <field name='credit_id' type='integer' comment='Unique credit ID'/>
     <field name='credit_type' type='string'
-           comment='Credit type: R&D, WOTC, disabled_access, low_income_housing, etc.'/>
+           comment='Credit type: R&amp;D, WOTC, disabled_access, low_income_housing, etc.'/>
     <field name='form_number' type='string'
            comment='Source form number (6765, 5884, 8826, etc.)'/>
     <field name='tax_year' type='integer' comment='Tax year credit was generated'/>
@@ -2236,11 +2236,11 @@
   <entity name="form_8826">
     <!-- Eligibility Requirements -->
     <field name='is_eligible_small_business' type='boolean' default_value='false'
-           comment='Eligible small business (gross receipts <= $1M or 30 or fewer employees)'/>
+           comment='Eligible small business (gross receipts &lt;= $1M or 30 or fewer employees)'/>
     <field name='gross_receipts_prior_year' type='double' default_value='0.0'
-           comment='Gross receipts for preceding year (must be <= $1,000,000)'/>
+           comment='Gross receipts for preceding year (must be &lt;= $1,000,000)'/>
     <field name='full_time_employees' type='integer' default_value='0'
-           comment='Number of full-time employees (must be <= 30)'/>
+           comment='Number of full-time employees (must be &lt;= 30)'/>
 
     <!-- Eligible Expenses -->
     <field name='access_expenditures' type='double' default_value='0.0'

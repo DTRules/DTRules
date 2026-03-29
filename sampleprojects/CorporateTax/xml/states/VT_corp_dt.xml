@@ -302,10 +302,10 @@
             double calculated_tax = 0.0;
 
             // Calculate tax using graduated brackets
-            if (taxable_income <= apportionment.vt_bracket_threshold_1) {
+            if (taxable_income &lt;= apportionment.vt_bracket_threshold_1) {
               // All income in first bracket: 6.0% rate
               calculated_tax = taxable_income * apportionment.vt_tax_rate_tier1;
-            } else if (taxable_income <= apportionment.vt_bracket_threshold_2) {
+            } else if (taxable_income &lt;= apportionment.vt_bracket_threshold_2) {
               // Income spans first two brackets
               // First $10,000 at 6.0%
               calculated_tax = apportionment.vt_bracket_threshold_1 * apportionment.vt_tax_rate_tier1;
@@ -324,7 +324,7 @@
             apportionment.vt_calculated_tax = calculated_tax;
 
             // Subtract VT state credits
-            // VT offers various credits: R&D, affordable housing, renewable energy,
+            // VT offers various credits: R&amp;D, affordable housing, renewable energy,
             // historic preservation, etc.
             apportionment.state_tax =
               Math.max(0.0, calculated_tax - apportionment.state_credits);
@@ -347,7 +347,7 @@
              - Next $15,000 ($10,001-$25,000): × 7.0% = $1,050 maximum
              - Over $25,000: × 8.5%
           7. VT income tax: = [Tax before credits]
-          8. VT credits: - [R&D, affordable housing, renewable energy, historic preservation, etc.]
+          8. VT credits: - [R&amp;D, affordable housing, renewable energy, historic preservation, etc.]
           9. VT tax liability: = [Final tax]
 
           VT uses single-sales factor apportionment (100% sales factor).

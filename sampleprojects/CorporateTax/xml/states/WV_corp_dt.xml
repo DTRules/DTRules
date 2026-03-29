@@ -297,7 +297,7 @@
 
             // Subtract WV state credits
             // WV offers various credits: economic development, jobs creation,
-            // research & development, historic preservation, etc.
+            // research &amp; development, historic preservation, etc.
             apportionment.state_tax =
               Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
 
@@ -316,7 +316,7 @@
           5. WV taxable income: = [Result]
           6. WV tax rate: × 6.5%
           7. WV income tax: = [Tax before credits]
-          8. WV credits: - [Economic development, jobs, R&D, historic preservation, etc.]
+          8. WV credits: - [Economic development, jobs, R&amp;D, historic preservation, etc.]
           9. WV tax liability: = [Final tax]
 
           WV uses single-sales factor apportionment (100% sales factor) effective

@@ -387,16 +387,16 @@ result.or_sales_in_oregon local@ or_sales >
 150.0 local@ minimum_tax >
 
 or_sales 100000000.0 f>= { 100000.0 local@ minimum_tax > } if
-or_sales 75000000.0 f>= or_sales 100000000.0 f< and { 75000.0 local@ minimum_tax > } if
-or_sales 50000000.0 f>= or_sales 75000000.0 f< and { 50000.0 local@ minimum_tax > } if
-or_sales 25000000.0 f>= or_sales 50000000.0 f< and { 30000.0 local@ minimum_tax > } if
-or_sales 10000000.0 f>= or_sales 25000000.0 f< and { 15000.0 local@ minimum_tax > } if
-or_sales 7000000.0 f>= or_sales 10000000.0 f< and { 7500.0 local@ minimum_tax > } if
-or_sales 5000000.0 f>= or_sales 7000000.0 f< and { 4000.0 local@ minimum_tax > } if
-or_sales 3000000.0 f>= or_sales 5000000.0 f< and { 2000.0 local@ minimum_tax > } if
-or_sales 2000000.0 f>= or_sales 3000000.0 f< and { 1500.0 local@ minimum_tax > } if
-or_sales 1000000.0 f>= or_sales 2000000.0 f< and { 1000.0 local@ minimum_tax > } if
-or_sales 500000.0 f>= or_sales 1000000.0 f< and { 500.0 local@ minimum_tax > } if
+or_sales 75000000.0 f>= or_sales 100000000.0 f&lt; and { 75000.0 local@ minimum_tax > } if
+or_sales 50000000.0 f>= or_sales 75000000.0 f&lt; and { 50000.0 local@ minimum_tax > } if
+or_sales 25000000.0 f>= or_sales 50000000.0 f&lt; and { 30000.0 local@ minimum_tax > } if
+or_sales 10000000.0 f>= or_sales 25000000.0 f&lt; and { 15000.0 local@ minimum_tax > } if
+or_sales 7000000.0 f>= or_sales 10000000.0 f&lt; and { 7500.0 local@ minimum_tax > } if
+or_sales 5000000.0 f>= or_sales 7000000.0 f&lt; and { 4000.0 local@ minimum_tax > } if
+or_sales 3000000.0 f>= or_sales 5000000.0 f&lt; and { 2000.0 local@ minimum_tax > } if
+or_sales 2000000.0 f>= or_sales 3000000.0 f&lt; and { 1500.0 local@ minimum_tax > } if
+or_sales 1000000.0 f>= or_sales 2000000.0 f&lt; and { 1000.0 local@ minimum_tax > } if
+or_sales 500000.0 f>= or_sales 1000000.0 f&lt; and { 500.0 local@ minimum_tax > } if
 
 minimum_tax /result.or_minimum_tax xdef
 
@@ -429,16 +429,16 @@ result.or_sales_in_oregon local@ or_sales >
 150.0 local@ minimum_tax >
 
 or_sales 100000000.0 f>= { 100000.0 local@ minimum_tax > } if
-or_sales 75000000.0 f>= or_sales 100000000.0 f< and { 75000.0 local@ minimum_tax > } if
-or_sales 50000000.0 f>= or_sales 75000000.0 f< and { 50000.0 local@ minimum_tax > } if
-or_sales 25000000.0 f>= or_sales 50000000.0 f< and { 30000.0 local@ minimum_tax > } if
-or_sales 10000000.0 f>= or_sales 25000000.0 f< and { 15000.0 local@ minimum_tax > } if
-or_sales 7000000.0 f>= or_sales 10000000.0 f< and { 7500.0 local@ minimum_tax > } if
-or_sales 5000000.0 f>= or_sales 7000000.0 f< and { 4000.0 local@ minimum_tax > } if
-or_sales 3000000.0 f>= or_sales 5000000.0 f< and { 2000.0 local@ minimum_tax > } if
-or_sales 2000000.0 f>= or_sales 3000000.0 f< and { 1500.0 local@ minimum_tax > } if
-or_sales 1000000.0 f>= or_sales 2000000.0 f< and { 1000.0 local@ minimum_tax > } if
-or_sales 500000.0 f>= or_sales 1000000.0 f< and { 500.0 local@ minimum_tax > } if
+or_sales 75000000.0 f>= or_sales 100000000.0 f&lt; and { 75000.0 local@ minimum_tax > } if
+or_sales 50000000.0 f>= or_sales 75000000.0 f&lt; and { 50000.0 local@ minimum_tax > } if
+or_sales 25000000.0 f>= or_sales 50000000.0 f&lt; and { 30000.0 local@ minimum_tax > } if
+or_sales 10000000.0 f>= or_sales 25000000.0 f&lt; and { 15000.0 local@ minimum_tax > } if
+or_sales 7000000.0 f>= or_sales 10000000.0 f&lt; and { 7500.0 local@ minimum_tax > } if
+or_sales 5000000.0 f>= or_sales 7000000.0 f&lt; and { 4000.0 local@ minimum_tax > } if
+or_sales 3000000.0 f>= or_sales 5000000.0 f&lt; and { 2000.0 local@ minimum_tax > } if
+or_sales 2000000.0 f>= or_sales 3000000.0 f&lt; and { 1500.0 local@ minimum_tax > } if
+or_sales 1000000.0 f>= or_sales 2000000.0 f&lt; and { 1000.0 local@ minimum_tax > } if
+or_sales 500000.0 f>= or_sales 1000000.0 f&lt; and { 500.0 local@ minimum_tax > } if
 
 minimum_tax /result.or_minimum_tax xdef
 
@@ -482,16 +482,16 @@ result.or_sales_in_oregon local@ or_sales >
 150.0 local@ minimum_tax >
 
 or_sales 100000000.0 f>= { 100000.0 local@ minimum_tax > } if
-or_sales 75000000.0 f>= or_sales 100000000.0 f< and { 75000.0 local@ minimum_tax > } if
-or_sales 50000000.0 f>= or_sales 75000000.0 f< and { 50000.0 local@ minimum_tax > } if
-or_sales 25000000.0 f>= or_sales 50000000.0 f< and { 30000.0 local@ minimum_tax > } if
-or_sales 10000000.0 f>= or_sales 25000000.0 f< and { 15000.0 local@ minimum_tax > } if
-or_sales 7000000.0 f>= or_sales 10000000.0 f< and { 7500.0 local@ minimum_tax > } if
-or_sales 5000000.0 f>= or_sales 7000000.0 f< and { 4000.0 local@ minimum_tax > } if
-or_sales 3000000.0 f>= or_sales 5000000.0 f< and { 2000.0 local@ minimum_tax > } if
-or_sales 2000000.0 f>= or_sales 3000000.0 f< and { 1500.0 local@ minimum_tax > } if
-or_sales 1000000.0 f>= or_sales 2000000.0 f< and { 1000.0 local@ minimum_tax > } if
-or_sales 500000.0 f>= or_sales 1000000.0 f< and { 500.0 local@ minimum_tax > } if
+or_sales 75000000.0 f>= or_sales 100000000.0 f&lt; and { 75000.0 local@ minimum_tax > } if
+or_sales 50000000.0 f>= or_sales 75000000.0 f&lt; and { 50000.0 local@ minimum_tax > } if
+or_sales 25000000.0 f>= or_sales 50000000.0 f&lt; and { 30000.0 local@ minimum_tax > } if
+or_sales 10000000.0 f>= or_sales 25000000.0 f&lt; and { 15000.0 local@ minimum_tax > } if
+or_sales 7000000.0 f>= or_sales 10000000.0 f&lt; and { 7500.0 local@ minimum_tax > } if
+or_sales 5000000.0 f>= or_sales 7000000.0 f&lt; and { 4000.0 local@ minimum_tax > } if
+or_sales 3000000.0 f>= or_sales 5000000.0 f&lt; and { 2000.0 local@ minimum_tax > } if
+or_sales 2000000.0 f>= or_sales 3000000.0 f&lt; and { 1500.0 local@ minimum_tax > } if
+or_sales 1000000.0 f>= or_sales 2000000.0 f&lt; and { 1000.0 local@ minimum_tax > } if
+or_sales 500000.0 f>= or_sales 1000000.0 f&lt; and { 500.0 local@ minimum_tax > } if
 
 minimum_tax /result.or_minimum_tax xdef
 minimum_tax /apportionment.state_tax xdef

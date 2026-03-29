@@ -57,7 +57,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='WV tax credits: economic development, jobs creation, research & development, etc.'/>
+           comment='WV tax credits: economic development, jobs creation, research &amp; development, etc.'/>
 
   </entity>
 

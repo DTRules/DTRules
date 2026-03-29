@@ -49,7 +49,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='DC tax credits: R&D, jobs, historic preservation, low-income housing, renewable energy, etc.'/>
+           comment='DC tax credits: R&amp;D, jobs, historic preservation, low-income housing, renewable energy, etc.'/>
 
   </entity>
 
@@ -66,7 +66,7 @@
            comment='DC gross receipts for minimum tax calculation'/>
 
     <field name='dc_minimum_tax' type='double' default_value='0.0'
-           comment='DC minimum franchise tax: $250 if receipts <= $1M, $1000 if receipts > $1M'/>
+           comment='DC minimum franchise tax: $250 if receipts &lt;= $1M, $1000 if receipts > $1M'/>
 
   </entity>
 

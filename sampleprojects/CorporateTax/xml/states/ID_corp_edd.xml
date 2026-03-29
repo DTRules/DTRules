@@ -43,7 +43,7 @@
            comment="ID subtractions from federal taxable income (U.S. government interest, Idaho municipal bond interest, state NOL, etc.)"/>
 
     <field name="id_state_credits" type="double" default_value="0.0"
-           comment="ID tax credits (investment tax credit, R&D credit, broadband equipment credit, etc.)"/>
+           comment="ID tax credits (investment tax credit, R&amp;D credit, broadband equipment credit, etc.)"/>
 
     <!-- Calculation Results -->
     <field name="id_taxable_income" type="double" default_value="0.0"

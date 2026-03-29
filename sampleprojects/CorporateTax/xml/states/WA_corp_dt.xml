@@ -4,7 +4,7 @@
 
   IMPORTANT: Washington has NO corporate income tax.
 
-  Washington imposes a Business & Occupation (B&O) tax on gross receipts instead of income.
+  Washington imposes a Business & Occupation (B&amp;O) tax on gross receipts instead of income.
 
   Table Numbering: 51000-51099 (Washington allocation)
   - 51000: Determine_WA_Filing_Requirement
@@ -15,9 +15,9 @@
 
   Key Features:
   - No income tax (state_tax_rate = 0.0)
-  - B&O tax on gross receipts (0.471%-1.5% depending on classification)
+  - B&amp;O tax on gross receipts (0.471%-1.5% depending on classification)
   - Economic nexus: $100,000 in WA receipts OR 200 transactions
-  - Small business credit for gross revenue < $250K
+  - Small business credit for gross revenue &lt; $250K
   - Different rates by business classification
 
   References:
@@ -36,7 +36,7 @@
 <xls_file>WA_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Determines if corporation must file Washington B&O tax return. Washington B&O tax nexus: Physical presence (office, employees, property) or Economic nexus ($100,000 or more in Washington receipts OR 200+ transactions). Note: No minimum filing threshold - any taxable activity requires filing. References: RCW 82.04.067 (Nexus), WAC 458-20-193 (Interstate Sales), WAC 458-20-19401 (Economic Nexus).</COMMENTS>
+<COMMENTS>Determines if corporation must file Washington B&amp;O tax return. Washington B&amp;O tax nexus: Physical presence (office, employees, property) or Economic nexus ($100,000 or more in Washington receipts OR 200+ transactions). Note: No minimum filing threshold - any taxable activity requires filing. References: RCW 82.04.067 (Nexus), WAC 458-20-193 (Interstate Sales), WAC 458-20-19401 (Economic Nexus).</COMMENTS>
 <TABLE_NUMBER>51000</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -69,31 +69,31 @@ and
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Physical nexus - B&O tax filing required</action_comment>
-<action_description>Physical nexus established - B&O tax filing required (calculated by table 51080)</action_description>
+<action_comment>Physical nexus - B&amp;O tax filing required</action_comment>
+<action_description>Physical nexus established - B&amp;O tax filing required (calculated by table 51080)</action_description>
 <action_postfix>
-"Washington B&O tax filing required due to physical presence. Physical presence includes: office/business in WA, employees in WA, tangible property in WA, inventory in WA, or regular solicitation in WA. References: RCW 82.04.067 (Nexus), WAC 458-20-193 (Interstate Sales), WAC 458-20-19401 (Economic Nexus)" job.audit_trail swap addto
+"Washington B&amp;O tax filing required due to physical presence. Physical presence includes: office/business in WA, employees in WA, tangible property in WA, inventory in WA, or regular solicitation in WA. References: RCW 82.04.067 (Nexus), WAC 458-20-193 (Interstate Sales), WAC 458-20-19401 (Economic Nexus)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Economic nexus - B&O tax filing required</action_comment>
+<action_comment>Economic nexus - B&amp;O tax filing required</action_comment>
 <action_description>Economic nexus established per Wayfair - filing required</action_description>
 <action_postfix>
-"Washington B&O tax filing required due to economic nexus. Economic nexus threshold (either): $100,000 or more in Washington receipts (gross revenue), OR 200 or more separate transactions in Washington. Washington adopted economic nexus following South Dakota v. Wayfair (2018). References: RCW 82.04.067 (Economic Nexus), WAC 458-20-19401 (Economic Nexus Rules), South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto
+"Washington B&amp;O tax filing required due to economic nexus. Economic nexus threshold (either): $100,000 or more in Washington receipts (gross revenue), OR 200 or more separate transactions in Washington. Washington adopted economic nexus following South Dakota v. Wayfair (2018). References: RCW 82.04.067 (Economic Nexus), WAC 458-20-19401 (Economic Nexus Rules), South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_description>No Washington nexus - no B&O tax filing requirement</action_description>
+<action_description>No Washington nexus - no B&amp;O tax filing requirement</action_description>
 <action_postfix>
 0.0 /result.wa_bo_tax xdef
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments /apportionment.state_refund_or_owed xdef
-"No Washington nexus - no B&O tax filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+"No Washington nexus - no B&amp;O tax filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -110,7 +110,7 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <xls_file>WA_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates Washington-sourced gross receipts for B&O tax using apportionment. Washington B&O tax is based on gross receipts from activities in Washington including: sales of tangible property delivered in WA, services performed in WA, royalties from WA sources, rental income from property located in WA. Uses single-factor receipts apportionment (market-based sourcing). References: RCW 82.04.460 (Apportionment), WAC 458-20-19402 (Single-Factor Receipts), WAC 458-20-14601 (Service Activities).</COMMENTS>
+<COMMENTS>Calculates Washington-sourced gross receipts for B&amp;O tax using apportionment. Washington B&amp;O tax is based on gross receipts from activities in Washington including: sales of tangible property delivered in WA, services performed in WA, royalties from WA sources, rental income from property located in WA. Uses single-factor receipts apportionment (market-based sourcing). References: RCW 82.04.460 (Apportionment), WAC 458-20-19402 (Single-Factor Receipts), WAC 458-20-14601 (Service Activities).</COMMENTS>
 <TABLE_NUMBER>51020</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -147,7 +147,7 @@ apportionment.apportionment_percentage 0 cvd gt
 <action_description>Calculate WA-sourced gross receipts using apportionment percentage</action_description>
 <action_postfix>
 revenue.total_revenue apportionment.apportionment_percentage mul /result.wa_gross_receipts xdef
-"Washington gross receipts calculation for B&O tax: Washington uses market-based sourcing (destination) for activities: Sales of tangible property (destination of goods), Services (location where customer receives benefit), Intangibles/royalties (location of customer), Rental income (location of property). The B&O tax applies to gross receipts (revenue), not net income. References: RCW 82.04.460 (Apportionment), WAC 458-20-19402 (Single-Factor Receipts Apportionment), WAC 458-20-14601 (Service and Other Activities)" job.audit_trail swap addto
+"Washington gross receipts calculation for B&amp;O tax: Washington uses market-based sourcing (destination) for activities: Sales of tangible property (destination of goods), Services (location where customer receives benefit), Intangibles/royalties (location of customer), Rental income (location of property). The B&amp;O tax applies to gross receipts (revenue), not net income. References: RCW 82.04.460 (Apportionment), WAC 458-20-19402 (Single-Factor Receipts Apportionment), WAC 458-20-14601 (Service and Other Activities)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -184,7 +184,7 @@ revenue.total_revenue /result.wa_gross_receipts xdef
 <xls_file>WA_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Determines the business classification for B&O tax rate purposes. Washington B&O tax rates vary by business activity: Service/Other Activities (0.484%), Retailing (0.471%), Wholesaling (0.484%), Manufacturing (0.484%), Professional Services (0.484%), Financial Business (1.5%). Note: In practice, businesses may have multiple classifications and must report each separately. References: RCW 82.04.240 (Manufacturing), RCW 82.04.250 (Retailing), RCW 82.04.290 (Service/Financial).</COMMENTS>
+<COMMENTS>Determines the business classification for B&amp;O tax rate purposes. Washington B&amp;O tax rates vary by business activity: Service/Other Activities (0.484%), Retailing (0.471%), Wholesaling (0.484%), Manufacturing (0.484%), Professional Services (0.484%), Financial Business (1.5%). Note: In practice, businesses may have multiple classifications and must report each separately. References: RCW 82.04.240 (Manufacturing), RCW 82.04.250 (Retailing), RCW 82.04.290 (Service/Financial).</COMMENTS>
 <TABLE_NUMBER>51040</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -208,61 +208,61 @@ result.wa_business_classification
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Retailing B&O rate: 0.471%</action_comment>
-<action_description>Set retailing B&O tax rate</action_description>
+<action_comment>Retailing B&amp;O rate: 0.471%</action_comment>
+<action_description>Set retailing B&amp;O tax rate</action_description>
 <action_postfix>
 result.wa_retailing_rate /result.wa_bo_tax_rate xdef
-"Washington B&O tax - Retailing classification: 0.471%. Retailing includes sales of tangible personal property to consumers for consumption or use (not for resale). References: RCW 82.04.250 (Retailing), RCW 82.04.470 (Retailing B&O Tax Rate)" job.audit_trail swap addto
+"Washington B&amp;O tax - Retailing classification: 0.471%. Retailing includes sales of tangible personal property to consumers for consumption or use (not for resale). References: RCW 82.04.250 (Retailing), RCW 82.04.470 (Retailing B&amp;O Tax Rate)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Wholesaling B&O rate: 0.484%</action_comment>
-<action_description>Set wholesaling B&O tax rate</action_description>
+<action_comment>Wholesaling B&amp;O rate: 0.484%</action_comment>
+<action_description>Set wholesaling B&amp;O tax rate</action_description>
 <action_postfix>
 result.wa_wholesaling_rate /result.wa_bo_tax_rate xdef
-"Washington B&O tax - Wholesaling classification: 0.484%. Wholesaling includes sales of tangible personal property to persons for purpose of resale. References: RCW 82.04.060 (Wholesaling), RCW 82.04.270 (Wholesaling B&O Tax)" job.audit_trail swap addto
+"Washington B&amp;O tax - Wholesaling classification: 0.484%. Wholesaling includes sales of tangible personal property to persons for purpose of resale. References: RCW 82.04.060 (Wholesaling), RCW 82.04.270 (Wholesaling B&amp;O Tax)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Manufacturing B&O rate: 0.484%</action_comment>
-<action_description>Set manufacturing B&O tax rate</action_description>
+<action_comment>Manufacturing B&amp;O rate: 0.484%</action_comment>
+<action_description>Set manufacturing B&amp;O tax rate</action_description>
 <action_postfix>
 result.wa_manufacturing_rate /result.wa_bo_tax_rate xdef
-"Washington B&O tax - Manufacturing classification: 0.484%. Manufacturing includes production of articles for sale from raw materials, including processing, fabricating, assembling, extracting. Note: Certain manufacturers may qualify for preferential rates or exemptions. References: RCW 82.04.240 (Manufacturing), RCW 82.04.440 (Manufacturing B&O Tax)" job.audit_trail swap addto
+"Washington B&amp;O tax - Manufacturing classification: 0.484%. Manufacturing includes production of articles for sale from raw materials, including processing, fabricating, assembling, extracting. Note: Certain manufacturers may qualify for preferential rates or exemptions. References: RCW 82.04.240 (Manufacturing), RCW 82.04.440 (Manufacturing B&amp;O Tax)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Financial Business B&O rate: 1.5%</action_comment>
-<action_description>Set financial business B&O tax rate</action_description>
+<action_comment>Financial Business B&amp;O rate: 1.5%</action_comment>
+<action_description>Set financial business B&amp;O tax rate</action_description>
 <action_postfix>
 result.wa_financial_rate /result.wa_bo_tax_rate xdef
-"Washington B&O tax - Financial Business classification: 1.5% (highest rate). Financial business includes banks, savings and loan associations, credit unions, finance companies, insurance companies, and similar institutions. Reference: RCW 82.04.290 (Financial Business)" job.audit_trail swap addto
+"Washington B&amp;O tax - Financial Business classification: 1.5% (highest rate). Financial business includes banks, savings and loan associations, credit unions, finance companies, insurance companies, and similar institutions. Reference: RCW 82.04.290 (Financial Business)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>Professional Services B&O rate: 0.484%</action_comment>
-<action_description>Set professional services B&O tax rate</action_description>
+<action_comment>Professional Services B&amp;O rate: 0.484%</action_comment>
+<action_description>Set professional services B&amp;O tax rate</action_description>
 <action_postfix>
 result.wa_professional_rate /result.wa_bo_tax_rate xdef
-"Washington B&O tax - Professional Services classification: 0.484%. Professional services include legal, accounting, engineering, consulting, and other professional activities. Reference: RCW 82.04.290 (Service and Other Activities)" job.audit_trail swap addto
+"Washington B&amp;O tax - Professional Services classification: 0.484%. Professional services include legal, accounting, engineering, consulting, and other professional activities. Reference: RCW 82.04.290 (Service and Other Activities)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>6</action_number>
-<action_comment>Service and Other Activities B&O rate: 0.484%</action_comment>
-<action_description>Set service and other activities B&O tax rate</action_description>
+<action_comment>Service and Other Activities B&amp;O rate: 0.484%</action_comment>
+<action_description>Set service and other activities B&amp;O tax rate</action_description>
 <action_postfix>
 result.wa_service_rate /result.wa_bo_tax_rate xdef
-"Washington B&O tax - Service and Other Activities classification: 0.484%. This is the catch-all classification for business activities not specifically classified elsewhere. Reference: RCW 82.04.290 (Service and Other Activities)" job.audit_trail swap addto
+"Washington B&amp;O tax - Service and Other Activities classification: 0.484%. This is the catch-all classification for business activities not specifically classified elsewhere. Reference: RCW 82.04.290 (Service and Other Activities)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="6" column_value="X"></action_column>
 </action_details>
@@ -279,7 +279,7 @@ result.wa_service_rate /result.wa_bo_tax_rate xdef
 <xls_file>WA_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates the Washington small business B&O tax credit. Small Business B&O Credit: Available for businesses with gross revenue under $250,000, credit amount varies based on total revenue and phases out as revenue increases, reduces B&O tax liability (can reduce to zero but not create refund). Maximum credit approximately $100-120 per month ($1,200-1,440 annually). References: RCW 82.04.4451 (Small Business B&O Credit), WAC 458-20-104 (Small Business Tax Relief).</COMMENTS>
+<COMMENTS>Calculates the Washington small business B&amp;O tax credit. Small Business B&amp;O Credit: Available for businesses with gross revenue under $250,000, credit amount varies based on total revenue and phases out as revenue increases, reduces B&amp;O tax liability (can reduce to zero but not create refund). Maximum credit approximately $100-120 per month ($1,200-1,440 annually). References: RCW 82.04.4451 (Small Business B&amp;O Credit), WAC 458-20-104 (Small Business Tax Relief).</COMMENTS>
 <TABLE_NUMBER>51060</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -298,7 +298,7 @@ revenue.total_revenue result.wa_small_business_credit_threshold lt
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Has Washington gross receipts subject to B&O tax</condition_comment>
+<condition_comment>Has Washington gross receipts subject to B&amp;O tax</condition_comment>
 <condition_description>result.wa_gross_receipts is greater than 0</condition_description>
 <condition_postfix>
 result.wa_gross_receipts 0 cvd gt
@@ -310,14 +310,14 @@ result.wa_gross_receipts 0 cvd gt
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Qualifies for small business B&O credit</action_comment>
+<action_comment>Qualifies for small business B&amp;O credit</action_comment>
 <action_description>Calculate small business credit (phases out as revenue approaches $250K)</action_description>
 <action_postfix>
 true cvb /result.wa_qualifies_for_small_business_credit xdef
 1.0 revenue.total_revenue result.wa_small_business_credit_threshold div sub /credit_percentage xdef
 1440.0 /max_annual_credit xdef
 max_annual_credit credit_percentage mul /result.wa_small_business_credit xdef
-"Washington Small Business B&O Tax Credit: Businesses with gross revenue under $250,000 qualify for a small business credit that reduces B&O tax liability. Credit phases out as revenue increases. Credit is calculated on monthly basis and varies based on: total gross revenue (all sources), type of business activity, location (may vary for different jurisdictions). Credit cannot exceed B&O tax liability (no refunds for excess credit). References: RCW 82.04.4451 (Small Business B&O Credit), WAC 458-20-104 (Small Business Tax Relief)" job.audit_trail swap addto
+"Washington Small Business B&amp;O Tax Credit: Businesses with gross revenue under $250,000 qualify for a small business credit that reduces B&amp;O tax liability. Credit phases out as revenue increases. Credit is calculated on monthly basis and varies based on: total gross revenue (all sources), type of business activity, location (may vary for different jurisdictions). Credit cannot exceed B&amp;O tax liability (no refunds for excess credit). References: RCW 82.04.4451 (Small Business B&amp;O Credit), WAC 458-20-104 (Small Business Tax Relief)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -356,7 +356,7 @@ false cvb /result.wa_qualifies_for_small_business_credit xdef
 <xls_file>WA_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates final Washington Business and Occupation (B&O) tax liability. IMPORTANT: Washington has NO corporate income tax. The B&O tax is a gross receipts tax, NOT an income tax. Process: 1) Calculate WA-sourced gross receipts (table 51020), 2) Determine business classification rate (table 51040), 3) Calculate B&O tax = gross receipts × B&O rate, 4) Apply small business credit (table 51060), 5) Apply other credits (high tech, aerospace), 6) Calculate refund or amount owed. Key Differences from Income Tax: Based on GROSS RECEIPTS (revenue) not net income, no deductions for expenses/COGS/payroll, much lower rates (under 1.5%) but applies to gross revenue, must be paid even if business operates at a loss. References: RCW 82.04 (Business and Occupation Tax), WAC 458-20-104 (Small Business Tax Relief), Form ETA (Combined Excise Tax Return).</COMMENTS>
+<COMMENTS>Calculates final Washington Business and Occupation (B&amp;O) tax liability. IMPORTANT: Washington has NO corporate income tax. The B&amp;O tax is a gross receipts tax, NOT an income tax. Process: 1) Calculate WA-sourced gross receipts (table 51020), 2) Determine business classification rate (table 51040), 3) Calculate B&amp;O tax = gross receipts × B&amp;O rate, 4) Apply small business credit (table 51060), 5) Apply other credits (high tech, aerospace), 6) Calculate refund or amount owed. Key Differences from Income Tax: Based on GROSS RECEIPTS (revenue) not net income, no deductions for expenses/COGS/payroll, much lower rates (under 1.5%) but applies to gross revenue, must be paid even if business operates at a loss. References: RCW 82.04 (Business and Occupation Tax), WAC 458-20-104 (Small Business Tax Relief), Form ETA (Combined Excise Tax Return).</COMMENTS>
 <TABLE_NUMBER>51080</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -364,7 +364,7 @@ false cvb /result.wa_qualifies_for_small_business_credit xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to owe B&O tax</condition_comment>
+<condition_comment>Must have nexus to owe B&amp;O tax</condition_comment>
 <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true cvb eq
@@ -389,8 +389,8 @@ result.wa_gross_receipts 0 cvd gt
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate B&O tax with all credits</action_comment>
-<action_description>Calculate Washington B&O tax on gross receipts and apply all credits</action_description>
+<action_comment>Calculate B&amp;O tax with all credits</action_comment>
+<action_description>Calculate Washington B&amp;O tax on gross receipts and apply all credits</action_description>
 <action_postfix>
 result.wa_gross_receipts result.wa_bo_tax_rate mul /result.wa_bo_tax xdef
 0.0 result.wa_bo_tax result.wa_small_business_credit sub max /result.wa_bo_tax xdef
@@ -399,31 +399,31 @@ result.wa_gross_receipts result.wa_bo_tax_rate mul /result.wa_bo_tax xdef
 0.0 result.wa_bo_tax apportionment.state_credits sub max /result.wa_bo_tax xdef
 result.wa_bo_tax /apportionment.state_tax xdef
 apportionment.state_payments apportionment.state_tax sub /apportionment.state_refund_or_owed xdef
-"Washington Business and Occupation (B&O) Tax Calculation: IMPORTANT - Washington has NO corporate income tax. The B&O tax is a gross receipts tax, NOT an income tax. 1) Washington gross receipts: [WA-sourced revenue], 2) Business classification: [service/retailing/wholesaling/manufacturing/financial], 3) B&O tax rate: [0.471%-1.5% depending on classification], 4) B&O tax before credits: [Gross receipts × Rate], 5) Small business credit: [Credit if revenue < $250K], 6) Other credits: [High tech, aerospace, etc.], 7) B&O tax liability: [Final tax]. Key Differences from Income Tax: Based on GROSS RECEIPTS (revenue) not net income, no deductions for expenses/COGS/payroll, much lower rates (under 1.5%) but applies to gross revenue, must be paid even if business operates at a loss. References: RCW 82.04 (Business and Occupation Tax), WAC 458-20-104 (Small Business Tax Relief), Form ETA (Combined Excise Tax Return), Washington Department of Revenue Publication (B&O Tax Classification)" job.audit_trail swap addto
+"Washington Business and Occupation (B&amp;O) Tax Calculation: IMPORTANT - Washington has NO corporate income tax. The B&amp;O tax is a gross receipts tax, NOT an income tax. 1) Washington gross receipts: [WA-sourced revenue], 2) Business classification: [service/retailing/wholesaling/manufacturing/financial], 3) B&amp;O tax rate: [0.471%-1.5% depending on classification], 4) B&amp;O tax before credits: [Gross receipts × Rate], 5) Small business credit: [Credit if revenue &lt; $250K], 6) Other credits: [High tech, aerospace, etc.], 7) B&amp;O tax liability: [Final tax]. Key Differences from Income Tax: Based on GROSS RECEIPTS (revenue) not net income, no deductions for expenses/COGS/payroll, much lower rates (under 1.5%) but applies to gross revenue, must be paid even if business operates at a loss. References: RCW 82.04 (Business and Occupation Tax), WAC 458-20-104 (Small Business Tax Relief), Form ETA (Combined Excise Tax Return), Washington Department of Revenue Publication (B&amp;O Tax Classification)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no B&O tax</action_comment>
-<action_description>No Washington nexus - no B&O tax liability</action_description>
+<action_comment>No nexus - no B&amp;O tax</action_comment>
+<action_description>No Washington nexus - no B&amp;O tax liability</action_description>
 <action_postfix>
 0.0 /result.wa_bo_tax xdef
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments /apportionment.state_refund_or_owed xdef
-"No Washington nexus - no B&O tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+"No Washington nexus - no B&amp;O tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>No WA gross receipts - no B&O tax</action_comment>
-<action_description>No Washington gross receipts - no B&O tax liability</action_description>
+<action_comment>No WA gross receipts - no B&amp;O tax</action_comment>
+<action_description>No Washington gross receipts - no B&amp;O tax liability</action_description>
 <action_postfix>
 0.0 /result.wa_bo_tax xdef
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments /apportionment.state_refund_or_owed xdef
-"No Washington gross receipts - no B&O tax liability. Filing may still be required to report no tax due." job.audit_trail swap addto
+"No Washington gross receipts - no B&amp;O tax liability. Filing may still be required to report no tax due." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>

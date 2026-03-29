@@ -178,7 +178,7 @@ result.is_mt_national_guard get
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is new resident within 5 years of separation</condition_comment>
-<condition_description>is_mt_new_resident == true AND years_since_separation <= 5</condition_description>
+<condition_description>is_mt_new_resident == true AND years_since_separation &lt;= 5</condition_description>
 <condition_postfix>
 result.is_mt_new_resident get
 result.years_since_separation get result.mt_new_resident_year_limit get le

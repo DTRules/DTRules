@@ -295,7 +295,7 @@ apportionment.state_taxable_income 0 gt
 apportionment.state_taxable_income apportionment.state_tax_rate mul
 /apportionment.state_tax xdef
 
-<!-- Subtract CT state credits (R&D, jobs, film, manufacturing, etc.) -->
+<!-- Subtract CT state credits (R&amp;D, jobs, film, manufacturing, etc.) -->
 apportionment.state_tax apportionment.state_credits sub 0.0 max
 /apportionment.state_tax xdef
 

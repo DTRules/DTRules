@@ -48,7 +48,7 @@
 
     <!-- State Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='CA credits: R&D, hiring, film, etc.'/>
+           comment='CA credits: R&amp;D, hiring, film, etc.'/>
 
   </entity>
 

@@ -21,11 +21,11 @@
       IRC Section 170 - Charitable Contributions
 
       Rules Tested:
-      - Donations < $500 do NOT require appraisal
+      - Donations &lt; $500 do NOT require appraisal
       - Clothing and household items must be in "good used condition or better"
       - Fair Market Value (FMV) used for deduction (not original cost)
       - Total noncash contributions under $500 reported on Schedule A only
-      - No Form 8283 filing required for donations < $500
+      - No Form 8283 filing required for donations &lt; $500
 
       Test Scenario:
       - Single taxpayer donates clothing and household items to Goodwill

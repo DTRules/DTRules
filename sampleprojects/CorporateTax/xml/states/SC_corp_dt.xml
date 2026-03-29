@@ -288,7 +288,7 @@
 
             // Subtract SC state credits
             // SC offers various credits: job development, corporate headquarters,
-            // port volume increase, R&D, etc.
+            // port volume increase, R&amp;D, etc.
             apportionment.state_tax =
               Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
 
@@ -318,7 +318,7 @@
           5. SC taxable income: = [Result]
           6. SC tax rate: × 5.0% (flat rate)
           7. SC income tax: = [Tax before credits]
-          8. SC credits: - [Job development, corporate HQ, port volume, R&D, etc.]
+          8. SC credits: - [Job development, corporate HQ, port volume, R&amp;D, etc.]
           9. SC license fee: + [0.1% of capital and paid-in surplus, minimum $15]
           10. SC tax liability: = [Final tax]
 

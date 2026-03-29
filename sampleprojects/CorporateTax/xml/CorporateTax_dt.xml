@@ -597,8 +597,8 @@
           </action>
         </actions>
         <policy>
-          If (Payments + Credits) > Tax: Refund
-          If (Payments + Credits) < Tax: Amount owed
+          If (Payments + Credits) &gt; Tax: Refund
+          If (Payments + Credits) &lt; Tax: Amount owed
           Reference: Form 1120 Instructions, Lines 32-35
           Line 32: Total payments and refundable credits
           Line 33: Estimated tax penalty (not implemented Phase 1)
@@ -616,9 +616,9 @@
   -->
 
   <!--
-    Table 5100: Calculate Research & Development Credit
+    Table 5100: Calculate Research &amp; Development Credit
 
-    Calculates R&D tax credit under IRC Section 41.
+    Calculates R&amp;D tax credit under IRC Section 41.
 
     Simplified calculation: 20% of qualified research expenses (QREs)
     exceeding a base amount.
@@ -645,13 +645,13 @@
         </conditions>
         <actions>
           <action>
-            // R&D credit calculation (simplified for Phase 2)
+            // R&amp;D credit calculation (simplified for Phase 2)
             // Full implementation requires base period calculations
             // Phase 2: Accept pre-calculated credit amount
           </action>
         </actions>
         <policy>
-          Research & Development credit = 20% of qualified research expenses (QREs)
+          Research &amp; Development credit = 20% of qualified research expenses (QREs)
           exceeding base amount.
 
           QREs include:
@@ -677,7 +677,7 @@
           </action>
         </actions>
         <policy>
-          No qualified research expenses = no R&D credit.
+          No qualified research expenses = no R&amp;D credit.
         </policy>
       </rule>
     </rules>
@@ -721,7 +721,7 @@
         </actions>
         <policy>
           General business credit = Sum of all component credits
-          - Research & development credit (Form 6765)
+          - Research &amp; development credit (Form 6765)
           - Work opportunity tax credit (Form 5884)
           - Energy credits (not implemented)
           - Low-income housing credit (not implemented)
@@ -891,7 +891,7 @@
       </condition>
 
       <condition name="within_limits">
-        <expression>result.section_179_total < result.section_179_limit</expression>
+        <expression>result.section_179_total &lt; result.section_179_limit</expression>
         <comment>Haven't exceeded annual Section 179 limit</comment>
       </condition>
 
@@ -1341,14 +1341,14 @@
           4. Calculate taxable income (Form 1120 line 28)
           5. Apply 21% tax rate (Schedule J)
           6. Calculate credits (Form 3800):
-             a. R&D credit (Form 6765)
+             a. R&amp;D credit (Form 6765)
              b. General business credit
           7. Determine refund or amount owed
 
           Reference: Form 1120 - U.S. Corporation Income Tax Return
           Reference: Form 4562 - Depreciation and Amortization
           Reference: Form 3800 - General Business Credit
-          Reference: Form 6765 - Research & Development Credit
+          Reference: Form 6765 - Research &amp; Development Credit
         </policy>
       </rule>
     </rules>

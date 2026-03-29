@@ -47,7 +47,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='GA tax credits: jobs credits, R&D credits, film credits, etc.'/>
+           comment='GA tax credits: jobs credits, R&amp;D credits, film credits, etc.'/>
 
   </entity>
 

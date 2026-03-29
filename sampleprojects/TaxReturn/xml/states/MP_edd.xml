@@ -3,7 +3,7 @@
   Territory-specific constants for Northern Mariana Islands (MP/CNMI)
 
   CNMI operates under a "mirror code plus rebate" system. Uses federal tax rates
-  but provides tiered rebates: 90% rebate if tax <= $20k, 70% on excess over $20k,
+  but provides tiered rebates: 90% rebate if tax &lt;= $20k, 70% on excess over $20k,
   50% on excess over $100k.
 -->
 <entity_data_dictionary version="1.0">
@@ -20,7 +20,7 @@
 
     <!-- Rebate tiers -->
     <field name="mp_rebate_tier_1_limit" type="double" default_value="20000"
-           comment="First rebate tier limit - 90% rebate if tax <= $20k"/>
+           comment="First rebate tier limit - 90% rebate if tax &lt;= $20k"/>
     <field name="mp_rebate_tier_1_rate" type="double" default_value="0.90"
            comment="Rebate rate for tier 1 (90%)"/>
     <field name="mp_rebate_tier_2_limit" type="double" default_value="100000"

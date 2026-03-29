@@ -636,9 +636,9 @@
   -->
 
   <!--
-    Table 5100: Calculate Research & Development Credit
+    Table 5100: Calculate Research &amp; Development Credit
 
-    Calculates R&D tax credit under IRC Section 41.
+    Calculates R&amp;D tax credit under IRC Section 41.
 
     Simplified calculation: 20% of qualified research expenses (QREs)
     exceeding a base amount.
@@ -665,13 +665,13 @@
         </conditions>
         <actions>
           <action>
-            // R&D credit calculation (simplified for Phase 2)
+            // R&amp;D credit calculation (simplified for Phase 2)
             // Full implementation requires base period calculations
             // Phase 2: Accept pre-calculated credit amount
           </action>
         </actions>
         <policy>
-          Research & Development credit = 20% of qualified research expenses (QREs)
+          Research &amp; Development credit = 20% of qualified research expenses (QREs)
           exceeding base amount.
 
           QREs include:
@@ -697,7 +697,7 @@
           </action>
         </actions>
         <policy>
-          No qualified research expenses = no R&D credit.
+          No qualified research expenses = no R&amp;D credit.
         </policy>
       </rule>
     </rules>
@@ -741,7 +741,7 @@
         </actions>
         <policy>
           General business credit = Sum of all component credits
-          - Research & development credit (Form 6765)
+          - Research &amp; development credit (Form 6765)
           - Work opportunity tax credit (Form 5884)
           - Energy credits (not implemented)
           - Low-income housing credit (not implemented)
@@ -911,7 +911,7 @@
       </condition>
 
       <condition name="within_limits">
-        <expression>result.section_179_total < result.section_179_limit</expression>
+        <expression>result.section_179_total &lt; result.section_179_limit</expression>
         <comment>Haven't exceeded annual Section 179 limit</comment>
       </condition>
 
@@ -1407,7 +1407,7 @@
              c. Current year NOL generation
           6. Apply 21% tax rate (Schedule J)
           7. Calculate credits (Form 3800):
-             a. R&D credit (Form 6765)
+             a. R&amp;D credit (Form 6765)
              b. General business credit
           8. Apply foreign tax credit (Form 1118):
              a. FTC limitation calculation
@@ -1420,7 +1420,7 @@
           Reference: Form 1120 - U.S. Corporation Income Tax Return
           Reference: Form 4562 - Depreciation and Amortization
           Reference: Form 3800 - General Business Credit
-          Reference: Form 6765 - Research & Development Credit
+          Reference: Form 6765 - Research &amp; Development Credit
           Reference: Form 1118 - Foreign Tax Credit
           Reference: Form 1120 Schedule M-1 - Reconciliation of Income
           Reference: Form 1120 Schedule M-2 - Analysis of Retained Earnings
@@ -1802,7 +1802,7 @@
 
             // Distributions reduce previously taxed amounts (tax-free to extent of prior inclusions)
             if (pfic.current_year_distribution > 0) {
-              if (pfic.current_year_distribution <= pfic.qef_previously_taxed_amount) {
+              if (pfic.current_year_distribution &lt;= pfic.qef_previously_taxed_amount) {
                 pfic.qef_distribution_excluded = pfic.current_year_distribution;
                 pfic.qef_previously_taxed_amount -= pfic.current_year_distribution;
               } else {
@@ -1952,13 +1952,13 @@
 
               // Track cumulative gains for future loss limitation
               pfic.mtm_loss_limitation += fmv_change;
-            } else if (fmv_change < 0) {
+            } else if (fmv_change &lt; 0) {
               // Unrealized loss: deductible as ordinary loss, limited to prior gains
               pfic.mtm_unrealized_loss = Math.abs(fmv_change);
               pfic.mtm_unrealized_gain = 0.0;
 
               // Loss limited to cumulative prior gains
-              if (pfic.mtm_unrealized_loss <= pfic.mtm_loss_limitation) {
+              if (pfic.mtm_unrealized_loss &lt;= pfic.mtm_loss_limitation) {
                 pfic.mtm_ordinary_loss = pfic.mtm_unrealized_loss;
                 pfic.mtm_loss_limitation -= pfic.mtm_unrealized_loss;
               } else {
@@ -2832,7 +2832,7 @@
           Schedule M-1 is required for corporations with:
           - Total assets >= $10 million at end of year
 
-          Smaller corporations may file simplified Schedule M-1 or omit if assets < $250K.
+          Smaller corporations may file simplified Schedule M-1 or omit if assets &lt; $250K.
 
           Reference: Form 1120 Schedule M-1 Instructions
           Reference: Publication 542 - Corporations
@@ -2988,7 +2988,7 @@
           - Corporations with total assets >= $250,000 at end of year
 
           **Not required for**:
-          - Smaller corporations (assets < $250,000)
+          - Smaller corporations (assets &lt; $250,000)
           - S corporations (use different schedule)
 
           **Notes**:
@@ -3018,7 +3018,7 @@
           No retained earnings data provided - Schedule M-2 not completed.
           This may occur for:
           - New corporations (first year, no beginning balance)
-          - Small corporations not required to file Schedule M-2 (assets < $250K)
+          - Small corporations not required to file Schedule M-2 (assets &lt; $250K)
           - Test cases without complete financial data
         </policy>
       </rule>
@@ -3184,7 +3184,7 @@
           - Long-term assets: Property/plant/equipment (net of depreciation), investments, intangibles
 
           **Liabilities** (what corporation owes):
-          - Current liabilities: Payables, short-term debt (< 1 year), accrued expenses
+          - Current liabilities: Payables, short-term debt (&lt; 1 year), accrued expenses
           - Long-term liabilities: Long-term debt (>= 1 year), deferred taxes, pensions
 
           **Shareholders' Equity** (owners' stake):
@@ -3208,7 +3208,7 @@
           - Corporations with total assets >= $250,000
 
           **Not required for**:
-          - Smaller corporations (receipts < $250K and assets < $250K)
+          - Smaller corporations (receipts &lt; $250K and assets &lt; $250K)
           - Schedule M-3 filers (use Schedule M-3 balance sheet instead)
 
           Reference: Form 1120 Schedule L Instructions
@@ -3284,7 +3284,7 @@
       </condition>
 
       <condition name="has_current_nol">
-        <expression>result.taxable_income < 0</expression>
+        <expression>result.taxable_income &lt; 0</expression>
         <comment>Has negative taxable income (current year NOL)</comment>
       </condition>
     </conditions>
@@ -4718,7 +4718,7 @@
 
       <!--
         Rule 2: US person with 10%+ ownership via indirect/constructive ownership
-        Result: US shareholder status (even if direct ownership < 10%)
+        Result: US shareholder status (even if direct ownership &lt; 10%)
       -->
       <rule number="2">
         <conditions>
@@ -5294,7 +5294,7 @@
               ep_before_taxes - form_5471.sched_h_foreign_taxes_paid;
 
             // Handle E&P deficit
-            if (form_5471.sched_h_current_earnings_and_profits < 0) {
+            if (form_5471.sched_h_current_earnings_and_profits &lt; 0) {
               form_5471.sched_h_current_year_deficit =
                 Math.abs(form_5471.sched_h_current_earnings_and_profits);
             } else {
@@ -7552,7 +7552,7 @@
               gross_income - total_exclusions - result.fdii_deductions;
 
             // DEI cannot be negative
-            if (result.fdii_deduction_eligible_income < 0) {
+            if (result.fdii_deduction_eligible_income &lt; 0) {
               result.fdii_deduction_eligible_income = 0.0;
             }
           </action>
@@ -7603,7 +7603,7 @@
               result.total_income - result.fdii_deductions;
 
             // DEI cannot be negative
-            if (result.fdii_deduction_eligible_income < 0) {
+            if (result.fdii_deduction_eligible_income &lt; 0) {
               result.fdii_deduction_eligible_income = 0.0;
             }
           </action>
@@ -7734,8 +7734,8 @@
     received from other domestic and foreign corporations.
 
     DRD Percentages (IRC § 243):
-    - 50% DRD: Ownership < 20%
-    - 65% DRD: Ownership ≥ 20% but < 80%
+    - 50% DRD: Ownership &lt; 20%
+    - 65% DRD: Ownership ≥ 20% but &lt; 80%
     - 100% DRD: Ownership ≥ 80% (affiliated group)
 
     Foreign Dividends (IRC § 245A):
@@ -9444,7 +9444,7 @@
           - Foreign sales office with local employees
           - Foreign manufacturing facility
           - Foreign service branch (consulting, engineering)
-          - Foreign R&D center
+          - Foreign R&amp;D center
 
           **Not QBUs** (separate entity or insufficient activity):
           - Foreign subsidiary (separate corporation = potential CFC)
@@ -9542,7 +9542,7 @@
 
     Branch income includes:
     - Business profits attributable to QBU
-    - Allocated share of expenses (interest, R&D, stewardship)
+    - Allocated share of expenses (interest, R&amp;D, stewardship)
 
     Reference: IRC § 904(d)(1)(E)
     Reference: IRC § 904(d)(2)(J) (foreign branch income definition)
@@ -9597,7 +9597,7 @@
               foreign_branch.usd_gross_income - foreign_branch.usd_deductions;
 
             // Step 2: Allocate home office expenses to branch
-            // (interest, R&D, stewardship per Treas. Reg. § 1.861-8)
+            // (interest, R&amp;D, stewardship per Treas. Reg. § 1.861-8)
             double total_allocated_expenses =
               foreign_branch.interest_expense_allocated +
               foreign_branch.rd_expense_allocated +
@@ -9639,7 +9639,7 @@
 
           **Expense Allocation**:
           - Interest expense: Asset-based or gross income method (Treas. Reg. § 1.861-10)
-          - R&D expense: Sales method or gross income method (Treas. Reg. § 1.861-17)
+          - R&amp;D expense: Sales method or gross income method (Treas. Reg. § 1.861-17)
           - Stewardship expense: Factual relationship
           - General & administrative: Gross income method
 
@@ -9732,7 +9732,7 @@
             result.ftc_foreign_branch_income = foreign_branch.usd_net_income;
 
             // Check for dual consolidated loss
-            if (foreign_branch.usd_net_income < 0) {
+            if (foreign_branch.usd_net_income &lt; 0) {
               foreign_branch.has_dual_consolidated_loss = true;
               foreign_branch.dcl_amount = Math.abs(foreign_branch.usd_net_income);
             }
@@ -10820,7 +10820,7 @@
 
             // Basis decreases
             foreign_partnership.basis_decrease_losses = 0.0;
-            if (foreign_partnership.k1_total_income < 0.0) {
+            if (foreign_partnership.k1_total_income &lt; 0.0) {
               foreign_partnership.basis_decrease_losses = -foreign_partnership.k1_total_income;
             }
 
@@ -10834,7 +10834,7 @@
 
             // Apply basis limitation (§ 704(d))
             // Partner cannot deduct losses in excess of basis
-            if (tentative_ending_basis < 0.0) {
+            if (tentative_ending_basis &lt; 0.0) {
               foreign_partnership.basis_limitation_applied = true;
               foreign_partnership.suspended_losses = -tentative_ending_basis;
               foreign_partnership.basis_ending = 0.0;
@@ -11633,7 +11633,7 @@
             result.pension_overstatement_penalty = false;
             result.pension_penalty_amount = 0.0;
 
-            result.audit_trail += "\n  Penalty threshold met: NO (ratio < 200%)";
+            result.audit_trail += "\n  Penalty threshold met: NO (ratio &lt; 200%)";
             result.audit_trail += "\n  Penalty amount: $0";
           </action>
         </actions>
@@ -12997,7 +12997,7 @@
             form_4562.section_179_tentative = form_4562.section_179_maximum - form_4562.section_179_reduction;
 
             // Ensure not negative
-            if (form_4562.section_179_tentative < 0) {
+            if (form_4562.section_179_tentative &lt; 0) {
               form_4562.section_179_tentative = 0.0;
             }
           </action>
@@ -13396,12 +13396,12 @@
             form_3800.credit_limitation = form_3800.net_income_tax - greater_of;
 
             // Cannot be negative
-            if (form_3800.credit_limitation < 0) {
+            if (form_3800.credit_limitation &lt; 0) {
               form_3800.credit_limitation = 0.0;
             }
 
             // Apply credits up to limitation
-            if (form_3800.total_credits_available <= form_3800.credit_limitation) {
+            if (form_3800.total_credits_available &lt;= form_3800.credit_limitation) {
               form_3800.general_business_credit_allowed = form_3800.total_credits_available;
               form_3800.credit_carryforward_to_next_year = 0.0;
             } else {
@@ -13442,12 +13442,12 @@
             form_3800.excess_over_base = 0.0;
             form_3800.credit_limitation = form_3800.net_income_tax - form_3800.tentative_minimum_tax;
 
-            if (form_3800.credit_limitation < 0) {
+            if (form_3800.credit_limitation &lt; 0) {
               form_3800.credit_limitation = 0.0;
             }
 
             // Apply credits
-            if (form_3800.total_credits_available <= form_3800.credit_limitation) {
+            if (form_3800.total_credits_available &lt;= form_3800.credit_limitation) {
               form_3800.general_business_credit_allowed = form_3800.total_credits_available;
               form_3800.credit_carryforward_to_next_year = 0.0;
             } else {

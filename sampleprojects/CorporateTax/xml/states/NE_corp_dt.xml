@@ -304,7 +304,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate mul
 /apportionment.state_tax xdef
 
 <!-- Subtract NE state credits -->
-<!-- NE offers various credits: jobs creation, R&D, renewable energy, etc. -->
+<!-- NE offers various credits: jobs creation, R&amp;D, renewable energy, etc. -->
 apportionment.state_tax apportionment.state_credits sub 0 max
 /apportionment.state_tax xdef
 

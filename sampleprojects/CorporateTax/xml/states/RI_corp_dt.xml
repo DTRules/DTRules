@@ -266,7 +266,7 @@ apportionment.state_taxable_income get 0 gt
 # 5. RI taxable income: = [Result]
 # 6. RI tax rate: × 7.0% (flat rate)
 # 7. RI income tax: = [Tax before credits]
-# 8. RI credits: - [Historic Preservation, R&D, film, renewable energy credits]
+# 8. RI credits: - [Historic Preservation, R&amp;D, film, renewable energy credits]
 # 9. RI tax liability: = [Final tax]
 #
 # Reference: RI Form RI-1120C Instructions (Corporate Income Tax Return)
