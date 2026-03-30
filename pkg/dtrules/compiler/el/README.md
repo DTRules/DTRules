@@ -2,6 +2,8 @@
 
 The EL compiler converts human-readable condition and action descriptions into postfix notation that the DTRules runtime can execute.
 
+> **IMPORTANT**: EL is the required format for all new decision tables. See [Decision Table XML Format](../../../../docs/decision-table-xml-format.md) for the required XML structure. Legacy postfix format is deprecated and should not be used for new projects.
+
 ## Why EL is Required
 
 ### The Problem: Hand-Coded Postfix

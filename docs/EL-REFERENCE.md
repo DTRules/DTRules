@@ -2,6 +2,8 @@
 
 Complete reference for the DTRules Expression Language used in decision tables.
 
+> **IMPORTANT**: EL is the required format for all new decision tables. See [Decision Table XML Format](decision-table-xml-format.md) for the required XML structure. Legacy postfix format is deprecated.
+
 ## Table of Contents
 
 - [EL Compiler](#el-compiler)
