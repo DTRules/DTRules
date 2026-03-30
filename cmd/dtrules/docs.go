@@ -22,6 +22,7 @@ import (
 
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
+	"el":               docEL,
 	"xml-format":       docXMLFormat,
 	"edd":              docEDD,
 	"decision-tables":  docDecisionTables,
@@ -64,11 +65,12 @@ func printDocIndex() {
 	sort.Strings(topics)
 
 	descriptions := map[string]string{
+		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
 		"edd":             "Entity Data Dictionary - defining entities and fields",
 		"decision-tables": "How to write decision tables",
 		"operators":       "All available operators with examples",
-		"expressions":     "Postfix expression syntax",
+		"expressions":     "Postfix expression syntax (compiled from EL)",
 		"sdk":             "Embedding DTRules in Go applications",
 		"examples":        "Complete working examples",
 		"workflow":        "Development workflow with Excel and XML",
@@ -84,12 +86,137 @@ func printDocIndex() {
 	fmt.Println("Example: dtrules docs decision-tables")
 }
 
+const docEL = `Expression Language (EL)
+========================
+
+EL is the REQUIRED format for writing decision table conditions and actions.
+The EL compiler converts human-readable syntax to executable postfix notation.
+
+
+Why EL is Required
+------------------
+- READABLE: Business analysts can understand and modify rules
+- VALIDATED: Syntax errors caught at compile time, not runtime
+- CONSISTENT: Eliminates hand-coded postfix errors
+
+IMPORTANT: Do NOT hand-code postfix. Always use EL descriptions.
+
+
+Conditions
+----------
+Comparison:
+    taxpayer.income > 50000
+    taxpayer.filing_status == "SINGLE"
+    result.has_nexus is true
+    customer.age >= 18 AND customer.income > 0
+
+Boolean:
+    eligible AND has_documents
+    status == "active" OR override is true
+    NOT expired
+
+String:
+    state == "CO"
+    name == "John Doe"
+
+
+Actions
+-------
+Assignment:
+    set result.tax = income * rate
+    set taxpayer.exemptions = taxpayer.exemptions + 1
+    set result.status = "approved"
+
+Multiple statements (use semicolons):
+    set result.a = 1; set result.b = 2; set result.c = 3
+
+Execute another table:
+    perform Calculate_Deductions
+    perform Validate_Input
+
+
+Arithmetic
+----------
+    income * 0.044                    Multiplication
+    gross - deductions                Subtraction
+    principal + interest              Addition
+    total / count                     Division
+    (income - deductions) * rate      Grouping with parentheses
+
+
+Comparisons
+-----------
+    a == b        Equal (numeric)
+    a == "text"   Equal (string - use quotes)
+    a > b         Greater than
+    a >= b        Greater than or equal
+    a < b         Less than
+    a <= b        Less than or equal
+    a is true     Boolean check
+    a is false    Boolean check
+
+
+Boolean Logic
+-------------
+    a AND b       Both must be true
+    a OR b        Either can be true
+    NOT a         Negation
+
+
+XML Structure (EL Format)
+-------------------------
+<decision_table name="Calculate_Tax" number="1000">
+  <conditions>
+    <condition name="high_income">
+      <expression>taxpayer.income > 100000</expression>
+    </condition>
+    <condition name="single_filer">
+      <expression>taxpayer.filing_status == "SINGLE"</expression>
+    </condition>
+  </conditions>
+  <rules>
+    <rule number="1">
+      <conditions>
+        <high_income>Y</high_income>
+        <single_filer>Y</single_filer>
+      </conditions>
+      <actions>
+        <action>
+          set result.tax = taxpayer.income * 0.24;
+          set result.bracket = "high"
+        </action>
+      </actions>
+    </rule>
+  </rules>
+</decision_table>
+
+
+Best Practices
+--------------
+1. Use full entity paths: taxpayer.income (not just income)
+2. Quote strings: "SINGLE" (not SINGLE)
+3. Use semicolons between statements: set a = 1; set b = 2
+4. No shorthand: use set X = X + 1 (not X += 1)
+5. Use is true/is false for booleans: eligible is true
+
+
+See Also
+--------
+  dtrules docs xml-format       XML file structure
+  dtrules docs decision-tables  Full decision table guide
+  dtrules docs operators        All available operators
+`
+
 const docXMLFormat = `DTRules XML Format Specification
 =================================
 
 DTRules uses two XML file types:
 1. EDD (Entity Data Dictionary) - defines entities and their fields
 2. DT (Decision Tables) - defines the business rules
+
+IMPORTANT: All decision tables MUST use EL (Expression Language) format.
+See 'dtrules docs el' for EL syntax reference.
+
 
 File Naming Convention
 ----------------------
@@ -122,50 +249,50 @@ Field Types:
   - array:    List of values (subtype="element_type")
 
 
-Decision Table XML Structure
-----------------------------
+Decision Table XML Structure (EL Format - REQUIRED)
+---------------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
-<decision_tables>
-    <decision_table>
-        <table_name>Table_Name</table_name>
-        <table_number>100</table_number>
-        <type>FIRST|ALL|BALANCED</type>
+<decision_tables name="Project_Tables">
+    <decision_table name="Table_Name" number="1000">
+        <description>What this table does</description>
 
-        <condition_columns>
-            <column_number>1</column_number>
-            <column_header>Description</column_header>
-            <conditions>
-                <condition_details>
-                    <row_number>1</row_number>
-                    <condition_value>expression</condition_value>
-                </condition_details>
-            </conditions>
-        </condition_columns>
+        <conditions>
+            <condition name="condition_name">
+                <expression>taxpayer.income > 50000</expression>
+                <comment>Description of condition</comment>
+            </condition>
+        </conditions>
 
-        <action_columns>
-            <column_number>1</column_number>
-            <column_header>entity.field</column_header>
-            <column_type>VALUE|EXECUTE|CONTEXT</column_type>
-            <actions>
-                <action_details>
-                    <row_number>1</row_number>
-                    <action_value>expression</action_value>
-                </action_details>
-            </actions>
-        </action_columns>
+        <rules>
+            <rule number="1">
+                <conditions>
+                    <condition_name>Y</condition_name>
+                </conditions>
+                <actions>
+                    <action>
+                        set result.tax = income * rate;
+                        set result.status = "calculated"
+                    </action>
+                </actions>
+                <policy>Business rationale for this rule</policy>
+            </rule>
+        </rules>
     </decision_table>
 </decision_tables>
 
-Table Types:
+Key Elements:
+  - name attribute on <decision_table>: Table identifier
+  - number attribute: Unique table number for ordering
+  - <expression>: EL condition (compiled to postfix automatically)
+  - <action>: EL statements separated by semicolons
+  - Y/N/-: Condition values (Yes/No/Don't care)
+
+Table Types (in <attribute_fields>):
   - FIRST:    Execute only the first matching row (most common)
   - ALL:      Execute all matching rows in order
   - BALANCED: All condition combinations must be defined
 
-Column Types:
-  - VALUE:    Assign value to entity.field
-  - EXECUTE:  Run expression (for side effects)
-  - CONTEXT:  Push entity onto context stack
-
+See 'dtrules docs el' for EL syntax.
 See 'dtrules docs decision-tables' for detailed examples.
 See 'dtrules docs edd' for entity definition details.
 `
@@ -280,6 +407,9 @@ const docDecisionTables = `Decision Tables
 ===============
 
 Decision tables encode business rules as conditions and actions.
+
+IMPORTANT: All conditions and actions MUST use EL (Expression Language).
+See 'dtrules docs el' for complete EL syntax reference.
 
 
 Anatomy of a Decision Table
@@ -608,6 +738,12 @@ Calculation with assignment:
 
 const docExpressions = `Postfix Expression Syntax
 =========================
+
+NOTE: You should NOT write postfix directly. Use EL (Expression Language)
+instead - the compiler generates postfix automatically.
+See 'dtrules docs el' for the required EL syntax.
+
+This document explains the compiled postfix format for debugging purposes.
 
 DTRules uses postfix (Reverse Polish Notation) for all expressions.
 In postfix, operands come before operators.
