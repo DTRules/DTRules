@@ -391,6 +391,209 @@ func (e *Exporter) ExportEDD(filename string) error {
 	return f.SaveAs(filename)
 }
 
+// ExportCombinedWorkbook exports both decision tables and EDD to a single Excel file.
+// Each decision table gets its own sheet, plus one EDD sheet at the end.
+func (e *Exporter) ExportCombinedWorkbook(filename string) error {
+	f := excelize.NewFile()
+	defer f.Close()
+
+	defaultSheet := f.GetSheetName(0)
+
+	// Create DT styles
+	styles, err := e.createStyles(f)
+	if err != nil {
+		return fmt.Errorf("failed to create styles: %w", err)
+	}
+
+	// Export each decision table to its own sheet
+	tableNames := e.ruleSet.GetDecisionTableNames()
+	sortedNames := make([]string, len(tableNames))
+	for i, name := range tableNames {
+		sortedNames[i] = name.StringValue()
+	}
+	sort.Strings(sortedNames)
+
+	for _, name := range sortedNames {
+		rname := dtrules.GetRName(name)
+		dtObj := e.ruleSet.GetEntityFactory().FindDecisionTable(rname)
+		if dtObj == nil {
+			continue
+		}
+		dt, ok := dtObj.(*decisiontable.RDecisionTable)
+		if !ok {
+			continue
+		}
+
+		if err := e.writeDecisionTable(f, dt, styles); err != nil {
+			return fmt.Errorf("failed to write table %s: %w", name, err)
+		}
+	}
+
+	// Export EDD to its own sheet
+	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
+	if len(entities) > 0 {
+		if err := e.writeEDDSheet(f, "EDD"); err != nil {
+			return fmt.Errorf("failed to write EDD sheet: %w", err)
+		}
+	}
+
+	// Delete the default sheet after we've created others
+	sheetList := f.GetSheetList()
+	if len(sheetList) > 1 {
+		f.DeleteSheet(defaultSheet)
+	}
+
+	return f.SaveAs(filename)
+}
+
+// writeEDDSheet writes the EDD data to a sheet in an existing workbook.
+func (e *Exporter) writeEDDSheet(f *excelize.File, sheetName string) error {
+	// Create sheet
+	_, err := f.NewSheet(sheetName)
+	if err != nil {
+		return err
+	}
+
+	// Create styles
+	eddStyles, err := e.createEDDStyles(f)
+	if err != nil {
+		return err
+	}
+
+	// Set column widths
+	f.SetColWidth(sheetName, "A", "A", 18)
+	f.SetColWidth(sheetName, "B", "B", 25)
+	f.SetColWidth(sheetName, "C", "C", 10)
+	f.SetColWidth(sheetName, "D", "D", 12)
+	f.SetColWidth(sheetName, "E", "E", 18)
+	f.SetColWidth(sheetName, "F", "F", 8)
+	f.SetColWidth(sheetName, "G", "G", 8)
+	f.SetColWidth(sheetName, "H", "H", 55)
+
+	// Write headers
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
+	for col, header := range headers {
+		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
+		f.SetCellValue(sheetName, cell, header)
+		f.SetCellStyle(sheetName, cell, cell, eddStyles.header)
+	}
+
+	// Freeze the header row
+	f.SetPanes(sheetName, &excelize.Panes{
+		Freeze:      true,
+		Split:       false,
+		XSplit:      0,
+		YSplit:      1,
+		TopLeftCell: "A2",
+		ActivePane:  "bottomLeft",
+	})
+
+	// Get all entities and sort them
+	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
+	sort.Slice(entities, func(i, j int) bool {
+		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
+	})
+
+	row := 2
+	for _, ent := range entities {
+		entityName := ent.GetName().StringValue()
+
+		// Get and sort attributes
+		attrNames := ent.GetAttributeNames()
+		sort.Slice(attrNames, func(i, j int) bool {
+			return attrNames[i].StringValue() < attrNames[j].StringValue()
+		})
+
+		// Count valid attributes
+		attrCount := 0
+		for _, attrName := range attrNames {
+			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
+				if ent.GetEntry(attrName) != nil {
+					attrCount++
+				}
+			}
+		}
+
+		if attrCount == 0 {
+			continue
+		}
+
+		// Write entity header row
+		f.SetCellValue(sheetName, cellName(1, row), entityName)
+		f.SetCellValue(sheetName, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
+		for col := 1; col <= 8; col++ {
+			f.SetCellStyle(sheetName, cellName(col, row), cellName(col, row), eddStyles.entityHeader)
+		}
+		row++
+
+		// Write attributes
+		attrRow := 0
+		for _, attrName := range attrNames {
+			// Skip self-reference and mapping key
+			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
+				continue
+			}
+
+			entry := ent.GetEntry(attrName)
+			if entry == nil {
+				continue
+			}
+
+			// Build access string
+			access := ""
+			if entry.Readable {
+				access += "r"
+			}
+			if entry.Writable {
+				access += "w"
+			}
+
+			// Determine row style (alternating)
+			rowStyle := eddStyles.rowEven
+			if attrRow%2 == 1 {
+				rowStyle = eddStyles.rowOdd
+			}
+
+			// Entity column is blank (merged visual)
+			f.SetCellValue(sheetName, cellName(1, row), "")
+			f.SetCellStyle(sheetName, cellName(1, row), cellName(1, row), rowStyle)
+
+			f.SetCellValue(sheetName, cellName(2, row), attrName.StringValue())
+			f.SetCellStyle(sheetName, cellName(2, row), cellName(2, row), eddStyles.attribute)
+
+			// Type with color coding
+			typeStyle := e.getTypeStyle(eddStyles, entry.Type.String())
+			f.SetCellValue(sheetName, cellName(3, row), entry.Type.String())
+			f.SetCellStyle(sheetName, cellName(3, row), cellName(3, row), typeStyle)
+
+			f.SetCellValue(sheetName, cellName(4, row), entry.SubType)
+			f.SetCellStyle(sheetName, cellName(4, row), cellName(4, row), rowStyle)
+
+			f.SetCellValue(sheetName, cellName(5, row), entry.DefaultTxt)
+			f.SetCellStyle(sheetName, cellName(5, row), cellName(5, row), rowStyle)
+
+			// Input field styling
+			inputStyle := rowStyle
+			if entry.Input != "" {
+				inputStyle = eddStyles.input
+			}
+			f.SetCellValue(sheetName, cellName(6, row), entry.Input)
+			f.SetCellStyle(sheetName, cellName(6, row), cellName(6, row), inputStyle)
+
+			f.SetCellValue(sheetName, cellName(7, row), access)
+			f.SetCellStyle(sheetName, cellName(7, row), cellName(7, row), rowStyle)
+
+			f.SetCellValue(sheetName, cellName(8, row), entry.Comment)
+			f.SetCellStyle(sheetName, cellName(8, row), cellName(8, row), eddStyles.comment)
+
+			row++
+			attrRow++
+		}
+	}
+
+	return nil
+}
+
 // ExportEDDToDir exports entities grouped by xls_file to a directory.
 // Creates multiple xlsx files and an index.md for navigation.
 func (e *Exporter) ExportEDDToDir(dir string) error {
