@@ -289,15 +289,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 		// Auto-compile EL description to postfix if postfix is empty
 		if postfix == "" && strings.TrimSpace(ctx.Description) != "" {
-			desc := strings.TrimSpace(ctx.Description)
-			if looksLikeEL(desc) {
-				compiled, err := l.elCompiler.CompileContext(desc)
-				if err != nil {
-					log.Printf("Warning: could not compile context %d as EL ('%s'): %v", i+1, desc, err)
-				} else {
-					postfix = compiled
-				}
+			compiled, err := l.elCompiler.CompileContext(ctx.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL context %d ('%s'): %w", i+1, ctx.Description, err)
 			}
+			postfix = compiled
 		}
 		contextsPostfix[i] = postfix
 		contextsComment[i] = ctx.Comment
@@ -313,15 +309,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 		// Auto-compile EL description to postfix if postfix is empty
 		if postfix == "" && strings.TrimSpace(action.Description) != "" {
-			desc := strings.TrimSpace(action.Description)
-			if looksLikeEL(desc) {
-				compiled, err := l.elCompiler.CompileAction(desc)
-				if err != nil {
-					log.Printf("Warning: could not compile initial action %d as EL ('%s'): %v", i+1, desc, err)
-				} else {
-					postfix = compiled
-				}
+			compiled, err := l.elCompiler.CompileAction(action.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL initial action %d ('%s'): %w", i+1, action.Description, err)
 			}
+			postfix = compiled
 		}
 		initialActionsPostfix[i] = postfix
 	}
@@ -344,15 +336,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 		// Auto-compile EL description to postfix if postfix is empty
 		if postfix == "" && strings.TrimSpace(cond.Description) != "" {
-			desc := strings.TrimSpace(cond.Description)
-			if looksLikeEL(desc) {
-				compiled, err := l.elCompiler.CompileCondition(desc)
-				if err != nil {
-					log.Printf("Warning: could not compile condition %d as EL ('%s'): %v", i+1, desc, err)
-				} else {
-					postfix = compiled
-				}
+			compiled, err := l.elCompiler.CompileCondition(cond.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL condition %d ('%s'): %w", i+1, cond.Description, err)
 			}
+			postfix = compiled
 		}
 		conditionsPostfix[i] = postfix
 		conditionsComment[i] = cond.Comment
@@ -386,19 +374,12 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		postfix := strings.TrimSpace(action.Postfix)
 
 		// Auto-compile EL description to postfix if postfix is empty
-		// Only compile if description looks like EL (contains operators or keywords)
 		if postfix == "" && strings.TrimSpace(action.Description) != "" {
-			desc := strings.TrimSpace(action.Description)
-			// Skip comments/placeholders that aren't real EL
-			if looksLikeEL(desc) {
-				compiled, err := l.elCompiler.CompileAction(desc)
-				if err != nil {
-					// Log warning but don't fail - description may be a comment
-					log.Printf("Warning: could not compile action %d as EL ('%s'): %v", i+1, desc, err)
-				} else {
-					postfix = compiled
-				}
+			compiled, err := l.elCompiler.CompileAction(action.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL action %d ('%s'): %w", i+1, action.Description, err)
 			}
+			postfix = compiled
 		}
 		actionsPostfix[i] = postfix
 		actionsComment[i] = action.Comment
@@ -566,34 +547,6 @@ func (l *DTLoader) compileContextsPostfix(tableName string, contexts []string) (
 // GetErrors returns any errors encountered during loading.
 func (l *DTLoader) GetErrors() []error {
 	return l.errors
-}
-
-// looksLikeEL checks if a description looks like an EL expression rather than a comment.
-// EL expressions typically contain operators, keywords like "set", or dotted paths.
-func looksLikeEL(desc string) bool {
-	// Skip obvious comments/placeholders
-	lower := strings.ToLower(desc)
-	if lower == "otherwise" || lower == "else" || lower == "default" {
-		return false
-	}
-
-	// Check for EL indicators
-	elIndicators := []string{
-		"set ", "perform ", "=", ">", "<", ">=", "<=", "==", "!=",
-		" and ", " or ", " is ", " not ", ".", "+", "-", "*", "/",
-	}
-	for _, indicator := range elIndicators {
-		if strings.Contains(desc, indicator) {
-			return true
-		}
-	}
-
-	// Single word without spaces is likely a table name (perform X)
-	if !strings.Contains(desc, " ") && !strings.Contains(desc, ".") {
-		return true
-	}
-
-	return false
 }
 
 // detectLegacyPostfix checks if a table has hand-coded postfix without EL descriptions.
