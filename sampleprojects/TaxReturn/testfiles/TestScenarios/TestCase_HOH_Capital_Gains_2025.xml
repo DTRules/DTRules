@@ -31,7 +31,7 @@
    <!-- Regular income: $47,500 (fills 10% + 12% brackets) -->
    <!-- Capital gains: $20,000 -->
    <!--   - HOH 0% threshold: $63,000 -->
-   <!--   - Since taxable income ($47,500) < $63,000, all $20,000 gains at 0% -->
+   <!--   - Since taxable income ($47,500) &lt; $63,000, all $20,000 gains at 0% -->
    <!--   - Remaining room in 0% bracket: $63,000 - $47,500 = $15,500 -->
    <!--   - First $15,500 of gains: 0% -->
    <!--   - Next $4,500 of gains: 15% = $675 -->

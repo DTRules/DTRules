@@ -17,7 +17,7 @@
 
    <!-- California Military Retirement Test Case -->
    <!-- Test Case CA-Military-01: Military retiree with AGI under $126,260 (fully exempt) -->
-   <!-- CA excludes military retirement if AGI < $126,260 (2025) -->
+   <!-- CA excludes military retirement if AGI &lt; $126,260 (2025) -->
 
    <id>CA-MIL-01</id>
    <tax_year>2025</tax_year>
@@ -33,7 +33,7 @@
    <!-- Federal Taxable Income: $65,000 -->
    <!-- Federal Tax: ~$8,700 -->
    <!-- CA Standard Deduction: $5,706 -->
-   <!-- CA Military Retirement Exclusion: $35,000 (full exclusion due to AGI < $126,260) -->
+   <!-- CA Military Retirement Exclusion: $35,000 (full exclusion due to AGI &lt; $126,260) -->
    <!-- CA Taxable Income: $45,000 - $5,706 = $39,294 -->
    <!-- CA Tax Calculation (progressive brackets): -->
    <!--   $0-$11,079 @ 1%: $110.79 -->

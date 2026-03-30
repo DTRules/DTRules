@@ -10,12 +10,12 @@
    <!-- Social Security Taxability - 0% Taxable (2025) -->
    <!-- Publication 915: Social Security and Equivalent Railroad Retirement Benefits -->
    <!-- Provisional Income = AGI + Tax-exempt interest + 50% of SS benefits -->
-   <!-- 0% taxable if provisional income < $25,000 (Single) or < $32,000 (MFJ) -->
+   <!-- 0% taxable if provisional income &lt; $25,000 (Single) or &lt; $32,000 (MFJ) -->
    <!-- This scenario (Single): -->
    <!-- - SS benefits: $18,000 -->
    <!-- - Other income: $5,000 (interest) -->
    <!-- - Provisional income: $5,000 + ($18,000 × 50%) = $14,000 -->
-   <!-- - $14,000 < $25,000 threshold → 0% of SS taxable -->
+   <!-- - $14,000 &lt; $25,000 threshold → 0% of SS taxable -->
 
    <id>Retirement-07</id>
    <tax_year>2025</tax_year>

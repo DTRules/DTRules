@@ -16,7 +16,7 @@
   Total Effective Rate: 12.0%
   Economic Nexus: $100,000 in IL receipts
 -->
-<decision_tables name="CorporateTax_IL_Tables">
+<decision_tables>
 
   <!--
     ============================================================================
@@ -39,42 +39,34 @@
     </attribute_fields>
     <contexts></contexts>
     <initial_actions></initial_actions>
-
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in IL (office, employees, property)</condition_comment>
-        <condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == 'IL'</condition_description>
+        <condition_description>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "IL"</condition_description>
         <condition_postfix>
 apportionment.has_physical_presence true eq
-apportionment.state_code IL streq
-and
-        </condition_postfix>
+{ pop apportionment.state_code "IL" streq } over if
+</condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="4" column_value="N"></condition_column>
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets IL economic nexus threshold ($100K)</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == 'IL'</condition_description>
+        <condition_description>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "IL"</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.state_code IL streq
-and
-        </condition_postfix>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="Y"></condition_column>
-      </condition_details>
-      <condition_details>
-        <condition_number>3</condition_number>
-        <condition_comment>Default case</condition_comment>
-        <condition_description>otherwise</condition_description>
-        <condition_postfix>
-otherwise
-        </condition_postfix>
-        <condition_column column_number="4" column_value="*"></condition_column>
+{ pop apportionment.state_code "IL" streq } over if
+</condition_postfix>
+        <condition_column column_number="1" column_value="-"></condition_column>
+        <condition_column column_number="2" column_value="Y"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="4" column_value="N"></condition_column>
       </condition_details>
     </conditions>
-
     <actions>
       <action_details>
         <action_number>1</action_number>
@@ -82,7 +74,7 @@ otherwise
         <action_description>Physical presence in IL requires filing</action_description>
         <action_postfix>
 "IL filing required due to physical presence (office, employees, or property in state). Reference: IL Income Tax Act, 35 ILCS 5/201; IL Department of Revenue Publication 101; 86 Ill. Admin. Code § 100.9710" result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
@@ -91,18 +83,19 @@ otherwise
         <action_description>Economic nexus requires filing</action_description>
         <action_postfix>
 "IL filing required due to economic nexus (post-Wayfair). Threshold: $100,000 in IL gross receipts OR 200 transactions. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018); 35 ILCS 5/1501(a)(1); IL Department of Revenue ST 19-0001-GIL" result.policy_statements swap addto
-        </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+</action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>Set state tax to 0 and refund payments</action_description>
+        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
         <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+0.0 apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_refund_or_owed xdef
 "No IL nexus - no filing requirement. Any estimated payments would be refunded." result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
+        <action_column column_number="3" column_value="X"></action_column>
         <action_column column_number="4" column_value="X"></action_column>
       </action_details>
     </actions>
@@ -134,30 +127,19 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
     </attribute_fields>
     <contexts></contexts>
     <initial_actions></initial_actions>
-
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to calculate adjustments</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+        <condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
-        </condition_postfix>
+{ pop apportionment.has_physical_presence true eq } over not if
+</condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
-      </condition_details>
-      <condition_details>
-        <condition_number>2</condition_number>
-        <condition_comment>No nexus</condition_comment>
-        <condition_description>otherwise</condition_description>
-        <condition_postfix>
-otherwise
-        </condition_postfix>
-        <condition_column column_number="2" column_value="*"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
       </condition_details>
     </conditions>
-
     <actions>
       <action_details>
         <action_number>1</action_number>
@@ -166,21 +148,21 @@ otherwise
         <action_postfix>
 0.0 /additions xdef
 0.0 /subtractions xdef
-additions /apportionment.state_additions xdef
-subtractions /apportionment.state_subtractions xdef
+additions apportionment.state_additions xdef
+subtractions apportionment.state_subtractions xdef
 "IL state-specific income adjustments to federal taxable income. Additions may include: Interest on U.S. government obligations (35 ILCS 5/203(a)(2)(G)), IRC Section 199A qualified business income deduction addback, Depreciation adjustments for pre-2012 assets. Subtractions may include: Interest on IL state and local government bonds, IL state income taxes paid. Reference: IL Form IL-1120 Instructions, 35 ILCS 5/203 (Base income defined), 86 Ill. Admin. Code § 100.2110 (Additions and Subtractions)" result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no state adjustments calculated</action_comment>
-        <action_description>Set state additions and subtractions to 0</action_description>
+        <action_description>apportionment.state_additions = 0.0; apportionment.state_subtractions = 0.0</action_description>
         <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
+0.0 apportionment.state_additions xdef
+0.0 apportionment.state_subtractions xdef
 "No nexus - no state adjustments calculated." result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
     </actions>
@@ -213,74 +195,64 @@ subtractions /apportionment.state_subtractions xdef
     </attribute_fields>
     <contexts></contexts>
     <initial_actions></initial_actions>
-
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to owe tax</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+        <condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
-        </condition_postfix>
+{ pop apportionment.has_physical_presence true eq } over not if
+</condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="Y"></condition_column>
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive state taxable income</condition_comment>
-        <condition_description>apportionment.state_taxable_income > 0</condition_description>
+        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
         <condition_postfix>
-apportionment.state_taxable_income 0 gt
-        </condition_postfix>
+apportionment.state_taxable_income 0 >
+</condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="-"></condition_column>
         <condition_column column_number="3" column_value="N"></condition_column>
       </condition_details>
-      <condition_details>
-        <condition_number>3</condition_number>
-        <condition_comment>Default case</condition_comment>
-        <condition_description>otherwise</condition_description>
-        <condition_postfix>
-otherwise
-        </condition_postfix>
-        <condition_column column_number="4" column_value="*"></condition_column>
-      </condition_details>
     </conditions>
-
     <actions>
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate IL tax at 9.5% flat rate</action_comment>
         <action_description>Calculate IL state tax, apply credits, and calculate refund/owed</action_description>
         <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate mul /apportionment.state_tax xdef
-0.0 apportionment.state_tax apportionment.state_credits sub max /apportionment.state_tax xdef
-apportionment.state_payments apportionment.state_tax sub /apportionment.state_refund_or_owed xdef
-"IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: × [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: × 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code § 100.2250 (Computation of tax)" result.policy_statements swap addto
-        </action_postfix>
+apportionment.state_taxable_income apportionment.state_tax_rate mul apportionment.state_tax xdef
+0.0 apportionment.state_tax apportionment.state_credits sub max apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_tax sub apportionment.state_refund_or_owed xdef
+"IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: x 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code § 100.2250 (Computation of tax)" result.policy_statements swap addto
+</action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No IL nexus - no tax liability</action_comment>
-        <action_description>Set state tax to 0 and refund payments</action_description>
+        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
         <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+0.0 apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_refund_or_owed xdef
 "No IL nexus - no tax liability. Any estimated payments are refunded." result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>Nexus but no taxable income - no tax liability</action_comment>
-        <action_description>Set state tax to 0 and refund payments</action_description>
+        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
         <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+0.0 apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_refund_or_owed xdef
 "No IL taxable income - no tax liability. IL NOL rules may apply (not implemented)." result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
     </actions>
@@ -311,72 +283,62 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
     </attribute_fields>
     <contexts></contexts>
     <initial_actions></initial_actions>
-
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have IL nexus</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+        <condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
-        </condition_postfix>
+{ pop apportionment.has_physical_presence true eq } over not if
+</condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="Y"></condition_column>
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive tax base for replacement tax calculation</condition_comment>
-        <condition_description>apportionment.state_taxable_income > 0</condition_description>
+        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
         <condition_postfix>
-apportionment.state_taxable_income 0 gt
-        </condition_postfix>
+apportionment.state_taxable_income 0 >
+</condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="-"></condition_column>
         <condition_column column_number="3" column_value="N"></condition_column>
       </condition_details>
-      <condition_details>
-        <condition_number>3</condition_number>
-        <condition_comment>Default case</condition_comment>
-        <condition_description>otherwise</condition_description>
-        <condition_postfix>
-otherwise
-        </condition_postfix>
-        <condition_column column_number="4" column_value="*"></condition_column>
-      </condition_details>
     </conditions>
-
     <actions>
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate replacement tax at 2.5%</action_comment>
         <action_description>Calculate replacement tax, add to total state tax, recalculate refund/owed</action_description>
         <action_postfix>
-apportionment.state_taxable_income result.il_replacement_tax_rate mul /result.il_replacement_tax xdef
-apportionment.state_tax result.il_replacement_tax add /apportionment.state_tax xdef
-apportionment.state_payments apportionment.state_tax sub /apportionment.state_refund_or_owed xdef
-"IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: × 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)" result.policy_statements swap addto
-        </action_postfix>
+apportionment.state_taxable_income result.il_replacement_tax_rate mul result.il_replacement_tax xdef
+apportionment.state_tax result.il_replacement_tax add apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_tax sub apportionment.state_refund_or_owed xdef
+"IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: x 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)" result.policy_statements swap addto
+</action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No replacement tax - no IL nexus</action_comment>
-        <action_description>Set replacement tax to 0</action_description>
+        <action_description>result.il_replacement_tax = 0.0</action_description>
         <action_postfix>
-0.0 /result.il_replacement_tax xdef
+0.0 result.il_replacement_tax xdef
 "No replacement tax - no IL nexus." result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>No replacement tax - no positive tax base</action_comment>
-        <action_description>Set replacement tax to 0</action_description>
+        <action_description>result.il_replacement_tax = 0.0</action_description>
         <action_postfix>
-0.0 /result.il_replacement_tax xdef
+0.0 result.il_replacement_tax xdef
 "No replacement tax - no positive tax base." result.policy_statements swap addto
-        </action_postfix>
+</action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
     </actions>

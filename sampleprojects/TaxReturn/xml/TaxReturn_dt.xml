@@ -10600,27 +10600,27 @@ job.filing_status HOH streq
 <action_comment>Calculate HI tax for Single filers using progressive brackets</action_comment>
 <action_description>Calculate Hawaii tax for Single filers with 12 progressive brackets</action_description>
 <action_postfix><![CDATA[
-result.hi_taxable_income hi_bracket_1_single f<= if
+result.hi_taxable_income hi_bracket_1_single f&lt;= if
   result.hi_taxable_income hi_bracket_1_rate f* local@ hi_tax >
-else result.hi_taxable_income hi_bracket_2_single f<= if
+else result.hi_taxable_income hi_bracket_2_single f&lt;= if
   hi_bracket_1_single hi_bracket_1_rate f* result.hi_taxable_income hi_bracket_1_single f- hi_bracket_2_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_3_single f<= if
+else result.hi_taxable_income hi_bracket_3_single f&lt;= if
   hi_bracket_1_single hi_bracket_1_rate f* hi_bracket_2_single hi_bracket_1_single f- hi_bracket_2_rate f* f+ result.hi_taxable_income hi_bracket_2_single f- hi_bracket_3_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_4_single f<= if
+else result.hi_taxable_income hi_bracket_4_single f&lt;= if
   hi_bracket_1_single hi_bracket_1_rate f* hi_bracket_2_single hi_bracket_1_single f- hi_bracket_2_rate f* f+ hi_bracket_3_single hi_bracket_2_single f- hi_bracket_3_rate f* f+ result.hi_taxable_income hi_bracket_3_single f- hi_bracket_4_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_5_single f<= if
+else result.hi_taxable_income hi_bracket_5_single f&lt;= if
   hi_bracket_1_single hi_bracket_1_rate f* hi_bracket_2_single hi_bracket_1_single f- hi_bracket_2_rate f* f+ hi_bracket_3_single hi_bracket_2_single f- hi_bracket_3_rate f* f+ hi_bracket_4_single hi_bracket_3_single f- hi_bracket_4_rate f* f+ result.hi_taxable_income hi_bracket_4_single f- hi_bracket_5_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_6_single f<= if
+else result.hi_taxable_income hi_bracket_6_single f&lt;= if
   hi_bracket_1_single hi_bracket_1_rate f* hi_bracket_2_single hi_bracket_1_single f- hi_bracket_2_rate f* f+ hi_bracket_3_single hi_bracket_2_single f- hi_bracket_3_rate f* f+ hi_bracket_4_single hi_bracket_3_single f- hi_bracket_4_rate f* f+ hi_bracket_5_single hi_bracket_4_single f- hi_bracket_5_rate f* f+ result.hi_taxable_income hi_bracket_5_single f- hi_bracket_6_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_7_single f<= if
+else result.hi_taxable_income hi_bracket_7_single f&lt;= if
   33.60 hi_bracket_6_single hi_bracket_5_single f- hi_bracket_6_rate f* f+ result.hi_taxable_income hi_bracket_6_single f- hi_bracket_7_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_8_single f<= if
+else result.hi_taxable_income hi_bracket_8_single f&lt;= if
   33.60 hi_bracket_6_single hi_bracket_5_single f- hi_bracket_6_rate f* f+ hi_bracket_7_single hi_bracket_6_single f- hi_bracket_7_rate f* f+ result.hi_taxable_income hi_bracket_7_single f- hi_bracket_8_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_9_single f<= if
+else result.hi_taxable_income hi_bracket_9_single f&lt;= if
   33.60 hi_bracket_6_single hi_bracket_5_single f- hi_bracket_6_rate f* f+ hi_bracket_7_single hi_bracket_6_single f- hi_bracket_7_rate f* f+ hi_bracket_8_single hi_bracket_7_single f- hi_bracket_8_rate f* f+ result.hi_taxable_income hi_bracket_8_single f- hi_bracket_9_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_10_single f<= if
+else result.hi_taxable_income hi_bracket_10_single f&lt;= if
   33.60 hi_bracket_6_single hi_bracket_5_single f- hi_bracket_6_rate f* f+ hi_bracket_7_single hi_bracket_6_single f- hi_bracket_7_rate f* f+ hi_bracket_8_single hi_bracket_7_single f- hi_bracket_8_rate f* f+ hi_bracket_9_single hi_bracket_8_single f- hi_bracket_9_rate f* f+ result.hi_taxable_income hi_bracket_9_single f- hi_bracket_10_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_11_single f<= if
+else result.hi_taxable_income hi_bracket_11_single f&lt;= if
   33.60 hi_bracket_6_single hi_bracket_5_single f- hi_bracket_6_rate f* f+ hi_bracket_7_single hi_bracket_6_single f- hi_bracket_7_rate f* f+ hi_bracket_8_single hi_bracket_7_single f- hi_bracket_8_rate f* f+ hi_bracket_9_single hi_bracket_8_single f- hi_bracket_9_rate f* f+ hi_bracket_10_single hi_bracket_9_single f- hi_bracket_10_rate f* f+ result.hi_taxable_income hi_bracket_10_single f- hi_bracket_11_rate f* f+ local@ hi_tax >
 else
   33.60 hi_bracket_6_single hi_bracket_5_single f- hi_bracket_6_rate f* f+ hi_bracket_7_single hi_bracket_6_single f- hi_bracket_7_rate f* f+ hi_bracket_8_single hi_bracket_7_single f- hi_bracket_8_rate f* f+ hi_bracket_9_single hi_bracket_8_single f- hi_bracket_9_rate f* f+ hi_bracket_10_single hi_bracket_9_single f- hi_bracket_10_rate f* f+ hi_bracket_11_single hi_bracket_10_single f- hi_bracket_11_rate f* f+ result.hi_taxable_income hi_bracket_11_single f- hi_bracket_12_rate f* f+ local@ hi_tax >
@@ -10635,27 +10635,27 @@ hi_tax /result.hi_tax xdef
 <action_comment>Calculate HI tax for MFJ/QSS filers using progressive brackets</action_comment>
 <action_description>Calculate Hawaii tax for MFJ/QSS filers with 12 progressive brackets</action_description>
 <action_postfix><![CDATA[
-result.hi_taxable_income hi_bracket_1_mfj f<= if
+result.hi_taxable_income hi_bracket_1_mfj f&lt;= if
   result.hi_taxable_income hi_bracket_1_rate f* local@ hi_tax >
-else result.hi_taxable_income hi_bracket_2_mfj f<= if
+else result.hi_taxable_income hi_bracket_2_mfj f&lt;= if
   hi_bracket_1_mfj hi_bracket_1_rate f* result.hi_taxable_income hi_bracket_1_mfj f- hi_bracket_2_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_3_mfj f<= if
+else result.hi_taxable_income hi_bracket_3_mfj f&lt;= if
   hi_bracket_1_mfj hi_bracket_1_rate f* hi_bracket_2_mfj hi_bracket_1_mfj f- hi_bracket_2_rate f* f+ result.hi_taxable_income hi_bracket_2_mfj f- hi_bracket_3_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_4_mfj f<= if
+else result.hi_taxable_income hi_bracket_4_mfj f&lt;= if
   hi_bracket_1_mfj hi_bracket_1_rate f* hi_bracket_2_mfj hi_bracket_1_mfj f- hi_bracket_2_rate f* f+ hi_bracket_3_mfj hi_bracket_2_mfj f- hi_bracket_3_rate f* f+ result.hi_taxable_income hi_bracket_3_mfj f- hi_bracket_4_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_5_mfj f<= if
+else result.hi_taxable_income hi_bracket_5_mfj f&lt;= if
   hi_bracket_1_mfj hi_bracket_1_rate f* hi_bracket_2_mfj hi_bracket_1_mfj f- hi_bracket_2_rate f* f+ hi_bracket_3_mfj hi_bracket_2_mfj f- hi_bracket_3_rate f* f+ hi_bracket_4_mfj hi_bracket_3_mfj f- hi_bracket_4_rate f* f+ result.hi_taxable_income hi_bracket_4_mfj f- hi_bracket_5_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_6_mfj f<= if
+else result.hi_taxable_income hi_bracket_6_mfj f&lt;= if
   hi_bracket_1_mfj hi_bracket_1_rate f* hi_bracket_2_mfj hi_bracket_1_mfj f- hi_bracket_2_rate f* f+ hi_bracket_3_mfj hi_bracket_2_mfj f- hi_bracket_3_rate f* f+ hi_bracket_4_mfj hi_bracket_3_mfj f- hi_bracket_4_rate f* f+ hi_bracket_5_mfj hi_bracket_4_mfj f- hi_bracket_5_rate f* f+ result.hi_taxable_income hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_7_mfj f<= if
+else result.hi_taxable_income hi_bracket_7_mfj f&lt;= if
   67.20 hi_bracket_6_mfj hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ result.hi_taxable_income hi_bracket_6_mfj f- hi_bracket_7_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_8_mfj f<= if
+else result.hi_taxable_income hi_bracket_8_mfj f&lt;= if
   67.20 hi_bracket_6_mfj hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ hi_bracket_7_mfj hi_bracket_6_mfj f- hi_bracket_7_rate f* f+ result.hi_taxable_income hi_bracket_7_mfj f- hi_bracket_8_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_9_mfj f<= if
+else result.hi_taxable_income hi_bracket_9_mfj f&lt;= if
   67.20 hi_bracket_6_mfj hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ hi_bracket_7_mfj hi_bracket_6_mfj f- hi_bracket_7_rate f* f+ hi_bracket_8_mfj hi_bracket_7_mfj f- hi_bracket_8_rate f* f+ result.hi_taxable_income hi_bracket_8_mfj f- hi_bracket_9_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_10_mfj f<= if
+else result.hi_taxable_income hi_bracket_10_mfj f&lt;= if
   67.20 hi_bracket_6_mfj hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ hi_bracket_7_mfj hi_bracket_6_mfj f- hi_bracket_7_rate f* f+ hi_bracket_8_mfj hi_bracket_7_mfj f- hi_bracket_8_rate f* f+ hi_bracket_9_mfj hi_bracket_8_mfj f- hi_bracket_9_rate f* f+ result.hi_taxable_income hi_bracket_9_mfj f- hi_bracket_10_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_11_mfj f<= if
+else result.hi_taxable_income hi_bracket_11_mfj f&lt;= if
   67.20 hi_bracket_6_mfj hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ hi_bracket_7_mfj hi_bracket_6_mfj f- hi_bracket_7_rate f* f+ hi_bracket_8_mfj hi_bracket_7_mfj f- hi_bracket_8_rate f* f+ hi_bracket_9_mfj hi_bracket_8_mfj f- hi_bracket_9_rate f* f+ hi_bracket_10_mfj hi_bracket_9_mfj f- hi_bracket_10_rate f* f+ result.hi_taxable_income hi_bracket_10_mfj f- hi_bracket_11_rate f* f+ local@ hi_tax >
 else
   67.20 hi_bracket_6_mfj hi_bracket_5_mfj f- hi_bracket_6_rate f* f+ hi_bracket_7_mfj hi_bracket_6_mfj f- hi_bracket_7_rate f* f+ hi_bracket_8_mfj hi_bracket_7_mfj f- hi_bracket_8_rate f* f+ hi_bracket_9_mfj hi_bracket_8_mfj f- hi_bracket_9_rate f* f+ hi_bracket_10_mfj hi_bracket_9_mfj f- hi_bracket_10_rate f* f+ hi_bracket_11_mfj hi_bracket_10_mfj f- hi_bracket_11_rate f* f+ result.hi_taxable_income hi_bracket_11_mfj f- hi_bracket_12_rate f* f+ local@ hi_tax >
@@ -10670,27 +10670,27 @@ hi_tax /result.hi_tax xdef
 <action_comment>Calculate HI tax for HOH filers using progressive brackets</action_comment>
 <action_description>Calculate Hawaii tax for HOH filers with 12 progressive brackets</action_description>
 <action_postfix><![CDATA[
-result.hi_taxable_income hi_bracket_1_hoh f<= if
+result.hi_taxable_income hi_bracket_1_hoh f&lt;= if
   result.hi_taxable_income hi_bracket_1_rate f* local@ hi_tax >
-else result.hi_taxable_income hi_bracket_2_hoh f<= if
+else result.hi_taxable_income hi_bracket_2_hoh f&lt;= if
   hi_bracket_1_hoh hi_bracket_1_rate f* result.hi_taxable_income hi_bracket_1_hoh f- hi_bracket_2_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_3_hoh f<= if
+else result.hi_taxable_income hi_bracket_3_hoh f&lt;= if
   hi_bracket_1_hoh hi_bracket_1_rate f* hi_bracket_2_hoh hi_bracket_1_hoh f- hi_bracket_2_rate f* f+ result.hi_taxable_income hi_bracket_2_hoh f- hi_bracket_3_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_4_hoh f<= if
+else result.hi_taxable_income hi_bracket_4_hoh f&lt;= if
   hi_bracket_1_hoh hi_bracket_1_rate f* hi_bracket_2_hoh hi_bracket_1_hoh f- hi_bracket_2_rate f* f+ hi_bracket_3_hoh hi_bracket_2_hoh f- hi_bracket_3_rate f* f+ result.hi_taxable_income hi_bracket_3_hoh f- hi_bracket_4_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_5_hoh f<= if
+else result.hi_taxable_income hi_bracket_5_hoh f&lt;= if
   hi_bracket_1_hoh hi_bracket_1_rate f* hi_bracket_2_hoh hi_bracket_1_hoh f- hi_bracket_2_rate f* f+ hi_bracket_3_hoh hi_bracket_2_hoh f- hi_bracket_3_rate f* f+ hi_bracket_4_hoh hi_bracket_3_hoh f- hi_bracket_4_rate f* f+ result.hi_taxable_income hi_bracket_4_hoh f- hi_bracket_5_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_6_hoh f<= if
+else result.hi_taxable_income hi_bracket_6_hoh f&lt;= if
   hi_bracket_1_hoh hi_bracket_1_rate f* hi_bracket_2_hoh hi_bracket_1_hoh f- hi_bracket_2_rate f* f+ hi_bracket_3_hoh hi_bracket_2_hoh f- hi_bracket_3_rate f* f+ hi_bracket_4_hoh hi_bracket_3_hoh f- hi_bracket_4_rate f* f+ hi_bracket_5_hoh hi_bracket_4_hoh f- hi_bracket_5_rate f* f+ result.hi_taxable_income hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_7_hoh f<= if
+else result.hi_taxable_income hi_bracket_7_hoh f&lt;= if
   50.40 hi_bracket_6_hoh hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ result.hi_taxable_income hi_bracket_6_hoh f- hi_bracket_7_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_8_hoh f<= if
+else result.hi_taxable_income hi_bracket_8_hoh f&lt;= if
   50.40 hi_bracket_6_hoh hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ hi_bracket_7_hoh hi_bracket_6_hoh f- hi_bracket_7_rate f* f+ result.hi_taxable_income hi_bracket_7_hoh f- hi_bracket_8_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_9_hoh f<= if
+else result.hi_taxable_income hi_bracket_9_hoh f&lt;= if
   50.40 hi_bracket_6_hoh hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ hi_bracket_7_hoh hi_bracket_6_hoh f- hi_bracket_7_rate f* f+ hi_bracket_8_hoh hi_bracket_7_hoh f- hi_bracket_8_rate f* f+ result.hi_taxable_income hi_bracket_8_hoh f- hi_bracket_9_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_10_hoh f<= if
+else result.hi_taxable_income hi_bracket_10_hoh f&lt;= if
   50.40 hi_bracket_6_hoh hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ hi_bracket_7_hoh hi_bracket_6_hoh f- hi_bracket_7_rate f* f+ hi_bracket_8_hoh hi_bracket_7_hoh f- hi_bracket_8_rate f* f+ hi_bracket_9_hoh hi_bracket_8_hoh f- hi_bracket_9_rate f* f+ result.hi_taxable_income hi_bracket_9_hoh f- hi_bracket_10_rate f* f+ local@ hi_tax >
-else result.hi_taxable_income hi_bracket_11_hoh f<= if
+else result.hi_taxable_income hi_bracket_11_hoh f&lt;= if
   50.40 hi_bracket_6_hoh hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ hi_bracket_7_hoh hi_bracket_6_hoh f- hi_bracket_7_rate f* f+ hi_bracket_8_hoh hi_bracket_7_hoh f- hi_bracket_8_rate f* f+ hi_bracket_9_hoh hi_bracket_8_hoh f- hi_bracket_9_rate f* f+ hi_bracket_10_hoh hi_bracket_9_hoh f- hi_bracket_10_rate f* f+ result.hi_taxable_income hi_bracket_10_hoh f- hi_bracket_11_rate f* f+ local@ hi_tax >
 else
   50.40 hi_bracket_6_hoh hi_bracket_5_hoh f- hi_bracket_6_rate f* f+ hi_bracket_7_hoh hi_bracket_6_hoh f- hi_bracket_7_rate f* f+ hi_bracket_8_hoh hi_bracket_7_hoh f- hi_bracket_8_rate f* f+ hi_bracket_9_hoh hi_bracket_8_hoh f- hi_bracket_9_rate f* f+ hi_bracket_10_hoh hi_bracket_9_hoh f- hi_bracket_10_rate f* f+ hi_bracket_11_hoh hi_bracket_10_hoh f- hi_bracket_11_rate f* f+ result.hi_taxable_income hi_bracket_11_hoh f- hi_bracket_12_rate f* f+ local@ hi_tax >

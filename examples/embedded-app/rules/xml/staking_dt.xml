@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Staking Rules - Decision Tables
+  Business rules for staking calculations
+-->
+<decision_tables>
+  <decision_table name="Calculate_Staking_Reward" number="100">
+    <description>Calculate staking rewards based on amount, duration, and token type</description>
+
+    <!-- Conditions -->
+    <condition column="1" type="value">
+      <description>Minimum stake amount check</description>
+      <test>stake_request.amount >= 100</test>
+      <values>
+        <value row="1">true</value>
+        <value row="2">true</value>
+        <value row="3">true</value>
+        <value row="4">true</value>
+        <value row="5">false</value>
+      </values>
+    </condition>
+
+    <condition column="2" type="value">
+      <description>Duration tier</description>
+      <test>stake_request.duration_days</test>
+      <values>
+        <value row="1">>= 365</value>
+        <value row="2">>= 180</value>
+        <value row="3">>= 30</value>
+        <value row="4">*</value>
+        <value row="5">*</value>
+      </values>
+    </condition>
+
+    <condition column="3" type="value">
+      <description>Is validator</description>
+      <test>stake_request.is_validator</test>
+      <values>
+        <value row="1">*</value>
+        <value row="2">*</value>
+        <value row="3">*</value>
+        <value row="4">*</value>
+        <value row="5">*</value>
+      </values>
+    </condition>
+
+    <!-- Actions -->
+    <action column="1" type="assign">
+      <description>Set eligibility</description>
+      <statement>result.eligible =</statement>
+      <values>
+        <value row="1">true</value>
+        <value row="2">true</value>
+        <value row="3">true</value>
+        <value row="4">true</value>
+        <value row="5">false</value>
+      </values>
+    </action>
+
+    <action column="2" type="assign">
+      <description>Set tier</description>
+      <statement>result.tier =</statement>
+      <values>
+        <value row="1">"platinum"</value>
+        <value row="2">"gold"</value>
+        <value row="3">"silver"</value>
+        <value row="4">"bronze"</value>
+        <value row="5">""</value>
+      </values>
+    </action>
+
+    <action column="3" type="assign">
+      <description>Set APY</description>
+      <statement>result.apy =</statement>
+      <values>
+        <value row="1">0.12</value>
+        <value row="2">0.08</value>
+        <value row="3">0.05</value>
+        <value row="4">0.03</value>
+        <value row="5">0</value>
+      </values>
+    </action>
+
+    <action column="4" type="assign">
+      <description>Set lockup days</description>
+      <statement>result.lockup_days =</statement>
+      <values>
+        <value row="1">365</value>
+        <value row="2">180</value>
+        <value row="3">30</value>
+        <value row="4">7</value>
+        <value row="5">0</value>
+      </values>
+    </action>
+
+    <action column="5" type="compute">
+      <description>Calculate estimated reward</description>
+      <statement>result.estimated_reward = stake_request.amount * result.apy * (stake_request.duration_days / 365.0)</statement>
+      <values>
+        <value row="1">execute</value>
+        <value row="2">execute</value>
+        <value row="3">execute</value>
+        <value row="4">execute</value>
+        <value row="5">skip</value>
+      </values>
+    </action>
+
+    <action column="6" type="assign">
+      <description>Set reason for ineligibility</description>
+      <statement>result.reason =</statement>
+      <values>
+        <value row="1">""</value>
+        <value row="2">""</value>
+        <value row="3">""</value>
+        <value row="4">""</value>
+        <value row="5">"Minimum stake is 100 tokens"</value>
+      </values>
+    </action>
+  </decision_table>
+
+  <decision_table name="Apply_Validator_Bonus" number="101">
+    <description>Apply bonus APY for validators</description>
+
+    <condition column="1" type="value">
+      <description>Is validator</description>
+      <test>stake_request.is_validator</test>
+      <values>
+        <value row="1">true</value>
+        <value row="2">false</value>
+      </values>
+    </condition>
+
+    <action column="1" type="compute">
+      <description>Apply 2% validator bonus</description>
+      <statement>result.apy = result.apy + 0.02</statement>
+      <values>
+        <value row="1">execute</value>
+        <value row="2">skip</value>
+      </values>
+    </action>
+
+    <action column="2" type="compute">
+      <description>Recalculate reward with bonus</description>
+      <statement>result.estimated_reward = stake_request.amount * result.apy * (stake_request.duration_days / 365.0)</statement>
+      <values>
+        <value row="1">execute</value>
+        <value row="2">skip</value>
+      </values>
+    </action>
+  </decision_table>
+</decision_tables>

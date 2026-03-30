@@ -36,7 +36,7 @@
    <!-- Federal Taxable Income: $30,000 -->
    <!-- Federal Tax: ~$3,300 -->
    <!-- UT: Flat 4.55% tax rate (2025) -->
-   <!-- UT Military Retirement Exemption: $10,000 (full - AGI < $47,500) -->
+   <!-- UT Military Retirement Exemption: $10,000 (full - AGI &lt; $47,500) -->
    <!-- UT Taxable Retirement: $20,000 - $10,000 = $10,000 -->
    <!-- UT Taxable Income: $10,000 + $25,000 = $35,000 -->
    <!-- UT Tax: $35,000 * 0.0455 = $1,593 -->

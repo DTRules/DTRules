@@ -39,7 +39,7 @@
            comment="CO subtractions from federal taxable income (state taxes, CO NOL, etc.)"/>
 
     <field name="co_state_credits" type="double" default_value="0.0"
-           comment="CO state tax credits (R&D, jobs, film, renewable energy, etc.)"/>
+           comment="CO state tax credits (R&amp;D, jobs, film, renewable energy, etc.)"/>
 
     <!-- Calculation Results -->
     <field name="co_taxable_income" type="double" default_value="0.0"

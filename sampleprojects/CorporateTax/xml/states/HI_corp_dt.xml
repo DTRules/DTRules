@@ -2,12 +2,13 @@
 <!--
   Hawaii Corporate Tax Decision Tables
 
-  Table range: 52500-52599
-  Tax rate: 6.4% flat rate (HI Rev. Stat. § 235-71)
-  Apportionment: Single-sales factor
-  Form: HI Form N-30 (Corporation Income Tax Return)
+  Hawaii imposes a 6.4% flat corporate income tax (HI Rev. Stat. § 235-71).
+  Uses single-sales factor apportionment.
+  Economic nexus threshold: $100,000 gross receipts OR 200 transactions.
+
+  Table numbering: 52500-52599 (HI allocation)
 -->
-<decision_tables name="CorporateTax_HI_Tables">
+<decision_tables>
 
   <!--
     ============================================================================
@@ -20,83 +21,89 @@
     - Physical presence: Office, employees, property in Hawaii
     - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
   -->
-  <decision_table name="Determine_HI_Filing_Requirement" number="52500">
-    <description>
-      Determine if corporation must file Hawaii state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
-
+  <decision_table>
+    <table_name>Determine_HI_Filing_Requirement</table_name>
+    <xls_file>HI_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine if corporation must file Hawaii state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+      <TABLE_NUMBER>52500</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
     <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'HI'</expression>
-        <comment>Has physical presence in HI (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'HI'</expression>
-        <comment>Meets HI economic nexus threshold</comment>
-      </condition>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Has physical presence in HI (office, employees, property)</condition_comment>
+        <condition_description>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "HI"</condition_description>
+        <condition_postfix>
+apportionment.has_physical_presence true eq
+{ pop apportionment.state_code "HI" streq } over if
+</condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Meets HI economic nexus threshold</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "HI"</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+{ pop apportionment.state_code "HI" streq } over if
+</condition_postfix>
+        <condition_column column_number="1" column_value="-"></condition_column>
+        <condition_column column_number="2" column_value="Y"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
     </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Hawaii filing required due to physical presence (office, employees, or property in state).
-
-          Reference: Hawaii Department of Taxation Form N-30 Instructions
-          Reference: HI Rev. Stat. § 235-1 et seq. (Corporate Income Tax)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Hawaii filing required due to economic nexus (post-Wayfair).
-          Threshold: $100,000 gross receipts OR 200 transactions
-
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Hawaii Department of Taxation Economic Nexus Guidance
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Hawaii nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Physical nexus established - filing required</action_comment>
+        <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+        <action_postfix>
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
+</action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+        <action_description>Threshold: $100,000 gross receipts OR 200 transactions</action_description>
+        <action_postfix>
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
+</action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>No nexus - no filing required</action_comment>
+        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_postfix>
+// No nexus - no filing required
+0.0 apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_refund_or_owed xdef
+</action_postfix>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Hawaii filing required due to physical presence (office, employees, or property in state).</policy_description>
+        <policy_statement_postfix>"Hawaii filing required due to physical presence (office, employees, or property in state). Reference: Hawaii Department of Taxation Form N-30 Instructions, HI Rev. Stat. § 235-1 et seq. (Corporate Income Tax)"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>Hawaii filing required due to economic nexus (post-Wayfair).</policy_description>
+        <policy_statement_postfix>"Hawaii filing required due to economic nexus (post-Wayfair). Threshold: $100,000 gross receipts OR 200 transactions. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Hawaii Department of Taxation Economic Nexus Guidance"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="3">
+        <policy_description>No Hawaii nexus - no filing requirement.</policy_description>
+        <policy_statement_postfix>"No Hawaii nexus - no filing requirement. Any estimated payments would be refunded."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 
   <!--
@@ -110,84 +117,83 @@
     - Additions: Federal bond interest, IRC 199A addback (if applicable)
     - Subtractions: Hawaii NOL deduction, municipal bond interest
   -->
-  <decision_table name="Calculate_HI_Income_Adjustments" number="52520">
-    <description>
-      Calculate Hawaii state-specific additions and subtractions to federal taxable income.
-    </description>
-
+  <decision_table>
+    <table_name>Calculate_HI_Income_Adjustments</table_name>
+    <xls_file>HI_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Hawaii state-specific additions and subtractions to federal taxable income.</COMMENTS>
+      <TABLE_NUMBER>52520</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
     <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Must have nexus to calculate adjustments</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+{ pop apportionment.has_physical_presence true eq } over not if
+</condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+      </condition_details>
     </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Calculate HI state additions and subtractions</action_comment>
+        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_postfix>
+// Calculate state additions (customize for Hawaii)
+0.0 /additions xdef
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate state additions (customize for Hawaii)
-            double additions = 0.0;
+// Example: Add back federal interest (not taxable federally but may be taxable to Hawaii)
+// additions revenue.federal_bond_interest add /additions xdef
 
-            // Example: Add back federal interest (not taxable federally but may be taxable to Hawaii)
-            // additions += revenue.federal_bond_interest;
+// Example: Add back IRC 199A deduction if state doesn't conform
+// additions result.section_199a_deduction add /additions xdef
 
-            // Example: Add back IRC 199A deduction if state doesn't conform
-            // additions += result.section_199a_deduction;
+// Example: Add back bonus depreciation if state decouples
+// additions result.bonus_depreciation_total add /additions xdef
 
-            // Example: Add back bonus depreciation if state decouples
-            // additions += result.bonus_depreciation_total;
+additions apportionment.state_additions xdef
 
-            apportionment.state_additions = additions;
+// Calculate state subtractions (customize for Hawaii)
+0.0 /subtractions xdef
 
-            // Calculate state subtractions (customize for Hawaii)
-            double subtractions = 0.0;
+// Example: Subtract municipal bond interest from other states
+// subtractions revenue.other_state_municipal_interest add /subtractions xdef
 
-            // Example: Subtract municipal bond interest from other states
-            // subtractions += revenue.other_state_municipal_interest;
+// Example: Subtract state NOL deduction (if different from federal)
+// subtractions result.state_nol_deduction add /subtractions xdef
 
-            // Example: Subtract state NOL deduction (if different from federal)
-            // subtractions += result.state_nol_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          Hawaii state-specific income adjustments to federal taxable income.
-
-          Additions may include:
-          - Interest on U.S. government obligations
-          - IRC Section 199A qualified business income deduction addback
-          - State-specific modifications per Hawaii tax law
-
-          Subtractions may include:
-          - Hawaii net operating loss deduction
-          - Interest on Hawaii and other municipal bonds
-
-          Reference: Hawaii Department of Taxation Form N-30 Instructions
-          Reference: HI Rev. Stat. § 235-7 (Adjustments to Federal Taxable Income)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
+subtractions apportionment.state_subtractions xdef
+</action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No nexus - no state adjustments</action_comment>
+        <action_description>apportionment.state_additions = 0.0; apportionment.state_subtractions = 0.0</action_description>
+        <action_postfix>
+0.0 apportionment.state_additions xdef
+0.0 apportionment.state_subtractions xdef
+</action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Hawaii state-specific income adjustments to federal taxable income.</policy_description>
+        <policy_statement_postfix>"Hawaii state-specific income adjustments to federal taxable income. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction addback, State-specific modifications per Hawaii tax law. Subtractions may include: Hawaii net operating loss deduction, Interest on Hawaii and other municipal bonds. Reference: Hawaii Department of Taxation Form N-30 Instructions, HI Rev. Stat. § 235-7 (Adjustments to Federal Taxable Income)"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>No nexus - no state adjustments calculated.</policy_description>
+        <policy_statement_postfix>"No nexus - no state adjustments calculated."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 
   <!--
@@ -206,100 +212,96 @@
     6. Subtract HI state credits
     7. Calculate refund or amount owed
   -->
-  <decision_table name="Calculate_HI_State_Tax" number="52580">
-    <description>
-      Calculate Hawaii state corporate income tax.
-      Applies 6.4% flat rate to apportioned and adjusted taxable income.
-    </description>
-
+  <decision_table>
+    <table_name>Calculate_HI_State_Tax</table_name>
+    <xls_file>HI_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Hawaii state corporate income tax. Applies 6.4% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+      <TABLE_NUMBER>52580</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
     <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Must have nexus to owe tax</condition_comment>
+        <condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
+        <condition_postfix>
+apportionment.has_economic_nexus true eq
+{ pop apportionment.has_physical_presence true eq } over not if
+</condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="Y"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Has positive state taxable income</condition_comment>
+        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+        <condition_postfix>
+apportionment.state_taxable_income 0 >
+</condition_postfix>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="-"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
     </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Hawaii 6.4% flat rate calculation</action_comment>
+        <action_description>Calculate HI tax using 6.4% flat rate</action_description>
+        <action_postfix>
+// Hawaii uses 6.4% flat rate
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+apportionment.state_tax xdef
 
-    <rules>
-      <!-- Rule 1: Flat rate calculation (6.4%) -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // Hawaii uses 6.4% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
+// Subtract state credits
+apportionment.state_tax apportionment.state_credits sub
+0.0 max apportionment.state_tax xdef
 
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Hawaii state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to HI: × [Apportionment %]
-          3. State additions: + [Additions]
-          4. State subtractions: - [Subtractions]
-          5. HI taxable income: = [Result]
-          6. HI tax rate: × 6.4%
-          7. HI income tax: = [Tax before credits]
-          8. HI credits: - [Credits]
-          9. HI tax liability: = [Final tax]
-
-          Reference: Hawaii Form N-30 (Corporation Income Tax Return) Instructions
-          Reference: Hawaii Department of Taxation Corporate Income Tax Guide
-          Reference: HI Rev. Stat. § 235-71 (Tax rate: 6.4%)
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus or no income -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Hawaii nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Hawaii taxable income - no tax liability.
-          Hawaii NOL rules may apply (not implemented).
-        </policy>
-      </rule>
-    </rules>
+// Calculate refund or amount owed
+apportionment.state_payments apportionment.state_tax sub
+apportionment.state_refund_or_owed xdef
+</action_postfix>
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No nexus - no tax liability</action_comment>
+        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_postfix>
+0.0 apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_refund_or_owed xdef
+</action_postfix>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>Nexus but no taxable income - no tax liability</action_comment>
+        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_postfix>
+0.0 apportionment.state_tax xdef
+apportionment.state_payments apportionment.state_refund_or_owed xdef
+</action_postfix>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+    </actions>
+    <policy_statements>
+      <policy_statement column="1">
+        <policy_description>Hawaii state corporate income tax calculation</policy_description>
+        <policy_statement_postfix>"Hawaii state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to HI: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. HI taxable income: = [Result], 6. HI tax rate: x 6.4%, 7. HI income tax: = [Tax before credits], 8. HI credits: - [Credits], 9. HI tax liability: = [Final tax]. Reference: Hawaii Form N-30 (Corporation Income Tax Return) Instructions, Hawaii Department of Taxation Corporate Income Tax Guide, HI Rev. Stat. § 235-71 (Tax rate: 6.4%)"</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="2">
+        <policy_description>No Hawaii nexus - no tax liability.</policy_description>
+        <policy_statement_postfix>"No Hawaii nexus - no tax liability. Any estimated payments are refunded."</policy_statement_postfix>
+      </policy_statement>
+      <policy_statement column="3">
+        <policy_description>No Hawaii taxable income - no tax liability.</policy_description>
+        <policy_statement_postfix>"No Hawaii taxable income - no tax liability. Hawaii NOL rules may apply (not implemented)."</policy_statement_postfix>
+      </policy_statement>
+    </policy_statements>
   </decision_table>
 
 </decision_tables>

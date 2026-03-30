@@ -55,7 +55,7 @@ result.military_retirement_pay 0 gt
 <condition_column column_number="5" column_value="-"></condition_column>
 </condition_details>
 
-<!-- Condition 2: Age < 62 -->
+<!-- Condition 2: Age &lt; 62 -->
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age less than 62</condition_comment>
@@ -139,7 +139,7 @@ result.military_retirement_pay result.ga_military_retirement_exemption sub
 0 max
 /result.ga_military_retirement_taxable xdef
 
-"GA military retirement exemption (age < 62, earned >= $17.5k): $"
+"GA military retirement exemption (age &lt; 62, earned >= $17.5k): $"
 result.ga_military_retirement_exemption cvs strconcat
 " (Age: " strconcat result.age cvs strconcat
 ", Earned: $" strconcat result.earned_income cvs strconcat
@@ -151,7 +151,7 @@ job.audit_trail swap addto
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 
-<!-- Action 2: Under 62 with earned income < $17,500 - $17,500 base exemption only -->
+<!-- Action 2: Under 62 with earned income &lt; $17,500 - $17,500 base exemption only -->
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply GA $17,500 military retirement exemption (age &lt; 62, earned &lt; $17.5k)</action_comment>
@@ -166,7 +166,7 @@ result.military_retirement_pay result.ga_military_retirement_exemption sub
 0 max
 /result.ga_military_retirement_taxable xdef
 
-"GA military retirement exemption (age < 62, earned < $17.5k): $"
+"GA military retirement exemption (age &lt; 62, earned &lt; $17.5k): $"
 result.ga_military_retirement_exemption cvs strconcat
 " (Age: " strconcat result.age cvs strconcat
 ", Earned: $" strconcat result.earned_income cvs strconcat

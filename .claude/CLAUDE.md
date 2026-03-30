@@ -1,5 +1,25 @@
 # DTRules Project - Claude Code Instructions
 
+## Project Structure (Go Primary)
+
+DTRules is now a Go-first project. The structure is:
+
+```
+DTRules/
+├── cmd/                    # CLI commands
+│   └── dtrules/           # Main CLI tool
+├── pkg/dtrules/           # Core library
+│   ├── sdk/               # Embeddable SDK
+│   ├── sync/              # Excel/XML sync
+│   └── ...
+├── examples/              # Example applications
+├── sampleprojects/        # Rule sets
+├── legacy/                # Archived code
+│   ├── java/              # Original Java implementation
+│   └── go/                # ASM-dependent Go code
+└── go.mod                 # Module: github.com/DTRules/DTRules
+```
+
 ## CRITICAL: Output Redirection
 
 **ALWAYS redirect command output to log files**. Long-running commands and verbose output will crash the AI context.
@@ -7,14 +27,14 @@
 ### Required for ALL commands:
 
 ```bash
-# Maven builds
-mvn clean install > /tmp/maven-build.log 2>&1
-
-# Go builds
-cd go && go build ./... > /tmp/go-build.log 2>&1
+# Go builds (from repo root)
+go build ./... > /tmp/go-build.log 2>&1
 
 # Tests
 go test ./... > /tmp/go-test.log 2>&1
+
+# Make build
+make build > /tmp/make-build.log 2>&1
 
 # Git operations (these are OK without redirect)
 git status
@@ -25,11 +45,71 @@ git push origin <branch> > /tmp/git-push.log 2>&1
 
 ### Check logs with tail:
 ```bash
-tail -50 /tmp/maven-build.log
+tail -50 /tmp/go-build.log
 tail -50 /tmp/go-test.log
 ```
 
 **NEVER run builds or tests without redirecting output.**
+
+## Embedded Documentation
+
+The `dtrules` binary includes comprehensive documentation for AI and developers:
+
+```bash
+dtrules docs                     # List all topics
+dtrules docs xml-format          # XML file format specification
+dtrules docs decision-tables     # How to write decision tables
+dtrules docs operators           # All operators with examples
+dtrules docs expressions         # Postfix expression syntax
+dtrules docs sdk                 # Embedding in applications
+dtrules docs examples            # Complete working examples
+dtrules docs workflow            # Development workflow
+```
+
+**Use `dtrules docs` when you need to understand DTRules concepts.**
+
+## Excel/XML Synchronization (CRITICAL)
+
+**Excel is the source of truth.** Users edit Excel files, AI edits XML files. The sync system ensures these stay coordinated.
+
+### The Rule
+
+**Before exporting XML to Excel, you MUST check if Excel was modified by the user.**
+
+If the user modified Excel since your last export, your export will be **REJECTED** to prevent overwriting their changes.
+
+### CLI Commands
+
+```bash
+dtrules sync status              # Show sync status
+dtrules sync check               # Check for pending user edits
+dtrules sync import              # Import Excel → XML
+dtrules sync export              # Export XML → Excel
+```
+
+### Workflow
+
+1. **Import Excel → XML** (get user's latest changes)
+2. **Edit XML** (make your changes)
+3. **Export XML → Excel** (record your changes)
+
+### Before Making XML Changes
+
+Always check for pending user changes first:
+
+```bash
+dtrules sync check
+# If this fails, run: dtrules sync import
+```
+
+### If Export is Rejected
+
+If you see `ExcelModifiedError`:
+
+1. **DO NOT** try to force the export
+2. **DO** run `dtrules sync import` to get user's changes
+3. **THEN** re-apply your changes to the updated XML
+4. **THEN** export again
 
 ## State Tax Implementation
 
@@ -64,27 +144,11 @@ cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/
    - 2-3 key state-specific rules
    - Don't research everything upfront!
 
-2. **Create state files from templates**:
-   ```bash
-   cp sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml sampleprojects/TaxReturn/xml/states/XX_edd.xml
-   cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/xml/states/XX_dt.xml
-   ```
+2. **Create state files from templates**
 
-3. **Add constants to `XX_edd.xml`**:
-   ```xml
-   <entity name="result">
-     <field name='co_tax_rate' type='double' default_value='0.044'
-            comment='CO flat rate 4.4% (2025)'/>
-     <field name='co_standard_deduction_single' type='double' default_value='15000'
-            comment='CO standard deduction single (2025)'/>
-   </entity>
-   ```
+3. **Add constants to `XX_edd.xml`**
 
-4. **Create decision table in `XX_dt.xml`**:
-   - Use TEMPLATE_dt.xml as starting point
-   - Replace XX with your state code
-   - Assign unique table number (see template for numbering convention)
-   - Keep it simple initially, add complexity incrementally
+4. **Create decision table in `XX_dt.xml`**
 
 5. **Merge files before testing**:
    ```bash
@@ -94,7 +158,6 @@ cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/
 
 6. **Build and test**:
    ```bash
-   cd go
    go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
    tail -50 /tmp/test.log
    ```
@@ -105,19 +168,19 @@ cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/
 
 ```bash
 # Create your state files
-cp xml/states/TEMPLATE_edd.xml xml/states/CO_edd.xml
-cp xml/states/TEMPLATE_dt.xml xml/states/CO_dt.xml
+cp sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml sampleprojects/TaxReturn/xml/states/CO_edd.xml
+cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml
 
 # Edit the files (add your state's logic)
 # ... edit CO_edd.xml and CO_dt.xml ...
 
 # Merge and test
-./scripts/merge-states.sh
-cd go && go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
+cd sampleprojects/TaxReturn && ./scripts/merge-states.sh
+go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
 tail -50 /tmp/test.log
 
 # Stage ONLY your state files (not the merged files!)
-git add xml/states/CO_edd.xml xml/states/CO_dt.xml
+git add sampleprojects/TaxReturn/xml/states/CO_edd.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml
 
 # Commit
 git commit -m "feat: implement CO state tax (#180)"
@@ -126,49 +189,25 @@ git commit -m "feat: implement CO state tax (#180)"
 git push origin feature/issue-180 > /tmp/git-push.log 2>&1
 ```
 
-### Why Separate Files?
-
-**Problem**: All 41 states modifying `TaxReturn_edd.xml` and `TaxReturn_dt.xml` causes guaranteed merge conflicts.
-
-**Solution**: Each state gets its own files. The merge script combines them for testing. States are truly independent - Colorado changes don't conflict with California changes.
-
-### Avoiding Context Overflow
-
-**Do NOT**:
-- Research entire state tax code upfront
-- Read all IRS publications
-- Try to understand everything before starting
-- Run builds/tests without redirecting output
-
-**DO**:
-- Research incrementally (rate → deductions → special rules)
-- Start simple, add complexity
-- Test frequently with redirected output
-- Ask questions if stuck
-
-### Complex States (CA, NY, MA)
-
-These have extensive regulatory detail. **Work incrementally**:
-
-1. First pass: Basic rate and standard deduction only
-2. Second pass: Add one special rule
-3. Third pass: Add more complexity
-4. Don't try to do everything at once!
+**IMPORTANT**: Do NOT commit the merged `TaxReturn_edd.xml` or `TaxReturn_dt.xml` files!
 
 ## Build Commands
 
 ```bash
-# Full build (REDIRECT OUTPUT!)
-mvn clean install > /tmp/maven-build.log 2>&1
+# Build CLI (from repo root)
+make build > /tmp/make-build.log 2>&1
 
-# Go build only
-cd go && go build ./... > /tmp/go-build.log 2>&1
+# Or directly
+go build -o build/dtrules ./cmd/dtrules/ > /tmp/go-build.log 2>&1
 
-# Go tests
-cd go && go test ./... > /tmp/go-test.log 2>&1
+# Run tests
+go test ./... > /tmp/go-test.log 2>&1
 
 # Specific test
-cd go && go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
+go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
+
+# Install
+make install > /tmp/make-install.log 2>&1
 ```
 
 ## Commit Convention
@@ -178,23 +217,6 @@ git commit -m "feat: implement <State> state income tax (#<issue>)"
 git commit -m "fix: correct <State> tax bracket calculation (#<issue>)"
 git commit -m "test: add test cases for <State> (#<issue>)"
 ```
-
-## Git Workflow
-
-```bash
-# Stage ONLY your state-specific files
-git add sampleprojects/TaxReturn/xml/states/XX_edd.xml
-git add sampleprojects/TaxReturn/xml/states/XX_dt.xml
-git add sampleprojects/TaxReturn/testfiles/TestScenarios/State/XX/
-
-# Commit
-git commit -m "feat: implement XX state tax (#<issue>)"
-
-# Push (redirect for verbose output)
-git push origin feature/issue-<N> > /tmp/git-push.log 2>&1
-```
-
-**IMPORTANT**: Do NOT commit the merged `TaxReturn_edd.xml` or `TaxReturn_dt.xml` files! These are generated files created by the merge script for testing only.
 
 ## When to Ask for Help
 

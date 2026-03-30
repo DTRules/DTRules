@@ -1,499 +1,343 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Maine (ME) Corporate Tax Decision Tables
+  Maine Corporate Tax Decision Tables
 
-  Maine Title 36 § 5200 et seq.
-  - Tax rate: Graduated rates from 3.5% to 8.93%
-  - Apportionment: Single-sales factor (100% sales)
-  - Economic nexus: $250,000 property, $250,000 payroll, $500,000 sales, or 25% factor presence
-  - Form: ME Form 1120ME (Corporate Income Tax Return)
+  Maine corporate tax structure:
+  - Graduated rates: 3.5% to 8.93%
+    - 3.5% on first $350,000
+    - 7.5% on $350,001 to $1,050,000
+    - 8.3% on $1,050,001 to $3,500,000
+    - 8.93% on income over $3,500,000
+  - Single-sales apportionment (100% sales factor)
+  - Economic nexus: Factor presence standards ($250K property, $250K payroll, $500K sales, or 25% factor)
 
-  Table number allocation:
-  - 53200-53299: Maine tables
-    - 53200: Determine_ME_Filing_Requirement
-    - 53220: Calculate_ME_Income_Adjustments
-    - 53280: Calculate_ME_State_Tax
+  Table Number Range: 53200-53299 (Maine corporate allocation)
 
-  This file will be merged into CorporateTax_dt.xml by merge script
+  References:
+  - 36 M.R.S. § 5200-A (Tax rates)
+  - ME Form 1120ME (Corporate Income Tax Return)
+  - ME Revenue Services Rule 808 (Nexus)
 -->
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53200: Determine_ME_Filing_Requirement                           -->
-<!-- ====================================================================== -->
-<decision_table>
-<table_name>Determine_ME_Filing_Requirement</table_name>
-<xls_file>ME_Corp.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Determine if corporation must file ME state corporate tax return. Checks for physical presence or economic nexus (factor presence standards).</COMMENTS>
-<TABLE_NUMBER>53200</TABLE_NUMBER>
-<FILE_PATH>states/ME/53200_Determine_ME_Filing_Requirement</FILE_PATH>
-</attribute_fields>
-
-<contexts></contexts>
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize ME filing requirement check</action_description>
-<action_postfix>
-"ME Filing Requirement Check Started" job.audit_trail swap addto
+  <!--
+    ============================================================================
+    TABLE 53200: Determine ME Corporate Tax Filing Requirement
+    ============================================================================
+  -->
+  <decision_table>
+    <table_name>Determine_ME_Corporate_Filing_Requirement</table_name>
+    <xls_file>ME_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Determine if corporation must file Maine corporate tax return. Checks for physical presence or economic nexus (factor presence standards).</COMMENTS>
+      <TABLE_NUMBER>53200</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions>
+      <initial_action>
+        <action_description>Initialize Maine filing requirement check</action_description>
+        <action_postfix>
+"Maine Corporate Filing Requirement Check Started" job.audit_trail swap addto
+false result.me_has_nexus xdef
 </action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Has physical presence in ME</condition_comment>
-<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == "ME"</condition_description>
-<condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code "ME" eq
-and
+      </initial_action>
+    </initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Has physical presence in Maine</condition_comment>
+        <condition_description>result.has_physical_presence_me is equal to true</condition_description>
+        <condition_postfix>
+result.has_physical_presence_me true eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-</condition_details>
-
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Has economic nexus in ME</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == "ME"</condition_description>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code "ME" eq
-and
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Meets economic nexus threshold (factor presence standards)</condition_comment>
+        <condition_description>result.me_gross_receipts is greater than or equal to result.me_economic_nexus_threshold</condition_description>
+        <condition_postfix>
+result.me_gross_receipts result.me_economic_nexus_threshold >=
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-</condition_details>
-</conditions>
-
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Physical nexus - ME filing required</action_comment>
-<action_postfix>
-<!-- Physical nexus established - filing required -->
-<!-- Apportionment will be calculated by tables 7000-7500 -->
-"ME filing required due to physical presence (office, employees, or property in state)" job.audit_trail swap addto
-
-<!-- Reference: ME Form 1120ME Instructions -->
-<!-- Reference: 36 M.R.S. § 5200-B (Corporate income tax nexus) -->
+        <condition_column column_number="1" column_value="-"></condition_column>
+        <condition_column column_number="2" column_value="Y"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Physical nexus - filing required</action_comment>
+        <action_description>result.me_has_nexus = true</action_description>
+        <action_postfix>
+// Physical nexus established - filing required
+true result.me_has_nexus xdef
+"Maine filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>Economic nexus - ME filing required</action_comment>
-<action_postfix>
-<!-- Economic nexus established per factor presence standards - filing required -->
-<!-- ME thresholds: $250,000 property, $250,000 payroll, $500,000 sales, OR 25% factor presence -->
-<!-- Apportionment will be calculated by tables 7000-7500 -->
-"ME filing required due to economic nexus (factor presence standards)" job.audit_trail swap addto
-
-<!-- Reference: 36 M.R.S. § 5200-B (Corporate income tax nexus) -->
-<!-- Reference: ME Revenue Services Rule 808 (Corporate Income Tax Nexus) -->
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>Economic nexus - filing required</action_comment>
+        <action_description>result.me_has_nexus = true</action_description>
+        <action_postfix>
+// Economic nexus established per factor presence standards - filing required
+true result.me_has_nexus xdef
+"Maine filing required: Economic nexus (factor presence: $250K property, $250K payroll, $500K sales, or 25% factor)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>3</action_number>
-<action_comment>No nexus - no filing required</action_comment>
-<action_postfix>
-<!-- No nexus - no filing required -->
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No ME nexus - no filing requirement. Any estimated payments refunded." job.audit_trail swap addto
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>No nexus - no filing required</action_comment>
+        <action_description>result.me_has_nexus = false; result.me_tax_liability = 0.0</action_description>
+        <action_postfix>
+// No nexus - no filing required
+false result.me_has_nexus xdef
+0.0 result.me_tax_liability xdef
+"Maine filing not required: No nexus with state" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-</action_details>
-</actions>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+    </actions>
+  </decision_table>
 
-</decision_table>
-
-<!-- ====================================================================== -->
-<!-- TABLE 53220: Calculate_ME_Income_Adjustments                          -->
-<!-- ====================================================================== -->
-<decision_table>
-<table_name>Calculate_ME_Income_Adjustments</table_name>
-<xls_file>ME_Corp.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Calculate ME state-specific additions and subtractions to federal taxable income.</COMMENTS>
-<TABLE_NUMBER>53220</TABLE_NUMBER>
-<FILE_PATH>states/ME/53220_Calculate_ME_Income_Adjustments</FILE_PATH>
-</attribute_fields>
-
-<contexts></contexts>
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize ME income adjustments</action_description>
-<action_postfix>
-"ME Income Adjustments Calculation Started" job.audit_trail swap addto
+  <!--
+    ============================================================================
+    TABLE 53220: Calculate ME Corporate Income Adjustments
+    ============================================================================
+  -->
+  <decision_table>
+    <table_name>Calculate_ME_Corporate_Income_Adjustments</table_name>
+    <xls_file>ME_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Maine state-specific additions and subtractions to federal taxable income. ME requires addback of IRC 199A, depreciation differences. ME allows federal bond interest subtraction, ME municipal bond interest, dividend deduction.</COMMENTS>
+      <TABLE_NUMBER>53220</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions>
+      <initial_action>
+        <action_description>Initialize Maine income adjustments</action_description>
+        <action_postfix>
+"Maine Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
+0.0 result.me_state_additions xdef
+0.0 result.me_state_subtractions xdef
 </action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Has ME nexus</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+      </initial_action>
+    </initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Has Maine nexus</condition_comment>
+        <condition_description>result.me_has_nexus is equal to true</condition_description>
+        <condition_postfix>
+result.me_has_nexus true eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-</condition_details>
-</conditions>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Calculate Maine state additions and subtractions</action_comment>
+        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_postfix>
+// Calculate Maine state additions
+0.0 /me_additions xdef
 
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Calculate ME state-specific additions and subtractions</action_comment>
-<action_postfix>
-<!-- Calculate state additions (ME-specific) -->
-0.0 /additions xdef
+// Common Maine additions:
+// - IRC 199A qualified business income deduction addback (ME doesn't conform)
+// - Depreciation differences
+// - Safe harbor lease deductions
 
-<!-- ME requires addback of IRC 199A deduction (ME doesn't conform) -->
-<!-- additions += result.section_199a_deduction; -->
+result.me_section_199a_addback 0.0 ne
+{
+  me_additions result.me_section_199a_addback add /me_additions xdef
+} if
 
-<!-- ME requires addback of certain depreciation differences -->
-<!-- additions += result.federal_me_depreciation_difference; -->
+me_additions result.me_state_additions xdef
 
-<!-- ME requires addback of safe harbor lease deductions -->
-<!-- additions += result.safe_harbor_lease_deduction; -->
+// Calculate Maine state subtractions
+0.0 /me_subtractions xdef
 
-additions /apportionment.state_additions xdef
+// Common Maine subtractions:
+// - Federal bond interest (exempt from ME tax)
+// - Maine municipal bond interest
+// - Dividends from subsidiaries (95% deduction)
+// - Maine NOL deduction
 
-<!-- Calculate state subtractions (ME-specific) -->
-0.0 /subtractions xdef
+result.me_us_interest_income 0.0 ne
+{
+  me_subtractions result.me_us_interest_income add /me_subtractions xdef
+} if
 
-<!-- ME allows subtraction for federal bond interest (exempt from ME tax) -->
-<!-- subtractions += revenue.federal_bond_interest; -->
+result.me_municipal_interest 0.0 ne
+{
+  me_subtractions result.me_municipal_interest add /me_subtractions xdef
+} if
 
-<!-- ME allows subtraction for Maine municipal bond interest -->
-<!-- subtractions += revenue.maine_municipal_bond_interest; -->
+me_subtractions result.me_state_subtractions xdef
 
-<!-- ME allows deduction for dividends from subsidiaries (95% deduction) -->
-<!-- subtractions += revenue.qualified_dividend_deduction; -->
-
-<!-- ME NOL deduction -->
-<!-- subtractions += result.me_nol_deduction; -->
-
-subtractions /apportionment.state_subtractions xdef
-
-"ME state-specific income adjustments calculated" job.audit_trail swap addto
-
-<!-- Reference: ME Form 1120ME Schedule 1A (Additions) -->
-<!-- Reference: ME Form 1120ME Schedule 1S (Subtractions) -->
-<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax - computation) -->
+"Maine additions: $" result.me_state_additions cvs strconcat ", subtractions: $" strconcat result.me_state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>No nexus - no adjustments</action_comment>
-<action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-
-"No ME nexus - no state adjustments calculated" job.audit_trail swap addto
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No nexus - no adjustments</action_comment>
+        <action_description>result.me_state_additions = 0.0; result.me_state_subtractions = 0.0</action_description>
+        <action_postfix>
+0.0 result.me_state_additions xdef
+0.0 result.me_state_subtractions xdef
+"Maine adjustments not calculated: No nexus" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-</action_details>
-</actions>
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+    </actions>
+  </decision_table>
 
-</decision_table>
-
-<!-- ====================================================================== -->
-<!-- TABLE 53280: Calculate_ME_State_Tax                                    -->
-<!-- ====================================================================== -->
-<decision_table>
-<table_name>Calculate_ME_State_Tax</table_name>
-<xls_file>ME_Corp.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Calculate ME state corporate income tax. Applies graduated tax rates to apportioned and adjusted taxable income.</COMMENTS>
-<TABLE_NUMBER>53280</TABLE_NUMBER>
-<FILE_PATH>states/ME/53280_Calculate_ME_State_Tax</FILE_PATH>
-</attribute_fields>
-
-<contexts></contexts>
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize ME state tax calculation</action_description>
-<action_postfix>
-"ME State Tax Calculation Started" job.audit_trail swap addto
+  <!--
+    ============================================================================
+    TABLE 53280: Calculate ME Corporate Tax
+    ============================================================================
+  -->
+  <decision_table>
+    <table_name>Calculate_ME_Corporate_Tax</table_name>
+    <xls_file>ME_Corp.xls</xls_file>
+    <attribute_fields>
+      <Type>FIRST</Type>
+      <COMMENTS>Calculate Maine corporate income tax. Applies graduated rates (3.5%, 7.5%, 8.3%, 8.93%) to apportioned and adjusted taxable income.</COMMENTS>
+      <TABLE_NUMBER>53280</TABLE_NUMBER>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions>
+      <initial_action>
+        <action_description>Initialize Maine tax calculation</action_description>
+        <action_postfix>
+"Maine Corporate Tax Calculation Started" job.audit_trail swap addto
+0.0 result.me_taxable_income xdef
+0.0 result.me_tax_liability xdef
 </action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Has ME nexus</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+      </initial_action>
+    </initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_comment>Has Maine nexus</condition_comment>
+        <condition_description>result.me_has_nexus is equal to true</condition_description>
+        <condition_postfix>
+result.me_has_nexus true eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
-<condition_column column_number="5" column_value=""></condition_column>
-<condition_column column_number="6" column_value=""></condition_column>
-</condition_details>
-
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0</condition_description>
-<condition_postfix>
-apportionment.state_taxable_income 0 gt
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="Y"></condition_column>
+        <condition_column column_number="3" column_value="N"></condition_column>
+      </condition_details>
+      <condition_details>
+        <condition_number>2</condition_number>
+        <condition_comment>Has positive taxable income</condition_comment>
+        <condition_description>result.me_apportioned_income is greater than 0</condition_description>
+        <condition_postfix>
+result.me_apportioned_income 0.0 >
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
-<condition_column column_number="5" column_value=""></condition_column>
-<condition_column column_number="6" column_value=""></condition_column>
-</condition_details>
+        <condition_column column_number="1" column_value="Y"></condition_column>
+        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="3" column_value="-"></condition_column>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_comment>Calculate Maine corporate tax (graduated rates)</action_comment>
+        <action_description>Apply Maine graduated rates (3.5%, 7.5%, 8.3%, 8.93%)</action_description>
+        <action_postfix>
+// Calculate Maine taxable income
+// Federal taxable income apportioned to ME + additions - subtractions
+result.me_apportioned_income
+result.me_state_additions add
+result.me_state_subtractions sub
+0.0 max
+result.me_taxable_income xdef
 
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Income tier determination</condition_comment>
-<condition_description>Determine which tax tier applies</condition_description>
-<condition_postfix>
-apportionment.state_taxable_income 350000.0 le
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
-<condition_column column_number="5" column_value=""></condition_column>
-<condition_column column_number="6" column_value=""></condition_column>
-</condition_details>
+// Calculate Maine tax using graduated rates
+0.0 /me_tax xdef
 
-<condition_details>
-<condition_number>4</condition_number>
-<condition_comment>Tier 2 income range</condition_comment>
-<condition_description>Income $350,000 to $1,050,000</condition_description>
-<condition_postfix>
-apportionment.state_taxable_income 1050000.0 le
-</condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
-<condition_column column_number="5" column_value=""></condition_column>
-<condition_column column_number="6" column_value=""></condition_column>
-</condition_details>
+// Tier 1: 3.5% on first $350,000
+result.me_taxable_income 350000.0 min result.me_corp_tax_rate_tier1 mul
+/me_tier1_tax xdef
+me_tax me_tier1_tax add /me_tax xdef
 
-<condition_details>
-<condition_number>5</condition_number>
-<condition_comment>Tier 3 income range</condition_comment>
-<condition_description>Income $1,050,000 to $3,500,000</condition_description>
-<condition_postfix>
-apportionment.state_taxable_income 3500000.0 le
-</condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
-<condition_column column_number="5" column_value=""></condition_column>
-<condition_column column_number="6" column_value=""></condition_column>
-</condition_details>
-</conditions>
+// Tier 2: 7.5% on $350,001 to $1,050,000
+result.me_taxable_income 350000.0 >
+{
+  result.me_taxable_income 1050000.0 min 350000.0 sub
+  result.me_corp_tax_rate_tier2 mul
+  /me_tier2_tax xdef
+  me_tax me_tier2_tax add /me_tax xdef
+} if
 
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>ME tax tier 1: 3.5% on income up to $350,000</action_comment>
-<action_postfix>
-<!-- ME graduated rate tier 1: 3.5% on income up to $350,000 -->
-apportionment.state_taxable_income apportionment.tax_rate_tier1 mul
-/apportionment.state_tax xdef
+// Tier 3: 8.3% on $1,050,001 to $3,500,000
+result.me_taxable_income 1050000.0 >
+{
+  result.me_taxable_income 3500000.0 min 1050000.0 sub
+  result.me_corp_tax_rate_tier3 mul
+  /me_tier3_tax xdef
+  me_tax me_tier3_tax add /me_tax xdef
+} if
 
-<!-- Subtract state credits (Pine Tree Zone, R&D, employment credits, etc.) -->
-apportionment.state_tax apportionment.state_credits sub 0 max
-/apportionment.state_tax xdef
+// Tier 4: 8.93% on income over $3,500,000
+result.me_taxable_income 3500000.0 >
+{
+  result.me_taxable_income 3500000.0 sub
+  result.me_corp_tax_rate_tier4 mul
+  /me_tier4_tax xdef
+  me_tax me_tier4_tax add /me_tax xdef
+} if
 
-<!-- Calculate refund or amount owed -->
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
+// Subtract Maine state credits (Pine Tree Zone, R&amp;D, employment credits, etc.)
+me_tax result.me_state_credits sub 0.0 max
+result.me_tax_liability xdef
 
-"ME state tax calculated (Tier 1: 3.5%)" job.audit_trail swap addto
+// Calculate refund or amount owed
+result.me_estimated_payments result.me_tax_liability sub
+result.me_refund_or_owed xdef
 
-<!-- Reference: ME Form 1120ME Instructions -->
-<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+"Maine taxable income: $" result.me_taxable_income cvs strconcat job.audit_trail swap addto
+"Maine tax liability (graduated rates 3.5%-8.93%): $" result.me_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
-<action_column column_number="5" column_value=""></action_column>
-<action_column column_number="6" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>ME tax tier 2: First $350K at 3.5% + excess at 7.5%</action_comment>
-<action_postfix>
-<!-- ME graduated rate tier 2: First $350,000 at 3.5% + excess at 7.5% -->
-350000.0 apportionment.tax_rate_tier1 mul /tier1_tax xdef
-apportionment.state_taxable_income 350000.0 sub /tier2_income xdef
-tier2_income apportionment.tax_rate_tier2 mul /tier2_tax xdef
-
-tier1_tax tier2_tax add /apportionment.state_tax xdef
-
-<!-- Subtract state credits -->
-apportionment.state_tax apportionment.state_credits sub 0 max
-/apportionment.state_tax xdef
-
-<!-- Calculate refund or amount owed -->
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
-
-"ME state tax calculated (Tier 2: $350K-$1.05M)" job.audit_trail swap addto
-
-<!-- Reference: ME Form 1120ME Instructions -->
-<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+        <action_column column_number="1" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_comment>No taxable income - no tax liability</action_comment>
+        <action_description>result.me_taxable_income = 0.0; result.me_tax_liability = 0.0</action_description>
+        <action_postfix>
+// No taxable income - no tax liability
+0.0 result.me_taxable_income xdef
+0.0 result.me_tax_liability xdef
+result.me_estimated_payments result.me_refund_or_owed xdef
+"Maine tax liability: $0 (no taxable income)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
-<action_column column_number="5" column_value=""></action_column>
-<action_column column_number="6" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>3</action_number>
-<action_comment>ME tax tier 3: First $350K at 3.5% + next $700K at 7.5% + excess at 8.3%</action_comment>
-<action_postfix>
-<!-- ME graduated rate tier 3 -->
-350000.0 apportionment.tax_rate_tier1 mul /tier1_tax xdef
-700000.0 apportionment.tax_rate_tier2 mul /tier2_tax xdef
-apportionment.state_taxable_income 1050000.0 sub /tier3_income xdef
-tier3_income apportionment.tax_rate_tier3 mul /tier3_tax xdef
-
-tier1_tax tier2_tax add tier3_tax add /apportionment.state_tax xdef
-
-<!-- Subtract state credits -->
-apportionment.state_tax apportionment.state_credits sub 0 max
-/apportionment.state_tax xdef
-
-<!-- Calculate refund or amount owed -->
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
-
-"ME state tax calculated (Tier 3: $1.05M-$3.5M)" job.audit_trail swap addto
-
-<!-- Reference: ME Form 1120ME Instructions -->
-<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
+        <action_column column_number="2" column_value="X"></action_column>
+      </action_details>
+      <action_details>
+        <action_number>3</action_number>
+        <action_comment>No nexus - no tax liability</action_comment>
+        <action_description>result.me_taxable_income = 0.0; result.me_tax_liability = 0.0</action_description>
+        <action_postfix>
+// No nexus - no tax liability
+0.0 result.me_taxable_income xdef
+0.0 result.me_tax_liability xdef
+result.me_estimated_payments result.me_refund_or_owed xdef
+"Maine tax liability: $0 (no nexus)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value=""></action_column>
-<action_column column_number="5" column_value=""></action_column>
-<action_column column_number="6" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>4</action_number>
-<action_comment>ME tax tier 4: Progressive rates with top tier at 8.93%</action_comment>
-<action_postfix>
-<!-- ME graduated rate tier 4: Income over $3,500,000 -->
-350000.0 apportionment.tax_rate_tier1 mul /tier1_tax xdef
-700000.0 apportionment.tax_rate_tier2 mul /tier2_tax xdef
-2450000.0 apportionment.tax_rate_tier3 mul /tier3_tax xdef
-apportionment.state_taxable_income 3500000.0 sub /tier4_income xdef
-tier4_income apportionment.tax_rate_tier4 mul /tier4_tax xdef
-
-tier1_tax tier2_tax add tier3_tax add tier4_tax add /apportionment.state_tax xdef
-
-<!-- Subtract state credits -->
-apportionment.state_tax apportionment.state_credits sub 0 max
-/apportionment.state_tax xdef
-
-<!-- Calculate refund or amount owed -->
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
-
-"ME state tax calculated (Tier 4: Over $3.5M)" job.audit_trail swap addto
-
-<!-- Reference: ME Form 1120ME Instructions -->
-<!-- Reference: 36 M.R.S. § 5200-A (Corporate income tax rates) -->
-</action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value="X"></action_column>
-<action_column column_number="5" column_value=""></action_column>
-<action_column column_number="6" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>5</action_number>
-<action_comment>No ME nexus - no tax liability</action_comment>
-<action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No ME nexus - no tax liability. Any estimated payments refunded." job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
-<action_column column_number="5" column_value="X"></action_column>
-<action_column column_number="6" column_value=""></action_column>
-</action_details>
-
-<action_details>
-<action_number>6</action_number>
-<action_comment>Nexus but no taxable income</action_comment>
-<action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No ME taxable income - no tax liability. ME NOL carryforward rules may apply." job.audit_trail swap addto
-
-<!-- Reference: 36 M.R.S. § 5200-A (Net operating loss deduction) -->
-</action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
-<action_column column_number="5" column_value=""></action_column>
-<action_column column_number="6" column_value="X"></action_column>
-</action_details>
-</actions>
-
-</decision_table>
+        <action_column column_number="3" column_value="X"></action_column>
+      </action_details>
+    </actions>
+  </decision_table>
 
 </decision_tables>

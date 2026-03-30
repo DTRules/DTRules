@@ -229,7 +229,7 @@ result.military_retirement_pay 0 gt
 <condition_column column_number="4" column_value="-"></condition_column>
 </condition_details>
 
-<!-- Condition 2: Age < 55 -->
+<!-- Condition 2: Age &lt; 55 -->
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age less than 55</condition_comment>
@@ -290,7 +290,7 @@ result.military_retirement_pay result.co_military_retirement_exemption sub
 0 max
 /result.co_military_retirement_taxable xdef
 
-"CO military retirement exemption (age < 55): $"
+"CO military retirement exemption (age &lt; 55): $"
 result.co_military_retirement_exemption cvs strconcat
 " (Age: " strconcat result.age cvs strconcat
 ", Retirement: $" strconcat result.military_retirement_pay cvs strconcat

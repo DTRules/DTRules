@@ -4,9 +4,6 @@
 
   IMPORTANT: South Dakota has NO corporate income tax.
 
-  Unlike Texas (franchise tax) or Nevada (commerce tax), South Dakota has
-  truly NO corporate taxation at all for general business corporations.
-
   Table Numbering: 54500-54599 (South Dakota allocation)
   - 54500: Determine_SD_Filing_Requirement
   - 54520: Calculate_SD_Income_Adjustments
@@ -16,392 +13,232 @@
   - NO corporate income tax (state_tax_rate = 0.0)
   - NO franchise tax (unlike Texas)
   - NO gross receipts/commerce tax (unlike Nevada)
-  - NO alternative minimum tax
-  - NO corporate tax filing requirement for general corporations
-
-  Historical Significance:
-  South Dakota brought South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018),
-  establishing economic nexus for sales tax nationwide.
-
-  Special Cases (NOT general corporate income tax):
-  - Bank Franchise Tax: ONLY applies to banks and financial institutions
-  - Insurance Premium Tax: ONLY applies to insurance companies
-  - Sales Tax: 4.5% state rate on retail sales (NOT a corporate income tax)
 
   References:
-  - South Dakota has NO corporate income tax statute (intentionally absent)
-  - SDCL Title 10 - Taxation (no corporate income tax chapter)
   - South Dakota Constitution Article XI - No individual or corporate income tax
   - South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
 -->
-<decision_tables name="CorporateTax_SD_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 54500: Determine SD Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 54500: Determine_SD_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_SD_Filing_Requirement</table_name>
+<xls_file>SD_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file South Dakota corporate tax return. South Dakota has NO corporate income tax - no filing required.</COMMENTS>
+<TABLE_NUMBER>54500</TABLE_NUMBER>
+<FILE_PATH>states/SD/54500_Determine_SD_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file South Dakota corporate tax return.
+<contexts></contexts>
 
-    Answer: NO - South Dakota has NO corporate income tax filing requirement.
+<initial_actions>
+</initial_actions>
 
-    South Dakota does NOT require:
-    - Corporate income tax return (none exists)
-    - Franchise tax return (none exists)
-    - Commerce/gross receipts tax return (none exists)
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>General business corporation (not financial institution or insurance company)</condition_comment>
+<condition_description>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_description>
+<condition_postfix>
+result.sd_is_financial_institution get false eq
+result.sd_is_insurance_company get false eq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-    Exception: Financial institutions and insurance companies have separate
-    specialized taxes (Bank Franchise Tax, Insurance Premium Tax) but these
-    are NOT general corporate income taxes.
-  -->
-  <decision_table name="Determine_SD_Filing_Requirement" number="54500">
-    <description>
-      Determine if corporation must file South Dakota corporate tax return.
-      South Dakota has NO corporate income tax - no filing required.
-    </description>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Financial institution subject to Bank Franchise Tax</condition_comment>
+<condition_description>result.sd_is_financial_institution == true</condition_description>
+<condition_postfix>
+result.sd_is_financial_institution get true eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-    <conditions>
-      <condition name="is_general_corporation">
-        <expression>result.sd_is_financial_institution == false &amp;&amp;
-                    result.sd_is_insurance_company == false</expression>
-        <comment>General business corporation (not financial institution or insurance company)</comment>
-      </condition>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Insurance company subject to Insurance Premium Tax</condition_comment>
+<condition_description>result.sd_is_insurance_company == true</condition_description>
+<condition_postfix>
+result.sd_is_insurance_company get true eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
 
-      <condition name="is_financial_institution">
-        <expression>result.sd_is_financial_institution == true</expression>
-        <comment>Financial institution subject to Bank Franchise Tax</comment>
-      </condition>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>General corporation - no corporate income tax</action_comment>
+<action_description>South Dakota has NO corporate income tax for general corporations</action_description>
+<action_postfix>
+true /result.sd_no_corporate_tax xdef
+0.0 /apportionment.state_tax xdef
+0.0 /apportionment.state_tax_rate xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"South Dakota has NO corporate income tax. Any estimated payments are refunded. Reference: SD Constitution Article XI" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-      <condition name="is_insurance_company">
-        <expression>result.sd_is_insurance_company == true</expression>
-        <comment>Insurance company subject to Insurance Premium Tax</comment>
-      </condition>
-    </conditions>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Financial institution - Bank Franchise Tax (NOT income tax)</action_comment>
+<action_description>Financial institutions pay Bank Franchise Tax (separate from general corporate taxation)</action_description>
+<action_postfix>
+result.sd_bank_franchise_tax get /apportionment.state_tax xdef
+0.0 /apportionment.state_tax_rate xdef
+"SD Bank Franchise Tax applies (NOT corporate income tax). Reference: SDCL 10-43" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <is_general_corporation>Y</is_general_corporation>
-        </conditions>
-        <actions>
-          <action>
-            // South Dakota has NO corporate income tax for general corporations
-            result.sd_no_corporate_tax = true;
-            apportionment.state_tax = 0.0;
-            apportionment.state_tax_rate = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          South Dakota has NO corporate income tax.
+<action_details>
+<action_number>3</action_number>
+<action_comment>Insurance company - Insurance Premium Tax (NOT income tax)</action_comment>
+<action_description>Insurance companies pay Insurance Premium Tax (separate from general corporate taxation)</action_description>
+<action_postfix>
+result.sd_insurance_premium_tax get /apportionment.state_tax xdef
+0.0 /apportionment.state_tax_rate xdef
+"SD Insurance Premium Tax applies (NOT corporate income tax). Reference: SDCL 10-44" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          South Dakota is one of the few states with truly NO corporate taxation:
-          - NO corporate income tax
-          - NO franchise tax (unlike Texas)
-          - NO gross receipts tax (unlike Nevada)
-          - NO commerce tax
-          - NO alternative minimum tax
-          - NO filing requirement for general business corporations
+</decision_table>
 
-          Historical Context:
-          South Dakota brought the landmark case South Dakota v. Wayfair, Inc.,
-          138 S. Ct. 2080 (2018), which established economic nexus standards
-          for sales tax nationwide. Despite this, South Dakota has NO corporate
-          income tax.
+<!-- ====================================================================== -->
+<!-- TABLE 54520: Calculate_SD_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SD_Income_Adjustments</table_name>
+<xls_file>SD_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>South Dakota has NO corporate income tax. This table confirms zero income tax liability for consistency with framework.</COMMENTS>
+<TABLE_NUMBER>54520</TABLE_NUMBER>
+<FILE_PATH>states/SD/54520_Calculate_SD_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Why No Corporate Income Tax?
-          South Dakota relies on sales tax, property tax, and other revenue sources
-          instead of income taxation. This makes South Dakota attractive for
-          business incorporation and operation.
+<contexts></contexts>
 
-          Any estimated tax payments made in error would be refunded.
+<initial_actions>
+</initial_actions>
 
-          Reference: South Dakota Constitution Article XI § 2 - Income tax prohibited
-          Reference: SDCL Title 10 - Taxation (no corporate income tax chapter exists)
-          Reference: South Dakota Department of Revenue - No corporate income tax
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-        </policy>
-      </rule>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>General business corporation</condition_comment>
+<condition_description>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_description>
+<condition_postfix>
+result.sd_is_financial_institution get false eq
+result.sd_is_insurance_company get false eq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-      <rule number="2">
-        <conditions>
-          <is_general_corporation>N</is_general_corporation>
-          <is_financial_institution>Y</is_financial_institution>
-        </conditions>
-        <actions>
-          <action>
-            // Financial institutions pay Bank Franchise Tax (NOT income tax)
-            // This is a separate specialized tax, not part of general corporate taxation
-            // Calculation not implemented here (separate system)
-            apportionment.state_tax = result.sd_bank_franchise_tax;
-            apportionment.state_tax_rate = 0.0; // Not income tax rate
-          </action>
-        </actions>
-        <policy>
-          South Dakota Bank Franchise Tax (financial institutions ONLY).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>General corporation - no income tax adjustments</action_comment>
+<action_description>South Dakota has NO corporate income tax - no adjustments</action_description>
+<action_postfix>
+0.0 /apportionment.state_tax_rate xdef
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+0.0 /apportionment.state_taxable_income xdef
+"SD has NO corporate income tax. No adjustments needed." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          IMPORTANT: This is NOT a corporate income tax.
+<action_details>
+<action_number>2</action_number>
+<action_comment>Specialized entity - no income adjustments</action_comment>
+<action_description>Financial institution or insurance company - no income tax adjustments</action_description>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+"Specialized entity (financial/insurance) - no income tax adjustments." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          South Dakota imposes a Bank Franchise Tax on financial institutions
-          (banks, trust companies, savings and loans, credit unions) based on
-          their net income or capital/surplus.
+</decision_table>
 
-          This is a specialized tax that applies ONLY to financial institutions,
-          NOT to general business corporations.
+<!-- ====================================================================== -->
+<!-- TABLE 54580: Calculate_SD_State_Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SD_State_Tax</table_name>
+<xls_file>SD_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate South Dakota corporate tax liability. South Dakota has NO corporate income tax - tax is always $0.</COMMENTS>
+<TABLE_NUMBER>54580</TABLE_NUMBER>
+<FILE_PATH>states/SD/54580_Calculate_SD_State_Tax</FILE_PATH>
+</attribute_fields>
 
-          General corporations do NOT pay this tax.
+<contexts></contexts>
 
-          Bank Franchise Tax calculation is not implemented in this system
-          (requires specialized financial institution tax software).
+<initial_actions>
+</initial_actions>
 
-          Reference: SDCL 10-43 - Bank Franchise Tax
-          Reference: SDCL 10-43-3 - Rate and calculation
-          Reference: South Dakota Department of Revenue - Bank Franchise Tax Guide
-        </policy>
-      </rule>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>General business corporation</condition_comment>
+<condition_description>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_description>
+<condition_postfix>
+result.sd_is_financial_institution get false eq
+result.sd_is_insurance_company get false eq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-      <rule number="3">
-        <conditions>
-          <is_general_corporation>N</is_general_corporation>
-          <is_financial_institution>N</is_financial_institution>
-          <is_insurance_company>Y</is_insurance_company>
-        </conditions>
-        <actions>
-          <action>
-            // Insurance companies pay Insurance Premium Tax (NOT income tax)
-            // This is a separate specialized tax, not part of general corporate taxation
-            // Calculation not implemented here (separate system)
-            apportionment.state_tax = result.sd_insurance_premium_tax;
-            apportionment.state_tax_rate = 0.0; // Not income tax rate
-          </action>
-        </actions>
-        <policy>
-          South Dakota Insurance Premium Tax (insurance companies ONLY).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>General corporation - $0 tax</action_comment>
+<action_description>South Dakota has NO corporate income tax</action_description>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+0.0 /apportionment.state_tax_rate xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+true /result.sd_no_corporate_tax xdef
+"South Dakota Corporate Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          IMPORTANT: This is NOT a corporate income tax.
+<action_details>
+<action_number>2</action_number>
+<action_comment>Specialized entity - tax already calculated</action_comment>
+<action_description>Financial institution or insurance company - tax calculated in table 54500</action_description>
+<action_postfix>
+"Specialized entity tax (Bank Franchise or Insurance Premium) calculated separately." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          South Dakota imposes an Insurance Premium Tax on insurance companies
-          based on premiums collected in South Dakota.
-
-          This is a specialized tax that applies ONLY to insurance companies,
-          NOT to general business corporations.
-
-          General corporations do NOT pay this tax.
-
-          Insurance Premium Tax calculation is not implemented in this system
-          (requires specialized insurance tax software).
-
-          Reference: SDCL 10-44 - Insurance Premium Tax
-          Reference: SDCL 10-44-2 - Rate and calculation
-          Reference: South Dakota Department of Revenue - Insurance Premium Tax
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54520: Calculate SD Income Adjustments
-    ============================================================================
-
-    South Dakota has NO corporate income tax, so this table confirms zero tax
-    liability and ensures no income-based adjustments are applied.
-
-    This table exists for framework consistency but performs no calculations.
-  -->
-  <decision_table name="Calculate_SD_Income_Adjustments" number="54520">
-    <description>
-      South Dakota has NO corporate income tax.
-      This table confirms zero income tax liability for consistency with framework.
-    </description>
-
-    <conditions>
-      <condition name="is_general_corporation">
-        <expression>result.sd_is_financial_institution == false &amp;&amp;
-                    result.sd_is_insurance_company == false</expression>
-        <comment>General business corporation</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <is_general_corporation>Y</is_general_corporation>
-        </conditions>
-        <actions>
-          <action>
-            // South Dakota has NO corporate income tax
-            // Set all income-tax-related fields to zero
-            apportionment.state_tax_rate = 0.0;
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-            apportionment.state_taxable_income = 0.0;
-          </action>
-        </actions>
-        <policy>
-          South Dakota has NO corporate income tax.
-
-          South Dakota does NOT tax corporate net income. There are:
-          - NO state income tax adjustments (no additions or subtractions)
-          - NO apportionment of federal taxable income
-          - NO state tax rate (rate is 0.0%)
-          - NO state taxable income calculation
-          - NO filing requirement for general corporations
-
-          This decision table confirms zero income tax for framework consistency.
-
-          Note: South Dakota DOES have sales tax (4.5% state rate) which applies to
-          retail sales, but that is a completely separate tax system and NOT a
-          corporate income tax.
-
-          Reference: South Dakota Constitution Article XI § 2 - Income tax prohibited
-          Reference: SDCL Title 10 - Taxation (no corporate income tax chapter)
-          Reference: South Dakota has no corporate income tax statute (intentionally)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <is_general_corporation>N</is_general_corporation>
-        </conditions>
-        <actions>
-          <action>
-            // Financial institutions and insurance companies have specialized taxes
-            // (NOT income taxes, but separate specialized taxes)
-            // No adjustments to federal taxable income
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          Specialized entity (financial institution or insurance company).
-
-          These entities are subject to specialized taxes (Bank Franchise Tax,
-          Insurance Premium Tax) but these are NOT corporate income taxes.
-
-          No adjustments to federal taxable income are made.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54580: Calculate SD State Tax
-    ============================================================================
-
-    Calculates South Dakota corporate tax liability.
-
-    Answer: $0.00 - South Dakota has NO corporate income tax.
-
-    This table exists for framework consistency and confirms zero tax liability
-    for all general business corporations.
-  -->
-  <decision_table name="Calculate_SD_State_Tax" number="54580">
-    <description>
-      Calculate South Dakota corporate tax liability.
-      South Dakota has NO corporate income tax - tax is always $0.
-    </description>
-
-    <conditions>
-      <condition name="is_general_corporation">
-        <expression>result.sd_is_financial_institution == false &amp;&amp;
-                    result.sd_is_insurance_company == false</expression>
-        <comment>General business corporation</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <is_general_corporation>Y</is_general_corporation>
-        </conditions>
-        <actions>
-          <action>
-            // South Dakota has NO corporate income tax
-            apportionment.state_tax = 0.0;
-            apportionment.state_tax_rate = 0.0;
-
-            // Any estimated payments made in error would be refunded
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-
-            // Set flag confirming no corporate tax
-            result.sd_no_corporate_tax = true;
-          </action>
-        </actions>
-        <policy>
-          South Dakota Corporate Tax: $0.00
-
-          South Dakota has NO corporate income tax.
-
-          Tax Calculation:
-          1. Federal taxable income: [Any amount]
-          2. South Dakota tax rate: × 0.0%
-          3. South Dakota income tax: = $0.00
-
-          IMPORTANT: South Dakota is one of the few states with truly NO corporate
-          taxation for general business corporations:
-
-          NO Corporate Income Tax:
-          - South Dakota does not tax corporate net income
-          - No filing requirement for general corporations
-          - No apportionment calculation needed
-          - No state-specific income adjustments
-
-          NO Alternative Corporate Taxes:
-          - NO franchise tax (unlike Texas)
-          - NO gross receipts tax (unlike Ohio CAT)
-          - NO commerce tax (unlike Nevada)
-          - NO alternative minimum tax
-
-          Why No Corporate Income Tax?
-          South Dakota relies on other revenue sources instead:
-          - Sales and Use Tax: 4.5% state rate (on retail sales, NOT corporate income)
-          - Property Tax: Local property taxes on real and personal property
-          - Special taxes: Specific to certain industries (banks, insurance, etc.)
-
-          Business-Friendly Environment:
-          South Dakota's lack of corporate income tax makes it an attractive
-          state for business incorporation, headquarters location, and operations.
-
-          Historical Note:
-          Despite bringing the landmark Wayfair case (establishing economic nexus
-          for sales tax), South Dakota maintains its policy of no corporate income tax.
-
-          Refunds:
-          Any South Dakota estimated tax payments made in error will be refunded.
-
-          Reference: South Dakota Constitution Article XI § 2 - Income tax prohibited
-          Reference: SDCL Title 10 - Taxation (no corporate income tax chapter exists)
-          Reference: South Dakota Department of Revenue website - "South Dakota has no corporate income tax"
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Tax Foundation - "States Without Corporate Income Tax" (includes SD)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <is_general_corporation>N</is_general_corporation>
-        </conditions>
-        <actions>
-          <action>
-            // Financial institutions or insurance companies
-            // These pay specialized taxes (NOT corporate income tax)
-            // Tax already set in table 54500
-            // No additional calculation needed here
-          </action>
-        </actions>
-        <policy>
-          Specialized entity (financial institution or insurance company).
-
-          Tax liability calculated under specialized tax provisions:
-          - Bank Franchise Tax (SDCL 10-43) - for financial institutions only
-          - Insurance Premium Tax (SDCL 10-44) - for insurance companies only
-
-          These are NOT corporate income taxes and are not calculated in this system.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

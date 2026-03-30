@@ -3,7 +3,7 @@
   Decision tables for Northern Mariana Islands (MP/CNMI) Territory Tax
 
   CNMI uses "mirror code plus rebate" system. Calculates tax using federal rates,
-  then applies tiered rebates: 90% if tax <= $20k, 70% on excess over $20k,
+  then applies tiered rebates: 90% if tax &lt;= $20k, 70% on excess over $20k,
   50% on excess over $100k. Non-residents use Form 5074 for income allocation.
 
   FILE_PATH: sampleprojects/TaxReturn/xml/states/MP_dt.xml

@@ -41,10 +41,11 @@
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in NJ (office, employees, property)</condition_comment>
-        <condition_description>apportionment.has_physical_presence is true AND apportionment.state_code is equal to 'NJ'</condition_description>
+        <condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "NJ"</condition_description>
         <condition_postfix>
 apportionment.has_physical_presence true eq
-apportionment.state_code NJ streq and
+apportionment.state_code "NJ" streq
+and
         </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
@@ -53,10 +54,11 @@ apportionment.state_code NJ streq and
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets NJ economic nexus threshold ($100K)</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is true AND apportionment.state_code is equal to 'NJ'</condition_description>
+        <condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "NJ"</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.state_code NJ streq and
+apportionment.state_code "NJ" streq
+and
         </condition_postfix>
         <condition_column column_number="1" column_value="*"></condition_column>
         <condition_column column_number="2" column_value="Y"></condition_column>
@@ -90,8 +92,8 @@ apportionment.state_code NJ streq and
         <action_description>No nexus - zero tax and refund payments</action_description>
         <action_postfix>
 // No nexus - no filing required
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
         </action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
@@ -142,10 +144,11 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to calculate adjustments</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+        <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq or
+apportionment.has_physical_presence true eq
+or
         </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
@@ -157,34 +160,14 @@ apportionment.has_physical_presence true eq or
         <action_comment>Calculate NJ state additions and subtractions</action_comment>
         <action_description>Calculate NJ state-specific income adjustments</action_description>
         <action_postfix>
-// Calculate NJ state additions
+// Calculate NJ state additions and subtractions
 0.0 /additions xdef
-
-// NJ adds back interest on U.S. government obligations
-// (exempt from federal tax but taxable to NJ)
-// revenue.federal_bond_interest additions add /additions xdef
-
-// NJ adds back IRC 199A deduction (state doesn't conform)
-// result.section_199a_deduction additions add /additions xdef
-
-// NJ may require depreciation adjustments
-// result.nj_depreciation_addback additions add /additions xdef
-
-additions /apportionment.state_additions xdef
-
-// Calculate NJ state subtractions
 0.0 /subtractions xdef
-
-// NJ allows subtraction for interest on NJ government bonds
-// revenue.nj_municipal_interest subtractions add /subtractions xdef
-
-// NJ NOL deduction (different rules from federal)
-// result.nj_nol_deduction subtractions add /subtractions xdef
-
-subtractions /apportionment.state_subtractions xdef
+apportionment.state_additions additions xdef
+apportionment.state_subtractions subtractions xdef
 
 // Store NJ entire net income for surtax calculation
-apportionment.state_taxable_income /result.nj_entire_net_income xdef
+result.nj_entire_net_income apportionment.state_taxable_income xdef
         </action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
@@ -193,9 +176,10 @@ apportionment.state_taxable_income /result.nj_entire_net_income xdef
         <action_comment>No nexus - zero adjustments</action_comment>
         <action_description>No nexus - no state adjustments calculated</action_description>
         <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-0.0 /result.nj_entire_net_income xdef
+// No nexus - no state adjustments
+apportionment.state_additions 0.0 xdef
+apportionment.state_subtractions 0.0 xdef
+result.nj_entire_net_income 0.0 xdef
         </action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
@@ -243,10 +227,11 @@ apportionment.state_taxable_income /result.nj_entire_net_income xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to owe tax</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+        <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq or
+apportionment.has_physical_presence true eq
+or
         </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
@@ -255,7 +240,7 @@ apportionment.has_physical_presence true eq or
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive state taxable income</condition_comment>
-        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+        <condition_description>apportionment.state_taxable_income > 0</condition_description>
         <condition_postfix>
 apportionment.state_taxable_income 0 gt
         </condition_postfix>
@@ -270,17 +255,16 @@ apportionment.state_taxable_income 0 gt
         <action_comment>Calculate NJ tax at 9% base rate</action_comment>
         <action_description>Calculate NJ state tax at 9% base rate, subtract credits</action_description>
         <action_postfix>
-// NJ uses 9% base rate (NJ Rev. Stat. § 54:10A-5)
-// Additional 2.5% surtax applies to income > $1M (table 50490)
+// NJ uses 9% base rate
 apportionment.state_taxable_income apportionment.state_tax_rate mul
+/state_tax_before_credits xdef
+
+// Subtract state credits
+state_tax_before_credits apportionment.state_credits sub
+0.0 max
 /apportionment.state_tax xdef
 
-// Subtract NJ state credits
-0.0 apportionment.state_tax apportionment.state_credits sub max
-/apportionment.state_tax xdef
-
-// Surtax will be added in table 50490 if income > $1M
-// For now, calculate base refund/owed (will be adjusted by surtax)
+// Calculate refund or amount owed
 apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
         </action_postfix>
@@ -291,8 +275,9 @@ apportionment.state_payments apportionment.state_tax sub
         <action_comment>No nexus - no tax</action_comment>
         <action_description>No NJ nexus - zero tax and refund payments</action_description>
         <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+// No nexus - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
         </action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
@@ -301,8 +286,9 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
         <action_comment>Nexus but no taxable income</action_comment>
         <action_description>No NJ taxable income - zero tax and refund payments</action_description>
         <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+// Nexus but no taxable income - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
         </action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
@@ -350,10 +336,11 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have NJ nexus</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+        <condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq or
+apportionment.has_physical_presence true eq
+or
         </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="Y"></condition_column>
@@ -363,7 +350,7 @@ apportionment.has_physical_presence true eq or
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Entire net income exceeds $1,000,000 surtax threshold</condition_comment>
-        <condition_description>result.nj_entire_net_income is greater than result.nj_surtax_threshold</condition_description>
+        <condition_description>result.nj_entire_net_income > result.nj_surtax_threshold</condition_description>
         <condition_postfix>
 result.nj_entire_net_income result.nj_surtax_threshold gt
         </condition_postfix>
@@ -375,7 +362,7 @@ result.nj_entire_net_income result.nj_surtax_threshold gt
       <condition_details>
         <condition_number>3</condition_number>
         <condition_comment>Has positive tax base for surtax calculation</condition_comment>
-        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+        <condition_description>apportionment.state_taxable_income > 0</condition_description>
         <condition_postfix>
 apportionment.state_taxable_income 0 gt
         </condition_postfix>
@@ -399,7 +386,7 @@ result.nj_entire_net_income result.nj_surtax_rate mul
 apportionment.state_tax result.nj_surtax add
 /apportionment.state_tax xdef
 
-// Recalculate refund or amount owed including surtax
+// Recalculate refund or amount owed
 apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
         </action_postfix>
@@ -410,8 +397,8 @@ apportionment.state_payments apportionment.state_tax sub
         <action_comment>No surtax - below threshold</action_comment>
         <action_description>No NJ surtax - income below threshold</action_description>
         <action_postfix>
-0.0 /result.nj_surtax xdef
-// State tax and refund/owed already calculated in table 50480
+// No surtax - below threshold
+result.nj_surtax 0.0 xdef
         </action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
@@ -420,7 +407,8 @@ apportionment.state_payments apportionment.state_tax sub
         <action_comment>No surtax - no nexus</action_comment>
         <action_description>No NJ surtax - no NJ nexus</action_description>
         <action_postfix>
-0.0 /result.nj_surtax xdef
+// No surtax
+result.nj_surtax 0.0 xdef
         </action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
@@ -429,7 +417,8 @@ apportionment.state_payments apportionment.state_tax sub
         <action_comment>No surtax - no positive tax base</action_comment>
         <action_description>No NJ surtax - no positive tax base</action_description>
         <action_postfix>
-0.0 /result.nj_surtax xdef
+// No surtax
+result.nj_surtax 0.0 xdef
         </action_postfix>
         <action_column column_number="4" column_value="X"></action_column>
       </action_details>

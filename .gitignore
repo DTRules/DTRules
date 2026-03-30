@@ -1,40 +1,62 @@
-testfiles/output/*.*
-~*
-*.settings
-*.project
-*.class
+# Go binaries
+/dtrules
+/api
+/excel2dt
+/excel2edd
+/build/
 *.exe
+*.test
+*.out
+vendor/
+
+# General
+~*
+*~
+.~*
+._*
+*.log
 *.o
 *.so
-*.com
 *.dll
-*.log
 .DS_Store
-web-app/
-*.js
 .DS_Store?
 ehthumbs.db
 Icon?
 Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.settings
+*.project
+
+# Legacy Java
+*.class
+*.jar
 target/
-KidAid/testfiles/output/*.*
-*.fixedCounts
-Uncompiled_DecisionTables.xml
+.metadata
+pom.xml.releaseBackup
+
+# DTRules specific
+testfiles/output/*.*
+output/
 temp/
 bin/
+Uncompiled_DecisionTables.xml
+Uncompiled_Edd.xml
+*_dt_strip.xml
+*_edd_strip.xml
+*.fixedCounts
+
+# Legacy directories
+web-app/
 apidocs
 classes
 generated-sources
 surefire-reports
 test-classes
-.metadata
-pom.xml.releaseBackup
+KidAid/testfiles/output/*.*
 testfiles/
-.~*
-*~
-._*
 
-output/
-Uncompiled_Edd.xml
-*_dt_strip.xml
-*_edd_strip.xml
+# Sync manifest (local state)
+.dtrules-manifest.json

@@ -40,11 +40,10 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Wisconsin</condition_comment>
-<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == 'WI'</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "WI"</condition_description>
 <condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code "WI" eq
-and
+apportionment.has_physical_presence get true eq
+apportionment.state_code get "WI" streq and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -54,11 +53,10 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Wisconsin economic nexus threshold</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == 'WI'</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "WI"</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code "WI" eq
-and
+apportionment.has_economic_nexus get true eq
+apportionment.state_code get "WI" streq and
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -140,11 +138,10 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -237,11 +234,10 @@ subtractions /apportionment.state_subtractions xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -251,9 +247,9 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
 <condition_postfix>
-apportionment.state_taxable_income 0 gt
+apportionment.state_taxable_income get 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
@@ -266,39 +262,10 @@ apportionment.state_taxable_income 0 gt
 <action_number>1</action_number>
 <action_comment>Calculate Wisconsin tax with 7.9% flat rate</action_comment>
 <action_postfix>
-<!-- Wisconsin uses 7.9% flat rate -->
-apportionment.state_taxable_income apportionment.state_tax_rate mul
-/apportionment.state_tax xdef
-
-<!-- Subtract Wisconsin state credits -->
-apportionment.state_tax apportionment.state_credits sub 0.0 max
-/apportionment.state_tax xdef
-
-<!-- Calculate refund or amount owed -->
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
-
-"Wisconsin state corporate income tax calculation:" job.audit_trail swap addto
-"1. Federal taxable income: [Form 1120 line 28]" job.audit_trail swap addto
-"2. Apportioned to Wisconsin: × [Apportionment percentage]" job.audit_trail swap addto
-"3. State additions: + [Wisconsin additions]" job.audit_trail swap addto
-"4. State subtractions: - [Wisconsin subtractions]" job.audit_trail swap addto
-"5. Wisconsin taxable income: = [Result]" job.audit_trail swap addto
-"6. Wisconsin tax rate: × 7.9%" job.audit_trail swap addto
-"7. Wisconsin income tax: = [Tax before credits]" job.audit_trail swap addto
-"8. Wisconsin credits: - [Credits]" job.audit_trail swap addto
-"9. Wisconsin tax liability: = [Final tax]" job.audit_trail swap addto
-"Wisconsin uses a flat 7.9% corporate income tax rate." job.audit_trail swap addto
-"Common Wisconsin credits include:" job.audit_trail swap addto
-"- Business development credit" job.audit_trail swap addto
-"- Jobs tax credit" job.audit_trail swap addto
-"- Research expense credit" job.audit_trail swap addto
-"- Manufacturing and agriculture credit" job.audit_trail swap addto
-"- Historic rehabilitation credit" job.audit_trail swap addto
-"Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)" job.audit_trail swap addto
-"Reference: WI Stat. § 71.27 (Corporation tax rate - 7.9%)" job.audit_trail swap addto
-"Reference: Wisconsin Department of Revenue Publication 112" job.audit_trail swap addto
-"Reference: Wisconsin Schedule C (Corporation Credits)" job.audit_trail swap addto
+apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
+apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -308,9 +275,8 @@ apportionment.state_payments apportionment.state_tax sub
 <action_comment>No Wisconsin nexus - no tax liability</action_comment>
 <action_postfix>
 0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-"No Wisconsin nexus - no tax liability." job.audit_trail swap addto
-"Any estimated payments are refunded." job.audit_trail swap addto
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No Wisconsin nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -320,10 +286,8 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <action_comment>No Wisconsin taxable income - no tax liability</action_comment>
 <action_postfix>
 0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-"No Wisconsin taxable income - no tax liability." job.audit_trail swap addto
-"Wisconsin NOL rules may apply (not implemented)." job.audit_trail swap addto
-"Reference: WI Stat. § 71.26(4) (Net operating loss)" job.audit_trail swap addto
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>

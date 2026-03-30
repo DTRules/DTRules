@@ -30,23 +30,16 @@
 
 <contexts></contexts>
 
-<initial_actions>
-<initial_action>
-<action_description>Initialize NE filing requirement check</action_description>
-<action_postfix>
-"NE Filing Requirement Check Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in NE</condition_comment>
-<condition_description>apportionment.has_physical_presence == true && apportionment.state_code == "NE"</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "NE"</condition_description>
 <condition_postfix>
 apportionment.has_physical_presence true eq
-apportionment.state_code "NE" eq
+apportionment.state_code "NE" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
@@ -57,10 +50,10 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in NE</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true && apportionment.state_code == "NE"</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "NE"</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.state_code "NE" eq
+apportionment.state_code "NE" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
@@ -74,17 +67,8 @@ and
 <action_number>1</action_number>
 <action_comment>Physical nexus - NE filing required</action_comment>
 <action_postfix>
-<!-- Physical nexus established - filing required -->
-<!-- Apportionment will be calculated by tables 7000-7500 -->
-"NE filing required due to physical presence (office, employees, or property in state)" job.audit_trail swap addto
-
-<!-- NE imposes corporate income tax on any corporation doing business in the state, -->
-<!-- unless protected by Public Law 86-272 (for businesses solely soliciting orders for -->
-<!-- tangible personal property shipped from outside Nebraska) -->
-
-<!-- Reference: Neb. Rev. Stat. § 77-2701.13 (Nexus and doing business) -->
-<!-- Reference: Nebraska Department of Revenue Chapter 24 (Corporate Income Tax) -->
-<!-- Reference: Public Law 86-272 (Interstate commerce protection) -->
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -95,21 +79,8 @@ and
 <action_number>2</action_number>
 <action_comment>Economic nexus - NE filing required</action_comment>
 <action_postfix>
-<!-- Economic nexus established (beyond PL 86-272) - filing required -->
-<!-- Apportionment will be calculated by tables 7000-7500 -->
-"NE filing required due to economic nexus (activities exceed PL 86-272 protections)" job.audit_trail swap addto
-
-<!-- Economic nexus applies when a corporation has significant economic activity in Nebraska -->
-<!-- that exceeds the protections of Public Law 86-272. Unlike sales tax (which has a $100,000 -->
-<!-- threshold), income tax nexus depends on the nature and extent of business activities. -->
-
-<!-- PL 86-272 protects businesses whose only activity is soliciting orders for tangible -->
-<!-- personal property approved and shipped from outside the state. Activities beyond mere -->
-<!-- solicitation create nexus for corporate income tax purposes. -->
-
-<!-- Reference: Public Law 86-272 (Interstate commerce protection) -->
-<!-- Reference: Neb. Rev. Stat. § 77-2701.13 (Doing business definition) -->
-<!-- Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018) -->
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -120,14 +91,9 @@ and
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
 <action_postfix>
-<!-- No nexus - no filing required -->
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No NE nexus - no filing requirement (or protected by PL 86-272). Any estimated payments refunded." job.audit_trail swap addto
-
-<!-- Reference: Neb. Rev. Stat. § 77-2701.13 (Nexus requirements) -->
-<!-- Reference: Public Law 86-272 (Interstate commerce protection) -->
+// No nexus - no filing required
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -152,14 +118,7 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 
 <contexts></contexts>
 
-<initial_actions>
-<initial_action>
-<action_description>Initialize NE income adjustments</action_description>
-<action_postfix>
-"NE Income Adjustments Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 
 <conditions>
 <condition_details>
@@ -181,46 +140,11 @@ or
 <action_number>1</action_number>
 <action_comment>Calculate NE state-specific additions and subtractions</action_comment>
 <action_postfix>
-<!-- Calculate NE state additions -->
+// Calculate NE state additions and subtractions
 0.0 /additions xdef
-
-<!-- NE requires addback of: -->
-<!-- - Interest/dividends from non-NE state/municipal obligations -->
-<!--   (These are exempt federally or in other states but taxable to NE) -->
-<!-- - Expenses related to exempt income (if deducted federally) -->
-
-<!-- Example additions (would be calculated from entity fields): -->
-<!-- additions += revenue.other_state_municipal_interest; -->
-<!-- Per Neb. Rev. Stat. § 77-2716(2)(a): Interest/dividends from DC, -->
-<!-- other states, or their subdivisions (except for RICs) -->
-
-additions /apportionment.state_additions xdef
-
-<!-- Calculate NE state subtractions -->
 0.0 /subtractions xdef
-
-<!-- NE allows subtraction of: -->
-<!-- - Interest/dividends from U.S. government obligations -->
-<!--   (Exempt from state tax per federal law, to extent includable in federal income) -->
-<!-- - Interest from NE Build America Bonds -->
-<!--   (To extent includable in federal income) -->
-<!-- - NE net operating loss deduction (subject to NE limitations) -->
-
-<!-- Example subtractions (would be calculated from entity fields): -->
-<!-- subtractions += revenue.us_government_interest; -->
-<!-- subtractions += revenue.ne_build_america_bond_interest; -->
-<!-- subtractions += result.ne_nol_deduction; -->
-
-<!-- Per Neb. Rev. Stat. § 77-2716(2)(b): Federal obligations interest -->
-<!-- exempt from state tax under federal law -->
-
-subtractions /apportionment.state_subtractions xdef
-
-"NE state-specific income adjustments calculated" job.audit_trail swap addto
-
-<!-- Reference: Neb. Rev. Stat. § 77-2716 (Income tax adjustments) -->
-<!-- Reference: Nebraska Form 1120N Schedule I (Adjustments to Federal Taxable Income) -->
-<!-- Reference: Nebraska Department of Revenue Information Guide 8-646 (Interest/Dividend Taxability) -->
+apportionment.state_additions additions xdef
+apportionment.state_subtractions subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -230,10 +154,9 @@ subtractions /apportionment.state_subtractions xdef
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-
-"No NE nexus - no state adjustments calculated" job.audit_trail swap addto
+// No nexus - no state adjustments
+apportionment.state_additions 0.0 xdef
+apportionment.state_subtractions 0.0 xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -257,14 +180,7 @@ subtractions /apportionment.state_subtractions xdef
 
 <contexts></contexts>
 
-<initial_actions>
-<initial_action>
-<action_description>Initialize NE state tax calculation</action_description>
-<action_postfix>
-"NE State Tax Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 
 <conditions>
 <condition_details>
@@ -299,31 +215,18 @@ apportionment.state_taxable_income 0 gt
 <action_number>1</action_number>
 <action_comment>Calculate NE tax at 5.20% flat rate (2025)</action_comment>
 <action_postfix>
-<!-- NE uses 5.20% flat rate for 2025 -->
+// NE uses 5.20% flat rate for 2025
 apportionment.state_taxable_income apportionment.state_tax_rate mul
+/state_tax_before_credits xdef
+
+// Subtract state credits
+state_tax_before_credits apportionment.state_credits sub
+0.0 max
 /apportionment.state_tax xdef
 
-<!-- Subtract NE state credits -->
-<!-- NE offers various credits: jobs creation, R&D, renewable energy, etc. -->
-apportionment.state_tax apportionment.state_credits sub 0 max
-/apportionment.state_tax xdef
-
-<!-- Calculate refund or amount owed -->
+// Calculate refund or amount owed
 apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
-
-"NE state tax calculated at 5.20% (2025 rate; will be 4.55% in 2026, 3.99% in 2027)" job.audit_trail swap addto
-
-<!-- NE tax rate schedule (Neb. Rev. Stat. § 77-2734.02): -->
-<!-- - 2025: 5.20% flat rate -->
-<!-- - 2026: 4.55% flat rate -->
-<!-- - 2027+: 3.99% flat rate -->
-
-<!-- Reference: Nebraska Form 1120N (Corporation Income Tax Return) -->
-<!-- Reference: Neb. Rev. Stat. § 77-2734.02 (Tax rate of 5.20% for 2025) -->
-<!-- Reference: Neb. Rev. Stat. § 77-2716 (Adjustments to federal income) -->
-<!-- Reference: Nebraska Department of Revenue Chapter 24 (Corporate Income Tax) -->
-<!-- Reference: LB 754 (2023) - Corporate tax reform and rate reduction schedule -->
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -334,13 +237,9 @@ apportionment.state_payments apportionment.state_tax sub
 <action_number>2</action_number>
 <action_comment>No NE nexus - no tax liability</action_comment>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No NE nexus - no tax liability (or protected by PL 86-272). Any estimated payments refunded." job.audit_trail swap addto
-
-<!-- Reference: Neb. Rev. Stat. § 77-2701.13 (Nexus requirements) -->
-<!-- Reference: Public Law 86-272 (Interstate commerce protection) -->
+// No nexus - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -351,20 +250,9 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No NE taxable income - no tax liability. NE NOL rules apply." job.audit_trail swap addto
-
-<!-- NE net operating loss (NOL) rules: -->
-<!-- - NE follows federal NOL provisions with state-specific adjustments -->
-<!-- - NOL carryforward rules apply (subject to limitations) -->
-<!-- - State NOL must be computed separately from federal NOL -->
-<!-- - NOL limited based on Nebraska taxable income -->
-
-<!-- Reference: Nebraska Form 1120N (Corporation Income Tax Return) -->
-<!-- Reference: Neb. Rev. Stat. § 77-2716 (Adjustments including NOL) -->
-<!-- Reference: Nebraska Form 1120N Schedule II (Net Operating Loss Computation) -->
+// Nexus but no taxable income - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>

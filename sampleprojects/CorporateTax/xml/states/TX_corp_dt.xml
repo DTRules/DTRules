@@ -15,750 +15,463 @@
   Key Features:
   - No income tax (state_tax_rate = 0.0)
   - Franchise tax on taxable margin (0.75% or 0.375%)
-  - Margin = Revenue - (COGS OR Compensation, whichever is greater)
   - Economic nexus: $500,000 in Texas receipts
   - No tax due threshold: $1.23M in total revenue
 
   References:
   - TX Tax Code Chapter 171 (Franchise Tax)
-  - Texas Comptroller Publication 96-1045 (Franchise Tax Rules)
+  - Texas Comptroller Publication 96-1045
   - Form 05-158 (Texas Franchise Tax Report)
 -->
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 50200: Determine TX Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file Texas franchise tax return.
-
-    Texas franchise tax nexus:
-    - Physical presence: Office, employees, property in Texas
-    - Economic nexus: $500,000 or more in Texas receipts
-    - Registration: Organized in Texas or registered to do business in Texas
-
-    No tax due threshold: $1.23M in total revenue (2025)
-  -->
-  <decision_table>
-    <table_name>Determine_TX_Filing_Requirement</table_name>
-    <xls_file>TX_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Determine if corporation must file Texas franchise tax return. Checks for physical presence, economic nexus, or Texas registration.</COMMENTS>
-      <TABLE_NUMBER>50200</TABLE_NUMBER>
-    </attribute_fields>
-
-    <contexts></contexts>
-    <initial_actions></initial_actions>
-
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'TX'</expression>
-        <comment>Has physical presence in Texas (office, employees, property)</comment>
-      </condition>
-
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'TX'</expression>
-        <comment>Meets Texas economic nexus threshold ($500K Texas receipts)</comment>
-      </condition>
-
-      <condition name="below_no_tax_threshold">
-        <expression>result.tx_total_revenue &lt; result.tx_no_tax_due_threshold</expression>
-        <comment>Total revenue below $1.23M no-tax-due threshold</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-          <below_no_tax_threshold>Y</below_no_tax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Physical presence but below threshold - file but no tax due
-            result.tx_qualifies_for_no_tax_due = true;
-            result.tx_franchise_tax = 0.0;
-            apportionment.state_tax = 0.0;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: No tax due (total revenue below $1.23M threshold).
-
-          Filing may still be required if:
-          - Organized in Texas (Texas entity)
-          - Registered to do business in Texas
-          - Owes tax in another report year
-
-          Reference: TX Tax Code § 171.002(d)(2) - No Tax Due Threshold
-          Reference: Texas Comptroller Rule 3.586 - Filing Requirements
-          Reference: Form 05-163 (No Tax Due Information Report)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-          <below_no_tax_threshold>N</below_no_tax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - franchise tax calculation required
-            // Margin calculation will be done by table 50220
-            result.tx_qualifies_for_no_tax_due = false;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax filing required due to physical presence.
-
-          Physical presence includes:
-          - Office or place of business in Texas
-          - Employees working in Texas
-          - Tangible property in Texas
-          - Texas entity (organized under Texas law)
-          - Registered to do business in Texas
-
-          Reference: TX Tax Code § 171.001 - Definitions
-          Reference: TX Tax Code § 171.0001 - Nexus Standards
-          Reference: Form 05-158 (Texas Franchise Tax Report)
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-          <below_no_tax_threshold>N</below_no_tax_threshold>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established - franchise tax calculation required
-            result.tx_qualifies_for_no_tax_due = false;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax filing required due to economic nexus.
-
-          Economic nexus threshold: $500,000 in Texas receipts (sourced to Texas)
-
-          This is NOT the federal Wayfair standard ($100K). Texas has its own
-          economic nexus threshold specific to franchise tax.
-
-          Reference: TX Tax Code § 171.0001(a)(1) - Economic Nexus
-          Reference: Texas Comptroller Rule 3.586(b) - Nexus Standards
-        </policy>
-      </rule>
-
-      <rule number="4">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            result.tx_qualifies_for_no_tax_due = true;
-            result.tx_franchise_tax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Texas nexus - no filing requirement.
-
-          Corporation does not have:
-          - Physical presence in Texas
-          - $500,000 or more in Texas receipts
-
-          Any estimated franchise tax payments would be refunded.
-
-          Reference: TX Tax Code § 171.0001 - Nexus Standards
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 50210: Determine TX Deduction Method
-    ============================================================================
-
-    Determines which deduction method to use for margin calculation.
-
-    Texas allows taxpayer to choose the most beneficial method:
-    1. Cost of Goods Sold (COGS)
-    2. Compensation (wages and benefits)
-    3. 70% of revenue (simplified method)
-
-    Most taxpayers choose COGS or compensation based on business type.
-  -->
-  <decision_table>
-    <table_name>Determine_TX_Deduction_Method</table_name>
-    <xls_file>TX_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Determine which deduction method produces the lowest franchise tax liability. Taxpayer can choose COGS, compensation, or 70% of revenue.</COMMENTS>
-      <TABLE_NUMBER>50210</TABLE_NUMBER>
-    </attribute_fields>
-
-    <contexts></contexts>
-    <initial_actions></initial_actions>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>result.tx_qualifies_for_no_tax_due == false</expression>
-        <comment>Has nexus and above no-tax-due threshold</comment>
-      </condition>
-
-      <condition name="cogs_greater_than_compensation">
-        <expression>result.tx_cogs > result.tx_compensation</expression>
-        <comment>COGS is greater than compensation</comment>
-      </condition>
-
-      <condition name="seventy_percent_greater">
-        <expression>(result.tx_total_revenue * 0.70) >
-                    Math.max(result.tx_cogs, result.tx_compensation)</expression>
-        <comment>70% of revenue is greater than both COGS and compensation</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus or below threshold - deduction method not applicable
-            result.tx_deduction_method = "none";
-            result.tx_margin_deduction = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No franchise tax due - deduction method not applicable.
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <seventy_percent_greater>Y</seventy_percent_greater>
-        </conditions>
-        <actions>
-          <action>
-            // 70% of revenue provides the largest deduction
-            result.tx_deduction_method = "70_percent";
-            result.tx_margin_deduction = result.tx_total_revenue * 0.70;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Using 70% of revenue deduction method.
-
-          This simplified method allows businesses to deduct 70% of total revenue
-          without tracking COGS or compensation. Often beneficial for:
-          - Service businesses with low COGS
-          - Businesses with high margins
-          - Businesses wanting simplified calculation
-
-          Reference: TX Tax Code § 171.1012(f) - Compensation Deduction
-          Reference: Texas Comptroller Publication 96-1045, Section 3.6
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <seventy_percent_greater>N</seventy_percent_greater>
-          <cogs_greater_than_compensation>Y</cogs_greater_than_compensation>
-        </conditions>
-        <actions>
-          <action>
-            // COGS provides larger deduction than compensation
-            result.tx_deduction_method = "cogs";
-            result.tx_margin_deduction = result.tx_cogs;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Using Cost of Goods Sold (COGS) deduction method.
-
-          COGS deduction includes:
-          - Direct material costs
-          - Direct labor costs
-          - Manufacturing overhead
-          - Inventory adjustments
-
-          COGS typically most beneficial for:
-          - Manufacturing businesses
-          - Retailers
-          - Wholesalers
-          - Businesses with significant inventory
-
-          Reference: TX Tax Code § 171.1012(i) - COGS Deduction
-          Reference: Texas Comptroller Rule 3.591 - COGS Calculation
-        </policy>
-      </rule>
-
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <seventy_percent_greater>N</seventy_percent_greater>
-          <cogs_greater_than_compensation>N</cogs_greater_than_compensation>
-        </conditions>
-        <actions>
-          <action>
-            // Compensation provides larger deduction than COGS
-            result.tx_deduction_method = "compensation";
-            result.tx_margin_deduction = result.tx_compensation;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Using compensation deduction method.
-
-          Compensation includes:
-          - Wages and cash compensation
-          - Employee benefits (health insurance, retirement, etc.)
-          - Payroll taxes paid by employer
-          - Stock-based compensation
-
-          Compensation typically most beneficial for:
-          - Service businesses
-          - Professional services (law, accounting, consulting)
-          - Technology companies
-          - Businesses with high labor costs and low COGS
-
-          Reference: TX Tax Code § 171.1012(f) - Compensation Deduction
-          Reference: Texas Comptroller Rule 3.590 - Compensation Calculation
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 50220: Calculate TX Margin
-    ============================================================================
-
-    Calculates taxable margin for Texas franchise tax.
-
-    Formula:
-    1. Total revenue (from all sources)
-    2. Minus: COGS, compensation, or 70% of revenue (taxpayer's choice)
-    3. Equals: Taxable margin
-    4. Multiply by Texas apportionment factor (receipts sourced to Texas)
-    5. Equals: Apportioned margin subject to franchise tax
-  -->
-  <decision_table>
-    <table_name>Calculate_TX_Margin</table_name>
-    <xls_file>TX_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Calculate Texas taxable margin for franchise tax. Margin = Revenue - (COGS or Compensation or 70% of Revenue)</COMMENTS>
-      <TABLE_NUMBER>50220</TABLE_NUMBER>
-    </attribute_fields>
-
-    <contexts></contexts>
-    <initial_actions></initial_actions>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>result.tx_qualifies_for_no_tax_due == false</expression>
-        <comment>Has nexus and above no-tax-due threshold</comment>
-      </condition>
-
-      <condition name="qualifies_for_ez">
-        <expression>result.tx_total_revenue &lt;= 20000000.0</expression>
-        <comment>Qualifies for E-Z computation ($20M or less in revenue)</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus or below threshold - no margin calculation
-            result.tx_taxable_margin = 0.0;
-            result.tx_apportioned_margin = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No franchise tax due - margin calculation not applicable.
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <qualifies_for_ez>Y</qualifies_for_ez>
-        </conditions>
-        <actions>
-          <action>
-            // E-Z Computation option available (simplified calculation)
-            result.tx_qualifies_for_ez_computation = true;
-
-            // Standard margin calculation
-            result.tx_taxable_margin = Math.max(0.0,
-              result.tx_total_revenue - result.tx_margin_deduction);
-
-            // Apportion to Texas using receipts factor
-            result.tx_apportioned_margin =
-              result.tx_taxable_margin * apportionment.apportionment_factor;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Calculating taxable margin (standard method).
-
-          E-Z Computation option available: Business has $20M or less in revenue
-          and may elect simplified E-Z computation instead of standard calculation.
-
-          E-Z Computation formula:
-          - Tax = (Total Revenue - $1.23M) × 0.575% × TX Apportionment Factor
-          - Much simpler than standard margin calculation
-          - Often results in similar or lower tax
-
-          Standard Margin Calculation:
-          1. Total Revenue: [Revenue from all sources]
-          2. Deduction: - [COGS, Compensation, or 70% of revenue]
-          3. Taxable Margin: = [Result]
-          4. Texas Apportionment Factor: × [TX Receipts / Total Receipts]
-          5. Apportioned Margin: = [Final taxable margin]
-
-          Reference: TX Tax Code § 171.1016 - E-Z Computation
-          Reference: Texas Comptroller Form 05-169 (E-Z Computation)
-          Reference: TX Tax Code § 171.101 - Tax Base
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <qualifies_for_ez>N</qualifies_for_ez>
-        </conditions>
-        <actions>
-          <action>
-            // Standard margin calculation (E-Z Computation not available)
-            result.tx_qualifies_for_ez_computation = false;
-
-            // Calculate taxable margin
-            result.tx_taxable_margin = Math.max(0.0,
-              result.tx_total_revenue - result.tx_margin_deduction);
-
-            // Apportion to Texas using single-sales factor
-            // (percentage of receipts sourced to Texas)
-            result.tx_apportioned_margin =
-              result.tx_taxable_margin * apportionment.apportionment_factor;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Calculating taxable margin (standard method).
-
-          Standard Margin Calculation:
-          1. Total Revenue: [All revenue from business activities]
-          2. Deduction: - [COGS, Compensation, or 70% - taxpayer's choice]
-          3. Taxable Margin: = [Gross margin]
-          4. Texas Apportionment: × [TX Receipts / Total Receipts]
-          5. Apportioned Margin: = [Amount subject to franchise tax]
-
-          Texas uses single-sales factor apportionment (100% receipts).
-          Receipts are sourced to Texas based on:
-          - Sale of tangible property: Destination (where delivered)
-          - Services: Where service is performed or received
-          - Rentals: Location of property
-
-          Reference: TX Tax Code § 171.101 - Tax Base (Taxable Margin)
-          Reference: TX Tax Code § 171.106 - Apportionment
-          Reference: Texas Comptroller Rule 3.591 - Apportionment
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 50280: Calculate TX Franchise Tax
-    ============================================================================
-
-    Calculates final Texas franchise tax liability.
-
-    Tax rates:
-    - 0.75% (standard rate for most businesses)
-    - 0.375% (reduced rate for retail/wholesale businesses)
-
-    Credits available:
-    - Film, television, video game production credit
-    - Enterprise zone project credit
-    - Research and development credit
-    - Disabled veteran business enterprise credit
-  -->
-  <decision_table>
-    <table_name>Calculate_TX_Franchise_Tax</table_name>
-    <xls_file>TX_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Calculate Texas franchise tax liability. Applies 0.75% or 0.375% rate to apportioned margin.</COMMENTS>
-      <TABLE_NUMBER>50280</TABLE_NUMBER>
-    </attribute_fields>
-
-    <contexts></contexts>
-    <initial_actions></initial_actions>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>result.tx_qualifies_for_no_tax_due == false</expression>
-        <comment>Has nexus and above no-tax-due threshold</comment>
-      </condition>
-
-      <condition name="has_apportioned_margin">
-        <expression>result.tx_apportioned_margin > 0</expression>
-        <comment>Has positive apportioned margin</comment>
-      </condition>
-
-      <condition name="is_retail_wholesale">
-        <expression>result.tx_is_retail_wholesale == true</expression>
-        <comment>Primarily engaged in retail or wholesale trade</comment>
-      </condition>
-
-      <condition name="use_ez_computation">
-        <expression>result.tx_qualifies_for_ez_computation == true</expression>
-        <comment>Elects to use E-Z computation method</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus or below threshold - no franchise tax
-            result.tx_franchise_tax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Texas franchise tax due.
-
-          Reasons:
-          - No nexus with Texas, OR
-          - Total revenue below $1.23M no-tax-due threshold
-
-          Any estimated franchise tax payments will be refunded.
-
-          Reference: TX Tax Code § 171.002(d)(2) - No Tax Due Threshold
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <use_ez_computation>Y</use_ez_computation>
-        </conditions>
-        <actions>
-          <action>
-            // E-Z Computation (simplified method for businesses $20M or less)
-            // Tax = (Revenue - $1.23M) × 0.575% × Apportionment Factor
-
-            double taxable_revenue = Math.max(0.0,
-              result.tx_total_revenue - result.tx_no_tax_due_threshold);
-
-            result.tx_franchise_tax =
-              taxable_revenue * result.tx_ez_computation_rate * apportionment.apportionment_factor;
-
-            // Subtract credits
-            result.tx_franchise_tax =
-              Math.max(0.0, result.tx_franchise_tax - apportionment.state_credits);
-
-            // Set state tax (franchise tax is the state's "tax" even though not income tax)
-            apportionment.state_tax = result.tx_franchise_tax;
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: E-Z Computation (simplified method).
-
-          E-Z Computation is available for businesses with $20M or less in revenue.
-          This optional calculation is often simpler and may result in lower tax.
-
-          E-Z Computation Formula:
-          1. Total Revenue: [All revenue]
-          2. No Tax Due Threshold: - $1,230,000
-          3. Taxable Revenue: = [Result]
-          4. E-Z Computation Rate: × 0.575% (0.00575)
-          5. Texas Apportionment: × [TX Receipts / Total Receipts]
-          6. Franchise Tax Before Credits: = [Tax]
-          7. Credits: - [Film, R&D, enterprise zone, etc.]
-          8. Final Franchise Tax: = [Tax liability]
-
-          IMPORTANT: This is NOT an income tax. It is a privilege tax for doing
-          business in Texas, calculated on gross margin rather than net income.
-
-          Reference: TX Tax Code § 171.1016 - E-Z Computation
-          Reference: Texas Comptroller Form 05-169 (E-Z Computation)
-          Reference: TX Tax Code § 171.002 - Rate
-        </policy>
-      </rule>
-
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <use_ez_computation>N</use_ez_computation>
-          <has_apportioned_margin>Y</has_apportioned_margin>
-          <is_retail_wholesale>Y</is_retail_wholesale>
-        </conditions>
-        <actions>
-          <action>
-            // Retail/wholesale reduced rate (0.375%)
-            result.tx_margin_tax_rate = 0.00375;
-
-            result.tx_franchise_tax =
-              result.tx_apportioned_margin * result.tx_margin_tax_rate;
-
-            // Subtract credits
-            result.tx_franchise_tax =
-              Math.max(0.0, result.tx_franchise_tax - apportionment.state_credits);
-
-            // Set state tax
-            apportionment.state_tax = result.tx_franchise_tax;
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Standard margin calculation with retail/wholesale rate.
-
-          Reduced Rate Calculation (0.375%):
-          1. Total Revenue: [All revenue]
-          2. Deduction: - [COGS, Compensation, or 70% of revenue]
-          3. Taxable Margin: = [Gross margin]
-          4. Texas Apportionment: × [TX Receipts / Total Receipts]
-          5. Apportioned Margin: = [Margin subject to tax]
-          6. Retail/Wholesale Rate: × 0.375% (0.00375)
-          7. Franchise Tax Before Credits: = [Tax]
-          8. Credits: - [Available credits]
-          9. Final Franchise Tax: = [Tax liability]
-
-          Retail/Wholesale Reduced Rate: Businesses primarily engaged in retail
-          or wholesale trade qualify for reduced 0.375% rate (half the standard rate).
-
-          "Primarily engaged" means more than 50% of gross receipts from retail/wholesale.
-
-          IMPORTANT: This is NOT an income tax. Texas has no corporate income tax.
-          The franchise tax is a privilege tax for doing business in Texas.
-
-          Reference: TX Tax Code § 171.002(b) - Retail/Wholesale Rate
-          Reference: TX Tax Code § 171.0002(c) - "Primarily Engaged" Definition
-          Reference: Texas Comptroller Publication 96-1045, Section 2.3
-        </policy>
-      </rule>
-
-      <rule number="4">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <use_ez_computation>N</use_ez_computation>
-          <has_apportioned_margin>Y</has_apportioned_margin>
-          <is_retail_wholesale>N</is_retail_wholesale>
-        </conditions>
-        <actions>
-          <action>
-            // Standard rate (0.75%)
-            result.tx_margin_tax_rate = 0.0075;
-
-            result.tx_franchise_tax =
-              result.tx_apportioned_margin * result.tx_margin_tax_rate;
-
-            // Subtract credits
-            result.tx_franchise_tax =
-              Math.max(0.0, result.tx_franchise_tax - apportionment.state_credits);
-
-            // Set state tax
-            apportionment.state_tax = result.tx_franchise_tax;
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Texas franchise tax: Standard margin calculation with standard rate.
-
-          Standard Rate Calculation (0.75%):
-          1. Total Revenue: [All revenue from business]
-          2. Deduction: - [COGS, Compensation, or 70% - taxpayer choice]
-          3. Taxable Margin: = [Gross margin]
-          4. Texas Apportionment: × [TX Receipts / Total Receipts]
-          5. Apportioned Margin: = [Margin subject to franchise tax]
-          6. Standard Rate: × 0.75% (0.0075)
-          7. Franchise Tax Before Credits: = [Tax amount]
-          8. Credits: - [Film, R&D, enterprise zone, disabled veteran, etc.]
-          9. Final Franchise Tax: = [Tax liability]
-
-          IMPORTANT: This is NOT a corporate income tax. Texas has NO corporate
-          income tax. The franchise tax is a privilege tax for the right to do
-          business in Texas, based on gross margin rather than net income.
-
-          Key Differences from Income Tax:
-          - Based on revenue and margin, not net income
-          - No deduction for operating expenses (except via COGS/compensation)
-          - Much lower rate (0.75% vs typical 5-10% income tax rates)
-          - Different calculation methods available (COGS, compensation, 70%)
-
-          Available Credits:
-          - Film, television, video game production
-          - Enterprise zone project
-          - Research and development activities
-          - Disabled veteran business enterprise
-          - Historic structure rehabilitation
-
-          Reference: TX Tax Code § 171.002(a) - Standard Rate
-          Reference: TX Tax Code § 171.101 - Tax Base (Margin)
-          Reference: Texas Comptroller Form 05-158 (Franchise Tax Report)
-          Reference: TX Tax Code § 171.001 - This is a franchise tax, not income tax
-        </policy>
-      </rule>
-
-      <rule number="5">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <use_ez_computation>N</use_ez_computation>
-          <has_apportioned_margin>N</has_apportioned_margin>
-        </conditions>
-        <actions>
-          <action>
-            // No apportioned margin - no franchise tax
-            result.tx_franchise_tax = 0.0;
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Texas franchise tax due - zero or negative margin.
-
-          Possible reasons:
-          - Deduction (COGS or compensation) equals or exceeds revenue
-          - No receipts apportioned to Texas
-          - Business operated at a loss
-
-          Any estimated franchise tax payments will be refunded.
-
-          Note: Unlike income tax, there is no loss carryforward for franchise tax.
-          Each year stands alone.
-
-          Reference: TX Tax Code § 171.101 - Taxable Margin
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- ====================================================================== -->
+<!-- TABLE 50200: Determine_TX_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_TX_Filing_Requirement</table_name>
+<xls_file>TX_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Texas franchise tax return. Checks for physical presence, economic nexus, or Texas registration. No tax due threshold: $1.23M in total revenue.</COMMENTS>
+<TABLE_NUMBER>50200</TABLE_NUMBER>
+<FILE_PATH>states/TX/50200_Determine_TX_Filing_Requirement</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Texas</condition_comment>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "TX"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence get true eq
+apportionment.state_code get "TX" streq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets Texas economic nexus threshold ($500K Texas receipts)</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "TX"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get true eq
+apportionment.state_code get "TX" streq and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Total revenue below $1.23M no-tax-due threshold</condition_comment>
+<condition_description>result.tx_total_revenue &lt; result.tx_no_tax_due_threshold</condition_description>
+<condition_postfix>
+result.tx_total_revenue get result.tx_no_tax_due_threshold get lt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical presence but below threshold - no tax due</action_comment>
+<action_description>No tax due - total revenue below $1.23M threshold</action_description>
+<action_postfix>
+true /result.tx_qualifies_for_no_tax_due xdef
+0.0 /result.tx_franchise_tax xdef
+0.0 /apportionment.state_tax xdef
+"TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Physical nexus established - franchise tax calculation required</action_comment>
+<action_description>TX franchise tax filing required due to physical presence</action_description>
+<action_postfix>
+false /result.tx_qualifies_for_no_tax_due xdef
+"TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Economic nexus established - franchise tax calculation required</action_comment>
+<action_description>TX franchise tax filing required due to economic nexus ($500K threshold)</action_description>
+<action_postfix>
+false /result.tx_qualifies_for_no_tax_due xdef
+"TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>No Texas nexus - no filing requirement</action_description>
+<action_postfix>
+true /result.tx_qualifies_for_no_tax_due xdef
+0.0 /result.tx_franchise_tax xdef
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No TX nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 50210: Determine_TX_Deduction_Method                            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_TX_Deduction_Method</table_name>
+<xls_file>TX_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine which deduction method produces the lowest franchise tax liability. Taxpayer can choose COGS, compensation, or 70% of revenue.</COMMENTS>
+<TABLE_NUMBER>50210</TABLE_NUMBER>
+<FILE_PATH>states/TX/50210_Determine_TX_Deduction_Method</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus and above no-tax-due threshold</condition_comment>
+<condition_description>result.tx_qualifies_for_no_tax_due == false</condition_description>
+<condition_postfix>
+result.tx_qualifies_for_no_tax_due get false eq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>COGS is greater than compensation</condition_comment>
+<condition_description>result.tx_cogs &gt; result.tx_compensation</condition_description>
+<condition_postfix>
+result.tx_cogs get result.tx_compensation get gt
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No nexus or below threshold - deduction method not applicable</action_comment>
+<action_description>No franchise tax due - deduction method not applicable</action_description>
+<action_postfix>
+"none" /result.tx_deduction_method xdef
+0.0 /result.tx_margin_deduction xdef
+"No TX franchise tax due - deduction method not applicable." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>Use 70% of revenue deduction</action_comment>
+<action_description>70% of revenue provides largest deduction (simplified method)</action_description>
+<action_postfix>
+"70_percent" /result.tx_deduction_method xdef
+result.tx_total_revenue get 0.70 mul /result.tx_margin_deduction xdef
+"TX franchise tax: Using 70% of revenue deduction method. Reference: TX Tax Code 171.1012(f)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Use COGS deduction</action_comment>
+<action_description>COGS provides larger deduction than compensation</action_description>
+<action_postfix>
+"cogs" /result.tx_deduction_method xdef
+result.tx_cogs get /result.tx_margin_deduction xdef
+"TX franchise tax: Using COGS deduction method. Reference: TX Tax Code 171.1012(i)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>Use compensation deduction</action_comment>
+<action_description>Compensation provides larger deduction than COGS</action_description>
+<action_postfix>
+"compensation" /result.tx_deduction_method xdef
+result.tx_compensation get /result.tx_margin_deduction xdef
+"TX franchise tax: Using compensation deduction method. Reference: TX Tax Code 171.1012(f)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 50220: Calculate_TX_Margin                                      -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TX_Margin</table_name>
+<xls_file>TX_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Texas taxable margin for franchise tax. Margin = Revenue - (COGS or Compensation or 70% of Revenue)</COMMENTS>
+<TABLE_NUMBER>50220</TABLE_NUMBER>
+<FILE_PATH>states/TX/50220_Calculate_TX_Margin</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus and above no-tax-due threshold</condition_comment>
+<condition_description>result.tx_qualifies_for_no_tax_due == false</condition_description>
+<condition_postfix>
+result.tx_qualifies_for_no_tax_due get false eq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Qualifies for E-Z computation ($20M or less in revenue)</condition_comment>
+<condition_description>result.tx_total_revenue &lt;= 20000000.0</condition_description>
+<condition_postfix>
+result.tx_total_revenue get 20000000.0 le
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No nexus or below threshold - no margin calculation</action_comment>
+<action_description>No franchise tax due - margin calculation not applicable</action_description>
+<action_postfix>
+0.0 /result.tx_taxable_margin xdef
+0.0 /result.tx_apportioned_margin xdef
+"No TX franchise tax due - margin calculation not applicable." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>E-Z Computation option available</action_comment>
+<action_description>Calculate margin - E-Z computation available ($20M or less)</action_description>
+<action_postfix>
+true /result.tx_qualifies_for_ez_computation xdef
+result.tx_total_revenue get result.tx_margin_deduction get sub 0.0 max /result.tx_taxable_margin xdef
+result.tx_taxable_margin get apportionment.apportionment_factor get mul /result.tx_apportioned_margin xdef
+"TX margin calculated. E-Z computation available. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Standard margin calculation (no E-Z)</action_comment>
+<action_description>Calculate margin - standard method (revenue exceeds $20M)</action_description>
+<action_postfix>
+false /result.tx_qualifies_for_ez_computation xdef
+result.tx_total_revenue get result.tx_margin_deduction get sub 0.0 max /result.tx_taxable_margin xdef
+result.tx_taxable_margin get apportionment.apportionment_factor get mul /result.tx_apportioned_margin xdef
+"TX margin calculated using standard method. Reference: TX Tax Code 171.101" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
+
+<!-- ====================================================================== -->
+<!-- TABLE 50280: Calculate_TX_Franchise_Tax                               -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_TX_Franchise_Tax</table_name>
+<xls_file>TX_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Texas franchise tax liability. Applies 0.75% or 0.375% rate to apportioned margin. IMPORTANT: This is NOT an income tax.</COMMENTS>
+<TABLE_NUMBER>50280</TABLE_NUMBER>
+<FILE_PATH>states/TX/50280_Calculate_TX_Franchise_Tax</FILE_PATH>
+</attribute_fields>
+
+<contexts></contexts>
+
+<initial_actions>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has nexus and above no-tax-due threshold</condition_comment>
+<condition_description>result.tx_qualifies_for_no_tax_due == false</condition_description>
+<condition_postfix>
+result.tx_qualifies_for_no_tax_due get false eq
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive apportioned margin</condition_comment>
+<condition_description>result.tx_apportioned_margin &gt; 0</condition_description>
+<condition_postfix>
+result.tx_apportioned_margin get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Elects to use E-Z computation method</condition_comment>
+<condition_description>result.tx_qualifies_for_ez_computation == true</condition_description>
+<condition_postfix>
+result.tx_qualifies_for_ez_computation get true eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+</condition_details>
+
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Primarily engaged in retail or wholesale trade</condition_comment>
+<condition_description>result.tx_is_retail_wholesale == true</condition_description>
+<condition_postfix>
+result.tx_is_retail_wholesale get true eq
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value=""></condition_column>
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No nexus or below threshold - no franchise tax</action_comment>
+<action_description>No Texas franchise tax due</action_description>
+<action_postfix>
+0.0 /result.tx_franchise_tax xdef
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>2</action_number>
+<action_comment>E-Z Computation (simplified method)</action_comment>
+<action_description>TX franchise tax using E-Z computation (0.575%)</action_description>
+<action_postfix>
+result.tx_total_revenue get result.tx_no_tax_due_threshold get sub 0.0 max /taxable_revenue xdef
+taxable_revenue get result.tx_ez_computation_rate get mul apportionment.apportionment_factor get mul /result.tx_franchise_tax xdef
+result.tx_franchise_tax get apportionment.state_credits get sub 0.0 max /result.tx_franchise_tax xdef
+result.tx_franchise_tax get /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>3</action_number>
+<action_comment>Retail/wholesale reduced rate (0.375%)</action_comment>
+<action_description>TX franchise tax at reduced retail/wholesale rate</action_description>
+<action_postfix>
+0.00375 /result.tx_margin_tax_rate xdef
+result.tx_apportioned_margin get result.tx_margin_tax_rate get mul /result.tx_franchise_tax xdef
+result.tx_franchise_tax get apportionment.state_credits get sub 0.0 max /result.tx_franchise_tax xdef
+result.tx_franchise_tax get /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>4</action_number>
+<action_comment>Standard rate (0.75%)</action_comment>
+<action_description>TX franchise tax at standard rate</action_description>
+<action_postfix>
+0.0075 /result.tx_margin_tax_rate xdef
+result.tx_apportioned_margin get result.tx_margin_tax_rate get mul /result.tx_franchise_tax xdef
+result.tx_franchise_tax get apportionment.state_credits get sub 0.0 max /result.tx_franchise_tax xdef
+result.tx_franchise_tax get /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+
+<action_details>
+<action_number>5</action_number>
+<action_comment>No apportioned margin - no franchise tax</action_comment>
+<action_description>No TX franchise tax due - zero or negative margin</action_description>
+<action_postfix>
+0.0 /result.tx_franchise_tax xdef
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+
+</decision_table>
 
 </decision_tables>

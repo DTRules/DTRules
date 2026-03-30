@@ -10,303 +10,215 @@
   - 52080: Calculate_AL_State_Tax (6.5% flat rate calculation)
 
   Reference: AL Form 20C (Corporation Income Tax Return)
-  Reference: AL Code § 40-18-31 (Tax rate: 6.5%)
+  Reference: AL Code Section 40-18-31 (Tax rate: 6.5%)
   Reference: AL Department of Revenue - Corporate Income Tax Guide
 -->
-<decision_tables name="CorporateTax_AL_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52000: Determine AL Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 52000: Determine AL Corporate Tax Filing Requirement            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_AL_Filing_Requirement</table_name>
+<xls_file>AL_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Alabama state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>52000</TABLE_NUMBER>
+<FILE_PATH>states/AL/52000_Determine_AL_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file Alabama state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in Alabama
-    - Economic nexus (post-Wayfair): $250,000 gross receipts threshold
-  -->
-  <decision_table name="Determine_AL_Filing_Requirement" number="52000">
-    <description>
-      Determine if corporation must file Alabama state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<initial_actions></initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &&
-                    apportionment.state_code == 'AL'</expression>
-        <comment>Has physical presence in Alabama (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Alabama (office, employees, property)</condition_comment>
+<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "AL"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "AL" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &&
-                    apportionment.state_code == 'AL'</expression>
-        <comment>Meets Alabama economic nexus threshold ($250,000 gross receipts)</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets Alabama economic nexus threshold ($250,000 gross receipts)</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "AL"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "AL" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Alabama filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required</action_comment>
+<action_description>// Physical nexus established - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Reference: AL Code § 40-18-1 (General provisions)
-          Reference: AL Form 20C Instructions
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Alabama filing required due to economic nexus (post-Wayfair).
-          Threshold: $250,000 gross receipts from Alabama customers.
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: AL Department of Revenue Notice - Economic Nexus Standards
-        </policy>
-      </rule>
+</decision_table>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Alabama nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- ====================================================================== -->
+<!-- TABLE 52020: Calculate AL State-Specific Income Adjustments           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AL_Income_Adjustments</table_name>
+<xls_file>AL_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Alabama state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>52020</TABLE_NUMBER>
+<FILE_PATH>states/AL/52020_Calculate_AL_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-  <!--
-    ============================================================================
-    TABLE 52020: Calculate AL State-Specific Income Adjustments
-    ============================================================================
+<contexts></contexts>
 
-    Calculates Alabama additions and subtractions to federal taxable income.
+<initial_actions></initial_actions>
 
-    Common Alabama additions:
-    - Interest on U.S. government obligations (federal bonds)
-    - IRC Section 199A qualified business income deduction addback
-    - State taxes deducted on federal return
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    Common Alabama subtractions:
-    - Interest on Alabama state/municipal bonds
-    - Alabama net operating loss deduction
-  -->
-  <decision_table name="Calculate_AL_Income_Adjustments" number="52020">
-    <description>
-      Calculate Alabama state-specific additions and subtractions to federal taxable income.
-    </description>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Alabama additions and subtractions</action_comment>
+<action_description>// Calculate Alabama additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate Alabama additions
-            double additions = 0.0;
+</decision_table>
 
-            // Alabama generally follows federal taxable income
-            // Common additions would be added here in production:
-            // - Federal bond interest (if provided in input data)
-            // - IRC 199A addback if Alabama doesn't conform
-            // - Bonus depreciation addback if Alabama decouples
+<!-- ====================================================================== -->
+<!-- TABLE 52080: Calculate AL State Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AL_State_Tax</table_name>
+<xls_file>AL_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Alabama state corporate income tax. Applies 6.5% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52080</TABLE_NUMBER>
+<FILE_PATH>states/AL/52080_Calculate_AL_State_Tax</FILE_PATH>
+</attribute_fields>
 
-            apportionment.state_additions = additions;
+<contexts></contexts>
 
-            // Calculate Alabama subtractions
-            double subtractions = 0.0;
+<initial_actions></initial_actions>
 
-            // Common subtractions would be added here in production:
-            // - Alabama municipal bond interest
-            // - Alabama NOL deduction (if different from federal)
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          Alabama state-specific income adjustments to federal taxable income.
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0.0 f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-          Additions may include:
-          - Interest on federal obligations (exempt federally but taxable to Alabama)
-          - IRC Section 199A deduction addback (if Alabama doesn't conform)
-          - State taxes deducted on federal return
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Alabama tax at 6.5% flat rate</action_comment>
+<action_description>// Alabama uses 6.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_postfix>
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Subtractions may include:
-          - Interest on Alabama state and municipal bonds
-          - Alabama net operating loss deduction
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_description>// No Alabama nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Reference: AL Form 20C Instructions (Schedule A - Adjustments to Income)
-          Reference: AL Code § 40-18-35 (Net operating loss deduction)
-        </policy>
-      </rule>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Nexus but no taxable income - no tax liability</action_comment>
+<action_description>// No Alabama taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52080: Calculate AL State Tax
-    ============================================================================
-
-    Calculates final Alabama state corporate income tax.
-
-    Process:
-    1. Federal taxable income apportioned to Alabama (done by table 7500)
-    2. Add Alabama-specific additions (done by table 52020)
-    3. Subtract Alabama-specific subtractions (done by table 52020)
-    4. Calculate Alabama state taxable income
-    5. Apply Alabama tax rate (6.5% flat rate)
-    6. Subtract Alabama state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_AL_State_Tax" number="52080">
-    <description>
-      Calculate Alabama state corporate income tax.
-      Applies 6.5% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate Alabama tax at 6.5% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // Alabama uses 6.5% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract Alabama state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Alabama state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to Alabama: × [Single-sales apportionment %]
-          3. Alabama additions: + [Additions from Schedule A]
-          4. Alabama subtractions: - [Subtractions from Schedule A]
-          5. Alabama taxable income: = [Adjusted income]
-          6. Alabama tax rate: × 6.5%
-          7. Alabama income tax: = [Tax before credits]
-          8. Alabama credits: - [Credits (jobs, R&D, etc.)]
-          9. Alabama tax liability: = [Final tax]
-
-          Reference: AL Form 20C (Corporation Income Tax Return) Instructions
-          Reference: AL Code § 40-18-31 (Tax rate: 6.5% flat rate)
-          Reference: AL Department of Revenue - Corporate Income Tax Guide
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Alabama nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Alabama taxable income - no tax liability.
-          Alabama NOL rules may apply for future years (AL Code § 40-18-35).
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

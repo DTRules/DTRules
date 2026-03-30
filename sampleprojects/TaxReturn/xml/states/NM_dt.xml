@@ -9,7 +9,7 @@
 
   Features:
   - 6 progressive tax brackets
-  - Low-Income Comprehensive Tax Rebate (LICTR) for AGI <= $36,000
+  - Low-Income Comprehensive Tax Rebate (LICTR) for AGI &lt;= $36,000
   - Federal AGI starting point
 
   Table Numbers: 43100-43199 (NM is 31st state alphabetically)
@@ -162,7 +162,7 @@ nm_taxable_income result.nm_single_bracket_5_limit gt
 nm_tax /result.nm_base_tax xdef
 
 <!-- Calculate Low-Income Comprehensive Tax Rebate (LICTR) -->
-<!-- Available if modified gross income <= $36,000 -->
+<!-- Available if modified gross income &lt;= $36,000 -->
 0 /nm_lictr xdef
 result.agi result.nm_lictr_income_limit le
 {
@@ -267,7 +267,7 @@ nm_taxable_income result.nm_joint_bracket_5_limit gt
 nm_tax /result.nm_base_tax xdef
 
 <!-- Calculate Low-Income Comprehensive Tax Rebate (LICTR) -->
-<!-- Available if modified gross income <= $36,000 -->
+<!-- Available if modified gross income &lt;= $36,000 -->
 0 /nm_lictr xdef
 result.agi result.nm_lictr_income_limit le
 {
@@ -371,7 +371,7 @@ nm_taxable_income result.nm_single_bracket_5_limit gt
 nm_tax /result.nm_base_tax xdef
 
 <!-- Calculate Low-Income Comprehensive Tax Rebate (LICTR) -->
-<!-- Available if modified gross income <= $36,000 -->
+<!-- Available if modified gross income &lt;= $36,000 -->
 0 /nm_lictr xdef
 result.agi result.nm_lictr_income_limit le
 {

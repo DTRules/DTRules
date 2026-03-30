@@ -13,7 +13,7 @@
   - Single-sales factor apportionment (market-based sourcing)
   - Economic nexus threshold: $100,000 in gross receipts
   - No special corporate AMT
-  - Credits available: R&D, renewable energy, employment
+  - Credits available: R&amp;D, renewable energy, employment
 -->
 <entity_dictionary name="CorporateTax_AZ_Constants">
 
@@ -51,7 +51,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='AZ tax credits: R&D, renewable energy, employment, film production'/>
+           comment='AZ tax credits: R&amp;D, renewable energy, employment, film production'/>
 
   </entity>
 

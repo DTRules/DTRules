@@ -24,7 +24,7 @@
    <!-- Parent can elect to report on their return if: -->
    <!-- - Child under 19 (or under 24 if full-time student) -->
    <!-- - Only unearned income -->
-   <!-- - Unearned income < $12,500 -->
+   <!-- - Unearned income &lt; $12,500 -->
    <!-- - No estimated tax payments made -->
 
    <!-- Form 8814 Computation: -->

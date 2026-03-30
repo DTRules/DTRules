@@ -2,8 +2,11 @@
 
 Complete reference for the DTRules Expression Language used in decision tables.
 
+> **IMPORTANT**: EL is the required format for all new decision tables. See [Decision Table XML Format](decision-table-xml-format.md) for the required XML structure. Legacy postfix format is deprecated.
+
 ## Table of Contents
 
+- [EL Compiler](#el-compiler)
 - [Data Types](#data-types)
 - [Operators](#operators)
 - [Control Flow](#control-flow)
@@ -15,6 +18,62 @@ Complete reference for the DTRules Expression Language used in decision tables.
 - [Math Functions](#math-functions)
 - [Type Conversions](#type-conversions)
 - [Special Constructs](#special-constructs)
+
+---
+
+## EL Compiler
+
+The EL compiler converts human-readable condition and action descriptions into postfix notation that the DTRules runtime can execute. This eliminates the need for hand-coded postfix, which is error-prone and difficult to maintain.
+
+### Why Use EL Instead of Postfix?
+
+Previously, decision table conditions and actions required hand-coded postfix notation:
+
+```xml
+<condition_postfix>
+taxpayer.filing_status "SINGLE" streq
+taxpayer.income 50000.0 f>
+and
+</condition_postfix>
+```
+
+This approach had several problems:
+- **Error-prone**: Stack-based notation is difficult to write correctly
+- **Hard to maintain**: Business users cannot read or modify postfix
+- **No validation**: Syntax errors only discovered at runtime
+- **Inconsistent**: Different authors used different patterns
+
+### The Solution: EL Descriptions
+
+EL allows conditions and actions to be written in a natural, readable syntax:
+
+```xml
+<condition_description>taxpayer.filing_status == "SINGLE" AND taxpayer.income > 50000.0</condition_description>
+```
+
+The EL compiler automatically generates the correct postfix notation:
+
+```xml
+<condition_postfix>
+taxpayer.filing_status "SINGLE" streq taxpayer.income 50000.0 f> and
+</condition_postfix>
+```
+
+### Using the Compiler
+
+The Go EL compiler is located at `pkg/dtrules/compiler/el/`. See the [EL Compiler README](../pkg/dtrules/compiler/el/README.md) for:
+- Detailed syntax reference
+- Workflow integration
+- Validation testing
+- Best practices
+
+### Key Syntax Rules
+
+1. **Always use EL descriptions** - Never hand-code postfix
+2. **Use proper quotes** - Strings require double quotes: `"SINGLE"`
+3. **Full entity paths** - Use `taxpayer.income` not just `income`
+4. **No shorthand operators** - Use `set X = X + 1` not `X += 1`
+5. **Separate statements with semicolons** - `set a = 1; set b = 2`
 
 ---
 

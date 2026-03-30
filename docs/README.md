@@ -9,6 +9,7 @@ This directory contains comprehensive documentation for DTRules. The project has
 | Get started quickly | [Quick Start (Java)](QUICKSTART.md) or [Quick Start (UI)](../QUICKSTART-UI.md) |
 | Build from source | [Building Guide](BUILDING.md) |
 | Learn the expression language | [EL Reference](EL-REFERENCE.md) |
+| Write decision tables in XML | [Decision Table XML Format](decision-table-xml-format.md) |
 | Understand the architecture | [Architecture Guide](ARCHITECTURE.md) |
 | Use the Go implementation | [Go README](../go/README.md) |
 
@@ -30,6 +31,8 @@ This directory contains comprehensive documentation for DTRules. The project has
 |----------|-------------|
 | [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
 | [Expression Language Reference](EL-REFERENCE.md) | Complete EL syntax, operators, and functions |
+| [Decision Table XML Format](decision-table-xml-format.md) | **Required** EL format for decision table XML |
+| [EL Compiler](../pkg/dtrules/compiler/el/README.md) | Compiles EL descriptions to postfix notation |
 | [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md) | Excel, ODS, and Google Sheets support |
 | [Bytecode Specification](bytecode-spec.md) | Portable bytecode format for cross-runtime execution |
 
@@ -184,7 +187,7 @@ Defines the data model used by decision tables. Contains entities, attributes, t
 Tabular representation of business rules. Each column is a rule with conditions to match and actions to execute. Uses EL syntax.
 
 ### Expression Language (EL)
-Domain-specific language for writing conditions and actions. Designed to be readable by business analysts and policy experts.
+Domain-specific language for writing conditions and actions. Designed to be readable by business analysts and policy experts. The [EL Compiler](../pkg/dtrules/compiler/el/README.md) converts EL descriptions to postfix notation for runtime execution.
 
 ### Session
 Runtime execution context. Each evaluation creates a new session, loads data, executes decision tables, and extracts results.

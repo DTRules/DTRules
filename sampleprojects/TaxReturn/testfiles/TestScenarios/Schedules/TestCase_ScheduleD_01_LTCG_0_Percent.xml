@@ -2,7 +2,7 @@
 <!-- Test Case: Schedule D - Long-Term Capital Gains at 0% Bracket -->
 <!-- Scenario: Low income taxpayer with LTCG within 0% bracket threshold -->
 <!-- LTCG: $15,000, W-2: $30,000, Total AGI: $45,000 -->
-<!-- Expected: 0% capital gains tax (within 0% bracket for single < $48,350) -->
+<!-- Expected: 0% capital gains tax (within 0% bracket for single &lt; $48,350) -->
 <job>
     <id>10011</id>
     <tax_year>2025</tax_year>

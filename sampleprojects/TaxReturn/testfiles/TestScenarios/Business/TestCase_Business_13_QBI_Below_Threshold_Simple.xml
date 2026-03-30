@@ -18,7 +18,7 @@
     <!--   2) 20% of taxable income = $132,000 * 0.20 = $26,400 -->
     <!-- QBI Deduction: $16,400 (lesser amount) -->
     <!-- Taxable: $115,600 ($132k - $16,400) -->
-    <!-- AGI $147k < $197,300 threshold: No W-2 wage limitation -->
+    <!-- AGI $147k &lt; $197,300 threshold: No W-2 wage limitation -->
     <expected_agi>147000</expected_agi>
     <expected_taxable_income>115600</expected_taxable_income>
 

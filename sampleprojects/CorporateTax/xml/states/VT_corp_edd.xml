@@ -75,7 +75,7 @@
 
     <!-- State Tax Credits -->
     <field name='state_credits' type='double' default_value='0.0'
-           comment='VT tax credits: R&D, affordable housing, renewable energy, historic preservation, etc.'/>
+           comment='VT tax credits: R&amp;D, affordable housing, renewable energy, historic preservation, etc.'/>
 
     <!-- VT Calculated Tax (before credits) -->
     <field name='vt_calculated_tax' type='double' default_value='0.0'
