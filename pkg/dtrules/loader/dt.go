@@ -250,6 +250,11 @@ func (l *DTLoader) Load(r io.Reader) error {
 func (l *DTLoader) processTable(table *DTTable) error {
 	// Use GetTableName() which checks both attribute and element forms
 	tableName := strings.TrimSpace(table.GetTableName())
+
+	// Check for legacy postfix (hand-coded without EL descriptions)
+	if l.detectLegacyPostfix(table) {
+		l.warnLegacyPostfix(tableName, table.XlsFile)
+	}
 	name := dtrules.GetRName(tableName)
 	if name == nil {
 		return fmt.Errorf("invalid decision table name syntax: %s", tableName)
@@ -499,4 +504,61 @@ func (l *DTLoader) compileContextsPostfix(tableName string, contexts []string) (
 // GetErrors returns any errors encountered during loading.
 func (l *DTLoader) GetErrors() []error {
 	return l.errors
+}
+
+// detectLegacyPostfix checks if a table has hand-coded postfix without EL descriptions.
+// A table is considered legacy if it has postfix but no EL descriptions in
+// its conditions, actions, or contexts.
+func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
+	hasPostfix := false
+	hasDescription := false
+
+	// Check conditions
+	for _, cond := range table.Conditions.Conditions {
+		if strings.TrimSpace(cond.Postfix) != "" {
+			hasPostfix = true
+		}
+		if strings.TrimSpace(cond.Description) != "" {
+			hasDescription = true
+		}
+	}
+
+	// Check actions
+	for _, action := range table.Actions.Actions {
+		if strings.TrimSpace(action.Postfix) != "" {
+			hasPostfix = true
+		}
+		if strings.TrimSpace(action.Description) != "" {
+			hasDescription = true
+		}
+	}
+
+	// Check initial actions
+	for _, action := range table.InitialActions.Actions {
+		if strings.TrimSpace(action.Postfix) != "" {
+			hasPostfix = true
+		}
+		if strings.TrimSpace(action.Description) != "" {
+			hasDescription = true
+		}
+	}
+
+	// Check contexts
+	for _, ctx := range table.Contexts.Contexts {
+		if strings.TrimSpace(ctx.Postfix) != "" {
+			hasPostfix = true
+		}
+		if strings.TrimSpace(ctx.Description) != "" {
+			hasDescription = true
+		}
+	}
+
+	// Legacy: has postfix but no descriptions
+	return hasPostfix && !hasDescription
+}
+
+// warnLegacyPostfix logs a warning about a table with hand-coded postfix.
+func (l *DTLoader) warnLegacyPostfix(tableName, filePath string) {
+	log.Printf("WARNING: %s in %s has hand-coded postfix without EL descriptions.", tableName, filePath)
+	log.Printf("         All postfix should come from EL compilation. Use 'dtrules sync import' to compile EL.")
 }

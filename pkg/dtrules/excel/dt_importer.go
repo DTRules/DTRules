@@ -30,7 +30,23 @@ import (
 
 // DTImporter imports decision tables from Excel files.
 type DTImporter struct {
-	verbose bool
+	verbose     bool
+	compileEL   bool                         // If true, compile EL expressions to postfix
+	elCompiler  ELCompiler                   // Optional EL compiler
+	symbols     map[string]string            // Symbol table for EL compilation
+}
+
+// ELCompiler defines the interface for compiling EL expressions to postfix.
+// This is implemented by the el.Compiler in pkg/dtrules/compiler/el.
+type ELCompiler interface {
+	// SetSymbols sets the symbol table for type resolution.
+	SetSymbols(symbols map[string]string)
+	// CompileCondition compiles a condition expression to postfix.
+	CompileCondition(el string) (string, error)
+	// CompileAction compiles an action statement to postfix.
+	CompileAction(el string) (string, error)
+	// CompileContext compiles a context statement to postfix.
+	CompileContext(el string) (string, error)
 }
 
 // NewDTImporter creates a new decision table importer.
@@ -43,6 +59,22 @@ func (i *DTImporter) SetVerbose(v bool) {
 	i.verbose = v
 }
 
+// SetELCompiler sets the EL compiler for compiling expressions to postfix.
+// When set, imported EL descriptions are compiled to postfix automatically.
+func (i *DTImporter) SetELCompiler(compiler ELCompiler) {
+	i.elCompiler = compiler
+	i.compileEL = compiler != nil
+}
+
+// SetSymbols sets the symbol table used for EL compilation.
+// The symbol table maps identifier names to their types (entity, long, double, etc.)
+func (i *DTImporter) SetSymbols(symbols map[string]string) {
+	i.symbols = symbols
+	if i.elCompiler != nil {
+		i.elCompiler.SetSymbols(symbols)
+	}
+}
+
 // DecisionTablesXML represents the root XML element for decision tables.
 type DecisionTablesXML struct {
 	XMLName xml.Name           `xml:"decision_tables"`
@@ -51,14 +83,15 @@ type DecisionTablesXML struct {
 
 // DecisionTableXML represents a single decision table in XML format.
 type DecisionTableXML struct {
-	TableName        string              `xml:"table_name"`
-	XLSFile          string              `xml:"xls_file"`
-	AttributeFields  AttributeFieldsXML  `xml:"attribute_fields"`
-	Contexts         string              `xml:"contexts"`
-	InitialActions   []InitialActionXML  `xml:"initial_actions>initial_action"`
-	Conditions       []ConditionXML      `xml:"conditions>condition_details"`
-	Actions          []ActionXML         `xml:"actions>action_details"`
+	TableName        string               `xml:"table_name"`
+	XLSFile          string               `xml:"xls_file"`
+	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
+	Contexts         string               `xml:"contexts"`
+	InitialActions   []InitialActionXML   `xml:"initial_actions>initial_action"`
+	Conditions       []ConditionXML       `xml:"conditions>condition_details"`
+	Actions          []ActionXML          `xml:"actions>action_details"`
 	PolicyStatements []PolicyStatementXML `xml:"policy_statements>policy_statement"`
+	ELCompiled       bool                 `xml:"el_compiled,attr"` // True if postfix was generated from EL
 }
 
 // AttributeFieldsXML holds metadata fields for the table.
@@ -130,6 +163,12 @@ func (i *DTImporter) ImportDecisionTables(filename string) (*DecisionTablesXML, 
 			continue
 		}
 		if table != nil {
+			// Compile EL expressions if compiler is set
+			if err := i.compileTableEL(table); err != nil {
+				if i.verbose {
+					fmt.Printf("  EL compilation warning: %v\n", err)
+				}
+			}
 			tables.Tables = append(tables.Tables, *table)
 		}
 	}
@@ -243,7 +282,12 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	tableNum := table.AttributeFields.TableNumber
 	f.WriteString(fmt.Sprintf("\n<!-- TABLE %s: %s -->\n", tableNum, table.TableName))
 
-	f.WriteString("<decision_table>\n")
+	// Write decision_table opening tag with optional el_compiled attribute
+	if table.ELCompiled {
+		f.WriteString("<decision_table el_compiled=\"true\">\n")
+	} else {
+		f.WriteString("<decision_table>\n")
+	}
 	f.WriteString(fmt.Sprintf("<table_name>%s</table_name>\n", xmlEscape(table.TableName)))
 	f.WriteString(fmt.Sprintf("<xls_file>%s</xls_file>\n", xmlEscape(table.XLSFile)))
 
@@ -756,6 +800,71 @@ func safeGet(row []string, idx int) string {
 		return row[idx]
 	}
 	return ""
+}
+
+// compileTableEL compiles EL expressions in a table to postfix.
+// This is called after parsing to generate postfix from EL descriptions.
+// If no EL compiler is set, this method does nothing.
+func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
+	if !i.compileEL || i.elCompiler == nil {
+		return nil
+	}
+
+	// Set symbols if available
+	if i.symbols != nil {
+		i.elCompiler.SetSymbols(i.symbols)
+	}
+
+	var errors []string
+
+	// Compile initial actions
+	for idx := range table.InitialActions {
+		action := &table.InitialActions[idx]
+		if action.Description != "" {
+			postfix, err := i.elCompiler.CompileAction(action.Description)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("initial action %d: %v", idx+1, err))
+				continue
+			}
+			action.Postfix = postfix
+		}
+	}
+
+	// Compile conditions
+	for idx := range table.Conditions {
+		cond := &table.Conditions[idx]
+		if cond.Description != "" {
+			postfix, err := i.elCompiler.CompileCondition(cond.Description)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("condition %s: %v", cond.Number, err))
+				continue
+			}
+			cond.Postfix = postfix
+		}
+	}
+
+	// Compile actions
+	for idx := range table.Actions {
+		action := &table.Actions[idx]
+		if action.Description != "" {
+			postfix, err := i.elCompiler.CompileAction(action.Description)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("action %s: %v", action.Number, err))
+				continue
+			}
+			action.Postfix = postfix
+		}
+	}
+
+	if len(errors) > 0 {
+		return fmt.Errorf("EL compilation errors in table %s: %s",
+			table.TableName, strings.Join(errors, "; "))
+	}
+
+	// Mark the table as EL-compiled
+	table.ELCompiled = true
+
+	return nil
 }
 
 // MergeTables merges multiple DecisionTablesXML into one.

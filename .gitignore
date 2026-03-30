@@ -32,6 +32,7 @@ Thumbs.db
 
 # Legacy Java
 *.class
+*.jar
 target/
 .metadata
 pom.xml.releaseBackup

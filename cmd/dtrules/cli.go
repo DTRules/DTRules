@@ -535,8 +535,12 @@ func (c *CLI) runInit(args []string) int {
 	return 0
 }
 
-// runValidate validates the decision tables.
+// runValidate validates the decision tables and project structure.
 func (c *CLI) runValidate(args []string) int {
+	var strict bool
+	var allowLegacy bool
+	var projectDir string
+
 	// Parse flags
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -545,27 +549,165 @@ func (c *CLI) runValidate(args []string) int {
 				c.xmlDir = args[i+1]
 				i++
 			}
+		case "--excel-dir":
+			if i+1 < len(args) {
+				c.excelDir = args[i+1]
+				i++
+			}
+		case "--project", "-p":
+			if i+1 < len(args) {
+				projectDir = args[i+1]
+				i++
+			}
 		case "-v", "--verbose":
 			c.verbose = true
+		case "--strict":
+			strict = true
+		case "--allow-legacy":
+			allowLegacy = true
 		}
 	}
 
+	// Set defaults
+	if projectDir == "" {
+		projectDir = "."
+	}
 	if c.xmlDir == "" {
-		c.xmlDir = "./xml"
+		c.xmlDir = filepath.Join(projectDir, "xml")
+	}
+	if c.excelDir == "" {
+		c.excelDir = filepath.Join(projectDir, "excel")
 	}
 
-	fmt.Printf("Validating rules in %s...\n", c.xmlDir)
+	fmt.Printf("Validating DTRules project in %s\n", projectDir)
+	fmt.Println()
 
-	// Check XML directory exists
-	if _, err := os.Stat(c.xmlDir); os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "Error: XML directory not found: %s\n", c.xmlDir)
+	exitCode := 0
+
+	// 1. Validate project structure
+	fmt.Println("Checking project structure...")
+	structResult, err := sync.ValidateProjectStructure(projectDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error validating structure: %v\n", err)
 		return 1
 	}
 
-	// Load and validate rules
-	// This is a placeholder - actual implementation would use session.LoadRulesFromDirectory
-	fmt.Println("✓ Rules validated successfully.")
-	return 0
+	if !structResult.IsValid() {
+		for _, e := range structResult.Errors {
+			fmt.Fprintf(os.Stderr, "  ERROR: %s\n", e.Error())
+		}
+		exitCode = 1
+	} else {
+		fmt.Println("  ✓ Project structure valid")
+	}
+
+	// Show structure warnings
+	if len(structResult.Warnings) > 0 {
+		for _, w := range structResult.Warnings {
+			fmt.Printf("  WARNING: %s\n", w.String())
+		}
+	}
+
+	// Report orphaned XML and missing XML
+	if len(structResult.OrphanedXML) > 0 && c.verbose {
+		fmt.Printf("\n  Orphaned XML files (no Excel source): %d\n", len(structResult.OrphanedXML))
+		for _, f := range structResult.OrphanedXML {
+			fmt.Printf("    %s\n", f)
+		}
+	}
+	if len(structResult.MissingXML) > 0 && c.verbose {
+		fmt.Printf("\n  Missing XML files (Excel not imported): %d\n", len(structResult.MissingXML))
+		for _, f := range structResult.MissingXML {
+			fmt.Printf("    %s\n", f)
+		}
+	}
+	fmt.Println()
+
+	// 2. Validate EL compliance (if XML directory exists)
+	if structResult.IsValid() || dirExists(c.xmlDir) {
+		fmt.Println("Checking EL compliance...")
+		elResult, err := sync.ValidateELCompliance(c.xmlDir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error validating EL compliance: %v\n", err)
+			return 1
+		}
+
+		// Report compliant files
+		if c.verbose && len(elResult.CompliantFiles) > 0 {
+			fmt.Printf("  Compliant files: %d\n", len(elResult.CompliantFiles))
+		}
+
+		// Report files needing compilation
+		if len(elResult.NeedsCompilationFiles) > 0 {
+			fmt.Printf("  Files needing EL compilation: %d\n", len(elResult.NeedsCompilationFiles))
+			for _, f := range elResult.NeedsCompilationFiles {
+				fmt.Printf("    %s\n", filepath.Base(f))
+			}
+			fmt.Println("  Run 'dtrules sync import' to compile EL expressions.")
+		}
+
+		// Report legacy files
+		if len(elResult.LegacyFiles) > 0 {
+			fmt.Printf("\n  ⚠️  Legacy postfix files: %d\n", len(elResult.LegacyFiles))
+			for _, f := range elResult.LegacyFiles {
+				fmt.Printf("    %s\n", filepath.Base(f))
+			}
+			fmt.Println()
+			fmt.Println("  These files contain hand-coded postfix without EL descriptions.")
+			fmt.Println("  All postfix MUST come from EL compilation. To fix:")
+			fmt.Println("    1. Add EL expressions to the Excel file")
+			fmt.Println("    2. Run 'dtrules sync import' to compile")
+
+			if strict {
+				exitCode = 1
+			}
+			if !allowLegacy {
+				fmt.Println()
+				fmt.Println("  Use --allow-legacy to suppress this as an error.")
+			}
+		} else {
+			fmt.Println("  ✓ All files are EL compliant")
+		}
+		fmt.Println()
+	}
+
+	// 3. Check sync status (if both directories exist)
+	if dirExists(c.xmlDir) && dirExists(c.excelDir) {
+		fmt.Println("Checking sync status...")
+		if err := c.initSyncer(); err == nil {
+			modified, err := c.syncer.CheckExcelModified()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "  Warning: could not check sync status: %v\n", err)
+			} else if len(modified) > 0 {
+				fmt.Printf("  ⚠️  Excel files with pending user edits: %d\n", len(modified))
+				for _, f := range modified {
+					fmt.Printf("    %s\n", f)
+				}
+				fmt.Println("  Run 'dtrules sync import' to import user changes.")
+			} else {
+				fmt.Println("  ✓ No pending user edits")
+			}
+		}
+		fmt.Println()
+	}
+
+	// Summary
+	if exitCode == 0 {
+		fmt.Println("✓ Validation passed")
+	} else {
+		fmt.Println("✗ Validation failed")
+	}
+
+	return exitCode
+}
+
+// dirExists checks if a directory exists.
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
 }
 
 // runVersion shows version information.
