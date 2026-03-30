@@ -20,6 +20,10 @@ type DecisionTables struct {
 
 // DecisionTable represents a single decision table
 type DecisionTable struct {
+	// NameAttr captures EL format: <decision_table name="...">
+	NameAttr         string            `xml:"name,attr"`
+	// NumberAttr captures EL format: <decision_table number="...">
+	NumberAttr       string            `xml:"number,attr"`
 	TableName        string            `xml:"table_name"`
 	XLSFile          string            `xml:"xls_file"`
 	AttributeFields  AttributeFields   `xml:"attribute_fields"`
@@ -28,6 +32,22 @@ type DecisionTable struct {
 	Conditions       []ConditionDetail `xml:"conditions>condition_details"`
 	Actions          []ActionDetail    `xml:"actions>action_details"`
 	PolicyStatements []PolicyStatement `xml:"policy_statements>policy_statement"`
+}
+
+// GetTableName returns the table name from either attribute or element form.
+func (t *DecisionTable) GetTableName() string {
+	if t.NameAttr != "" {
+		return t.NameAttr
+	}
+	return t.TableName
+}
+
+// GetTableNumber returns the table number from either attribute or element form.
+func (t *DecisionTable) GetTableNumber() string {
+	if t.NumberAttr != "" {
+		return t.NumberAttr
+	}
+	return t.AttributeFields.TableNumber
 }
 
 type AttributeFields struct {
@@ -113,10 +133,11 @@ func main() {
 
 	// Convert each table to Excel
 	for i, table := range tables.Tables {
+		tableName := table.GetTableName()
 		if err := convertTableToExcel(table, *outputDir, i+1); err != nil {
-			fmt.Printf("Error converting table %s: %v\n", table.TableName, err)
+			fmt.Printf("Error converting table %s: %v\n", tableName, err)
 		} else {
-			fmt.Printf("✓ Exported: %s\n", table.TableName)
+			fmt.Printf("✓ Exported: %s\n", tableName)
 		}
 	}
 
@@ -129,8 +150,12 @@ func convertTableToExcel(table DecisionTable, outputDir string, index int) error
 
 	sheetName := "Sheet1"
 
+	// Get table name (supports both attribute and element forms)
+	tableName := table.GetTableName()
+	tableNumber := table.GetTableNumber()
+
 	// Set sheet name to table name (sanitized)
-	safeName := sanitizeSheetName(table.TableName)
+	safeName := sanitizeSheetName(tableName)
 	if safeName != sheetName {
 		f.SetSheetName(sheetName, safeName)
 		sheetName = safeName
@@ -140,13 +165,13 @@ func convertTableToExcel(table DecisionTable, outputDir string, index int) error
 
 	// Header section
 	f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), "Decision Table")
-	f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), table.TableName)
+	f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), tableName)
 	f.MergeCell(sheetName, fmt.Sprintf("B%d", row), fmt.Sprintf("E%d", row))
 	setHeaderStyle(f, sheetName, fmt.Sprintf("A%d", row))
 	row++
 
 	f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), "Table Number")
-	f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), table.AttributeFields.TableNumber)
+	f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), tableNumber)
 	row++
 
 	f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), "Type")
@@ -253,7 +278,7 @@ func convertTableToExcel(table DecisionTable, outputDir string, index int) error
 	}
 
 	// Save file
-	filename := filepath.Join(outputDir, fmt.Sprintf("%03d_%s.xlsx", index, sanitizeFilename(table.TableName)))
+	filename := filepath.Join(outputDir, fmt.Sprintf("%03d_%s.xlsx", index, sanitizeFilename(tableName)))
 	if err := f.SaveAs(filename); err != nil {
 		return fmt.Errorf("error saving Excel file: %v", err)
 	}

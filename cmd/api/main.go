@@ -1656,6 +1656,11 @@ type DTXML struct {
 }
 
 type DTTableXML struct {
+	// NameAttr captures EL format: <decision_table name="...">
+	NameAttr         string               `xml:"name,attr"`
+	// NumberAttr captures EL format: <decision_table number="...">
+	NumberAttr       string               `xml:"number,attr"`
+	// Name captures traditional format: <table_name>...</table_name>
 	Name             string               `xml:"table_name"`
 	XlsFile          string               `xml:"xls_file"`
 	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
@@ -1664,6 +1669,22 @@ type DTTableXML struct {
 	Conditions       ConditionsXML        `xml:"conditions"`
 	Actions          ActionsXML           `xml:"actions"`
 	PolicyStatements []PolicyStatementXML `xml:"policy_statement"`
+}
+
+// GetTableName returns the table name from either attribute or element form.
+func (t *DTTableXML) GetTableName() string {
+	if t.NameAttr != "" {
+		return t.NameAttr
+	}
+	return t.Name
+}
+
+// GetTableNumber returns the table number from either attribute or element form.
+func (t *DTTableXML) GetTableNumber() string {
+	if t.NumberAttr != "" {
+		return t.NumberAttr
+	}
+	return t.AttributeFields.TableNumber
 }
 
 type AttributeFieldsXML struct {
@@ -1745,17 +1766,18 @@ func (s *Server) loadDTFile(path, relPath string) error {
 	}
 
 	for _, t := range dt.Tables {
-		// Skip tables with no name
-		if t.Name == "" {
+		// Skip tables with no name - check both attribute and element forms
+		tableName := t.GetTableName()
+		if tableName == "" {
 			continue
 		}
 
 		table := &DecisionTableData{
-			TableName:      t.Name,
+			TableName:      tableName,
 			XlsFile:        t.XlsFile,
 			Type:           t.AttributeFields.Type,
 			Comments:       t.AttributeFields.Comments,
-			TableNumber:    t.AttributeFields.TableNumber,
+			TableNumber:    t.GetTableNumber(),
 			InitialActions: t.InitialActions,
 		}
 

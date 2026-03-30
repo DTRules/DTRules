@@ -57,6 +57,11 @@ type DTFile struct {
 
 // DTTable represents a single decision table
 type DTTable struct {
+	// NameAttr captures the 'name' attribute on <decision_table name="...">
+	// Used by the EL XML format (e.g., CorporateTax, staking)
+	NameAttr         string             `xml:"name,attr" json:"-"`
+	// NumberAttr captures the 'number' attribute on <decision_table number="...">
+	NumberAttr       string             `xml:"number,attr" json:"-"`
 	TableName        string             `xml:"table_name" json:"table_name"`
 	XlsFile          string             `xml:"xls_file" json:"xls_file,omitempty"`
 	AttributeFields  DTAttributeFields  `xml:"attribute_fields" json:"attribute_fields"`
@@ -65,6 +70,24 @@ type DTTable struct {
 	Conditions       DTConditions       `xml:"conditions" json:"conditions"`
 	Actions          DTActions          `xml:"actions" json:"actions"`
 	PolicyStatements DTPolicyStatements `xml:"policy_statements" json:"policy_statements"`
+}
+
+// GetTableName returns the table name, checking both the attribute and element forms.
+// EL format uses name attribute: <decision_table name="My_Table">
+// Traditional format uses element: <table_name>My_Table</table_name>
+func (t *DTTable) GetTableName() string {
+	if t.NameAttr != "" {
+		return t.NameAttr
+	}
+	return t.TableName
+}
+
+// GetTableNumber returns the table number, checking both the attribute and element forms.
+func (t *DTTable) GetTableNumber() string {
+	if t.NumberAttr != "" {
+		return t.NumberAttr
+	}
+	return t.AttributeFields.TableNumber
 }
 
 // DTAttributeFields represents metadata about the table
@@ -225,9 +248,11 @@ func (l *DTLoader) Load(r io.Reader) error {
 
 // processTable processes a single decision table.
 func (l *DTLoader) processTable(table *DTTable) error {
-	name := dtrules.GetRName(strings.TrimSpace(table.TableName))
+	// Use GetTableName() which checks both attribute and element forms
+	tableName := strings.TrimSpace(table.GetTableName())
+	name := dtrules.GetRName(tableName)
 	if name == nil {
-		return fmt.Errorf("invalid decision table name syntax: %s", table.TableName)
+		return fmt.Errorf("invalid decision table name syntax: %s", tableName)
 	}
 
 	// Create the decision table using the builder
@@ -236,8 +261,8 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Set table type
 	builder.SetTypeFromString(table.AttributeFields.GetType())
 
-	// Set metadata fields
-	builder.SetField("TABLE_NUMBER", table.AttributeFields.TableNumber)
+	// Set metadata fields - use GetTableNumber() for attribute/element fallback
+	builder.SetField("TABLE_NUMBER", table.GetTableNumber())
 	builder.SetField("COMMENTS", table.AttributeFields.Comments)
 	builder.SetFilename(table.XlsFile)
 

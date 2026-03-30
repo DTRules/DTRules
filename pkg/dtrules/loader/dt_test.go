@@ -141,3 +141,101 @@ func TestDTLoaderXMLSizeLimitDisabled(t *testing.T) {
 		t.Fatalf("Expected no error with size limit disabled: %v", err)
 	}
 }
+
+// TestDTTableGetTableName tests the GetTableName method which supports both
+// attribute and element forms for table names.
+// Issue #374: EL format uses name attribute on <decision_table name="...">
+func TestDTTableGetTableName(t *testing.T) {
+	tests := []struct {
+		name     string
+		table    DTTable
+		expected string
+	}{
+		{
+			name: "attribute form (EL format)",
+			table: DTTable{
+				NameAttr:  "EL_Table_Name",
+				TableName: "",
+			},
+			expected: "EL_Table_Name",
+		},
+		{
+			name: "element form (traditional format)",
+			table: DTTable{
+				NameAttr:  "",
+				TableName: "Traditional_Table_Name",
+			},
+			expected: "Traditional_Table_Name",
+		},
+		{
+			name: "attribute takes precedence",
+			table: DTTable{
+				NameAttr:  "Attribute_Name",
+				TableName: "Element_Name",
+			},
+			expected: "Attribute_Name",
+		},
+		{
+			name: "both empty",
+			table: DTTable{
+				NameAttr:  "",
+				TableName: "",
+			},
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.table.GetTableName()
+			if result != tt.expected {
+				t.Errorf("GetTableName() = %q, want %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestDTTableGetTableNumber tests the GetTableNumber method which supports both
+// attribute and element forms for table numbers.
+// Issue #374: EL format uses number attribute on <decision_table number="...">
+func TestDTTableGetTableNumber(t *testing.T) {
+	tests := []struct {
+		name     string
+		table    DTTable
+		expected string
+	}{
+		{
+			name: "attribute form (EL format)",
+			table: DTTable{
+				NumberAttr:      "1000",
+				AttributeFields: DTAttributeFields{TableNumber: ""},
+			},
+			expected: "1000",
+		},
+		{
+			name: "element form (traditional format)",
+			table: DTTable{
+				NumberAttr:      "",
+				AttributeFields: DTAttributeFields{TableNumber: "2000"},
+			},
+			expected: "2000",
+		},
+		{
+			name: "attribute takes precedence",
+			table: DTTable{
+				NumberAttr:      "3000",
+				AttributeFields: DTAttributeFields{TableNumber: "4000"},
+			},
+			expected: "3000",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.table.GetTableNumber()
+			if result != tt.expected {
+				t.Errorf("GetTableNumber() = %q, want %q", result, tt.expected)
+			}
+		})
+	}
+}
