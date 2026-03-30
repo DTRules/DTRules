@@ -140,6 +140,12 @@ dtrules docs workflow            # Development workflow
 - [DTRules.com](https://dtrules.com) - Official website
 - [UI Quick Start](QUICKSTART-UI.md) - Visual UI setup
 
+### In Repository
+
+- [EL Reference](docs/EL-REFERENCE.md) - Expression Language syntax
+- [XML Format](docs/decision-table-xml-format.md) - Decision table XML structure
+- [EL Compiler](pkg/dtrules/compiler/el/README.md) - How EL compiles to postfix
+
 ## Sample Projects
 
 | Project | Description |
@@ -175,17 +181,45 @@ Key optimizations achieve significant speedups vs Java:
 | Integer Arithmetic | **24x** |
 | String Creation | **3.7x** |
 
+## Expression Language (EL)
+
+Decision tables use **EL (Expression Language)** for conditions and actions. EL is human-readable syntax that compiles to executable postfix notation.
+
+### EL Syntax Examples
+
+**Conditions:**
+```
+taxpayer.filing_status == "SINGLE"
+taxpayer.income > 50000.0
+result.has_nexus is true
+```
+
+**Actions:**
+```
+set result.tax_liability = income * rate
+set taxpayer.exemptions = taxpayer.exemptions + 1
+perform Calculate_Deductions
+```
+
+### Why EL is Required
+
+- **Readable** - Business analysts can understand and modify rules
+- **Validated** - Syntax errors caught at compile time, not runtime
+- **Consistent** - Eliminates hand-coded postfix errors
+
+See [EL Reference](docs/EL-REFERENCE.md) for complete syntax and [XML Format](docs/decision-table-xml-format.md) for file structure.
+
 ## Development Workflow
 
 ### Excel-first (Business Analysts)
 
 1. Edit rules in Excel spreadsheets
-2. Run `dtrules sync import` to generate XML
+2. Run `dtrules sync import` to generate XML with EL
 3. Test with `dtrules -rules ./xml -test ./testfiles`
 
 ### XML-first (Developers/AI)
 
-1. Edit XML files directly
+1. Write EL expressions in XML files
 2. Test with `dtrules -rules ./xml -test ./testfiles`
 3. Run `dtrules sync export` to update Excel
 
