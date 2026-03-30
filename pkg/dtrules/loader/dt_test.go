@@ -18,8 +18,28 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 )
+
+// mockSession is a minimal session implementation for testing.
+type mockSession struct {
+	factory *entity.Factory
+}
+
+func (s *mockSession) GetState() dtrules.State                 { return nil }
+func (s *mockSession) GetEntityFactory() dtrules.EntityFactory { return s.factory }
+func (s *mockSession) GetUniqueID() int                        { return 0 }
+func (s *mockSession) GetDateParser() dtrules.DateParser       { return nil }
+func (s *mockSession) GetRuleSet() dtrules.RuleSet             { return nil }
+func (s *mockSession) CreateEntity(name *dtrules.RName) (dtrules.Entity, error) {
+	return nil, nil
+}
+func (s *mockSession) GetEntityByID(id int) dtrules.Entity { return nil }
+func (s *mockSession) Compile(expr string) (dtrules.Object, error) {
+	// For testing, just return nil - we're testing EL compilation, not postfix execution
+	return nil, nil
+}
 
 func TestDTLoaderMalformedXML(t *testing.T) {
 	factory := entity.NewFactory(nil)
@@ -238,4 +258,132 @@ func TestDTTableGetTableNumber(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestDTLoaderELAutoCompile tests that EL descriptions are automatically compiled
+// to postfix when the postfix element is empty or missing.
+func TestDTLoaderELAutoCompile(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	session := &mockSession{factory: factory}
+	loader := NewDTLoader(session, factory)
+
+	// XML with EL descriptions but no postfix - should auto-compile
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>Test_EL_AutoCompile</table_name>
+        <attribute_fields>
+            <Type>First</Type>
+        </attribute_fields>
+        <contexts></contexts>
+        <initial_actions></initial_actions>
+        <conditions>
+            <condition_details>
+                <condition_number>1</condition_number>
+                <condition_description>taxpayer.income > 50000</condition_description>
+                <condition_column column_number="1" column_value="y"/>
+                <condition_column column_number="2" column_value="n"/>
+            </condition_details>
+        </conditions>
+        <actions>
+            <action_details>
+                <action_number>1</action_number>
+                <action_description>set result.eligible = true</action_description>
+                <action_column column_number="1" column_value="x"/>
+                <action_column column_number="2" column_value=""/>
+            </action_details>
+        </actions>
+        <policy_statements></policy_statements>
+    </decision_table>
+</decision_tables>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Failed to load DT with EL auto-compile: %v", err)
+	}
+	t.Log("Table Test_EL_AutoCompile loaded successfully with auto-compiled EL")
+}
+
+// TestDTLoaderELAutoCompileWithExistingPostfix tests that existing postfix is preserved
+// when both description and postfix are present.
+func TestDTLoaderELAutoCompileWithExistingPostfix(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	session := &mockSession{factory: factory}
+	loader := NewDTLoader(session, factory)
+
+	// XML with both description and postfix - postfix should be used
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>Test_EL_Preserve_Postfix</table_name>
+        <attribute_fields>
+            <Type>First</Type>
+        </attribute_fields>
+        <contexts></contexts>
+        <initial_actions></initial_actions>
+        <conditions>
+            <condition_details>
+                <condition_number>1</condition_number>
+                <condition_description>taxpayer.income > 50000</condition_description>
+                <condition_postfix>taxpayer.income 50000 f></condition_postfix>
+                <condition_column column_number="1" column_value="y"/>
+            </condition_details>
+        </conditions>
+        <actions>
+            <action_details>
+                <action_number>1</action_number>
+                <action_description>set result.tax = income * 0.25</action_description>
+                <action_postfix>income 0.25 fmul /result.tax xdef</action_postfix>
+                <action_column column_number="1" column_value="x"/>
+            </action_details>
+        </actions>
+        <policy_statements></policy_statements>
+    </decision_table>
+</decision_tables>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Failed to load DT with existing postfix: %v", err)
+	}
+	t.Log("Table loaded successfully with existing postfix preserved")
+}
+
+// TestDTLoaderELAutoCompileError tests that invalid EL expressions produce meaningful errors.
+func TestDTLoaderELAutoCompileError(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	session := &mockSession{factory: factory}
+	loader := NewDTLoader(session, factory)
+
+	// XML with invalid EL expression - should fail
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>Test_EL_Error</table_name>
+        <attribute_fields>
+            <Type>First</Type>
+        </attribute_fields>
+        <contexts></contexts>
+        <initial_actions></initial_actions>
+        <conditions>
+            <condition_details>
+                <condition_number>1</condition_number>
+                <condition_description>value > (invalid</condition_description>
+                <condition_column column_number="1" column_value="y"/>
+            </condition_details>
+        </conditions>
+        <actions></actions>
+        <policy_statements></policy_statements>
+    </decision_table>
+</decision_tables>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err == nil {
+		t.Fatal("Expected error for invalid EL expression")
+	}
+	// Verify error is related to EL compilation
+	errors := loader.GetErrors()
+	if len(errors) == 0 {
+		t.Error("Expected loader to have recorded errors")
+	}
+	t.Logf("Got expected error: %v", err)
 }

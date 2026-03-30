@@ -25,25 +25,28 @@ import (
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler"
+	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 )
 
 // DTLoader loads Decision Table files (XML or JSON).
 type DTLoader struct {
-	session  dtrules.Session
-	factory  *entity.Factory
-	compiler *compiler.Compiler
-	errors   []error
+	session    dtrules.Session
+	factory    *entity.Factory
+	compiler   *compiler.Compiler
+	elCompiler *el.Compiler
+	errors     []error
 }
 
 // NewDTLoader creates a new Decision Table loader.
 func NewDTLoader(session dtrules.Session, factory *entity.Factory) *DTLoader {
 	return &DTLoader{
-		session:  session,
-		factory:  factory,
-		compiler: compiler.NewCompiler(session, factory),
-		errors:   make([]error, 0),
+		session:    session,
+		factory:    factory,
+		compiler:   compiler.NewCompiler(session, factory),
+		elCompiler: el.NewCompiler(),
+		errors:     make([]error, 0),
 	}
 }
 
@@ -282,7 +285,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	contextsComment := make([]string, len(table.Contexts.Contexts))
 	for i, ctx := range table.Contexts.Contexts {
 		contexts[i] = ctx.Description
-		contextsPostfix[i] = strings.TrimSpace(ctx.Postfix)
+		postfix := strings.TrimSpace(ctx.Postfix)
+
+		// Auto-compile EL description to postfix if postfix is empty
+		if postfix == "" && strings.TrimSpace(ctx.Description) != "" {
+			compiled, err := l.elCompiler.CompileContext(ctx.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL context %d ('%s'): %w", i+1, ctx.Description, err)
+			}
+			postfix = compiled
+		}
+		contextsPostfix[i] = postfix
 		contextsComment[i] = ctx.Comment
 	}
 	builder.SetContexts(contexts)
@@ -292,7 +305,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	initialActionsPostfix := make([]string, len(table.InitialActions.Actions))
 	for i, action := range table.InitialActions.Actions {
 		initialActions[i] = action.Description
-		initialActionsPostfix[i] = strings.TrimSpace(action.Postfix)
+		postfix := strings.TrimSpace(action.Postfix)
+
+		// Auto-compile EL description to postfix if postfix is empty
+		if postfix == "" && strings.TrimSpace(action.Description) != "" {
+			compiled, err := l.elCompiler.CompileAction(action.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL initial action %d ('%s'): %w", i+1, action.Description, err)
+			}
+			postfix = compiled
+		}
+		initialActionsPostfix[i] = postfix
 	}
 	builder.SetInitialActions(initialActions)
 
@@ -309,7 +332,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 	for i, cond := range table.Conditions.Conditions {
 		conditions[i] = cond.Description
-		conditionsPostfix[i] = strings.TrimSpace(cond.Postfix)
+		postfix := strings.TrimSpace(cond.Postfix)
+
+		// Auto-compile EL description to postfix if postfix is empty
+		if postfix == "" && strings.TrimSpace(cond.Description) != "" {
+			compiled, err := l.elCompiler.CompileCondition(cond.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL condition %d ('%s'): %w", i+1, cond.Description, err)
+			}
+			postfix = compiled
+		}
+		conditionsPostfix[i] = postfix
 		conditionsComment[i] = cond.Comment
 
 		// Initialize row with "-" (don't care)
@@ -338,7 +371,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 	for i, action := range table.Actions.Actions {
 		actions[i] = action.Description
-		actionsPostfix[i] = strings.TrimSpace(action.Postfix)
+		postfix := strings.TrimSpace(action.Postfix)
+
+		// Auto-compile EL description to postfix if postfix is empty
+		if postfix == "" && strings.TrimSpace(action.Description) != "" {
+			compiled, err := l.elCompiler.CompileAction(action.Description)
+			if err != nil {
+				return fmt.Errorf("failed to compile EL action %d ('%s'): %w", i+1, action.Description, err)
+			}
+			postfix = compiled
+		}
+		actionsPostfix[i] = postfix
 		actionsComment[i] = action.Comment
 
 		// Initialize row with empty (no action)
