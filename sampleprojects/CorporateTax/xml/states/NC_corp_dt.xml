@@ -18,10 +18,10 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in NC</condition_comment>
-<condition_description>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "NC"</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "NC"</condition_description>
 <condition_postfix>
 apportionment.has_physical_presence true eq
-apportionment.state_code NC streq
+apportionment.state_code "NC" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
@@ -29,10 +29,10 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in NC</condition_comment>
-<condition_description>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "NC"</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "NC"</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.state_code NC streq
+apportionment.state_code "NC" streq
 and
 </condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -45,7 +45,8 @@ and
 <action_comment>Physical nexus established - filing required</action_comment>
 <action_description>Log NC filing requirement due to physical presence</action_description>
 <action_postfix>
-"NC filing required due to physical presence (office, employees, or property in state). A corporation has physical presence nexus in NC if it has: office/store/warehouse, employees working in NC, tangible personal property in NC, or real property in NC. Apportionment will be calculated by tables 7000-7500. Reference: NC General Statute § 105-130.4 (Nexus and apportionment), NC Department of Revenue Directive CD-98-1 (Nexus standards)." job.audit_trail swap addto
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -54,7 +55,8 @@ and
 <action_comment>Economic nexus established - filing required</action_comment>
 <action_description>Log NC filing requirement due to economic nexus</action_description>
 <action_postfix>
-"NC filing required due to economic nexus (post-Wayfair). Economic nexus threshold: $100,000 gross receipts OR 200 transactions in NC. Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NC requires filing if corporation exceeds economic nexus thresholds, even without physical presence. Apportionment will be calculated by tables 7000-7500. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NC Department of Revenue Economic Nexus Guidance, NC General Statute § 105-164.8 (Economic nexus provisions)." job.audit_trail swap addto
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -63,9 +65,9 @@ and
 <action_comment>No nexus - no filing required</action_comment>
 <action_description>Set state tax to zero and refund any payments</action_description>
 <action_postfix>
-0.0 apportionment.state_tax !
-apportionment.state_payments apportionment.state_refund_or_owed !
-"No NC nexus - no filing requirement. Corporation does not meet physical presence or economic nexus thresholds. Any estimated payments refunded. Reference: NC General Statute § 105-130.4 (Nexus requirements)." job.audit_trail swap addto
+// No nexus - no filing required
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -90,7 +92,7 @@ apportionment.state_payments apportionment.state_refund_or_owed !
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has NC nexus (physical or economic)</condition_comment>
-<condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -106,10 +108,11 @@ or
 <action_comment>Calculate NC state additions and subtractions</action_comment>
 <action_description>Calculate NC state-specific income adjustments to federal taxable income</action_description>
 <action_postfix>
+// Calculate NC state additions and subtractions
 0.0 /additions xdef
 0.0 /subtractions xdef
-additions apportionment.state_additions !
-subtractions apportionment.state_subtractions !
+apportionment.state_additions additions xdef
+apportionment.state_subtractions subtractions xdef
 "NC state-specific income adjustments to federal taxable income. NC ADDITIONS: Interest income from U.S. government obligations (exempt federally, taxable to NC), IRC Section 199A qualified business income deduction addback (NC does not conform), State income taxes deducted on federal return, Bonus depreciation addback (varies by tax year), Expenses related to exempt income. NC SUBTRACTIONS: Interest on NC state and municipal bonds, NC net operating loss deduction (subject to NC limitations), Dividend income eligible for NC dividend received deduction, Certain refunds of state income taxes. Reference: NC Form CD-405 Schedule A/B, NC General Statute § 105-130.5." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -119,9 +122,9 @@ subtractions apportionment.state_subtractions !
 <action_comment>No nexus - zero adjustments</action_comment>
 <action_description>Set state additions and subtractions to zero</action_description>
 <action_postfix>
-0.0 apportionment.state_additions !
-0.0 apportionment.state_subtractions !
-"No NC nexus - no state adjustments calculated. Corporation does not have NC nexus, so no income adjustments are needed." job.audit_trail swap addto
+// No nexus - no state adjustments
+apportionment.state_additions 0.0 xdef
+apportionment.state_subtractions 0.0 xdef
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -146,7 +149,7 @@ subtractions apportionment.state_subtractions !
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has NC nexus (physical or economic)</condition_comment>
-<condition_description>apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -159,7 +162,7 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive NC taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+<condition_description>apportionment.state_taxable_income > 0</condition_description>
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
@@ -173,10 +176,18 @@ apportionment.state_taxable_income 0 gt
 <action_comment>Calculate NC tax at 2.5% flat rate (LOWEST in nation)</action_comment>
 <action_description>Calculate NC state tax using 2.5% flat rate, apply credits, calculate refund or owed</action_description>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate mul /state_tax_before_credits xdef
-0.0 state_tax_before_credits apportionment.state_credits sub max apportionment.state_tax !
-apportionment.state_payments apportionment.state_tax sub apportionment.state_refund_or_owed !
-"NC state corporate income tax calculation: (1) Federal taxable income [Form 1120 line 28], (2) Apportioned to NC [× NC apportionment percentage], (3) NC additions [+ Federal interest, IRC 199A addback, etc.], (4) NC subtractions [- NC municipal interest, NC NOL, etc.], (5) NC taxable income = " apportionment.state_taxable_income cvs strconcat ", (6) NC tax rate × 2.5% (LOWEST STATE RATE IN THE NATION), (7) NC income tax before credits = " strconcat state_tax_before_credits cvs strconcat ", (8) NC credits - [Jobs, film, renewable energy, historic preservation, etc.] = " strconcat apportionment.state_credits cvs strconcat ", (9) NC tax liability = " strconcat apportionment.state_tax cvs strconcat ". NC uses single-sales factor apportionment (100% sales factor). Reference: NC Form CD-405, NC General Statute § 105-130.3 (Tax rate of 2.5%), NC General Statute § 105-130.4 (Single-sales apportionment), NC Department of Revenue Corporate Tax Bulletin 2025." strconcat job.audit_trail swap addto
+// NC uses 2.5% flat rate (LOWEST STATE RATE IN THE NATION)
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/state_tax_before_credits xdef
+
+// Subtract state credits
+state_tax_before_credits apportionment.state_credits sub
+0.0 max
+/apportionment.state_tax xdef
+
+// Calculate refund or amount owed
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -185,9 +196,9 @@ apportionment.state_payments apportionment.state_tax sub apportionment.state_ref
 <action_comment>No nexus - no tax liability</action_comment>
 <action_description>Set state tax to zero and refund any payments</action_description>
 <action_postfix>
-0.0 apportionment.state_tax !
-apportionment.state_payments apportionment.state_refund_or_owed !
-"No NC nexus - no tax liability. Corporation does not have physical presence or economic nexus in NC. Any estimated payments are refunded. Reference: NC General Statute § 105-130.4 (Nexus requirements)." job.audit_trail swap addto
+// No nexus - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -196,9 +207,9 @@ apportionment.state_payments apportionment.state_refund_or_owed !
 <action_comment>Nexus but no taxable income - no tax liability</action_comment>
 <action_description>Set state tax to zero and refund any payments</action_description>
 <action_postfix>
-0.0 apportionment.state_tax !
-apportionment.state_payments apportionment.state_refund_or_owed !
-"No NC taxable income - no tax liability. Corporation has NC nexus but no positive taxable income after apportionment and adjustments. Any estimated payments are refunded. NC net operating loss (NOL) rules may apply: NC allows NOL carryforward for 15 years, No carryback allowed (as of 2025), NOL limited to 80% of taxable income (similar to federal). Reference: NC Form CD-405 (Corporation Income Tax Return), NC General Statute § 105-130.8 (Net operating loss deduction)." job.audit_trail swap addto
+// Nexus but no taxable income - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>

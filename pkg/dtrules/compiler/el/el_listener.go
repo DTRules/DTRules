@@ -79,14 +79,8 @@ type ELListener interface {
 	// EnterPossessiveChain is called when entering the possessiveChain production.
 	EnterPossessiveChain(c *PossessiveChainContext)
 
-	// EnterPossessiveSingle is called when entering the possessiveSingle production.
-	EnterPossessiveSingle(c *PossessiveSingleContext)
-
-	// EnterColonPossessiveChain is called when entering the colonPossessiveChain production.
-	EnterColonPossessiveChain(c *ColonPossessiveChainContext)
-
-	// EnterColonPossessiveSingle is called when entering the colonPossessiveSingle production.
-	EnterColonPossessiveSingle(c *ColonPossessiveSingleContext)
+	// EnterColonChain is called when entering the colonChain production.
+	EnterColonChain(c *ColonChainContext)
 
 	// EnterColonRef is called when entering the colonRef production.
 	EnterColonRef(c *ColonRefContext)
@@ -1657,14 +1651,8 @@ type ELListener interface {
 	// ExitPossessiveChain is called when exiting the possessiveChain production.
 	ExitPossessiveChain(c *PossessiveChainContext)
 
-	// ExitPossessiveSingle is called when exiting the possessiveSingle production.
-	ExitPossessiveSingle(c *PossessiveSingleContext)
-
-	// ExitColonPossessiveChain is called when exiting the colonPossessiveChain production.
-	ExitColonPossessiveChain(c *ColonPossessiveChainContext)
-
-	// ExitColonPossessiveSingle is called when exiting the colonPossessiveSingle production.
-	ExitColonPossessiveSingle(c *ColonPossessiveSingleContext)
+	// ExitColonChain is called when exiting the colonChain production.
+	ExitColonChain(c *ColonChainContext)
 
 	// ExitColonRef is called when exiting the colonRef production.
 	ExitColonRef(c *ColonRefContext)

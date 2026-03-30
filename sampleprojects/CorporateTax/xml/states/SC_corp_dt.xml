@@ -15,397 +15,236 @@
   - SC Form SC1120 (Corporation Income Tax Return)
   - SC Department of Revenue Corporate Tax Guidance
 -->
-<decision_tables name="CorporateTax_SC_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 54400: Determine SC Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 54400: Determine_SC_Filing_Requirement                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_SC_Filing_Requirement</table_name>
+<xls_file>SC_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file South Carolina state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>54400</TABLE_NUMBER>
+<FILE_PATH>states/SC/54400_Determine_SC_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file SC state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in SC
-    - Economic nexus (post-Wayfair): $100,000 gross receipts or 200 transactions
-  -->
-  <decision_table name="Determine_SC_Filing_Requirement" number="54400">
-    <description>
-      Determine if corporation must file South Carolina state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<initial_actions>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'SC'</expression>
-        <comment>Has physical presence in SC (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in SC (office, employees, property)</condition_comment>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "SC"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence get true eq
+apportionment.state_code get "SC" streq and
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'SC'</expression>
-        <comment>Meets SC economic nexus threshold</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets SC economic nexus threshold ($100K or 200 transactions)</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "SC"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get true eq
+apportionment.state_code get "SC" streq and
+</condition_postfix>
+<condition_column column_number="1" column_value=""></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          SC filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required</action_comment>
+<action_description>SC filing required due to physical presence</action_description>
+<action_postfix>
+"SC filing required due to physical presence. Reference: SC Code 12-6-2320" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          A corporation has physical presence nexus in SC if it has:
-          - An office, store, warehouse, or other place of business in SC
-          - Employees working in SC
-          - Tangible personal property located in SC
-          - Real property located in SC
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_description>SC filing required due to economic nexus</action_description>
+<action_postfix>
+"SC filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: SC Code 12-36-2691" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Reference: SC Code § 12-6-2320 (Nexus and apportionment)
-          Reference: SC Department of Revenue Regulation 117-1730 (Nexus standards)
-        </policy>
-      </rule>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>No SC nexus - no filing requirement</action_description>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No SC nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          SC filing required due to economic nexus (post-Wayfair).
+</decision_table>
 
-          Economic nexus threshold: $100,000 gross receipts OR 200 transactions in SC.
+<!-- ====================================================================== -->
+<!-- TABLE 54420: Calculate_SC_Income_Adjustments                          -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SC_Income_Adjustments</table_name>
+<xls_file>SC_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate SC state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>54420</TABLE_NUMBER>
+<FILE_PATH>states/SC/54420_Calculate_SC_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), SC requires
-          filing if a corporation exceeds economic nexus thresholds, even without
-          physical presence.
+<contexts></contexts>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: SC Department of Revenue Economic Nexus Guidance
-          Reference: SC Code § 12-36-2691 (Economic nexus provisions)
-        </policy>
-      </rule>
+<initial_actions>
+</initial_actions>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No SC nexus - no filing requirement.
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-          Corporation does not meet physical presence or economic nexus thresholds.
-          Any estimated payments would be refunded.
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate SC state additions and subtractions</action_comment>
+<action_description>Calculate SC-specific income adjustments</action_description>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+"SC income adjustments calculated. Reference: SC Code 12-6-1130 (additions), 12-6-1140 (subtractions)" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Reference: SC Code § 12-6-2320 (Nexus requirements)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no state adjustments</action_comment>
+<action_description>No SC nexus - no adjustments calculated</action_description>
+<action_postfix>
+0.0 /apportionment.state_additions xdef
+0.0 /apportionment.state_subtractions xdef
+"No SC nexus - no adjustments calculated." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-  <!--
-    ============================================================================
-    TABLE 54420: Calculate SC State-Specific Income Adjustments
-    ============================================================================
+</decision_table>
 
-    Calculates SC additions and subtractions to federal taxable income.
+<!-- ====================================================================== -->
+<!-- TABLE 54480: Calculate_SC_State_Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_SC_State_Tax</table_name>
+<xls_file>SC_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate SC state corporate income tax. Applies SC 5% flat rate to apportioned and adjusted taxable income. Also includes SC annual license fee.</COMMENTS>
+<TABLE_NUMBER>54480</TABLE_NUMBER>
+<FILE_PATH>states/SC/54480_Calculate_SC_State_Tax</FILE_PATH>
+</attribute_fields>
 
-    Common SC additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to SC)
-    - IRC Section 199A qualified business income deduction (SC requires addback)
-    - State income tax refunds included in federal income
-    - Bonus depreciation (SC may require partial addback)
+<contexts></contexts>
 
-    Common SC subtractions:
-    - Interest on SC state and municipal bonds (exempt for SC purposes)
-    - SC net operating loss deduction (if different from federal)
-    - Dividend income eligible for SC dividend received deduction
-  -->
-  <decision_table name="Calculate_SC_Income_Adjustments" number="54420">
-    <description>
-      Calculate SC state-specific additions and subtractions to federal taxable income.
-    </description>
+<initial_actions>
+</initial_actions>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate SC state additions
-            double additions = 0.0;
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income get 0 gt
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-            // SC requires addback of:
-            // - Federal interest income (taxable to SC)
-            // - IRC 199A deduction (SC does not conform)
-            // - State income tax refunds
-            // - Certain bonus depreciation amounts (depends on year)
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate SC tax at 5% flat rate</action_comment>
+<action_description>SC income tax at 5% plus license fee</action_description>
+<action_postfix>
+apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
+apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
+apportionment.license_fee_minimum get /license_fee xdef
+apportionment.state_tax get license_fee get add /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-            // Example additions (would be calculated from entity fields):
-            // additions += revenue.federal_bond_interest;
-            // additions += result.section_199a_deduction;
-            // additions += result.state_tax_refunds;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No SC nexus - no tax liability</action_comment>
+<action_description>No SC nexus - no tax</action_description>
+<action_postfix>
+0.0 /apportionment.state_tax xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
+"No SC nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-            apportionment.state_additions = additions;
+<action_details>
+<action_number>3</action_number>
+<action_comment>Nexus but no taxable income - license fee only</action_comment>
+<action_description>No SC taxable income but license fee applies</action_description>
+<action_postfix>
+apportionment.license_fee_minimum get /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            // Calculate SC state subtractions
-            double subtractions = 0.0;
-
-            // SC allows subtraction of:
-            // - SC municipal bond interest (exempt for SC purposes)
-            // - SC net operating loss deduction (if applicable)
-            // - Certain dividend income (85% dividend received deduction)
-
-            // Example subtractions (would be calculated from entity fields):
-            // subtractions += revenue.sc_municipal_interest;
-            // subtractions += result.sc_nol_deduction;
-            // subtractions += result.sc_dividend_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          SC state-specific income adjustments to federal taxable income.
-
-          SC ADDITIONS to federal taxable income include:
-          - Interest income from U.S. government obligations (exempt federally, taxable to SC)
-          - IRC Section 199A qualified business income deduction addback (SC does not conform)
-          - State income tax refunds included in federal income
-          - Bonus depreciation addback (varies by tax year)
-          - Expenses related to exempt income
-
-          SC SUBTRACTIONS from federal taxable income include:
-          - Interest on SC state and municipal bonds
-          - SC net operating loss deduction (subject to SC limitations)
-          - Dividend income eligible for SC dividend received deduction
-          - Certain capital gains exclusions
-
-          Reference: SC Form SC1120 Schedule A (Adjustments to Federal Taxable Income)
-          Reference: SC Code § 12-6-1130 (Additions to federal taxable income)
-          Reference: SC Code § 12-6-1140 (Deductions from federal taxable income)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-
-          Corporation does not have SC nexus, so no income adjustments are needed.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 54480: Calculate SC State Tax
-    ============================================================================
-
-    Calculates final SC state corporate income tax.
-
-    SC uses a FLAT RATE of 5% on corporate income.
-
-    Process:
-    1. Federal taxable income apportioned to SC (done by table 7500)
-    2. Add SC-specific additions (done by table 54420)
-    3. Subtract SC-specific subtractions (done by table 54420)
-    4. Calculate SC state taxable income
-    5. Apply SC 5% flat tax rate
-    6. Subtract SC state credits
-    7. Add SC license fee (0.1% of capital and paid-in surplus, minimum $15)
-    8. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_SC_State_Tax" number="54480">
-    <description>
-      Calculate SC state corporate income tax.
-      Applies SC 5% flat rate to apportioned and adjusted taxable income.
-      Also includes SC annual license fee.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate SC tax at 5% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // SC uses 5% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract SC state credits
-            // SC offers various credits: job development, corporate headquarters,
-            // port volume increase, R&amp;D, etc.
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Add SC annual license fee
-            // License fee = 0.1% of capital and paid-in surplus, minimum $15
-            // Note: This would need entity fields for capital and paid-in surplus
-            // For now, we apply minimum license fee
-            double license_fee = apportionment.license_fee_minimum;
-            // If capital data available:
-            // license_fee = Math.max(apportionment.license_fee_minimum,
-            //                       corporation.capital_and_surplus * apportionment.license_fee_rate);
-
-            apportionment.state_tax += license_fee;
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          SC state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to SC: × [SC apportionment percentage]
-          3. SC additions: + [Federal interest, IRC 199A addback, etc.]
-          4. SC subtractions: - [SC municipal interest, SC NOL, etc.]
-          5. SC taxable income: = [Result]
-          6. SC tax rate: × 5.0% (flat rate)
-          7. SC income tax: = [Tax before credits]
-          8. SC credits: - [Job development, corporate HQ, port volume, R&amp;D, etc.]
-          9. SC license fee: + [0.1% of capital and paid-in surplus, minimum $15]
-          10. SC tax liability: = [Final tax]
-
-          SC uses single-sales factor apportionment (100% sales factor).
-
-          SC tax rate history:
-          - 2025: 5.0% flat rate
-          - Historical: 5.0% flat rate (stable)
-
-          SC provides various tax credits including:
-          - Job development credit
-          - Corporate headquarters credit
-          - Port volume increase credit
-          - Research and development credit
-          - Manufacturing and recycling credit
-          - Renewable energy credit
-
-          SC annual license fee:
-          - Rate: 0.1% of capital stock and paid-in surplus
-          - Minimum: $15
-          - Due with corporate income tax return
-
-          Reference: SC Form SC1120 (Corporation Income Tax Return)
-          Reference: SC Code § 12-6-530 (Tax rate of 5%)
-          Reference: SC Code § 12-6-2320 (Single-sales apportionment)
-          Reference: SC Code § 12-20-50 (License fee)
-          Reference: SC Department of Revenue Corporate Tax Guide
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No SC nexus - no tax liability.
-
-          Corporation does not have physical presence or economic nexus in SC.
-          Any estimated payments are refunded.
-
-          Reference: SC Code § 12-6-2320 (Nexus requirements)
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // No income tax, but license fee still applies
-            double license_fee = apportionment.license_fee_minimum;
-            // If capital data available:
-            // license_fee = Math.max(apportionment.license_fee_minimum,
-            //                       corporation.capital_and_surplus * apportionment.license_fee_rate);
-
-            apportionment.state_tax = license_fee;
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          No SC taxable income - only license fee applies.
-
-          Corporation has SC nexus but no positive taxable income after apportionment
-          and adjustments. However, SC annual license fee ($15 minimum) still applies.
-
-          SC net operating loss (NOL) rules may apply:
-          - SC allows NOL carryforward for 15 years
-          - No carryback allowed (as of 2025)
-          - NOL limited to 80% of taxable income (similar to federal)
-
-          Reference: SC Form SC1120 (Corporation Income Tax Return)
-          Reference: SC Code § 12-6-1500 (Net operating loss deduction)
-          Reference: SC Code § 12-20-50 (License fee requirement)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

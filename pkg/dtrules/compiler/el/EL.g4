@@ -78,11 +78,12 @@ usingblock
     | block                                                 # usingBlockBase
     ;
 
+// possessiveRef handles entity chains like "client's plan's" or ":Client:plan's"
+// Note: Original Cup grammar used COMMA injection after each POSSESSIVE, but ANTLR doesn't.
+// This grammar matches consecutive possessives directly.
 possessiveRef
-    : POSSESSIVE COMMA possessiveRef                        # possessiveChain
-    | POSSESSIVE COMMA                                      # possessiveSingle
-    | COLON typedEntity COLON possessiveRef                 # colonPossessiveChain
-    | COLON typedEntity COLON                               # colonPossessiveSingle
+    : POSSESSIVE+ possessiveRef?                            # possessiveChain
+    | COLON typedEntity COLON possessiveRef?                # colonChain
     ;
 
 colonRef
@@ -665,7 +666,15 @@ bexpr
     | fexpr IS WITHIN number PERCENTOF fexpr                # boolWithinPercent
     | fexpr IS PLUSORMINUS number OF fexpr                  # boolPlusOrMinus
 
-    // Integer comparisons
+    // Name comparisons (must come BEFORE integer comparisons so IDENT vs IDENT
+    // is parsed as name comparison, not integer comparison)
+    | nexpr EQ nexpr                                        # boolNameEq
+    | nexpr EQ strexpr                                      # boolNameEqStr
+    | nexpr NEQ nexpr                                       # boolNameNeq
+    | nexpr NEQ strexpr                                     # boolNameNeqStr
+
+    // Integer comparisons (IDENT vs INT_LITERAL still works since INT_LITERAL
+    // cannot be parsed as nexpr)
     | iexpr EQ iexpr                                        # boolIntEq
     | fexpr EQ iexpr                                        # boolFloatEqInt
     | iexpr EQ fexpr                                        # boolIntEqFloat
@@ -697,12 +706,6 @@ bexpr
 
     // Boolean literals (true, false, default, otherwise, always)
     | RBOOLEAN                                              # boolLiteral
-
-    // Name comparisons
-    | nexpr EQ nexpr                                        # boolNameEq
-    | nexpr EQ strexpr                                      # boolNameEqStr
-    | nexpr NEQ nexpr                                       # boolNameNeq
-    | nexpr NEQ strexpr                                     # boolNameNeqStr
 
     // String comparisons
     | strexpr EQ_IGNORE_CASE blistIc                        # boolStrEqIcList
@@ -881,11 +884,11 @@ LT                  : '<' | '&lt'
 NEQ_IGNORE_CASE     : 'is' WS+ 'not' WS+ 'equal' WS+ ('to' WS+)? 'ignore' WS+ 'case' ;
 EQ_IGNORE_CASE      : 'is' WS+ 'equal' WS+ ('to' WS+)? 'ignore' WS+ 'case' ;
 NEQ                 : '!='
-                    | 'is' WS+ 'not' WS+ 'equal' WS+ ('to' WS+)?
-                    | 'not' WS+ 'equal' WS+ ('to' WS+)? ;
+                    | 'is' WS+ 'not' WS+ 'equal' (WS+ 'to')?
+                    | 'not' WS+ 'equal' (WS+ 'to')? ;
 EQ                  : '=='
-                    | 'is' WS+ 'equal' WS+ ('to' WS+)?
-                    | 'equal' WS+ ('to' WS+)? ;
+                    | 'is' WS+ 'equal' (WS+ 'to')?
+                    | 'equal' (WS+ 'to')? ;
 
 // Keywords - statements
 SET                 : 'set' ;

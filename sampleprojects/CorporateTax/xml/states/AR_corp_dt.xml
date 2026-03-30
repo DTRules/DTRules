@@ -3,296 +3,216 @@
   Arkansas Corporate Tax Decision Tables
 
   Table Numbering: 52100-52199 (Arkansas allocation)
-  Tax Rate: 5.5% flat rate (AR Code § 26-51-205)
+  Tax Rate: 5.5% flat rate (AR Code Section 26-51-205)
   Apportionment: Single-sales factor
   Economic Nexus: $100,000 gross receipts threshold
 -->
-<decision_tables name="CorporateTax_AR_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52100: Determine AR Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 52100: Determine AR Corporate Tax Filing Requirement            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_AR_Filing_Requirement</table_name>
+<xls_file>AR_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Arkansas state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>52100</TABLE_NUMBER>
+<FILE_PATH>states/AR/52100_Determine_AR_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file Arkansas state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in Arkansas
-    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
-  -->
-  <decision_table name="Determine_AR_Filing_Requirement" number="52100">
-    <description>
-      Determine if corporation must file Arkansas state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<initial_actions></initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'AR'</expression>
-        <comment>Has physical presence in AR (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in AR (office, employees, property)</condition_comment>
+<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "AR"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "AR" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'AR'</expression>
-        <comment>Meets AR economic nexus threshold</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets AR economic nexus threshold</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "AR"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "AR" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Arkansas filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required</action_comment>
+<action_description>// Physical nexus established - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Reference: Arkansas Form AR1100CT Instructions
-          Reference: AR Code § 26-51-102 (Imposition of tax)
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Arkansas filing required due to economic nexus (post-Wayfair).
-          Threshold: $100,000 gross receipts
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: Arkansas Department of Finance and Administration Economic Nexus Rules
-        </policy>
-      </rule>
+</decision_table>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Arkansas nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- ====================================================================== -->
+<!-- TABLE 52120: Calculate AR State-Specific Income Adjustments           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AR_Income_Adjustments</table_name>
+<xls_file>AR_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Arkansas state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>52120</TABLE_NUMBER>
+<FILE_PATH>states/AR/52120_Calculate_AR_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-  <!--
-    ============================================================================
-    TABLE 52120: Calculate AR State-Specific Income Adjustments
-    ============================================================================
+<contexts></contexts>
 
-    Calculates Arkansas additions and subtractions to federal taxable income.
+<initial_actions></initial_actions>
 
-    Common Arkansas adjustments:
-    - Additions: Interest on U.S. government obligations (exempt federally but taxable to AR)
-    - Subtractions: State income taxes paid, Arkansas municipal bond interest
-  -->
-  <decision_table name="Calculate_AR_Income_Adjustments" number="52120">
-    <description>
-      Calculate Arkansas state-specific additions and subtractions to federal taxable income.
-    </description>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate state additions and subtractions</action_comment>
+<action_description>// Calculate state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate state additions
-            double additions = 0.0;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            // Arkansas generally conforms to federal income base
-            // Common additions include:
-            // - Interest on U.S. government obligations (not taxable federally but taxable to AR)
-            // - IRC 199A deduction addback (if Arkansas decouples)
+</decision_table>
 
-            apportionment.state_additions = additions;
+<!-- ====================================================================== -->
+<!-- TABLE 52180: Calculate AR State Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AR_State_Tax</table_name>
+<xls_file>AR_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Arkansas state corporate income tax. Applies 5.5% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52180</TABLE_NUMBER>
+<FILE_PATH>states/AR/52180_Calculate_AR_State_Tax</FILE_PATH>
+</attribute_fields>
 
-            // Calculate state subtractions
-            double subtractions = 0.0;
+<contexts></contexts>
 
-            // Common subtractions include:
-            // - State income taxes paid (not deductible for state purposes)
-            // - Arkansas municipal bond interest
+<initial_actions></initial_actions>
 
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          Arkansas state-specific income adjustments to federal taxable income.
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
 
-          Additions may include:
-          - Interest on U.S. government obligations
-          - IRC Section 199A deduction addback (if Arkansas decouples)
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0.0 f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-          Subtractions may include:
-          - State income taxes paid
-          - Arkansas municipal bond interest
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Flat rate calculation</action_comment>
+<action_description>// Arkansas uses 5.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_postfix>
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Reference: Arkansas Form AR1100CT Instructions
-          Reference: AR Code § 26-51-205 (Tax computation)
-        </policy>
-      </rule>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_description>// No Arkansas nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_description>// No Arkansas taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-  <!--
-    ============================================================================
-    TABLE 52180: Calculate AR State Tax
-    ============================================================================
-
-    Calculates final Arkansas state corporate income tax.
-
-    Process:
-    1. Federal taxable income apportioned to AR (done by table 7500)
-    2. Add state-specific additions (done by table 52120)
-    3. Subtract state-specific subtractions (done by table 52120)
-    4. Calculate AR state taxable income
-    5. Apply AR tax rate (5.5% flat rate)
-    6. Subtract AR state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_AR_State_Tax" number="52180">
-    <description>
-      Calculate Arkansas state corporate income tax.
-      Applies 5.5% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Flat rate calculation -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // Arkansas uses 5.5% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Arkansas state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to Arkansas: × [Apportionment %]
-          3. State additions: + [Additions]
-          4. State subtractions: - [Subtractions]
-          5. Arkansas taxable income: = [Result]
-          6. Arkansas tax rate: × 5.5%
-          7. Arkansas income tax: = [Tax before credits]
-          8. Arkansas credits: - [Credits]
-          9. Arkansas tax liability: = [Final tax]
-
-          Reference: Arkansas Form AR1100CT Instructions
-          Reference: AR Code § 26-51-205 (Tax rate: 5.5%)
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Arkansas nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
-
-      <!-- Rule 3: No taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Arkansas taxable income - no tax liability.
-          Arkansas NOL rules may apply (not implemented).
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

@@ -79,14 +79,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#possessiveChain.
 	VisitPossessiveChain(ctx *PossessiveChainContext) interface{}
 
-	// Visit a parse tree produced by ELParser#possessiveSingle.
-	VisitPossessiveSingle(ctx *PossessiveSingleContext) interface{}
-
-	// Visit a parse tree produced by ELParser#colonPossessiveChain.
-	VisitColonPossessiveChain(ctx *ColonPossessiveChainContext) interface{}
-
-	// Visit a parse tree produced by ELParser#colonPossessiveSingle.
-	VisitColonPossessiveSingle(ctx *ColonPossessiveSingleContext) interface{}
+	// Visit a parse tree produced by ELParser#colonChain.
+	VisitColonChain(ctx *ColonChainContext) interface{}
 
 	// Visit a parse tree produced by ELParser#colonRef.
 	VisitColonRef(ctx *ColonRefContext) interface{}

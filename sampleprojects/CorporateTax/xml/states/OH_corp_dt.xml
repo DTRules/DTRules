@@ -50,8 +50,9 @@
 <condition_comment>Has physical presence in Ohio (bright-line presence)</condition_comment>
 <condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == 'OH'</condition_description>
 <condition_postfix>
-apportionment.has_physical_presence get true eq
-apportionment.state_code get "OH" streq and
+apportionment.has_physical_presence true eq
+apportionment.state_code "OH" streq
+and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -64,8 +65,9 @@ apportionment.state_code get "OH" streq and
 <condition_comment>Meets Ohio economic nexus threshold ($500K Ohio receipts)</condition_comment>
 <condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == 'OH'</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.state_code get "OH" streq and
+apportionment.has_economic_nexus true eq
+apportionment.state_code "OH" streq
+and
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
@@ -78,7 +80,7 @@ apportionment.state_code get "OH" streq and
 <condition_comment>Ohio receipts below $150K exclusion threshold</condition_comment>
 <condition_description>result.oh_taxable_gross_receipts &lt; result.oh_cat_exclusion_threshold</condition_description>
 <condition_postfix>
-result.oh_taxable_gross_receipts get result.oh_cat_exclusion_threshold get lt
+result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold lt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -93,10 +95,10 @@ result.oh_taxable_gross_receipts get result.oh_cat_exclusion_threshold get lt
 <action_comment>Physical presence but below exclusion threshold - no tax due</action_comment>
 <action_description>Set no CAT due and zero tax</action_description>
 <action_postfix>
-true /result.oh_qualifies_for_no_cat xdef
-0.0 /result.oh_cat_tax xdef
-0.0 /apportionment.state_tax xdef
-"Ohio CAT: No tax due (Ohio-sourced receipts below $150,000 exclusion threshold). Filing may still be required if organized in Ohio or registered to do business. Reference: OH Rev. Code § 5751.02(C)" job.audit_trail swap addto
+// Physical presence but below threshold - no CAT due
+result.oh_qualifies_for_no_cat true xdef
+result.oh_cat_tax 0.0 xdef
+apportionment.state_tax 0.0 xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -109,8 +111,8 @@ true /result.oh_qualifies_for_no_cat xdef
 <action_comment>Physical nexus established - CAT calculation required</action_comment>
 <action_description>Mark CAT as due and log bright-line presence</action_description>
 <action_postfix>
-false /result.oh_qualifies_for_no_cat xdef
-"Ohio CAT filing required due to physical presence (bright-line presence). Bright-line includes: $50K+ property in OH, $50K+ payroll in OH, $500K+ OH receipts, or 25%+ of total property/payroll/receipts in OH. Reference: OH Rev. Code § 5751.01(I)" job.audit_trail swap addto
+// Physical nexus - CAT calculation required
+result.oh_qualifies_for_no_cat false xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -123,8 +125,8 @@ false /result.oh_qualifies_for_no_cat xdef
 <action_comment>Economic nexus established - CAT calculation required</action_comment>
 <action_description>Mark CAT as due and log economic nexus</action_description>
 <action_postfix>
-false /result.oh_qualifies_for_no_cat xdef
-"Ohio CAT filing required due to economic nexus ($500,000+ in Ohio-sourced gross receipts). Situsing rules determine Ohio-sourced receipts. Reference: OH Rev. Code § 5751.01(I), § 5751.033" job.audit_trail swap addto
+// Economic nexus - CAT calculation required
+result.oh_qualifies_for_no_cat false xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -137,11 +139,11 @@ false /result.oh_qualifies_for_no_cat xdef
 <action_comment>No nexus - no filing required</action_comment>
 <action_description>Set no CAT due, zero tax, and refund any payments</action_description>
 <action_postfix>
-true /result.oh_qualifies_for_no_cat xdef
-0.0 /result.oh_cat_tax xdef
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No Ohio nexus - no CAT filing requirement. Corporation does not have physical presence or $500K+ in Ohio-sourced receipts. Reference: OH Rev. Code § 5751.01" job.audit_trail swap addto
+// No nexus - no filing required
+result.oh_qualifies_for_no_cat true xdef
+result.oh_cat_tax 0.0 xdef
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -175,7 +177,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_comment>Has nexus and above exclusion threshold</condition_comment>
 <condition_description>result.oh_qualifies_for_no_cat == false</condition_description>
 <condition_postfix>
-result.oh_qualifies_for_no_cat get false eq
+result.oh_qualifies_for_no_cat false eq
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -187,7 +189,7 @@ result.oh_qualifies_for_no_cat get false eq
 <condition_comment>Has receipts excluded from CAT calculation</condition_comment>
 <condition_description>result.oh_cat_excluded_receipts &gt; 0</condition_description>
 <condition_postfix>
-result.oh_cat_excluded_receipts get 0 gt
+result.oh_cat_excluded_receipts 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -201,8 +203,8 @@ result.oh_cat_excluded_receipts get 0 gt
 <action_comment>No nexus or below threshold - no calculation needed</action_comment>
 <action_description>Set taxable receipts to zero</action_description>
 <action_postfix>
-0.0 /result.oh_taxable_gross_receipts xdef
-"No Ohio CAT due - gross receipts calculation not applicable" job.audit_trail swap addto
+// No nexus or below threshold - no calculation needed
+result.oh_taxable_gross_receipts 0.0 xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -214,9 +216,10 @@ result.oh_cat_excluded_receipts get 0 gt
 <action_comment>Calculate gross receipts after exclusions</action_comment>
 <action_description>Apply exclusions to Ohio-sourced receipts</action_description>
 <action_postfix>
-result.oh_taxable_gross_receipts get result.oh_cat_excluded_receipts get sub 0.0 max
+// Calculate gross receipts after exclusions
+result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts sub
+0.0 max
 /result.oh_taxable_gross_receipts xdef
-"Ohio CAT: Taxable gross receipts calculated with exclusions. Situsing rules applied per OH Rev. Code § 5751.033. Common exclusions: federal sales, affiliate transactions, interest/dividends, previously taxed receipts. Reference: OH Rev. Code § 5751.01(F), § 5751.01(E)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -228,7 +231,7 @@ result.oh_taxable_gross_receipts get result.oh_cat_excluded_receipts get sub 0.0
 <action_comment>Use Ohio-sourced gross receipts (no exclusions)</action_comment>
 <action_description>Log CAT basis and situsing</action_description>
 <action_postfix>
-"Ohio CAT: Using Ohio-sourced gross receipts (no exclusions). CAT is based on GROSS receipts - NO deduction for COGS, expenses, wages, losses, or depreciation. Fundamentally different from income tax. Situsing rules: Tangible property=destination, Services=benefit location, Rents=property location. Reference: OH Rev. Code § 5751.01(F), § 5751.033" job.audit_trail swap addto
+// Use Ohio-sourced gross receipts (no exclusions)
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -261,7 +264,7 @@ result.oh_taxable_gross_receipts get result.oh_cat_excluded_receipts get sub 0.0
 <condition_comment>Has nexus and above exclusion threshold</condition_comment>
 <condition_description>result.oh_qualifies_for_no_cat == false</condition_description>
 <condition_postfix>
-result.oh_qualifies_for_no_cat get false eq
+result.oh_qualifies_for_no_cat false eq
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -274,7 +277,7 @@ result.oh_qualifies_for_no_cat get false eq
 <condition_comment>Has positive Ohio-sourced gross receipts</condition_comment>
 <condition_description>result.oh_taxable_gross_receipts &gt; 0</condition_description>
 <condition_postfix>
-result.oh_taxable_gross_receipts get 0 gt
+result.oh_taxable_gross_receipts 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -287,7 +290,7 @@ result.oh_taxable_gross_receipts get 0 gt
 <condition_comment>Ohio receipts at or above $1M (subject to percentage tax)</condition_comment>
 <condition_description>result.oh_taxable_gross_receipts &gt;= result.oh_cat_minimum_threshold</condition_description>
 <condition_postfix>
-result.oh_taxable_gross_receipts get result.oh_cat_minimum_threshold get ge
+result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold ge
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -302,10 +305,10 @@ result.oh_taxable_gross_receipts get result.oh_cat_minimum_threshold get ge
 <action_comment>No nexus or below exclusion threshold - no CAT</action_comment>
 <action_description>Set zero tax and refund payments</action_description>
 <action_postfix>
-0.0 /result.oh_cat_tax xdef
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No Ohio Commercial Activity Tax due. Reasons: No nexus with Ohio OR Ohio-sourced gross receipts below $150,000 exclusion threshold. Any estimated CAT payments will be refunded. Reference: OH Rev. Code § 5751.02(C)" job.audit_trail swap addto
+// No nexus or below exclusion threshold - no CAT
+result.oh_cat_tax 0.0 xdef
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -318,13 +321,15 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <action_comment>Receipts over $1M - calculate percentage tax + minimum</action_comment>
 <action_description>CAT = $150 + (Receipts - $1M) × 0.26%</action_description>
 <action_postfix>
-result.oh_taxable_gross_receipts get result.oh_cat_minimum_threshold get sub
-result.oh_cat_rate get mul
-result.oh_cat_minimum_tax get add
+// Receipts over $1M - CAT = $150 + (Receipts - $1M) x 0.26%
+result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold sub
+result.oh_cat_rate mul
+result.oh_cat_minimum_tax add
 /result.oh_cat_tax xdef
-result.oh_cat_tax get /apportionment.state_tax xdef
-apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
-"Ohio CAT: Percentage rate calculation. Receipts over $1M. CAT = $150 + (Receipts - $1M) × 0.26%. IMPORTANT: NOT a corporate income tax (eliminated 2014). CAT is a gross receipts tax. No deductions for COGS, expenses, wages, losses. Much lower rate (0.26% vs typical 5-10% income tax). No loss carryforwards. No tax credits. Must pay even if operating at a loss. Reference: OH Rev. Code § 5751.02(A), § 5751.02(B), § 5751.03" job.audit_trail swap addto
+
+apportionment.state_tax result.oh_cat_tax xdef
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -337,10 +342,11 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 <action_comment>Receipts between $150K and $1M - minimum tax only</action_comment>
 <action_description>CAT = $150 flat minimum</action_description>
 <action_postfix>
-result.oh_cat_minimum_tax get /result.oh_cat_tax xdef
-result.oh_cat_tax get /apportionment.state_tax xdef
-apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
-"Ohio CAT: Minimum tax ($150). Receipts $150K-$999,999. Flat $150 tax regardless of profit/loss. NOT income tax - based on gross receipts. No deductions for expenses. Must be paid even if operating at a loss. No tax credits. Simple calculation. CAT replaced Ohio corporate franchise tax and income tax (2005-2010, fully eliminated 2014). Reference: OH Rev. Code § 5751.02(B), § 5751.02(C)" job.audit_trail swap addto
+// Receipts between $150K and $1M - minimum tax only ($150)
+result.oh_cat_tax result.oh_cat_minimum_tax xdef
+apportionment.state_tax result.oh_cat_tax xdef
+apportionment.state_payments apportionment.state_tax sub
+/apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -353,10 +359,10 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 <action_comment>No taxable receipts - no CAT</action_comment>
 <action_description>Set zero tax and refund payments</action_description>
 <action_postfix>
-0.0 /result.oh_cat_tax xdef
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No Ohio CAT due - no taxable gross receipts. Possible reasons: All receipts excluded from CAT, No receipts sitused (sourced) to Ohio, Business has no sales/revenue. Any estimated CAT payments will be refunded. Note: CAT has no loss carryforward provisions like income tax - each year stands alone. Reference: OH Rev. Code § 5751.01(F), § 5751.033" job.audit_trail swap addto
+// No taxable receipts - no CAT
+result.oh_cat_tax 0.0 xdef
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>

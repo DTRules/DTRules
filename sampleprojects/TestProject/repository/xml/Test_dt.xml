@@ -58,7 +58,7 @@ otherwise
 <initial_action_requirement></initial_action_requirement>
 <action_description>add the policy statements to the job.notes</action_description>
 <action_postfix>
-policystatements job.notes false addarray 
+policystatements job.notes true  addarray 
 </action_postfix>
 <action_column column_value="X" column_number="1"></action_column>
 <action_column column_value="X" column_number="2"></action_column>

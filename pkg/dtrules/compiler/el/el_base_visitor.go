@@ -103,15 +103,7 @@ func (v *BaseELVisitor) VisitPossessiveChain(ctx *PossessiveChainContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitPossessiveSingle(ctx *PossessiveSingleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitColonPossessiveChain(ctx *ColonPossessiveChainContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitColonPossessiveSingle(ctx *ColonPossessiveSingleContext) interface{} {
+func (v *BaseELVisitor) VisitColonChain(ctx *ColonChainContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

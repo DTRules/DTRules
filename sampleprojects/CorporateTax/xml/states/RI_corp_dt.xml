@@ -40,11 +40,10 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in RI</condition_comment>
-<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'RI'</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "RI"</condition_description>
 <condition_postfix>
-apportionment.has_physical_presence get
-apportionment.state_code get 'RI' eq
-and
+apportionment.has_physical_presence get true eq
+apportionment.state_code get "RI" streq and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
@@ -54,11 +53,10 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in RI</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'RI'</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "RI"</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get
-apportionment.state_code get 'RI' eq
-and
+apportionment.has_economic_nexus get true eq
+apportionment.state_code get "RI" streq and
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -102,13 +100,9 @@ and
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
 <action_postfix>
-# No RI nexus - no filing requirement.
-# Any estimated payments would be refunded.
-
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-
-"RI - no nexus, no filing required" job.audit_trail swap addto
+"RI - no nexus, no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -144,11 +138,10 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with RI</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get
-apportionment.has_physical_presence get
-or
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -160,27 +153,9 @@ or
 <action_number>1</action_number>
 <action_comment>Calculate RI state additions and subtractions</action_comment>
 <action_postfix>
-# RI state-specific income adjustments to federal taxable income.
-#
-# Additions may include:
-# - Interest on U.S. government obligations
-# - IRC Section 199A qualified business income deduction
-# - Federal bonus depreciation not allowed by RI
-# - IRC Section 163(j) interest limitation differences
-#
-# Subtractions may include:
-# - Interest on Rhode Island state and municipal obligations
-# - Capital gains on certain qualified Rhode Island investments
-# - Rhode Island net operating loss deduction (limited carryforward)
-#
-# Reference: RI Form RI-1120C Instructions (Schedule M-1RI Adjustments)
-# Reference: R.I. Gen. Laws § 44-11-11 (Deductions and adjustments)
-# Reference: RI Division of Taxation Regulation CT 18-04 (NOL deduction)
-
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
-
-"RI income adjustments calculated" job.audit_trail swap addto
+"RI income adjustments calculated. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction, Federal bonus depreciation not allowed by RI. Subtractions may include: Interest on Rhode Island state and municipal obligations, Capital gains on certain qualified Rhode Island investments, Rhode Island net operating loss deduction. Reference: RI Form RI-1120C Instructions, R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -228,11 +203,10 @@ or
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with RI</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get
-apportionment.has_physical_presence get
-or
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -242,7 +216,7 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>
@@ -257,40 +231,10 @@ apportionment.state_taxable_income get 0 gt
 <action_number>1</action_number>
 <action_comment>Calculate RI tax at 7% flat rate</action_comment>
 <action_postfix>
-# RI state corporate income tax calculation:
-#
-# 1. Federal taxable income: [Form 1120 line 28]
-# 2. Apportioned to RI: × [Single-sales apportionment %]
-# 3. State additions: + [Federal interest, 199A addback, bonus depreciation, etc.]
-# 4. State subtractions: - [RI municipal interest, qualified capital gains, NOL]
-# 5. RI taxable income: = [Result]
-# 6. RI tax rate: × 7.0% (flat rate)
-# 7. RI income tax: = [Tax before credits]
-# 8. RI credits: - [Historic Preservation, R&amp;D, film, renewable energy credits]
-# 9. RI tax liability: = [Final tax]
-#
-# Reference: RI Form RI-1120C Instructions (Corporate Income Tax Return)
-# Reference: R.I. Gen. Laws § 44-11-2 (Corporate income tax - 7% rate)
-# Reference: R.I. Gen. Laws § 44-11-21.2 (Single-sales factor apportionment)
-# Reference: RI Division of Taxation Regulation CT 19-03 (Tax credits)
-
-apportionment.state_taxable_income get
-apportionment.ri_state_tax_rate get
-mul
-/apportionment.state_tax xdef
-
-apportionment.state_tax get
-apportionment.state_credits get
-sub
-0.0 max
-/apportionment.state_tax xdef
-
-apportionment.state_payments get
-apportionment.state_tax get
-sub
-/apportionment.state_refund_or_owed xdef
-
-"RI tax calculated: $" apportionment.state_tax get cvs strconcat job.audit_trail swap addto
+apportionment.state_taxable_income get apportionment.ri_state_tax_rate get mul /apportionment.state_tax xdef
+apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"RI tax calculated at 7% flat rate. Reference: R.I. Gen. Laws 44-11-2" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -299,16 +243,9 @@ sub
 <action_number>2</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
 <action_postfix>
-# No RI taxable income - no tax liability.
-# RI NOL carryforward rules may apply (limited to certain tax years).
-#
-# Reference: R.I. Gen. Laws § 44-11-11 (Net operating loss deduction)
-# Reference: RI Division of Taxation Regulation CT 18-04 (NOL carryforward)
-
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-
-"RI - nexus but no taxable income" job.audit_trail swap addto
+"RI - nexus but no taxable income. RI NOL carryforward rules may apply. Reference: R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -317,13 +254,9 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
 <action_postfix>
-# No RI nexus - no tax liability.
-# Any estimated payments are refunded.
-
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-
-"RI - no nexus, no tax liability" job.audit_trail swap addto
+"RI - no nexus, no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>

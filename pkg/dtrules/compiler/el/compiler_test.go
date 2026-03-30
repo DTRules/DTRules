@@ -28,17 +28,17 @@ func TestCompileCondition(t *testing.T) {
 		{
 			name:     "simple equality",
 			el:       "x is equal to 5",
-			expected: "x 5 eq",
+			expected: "x 5 ==", // Integer comparison uses ==
 		},
 		{
 			name:     "greater than",
 			el:       "age is greater than 18",
-			expected: "age 18 gt",
+			expected: "age 18 >", // Integer comparison uses >
 		},
 		{
 			name:     "less than or equal",
 			el:       "count is less than or equal to 10",
-			expected: "count 10 le",
+			expected: "count 10 <=", // Integer comparison uses <=
 		},
 		{
 			name:     "boolean literal true",
@@ -58,22 +58,22 @@ func TestCompileCondition(t *testing.T) {
 		{
 			name:     "and expression",
 			el:       "x is equal to 1 and y is equal to 2",
-			expected: "x 1 eq y 2 eq and",
+			expected: "x 1 == { pop y 2 == } over if", // Lazy evaluation
 		},
 		{
 			name:     "or expression",
 			el:       "x is equal to 1 or y is equal to 2",
-			expected: "x 1 eq y 2 eq or",
+			expected: "x 1 == { pop y 2 == } over not if", // Lazy evaluation
 		},
 		{
 			name:     "not expression",
 			el:       "not x is equal to 1",
-			expected: "x 1 eq not",
+			expected: "x 1 == not",
 		},
 		{
 			name:     "string equality",
 			el:       `status is equal to "active"`,
-			expected: `/status "active" streq`, // identifiers are emitted as names with /
+			expected: `status "active" streq`, // Name compared with string uses streq
 		},
 	}
 
@@ -106,17 +106,17 @@ func TestCompileAction(t *testing.T) {
 		{
 			name:     "set integer",
 			el:       "set count = 0;",
-			expected: "0 count =",
+			expected: "0 cvi /count xdef", // Type conversion + left value format
 		},
 		{
 			name:     "set boolean",
 			el:       "set eligible = true;",
-			expected: "true eligible =",
+			expected: "true cvb /eligible xdef", // Type conversion + left value format
 		},
 		{
 			name:     "perform table",
 			el:       "perform Calculate_Tax;",
-			expected: "Calculate_Tax executetable",
+			expected: "Calculate_Tax", // Just table name, no executetable
 		},
 	}
 
@@ -149,27 +149,27 @@ func TestCompileArithmetic(t *testing.T) {
 		{
 			name:     "addition",
 			el:       "x + y is equal to 10",
-			expected: "x y + 10 eq",
+			expected: "x y + 10 ==", // Integer comparison uses ==
 		},
 		{
 			name:     "subtraction",
 			el:       "x - y is equal to 5",
-			expected: "x y - 5 eq",
+			expected: "x y - 5 ==",
 		},
 		{
 			name:     "multiplication",
 			el:       "x * y is equal to 20",
-			expected: "x y * 20 eq",
+			expected: "x y * 20 ==",
 		},
 		{
 			name:     "division",
 			el:       "x / y is equal to 2",
-			expected: "x y / 2 eq",
+			expected: "x y / 2 ==",
 		},
 		{
 			name:     "complex expression",
 			el:       "x + y * z is equal to 10",
-			expected: "x y z * + 10 eq",
+			expected: "x y z * + 10 ==",
 		},
 	}
 

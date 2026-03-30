@@ -45,22 +45,20 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Washington</condition_comment>
-<condition_description>apportionment.has_physical_presence is true AND apportionment.state_code is "WA"</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "WA"</condition_description>
 <condition_postfix>
-apportionment.has_physical_presence true cvb eq
-apportionment.state_code WA streq
-and
+apportionment.has_physical_presence get true eq
+apportionment.state_code get "WA" streq and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Washington economic nexus threshold</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true AND apportionment.state_code is "WA"</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "WA"</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus true cvb eq
-apportionment.state_code WA streq
-and
+apportionment.has_economic_nexus get true eq
+apportionment.state_code get "WA" streq and
 </condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -92,7 +90,7 @@ and
 <action_postfix>
 0.0 /result.wa_bo_tax xdef
 0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No Washington nexus - no B&amp;O tax filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
@@ -119,11 +117,10 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate WA gross receipts</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus true cvb eq
-apportionment.has_physical_presence true cvb eq
-or
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -132,9 +129,9 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has calculated apportionment percentage to Washington</condition_comment>
-<condition_description>apportionment.apportionment_percentage is greater than 0</condition_description>
+<condition_description>apportionment.apportionment_percentage &gt; 0</condition_description>
 <condition_postfix>
-apportionment.apportionment_percentage 0 cvd gt
+apportionment.apportionment_percentage get 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -146,8 +143,8 @@ apportionment.apportionment_percentage 0 cvd gt
 <action_comment>Calculate WA gross receipts using apportionment</action_comment>
 <action_description>Calculate WA-sourced gross receipts using apportionment percentage</action_description>
 <action_postfix>
-revenue.total_revenue apportionment.apportionment_percentage mul /result.wa_gross_receipts xdef
-"Washington gross receipts calculation for B&amp;O tax: Washington uses market-based sourcing (destination) for activities: Sales of tangible property (destination of goods), Services (location where customer receives benefit), Intangibles/royalties (location of customer), Rental income (location of property). The B&amp;O tax applies to gross receipts (revenue), not net income. References: RCW 82.04.460 (Apportionment), WAC 458-20-19402 (Single-Factor Receipts Apportionment), WAC 458-20-14601 (Service and Other Activities)" job.audit_trail swap addto
+revenue.total_revenue get apportionment.apportionment_percentage get mul /result.wa_gross_receipts xdef
+"Washington gross receipts calculation for B&amp;O tax using market-based sourcing. Reference: RCW 82.04.460" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -156,8 +153,8 @@ revenue.total_revenue apportionment.apportionment_percentage mul /result.wa_gros
 <action_comment>No apportionment - assume 100% WA</action_comment>
 <action_description>No apportionment calculated - treating all receipts as Washington-sourced</action_description>
 <action_postfix>
-revenue.total_revenue /result.wa_gross_receipts xdef
-"No apportionment percentage calculated - treating all receipts as Washington-sourced. This is conservative approach when apportionment data is unavailable." job.audit_trail swap addto
+revenue.total_revenue get /result.wa_gross_receipts xdef
+"No apportionment percentage - treating all receipts as Washington-sourced." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -288,9 +285,9 @@ result.wa_service_rate /result.wa_bo_tax_rate xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Total revenue below $250K small business threshold</condition_comment>
-<condition_description>revenue.total_revenue is less than result.wa_small_business_credit_threshold</condition_description>
+<condition_description>revenue.total_revenue &lt; result.wa_small_business_credit_threshold</condition_description>
 <condition_postfix>
-revenue.total_revenue result.wa_small_business_credit_threshold lt
+revenue.total_revenue get result.wa_small_business_credit_threshold get lt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -299,9 +296,9 @@ revenue.total_revenue result.wa_small_business_credit_threshold lt
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has Washington gross receipts subject to B&amp;O tax</condition_comment>
-<condition_description>result.wa_gross_receipts is greater than 0</condition_description>
+<condition_description>result.wa_gross_receipts &gt; 0</condition_description>
 <condition_postfix>
-result.wa_gross_receipts 0 cvd gt
+result.wa_gross_receipts get 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -313,11 +310,11 @@ result.wa_gross_receipts 0 cvd gt
 <action_comment>Qualifies for small business B&amp;O credit</action_comment>
 <action_description>Calculate small business credit (phases out as revenue approaches $250K)</action_description>
 <action_postfix>
-true cvb /result.wa_qualifies_for_small_business_credit xdef
-1.0 revenue.total_revenue result.wa_small_business_credit_threshold div sub /credit_percentage xdef
+true /result.wa_qualifies_for_small_business_credit xdef
+1.0 revenue.total_revenue get result.wa_small_business_credit_threshold get div sub /credit_percentage xdef
 1440.0 /max_annual_credit xdef
-max_annual_credit credit_percentage mul /result.wa_small_business_credit xdef
-"Washington Small Business B&amp;O Tax Credit: Businesses with gross revenue under $250,000 qualify for a small business credit that reduces B&amp;O tax liability. Credit phases out as revenue increases. Credit is calculated on monthly basis and varies based on: total gross revenue (all sources), type of business activity, location (may vary for different jurisdictions). Credit cannot exceed B&amp;O tax liability (no refunds for excess credit). References: RCW 82.04.4451 (Small Business B&amp;O Credit), WAC 458-20-104 (Small Business Tax Relief)" job.audit_trail swap addto
+max_annual_credit get credit_percentage get mul /result.wa_small_business_credit xdef
+"Washington Small Business B&amp;O Tax Credit applied. Revenue under $250K. Reference: RCW 82.04.4451" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -326,7 +323,7 @@ max_annual_credit credit_percentage mul /result.wa_small_business_credit xdef
 <action_comment>No credit - revenue exceeds threshold</action_comment>
 <action_description>No small business credit - gross revenue exceeds $250,000 threshold</action_description>
 <action_postfix>
-false cvb /result.wa_qualifies_for_small_business_credit xdef
+false /result.wa_qualifies_for_small_business_credit xdef
 0.0 /result.wa_small_business_credit xdef
 "No small business credit - gross revenue exceeds $250,000 threshold." job.audit_trail swap addto
 </action_postfix>
@@ -337,9 +334,9 @@ false cvb /result.wa_qualifies_for_small_business_credit xdef
 <action_comment>No credit - no WA gross receipts</action_comment>
 <action_description>No small business credit - no Washington gross receipts to apply credit against</action_description>
 <action_postfix>
-false cvb /result.wa_qualifies_for_small_business_credit xdef
+false /result.wa_qualifies_for_small_business_credit xdef
 0.0 /result.wa_small_business_credit xdef
-"No small business credit - no Washington gross receipts to apply credit against." job.audit_trail swap addto
+"No small business credit - no Washington gross receipts." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -365,11 +362,10 @@ false cvb /result.wa_qualifies_for_small_business_credit xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe B&amp;O tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true OR apportionment.has_physical_presence is true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus true cvb eq
-apportionment.has_physical_presence true cvb eq
-or
+apportionment.has_economic_nexus get true eq
+apportionment.has_physical_presence get true eq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -378,9 +374,9 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive Washington gross receipts</condition_comment>
-<condition_description>result.wa_gross_receipts is greater than 0</condition_description>
+<condition_description>result.wa_gross_receipts &gt; 0</condition_description>
 <condition_postfix>
-result.wa_gross_receipts 0 cvd gt
+result.wa_gross_receipts get 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -392,14 +388,14 @@ result.wa_gross_receipts 0 cvd gt
 <action_comment>Calculate B&amp;O tax with all credits</action_comment>
 <action_description>Calculate Washington B&amp;O tax on gross receipts and apply all credits</action_description>
 <action_postfix>
-result.wa_gross_receipts result.wa_bo_tax_rate mul /result.wa_bo_tax xdef
-0.0 result.wa_bo_tax result.wa_small_business_credit sub max /result.wa_bo_tax xdef
-0.0 result.wa_bo_tax result.wa_high_tech_credit sub max /result.wa_bo_tax xdef
-0.0 result.wa_bo_tax result.wa_aerospace_credit sub max /result.wa_bo_tax xdef
-0.0 result.wa_bo_tax apportionment.state_credits sub max /result.wa_bo_tax xdef
-result.wa_bo_tax /apportionment.state_tax xdef
-apportionment.state_payments apportionment.state_tax sub /apportionment.state_refund_or_owed xdef
-"Washington Business and Occupation (B&amp;O) Tax Calculation: IMPORTANT - Washington has NO corporate income tax. The B&amp;O tax is a gross receipts tax, NOT an income tax. 1) Washington gross receipts: [WA-sourced revenue], 2) Business classification: [service/retailing/wholesaling/manufacturing/financial], 3) B&amp;O tax rate: [0.471%-1.5% depending on classification], 4) B&amp;O tax before credits: [Gross receipts × Rate], 5) Small business credit: [Credit if revenue &lt; $250K], 6) Other credits: [High tech, aerospace, etc.], 7) B&amp;O tax liability: [Final tax]. Key Differences from Income Tax: Based on GROSS RECEIPTS (revenue) not net income, no deductions for expenses/COGS/payroll, much lower rates (under 1.5%) but applies to gross revenue, must be paid even if business operates at a loss. References: RCW 82.04 (Business and Occupation Tax), WAC 458-20-104 (Small Business Tax Relief), Form ETA (Combined Excise Tax Return), Washington Department of Revenue Publication (B&amp;O Tax Classification)" job.audit_trail swap addto
+result.wa_gross_receipts get result.wa_bo_tax_rate get mul /result.wa_bo_tax xdef
+result.wa_bo_tax get result.wa_small_business_credit get sub 0.0 max /result.wa_bo_tax xdef
+result.wa_bo_tax get result.wa_high_tech_credit get sub 0.0 max /result.wa_bo_tax xdef
+result.wa_bo_tax get result.wa_aerospace_credit get sub 0.0 max /result.wa_bo_tax xdef
+result.wa_bo_tax get apportionment.state_credits get sub 0.0 max /result.wa_bo_tax xdef
+result.wa_bo_tax get /apportionment.state_tax xdef
+apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
+"Washington B&amp;O Tax calculated. Gross receipts tax, NOT income tax. Reference: RCW 82.04" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -410,7 +406,7 @@ apportionment.state_payments apportionment.state_tax sub /apportionment.state_re
 <action_postfix>
 0.0 /result.wa_bo_tax xdef
 0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No Washington nexus - no B&amp;O tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -422,7 +418,7 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <action_postfix>
 0.0 /result.wa_bo_tax xdef
 0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
+apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No Washington gross receipts - no B&amp;O tax liability. Filing may still be required to report no tax due." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>

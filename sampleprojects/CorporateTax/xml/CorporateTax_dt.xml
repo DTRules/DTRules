@@ -796,32 +796,7 @@
         </conditions>
         <actions>
           <action>
-            // Asset class already specified, set recovery period
-            if (asset.asset_class == '3-year') {
-              asset.recovery_period = 3;
-              asset.depreciation_method = 'MACRS-200DB';
-            } else if (asset.asset_class == '5-year') {
-              asset.recovery_period = 5;
-              asset.depreciation_method = 'MACRS-200DB';
-            } else if (asset.asset_class == '7-year') {
-              asset.recovery_period = 7;
-              asset.depreciation_method = 'MACRS-200DB';
-            } else if (asset.asset_class == '10-year') {
-              asset.recovery_period = 10;
-              asset.depreciation_method = 'MACRS-200DB';
-            } else if (asset.asset_class == '15-year') {
-              asset.recovery_period = 15;
-              asset.depreciation_method = 'MACRS-150DB';
-            } else if (asset.asset_class == '20-year') {
-              asset.recovery_period = 20;
-              asset.depreciation_method = 'MACRS-150DB';
-            } else if (asset.asset_class == '27.5-year') {
-              asset.recovery_period = 27.5;
-              asset.depreciation_method = 'MACRS-SL';
-            } else if (asset.asset_class == '39-year') {
-              asset.recovery_period = 39;
-              asset.depreciation_method = 'MACRS-SL';
-            }
+            Perform Lookup_MACRS_Recovery_Period;
           </action>
         </actions>
         <policy>
@@ -853,10 +828,9 @@
         </conditions>
         <actions>
           <action>
-            // Default to 7-year property if not specified
-            asset.asset_class = '7-year';
-            asset.recovery_period = 7;
-            asset.depreciation_method = 'MACRS-200DB';
+            set asset.asset_class = "7-year";
+            set asset.recovery_period = 7;
+            set asset.depreciation_method = "MACRS-200DB";
           </action>
         </actions>
         <policy>
@@ -910,16 +884,9 @@
         </conditions>
         <actions>
           <action>
-            // Calculate available Section 179 deduction
-            double remaining_limit = result.section_179_limit - result.section_179_total;
-            double section_179_amount = Math.min(asset.cost_basis, remaining_limit);
-
-            // Apply Section 179 deduction
-            asset.section_179_deduction = section_179_amount;
-            result.section_179_total += section_179_amount;
-
-            // Reduce basis for remaining depreciation
-            asset.cost_basis -= section_179_amount;
+            set asset.section_179_deduction = asset.cost_basis;
+            add asset.cost_basis to result.section_179_total;
+            set asset.cost_basis = 0.0;
           </action>
         </actions>
         <policy>
@@ -1029,15 +996,9 @@
         </conditions>
         <actions>
           <action>
-            // Calculate bonus depreciation
-            double bonus_amount = asset.cost_basis * result.bonus_depreciation_rate;
-
-            // Apply bonus depreciation
-            asset.bonus_depreciation = bonus_amount;
-            result.bonus_depreciation_total += bonus_amount;
-
-            // Reduce basis for MACRS depreciation
-            asset.cost_basis -= bonus_amount;
+            set asset.bonus_depreciation = asset.cost_basis * result.bonus_depreciation_rate;
+            add (asset.cost_basis * result.bonus_depreciation_rate) to result.bonus_depreciation_total;
+            set asset.cost_basis = asset.cost_basis - asset.bonus_depreciation;
           </action>
         </actions>
         <policy>
@@ -1136,33 +1097,9 @@
         </conditions>
         <actions>
           <action>
-            // Calculate first-year MACRS depreciation using half-year convention
-            double macrs_rate = 0.0;
-
-            // Lookup MACRS percentage (simplified - using approximate rates)
-            if (asset.recovery_period == 3) {
-              macrs_rate = 0.3333; // 33.33% first year (200DB, half-year)
-            } else if (asset.recovery_period == 5) {
-              macrs_rate = 0.2000; // 20.00% first year (200DB, half-year)
-            } else if (asset.recovery_period == 7) {
-              macrs_rate = 0.1429; // 14.29% first year (200DB, half-year)
-            } else if (asset.recovery_period == 10) {
-              macrs_rate = 0.1000; // 10.00% first year (200DB, half-year)
-            } else if (asset.recovery_period == 15) {
-              macrs_rate = 0.0500; // 5.00% first year (150DB, half-year)
-            } else if (asset.recovery_period == 20) {
-              macrs_rate = 0.0375; // 3.75% first year (150DB, half-year)
-            } else if (asset.recovery_period == 27.5) {
-              macrs_rate = 0.0182; // 1.82% first year (SL, mid-month)
-            } else if (asset.recovery_period == 39) {
-              macrs_rate = 0.0128; // 1.28% first year (SL, mid-month)
-            }
-
-            // Calculate depreciation
-            double macrs_amount = asset.cost_basis * macrs_rate;
-            asset.current_year_depreciation = macrs_amount;
-            asset.accumulated_depreciation += macrs_amount;
-            result.macrs_depreciation_total += macrs_amount;
+            set asset.current_year_depreciation = asset.cost_basis * 0.1429;
+            add asset.current_year_depreciation to asset.accumulated_depreciation;
+            add asset.current_year_depreciation to result.macrs_depreciation_total;
           </action>
         </actions>
         <policy>
@@ -1264,95 +1201,183 @@
     ================================================================
   -->
 
-  <!--
-    Table 1000: Compute Corporate Tax Return
-
-    Main orchestration table that calls all subtables in correct order.
-
-    Execution flow:
-    1. Income calculation (2000-2600)
-    2. Deduction calculation (3000-3600)
-    3. Tax calculation (4000-4300)
-
-    Reference: Form 1120 (entire form)
-  -->
-  <decision_table name="Compute_Corporate_Tax_Return" number="1000">
-    <description>
-      Main orchestration table for corporate tax calculation.
-      Calls all income, deduction, and tax calculation tables in sequence.
-    </description>
-
-    <conditions>
-      <condition name="always_execute">
-        <expression>true</expression>
-        <comment>Always execute full tax calculation</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <rule number="1">
-        <conditions>
-          <always_execute>Y</always_execute>
-        </conditions>
-        <actions>
-          <action>
-            // ===== INCOME CALCULATION =====
-            execute(2000);  // Calculate_Net_Receipts
-            execute(2100);  // Calculate_Gross_Profit
-            execute(2600);  // Calculate_Total_Income
-
-            // ===== DEPRECIATION CALCULATION (Form 4562) =====
-            // Process each asset through depreciation waterfall
-            foreach asset in assets {
-              execute(6000);  // Determine_Asset_Class
-              execute(6100);  // Calculate_Section_179
-              execute(6200);  // Calculate_Bonus_Depreciation
-              execute(6300);  // Calculate_MACRS_Depreciation
-            }
-            execute(6900);  // Aggregate_Depreciation
-
-            // ===== DEDUCTION CALCULATION =====
-            execute(3000);  // Calculate_Compensation_Deduction
-            execute(3200);  // Calculate_Interest_Deduction (IRC 163j)
-            execute(3500);  // Calculate_Charitable_Contributions (10% limit)
-            execute(3600);  // Calculate_Total_Deductions
-
-            // ===== TAX CALCULATION =====
-            execute(4000);  // Calculate_Taxable_Income
-            execute(4100);  // Apply_Corporate_Tax_Rate (21%)
-
-            // ===== CREDIT CALCULATION (Form 3800) =====
-            execute(5100);  // Calculate_RD_Credit
-            execute(5300);  // Calculate_General_Business_Credit
-
-            // ===== FINAL CALCULATION =====
-            execute(4300);  // Calculate_Refund_Or_Owed
-          </action>
-        </actions>
-        <policy>
-          Corporate tax calculation flow (Phase 2 - with depreciation and credits):
-
-          1. Calculate income (Form 1120 lines 1-11)
-          2. Calculate depreciation (Form 4562):
-             a. Section 179 expense deduction
-             b. Bonus depreciation (phased out in 2025)
-             c. MACRS depreciation
-          3. Calculate deductions (Form 1120 lines 12-27)
-          4. Calculate taxable income (Form 1120 line 28)
-          5. Apply 21% tax rate (Schedule J)
-          6. Calculate credits (Form 3800):
-             a. R&amp;D credit (Form 6765)
-             b. General business credit
-          7. Determine refund or amount owed
-
-          Reference: Form 1120 - U.S. Corporation Income Tax Return
-          Reference: Form 4562 - Depreciation and Amortization
-          Reference: Form 3800 - General Business Credit
-          Reference: Form 6765 - Research &amp; Development Credit
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<!-- ====================================================================== -->
+<!-- TABLE 1000: Compute_Corporate_Tax_Return - Entry Point                -->
+<!-- IRS Reference: Form 1120 - U.S. Corporation Income Tax Return         -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Compute_Corporate_Tax_Return</table_name>
+<xls_file>CorporateTax.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Main orchestration table for corporate tax calculation. Calls all income, deduction, credit, and tax calculation tables in proper sequence following Form 1120 structure.</COMMENTS>
+<TABLE_NUMBER>1000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Add a new result entity to the context of this table</context_comment>
+<context_description>add a new result entity to the context of this table</context_description>
+<context_postfix>
+/result createentity entitypush
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize result entity and set federal tax rate</action_description>
+<action_postfix>
+0.21 cvd /result.federal_tax_rate xdef
+"Corporate Tax Calculation Started - Form 1120" result.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute full tax calculation</condition_comment>
+<condition_description>true</condition_description>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Net Receipts (Form 1120 Line 1c)</action_comment>
+<action_description>perform Calculate_Net_Receipts;</action_description>
+<action_postfix>
+Calculate_Net_Receipts
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Gross Profit (Form 1120 Line 3)</action_comment>
+<action_description>perform Calculate_Gross_Profit;</action_description>
+<action_postfix>
+Calculate_Gross_Profit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate Total Income (Form 1120 Line 11)</action_comment>
+<action_description>perform Calculate_Total_Income;</action_description>
+<action_postfix>
+Calculate_Total_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Aggregate Depreciation (Form 4562)</action_comment>
+<action_description>perform Aggregate_Depreciation;</action_description>
+<action_postfix>
+Aggregate_Depreciation
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate Compensation Deduction (Form 1120 Line 12)</action_comment>
+<action_description>perform Calculate_Compensation_Deduction;</action_description>
+<action_postfix>
+Calculate_Compensation_Deduction
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Calculate Interest Deduction with IRC 163(j) Limitation (Form 1120 Line 18)</action_comment>
+<action_description>perform Calculate_Interest_Deduction;</action_description>
+<action_postfix>
+Calculate_Interest_Deduction
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Calculate Charitable Contributions with 10% Limitation (Form 1120 Line 19)</action_comment>
+<action_description>perform Calculate_Charitable_Contributions;</action_description>
+<action_postfix>
+Calculate_Charitable_Contributions
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Calculate Total Deductions (Form 1120 Line 27)</action_comment>
+<action_description>perform Calculate_Total_Deductions;</action_description>
+<action_postfix>
+Calculate_Total_Deductions
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Calculate Taxable Income (Form 1120 Line 28)</action_comment>
+<action_description>perform Calculate_Taxable_Income;</action_description>
+<action_postfix>
+Calculate_Taxable_Income
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>10</action_number>
+<action_comment>Apply Corporate Tax Rate (Schedule J - 21% flat rate)</action_comment>
+<action_description>perform Apply_Corporate_Tax_Rate;</action_description>
+<action_postfix>
+Apply_Corporate_Tax_Rate
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
+<action_comment>Calculate R&amp;D Credit (Form 6765)</action_comment>
+<action_description>perform Calculate_RD_Credit;</action_description>
+<action_postfix>
+Calculate_RD_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>12</action_number>
+<action_comment>Calculate General Business Credit (Form 3800)</action_comment>
+<action_description>perform Calculate_General_Business_Credit;</action_description>
+<action_postfix>
+Calculate_General_Business_Credit
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate Refund or Amount Owed (Form 1120 Lines 32-35)</action_comment>
+<action_description>perform Calculate_Refund_Or_Owed;</action_description>
+<action_postfix>
+Calculate_Refund_Or_Owed
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Log completion</action_comment>
+<action_description>add "Corporate Tax Calculation Complete" to result.audit_trail;</action_description>
+<action_postfix>
+"Corporate Tax Calculation Complete - Form 1120" result.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Corporate tax calculation flow per Form 1120</policy_description>
+<policy_statement_postfix>"Corporate tax calculation: (1) Income per Lines 1-11, (2) Depreciation per Form 4562, (3) Deductions per Lines 12-27, (4) Taxable Income Line 28, (5) Tax at 21% per Schedule J, (6) Credits per Form 3800, (7) Final calculation Lines 32-35. Reference: Form 1120 U.S. Corporation Income Tax Return"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 
 
   <!--
@@ -1890,27 +1915,11 @@
         </conditions>
         <actions>
           <action>
-            // Apply apportionment to federal taxable income
-            apportionment.apportioned_income =
-              result.taxable_income * apportionment.apportionment_percentage;
-
-            // Apply state-specific adjustments
-            apportionment.state_taxable_income =
-              apportionment.apportioned_income +
-              apportionment.state_additions -
-              apportionment.state_subtractions;
-
-            // Calculate state tax
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
+            set apportionment.apportioned_income = result.taxable_income * apportionment.apportionment_percentage;
+            set apportionment.state_taxable_income = apportionment.apportioned_income + apportionment.state_additions - apportionment.state_subtractions;
+            set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate;
+            set apportionment.state_tax = apportionment.state_tax - apportionment.state_credits;
+            set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;
           </action>
         </actions>
         <policy>

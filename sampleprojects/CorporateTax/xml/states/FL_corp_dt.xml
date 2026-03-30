@@ -4,7 +4,7 @@
   <!--
     Florida Corporate Income Tax Decision Tables
 
-    Florida imposes a 5.5% flat corporate income tax (FL Statute § 220.11).
+    Florida imposes a 5.5% flat corporate income tax (FL Statute Section 220.11).
     Uses single-sales factor apportionment.
     Economic nexus threshold: $50,000 (lower than typical $100K).
 
@@ -36,11 +36,9 @@
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in FL (office, employees, property)</condition_comment>
-        <condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'FL'</condition_description>
+        <condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "FL"</condition_description>
         <condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code FL streq
-and
+apportionment.has_physical_presence true beq { pop apportionment.state_code "FL" streq } over if
 </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
@@ -49,11 +47,9 @@ and
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets FL economic nexus threshold ($50K or 200 transactions)</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'FL'</condition_description>
+        <condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "FL"</condition_description>
         <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code FL streq
-and
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" streq } over if
 </condition_postfix>
         <condition_column column_number="1" column_value="-"></condition_column>
         <condition_column column_number="2" column_value="Y"></condition_column>
@@ -64,32 +60,25 @@ and
       <action_details>
         <action_number>1</action_number>
         <action_comment>Physical nexus established - filing required</action_comment>
-        <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+        <action_description>// Physical nexus established - filing required</action_description>
         <action_postfix>
-// Physical nexus established - filing required
-// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-        <action_description>FL threshold: $50,000 (lower than typical $100K)</action_description>
+        <action_description>// Economic nexus established per Wayfair - filing required</action_description>
         <action_postfix>
-// Economic nexus established per Wayfair - filing required
-// FL threshold: $50,000 (lower than typical $100K)
-// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>Set state tax to 0 and refund any payments</action_description>
+        <action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
         <action_postfix>
-// No nexus - no filing required
-0.0 apportionment.state_tax xdef
-apportionment.state_payments apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
@@ -97,15 +86,12 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
     <policy_statements>
       <policy_statement column="1">
         <policy_description>Florida filing required due to physical presence (office, employees, or property in state).</policy_description>
-        <policy_statement_postfix>"Florida filing required due to physical presence (office, employees, or property in state). Florida has physical presence nexus when corporation: (1) Owns or leases real property in FL, (2) Maintains employees or agents in FL, (3) Has an office or place of business in FL. Reference: FL Statute § 220.11 (Corporate income tax), FL Form F-1120 (Florida Corporate Income Tax Return), FL Department of Revenue Rule 12C-1.011 (Nexus)"</policy_statement_postfix>
       </policy_statement>
       <policy_statement column="2">
         <policy_description>Florida filing required due to economic nexus (post-Wayfair).</policy_description>
-        <policy_statement_postfix>"Florida filing required due to economic nexus (post-Wayfair). Florida economic nexus thresholds (lower than many states): $50,000 or more in gross receipts from FL, OR 200 or more separate transactions in FL. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), FL Statute § 220.14 (Apportionment of income), FL Department of Revenue TIP 22C1-02 (Economic Nexus)"</policy_statement_postfix>
       </policy_statement>
       <policy_statement column="3">
         <policy_description>No Florida nexus - no filing requirement.</policy_description>
-        <policy_statement_postfix>"No Florida nexus - no filing requirement. Any estimated payments would be refunded."</policy_statement_postfix>
       </policy_statement>
     </policy_statements>
   </decision_table>
@@ -120,7 +106,7 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
     Common Florida additions:
     - Interest on U.S. government obligations (exempt federally, taxable to FL)
     - State income tax refunds if included in federal income
-    - IRC § 78 gross-up for foreign tax credit
+    - IRC Section 78 gross-up for foreign tax credit
 
     Common Florida subtractions:
     - Interest on state/municipal bonds (from states other than FL)
@@ -141,11 +127,9 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to calculate adjustments</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+        <condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
         <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
@@ -155,50 +139,18 @@ or
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Florida state additions and subtractions</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_description>// Calculate Florida state additions and subtractions - placeholder; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
         <action_postfix>
-// Calculate Florida state additions
-0.0 /additions xdef
-
-// FL addition: Interest on U.S. government obligations
-// (Exempt from federal tax but taxable to FL)
-// revenue.federal_bond_interest additions add /additions xdef
-
-// FL addition: State income tax refunds included in federal income
-// (FL has no state income tax for individuals, but this can apply to corps)
-// revenue.state_tax_refund additions add /additions xdef
-
-// FL addition: IRC § 78 gross-up for foreign tax credit
-// revenue.section_78_gross_up additions add /additions xdef
-
-additions apportionment.state_additions xdef
-
-// Calculate Florida state subtractions
-0.0 /subtractions xdef
-
-// FL subtraction: Municipal bond interest from other states
-// (Taxable federally but exempt from FL tax for FL bonds)
-// revenue.other_state_municipal_interest subtractions add /subtractions xdef
-
-// FL subtraction: Certain dividend income
-// (FL allows subtraction for certain dividends under FL Statute § 220.13)
-// revenue.qualified_dividends_fl_exempt subtractions add /subtractions xdef
-
-// FL subtraction: State NOL deduction
-// (FL has its own NOL rules separate from federal)
-// result.fl_nol_deduction subtractions add /subtractions xdef
-
-subtractions apportionment.state_subtractions xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no Florida state adjustments</action_comment>
-        <action_description>Set state additions and subtractions to 0</action_description>
+        <action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
         <action_postfix>
-0.0 apportionment.state_additions xdef
-0.0 apportionment.state_subtractions xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
@@ -206,11 +158,9 @@ subtractions apportionment.state_subtractions xdef
     <policy_statements>
       <policy_statement column="1">
         <policy_description>Florida state-specific income adjustments to federal taxable income.</policy_description>
-        <policy_statement_postfix>"Florida state-specific income adjustments to federal taxable income. Additions to federal taxable income: (1) Interest on U.S. government obligations (exempt federally, taxable to FL), (2) State income tax refunds included in federal income, (3) IRC § 78 gross-up for deemed paid foreign tax credit, (4) Addback of certain federal deductions not allowed by FL. Subtractions from federal taxable income: (1) Interest on municipal bonds from other states (if taxable federally), (2) Certain dividend income qualifying for FL exemption, (3) Florida net operating loss deduction (separate from federal NOL), (4) Excess qualified production activities income deduction. Reference: FL Form F-1120 Schedule I (Adjustments to Federal Taxable Income), FL Statute § 220.13 (Computation of Florida taxable income), FL Department of Revenue Form F-1120 Instructions"</policy_statement_postfix>
       </policy_statement>
       <policy_statement column="2">
         <policy_description>No nexus - no Florida state adjustments calculated.</policy_description>
-        <policy_statement_postfix>"No nexus - no Florida state adjustments calculated."</policy_statement_postfix>
       </policy_statement>
     </policy_statements>
   </decision_table>
@@ -222,7 +172,7 @@ subtractions apportionment.state_subtractions xdef
 
     Calculates final Florida state corporate income tax.
 
-    Florida uses a flat 5.5% tax rate (FL Statute § 220.11).
+    Florida uses a flat 5.5% tax rate (FL Statute Section 220.11).
 
     Process:
     1. Federal taxable income apportioned to FL (done by table 7500)
@@ -247,11 +197,9 @@ subtractions apportionment.state_subtractions xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to owe tax</condition_comment>
-        <condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+        <condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
         <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="N"></condition_column>
@@ -260,9 +208,9 @@ or
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive state taxable income</condition_comment>
-        <condition_description>apportionment.state_taxable_income > 0</condition_description>
+        <condition_description>apportionment.state_taxable_income > 0.0</condition_description>
         <condition_postfix>
-apportionment.state_taxable_income 0 gt
+apportionment.state_taxable_income 0.0 f>
 </condition_postfix>
         <condition_column column_number="1" column_value="Y"></condition_column>
         <condition_column column_number="2" column_value="-"></condition_column>
@@ -273,39 +221,27 @@ apportionment.state_taxable_income 0 gt
       <action_details>
         <action_number>1</action_number>
         <action_comment>Florida 5.5% flat rate calculation</action_comment>
-        <action_description>Calculate FL tax using 5.5% flat rate</action_description>
+        <action_description>// Florida uses 5.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
         <action_postfix>
-// Florida uses 5.5% flat rate
-apportionment.state_taxable_income apportionment.state_tax_rate mul
-apportionment.state_tax xdef
-
-// Subtract Florida state credits
-apportionment.state_tax apportionment.state_credits sub
-0.0 max apportionment.state_tax xdef
-
-// Calculate refund or amount owed
-apportionment.state_payments apportionment.state_tax sub
-apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
         <action_column column_number="1" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>Set tax to 0 and refund payments</action_description>
+        <action_description>// No nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
         <action_postfix>
-0.0 apportionment.state_tax xdef
-apportionment.state_payments apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
         <action_column column_number="2" column_value="X"></action_column>
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>No taxable income - no tax liability</action_comment>
-        <action_description>Set tax to 0 and refund payments</action_description>
+        <action_description>// No taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
         <action_postfix>
-0.0 apportionment.state_tax xdef
-apportionment.state_payments apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
         <action_column column_number="3" column_value="X"></action_column>
       </action_details>
@@ -313,15 +249,12 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
     <policy_statements>
       <policy_statement column="1">
         <policy_description>Florida state corporate income tax calculation</policy_description>
-        <policy_statement_postfix>"Florida state corporate income tax calculation: (1) Federal taxable income: [Form 1120 line 28], (2) Apportioned to FL: × [Apportionment % - single-sales factor], (3) FL additions: + [Additions from Schedule I], (4) FL subtractions: - [Subtractions from Schedule I], (5) FL taxable income: = [Result], (6) FL tax rate: × 5.5% (flat rate), (7) FL income tax: = [Tax before credits], (8) FL credits: - [Credits from Schedule II], (9) FL tax liability: = [Final tax]. Florida has a flat 5.5% corporate income tax rate on Florida taxable income. Available FL credits include: Enterprise zone jobs credit, Research and development credit, Community contribution tax credit, Capital investment tax credit, Renewable energy production credit, Florida Entertainment Industry Financial Incentive. Reference: FL Form F-1120 (Florida Corporate Income Tax Return), FL Statute § 220.11 (Tax rate: 5.5%), FL Statute § 220.13 (Florida taxable income computation), FL Statute § 220.14 (Single-sales factor apportionment), FL Statute § 220.181-.197 (Tax credits)"</policy_statement_postfix>
       </policy_statement>
       <policy_statement column="2">
         <policy_description>No Florida nexus - no tax liability.</policy_description>
-        <policy_statement_postfix>"No Florida nexus - no tax liability. Any estimated payments are refunded."</policy_statement_postfix>
       </policy_statement>
       <policy_statement column="3">
         <policy_description>No Florida taxable income - no tax liability.</policy_description>
-        <policy_statement_postfix>"No Florida taxable income - no tax liability. Florida allows net operating loss (NOL) carryforwards: (1) NOLs may be carried forward up to 20 years, (2) NOL carryback not allowed under FL law, (3) FL NOL calculated separately from federal NOL. Reference: FL Statute § 220.13(1)(b) (NOL deduction)"</policy_statement_postfix>
       </policy_statement>
     </policy_statements>
   </decision_table>

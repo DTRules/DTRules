@@ -164,23 +164,11 @@ func (s *BaseELListener) EnterPossessiveChain(ctx *PossessiveChainContext) {}
 // ExitPossessiveChain is called when production possessiveChain is exited.
 func (s *BaseELListener) ExitPossessiveChain(ctx *PossessiveChainContext) {}
 
-// EnterPossessiveSingle is called when production possessiveSingle is entered.
-func (s *BaseELListener) EnterPossessiveSingle(ctx *PossessiveSingleContext) {}
+// EnterColonChain is called when production colonChain is entered.
+func (s *BaseELListener) EnterColonChain(ctx *ColonChainContext) {}
 
-// ExitPossessiveSingle is called when production possessiveSingle is exited.
-func (s *BaseELListener) ExitPossessiveSingle(ctx *PossessiveSingleContext) {}
-
-// EnterColonPossessiveChain is called when production colonPossessiveChain is entered.
-func (s *BaseELListener) EnterColonPossessiveChain(ctx *ColonPossessiveChainContext) {}
-
-// ExitColonPossessiveChain is called when production colonPossessiveChain is exited.
-func (s *BaseELListener) ExitColonPossessiveChain(ctx *ColonPossessiveChainContext) {}
-
-// EnterColonPossessiveSingle is called when production colonPossessiveSingle is entered.
-func (s *BaseELListener) EnterColonPossessiveSingle(ctx *ColonPossessiveSingleContext) {}
-
-// ExitColonPossessiveSingle is called when production colonPossessiveSingle is exited.
-func (s *BaseELListener) ExitColonPossessiveSingle(ctx *ColonPossessiveSingleContext) {}
+// ExitColonChain is called when production colonChain is exited.
+func (s *BaseELListener) ExitColonChain(ctx *ColonChainContext) {}
 
 // EnterColonRef is called when production colonRef is entered.
 func (s *BaseELListener) EnterColonRef(ctx *ColonRefContext) {}

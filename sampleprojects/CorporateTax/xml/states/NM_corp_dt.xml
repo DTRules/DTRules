@@ -27,22 +27,16 @@
 <contexts></contexts>
 
 <initial_actions>
-<initial_action>
-<action_description>Initialize NM filing requirement check</action_description>
-<action_postfix>
-"NM Filing Requirement Check Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in NM</condition_comment>
-<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'NM'</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "NM"</condition_description>
 <condition_postfix>
-apportionment.has_physical_presence get
-apportionment.state_code get 'NM' eq
+apportionment.has_physical_presence true eq
+apportionment.state_code "NM" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
@@ -53,10 +47,10 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in NM</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'NM'</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "NM"</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get
-apportionment.state_code get 'NM' eq
+apportionment.has_economic_nexus true eq
+apportionment.state_code "NM" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
@@ -70,18 +64,8 @@ and
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
 <action_postfix>
-# NM filing required due to physical presence (office, employees, or property in state).
-#
-# A corporation has physical presence nexus in NM if it has:
-# - An office, store, warehouse, or other place of business in NM
-# - Employees working in NM
-# - Tangible personal property located in NM
-# - Real property located in NM
-#
-# Reference: New Mexico Statutes § 7-4-2 (Nexus standards)
-# Reference: NM Taxation and Revenue Department Publication FYI-350
-
-"NM filing required - physical nexus" job.audit_trail swap addto
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -90,25 +74,8 @@ and
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
 <action_postfix>
-# NM filing required due to economic nexus (post-Wayfair).
-#
-# Economic nexus threshold: $100,000 gross receipts in NM.
-#
-# New Mexico simplified its economic nexus requirements by eliminating
-# the transaction count threshold. Only the gross receipts threshold
-# ($100,000) applies.
-#
-# Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), NM requires
-# filing if a corporation exceeds economic nexus threshold, even without
-# physical presence.
-#
-# Measurement: Prior year sales determine nexus (2024 sales determine 2025 nexus).
-#
-# Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-# Reference: NM Taxation and Revenue Department Economic Nexus Guidance
-# Reference: New Mexico Statutes § 7-9-3.5 (Economic nexus provisions)
-
-"NM filing required - economic nexus" job.audit_trail swap addto
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -117,17 +84,9 @@ and
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
 <action_postfix>
-# No NM nexus - no filing requirement.
-#
-# Corporation does not meet physical presence or economic nexus thresholds.
-# Any estimated payments would be refunded.
-#
-# Reference: New Mexico Statutes § 7-4-2 (Nexus requirements)
-
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-
-"NM - no nexus, no filing required" job.audit_trail swap addto
+// No nexus - no filing required
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -151,22 +110,16 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <contexts></contexts>
 
 <initial_actions>
-<initial_action>
-<action_description>Initialize NM income adjustments</action_description>
-<action_postfix>
-"NM Income Adjustments Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with NM</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get
-apportionment.has_physical_presence get
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
 or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
@@ -179,44 +132,11 @@ or
 <action_number>1</action_number>
 <action_comment>Calculate NM state additions and subtractions</action_comment>
 <action_postfix>
-# NM state-specific income adjustments to federal taxable income.
-#
-# NM ADDITIONS to federal taxable income include:
-# - Interest income from U.S. government obligations (exempt federally, taxable to NM)
-# - Bonus depreciation addback - NM decouples from IRC § 168(k)
-#   (100% bonus depreciation for qualified property placed in service after 1/19/2025)
-# - IRC § 168(n) qualified production property expensing addback
-#   (100% expensing provision - effective for tax years beginning on or after 1/1/2027)
-# - IRC § 163(j) business interest deduction adjustments
-#   (NM decouples from federal interest deduction changes)
-# - State income taxes deducted on federal return
-# - Expenses related to exempt income
-#
-# NM SUBTRACTIONS from federal taxable income include:
-# - Interest on NM state and municipal bonds
-# - NM net operating loss deduction (subject to NM limitations)
-# - Dividend income eligible for NM dividend received deduction (85%)
-# - Certain refunds of state income taxes
-#
-# SIGNIFICANT 2025 REFORM:
-# Senate Bill 151 (2025) represents one of the most significant corporate
-# tax reforms of the year. NM decoupled from federal provisions to prevent
-# erosion of the corporate tax base and corporate tax avoidance.
-#
-# Decoupling provisions:
-# - IRC § 168(k) bonus depreciation: Addback required
-# - IRC § 168(n) qualified property: Addback required (effective 2027)
-# - IRC § 163(j) business interest: Adjustment required
-#
-# Reference: NM Form CIT-1 Schedule A (Additions to Federal Taxable Income)
-# Reference: NM Form CIT-1 Schedule B (Deductions from Federal Taxable Income)
-# Reference: New Mexico Statutes § 7-2A-8 (Adjustments to federal taxable income)
-# Reference: Senate Bill 151 (2025 corporate tax reform)
-
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-
-"NM income adjustments calculated" job.audit_trail swap addto
+// Calculate NM state additions and subtractions
+0.0 /additions xdef
+0.0 /subtractions xdef
+apportionment.state_additions additions xdef
+apportionment.state_subtractions subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -225,10 +145,9 @@ or
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-
-"NM - no nexus, no adjustments" job.audit_trail swap addto
+// No nexus - no state adjustments
+apportionment.state_additions 0.0 xdef
+apportionment.state_subtractions 0.0 xdef
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -252,22 +171,16 @@ or
 <contexts></contexts>
 
 <initial_actions>
-<initial_action>
-<action_description>Initialize NM state tax calculation</action_description>
-<action_postfix>
-"NM State Tax Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with NM</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
 <condition_postfix>
-apportionment.has_economic_nexus get
-apportionment.has_physical_presence get
+apportionment.has_economic_nexus true eq
+apportionment.has_physical_presence true eq
 or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
@@ -280,7 +193,7 @@ or
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_description>apportionment.state_taxable_income > 0</condition_description>
 <condition_postfix>
-apportionment.state_taxable_income get 0 gt
+apportionment.state_taxable_income 0 gt
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -293,59 +206,18 @@ apportionment.state_taxable_income get 0 gt
 <action_number>1</action_number>
 <action_comment>Calculate NM tax at 5.9% flat rate</action_comment>
 <action_postfix>
-# NM state corporate income tax calculation:
-#
-# 1. Federal taxable income: [Form 1120 line 28]
-# 2. Apportioned to NM: × [NM apportionment percentage]
-# 3. NM additions: + [Federal interest, bonus depreciation, IRC 168(n), IRC 163(j), etc.]
-# 4. NM subtractions: - [NM municipal interest, NM NOL, dividend deductions, etc.]
-# 5. NM taxable income: = [Result]
-# 6. NM tax rate: × 5.9% (FLAT RATE - effective 2025)
-# 7. NM income tax: = [Tax before credits]
-# 8. NM credits: - [Job creation, rural area, technology jobs, film, renewable energy, etc.]
-# 9. NM tax liability: = [Final tax]
-#
-# NM uses single-sales factor apportionment (100% sales factor).
-#
-# NM tax rate history:
-# - 2025+: 5.9% flat rate (simplified from graduated rates)
-# - Before 2025: Graduated rates (4.8% to 5.9% depending on income level)
-#
-# The 2025 change to a flat 5.9% rate represents a relatively rare case
-# of a corporate income tax rate INCREASE in recent years, as NM moved
-# from graduated rates (starting at 4.8%) to a flat 5.9% on all income.
-#
-# NM provides various tax credits including:
-# - Job training incentive program credit
-# - Rural job tax credit
-# - Technology jobs and research and development tax credit
-# - Film production tax credit
-# - Renewable energy production tax credit
-# - Sustainable building tax credit
-#
-# Reference: NM Form CIT-1 (Corporate Income and Franchise Tax Return)
-# Reference: New Mexico Statutes § 7-2A-5 (Tax rate of 5.9% flat rate - effective 2025)
-# Reference: New Mexico Statutes § 7-4-10 (Single-sales apportionment)
-# Reference: NM Taxation and Revenue Department Corporate Tax Guidance 2025
-# Reference: Senate Bill 151 (2025 corporate tax reform)
+// NM uses 5.9% flat rate (effective 2025)
+apportionment.state_taxable_income apportionment.state_tax_rate mul
+/state_tax_before_credits xdef
 
-apportionment.state_taxable_income get
-apportionment.nm_state_tax_rate get
-mul
-/apportionment.state_tax xdef
-
-apportionment.state_tax get
-apportionment.state_credits get
-sub
+// Subtract state credits
+state_tax_before_credits apportionment.state_credits sub
 0.0 max
 /apportionment.state_tax xdef
 
-apportionment.state_payments get
-apportionment.state_tax get
-sub
+// Calculate refund or amount owed
+apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
-
-"NM tax calculated: $" apportionment.state_tax get cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -354,23 +226,9 @@ sub
 <action_number>2</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
 <action_postfix>
-# No NM taxable income - no tax liability.
-#
-# Corporation has NM nexus but no positive taxable income after apportionment
-# and adjustments. Any estimated payments are refunded.
-#
-# NM net operating loss (NOL) rules:
-# - NM allows NOL carryforward for 20 years
-# - No carryback allowed (as of 2025)
-# - NOL limited to prevent complete elimination of tax liability
-#
-# Reference: NM Form CIT-1 (Corporate Income and Franchise Tax Return)
-# Reference: New Mexico Statutes § 7-2A-8 (Net operating loss deduction)
-
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-
-"NM - nexus but no taxable income" job.audit_trail swap addto
+// Nexus but no taxable income - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -379,17 +237,9 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
 <action_postfix>
-# No NM nexus - no tax liability.
-#
-# Corporation does not have physical presence or economic nexus in NM.
-# Any estimated payments are refunded.
-#
-# Reference: New Mexico Statutes § 7-4-2 (Nexus requirements)
-
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-
-"NM - no nexus, no tax liability" job.audit_trail swap addto
+// No nexus - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>

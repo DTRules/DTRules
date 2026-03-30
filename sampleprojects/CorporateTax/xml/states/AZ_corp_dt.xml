@@ -10,337 +10,217 @@
   - 52280: Calculate_AZ_State_Tax
 
   References:
-  - AZ Rev. Stat. § 43-1111 (Tax rate: 4.9%)
-  - AZ Rev. Stat. § 43-1139 (Apportionment: single-sales factor)
-  - AZ Rev. Stat. § 43-1102 (Economic nexus)
+  - AZ Rev. Stat. Section 43-1111 (Tax rate: 4.9%)
+  - AZ Rev. Stat. Section 43-1139 (Apportionment: single-sales factor)
+  - AZ Rev. Stat. Section 43-1102 (Economic nexus)
   - Arizona Form 120 (Corporation Income Tax Return)
 -->
-<decision_tables name="CorporateTax_AZ_Tables">
+<decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52200: Determine AZ Corporate Tax Filing Requirement
-    ============================================================================
+<!-- ====================================================================== -->
+<!-- TABLE 52200: Determine AZ Corporate Tax Filing Requirement            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_AZ_Filing_Requirement</table_name>
+<xls_file>AZ_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Arizona state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>52200</TABLE_NUMBER>
+<FILE_PATH>states/AZ/52200_Determine_AZ_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-    Determines if corporation must file Arizona state tax return.
+<contexts></contexts>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in Arizona
-    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
-  -->
-  <decision_table name="Determine_AZ_Filing_Requirement" number="52200">
-    <description>
-      Determine if corporation must file Arizona state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<initial_actions></initial_actions>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'AZ'</expression>
-        <comment>Has physical presence in AZ (office, employees, property)</comment>
-      </condition>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in AZ (office, employees, property)</condition_comment>
+<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "AZ"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "AZ" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'AZ'</expression>
-        <comment>Meets AZ economic nexus threshold ($100,000 gross receipts)</comment>
-      </condition>
-    </conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets AZ economic nexus threshold ($100,000 gross receipts)</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "AZ"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "AZ" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Arizona filing required due to physical presence (office, employees, or property in state).
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required</action_comment>
+<action_description>// Physical nexus established - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-          Physical presence creates nexus under traditional standards and requires filing
-          Arizona Form 120 (Corporation Income Tax Return).
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Reference: AZ Rev. Stat. § 43-1102 (Definitions and nexus standards)
-          Reference: Arizona Department of Revenue, Transaction Privilege Tax Ruling TPR 95-24
-        </policy>
-      </rule>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Arizona filing required due to economic nexus (post-Wayfair).
+</decision_table>
 
-          Economic nexus threshold: $100,000 in gross receipts from Arizona customers
-          in current or prior calendar year.
+<!-- ====================================================================== -->
+<!-- TABLE 52220: Calculate AZ State-Specific Income Adjustments           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AZ_Income_Adjustments</table_name>
+<xls_file>AZ_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Arizona state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>52220</TABLE_NUMBER>
+<FILE_PATH>states/AZ/52220_Calculate_AZ_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: AZ Rev. Stat. § 43-1102 (Economic nexus provisions)
-          Reference: Arizona Department of Revenue, TPT 20-1 (Economic Nexus Guidance)
-        </policy>
-      </rule>
+<contexts></contexts>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Arizona nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<initial_actions></initial_actions>
 
-  <!--
-    ============================================================================
-    TABLE 52220: Calculate AZ State-Specific Income Adjustments
-    ============================================================================
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-    Calculates Arizona additions and subtractions to federal taxable income.
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Arizona additions and subtractions</action_comment>
+<action_description>// Calculate Arizona additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    Common Arizona additions:
-    - Interest on U.S. government obligations (federal bonds)
-    - IRC Section 199A qualified business income deduction addback
-    - Bonus depreciation addback (if AZ decouples from federal)
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    Common Arizona subtractions:
-    - Interest on Arizona municipal bonds
-    - State income taxes paid (not deductible for state purposes)
-    - Arizona net operating loss deduction
-  -->
-  <decision_table name="Calculate_AZ_Income_Adjustments" number="52220">
-    <description>
-      Calculate Arizona state-specific additions and subtractions to federal taxable income.
-    </description>
+</decision_table>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+<!-- ====================================================================== -->
+<!-- TABLE 52280: Calculate AZ State Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_AZ_State_Tax</table_name>
+<xls_file>AZ_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Arizona state corporate income tax. Applies 4.9% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52280</TABLE_NUMBER>
+<FILE_PATH>states/AZ/52280_Calculate_AZ_State_Tax</FILE_PATH>
+</attribute_fields>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate Arizona additions
-            double additions = 0.0;
+<contexts></contexts>
 
-            // Add back federal interest (taxable to AZ but not federal)
-            // additions += revenue.federal_bond_interest;
+<initial_actions></initial_actions>
 
-            // Add back IRC 199A deduction (if AZ doesn't conform)
-            // additions += result.section_199a_deduction;
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
 
-            // Add back bonus depreciation (if AZ decouples from federal)
-            // additions += result.bonus_depreciation_total;
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0.0 f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-            apportionment.state_additions = additions;
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate tax at 4.9% flat rate</action_comment>
+<action_description>// Arizona uses 4.9% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_postfix>
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-            // Calculate Arizona subtractions
-            double subtractions = 0.0;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_description>// No Arizona nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-            // Subtract AZ municipal bond interest (exempt for AZ purposes)
-            // subtractions += revenue.az_municipal_interest;
+<action_details>
+<action_number>3</action_number>
+<action_comment>Nexus but no taxable income - no tax liability</action_comment>
+<action_description>// No Arizona taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            // Subtract AZ NOL deduction (if different from federal)
-            // subtractions += result.az_nol_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          Arizona state-specific income adjustments to federal taxable income.
-
-          Common additions to federal taxable income:
-          - Interest on U.S. government obligations
-          - IRC Section 199A deduction (if state doesn't conform)
-          - Bonus depreciation (if state decouples from federal)
-          - Other federal deductions Arizona doesn't allow
-
-          Common subtractions from federal taxable income:
-          - Interest on Arizona municipal bonds
-          - State income taxes (not deductible for state purposes)
-          - Arizona net operating loss deduction
-          - Other Arizona-specific deductions
-
-          Reference: Arizona Form 120, Schedule A (Adjustments to Income)
-          Reference: AZ Rev. Stat. § 43-1121 (Additions to Arizona gross income)
-          Reference: AZ Rev. Stat. § 43-1122 (Subtractions from Arizona gross income)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52280: Calculate AZ State Tax
-    ============================================================================
-
-    Calculates final Arizona state corporate income tax.
-
-    Process:
-    1. Federal taxable income apportioned to AZ (done by table 7500)
-    2. Add state-specific additions (done by table 52220)
-    3. Subtract state-specific subtractions (done by table 52220)
-    4. Calculate AZ state taxable income
-    5. Apply AZ tax rate (4.9% flat rate)
-    6. Subtract AZ state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_AZ_State_Tax" number="52280">
-    <description>
-      Calculate Arizona state corporate income tax.
-      Applies 4.9% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate tax at 4.9% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // Arizona uses 4.9% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract state credits (R&amp;D, renewable energy, employment, etc.)
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Arizona state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to Arizona: × [Apportionment percentage]
-          3. State additions: + [Additions from Schedule A]
-          4. State subtractions: - [Subtractions from Schedule A]
-          5. Arizona taxable income: = [Result]
-          6. Arizona tax rate: × 4.9% (flat rate)
-          7. Arizona income tax: = [Tax before credits]
-          8. Arizona credits: - [Credits]
-          9. Arizona tax liability: = [Final tax]
-
-          Arizona uses a flat 4.9% corporate income tax rate.
-          Note: Rate scheduled to decrease to 2.5% by 2025 under HB 2900 (2021).
-
-          Available credits include:
-          - Research and development credit
-          - Renewable energy credits
-          - Employment credits
-          - Film production credit
-          - Agricultural pollution control credit
-
-          Reference: Arizona Form 120 Instructions
-          Reference: AZ Rev. Stat. § 43-1111 (Tax rate: 4.9%)
-          Reference: AZ Rev. Stat. § 43-1139 (Apportionment: single-sales factor)
-          Reference: Arizona Department of Revenue Publication 710 (Corporate Income Tax)
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Arizona nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
-
-      <!-- Rule 3: Nexus but no taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Arizona taxable income - no tax liability.
-
-          Arizona net operating loss (NOL) rules apply:
-          - NOL carryforward: 20 years (conforms to federal)
-          - NOL carryback: Not allowed (Arizona doesn't allow carrybacks)
-
-          Reference: AZ Rev. Stat. § 43-1122(6) (NOL deduction)
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>

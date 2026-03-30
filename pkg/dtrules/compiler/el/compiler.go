@@ -33,13 +33,16 @@ import (
 // Compiler compiles Expression Language (EL) to postfix notation.
 type Compiler struct {
 	symbols map[string]string // symbol table for type resolution
+	emitter *PostfixEmitter   // persistent emitter to track local variables
 	errors  []error
 }
 
 // NewCompiler creates a new EL compiler.
 func NewCompiler() *Compiler {
+	emitter := NewPostfixEmitter()
 	return &Compiler{
 		symbols: make(map[string]string),
+		emitter: emitter,
 	}
 }
 
@@ -47,12 +50,25 @@ func NewCompiler() *Compiler {
 // The map keys are identifier names and values are types (entity, long, double, etc.)
 func (c *Compiler) SetSymbols(symbols map[string]string) {
 	c.symbols = symbols
+	c.emitter.SetSymbols(symbols)
 }
 
 // CompileCondition compiles an EL condition expression to postfix.
 // The input should be a boolean expression like "applicant.age >= 18".
 func (c *Compiler) CompileCondition(el string) (string, error) {
 	return c.compile("condition " + el)
+}
+
+// CompileContext compiles an EL context statement to postfix.
+// Context statements set up local variables and iteration contexts.
+// This method is primarily used to register local variables before
+// compiling conditions and actions in the same table.
+func (c *Compiler) CompileContext(el string) (string, error) {
+	el = strings.TrimSpace(el)
+	if el == "" {
+		return "", nil
+	}
+	return c.compile("context " + el)
 }
 
 // CompileAction compiles an EL action statement to postfix.
@@ -145,13 +161,12 @@ func (c *Compiler) compile(el string) (string, error) {
 		return "", fmt.Errorf("parse errors: %s", strings.Join(errorListener.errors, "; "))
 	}
 
-	// Emit postfix
-	emitter := NewPostfixEmitter()
-	emitter.SetSymbols(c.symbols)
-	emitter.Visit(tree)
+	// Emit postfix using persistent emitter (preserves local variable state)
+	c.emitter.Reset() // Reset output buffer but preserve locals
+	c.emitter.Visit(tree)
 
 	// Check for emission errors
-	if errs := emitter.Errors(); len(errs) > 0 {
+	if errs := c.emitter.Errors(); len(errs) > 0 {
 		errStrs := make([]string, len(errs))
 		for i, err := range errs {
 			errStrs[i] = err.Error()
@@ -159,7 +174,7 @@ func (c *Compiler) compile(el string) (string, error) {
 		return "", fmt.Errorf("emission errors: %s", strings.Join(errStrs, "; "))
 	}
 
-	return emitter.Emit(), nil
+	return c.emitter.Emit(), nil
 }
 
 // errorCollector collects ANTLR parse errors.

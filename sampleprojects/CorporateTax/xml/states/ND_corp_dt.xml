@@ -28,23 +28,16 @@
 
 <contexts></contexts>
 
-<initial_actions>
-<initial_action>
-<action_description>Initialize ND filing requirement check</action_description>
-<action_postfix>
-"ND Filing Requirement Check Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in ND</condition_comment>
-<condition_description>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == "ND"</condition_description>
+<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "ND"</condition_description>
 <condition_postfix>
 apportionment.has_physical_presence true eq
-apportionment.state_code "ND" eq
+apportionment.state_code "ND" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
@@ -55,10 +48,10 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in ND</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == "ND"</condition_description>
+<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "ND"</condition_description>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
-apportionment.state_code "ND" eq
+apportionment.state_code "ND" streq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
@@ -72,12 +65,8 @@ and
 <action_number>1</action_number>
 <action_comment>Physical nexus - ND filing required</action_comment>
 <action_postfix>
-<!-- Physical nexus established - filing required -->
-<!-- Apportionment will be calculated by tables 7000-7500 -->
-"ND filing required due to physical presence (office, employees, or property in state)" job.audit_trail swap addto
-
-<!-- Reference: ND Century Code § 57-38.1 (Nexus and apportionment) -->
-<!-- Reference: ND Office of State Tax Commissioner Guideline (Nexus standards) -->
+// Physical nexus established - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -88,14 +77,8 @@ and
 <action_number>2</action_number>
 <action_comment>Economic nexus - ND filing required</action_comment>
 <action_postfix>
-<!-- Economic nexus established per Wayfair - filing required -->
-<!-- Economic nexus threshold: $100,000 gross receipts OR 200 transactions in ND -->
-<!-- Apportionment will be calculated by tables 7000-7500 -->
-"ND filing required due to economic nexus (post-Wayfair)" job.audit_trail swap addto
-
-<!-- Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018) -->
-<!-- Reference: ND Office of State Tax Commissioner Economic Nexus Guidance -->
-<!-- Reference: ND Century Code § 57-40.2 (Economic nexus provisions) -->
+// Economic nexus established per Wayfair - filing required
+// Apportionment will be calculated by tables 7000-7500
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -106,13 +89,9 @@ and
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
 <action_postfix>
-<!-- No nexus - no filing required -->
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No ND nexus - no filing requirement. Any estimated payments refunded." job.audit_trail swap addto
-
-<!-- Reference: ND Century Code § 57-38.1 (Nexus requirements) -->
+// No nexus - no filing required
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -137,14 +116,7 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 
 <contexts></contexts>
 
-<initial_actions>
-<initial_action>
-<action_description>Initialize ND income adjustments</action_description>
-<action_postfix>
-"ND Income Adjustments Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 
 <conditions>
 <condition_details>
@@ -166,41 +138,11 @@ or
 <action_number>1</action_number>
 <action_comment>Calculate ND state-specific additions and subtractions</action_comment>
 <action_postfix>
-<!-- Calculate ND state additions -->
+// Calculate ND state additions and subtractions
 0.0 /additions xdef
-
-<!-- ND requires addback of: -->
-<!-- - Federal interest income (taxable to ND) -->
-<!-- - IRC 199A deduction (ND does not conform) -->
-<!-- - State income taxes deducted federally -->
-<!-- - Certain bonus depreciation amounts (depends on year) -->
-
-<!-- Example additions (would be calculated from entity fields): -->
-<!-- additions += revenue.federal_bond_interest; -->
-<!-- additions += result.section_199a_deduction; -->
-<!-- additions += result.state_taxes_deducted; -->
-
-additions /apportionment.state_additions xdef
-
-<!-- Calculate ND state subtractions -->
 0.0 /subtractions xdef
-
-<!-- ND allows subtraction of: -->
-<!-- - ND municipal bond interest (exempt for ND purposes) -->
-<!-- - ND net operating loss deduction (if applicable) -->
-<!-- - Certain dividend income (85% dividend received deduction) -->
-<!-- - ND agricultural commodity processing facility investment -->
-
-<!-- Example subtractions (would be calculated from entity fields): -->
-<!-- subtractions += revenue.nd_municipal_interest; -->
-<!-- subtractions += result.nd_nol_deduction; -->
-
-subtractions /apportionment.state_subtractions xdef
-
-"ND state-specific income adjustments calculated" job.audit_trail swap addto
-
-<!-- Reference: ND Form 40 Schedule SA (State Adjustments to Federal Taxable Income) -->
-<!-- Reference: ND Century Code § 57-38-01.3 (Adjustments to federal taxable income) -->
+apportionment.state_additions additions xdef
+apportionment.state_subtractions subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -210,10 +152,9 @@ subtractions /apportionment.state_subtractions xdef
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-
-"No ND nexus - no state adjustments calculated" job.audit_trail swap addto
+// No nexus - no state adjustments
+apportionment.state_additions 0.0 xdef
+apportionment.state_subtractions 0.0 xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -237,14 +178,7 @@ subtractions /apportionment.state_subtractions xdef
 
 <contexts></contexts>
 
-<initial_actions>
-<initial_action>
-<action_description>Initialize ND state tax calculation</action_description>
-<action_postfix>
-"ND State Tax Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 
 <conditions>
 <condition_details>
@@ -279,24 +213,18 @@ apportionment.state_taxable_income 0 gt
 <action_number>1</action_number>
 <action_comment>Calculate ND tax at 3.5% flat rate</action_comment>
 <action_postfix>
-<!-- ND uses 3.5% flat rate (reduced from 4.31% in 2024) -->
+// ND uses 3.5% flat rate (reduced from 4.31% in 2024)
 apportionment.state_taxable_income apportionment.state_tax_rate mul
+/state_tax_before_credits xdef
+
+// Subtract state credits
+state_tax_before_credits apportionment.state_credits sub
+0.0 max
 /apportionment.state_tax xdef
 
-<!-- Subtract ND state credits -->
-<!-- ND offers various credits: Renaissance Zone, seed capital, biodiesel, geothermal, etc. -->
-apportionment.state_tax apportionment.state_credits sub 0 max
-/apportionment.state_tax xdef
-
-<!-- Calculate refund or amount owed -->
+// Calculate refund or amount owed
 apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
-
-"ND state tax calculated at 3.5% (reduced from 4.31% in 2024)" job.audit_trail swap addto
-
-<!-- Reference: ND Form 40 (Corporation Income Tax Return) -->
-<!-- Reference: ND Century Code § 57-38-30.3 (Tax rate of 3.5%) -->
-<!-- Reference: ND Century Code § 57-38.1 (Single-sales apportionment) -->
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value=""></action_column>
@@ -307,12 +235,9 @@ apportionment.state_payments apportionment.state_tax sub
 <action_number>2</action_number>
 <action_comment>No ND nexus - no tax liability</action_comment>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No ND nexus - no tax liability. Any estimated payments refunded." job.audit_trail swap addto
-
-<!-- Reference: ND Century Code § 57-38.1 (Nexus requirements) -->
+// No nexus - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value="X"></action_column>
@@ -323,13 +248,9 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-
-"No ND taxable income - no tax liability. ND NOL: 20-year carryforward, no carryback." job.audit_trail swap addto
-
-<!-- Reference: ND Form 40 (Corporation Income Tax Return) -->
-<!-- Reference: ND Century Code § 57-38-30.1 (Net operating loss deduction) -->
+// Nexus but no taxable income - no tax liability
+apportionment.state_tax 0.0 xdef
+apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
 <action_column column_number="1" column_value=""></action_column>
 <action_column column_number="2" column_value=""></action_column>

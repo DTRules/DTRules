@@ -1,324 +1,219 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<decision_tables name="CorporateTax_DE_Tables">
+<!--
+  Delaware Corporate Income Tax Decision Tables
 
-  <!--
-    Delaware Corporate Income Tax Decision Tables
+  Delaware imposes an 8.8% flat corporate income tax (DE Code Title 30 Section 1902).
+  Uses single-sales factor apportionment.
+  Economic nexus threshold: $100,000.
 
-    Delaware imposes an 8.8% flat corporate income tax (DE Code Title 30 § 1902).
-    Uses single-sales factor apportionment.
-    Economic nexus threshold: $100,000.
+  Table numbering: 52400-52499 (Delaware allocation)
+-->
+<decision_tables>
 
-    Table numbering: 52400-52499 (Delaware allocation)
-  -->
+<!-- ====================================================================== -->
+<!-- TABLE 52400: Determine DE Corporate Tax Filing Requirement            -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Determine_DE_Filing_Requirement</table_name>
+<xls_file>DE_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Delaware state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
+<TABLE_NUMBER>52400</TABLE_NUMBER>
+<FILE_PATH>states/DE/52400_Determine_DE_Filing_Requirement</FILE_PATH>
+</attribute_fields>
 
-  <!--
-    ============================================================================
-    TABLE 52400: Determine DE Corporate Tax Filing Requirement
-    ============================================================================
+<contexts></contexts>
 
-    Determines if corporation must file Delaware state tax return.
+<initial_actions></initial_actions>
 
-    Nexus types:
-    - Physical presence: Office, employees, property in Delaware
-    - Economic nexus: $100,000 gross receipts OR 200 transactions
-  -->
-  <decision_table name="Determine_DE_Filing_Requirement" number="52400">
-    <description>
-      Determine if corporation must file Delaware state corporate tax return.
-      Checks for physical presence or economic nexus.
-    </description>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in DE (office, employees, property)</condition_comment>
+<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "DE"</condition_description>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "DE" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
 
-    <conditions>
-      <condition name="has_physical_presence">
-        <expression>apportionment.has_physical_presence == true &amp;&amp;
-                    apportionment.state_code == 'DE'</expression>
-        <comment>Has physical presence in DE (office, employees, property)</comment>
-      </condition>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets DE economic nexus threshold ($100,000 or 200 transactions)</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "DE"</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-      <condition name="has_economic_nexus">
-        <expression>apportionment.has_economic_nexus == true &amp;&amp;
-                    apportionment.state_code == 'DE'</expression>
-        <comment>Meets DE economic nexus threshold ($100,000 or 200 transactions)</comment>
-      </condition>
-    </conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus established - filing required</action_comment>
+<action_description>// Physical nexus established - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_physical_presence>Y</has_physical_presence>
-        </conditions>
-        <actions>
-          <action>
-            // Physical nexus established - filing required
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Delaware filing required due to physical presence (office, employees, or property in state).
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_postfix>
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-          Delaware has physical presence nexus when corporation:
-          - Owns or leases real property in Delaware
-          - Maintains employees or agents in Delaware
-          - Has an office or place of business in Delaware
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-          Reference: DE Code Title 30 § 1902 (Corporate income tax)
-          Reference: DE Form 1100 (Delaware Corporation Income Tax Return)
-          Reference: Delaware Division of Revenue Corporate Tax Guidance
-        </policy>
-      </rule>
+</decision_table>
 
-      <rule number="2">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>Y</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Economic nexus established per Wayfair - filing required
-            // DE threshold: $100,000 gross receipts OR 200 transactions
-            // Apportionment will be calculated by tables 7000-7500
-          </action>
-        </actions>
-        <policy>
-          Delaware filing required due to economic nexus (post-Wayfair).
+<!-- ====================================================================== -->
+<!-- TABLE 52420: Calculate DE State-Specific Income Adjustments           -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_DE_Income_Adjustments</table_name>
+<xls_file>DE_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Delaware state-specific additions and subtractions to federal taxable income.</COMMENTS>
+<TABLE_NUMBER>52420</TABLE_NUMBER>
+<FILE_PATH>states/DE/52420_Calculate_DE_Income_Adjustments</FILE_PATH>
+</attribute_fields>
 
-          Delaware economic nexus thresholds:
-          - $100,000 or more in gross receipts from Delaware, OR
-          - 200 or more separate transactions in Delaware
+<contexts></contexts>
 
-          Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
-          Reference: DE Code Title 30 § 1901 (Definitions and general provisions)
-          Reference: Delaware Division of Revenue Economic Nexus Guidance
-        </policy>
-      </rule>
+<initial_actions></initial_actions>
 
-      <rule number="3">
-        <conditions>
-          <has_physical_presence>N</has_physical_presence>
-          <has_economic_nexus>N</has_economic_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // No nexus - no filing required
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Delaware nexus - no filing requirement.
-          Any estimated payments would be refunded.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to calculate adjustments</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-  <!--
-    ============================================================================
-    TABLE 52420: Calculate DE State-Specific Income Adjustments
-    ============================================================================
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Delaware state additions and subtractions</action_comment>
+<action_description>// Calculate Delaware state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-    Calculates Delaware additions and subtractions to federal taxable income.
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
 
-    Common Delaware additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to Delaware)
-    - State income taxes deducted on federal return
-    - IRC Section 199A qualified business income deduction addback
+</decision_table>
 
-    Common Delaware subtractions:
-    - Interest on Delaware state and local bonds
-    - Delaware NOL deduction (if different from federal)
-  -->
-  <decision_table name="Calculate_DE_Income_Adjustments" number="52420">
-    <description>
-      Calculate Delaware state-specific additions and subtractions to federal taxable income.
-    </description>
+<!-- ====================================================================== -->
+<!-- TABLE 52480: Calculate DE State Tax                                   -->
+<!-- ====================================================================== -->
+<decision_table>
+<table_name>Calculate_DE_State_Tax</table_name>
+<xls_file>DE_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Delaware state corporate income tax. Applies 8.8% flat rate to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>52480</TABLE_NUMBER>
+<FILE_PATH>states/DE/52480_Calculate_DE_State_Tax</FILE_PATH>
+</attribute_fields>
 
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to calculate adjustments</comment>
-      </condition>
-    </conditions>
+<contexts></contexts>
 
-    <rules>
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            // Calculate Delaware state additions
-            double additions = 0.0;
+<initial_actions></initial_actions>
 
-            // Add back federal interest (tax-exempt federally but taxable to Delaware)
-            // additions += revenue.federal_bond_interest;
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Must have nexus to owe tax</condition_comment>
+<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
 
-            // Add back IRC 199A deduction if state doesn't conform
-            // additions += result.section_199a_deduction;
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive state taxable income</condition_comment>
+<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_postfix>
+apportionment.state_taxable_income 0.0 f>
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
 
-            // Add back state income taxes deducted federally
-            // additions += result.state_taxes_paid;
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Delaware tax at 8.8% flat rate</action_comment>
+<action_description>// Delaware uses 8.8% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_postfix>
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
 
-            apportionment.state_additions = additions;
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_description>// No Delaware nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
 
-            // Calculate Delaware state subtractions
-            double subtractions = 0.0;
+<action_details>
+<action_number>3</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_description>// No Delaware taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_postfix>
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
 
-            // Subtract Delaware municipal bond interest
-            // subtractions += revenue.de_municipal_interest;
-
-            // Subtract Delaware NOL deduction (if different from federal)
-            // subtractions += result.de_nol_deduction;
-
-            apportionment.state_subtractions = subtractions;
-          </action>
-        </actions>
-        <policy>
-          Delaware state-specific income adjustments to federal taxable income.
-
-          Additions include:
-          - Interest on U.S. government obligations
-          - IRC Section 199A deduction addback
-          - State income taxes deducted federally
-
-          Subtractions include:
-          - Interest on Delaware state and local bonds
-          - Delaware NOL deduction (separate from federal NOL)
-
-          Reference: DE Form 1100 Instructions (Schedule A - Adjustments to Federal Taxable Income)
-          Reference: DE Code Title 30 § 1903 (Computation of entire net income)
-        </policy>
-      </rule>
-
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_additions = 0.0;
-            apportionment.state_subtractions = 0.0;
-          </action>
-        </actions>
-        <policy>
-          No nexus - no state adjustments calculated.
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
-
-  <!--
-    ============================================================================
-    TABLE 52480: Calculate DE State Tax
-    ============================================================================
-
-    Calculates final Delaware state corporate income tax.
-
-    Process:
-    1. Federal taxable income apportioned to Delaware (done by table 7500)
-    2. Add Delaware-specific additions (done by table 52420)
-    3. Subtract Delaware-specific subtractions (done by table 52420)
-    4. Calculate Delaware state taxable income
-    5. Apply Delaware tax rate: 8.8% flat rate
-    6. Subtract Delaware state credits
-    7. Calculate refund or amount owed
-  -->
-  <decision_table name="Calculate_DE_State_Tax" number="52480">
-    <description>
-      Calculate Delaware state corporate income tax.
-      Applies 8.8% flat rate to apportioned and adjusted taxable income.
-    </description>
-
-    <conditions>
-      <condition name="has_nexus">
-        <expression>apportionment.has_economic_nexus == true ||
-                    apportionment.has_physical_presence == true</expression>
-        <comment>Must have nexus to owe tax</comment>
-      </condition>
-
-      <condition name="has_state_taxable_income">
-        <expression>apportionment.state_taxable_income > 0</expression>
-        <comment>Has positive state taxable income</comment>
-      </condition>
-    </conditions>
-
-    <rules>
-      <!-- Rule 1: Calculate Delaware tax at 8.8% flat rate -->
-      <rule number="1">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>Y</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            // Delaware uses 8.8% flat rate
-            apportionment.state_tax =
-              apportionment.state_taxable_income * apportionment.state_tax_rate;
-
-            // Subtract Delaware state credits
-            apportionment.state_tax =
-              Math.max(0.0, apportionment.state_tax - apportionment.state_credits);
-
-            // Calculate refund or amount owed
-            apportionment.state_refund_or_owed =
-              apportionment.state_payments - apportionment.state_tax;
-          </action>
-        </actions>
-        <policy>
-          Delaware state corporate income tax calculation:
-
-          1. Federal taxable income: [Form 1120 line 28]
-          2. Apportioned to Delaware: × [Apportionment %]
-          3. State additions: + [Additions]
-          4. State subtractions: - [Subtractions]
-          5. Delaware taxable income: = [Result]
-          6. Delaware tax rate: × 8.8%
-          7. Delaware income tax: = [Tax before credits]
-          8. Delaware credits: - [Credits]
-          9. Delaware tax liability: = [Final tax]
-
-          Reference: DE Form 1100 (Corporation Income Tax Return) Instructions
-          Reference: DE Code Title 30 § 1902 (Tax rate: 8.8%)
-          Reference: DE Code Title 30 § 1903 (Entire net income computation)
-        </policy>
-      </rule>
-
-      <!-- Rule 2: No nexus -->
-      <rule number="2">
-        <conditions>
-          <has_nexus>N</has_nexus>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Delaware nexus - no tax liability.
-          Any estimated payments are refunded.
-        </policy>
-      </rule>
-
-      <!-- Rule 3: No taxable income -->
-      <rule number="3">
-        <conditions>
-          <has_nexus>Y</has_nexus>
-          <has_state_taxable_income>N</has_state_taxable_income>
-        </conditions>
-        <actions>
-          <action>
-            apportionment.state_tax = 0.0;
-            apportionment.state_refund_or_owed = apportionment.state_payments;
-          </action>
-        </actions>
-        <policy>
-          No Delaware taxable income - no tax liability.
-          Delaware NOL rules may apply for future carryforward (not implemented).
-        </policy>
-      </rule>
-    </rules>
-  </decision_table>
+</decision_table>
 
 </decision_tables>
