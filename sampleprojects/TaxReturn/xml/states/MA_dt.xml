@@ -1,14 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Massachusetts
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42100: Calculate_MA_Tax - Massachusetts State Income Tax        -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MA_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -19,7 +14,7 @@
 <FILE_PATH>states/MA/42100_Calculate_MA_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -38,9 +33,9 @@
 <condition_postfix>
 result.filing_status get 'Single' eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -50,9 +45,9 @@ result.filing_status get 'Single' eq
 <condition_postfix>
 result.filing_status get 'Married Filing Jointly' eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -62,9 +57,9 @@ result.filing_status get 'Married Filing Jointly' eq
 <condition_postfix>
 result.filing_status get 'Head of Household' eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -91,7 +86,7 @@ add
 
 "Massachusetts tax calculated for Single: $" result.state_tax_liability get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -116,7 +111,7 @@ add
 
 "Massachusetts tax calculated for Married Filing Jointly: $" result.state_tax_liability get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -141,15 +136,15 @@ add
 
 "Massachusetts tax calculated for Head of Household: $" result.state_tax_liability get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42101: Calculate_MA_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MA_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -159,28 +154,28 @@ add
 <TABLE_NUMBER>42101</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Massachusetts military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "Massachusetts Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 0 /result.ma_military_retirement_exclusion xdef
 0 /result.ma_sbp_exclusion xdef
 </action_postfix>
-</initial_action>
+<action_comment>Initialize Massachusetts military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement income</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -189,24 +184,24 @@ taxpayer.military_retirement_pay 0 gt
 <action_number>1</action_number>
 <action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
 <action_postfix>
-<!-- Massachusetts provides 100% exclusion for military retirement income -->
+
 taxpayer.military_retirement_pay /result.ma_military_retirement_exclusion xdef
 
-<!-- SBP payments are also fully exempt in Massachusetts -->
+
 taxpayer.sbp_payments 0 gt
 {
   taxpayer.sbp_payments /result.ma_sbp_exclusion xdef
 } if
 
-<!-- Calculate total military exclusion -->
+
 result.ma_military_retirement_exclusion result.ma_sbp_exclusion add
 /result.ma_total_military_exclusion xdef
 
-<!-- Reduce Massachusetts taxable income by the exclusion -->
+
 result.agi result.ma_total_military_exclusion sub 0 max
 /result.ma_adjusted_agi xdef
 
-<!-- Audit trail -->
+
 "Massachusetts military retirement exclusion: $" result.ma_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
 result.ma_sbp_exclusion 0 gt
 {
@@ -214,10 +209,10 @@ result.ma_sbp_exclusion 0 gt
 } if
 "Massachusetts total military exclusion: $" result.ma_total_military_exclusion cvs strconcat job.audit_trail swap addto
 
-<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
-<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+
+
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

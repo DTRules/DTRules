@@ -1,27 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Louisiana Corporate Tax Decision Tables
-
-  Louisiana corporate tax structure (MAJOR TAX REFORM 2025):
-  - Flat rate: 5.5% (replaced graduated rates up to 7.5%)
-  - Standard deduction: $20,000 (NEW for 2025)
-  - Single-sales apportionment (100% sales factor)
-  - Economic nexus: $100,000 in gross receipts (no transaction count as of 2023)
-
-  Table Number Range: 53100-53199 (Louisiana corporate allocation)
-
-  References:
-  - Louisiana Revised Statute 47:287.1-47:287.95
-  - LA Form CIFT-620 (Corporation Income Tax Return)
-  - Louisiana Department of Revenue Tax Reform Bulletin (2024)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 53100: Determine LA Corporate Tax Filing Requirement
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Determine_LA_Corporate_Filing_Requirement</table_name>
     <xls_file>LA_Corp.xls</xls_file>
@@ -30,7 +10,7 @@
       <COMMENTS>Determine if corporation must file Louisiana corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
       <TABLE_NUMBER>53100</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Louisiana filing requirement check</action_description>
@@ -48,20 +28,20 @@ false result.la_has_nexus xdef
         <condition_postfix>
 result.has_physical_presence_la true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Meets economic nexus threshold ($100K gross receipts, no transaction count as of 2023)</condition_comment>
-        <condition_description>result.la_gross_receipts is greater than or equal to result.la_economic_nexus_threshold</condition_description>
+        <condition_comment>Meets economic nexus threshold ($100K gross receipts, no transaction count as of 2023); result.la_gross_receipts is greater than or equal to result.la_economic_nexus_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.la_gross_receipts result.la_economic_nexus_threshold >=
+result.la_gross_receipts result.la_economic_nexus_threshold &gt;=
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
@@ -74,7 +54,7 @@ result.la_gross_receipts result.la_economic_nexus_threshold >=
 true result.la_has_nexus xdef
 "Louisiana filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -85,7 +65,7 @@ true result.la_has_nexus xdef
 true result.la_has_nexus xdef
 "Louisiana filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -97,16 +77,12 @@ false result.la_has_nexus xdef
 0.0 result.la_tax_liability xdef
 "Louisiana filing not required: No nexus with state" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 53120: Calculate LA Corporate Income Adjustments
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_LA_Corporate_Income_Adjustments</table_name>
     <xls_file>LA_Corp.xls</xls_file>
@@ -115,7 +91,7 @@ false result.la_has_nexus xdef
       <COMMENTS>Calculate Louisiana state-specific additions and subtractions to federal taxable income. LA 2025 tax reform introduced $20,000 standard deduction and eliminated federal income tax deduction.</COMMENTS>
       <TABLE_NUMBER>53120</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Louisiana income adjustments</action_description>
@@ -134,15 +110,15 @@ false result.la_has_nexus xdef
         <condition_postfix>
 result.la_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Louisiana state additions and subtractions</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_comment>Calculate Louisiana state additions and subtractions; Calculate state-specific income adjustments</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Louisiana state additions
 0.0 /la_additions xdef
@@ -179,7 +155,7 @@ la_subtractions result.la_state_subtractions xdef
 "Louisiana additions: $" result.la_state_additions cvs strconcat ", subtractions: $" strconcat result.la_state_subtractions cvs strconcat job.audit_trail swap addto
 "Louisiana standard deduction: $" result.la_standard_deduction cvs strconcat " (new for 2025)" strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -190,16 +166,12 @@ la_subtractions result.la_state_subtractions xdef
 0.0 result.la_state_subtractions xdef
 "Louisiana adjustments not calculated: No nexus" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 53180: Calculate LA Corporate Tax
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_LA_Corporate_Tax</table_name>
     <xls_file>LA_Corp.xls</xls_file>
@@ -208,7 +180,7 @@ la_subtractions result.la_state_subtractions xdef
       <COMMENTS>Calculate Louisiana corporate income tax. Applies Louisiana flat rate (5.5%) to apportioned and adjusted taxable income. 2025 tax reform replaced graduated rates up to 7.5% with flat 5.5% rate and introduced $20,000 standard deduction.</COMMENTS>
       <TABLE_NUMBER>53180</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Louisiana tax calculation</action_description>
@@ -227,27 +199,27 @@ la_subtractions result.la_state_subtractions xdef
         <condition_postfix>
 result.la_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Has positive taxable income</condition_comment>
-        <condition_description>result.la_apportioned_income is greater than 0</condition_description>
+        <condition_comment>Has positive taxable income; result.la_apportioned_income is greater than 0</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.la_apportioned_income 0.0 >
+result.la_apportioned_income 0.0 &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="-" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Louisiana corporate tax (flat rate 5.5% - NEW for 2025)</action_comment>
-        <action_description>Apply Louisiana 5.5% flat rate</action_description>
+        <action_comment>Calculate Louisiana corporate tax (flat rate 5.5% - NEW for 2025); Apply Louisiana 5.5% flat rate</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Louisiana taxable income
 // Federal taxable income apportioned to LA + additions - subtractions
@@ -272,7 +244,7 @@ result.la_refund_or_owed xdef
 "Louisiana taxable income: $" result.la_taxable_income cvs strconcat job.audit_trail swap addto
 "Louisiana tax liability (5.5% flat rate, effective 2025): $" result.la_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -285,7 +257,7 @@ result.la_refund_or_owed xdef
 result.la_estimated_payments result.la_refund_or_owed xdef
 "Louisiana tax liability: $0 (no taxable income)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -298,7 +270,7 @@ result.la_estimated_payments result.la_refund_or_owed xdef
 result.la_estimated_payments result.la_refund_or_owed xdef
 "Louisiana tax liability: $0 (no nexus)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>

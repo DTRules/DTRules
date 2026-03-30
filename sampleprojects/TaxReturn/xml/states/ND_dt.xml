@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for North Dakota (ND)
-
-  North Dakota has a progressive income tax with 3 tax brackets.
-  Tax rates: 0%, 1.95%, and 2.5%
-
-  Table Number: 43200 (ND is 32nd state alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43200: Calculate_ND_Tax - North Dakota State Income Tax         -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_ND_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -24,7 +14,7 @@
 <FILE_PATH>states/ND/43200_Calculate_ND_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -43,8 +33,8 @@
 <condition_postfix>
 result.filing_status "Single" eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -54,8 +44,8 @@ result.filing_status "Single" eq
 <condition_postfix>
 result.filing_status "MarriedFilingJointly" eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -64,20 +54,20 @@ result.filing_status "MarriedFilingJointly" eq
 <action_number>1</action_number>
 <action_comment>Calculate North Dakota tax - Single filer (progressive brackets)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus ND standard deduction) -->
+
 result.agi result.nd_standard_deduction_single sub 0 max
 /nd_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /nd_tax xdef
 
-<!-- Calculate tax progressively for each bracket -->
-<!-- Bracket 1: 0% on first $55,975 -->
+
+
 nd_taxable_income result.nd_single_bracket_1_limit min
 result.nd_bracket_1_rate mul
 nd_tax add /nd_tax xdef
 
-<!-- Bracket 2: 1.95% on amount over $55,975 up to $252,325 -->
+
 nd_taxable_income result.nd_single_bracket_1_limit gt
 {
   nd_taxable_income result.nd_single_bracket_2_limit min
@@ -86,7 +76,7 @@ nd_taxable_income result.nd_single_bracket_1_limit gt
   nd_tax add /nd_tax xdef
 } if
 
-<!-- Bracket 3: 2.5% on amount over $252,325 -->
+
 nd_taxable_income result.nd_single_bracket_2_limit gt
 {
   nd_taxable_income result.nd_single_bracket_2_limit sub
@@ -94,32 +84,32 @@ nd_taxable_income result.nd_single_bracket_2_limit gt
   nd_tax add /nd_tax xdef
 } if
 
-<!-- Store result -->
+
 nd_tax /result.state_tax_liability xdef
 
 "North Dakota tax (Single) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate North Dakota tax - Married filing jointly (progressive brackets)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus ND standard deduction) -->
+
 result.agi result.nd_standard_deduction_joint sub 0 max
 /nd_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /nd_tax xdef
 
-<!-- Calculate tax progressively for each bracket -->
-<!-- Bracket 1: 0% on first $55,488 -->
+
+
 nd_taxable_income result.nd_joint_bracket_1_limit min
 result.nd_bracket_1_rate mul
 nd_tax add /nd_tax xdef
 
-<!-- Bracket 2: 1.95% on amount over $55,488 up to $164,038 -->
+
 nd_taxable_income result.nd_joint_bracket_1_limit gt
 {
   nd_taxable_income result.nd_joint_bracket_2_limit min
@@ -128,7 +118,7 @@ nd_taxable_income result.nd_joint_bracket_1_limit gt
   nd_tax add /nd_tax xdef
 } if
 
-<!-- Bracket 3: 2.5% on amount over $164,038 -->
+
 nd_taxable_income result.nd_joint_bracket_2_limit gt
 {
   nd_taxable_income result.nd_joint_bracket_2_limit sub
@@ -136,20 +126,20 @@ nd_taxable_income result.nd_joint_bracket_2_limit gt
   nd_tax add /nd_tax xdef
 } if
 
-<!-- Store result -->
+
 nd_tax /result.state_tax_liability xdef
 
 "North Dakota tax (Joint) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43201: Calculate_ND_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_ND_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -159,27 +149,27 @@ nd_tax /result.state_tax_liability xdef
 <TABLE_NUMBER>43201</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize ND military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "ND Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 </action_postfix>
-</initial_action>
+<action_comment>Initialize ND military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -188,19 +178,19 @@ taxpayer.military_retirement_pay get 0 gt
 <action_number>1</action_number>
 <action_comment>Full exclusion - 100% of military retirement pay excluded from ND taxable income</action_comment>
 <action_postfix>
-<!-- North Dakota provides full exemption for military retirement pay -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
+
+
 taxpayer.military_retirement_pay get
 /result.nd_military_retirement_exclusion xdef
 
-<!-- Add to state subtractions -->
+
 result.nd_subtractions get
 result.nd_military_retirement_exclusion get add
 /result.nd_subtractions xdef
 
 "ND Military Retirement Exclusion (Full): $" result.nd_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -210,7 +200,7 @@ result.nd_military_retirement_exclusion get add
 0 /result.nd_military_retirement_exclusion xdef
 "ND Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

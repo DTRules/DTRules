@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Oregon (OR)
-
-  Oregon has a progressive income tax with 4 brackets.
-  Tax rates range from 4.75% to 9.9%
-
-  Table Number: 43650 (OR is 36th state alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43650: Calculate_OR_Tax - Oregon State Income Tax               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_OR_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -23,7 +13,7 @@
 <TABLE_NUMBER>43650</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -42,8 +32,8 @@
 <condition_postfix>
 result.filing_status get "Single" eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -53,8 +43,8 @@ result.filing_status get "Single" eq
 <condition_postfix>
 result.filing_status get "MFJ" eq
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -63,28 +53,28 @@ result.filing_status get "MFJ" eq
 <action_number>1</action_number>
 <action_comment>Calculate Oregon progressive tax - Single</action_comment>
 <action_postfix>
-<!-- Calculate OR AGI: Federal AGI minus non-taxable military retirement -->
+
 result.agi get
 result.military_retirement_pay get result.or_military_retirement_taxable get sub
 sub 0 max
 /or_agi xdef
 
-<!-- Calculate taxable income after standard deduction and personal exemptions -->
+
 or_agi result.or_standard_deduction_single get sub
 result.or_personal_exemption get sub
 0 max
 /or_taxable_income xdef
 
-<!-- Progressive tax calculation: 4 brackets -->
+
 0.0 /or_tax xdef
 
-<!-- Bracket 1: 4.75% on first $4,300 -->
+
 or_taxable_income result.or_single_bracket_1_limit get min
 0 max
 result.or_single_bracket_1_rate get mul
 /or_tax xdef
 
-<!-- Bracket 2: 6.75% on amount from $4,301 to $10,750 -->
+
 or_taxable_income result.or_single_bracket_1_limit get gt
 if
     or_taxable_income result.or_single_bracket_2_limit get min
@@ -94,7 +84,7 @@ if
     or_tax add /or_tax xdef
 then
 
-<!-- Bracket 3: 8.75% on amount from $10,751 to $125,000 -->
+
 or_taxable_income result.or_single_bracket_2_limit get gt
 if
     or_taxable_income result.or_single_bracket_3_limit get min
@@ -104,7 +94,7 @@ if
     or_tax add /or_tax xdef
 then
 
-<!-- Bracket 4: 9.9% on amount over $125,000 -->
+
 or_taxable_income result.or_single_bracket_3_limit get gt
 if
     or_taxable_income result.or_single_bracket_3_limit get sub
@@ -113,7 +103,7 @@ if
     or_tax add /or_tax xdef
 then
 
-<!-- Store final tax liability -->
+
 or_tax /result.state_tax_liability xdef
 
 "Oregon tax calculated (Single): $" result.state_tax_liability get cvs strconcat
@@ -121,35 +111,35 @@ or_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Oregon progressive tax - Joint</action_comment>
 <action_postfix>
-<!-- Calculate OR AGI: Federal AGI minus non-taxable military retirement -->
+
 result.agi get
 result.military_retirement_pay get result.or_military_retirement_taxable get sub
 sub 0 max
 /or_agi xdef
 
-<!-- Calculate taxable income after standard deduction and personal exemptions -->
+
 or_agi result.or_standard_deduction_joint get sub
 result.or_personal_exemption get 2 mul sub
 0 max
 /or_taxable_income xdef
 
-<!-- Progressive tax calculation: 4 brackets (joint rates) -->
+
 0.0 /or_tax xdef
 
-<!-- Bracket 1: 4.75% on first $8,600 -->
+
 or_taxable_income result.or_joint_bracket_1_limit get min
 0 max
 result.or_single_bracket_1_rate get mul
 /or_tax xdef
 
-<!-- Bracket 2: 6.75% on amount from $8,601 to $21,500 -->
+
 or_taxable_income result.or_joint_bracket_1_limit get gt
 if
     or_taxable_income result.or_joint_bracket_2_limit get min
@@ -159,7 +149,7 @@ if
     or_tax add /or_tax xdef
 then
 
-<!-- Bracket 3: 8.75% on amount from $21,501 to $250,000 -->
+
 or_taxable_income result.or_joint_bracket_2_limit get gt
 if
     or_taxable_income result.or_joint_bracket_3_limit get min
@@ -169,7 +159,7 @@ if
     or_tax add /or_tax xdef
 then
 
-<!-- Bracket 4: 9.9% on amount over $250,000 -->
+
 or_taxable_income result.or_joint_bracket_3_limit get gt
 if
     or_taxable_income result.or_joint_bracket_3_limit get sub
@@ -178,7 +168,7 @@ if
     or_tax add /or_tax xdef
 then
 
-<!-- Store final tax liability -->
+
 or_tax /result.state_tax_liability xdef
 
 "Oregon tax calculated (Joint): $" result.state_tax_liability get cvs strconcat
@@ -186,15 +176,15 @@ or_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43651: Calculate_OR_Military_Retirement_Subtraction             -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_OR_Military_Retirement_Subtraction</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -204,34 +194,34 @@ job.audit_trail swap addto
 <TABLE_NUMBER>43651</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize OR military retirement subtraction calculation</action_description>
+<action_description />
 <action_postfix>
 "OR Military Retirement Subtraction Calculation Started" job.audit_trail swap addto
 0.0 /result.or_military_retirement_taxable xdef
 </action_postfix>
-</initial_action>
+<action_comment>Initialize OR military retirement subtraction calculation</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Has military retirement pay -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has military retirement pay</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 result.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 
-<!-- Condition 2: All service before Oct 1, 1991 -->
+
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>All service before Oct 1, 1991</condition_comment>
@@ -239,13 +229,13 @@ result.military_retirement_pay get 0 gt
 <condition_postfix>
 result.service_all_before_1991_10_01 get
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 
-<!-- Condition 3: Mixed service (before and after Oct 1, 1991) -->
+
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Mixed service before and after Oct 1, 1991</condition_comment>
@@ -255,36 +245,36 @@ result.has_service_before_1991 get
 result.has_service_after_1991 get
 and
 </condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: All service before Oct 1, 1991 - fully exempt -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>All service before Oct 1, 1991 - fully exempt</action_comment>
 <action_postfix>
-<!-- Oregon: Service before Oct 1, 1991 is fully exempt -->
+
 0.0 /result.or_military_retirement_taxable xdef
 
 "OR military retirement fully exempt (all service before Oct 1, 1991): $" result.military_retirement_pay get cvs strconcat
 " (Taxable: $0)" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
-<!-- Action 2: Mixed service - prorated based on years -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>Mixed service - prorated exemption</action_comment>
 <action_postfix>
-<!-- Oregon: Prorated based on service years before/after Oct 1, 1991 -->
-<!-- Calculate portion attributable to pre-1991 service (exempt) -->
+
+
 result.service_years_before_1991 get
 result.total_service_years get
 div
@@ -292,7 +282,7 @@ result.military_retirement_pay get
 mul
 /or_pre_1991_portion xdef
 
-<!-- Calculate portion attributable to post-1991 service (taxable) -->
+
 result.military_retirement_pay get
 or_pre_1991_portion sub
 0 max
@@ -306,25 +296,25 @@ or_pre_1991_portion sub
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
-<!-- Action 3: All service after Oct 1, 1991 - fully taxable -->
+
 <action_details>
 <action_number>3</action_number>
 <action_comment>All service after Oct 1, 1991 - fully taxable</action_comment>
 <action_postfix>
-<!-- Oregon: Service after Oct 1, 1991 is fully taxable -->
+
 result.military_retirement_pay get
 /result.or_military_retirement_taxable xdef
 
 "OR military retirement fully taxable (all service after Oct 1, 1991): $" result.or_military_retirement_taxable get cvs strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 
-<!-- Action 4: No military retirement pay -->
+
 <action_details>
 <action_number>4</action_number>
 <action_comment>No military retirement pay</action_comment>
@@ -332,7 +322,7 @@ job.audit_trail swap addto
 0.0 /result.or_military_retirement_taxable xdef
 "No OR military retirement pay - subtraction not applicable" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 

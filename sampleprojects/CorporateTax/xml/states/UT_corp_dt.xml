@@ -1,24 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Utah Corporate Tax Decision Tables
-
-  UT has a low flat corporate income tax rate of 4.50% (2025).
-
-  Table Allocation: 54600-54699
-  - 54600: Determine_UT_Filing_Requirement
-  - 54620: Calculate_UT_Income_Adjustments
-  - 54680: Calculate_UT_State_Tax
-
-  References:
-  - UT Code § 59-7-104 (Tax rate: 4.50% effective January 1, 2025)
-  - UT Code § 59-7-311 (Apportionment)
-  - Utah Form TC-20 (Corporation Franchise or Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54600: Determine_UT_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_UT_Filing_Requirement</table_name>
 <xls_file>UT_Corp.xls</xls_file>
@@ -29,7 +14,7 @@
 <FILE_PATH>states/UT/54600_Determine_UT_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -43,9 +28,9 @@
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "UT" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -56,9 +41,9 @@ apportionment.state_code get "UT" streq and
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "UT" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -70,37 +55,37 @@ apportionment.state_code get "UT" streq and
 <action_postfix>
 "UT filing required due to physical presence. Reference: UT Code 59-7-102" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>Economic nexus established - filing required</action_comment>
-<action_description>UT filing required due to economic nexus ($100K threshold)</action_description>
+<action_comment>Economic nexus established - filing required; UT filing required due to economic nexus ($100K threshold)</action_comment>
+<action_description />
 <action_postfix>
 "UT filing required due to economic nexus. $100K threshold (200-transaction threshold removed per S.B. 47). Reference: UT Code 59-7-102" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No nexus - no filing required</action_comment>
-<action_description>No UT nexus - no filing requirement</action_description>
+<action_comment>No nexus - no filing required; No UT nexus - no filing requirement</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No UT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54620: Calculate_UT_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_UT_Income_Adjustments</table_name>
 <xls_file>UT_Corp.xls</xls_file>
@@ -111,7 +96,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <FILE_PATH>states/UT/54620_Calculate_UT_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -119,48 +104,48 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to calculate adjustments</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate UT state additions and subtractions</action_comment>
-<action_description>Calculate UT-specific income adjustments</action_description>
+<action_comment>Calculate UT state additions and subtractions; Calculate UT-specific income adjustments</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
 "UT income adjustments calculated. Reference: UT Code 59-7-105 (additions), 59-7-106 (subtractions)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no state adjustments</action_comment>
-<action_description>No UT nexus - no adjustments calculated</action_description>
+<action_comment>No nexus - no state adjustments; No UT nexus - no adjustments calculated</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
 "No UT nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54680: Calculate_UT_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_UT_State_Tax</table_name>
 <xls_file>UT_Corp.xls</xls_file>
@@ -171,7 +156,7 @@ apportionment.has_physical_presence get true eq or
 <FILE_PATH>states/UT/54680_Calculate_UT_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -179,15 +164,15 @@ apportionment.has_physical_presence get true eq or
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to owe tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 
 <condition_details>
@@ -197,48 +182,48 @@ apportionment.has_physical_presence get true eq or
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate UT tax at 4.50% flat rate</action_comment>
-<action_description>UT income tax at 4.50% (reduced from 4.55% in 2025)</action_description>
+<action_comment>Calculate UT tax at 4.50% flat rate; UT income tax at 4.50% (reduced from 4.55% in 2025)</action_comment>
+<action_description />
 <action_postfix>
 apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
 apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
 apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
 "UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No UT nexus - no tax liability</action_comment>
-<action_description>No UT nexus - no tax</action_description>
+<action_comment>No UT nexus - no tax liability; No UT nexus - no tax</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No UT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>Nexus but no taxable income</action_comment>
-<action_description>No UT taxable income - no tax</action_description>
+<action_comment>Nexus but no taxable income; No UT taxable income - no tax</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

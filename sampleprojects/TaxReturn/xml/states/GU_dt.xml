@@ -1,19 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Decision tables for Guam (GU) Territory Tax
-
-  Guam uses a "mirror code" system - mirrors the US Internal Revenue Code.
-  Bona fide residents file with Guam Department of Revenue and Taxation, use federal tax rates.
-  Non-residents use Form 5074 for income allocation.
-
-  FILE_PATH: sampleprojects/TaxReturn/xml/states/GU_dt.xml
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 50200: Calculate_GU_Tax - Guam Territory Tax                    -->
-<!-- Reference: Guam Mirror Code, Form 5074, IRC Section 935               -->
-<!-- ====================================================================== -->
+
+
+
+
 <decision_table>
 <table_name>Calculate_GU_Tax</table_name>
 <xls_file>Territory.xls</xls_file>
@@ -24,7 +15,7 @@
 <FILE_PATH>sampleprojects/TaxReturn/xml/states/GU_dt.xml</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -40,16 +31,16 @@
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Bona fide resident of Guam</condition_comment>
-<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_comment>Bona fide resident of Guam; Meets bona fide residence test (183+ days, tax home, closer connection)</condition_comment>
+<condition_description />
 <condition_postfix>
 result.gu_days_present 183 &gt;=
 result.gu_has_tax_home and
 result.gu_closer_connection and
 dup /result.gu_bona_fide_resident xdef
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -67,7 +58,7 @@ result.federal_income_tax /result.gu_income_tax xdef
 "  Mirror code: uses federal tax rates (" result.filing_status strconcat ")" strconcat job.audit_trail swap addto
 "  Guam tax liability: $" result.gu_income_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -88,7 +79,7 @@ else
   "  Non-resident with no Guam source income - no Guam tax" job.audit_trail swap addto
 then
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

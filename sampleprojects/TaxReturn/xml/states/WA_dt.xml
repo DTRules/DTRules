@@ -1,27 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Washington (WA)
-
-  Washington State has NO state income tax.
-
-  This table is a passthrough that sets state_tax_liability to 0.0 and logs the result.
-
-  Table Numbering: 44700 (WA is state #47 alphabetically)
-
-  Military Tax Provisions:
-    - WA has no state income tax
-    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
-    - MSRRA: N/A (no income tax)
-    - SCRA: N/A (no income tax)
-    - Military spouses and service members have no state income tax burden
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 44700: Calculate_WA_Tax - Washington State Income Tax           -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_WA_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -32,15 +14,15 @@
 <FILE_PATH>states/WA/44700_Calculate_WA_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize WA tax calculation (no income tax)</action_description>
+<action_description />
 <action_postfix>
 "Washington Tax Calculation Started (WA has no income tax)" job.audit_trail swap addto
 </action_postfix>
-</initial_action>
+<action_comment>Initialize WA tax calculation (no income tax)</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
@@ -51,7 +33,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -64,7 +46,7 @@ true
 
 "Washington state tax: $0.00 (WA has no state income tax)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

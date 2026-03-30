@@ -1,21 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Michigan
-
-  Michigan Tax Structure (2025):
-  - Flat tax rate: 4.25%
-  - Personal exemptions: $5,800 per taxpayer, spouse, and dependent
-  - Calculation: (AGI - Total Exemptions) × 4.25%
-
-  Table Number: 42200 (MI is state #22 alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42200: Calculate_MI_Tax - Michigan State Income Tax            -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MI_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -26,7 +14,7 @@
 <FILE_PATH>states/MI/42200_Calculate_MI_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -38,7 +26,7 @@
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Filing status is Single -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Single</condition_comment>
@@ -46,13 +34,13 @@
 <condition_postfix>
 result.filing_status "single" ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 
-<!-- Condition 2: Filing status is Married Filing Jointly -->
+
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
@@ -60,13 +48,13 @@ result.filing_status "single" ==
 <condition_postfix>
 result.filing_status "married_filing_jointly" ==
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 
-<!-- Condition 3: Filing status is Head of Household -->
+
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
@@ -74,13 +62,13 @@ result.filing_status "married_filing_jointly" ==
 <condition_postfix>
 result.filing_status "head_of_household" ==
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 
-<!-- Condition 4: Any other filing status -->
+
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Default case (Married Filing Separately, etc.)</condition_comment>
@@ -88,15 +76,15 @@ result.filing_status "head_of_household" ==
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: Calculate exemption for Single filers -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Single: base exemption + dependent exemptions</action_comment>
@@ -107,13 +95,13 @@ result.number_of_dependents result.mi_exemption_dependent mul add
 
 "MI exemptions (Single): $" result.mi_total_exemption cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="" />
+<action_column column_number="3" column_value="" />
+<action_column column_number="4" column_value="" />
 </action_details>
 
-<!-- Action 2: Calculate exemption for Married Filing Jointly -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>Married Filing Jointly: base exemption (2 x $5,800) + dependent exemptions</action_comment>
@@ -124,13 +112,13 @@ result.number_of_dependents result.mi_exemption_dependent mul add
 
 "MI exemptions (MFJ): $" result.mi_total_exemption cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="1" column_value="" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="" />
+<action_column column_number="4" column_value="" />
 </action_details>
 
-<!-- Action 3: Calculate exemption for Head of Household -->
+
 <action_details>
 <action_number>3</action_number>
 <action_comment>Head of Household: base exemption + dependent exemptions</action_comment>
@@ -141,13 +129,13 @@ result.number_of_dependents result.mi_exemption_dependent mul add
 
 "MI exemptions (HOH): $" result.mi_total_exemption cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value=""></action_column>
+<action_column column_number="1" column_value="" />
+<action_column column_number="2" column_value="" />
+<action_column column_number="3" column_value="X" />
+<action_column column_number="4" column_value="" />
 </action_details>
 
-<!-- Action 4: Calculate exemption for other filing statuses -->
+
 <action_details>
 <action_number>4</action_number>
 <action_comment>Other statuses: base exemption + dependent exemptions</action_comment>
@@ -158,13 +146,13 @@ result.number_of_dependents result.mi_exemption_dependent mul add
 
 "MI exemptions (Other): $" result.mi_total_exemption cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="1" column_value="" />
+<action_column column_number="2" column_value="" />
+<action_column column_number="3" column_value="" />
+<action_column column_number="4" column_value="X" />
 </action_details>
 
-<!-- Action 5: Calculate MI taxable income (all columns) -->
+
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate MI taxable income (AGI - exemptions, minimum 0)</action_comment>
@@ -174,13 +162,13 @@ result.agi result.mi_total_exemption sub 0 max
 
 "MI taxable income: $" result.mi_taxable_income cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+<action_column column_number="4" column_value="X" />
 </action_details>
 
-<!-- Action 6: Calculate MI tax liability (all columns) -->
+
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate MI tax: taxable income × 4.25%</action_comment>
@@ -190,18 +178,18 @@ result.mi_taxable_income result.mi_tax_rate mul
 
 "Michigan tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42201: Calculate_MI_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MI_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -211,28 +199,28 @@ result.mi_taxable_income result.mi_tax_rate mul
 <TABLE_NUMBER>42201</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Michigan military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "Michigan Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 0 /result.mi_military_retirement_exclusion xdef
 0 /result.mi_sbp_exclusion xdef
 </action_postfix>
-</initial_action>
+<action_comment>Initialize Michigan military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement income</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -241,24 +229,24 @@ taxpayer.military_retirement_pay 0 gt
 <action_number>1</action_number>
 <action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
 <action_postfix>
-<!-- Michigan provides 100% exclusion for military retirement income -->
+
 taxpayer.military_retirement_pay /result.mi_military_retirement_exclusion xdef
 
-<!-- SBP payments are also fully exempt in Michigan -->
+
 taxpayer.sbp_payments 0 gt
 {
   taxpayer.sbp_payments /result.mi_sbp_exclusion xdef
 } if
 
-<!-- Calculate total military exclusion -->
+
 result.mi_military_retirement_exclusion result.mi_sbp_exclusion add
 /result.mi_total_military_exclusion xdef
 
-<!-- Reduce Michigan taxable income by the exclusion -->
+
 result.agi result.mi_total_military_exclusion sub 0 max
 /result.mi_adjusted_agi xdef
 
-<!-- Audit trail -->
+
 "Michigan military retirement exclusion: $" result.mi_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
 result.mi_sbp_exclusion 0 gt
 {
@@ -266,10 +254,10 @@ result.mi_sbp_exclusion 0 gt
 } if
 "Michigan total military exclusion: $" result.mi_total_military_exclusion cvs strconcat job.audit_trail swap addto
 
-<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
-<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+
+
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

@@ -1,20 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Idaho (ID)
-
-  Military Retirement Provisions (2025):
-  - Full exemption if disabled veteran OR age 62+
-  - Fully taxable if neither condition met
-
-  Table Number: 12800 (ID is 12th state alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 12790: Calculate_ID_Military_Retirement_Exemption               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_ID_Military_Retirement_Exemption</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -24,7 +13,7 @@
 <TABLE_NUMBER>12790</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -38,42 +27,42 @@
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Has military retirement pay -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has military retirement pay</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 result.military_retirement_pay 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 
-<!-- Condition 2: Disabled veteran OR age 62+ -->
+
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Disabled veteran OR age 62+</condition_comment>
-<condition_description>is_disabled OR age >= 62</condition_description>
+<condition_comment>Disabled veteran OR age 62+; is_disabled OR age &gt;= 62</condition_comment>
+<condition_description />
 <condition_postfix>
 result.is_disabled
 result.age result.id_military_age_requirement ge
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
-<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: Full exemption (disabled OR age 62+) -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Apply ID FULL military retirement exemption (disabled OR age 62+)</action_comment>
 <action_postfix>
-<!-- Full exemption - all military retirement is exempt -->
+
 result.military_retirement_pay /result.id_military_retirement_exemption xdef
 0.0 /result.id_military_retirement_taxable xdef
 
@@ -84,10 +73,10 @@ result.is_disabled cvs strconcat
 ", Fully exempt" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
-<!-- Action 2: No exemption (not disabled and age &lt; 62) -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>No ID military retirement exemption (not disabled, age &lt; 62)</action_comment>
@@ -101,10 +90,10 @@ result.age cvs strconcat
 ", Fully taxable" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
-<!-- Action 3: No military retirement pay -->
+
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay</action_comment>
@@ -113,7 +102,7 @@ job.audit_trail swap addto
 0.0 /result.id_military_retirement_taxable xdef
 "No ID military retirement pay - exemption not applicable" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

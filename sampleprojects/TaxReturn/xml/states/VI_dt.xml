@@ -1,19 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Decision tables for US Virgin Islands (VI) Territory Tax
-
-  USVI uses a "mirror code" system - mirrors the US Internal Revenue Code.
-  Bona fide residents file with VI Bureau of Internal Revenue, use federal tax rates.
-  Non-residents use Form 8689 for income allocation.
-
-  FILE_PATH: sampleprojects/TaxReturn/xml/states/VI_dt.xml
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 50100: Calculate_VI_Tax - US Virgin Islands Territory Tax       -->
-<!-- Reference: VI Mirror Code, Form 8689, IRC Section 932                 -->
-<!-- ====================================================================== -->
+
+
+
+
 <decision_table>
 <table_name>Calculate_VI_Tax</table_name>
 <xls_file>Territory.xls</xls_file>
@@ -24,7 +15,7 @@
 <FILE_PATH>sampleprojects/TaxReturn/xml/states/VI_dt.xml</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -41,27 +32,27 @@
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Bona fide resident of USVI</condition_comment>
-<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_comment>Bona fide resident of USVI; Meets bona fide residence test (183+ days, tax home, closer connection)</condition_comment>
+<condition_description />
 <condition_postfix>
 result.vi_days_present 183 &gt;=
 result.vi_has_tax_home and
 result.vi_closer_connection and
 dup /result.vi_bona_fide_resident xdef
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Qualifies for EDC benefits</condition_comment>
-<condition_description>Has Economic Development Commission benefits (up to 90% reduction)</condition_description>
+<condition_comment>Qualifies for EDC benefits; Has Economic Development Commission benefits (up to 90% reduction)</condition_comment>
+<condition_description />
 <condition_postfix>
 result.vi_has_edc_benefits
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -92,7 +83,7 @@ then
 "  Mirror code: uses federal tax rates (" result.filing_status strconcat ")" strconcat job.audit_trail swap addto
 "  VI tax liability: $" result.vi_income_tax_after_edc cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -115,7 +106,7 @@ else
   "  Non-resident with no VI source income - no VI tax" job.audit_trail swap addto
 then
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

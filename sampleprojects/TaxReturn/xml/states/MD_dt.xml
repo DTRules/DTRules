@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Maryland (MD)
-
-  Maryland has a progressive income tax with 8 brackets.
-  Tax rates range from 2% to 5.75%
-
-  Table Number: 42050 (MD is 20th state alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42050: Calculate_MD_Tax - Maryland State Income Tax             -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MD_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -23,7 +13,7 @@
 <TABLE_NUMBER>42050</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -42,7 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -51,28 +41,28 @@ true
 <action_number>1</action_number>
 <action_comment>Calculate Maryland progressive tax (8 brackets)</action_comment>
 <action_postfix>
-<!-- Calculate MD AGI: Federal AGI minus non-taxable military retirement -->
+
 result.agi get
 result.military_retirement_pay get result.md_military_retirement_taxable get sub
 sub 0 max
 /md_agi xdef
 
-<!-- Calculate taxable income after standard deduction and personal exemptions -->
+
 md_agi result.md_standard_deduction_single get sub
 result.md_personal_exemption get sub
 0 max
 /md_taxable_income xdef
 
-<!-- Progressive tax calculation: 8 brackets -->
+
 0.0 /md_tax xdef
 
-<!-- Bracket 1: 2% on first $1,000 -->
+
 md_taxable_income result.md_bracket_1_limit get min
 0 max
 result.md_bracket_1_rate get mul
 /md_tax xdef
 
-<!-- Bracket 2: 3% on amount from $1,001 to $2,000 -->
+
 md_taxable_income result.md_bracket_1_limit get gt
 if
     md_taxable_income result.md_bracket_2_limit get min
@@ -82,7 +72,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Bracket 3: 4% on amount from $2,001 to $3,000 -->
+
 md_taxable_income result.md_bracket_2_limit get gt
 if
     md_taxable_income result.md_bracket_3_limit get min
@@ -92,7 +82,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Bracket 4: 4.75% on amount from $3,001 to $100,000 -->
+
 md_taxable_income result.md_bracket_3_limit get gt
 if
     md_taxable_income result.md_bracket_4_limit get min
@@ -102,7 +92,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Bracket 5: 5% on amount from $100,001 to $125,000 -->
+
 md_taxable_income result.md_bracket_4_limit get gt
 if
     md_taxable_income result.md_bracket_5_limit get min
@@ -112,7 +102,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Bracket 6: 5.25% on amount from $125,001 to $150,000 -->
+
 md_taxable_income result.md_bracket_5_limit get gt
 if
     md_taxable_income result.md_bracket_6_limit get min
@@ -122,7 +112,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Bracket 7: 5.5% on amount from $150,001 to $250,000 -->
+
 md_taxable_income result.md_bracket_6_limit get gt
 if
     md_taxable_income result.md_bracket_7_limit get min
@@ -132,7 +122,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Bracket 8: 5.75% on amount over $250,000 -->
+
 md_taxable_income result.md_bracket_7_limit get gt
 if
     md_taxable_income result.md_bracket_7_limit get sub
@@ -141,7 +131,7 @@ if
     md_tax add /md_tax xdef
 then
 
-<!-- Store final tax liability -->
+
 md_tax /result.state_tax_liability xdef
 
 "Maryland tax calculated: $" result.state_tax_liability get cvs strconcat
@@ -149,15 +139,15 @@ md_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42051: Calculate_MD_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MD_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -167,58 +157,58 @@ job.audit_trail swap addto
 <TABLE_NUMBER>42051</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize MD military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "MD Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 0.0 /result.md_military_retirement_taxable xdef
 </action_postfix>
-</initial_action>
+<action_comment>Initialize MD military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Has military retirement pay -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has military retirement pay</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 result.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 </condition_details>
 
-<!-- Condition 2: Age 55 or older -->
+
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age 55 or older</condition_comment>
-<condition_description>age >= 55</condition_description>
+<condition_description>age &gt;= 55</condition_description>
 <condition_postfix>
 result.age get 55 ge
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="1" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: Apply MD $20,000 military retirement exemption (age 55+) -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Apply MD $20,000 military retirement exemption (age 55+)</action_comment>
 <action_postfix>
-<!-- Maryland allows $20,000 exemption for age 55+ (2025) -->
-<!-- Exemption amount is the lesser of $20,000 or actual military retirement -->
+
+
 result.military_retirement_pay get
 result.md_military_retirement_exemption_55_plus get
 min
 /md_exemption_amount xdef
 
-<!-- Calculate taxable military retirement -->
+
 result.military_retirement_pay get
 md_exemption_amount sub
 0 max
@@ -231,22 +221,22 @@ md_exemption_amount sub
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
-<!-- Action 2: Apply MD $12,500 military retirement exemption (under age 55) -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply MD $12,500 military retirement exemption (under age 55)</action_comment>
 <action_postfix>
-<!-- Maryland allows $12,500 exemption for under age 55 (2025) -->
-<!-- Exemption amount is the lesser of $12,500 or actual military retirement -->
+
+
 result.military_retirement_pay get
 result.md_military_retirement_exemption_under_55 get
 min
 /md_exemption_amount xdef
 
-<!-- Calculate taxable military retirement -->
+
 result.military_retirement_pay get
 md_exemption_amount sub
 0 max
@@ -259,10 +249,10 @@ md_exemption_amount sub
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
-<!-- Action 3: No military retirement pay -->
+
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay - no exemption</action_comment>
@@ -270,7 +260,7 @@ job.audit_trail swap addto
 0.0 /result.md_military_retirement_taxable xdef
 "No MD military retirement pay - exemption not applicable" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

@@ -1,18 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Decision tables for Puerto Rico (PR) Territory Tax
-
-  Puerto Rico has a separate tax system. Bona fide residents are generally exempt from
-  US federal income tax on PR-source income but pay PR tax. Act 60 provides special incentives.
-
-  FILE_PATH: sampleprojects/TaxReturn/xml/states/PR_dt.xml
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 50000: Calculate_PR_Tax - Puerto Rico Territory Income Tax      -->
-<!-- Reference: PR Internal Revenue Code, Act 60, Form 8898                -->
-<!-- ====================================================================== -->
+
+
+
+
 <decision_table>
 <table_name>Calculate_PR_Tax</table_name>
 <xls_file>Territory.xls</xls_file>
@@ -23,7 +15,7 @@
 <FILE_PATH>sampleprojects/TaxReturn/xml/states/PR_dt.xml</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -39,38 +31,38 @@
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Bona fide resident of PR</condition_comment>
-<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_comment>Bona fide resident of PR; Meets bona fide residence test (183+ days, tax home, closer connection)</condition_comment>
+<condition_description />
 <condition_postfix>
 result.pr_days_present 183 &gt;=
 result.pr_has_tax_home and
 result.pr_closer_connection and
 dup /result.pr_bona_fide_resident xdef
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Qualifies for Act 60 investor benefits</condition_comment>
-<condition_description>Act 60 investor (0% capital gains)</condition_description>
+<condition_comment>Qualifies for Act 60 investor benefits; Act 60 investor (0% capital gains)</condition_comment>
+<condition_description />
 <condition_postfix>
 result.pr_act60_investor
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Qualifies for Act 60 business benefits</condition_comment>
-<condition_description>Act 60 business (4% rate)</condition_description>
+<condition_comment>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_comment>
+<condition_description />
 <condition_postfix>
 result.pr_act60_business
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -106,7 +98,7 @@ then
 "  PR-source income exempt from US federal tax" job.audit_trail swap addto
 "  PR tax liability: $" result.pr_income_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -119,7 +111,7 @@ false /result.pr_requires_form_8898 xdef
 "  Not bona fide PR resident - subject to US federal income tax" job.audit_trail swap addto
 "  Does not meet 183-day presence test or other bona fide resident requirements" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

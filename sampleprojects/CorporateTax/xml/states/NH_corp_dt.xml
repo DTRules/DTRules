@@ -1,23 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for New Hampshire
-
-  New Hampshire Business Profits Tax (BPT)
-  - BPT rate: 7.5% flat rate on business profits
-  - Filing threshold: $109,000 gross business income (2025)
-  - Single-sales apportionment
-  - Static conformity to IRC as of December 31, 2018
-
-  Note: This implementation covers Business Profits Tax (BPT) only.
-  Business Enterprise Tax (BET) is a separate tax not covered here.
-
-  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53800: Determine_NH_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_NH_Filing_Requirement</table_name>
 <xls_file>NH_Corp.xls</xls_file>
@@ -28,9 +14,9 @@
 <FILE_PATH>states/NH/53800_Determine_NH_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
@@ -42,9 +28,9 @@ apportionment.has_physical_presence true eq
 apportionment.state_code "NH" streq
 and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -56,9 +42,9 @@ apportionment.has_economic_nexus true eq
 apportionment.state_code "NH" streq
 and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -70,7 +56,7 @@ and
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -80,7 +66,7 @@ and
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -91,15 +77,15 @@ and
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53820: Calculate_NH_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NH_Income_Adjustments</table_name>
 <xls_file>NH_Corp.xls</xls_file>
@@ -110,22 +96,22 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <FILE_PATH>states/NH/53820_Calculate_NH_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus with NH</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Has nexus with NH; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -140,7 +126,7 @@ or
 apportionment.state_additions additions xdef
 apportionment.state_subtractions subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -151,15 +137,15 @@ apportionment.state_subtractions subtractions xdef
 apportionment.state_additions 0.0 xdef
 apportionment.state_subtractions 0.0 xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53880: Calculate_NH_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NH_State_Tax</table_name>
 <xls_file>NH_Corp.xls</xls_file>
@@ -170,35 +156,35 @@ apportionment.state_subtractions 0.0 xdef
 <FILE_PATH>states/NH/53880_Calculate_NH_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus with NH</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Has nexus with NH; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="" />
 </condition_details>
 </conditions>
 
@@ -220,7 +206,7 @@ state_tax_before_credits apportionment.state_credits sub
 apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -231,7 +217,7 @@ apportionment.state_payments apportionment.state_tax sub
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -242,7 +228,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

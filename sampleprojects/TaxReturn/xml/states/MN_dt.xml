@@ -1,24 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Minnesota
-
-  Minnesota has progressive tax brackets (2025):
-  - 5.35% on income up to $32,570
-  - 6.80% on income $32,571 to $106,990
-  - 7.85% on income $106,991 to $198,630
-  - 9.85% on income over $198,631
-
-  Table Numbering Convention:
-    - MN is state #23 alphabetically
-    - Table number: 42300
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42300: Calculate_MN_Tax - Minnesota State Income Tax            -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MN_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -29,7 +14,7 @@
 <FILE_PATH>states/MN/42300_Calculate_MN_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -42,7 +27,7 @@
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Filing status is Single -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Single</condition_comment>
@@ -50,11 +35,11 @@
 <condition_postfix>
 result.filing_status "single" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 </condition_details>
 
-<!-- Condition 2: Filing status is Married Filing Jointly -->
+
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
@@ -62,30 +47,30 @@ result.filing_status "single" strcasecmp 0 eq
 <condition_postfix>
 result.filing_status "married_filing_jointly" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: Calculate MN tax for Single filers -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate MN tax for Single filers using progressive brackets</action_comment>
 <action_postfix>
-<!-- Calculate taxable income: AGI - standard deduction -->
+
 result.agi result.mn_standard_deduction_single sub 0 max
 dup /mn_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0.0 /mn_tax xdef
 
-<!-- Bracket 1: First $32,570 @ 5.35% -->
+
 mn_taxable_income result.mn_bracket_1_limit_single min
 result.mn_bracket_1_rate mul
 /mn_tax xdef
 
-<!-- Bracket 2: $32,571 to $106,990 @ 6.8% -->
+
 mn_taxable_income result.mn_bracket_1_limit_single gt
 {
   mn_taxable_income result.mn_bracket_2_limit_single min result.mn_bracket_1_limit_single sub
@@ -93,7 +78,7 @@ mn_taxable_income result.mn_bracket_1_limit_single gt
   mn_tax add /mn_tax xdef
 } if
 
-<!-- Bracket 3: $106,991 to $198,630 @ 7.85% -->
+
 mn_taxable_income result.mn_bracket_2_limit_single gt
 {
   mn_taxable_income result.mn_bracket_3_limit_single min result.mn_bracket_2_limit_single sub
@@ -101,7 +86,7 @@ mn_taxable_income result.mn_bracket_2_limit_single gt
   mn_tax add /mn_tax xdef
 } if
 
-<!-- Bracket 4: Over $198,630 @ 9.85% -->
+
 mn_taxable_income result.mn_bracket_3_limit_single gt
 {
   mn_taxable_income result.mn_bracket_3_limit_single sub
@@ -109,32 +94,32 @@ mn_taxable_income result.mn_bracket_3_limit_single gt
   mn_tax add /mn_tax xdef
 } if
 
-<!-- Store result -->
+
 mn_tax /result.state_tax_liability xdef
 
 "Minnesota tax calculated (Single): $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
-<!-- Action 2: Calculate MN tax for Married Filing Jointly -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MN tax for Married Filing Jointly using progressive brackets</action_comment>
 <action_postfix>
-<!-- Calculate taxable income: AGI - standard deduction -->
+
 result.agi result.mn_standard_deduction_joint sub 0 max
 dup /mn_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0.0 /mn_tax xdef
 
-<!-- Bracket 1: First $47,620 @ 5.35% -->
+
 mn_taxable_income result.mn_bracket_1_limit_joint min
 result.mn_bracket_1_rate mul
 /mn_tax xdef
 
-<!-- Bracket 2: $47,621 to $189,180 @ 6.8% -->
+
 mn_taxable_income result.mn_bracket_1_limit_joint gt
 {
   mn_taxable_income result.mn_bracket_2_limit_joint min result.mn_bracket_1_limit_joint sub
@@ -142,7 +127,7 @@ mn_taxable_income result.mn_bracket_1_limit_joint gt
   mn_tax add /mn_tax xdef
 } if
 
-<!-- Bracket 3: $189,181 to $330,410 @ 7.85% -->
+
 mn_taxable_income result.mn_bracket_2_limit_joint gt
 {
   mn_taxable_income result.mn_bracket_3_limit_joint min result.mn_bracket_2_limit_joint sub
@@ -150,7 +135,7 @@ mn_taxable_income result.mn_bracket_2_limit_joint gt
   mn_tax add /mn_tax xdef
 } if
 
-<!-- Bracket 4: Over $330,410 @ 9.85% -->
+
 mn_taxable_income result.mn_bracket_3_limit_joint gt
 {
   mn_taxable_income result.mn_bracket_3_limit_joint sub
@@ -158,20 +143,20 @@ mn_taxable_income result.mn_bracket_3_limit_joint gt
   mn_tax add /mn_tax xdef
 } if
 
-<!-- Store result -->
+
 mn_tax /result.state_tax_liability xdef
 
 "Minnesota tax calculated (MFJ): $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42301: Calculate_MN_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MN_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -181,28 +166,28 @@ mn_tax /result.state_tax_liability xdef
 <TABLE_NUMBER>42301</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Minnesota military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "Minnesota Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 0 /result.mn_military_retirement_exclusion xdef
 0 /result.mn_sbp_exclusion xdef
 </action_postfix>
-</initial_action>
+<action_comment>Initialize Minnesota military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement income</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -211,24 +196,24 @@ taxpayer.military_retirement_pay 0 gt
 <action_number>1</action_number>
 <action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
 <action_postfix>
-<!-- Minnesota provides 100% exclusion for military retirement income -->
+
 taxpayer.military_retirement_pay /result.mn_military_retirement_exclusion xdef
 
-<!-- SBP payments are also fully exempt in Minnesota -->
+
 taxpayer.sbp_payments 0 gt
 {
   taxpayer.sbp_payments /result.mn_sbp_exclusion xdef
 } if
 
-<!-- Calculate total military exclusion -->
+
 result.mn_military_retirement_exclusion result.mn_sbp_exclusion add
 /result.mn_total_military_exclusion xdef
 
-<!-- Reduce Minnesota taxable income by the exclusion -->
+
 result.agi result.mn_total_military_exclusion sub 0 max
 /result.mn_adjusted_agi xdef
 
-<!-- Audit trail -->
+
 "Minnesota military retirement exclusion: $" result.mn_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
 result.mn_sbp_exclusion 0 gt
 {
@@ -236,11 +221,11 @@ result.mn_sbp_exclusion 0 gt
 } if
 "Minnesota total military exclusion: $" result.mn_total_military_exclusion cvs strconcat job.audit_trail swap addto
 
-<!-- Note: Minnesota also offers tax credits for combat zone service (implementation in separate table if needed) -->
-<!-- MSRRA Compliance Note: Military spouse income is exempt if spouse maintains different domicile -->
-<!-- SCRA Compliance Note: Active duty military pay is exempt if service member maintains different state of residence -->
+
+
+
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 
