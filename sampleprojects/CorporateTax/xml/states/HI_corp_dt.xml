@@ -1,26 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Hawaii Corporate Tax Decision Tables
-
-  Hawaii imposes a 6.4% flat corporate income tax (HI Rev. Stat. § 235-71).
-  Uses single-sales factor apportionment.
-  Economic nexus threshold: $100,000 gross receipts OR 200 transactions.
-
-  Table numbering: 52500-52599 (HI allocation)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52500: Determine HI Corporate Tax Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file Hawaii state tax return.
-
-    Nexus types:
-    - Physical presence: Office, employees, property in Hawaii
-    - Economic nexus (post-Wayfair): $100,000 gross receipts threshold
-  -->
+  
   <decision_table>
     <table_name>Determine_HI_Filing_Requirement</table_name>
     <xls_file>HI_Corp.xls</xls_file>
@@ -29,8 +10,8 @@
       <COMMENTS>Determine if corporation must file Hawaii state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
       <TABLE_NUMBER>52500</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
-    <initial_actions></initial_actions>
+    <contexts />
+    <initial_actions />
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
@@ -40,9 +21,9 @@
 apportionment.has_physical_presence true eq
 { pop apportionment.state_code "HI" streq } over if
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
@@ -52,21 +33,21 @@ apportionment.has_physical_presence true eq
 apportionment.has_economic_nexus true eq
 { pop apportionment.state_code "HI" streq } over if
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Physical nexus established - filing required</action_comment>
-        <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+        <action_comment>Physical nexus established - filing required; Apportionment will be calculated by tables 7000-7500</action_comment>
+        <action_description />
         <action_postfix>
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -76,18 +57,18 @@ apportionment.has_economic_nexus true eq
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_description />
         <action_postfix>
 // No nexus - no filing required
 0.0 apportionment.state_tax xdef
 apportionment.state_payments apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
     <policy_statements>
@@ -106,17 +87,7 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
     </policy_statements>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 52520: Calculate HI State-Specific Income Adjustments
-    ============================================================================
-
-    Calculates Hawaii additions and subtractions to federal taxable income.
-
-    Common Hawaii adjustments:
-    - Additions: Federal bond interest, IRC 199A addback (if applicable)
-    - Subtractions: Hawaii NOL deduction, municipal bond interest
-  -->
+  
   <decision_table>
     <table_name>Calculate_HI_Income_Adjustments</table_name>
     <xls_file>HI_Corp.xls</xls_file>
@@ -125,8 +96,8 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
       <COMMENTS>Calculate Hawaii state-specific additions and subtractions to federal taxable income.</COMMENTS>
       <TABLE_NUMBER>52520</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
-    <initial_actions></initial_actions>
+    <contexts />
+    <initial_actions />
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
@@ -136,15 +107,15 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
 apportionment.has_economic_nexus true eq
 { pop apportionment.has_physical_presence true eq } over not if
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate HI state additions and subtractions</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_comment>Calculate HI state additions and subtractions; Calculate state-specific income adjustments</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate state additions (customize for Hawaii)
 0.0 /additions xdef
@@ -171,17 +142,17 @@ additions apportionment.state_additions xdef
 
 subtractions apportionment.state_subtractions xdef
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no state adjustments</action_comment>
-        <action_description>apportionment.state_additions = 0.0; apportionment.state_subtractions = 0.0</action_description>
+        <action_description />
         <action_postfix>
 0.0 apportionment.state_additions xdef
 0.0 apportionment.state_subtractions xdef
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
     <policy_statements>
@@ -196,22 +167,7 @@ subtractions apportionment.state_subtractions xdef
     </policy_statements>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 52580: Calculate HI State Tax
-    ============================================================================
-
-    Calculates final Hawaii state corporate income tax.
-
-    Process:
-    1. Federal taxable income apportioned to HI (done by table 7500)
-    2. Add state-specific additions (done by table 52520)
-    3. Subtract state-specific subtractions (done by table 52520)
-    4. Calculate HI state taxable income
-    5. Apply HI tax rate (6.4% flat rate)
-    6. Subtract HI state credits
-    7. Calculate refund or amount owed
-  -->
+  
   <decision_table>
     <table_name>Calculate_HI_State_Tax</table_name>
     <xls_file>HI_Corp.xls</xls_file>
@@ -220,8 +176,8 @@ subtractions apportionment.state_subtractions xdef
       <COMMENTS>Calculate Hawaii state corporate income tax. Applies 6.4% flat rate to apportioned and adjusted taxable income.</COMMENTS>
       <TABLE_NUMBER>52580</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
-    <initial_actions></initial_actions>
+    <contexts />
+    <initial_actions />
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
@@ -231,27 +187,27 @@ subtractions apportionment.state_subtractions xdef
 apportionment.has_economic_nexus true eq
 { pop apportionment.has_physical_presence true eq } over not if
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="Y"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="Y" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Has positive state taxable income</condition_comment>
-        <condition_description>apportionment.state_taxable_income is greater than 0</condition_description>
+        <condition_comment>Has positive state taxable income; apportionment.state_taxable_income is greater than 0</condition_comment>
+        <condition_description />
         <condition_postfix>
-apportionment.state_taxable_income 0 >
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="-"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="-" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Hawaii 6.4% flat rate calculation</action_comment>
-        <action_description>Calculate HI tax using 6.4% flat rate</action_description>
+        <action_comment>Hawaii 6.4% flat rate calculation; Calculate HI tax using 6.4% flat rate</action_comment>
+        <action_description />
         <action_postfix>
 // Hawaii uses 6.4% flat rate
 apportionment.state_taxable_income apportionment.state_tax_rate mul
@@ -265,27 +221,27 @@ apportionment.state_tax apportionment.state_credits sub
 apportionment.state_payments apportionment.state_tax sub
 apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_description />
         <action_postfix>
 0.0 apportionment.state_tax xdef
 apportionment.state_payments apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
         <action_comment>Nexus but no taxable income - no tax liability</action_comment>
-        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_description />
         <action_postfix>
 0.0 apportionment.state_tax xdef
 apportionment.state_payments apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
     <policy_statements>

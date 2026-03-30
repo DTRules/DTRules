@@ -1,25 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  West Virginia Corporate Tax Decision Tables
-
-  WV has a 6.5% flat corporate income tax rate (as of 2025).
-
-  Table Allocation: 54800-54899
-  - 54800: Determine_WV_Filing_Requirement
-  - 54820: Calculate_WV_Income_Adjustments
-  - 54880: Calculate_WV_State_Tax
-
-  References:
-  - WV Code § 11-24-4 (Tax rate: 6.5%)
-  - WV Code § 11-24-6 (Adjustments to federal taxable income)
-  - WV Code § 11-24-7 (Single-sales apportionment, effective 2022+)
-  - WV Form CIT-120 (Corporation Net Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54800: Determine_WV_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_WV_Filing_Requirement</table_name>
 <xls_file>WV_Corp.xls</xls_file>
@@ -30,7 +14,7 @@
 <FILE_PATH>states/WV/54800_Determine_WV_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -44,9 +28,9 @@
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "WV" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -57,9 +41,9 @@ apportionment.state_code get "WV" streq and
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "WV" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -67,41 +51,41 @@ apportionment.state_code get "WV" streq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>WV filing required due to physical presence</action_description>
+<action_description />
 <action_postfix>
 "WV filing required due to physical presence. Reference: WV Code 11-24-7" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-<action_description>WV filing required due to economic nexus</action_description>
+<action_description />
 <action_postfix>
 "WV filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: WV Code 11-24-7" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_description>No WV nexus - no filing requirement</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No WV nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54820: Calculate_WV_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_WV_Income_Adjustments</table_name>
 <xls_file>WV_Corp.xls</xls_file>
@@ -112,7 +96,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <FILE_PATH>states/WV/54820_Calculate_WV_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -126,42 +110,42 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate WV state additions and subtractions</action_comment>
-<action_description>Calculate WV-specific income adjustments</action_description>
+<action_comment>Calculate WV state additions and subtractions; Calculate WV-specific income adjustments</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
 "WV income adjustments calculated. Reference: WV Code 11-24-6" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no state adjustments</action_comment>
-<action_description>No WV nexus - no adjustments calculated</action_description>
+<action_comment>No nexus - no state adjustments; No WV nexus - no adjustments calculated</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
 "No WV nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54880: Calculate_WV_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_WV_State_Tax</table_name>
 <xls_file>WV_Corp.xls</xls_file>
@@ -172,7 +156,7 @@ apportionment.has_physical_presence get true eq or
 <FILE_PATH>states/WV/54880_Calculate_WV_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -186,9 +170,9 @@ apportionment.has_physical_presence get true eq or
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 
 <condition_details>
@@ -198,9 +182,9 @@ apportionment.has_physical_presence get true eq or
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -208,38 +192,38 @@ apportionment.state_taxable_income get 0 gt
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate WV tax at 6.5% flat rate</action_comment>
-<action_description>WV income tax at 6.5% flat rate</action_description>
+<action_description />
 <action_postfix>
 apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
 apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
 apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
 "WV tax calculated at 6.5% flat rate. Single-sales factor effective 2022+. Reference: WV Code 11-24-4, 11-24-7" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>No WV nexus - no tax liability</action_comment>
-<action_description>No WV nexus - no tax</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No WV nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
-<action_description>No WV taxable income - no tax</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No WV taxable income - no tax. WV NOL rules apply (separate from federal). Reference: WV Code 11-24-6" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

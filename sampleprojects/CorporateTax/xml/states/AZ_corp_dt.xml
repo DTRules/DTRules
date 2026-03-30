@@ -1,25 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Arizona (AZ) State Corporate Tax Decision Tables
-
-  Table Range: 52200-52299 (allocated for Arizona)
-
-  Tables:
-  - 52200: Determine_AZ_Filing_Requirement
-  - 52220: Calculate_AZ_Income_Adjustments
-  - 52280: Calculate_AZ_State_Tax
-
-  References:
-  - AZ Rev. Stat. Section 43-1111 (Tax rate: 4.9%)
-  - AZ Rev. Stat. Section 43-1139 (Apportionment: single-sales factor)
-  - AZ Rev. Stat. Section 43-1102 (Economic nexus)
-  - Arizona Form 120 (Corporation Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52200: Determine AZ Corporate Tax Filing Requirement            -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_AZ_Filing_Requirement</table_name>
 <xls_file>AZ_Corp.xls</xls_file>
@@ -30,9 +14,9 @@
 <FILE_PATH>states/AZ/52200_Determine_AZ_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
@@ -42,9 +26,9 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "AZ" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -54,9 +38,9 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "AZ"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "AZ" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -64,37 +48,37 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AZ" st
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>// Physical nexus established - filing required</action_description>
+<action_description />
 <action_postfix>
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_description />
 <action_postfix>
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52220: Calculate AZ State-Specific Income Adjustments           -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_AZ_Income_Adjustments</table_name>
 <xls_file>AZ_Corp.xls</xls_file>
@@ -105,9 +89,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AZ" st
 <FILE_PATH>states/AZ/52220_Calculate_AZ_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
@@ -117,8 +101,8 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AZ" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -130,25 +114,25 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
-<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52280: Calculate AZ State Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_AZ_State_Tax</table_name>
 <xls_file>AZ_Corp.xls</xls_file>
@@ -159,9 +143,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <FILE_PATH>states/AZ/52280_Calculate_AZ_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
@@ -171,21 +155,21 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
 <condition_postfix>
-apportionment.state_taxable_income 0.0 f>
+apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -193,31 +177,31 @@ apportionment.state_taxable_income 0.0 f>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate tax at 4.9% flat rate</action_comment>
-<action_description>// Arizona uses 4.9% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_description />
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_description>// No Arizona nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - no tax liability</action_comment>
-<action_description>// No Arizona taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

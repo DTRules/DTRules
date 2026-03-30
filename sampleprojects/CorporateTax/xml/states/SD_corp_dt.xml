@@ -1,28 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  South Dakota Corporate Tax Decision Tables
-
-  IMPORTANT: South Dakota has NO corporate income tax.
-
-  Table Numbering: 54500-54599 (South Dakota allocation)
-  - 54500: Determine_SD_Filing_Requirement
-  - 54520: Calculate_SD_Income_Adjustments
-  - 54580: Calculate_SD_State_Tax
-
-  Key Features:
-  - NO corporate income tax (state_tax_rate = 0.0)
-  - NO franchise tax (unlike Texas)
-  - NO gross receipts/commerce tax (unlike Nevada)
-
-  References:
-  - South Dakota Constitution Article XI - No individual or corporate income tax
-  - South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54500: Determine_SD_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_SD_Filing_Requirement</table_name>
 <xls_file>SD_Corp.xls</xls_file>
@@ -33,7 +14,7 @@
 <FILE_PATH>states/SD/54500_Determine_SD_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -47,9 +28,9 @@
 result.sd_is_financial_institution get false eq
 result.sd_is_insurance_company get false eq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -59,9 +40,9 @@ result.sd_is_insurance_company get false eq and
 <condition_postfix>
 result.sd_is_financial_institution get true eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -71,9 +52,9 @@ result.sd_is_financial_institution get true eq
 <condition_postfix>
 result.sd_is_insurance_company get true eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -81,7 +62,7 @@ result.sd_is_insurance_company get true eq
 <action_details>
 <action_number>1</action_number>
 <action_comment>General corporation - no corporate income tax</action_comment>
-<action_description>South Dakota has NO corporate income tax for general corporations</action_description>
+<action_description />
 <action_postfix>
 true /result.sd_no_corporate_tax xdef
 0.0 /apportionment.state_tax xdef
@@ -89,39 +70,39 @@ true /result.sd_no_corporate_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "South Dakota has NO corporate income tax. Any estimated payments are refunded. Reference: SD Constitution Article XI" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Financial institution - Bank Franchise Tax (NOT income tax)</action_comment>
-<action_description>Financial institutions pay Bank Franchise Tax (separate from general corporate taxation)</action_description>
+<action_description />
 <action_postfix>
 result.sd_bank_franchise_tax get /apportionment.state_tax xdef
 0.0 /apportionment.state_tax_rate xdef
 "SD Bank Franchise Tax applies (NOT corporate income tax). Reference: SDCL 10-43" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>Insurance company - Insurance Premium Tax (NOT income tax)</action_comment>
-<action_description>Insurance companies pay Insurance Premium Tax (separate from general corporate taxation)</action_description>
+<action_description />
 <action_postfix>
 result.sd_insurance_premium_tax get /apportionment.state_tax xdef
 0.0 /apportionment.state_tax_rate xdef
 "SD Insurance Premium Tax applies (NOT corporate income tax). Reference: SDCL 10-44" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54520: Calculate_SD_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_SD_Income_Adjustments</table_name>
 <xls_file>SD_Corp.xls</xls_file>
@@ -132,7 +113,7 @@ result.sd_insurance_premium_tax get /apportionment.state_tax xdef
 <FILE_PATH>states/SD/54520_Calculate_SD_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -146,8 +127,8 @@ result.sd_insurance_premium_tax get /apportionment.state_tax xdef
 result.sd_is_financial_institution get false eq
 result.sd_is_insurance_company get false eq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -155,7 +136,7 @@ result.sd_is_insurance_company get false eq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>General corporation - no income tax adjustments</action_comment>
-<action_description>South Dakota has NO corporate income tax - no adjustments</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax_rate xdef
 0.0 /apportionment.state_additions xdef
@@ -163,7 +144,7 @@ result.sd_is_insurance_company get false eq and
 0.0 /apportionment.state_taxable_income xdef
 "SD has NO corporate income tax. No adjustments needed." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -175,15 +156,15 @@ result.sd_is_insurance_company get false eq and
 0.0 /apportionment.state_subtractions xdef
 "Specialized entity (financial/insurance) - no income tax adjustments." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54580: Calculate_SD_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_SD_State_Tax</table_name>
 <xls_file>SD_Corp.xls</xls_file>
@@ -194,7 +175,7 @@ result.sd_is_insurance_company get false eq and
 <FILE_PATH>states/SD/54580_Calculate_SD_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -208,8 +189,8 @@ result.sd_is_insurance_company get false eq and
 result.sd_is_financial_institution get false eq
 result.sd_is_insurance_company get false eq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -217,7 +198,7 @@ result.sd_is_insurance_company get false eq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>General corporation - $0 tax</action_comment>
-<action_description>South Dakota has NO corporate income tax</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 0.0 /apportionment.state_tax_rate xdef
@@ -225,7 +206,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 true /result.sd_no_corporate_tax xdef
 "South Dakota Corporate Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -235,7 +216,7 @@ true /result.sd_no_corporate_tax xdef
 <action_postfix>
 "Specialized entity tax (Bank Franchise or Insurance Premium) calculated separately." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

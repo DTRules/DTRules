@@ -1,27 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Vermont Corporate Tax Decision Tables
-
-  Vermont has a graduated corporate income tax with three brackets:
-  - 6.0% on income $0-$10,000
-  - 7.0% on income $10,001-$25,000
-  - 8.5% on income over $25,000
-
-  Table Allocation: 54700-54799
-  - 54700: Determine_VT_Filing_Requirement
-  - 54720: Calculate_VT_Income_Adjustments
-  - 54780: Calculate_VT_State_Tax
-
-  References:
-  - 32 V.S.A. § 5832 (Tax rates: 6.0%, 7.0%, 8.5%)
-  - 32 V.S.A. § 5833 (Apportionment)
-  - Vermont Form BI-471 (Business Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54700: Determine_VT_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_VT_Filing_Requirement</table_name>
 <xls_file>VT_Corp.xls</xls_file>
@@ -32,7 +14,7 @@
 <FILE_PATH>states/VT/54700_Determine_VT_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -46,9 +28,9 @@
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "VT" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -59,9 +41,9 @@ apportionment.state_code get "VT" streq and
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "VT" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -69,41 +51,41 @@ apportionment.state_code get "VT" streq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>VT filing required due to physical presence</action_description>
+<action_description />
 <action_postfix>
 "VT filing required due to physical presence. Reference: 32 V.S.A. 5833" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required</action_comment>
-<action_description>VT filing required due to economic nexus ("doing business" standard)</action_description>
+<action_description />
 <action_postfix>
 "VT filing required due to economic nexus (doing business standard). Reference: 32 V.S.A. 5833" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_description>No VT nexus - no filing requirement</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No VT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54720: Calculate_VT_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_VT_Income_Adjustments</table_name>
 <xls_file>VT_Corp.xls</xls_file>
@@ -114,7 +96,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <FILE_PATH>states/VT/54720_Calculate_VT_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -128,42 +110,42 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate VT state additions and subtractions</action_comment>
-<action_description>Calculate VT-specific income adjustments</action_description>
+<action_comment>Calculate VT state additions and subtractions; Calculate VT-specific income adjustments</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
 "VT income adjustments calculated. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no state adjustments</action_comment>
-<action_description>No VT nexus - no adjustments calculated</action_description>
+<action_comment>No nexus - no state adjustments; No VT nexus - no adjustments calculated</action_comment>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
 "No VT nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54780: Calculate_VT_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_VT_State_Tax</table_name>
 <xls_file>VT_Corp.xls</xls_file>
@@ -174,7 +156,7 @@ apportionment.has_physical_presence get true eq or
 <FILE_PATH>states/VT/54780_Calculate_VT_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -188,9 +170,9 @@ apportionment.has_physical_presence get true eq or
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 
 <condition_details>
@@ -200,9 +182,9 @@ apportionment.has_physical_presence get true eq or
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -210,7 +192,7 @@ apportionment.state_taxable_income get 0 gt
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate VT tax using graduated brackets (6%, 7%, 8.5%)</action_comment>
-<action_description>VT income tax using graduated rates: 6% up to $10K, 7% $10K-$25K, 8.5% over $25K</action_description>
+<action_description />
 <action_postfix>
 apportionment.state_taxable_income get /taxable_income xdef
 0.0 /calculated_tax xdef
@@ -235,33 +217,33 @@ calculated_tax get apportionment.state_credits get sub 0.0 max /apportionment.st
 apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
 "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>No VT nexus - no tax liability</action_comment>
-<action_description>No VT nexus - no tax</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 0.0 /apportionment.vt_calculated_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No VT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
-<action_description>No VT taxable income - no tax</action_description>
+<action_description />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 0.0 /apportionment.vt_calculated_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
