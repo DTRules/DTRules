@@ -1,27 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Texas (TX)
-
-  Texas has NO state income tax. This table simply sets the state tax liability
-  to zero and documents this in the audit trail.
-
-  Table Number: 44300 (TX is 43rd alphabetically among states)
-
-  Military Tax Provisions:
-    - TX has no state income tax
-    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
-    - MSRRA: N/A (no income tax)
-    - SCRA: N/A (no income tax)
-    - Military spouses and service members have no state income tax burden
-    - TX offers property tax exemptions for disabled veterans (separate from income tax)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 44300: Calculate_TX_Tax - Texas State Income Tax (None)         -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_TX_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -32,11 +14,11 @@
 <FILE_PATH>states/TX/44300_Calculate_TX_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize TX tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Texas Tax Calculation Started (TX has no income tax)" job.audit_trail swap addto
 </action_postfix>
@@ -51,7 +33,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -64,7 +46,7 @@ true
 
 "Texas has no state income tax - state tax liability: $0.00" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

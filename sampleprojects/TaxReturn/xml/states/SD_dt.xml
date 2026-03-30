@@ -1,26 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for South Dakota (SD)
-
-  South Dakota has NO state income tax.
-  This table simply sets state_tax_liability to zero.
-
-  Table Number: 44100 (SD is state #41 alphabetically)
-
-  Military Tax Provisions:
-    - SD has no state income tax
-    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
-    - MSRRA: N/A (no income tax)
-    - SCRA: N/A (no income tax)
-    - Military spouses and service members have no state income tax burden
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 44100: Calculate_SD_Tax - South Dakota State Income Tax         -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_SD_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -31,11 +14,11 @@
 <FILE_PATH>states/SD/44100_Calculate_SD_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize SD tax calculation</action_description>
+<action_description />
 <action_postfix>
 "South Dakota Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -50,7 +33,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -63,7 +46,7 @@ true
 
 "South Dakota has no state income tax - tax liability: $0.00" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

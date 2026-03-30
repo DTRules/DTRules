@@ -1,14 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Kentucky
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 41790: Calculate_KY_Military_Retirement_Exemption               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_KY_Military_Retirement_Exemption</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -18,11 +13,11 @@
 <TABLE_NUMBER>41790</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize KY military retirement exemption calculation</action_description>
+<action_description />
 <action_postfix>
 "KY Military Retirement Exemption Calculation Started" job.audit_trail swap addto
 0.0 /result.ky_military_retirement_exemption xdef
@@ -32,26 +27,26 @@
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Has military retirement pay -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has military retirement pay</condition_comment>
-<condition_description>military_retirement_pay > 0</condition_description>
+<condition_description>military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 result.military_retirement_pay 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: Apply $31,110 exemption -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Apply KY $31,110 military retirement exemption</action_comment>
 <action_postfix>
-<!-- Exemption is lesser of $31,110 or actual retirement pay -->
+
 result.military_retirement_pay
 result.ky_military_retirement_exemption_amount
 min
@@ -68,10 +63,10 @@ result.ky_military_retirement_exemption cvs strconcat
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
-<!-- Action 2: No military retirement pay -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay</action_comment>
@@ -80,15 +75,15 @@ job.audit_trail swap addto
 0.0 /result.ky_military_retirement_taxable xdef
 "No KY military retirement pay - exemption not applicable" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 41800: Calculate_KY_Tax - Kentucky State Income Tax             -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_KY_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -99,11 +94,11 @@ job.audit_trail swap addto
 <FILE_PATH>states/KY/41800_Calculate_KY_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Kentucky tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Kentucky Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -118,7 +113,7 @@ job.audit_trail swap addto
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -127,19 +122,19 @@ true
 <action_number>1</action_number>
 <action_comment>Calculate KY flat tax (4% rate, $3,270 standard deduction)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income: AGI - standard deduction, but not below zero -->
+
 result.agi result.ky_standard_deduction sub 0 max
 
-<!-- Store KY taxable income -->
+
 dup /result.ky_taxable_income xdef
 
-<!-- Apply flat 4% tax rate -->
+
 result.ky_tax_rate mul
 
-<!-- Store KY state tax -->
+
 dup /result.ky_state_tax xdef
 
-<!-- Set state_tax_liability for general result -->
+
 /result.state_tax_liability xdef
 
 "Kentucky tax calculated: AGI=$" result.agi cvs strconcat
@@ -148,7 +143,7 @@ dup /result.ky_state_tax xdef
 " Tax=$" strconcat result.ky_state_tax cvs strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

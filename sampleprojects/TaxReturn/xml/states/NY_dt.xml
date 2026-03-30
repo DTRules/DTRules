@@ -1,16 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for New York
-
-  NY is state #33 alphabetically. Table numbers: 43300-43399
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43300: Calculate_NY_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NY_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -20,11 +13,11 @@
 <TABLE_NUMBER>43300</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize NY military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "NY Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -35,12 +28,12 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -49,19 +42,19 @@ taxpayer.military_retirement_pay get 0 gt
 <action_number>1</action_number>
 <action_comment>Full exclusion - 100% of military retirement pay excluded from NY taxable income</action_comment>
 <action_postfix>
-<!-- New York provides full exemption for military retirement pay -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
+
+
 taxpayer.military_retirement_pay get
 /result.ny_military_retirement_exclusion xdef
 
-<!-- Add to state subtractions -->
+
 result.ny_subtractions get
 result.ny_military_retirement_exclusion get add
 /result.ny_subtractions xdef
 
 "NY Military Retirement Exclusion (Full): $" result.ny_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -71,7 +64,7 @@ result.ny_military_retirement_exclusion get add
 0 /result.ny_military_retirement_exclusion xdef
 "NY Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

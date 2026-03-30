@@ -1,16 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Nebraska
-
-  NE implements progressive tax with 4 brackets (2.46% to 5.20%).
-
-  Table Number: 42700 (NE is state #27 alphabetically)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42700: Calculate_NE_Tax - Nebraska State Income Tax            -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NE_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -21,11 +14,11 @@
 <FILE_PATH>states/NE/42700_Calculate_NE_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Nebraska tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Nebraska Tax Calculation Started" job.audit_trail swap addto
 0.0 /result.ne_state_tax xdef
@@ -34,50 +27,50 @@
 </initial_actions>
 
 <conditions>
-<!-- Condition 1: Filing status is Single -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Single</condition_comment>
-<condition_description>Filing Status is Single</condition_description>
+<condition_description />
 <condition_postfix>
 result.filing_status "single" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 </condition_details>
 
-<!-- Condition 2: Filing status is Married Filing Jointly -->
+
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_description>Filing Status is MFJ</condition_description>
+<condition_description />
 <condition_postfix>
 result.filing_status "married_filing_jointly" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Action 1: Calculate NE tax for Single filers -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NE tax for Single filers using progressive brackets</action_comment>
 <action_postfix>
-<!-- Calculate taxable income: AGI - standard deduction -->
+
 result.agi result.ne_standard_deduction_single sub 0 max
 dup /ne_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0.0 /ne_tax xdef
 
-<!-- Bracket 1: First $4,030 @ 2.46% -->
+
 ne_taxable_income result.ne_bracket_1_limit min
 result.ne_bracket_1_rate mul
 /ne_tax xdef
 
-<!-- Bracket 2: $4,030 to $24,120 @ 3.51% -->
+
 ne_taxable_income result.ne_bracket_1_limit gt
 {
   ne_taxable_income result.ne_bracket_2_limit min result.ne_bracket_1_limit sub
@@ -85,7 +78,7 @@ ne_taxable_income result.ne_bracket_1_limit gt
   ne_tax add /ne_tax xdef
 } if
 
-<!-- Bracket 3: $24,120 to $38,870 @ 5.01% -->
+
 ne_taxable_income result.ne_bracket_2_limit gt
 {
   ne_taxable_income result.ne_bracket_3_limit min result.ne_bracket_2_limit sub
@@ -93,7 +86,7 @@ ne_taxable_income result.ne_bracket_2_limit gt
   ne_tax add /ne_tax xdef
 } if
 
-<!-- Bracket 4: Over $38,870 @ 5.20% -->
+
 ne_taxable_income result.ne_bracket_3_limit gt
 {
   ne_taxable_income result.ne_bracket_3_limit sub
@@ -101,36 +94,36 @@ ne_taxable_income result.ne_bracket_3_limit gt
   ne_tax add /ne_tax xdef
 } if
 
-<!-- Apply personal exemption credit (assumes 1 exemption for single) -->
+
 ne_tax result.ne_personal_exemption_credit sub 0 max /ne_tax xdef
 
-<!-- Store result -->
+
 ne_tax /result.ne_state_tax xdef
 ne_tax /result.state_tax_liability xdef
 
 "Nebraska tax calculated (Single): $" result.ne_state_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
-<!-- Action 2: Calculate NE tax for Married Filing Jointly -->
+
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NE tax for Married Filing Jointly using progressive brackets</action_comment>
 <action_postfix>
-<!-- Calculate taxable income: AGI - standard deduction -->
+
 result.agi result.ne_standard_deduction_joint sub 0 max
 dup /ne_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0.0 /ne_tax xdef
 
-<!-- Bracket 1: First $8,040 @ 2.46% -->
+
 ne_taxable_income result.ne_bracket_1_limit_joint min
 result.ne_bracket_1_rate mul
 /ne_tax xdef
 
-<!-- Bracket 2: $8,040 to $48,250 @ 3.51% -->
+
 ne_taxable_income result.ne_bracket_1_limit_joint gt
 {
   ne_taxable_income result.ne_bracket_2_limit_joint min result.ne_bracket_1_limit_joint sub
@@ -138,7 +131,7 @@ ne_taxable_income result.ne_bracket_1_limit_joint gt
   ne_tax add /ne_tax xdef
 } if
 
-<!-- Bracket 3: $48,250 to $77,730 @ 5.01% -->
+
 ne_taxable_income result.ne_bracket_2_limit_joint gt
 {
   ne_taxable_income result.ne_bracket_3_limit_joint min result.ne_bracket_2_limit_joint sub
@@ -146,7 +139,7 @@ ne_taxable_income result.ne_bracket_2_limit_joint gt
   ne_tax add /ne_tax xdef
 } if
 
-<!-- Bracket 4: Over $77,730 @ 5.20% -->
+
 ne_taxable_income result.ne_bracket_3_limit_joint gt
 {
   ne_taxable_income result.ne_bracket_3_limit_joint sub
@@ -154,24 +147,24 @@ ne_taxable_income result.ne_bracket_3_limit_joint gt
   ne_tax add /ne_tax xdef
 } if
 
-<!-- Apply personal exemption credit (assumes 2 exemptions for joint) -->
+
 ne_tax result.ne_personal_exemption_credit 2 mul sub 0 max /ne_tax xdef
 
-<!-- Store result -->
+
 ne_tax /result.ne_state_tax xdef
 ne_tax /result.state_tax_liability xdef
 
 "Nebraska tax calculated (MFJ): $" result.ne_state_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42701: Calculate_NE_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NE_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -181,11 +174,11 @@ ne_tax /result.state_tax_liability xdef
 <TABLE_NUMBER>42701</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize NE military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "NE Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -196,12 +189,12 @@ ne_tax /result.state_tax_liability xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -210,19 +203,19 @@ taxpayer.military_retirement_pay get 0 gt
 <action_number>1</action_number>
 <action_comment>Full exclusion - 100% of military retirement pay excluded from NE taxable income (since 2022)</action_comment>
 <action_postfix>
-<!-- Nebraska provides full exemption for military retirement pay since 2022 -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
+
+
 taxpayer.military_retirement_pay get
 /result.ne_military_retirement_exclusion xdef
 
-<!-- Add to state subtractions -->
+
 result.ne_subtractions get
 result.ne_military_retirement_exclusion get add
 /result.ne_subtractions xdef
 
 "NE Military Retirement Exclusion (Full since 2022): $" result.ne_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -232,7 +225,7 @@ result.ne_military_retirement_exclusion get add
 0 /result.ne_military_retirement_exclusion xdef
 "NE Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

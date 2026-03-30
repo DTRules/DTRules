@@ -1,26 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Tennessee (TN)
-
-  Tennessee has NO state income tax. This table simply sets the state tax liability
-  to zero and documents this in the audit trail.
-
-  Table Number: 44200 (TN is 42nd alphabetically among states)
-
-  Military Tax Provisions:
-    - TN has no state income tax
-    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
-    - MSRRA: N/A (no income tax)
-    - SCRA: N/A (no income tax)
-    - Military spouses and service members have no state income tax burden
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 44200: Calculate_TN_Tax - Tennessee State Income Tax (None)     -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_TN_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -30,11 +13,11 @@
 <TABLE_NUMBER>44200</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize TN tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Tennessee Tax Calculation Started (TN has no income tax)" job.audit_trail swap addto
 </action_postfix>
@@ -49,7 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -62,7 +45,7 @@ true
 
 "Tennessee has no state income tax - state tax liability: $0.00" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

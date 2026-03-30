@@ -1,19 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Decision tables for Northern Mariana Islands (MP/CNMI) Territory Tax
-
-  CNMI uses "mirror code plus rebate" system. Calculates tax using federal rates,
-  then applies tiered rebates: 90% if tax &lt;= $20k, 70% on excess over $20k,
-  50% on excess over $100k. Non-residents use Form 5074 for income allocation.
-
-  FILE_PATH: sampleprojects/TaxReturn/xml/states/MP_dt.xml
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 50400: Calculate_MP_Tax - Northern Mariana Islands Territory Tax -->
-<!-- Reference: CNMI Mirror Code with Rebate, Form 5074, IRC Section 935   -->
-<!-- ====================================================================== -->
+
+
+
+
 <decision_table>
 <table_name>Calculate_MP_Tax</table_name>
 <xls_file>Territory.xls</xls_file>
@@ -24,11 +15,11 @@
 <FILE_PATH>sampleprojects/TaxReturn/xml/states/MP_dt.xml</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize MP/CNMI tax calculation</action_description>
+<action_description />
 <action_postfix>
 "NORTHERN MARIANA ISLANDS (CNMI) TERRITORY TAX - Mirror Code with Rebate" job.audit_trail swap addto
 "  Tiered rebate system: 90%/70%/50%" job.audit_trail swap addto
@@ -43,49 +34,49 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Bona fide resident of CNMI</condition_comment>
-<condition_description>Meets bona fide residence test (183+ days, tax home, closer connection)</condition_description>
+<condition_description />
 <condition_postfix>
 result.mp_days_present 183 &gt;=
 result.mp_has_tax_home and
 result.mp_closer_connection and
 dup /result.mp_bona_fide_resident xdef
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Tax amount &lt;= $20,000</condition_comment>
-<condition_description>Qualifies for tier 1 rebate (90%)</condition_description>
+<condition_description />
 <condition_postfix>
 result.federal_income_tax result.mp_rebate_tier_1_limit &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Tax amount &gt; $20,000 and &lt;= $100,000</condition_comment>
-<condition_description>Qualifies for tier 2 rebate (70% on excess)</condition_description>
+<condition_description />
 <condition_postfix>
 result.federal_income_tax result.mp_rebate_tier_1_limit &gt;
 result.federal_income_tax result.mp_rebate_tier_2_limit &lt;= and
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Tax amount &gt; $100,000</condition_comment>
-<condition_description>Qualifies for tier 3 rebate (50% on excess over $100k)</condition_description>
+<condition_description />
 <condition_postfix>
 result.federal_income_tax result.mp_rebate_tier_2_limit &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -108,7 +99,7 @@ result.mp_calculated_tax result.mp_rebate_amount f- /result.mp_income_tax xdef
 "  Tier 1 rebate (90%): -$" result.mp_rebate_amount cvs strconcat job.audit_trail swap addto
 "  Final CNMI tax: $" result.mp_income_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -133,7 +124,7 @@ result.mp_calculated_tax result.mp_rebate_amount f- /result.mp_income_tax xdef
 "  Total rebate: -$" result.mp_rebate_amount cvs strconcat job.audit_trail swap addto
 "  Final CNMI tax: $" result.mp_income_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -160,7 +151,7 @@ result.mp_calculated_tax result.mp_rebate_amount f- /result.mp_income_tax xdef
 "  Total rebate: -$" result.mp_rebate_amount cvs strconcat job.audit_trail swap addto
 "  Final CNMI tax: $" result.mp_income_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 
 <action_details>
@@ -186,7 +177,7 @@ else
   "  Non-resident with no CNMI source income - no CNMI tax" job.audit_trail swap addto
 then
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 

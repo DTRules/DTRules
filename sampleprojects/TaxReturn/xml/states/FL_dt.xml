@@ -1,27 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Florida (FL)
-
-  Florida has NO state income tax. This table simply sets the state tax liability
-  to zero and documents this in the audit trail.
-
-  Table Number: 40900 (FL is 9th alphabetically among states)
-
-  Military Tax Provisions:
-    - FL has no state income tax
-    - All military income (retirement, combat pay, active duty, etc.) is automatically tax-free
-    - MSRRA: N/A (no income tax)
-    - SCRA: N/A (no income tax)
-    - Military spouses and service members have no state income tax burden
-    - FL offers extensive property tax exemptions for veterans (separate from income tax)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 40900: Calculate_FL_Tax - Florida State Income Tax (None)       -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_FL_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -32,11 +14,11 @@
 <FILE_PATH>states/FL/40900_Calculate_FL_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize FL tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Florida Tax Calculation Started (FL has no income tax)" job.audit_trail swap addto
 </action_postfix>
@@ -51,7 +33,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -64,7 +46,7 @@ true
 
 "Florida has no state income tax - state tax liability: $0.00" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

@@ -1,24 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Oklahoma
-
-  Oklahoma has a progressive income tax with 6 tax brackets:
-  - $0 to $1,000: 0.25%
-  - $1,000 to $2,500: 0.75%
-  - $2,500 to $3,750: 1.75%
-  - $3,750 to $4,900: 2.75%
-  - $4,900 to $7,200: 3.75%
-  - Over $7,200: 4.75%
-
-  Table Number: 43600 (OK is 36th state alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43600: Calculate_OK_Tax - Oklahoma State Income Tax             -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_OK_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -29,11 +14,11 @@
 <FILE_PATH>states/OK/43600_Calculate_OK_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Oklahoma tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Oklahoma Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -48,10 +33,10 @@
 <condition_postfix>
 result.filing_status "Single" eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -61,10 +46,10 @@ result.filing_status "Single" eq
 <condition_postfix>
 result.filing_status "MFJ" eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -74,10 +59,10 @@ result.filing_status "MFJ" eq
 <condition_postfix>
 result.filing_status "HOH" eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -87,10 +72,10 @@ result.filing_status "HOH" eq
 <condition_postfix>
 result.filing_status "MFS" eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -99,20 +84,20 @@ result.filing_status "MFS" eq
 <action_number>1</action_number>
 <action_comment>Calculate Oklahoma tax - Single filer (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction) -->
+
 result.agi result.ok_standard_deduction_single sub 0 max
 dup /ok_taxable_income xdef
 /result.ok_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ok_tax xdef
 
-<!-- Bracket 1: 0.25% on first $1,000 -->
+
 ok_taxable_income result.ok_bracket_1_limit min
 result.ok_bracket_1_rate mul
 ok_tax add /ok_tax xdef
 
-<!-- Bracket 2: 0.75% on amount over $1,000 up to $2,500 -->
+
 ok_taxable_income result.ok_bracket_1_limit gt
 {
   ok_taxable_income result.ok_bracket_2_limit min
@@ -121,7 +106,7 @@ ok_taxable_income result.ok_bracket_1_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 3: 1.75% on amount over $2,500 up to $3,750 -->
+
 ok_taxable_income result.ok_bracket_2_limit gt
 {
   ok_taxable_income result.ok_bracket_3_limit min
@@ -130,7 +115,7 @@ ok_taxable_income result.ok_bracket_2_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 4: 2.75% on amount over $3,750 up to $4,900 -->
+
 ok_taxable_income result.ok_bracket_3_limit gt
 {
   ok_taxable_income result.ok_bracket_4_limit min
@@ -139,7 +124,7 @@ ok_taxable_income result.ok_bracket_3_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 5: 3.75% on amount over $4,900 up to $7,200 -->
+
 ok_taxable_income result.ok_bracket_4_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit min
@@ -148,7 +133,7 @@ ok_taxable_income result.ok_bracket_4_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 6: 4.75% on amount over $7,200 -->
+
 ok_taxable_income result.ok_bracket_5_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit sub
@@ -156,22 +141,22 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store base tax before credits -->
+
 ok_tax /result.ok_base_tax xdef
 
-<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
-<!-- Single filer: 1 exemption (taxpayer) + dependents -->
+
+
 1 result.num_dependents add
 result.ok_personal_exemption_credit mul
 dup /ok_exemption_credit xdef
 /result.ok_exemption_credit xdef
 
-<!-- Apply exemption credit (non-refundable) -->
+
 ok_tax ok_exemption_credit sub 0 max
 dup /ok_tax xdef
 /result.ok_tax xdef
 
-<!-- Store final result -->
+
 ok_tax /result.state_tax_liability xdef
 
 "Oklahoma tax (Single) calculated: $" result.state_tax_liability cvs strconcat
@@ -180,27 +165,27 @@ ok_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Oklahoma tax - Married filing jointly (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction) -->
+
 result.agi result.ok_standard_deduction_joint sub 0 max
 dup /ok_taxable_income xdef
 /result.ok_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ok_tax xdef
 
-<!-- Bracket 1: 0.25% on first $1,000 -->
+
 ok_taxable_income result.ok_bracket_1_limit min
 result.ok_bracket_1_rate mul
 ok_tax add /ok_tax xdef
 
-<!-- Bracket 2: 0.75% on amount over $1,000 up to $2,500 -->
+
 ok_taxable_income result.ok_bracket_1_limit gt
 {
   ok_taxable_income result.ok_bracket_2_limit min
@@ -209,7 +194,7 @@ ok_taxable_income result.ok_bracket_1_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 3: 1.75% on amount over $2,500 up to $3,750 -->
+
 ok_taxable_income result.ok_bracket_2_limit gt
 {
   ok_taxable_income result.ok_bracket_3_limit min
@@ -218,7 +203,7 @@ ok_taxable_income result.ok_bracket_2_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 4: 2.75% on amount over $3,750 up to $4,900 -->
+
 ok_taxable_income result.ok_bracket_3_limit gt
 {
   ok_taxable_income result.ok_bracket_4_limit min
@@ -227,7 +212,7 @@ ok_taxable_income result.ok_bracket_3_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 5: 3.75% on amount over $4,900 up to $7,200 -->
+
 ok_taxable_income result.ok_bracket_4_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit min
@@ -236,7 +221,7 @@ ok_taxable_income result.ok_bracket_4_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 6: 4.75% on amount over $7,200 -->
+
 ok_taxable_income result.ok_bracket_5_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit sub
@@ -244,22 +229,22 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store base tax before credits -->
+
 ok_tax /result.ok_base_tax xdef
 
-<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
-<!-- MFJ filer: 2 exemptions (taxpayer + spouse) + dependents -->
+
+
 2 result.num_dependents add
 result.ok_personal_exemption_credit mul
 dup /ok_exemption_credit xdef
 /result.ok_exemption_credit xdef
 
-<!-- Apply exemption credit (non-refundable) -->
+
 ok_tax ok_exemption_credit sub 0 max
 dup /ok_tax xdef
 /result.ok_tax xdef
 
-<!-- Store final result -->
+
 ok_tax /result.state_tax_liability xdef
 
 "Oklahoma tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat
@@ -268,27 +253,27 @@ ok_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Oklahoma tax - Head of household (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction) -->
+
 result.agi result.ok_standard_deduction_hoh sub 0 max
 dup /ok_taxable_income xdef
 /result.ok_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ok_tax xdef
 
-<!-- Bracket 1: 0.25% on first $1,000 -->
+
 ok_taxable_income result.ok_bracket_1_limit min
 result.ok_bracket_1_rate mul
 ok_tax add /ok_tax xdef
 
-<!-- Bracket 2: 0.75% on amount over $1,000 up to $2,500 -->
+
 ok_taxable_income result.ok_bracket_1_limit gt
 {
   ok_taxable_income result.ok_bracket_2_limit min
@@ -297,7 +282,7 @@ ok_taxable_income result.ok_bracket_1_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 3: 1.75% on amount over $2,500 up to $3,750 -->
+
 ok_taxable_income result.ok_bracket_2_limit gt
 {
   ok_taxable_income result.ok_bracket_3_limit min
@@ -306,7 +291,7 @@ ok_taxable_income result.ok_bracket_2_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 4: 2.75% on amount over $3,750 up to $4,900 -->
+
 ok_taxable_income result.ok_bracket_3_limit gt
 {
   ok_taxable_income result.ok_bracket_4_limit min
@@ -315,7 +300,7 @@ ok_taxable_income result.ok_bracket_3_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 5: 3.75% on amount over $4,900 up to $7,200 -->
+
 ok_taxable_income result.ok_bracket_4_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit min
@@ -324,7 +309,7 @@ ok_taxable_income result.ok_bracket_4_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 6: 4.75% on amount over $7,200 -->
+
 ok_taxable_income result.ok_bracket_5_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit sub
@@ -332,22 +317,22 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store base tax before credits -->
+
 ok_tax /result.ok_base_tax xdef
 
-<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
-<!-- HOH filer: 1 exemption (taxpayer) + dependents -->
+
+
 1 result.num_dependents add
 result.ok_personal_exemption_credit mul
 dup /ok_exemption_credit xdef
 /result.ok_exemption_credit xdef
 
-<!-- Apply exemption credit (non-refundable) -->
+
 ok_tax ok_exemption_credit sub 0 max
 dup /ok_tax xdef
 /result.ok_tax xdef
 
-<!-- Store final result -->
+
 ok_tax /result.state_tax_liability xdef
 
 "Oklahoma tax (HOH) calculated: $" result.state_tax_liability cvs strconcat
@@ -356,27 +341,27 @@ ok_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate Oklahoma tax - Married filing separately (progressive brackets with personal exemption credit)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction) -->
+
 result.agi result.ok_standard_deduction_mfs sub 0 max
 dup /ok_taxable_income xdef
 /result.ok_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ok_tax xdef
 
-<!-- Bracket 1: 0.25% on first $1,000 -->
+
 ok_taxable_income result.ok_bracket_1_limit min
 result.ok_bracket_1_rate mul
 ok_tax add /ok_tax xdef
 
-<!-- Bracket 2: 0.75% on amount over $1,000 up to $2,500 -->
+
 ok_taxable_income result.ok_bracket_1_limit gt
 {
   ok_taxable_income result.ok_bracket_2_limit min
@@ -385,7 +370,7 @@ ok_taxable_income result.ok_bracket_1_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 3: 1.75% on amount over $2,500 up to $3,750 -->
+
 ok_taxable_income result.ok_bracket_2_limit gt
 {
   ok_taxable_income result.ok_bracket_3_limit min
@@ -394,7 +379,7 @@ ok_taxable_income result.ok_bracket_2_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 4: 2.75% on amount over $3,750 up to $4,900 -->
+
 ok_taxable_income result.ok_bracket_3_limit gt
 {
   ok_taxable_income result.ok_bracket_4_limit min
@@ -403,7 +388,7 @@ ok_taxable_income result.ok_bracket_3_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 5: 3.75% on amount over $4,900 up to $7,200 -->
+
 ok_taxable_income result.ok_bracket_4_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit min
@@ -412,7 +397,7 @@ ok_taxable_income result.ok_bracket_4_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Bracket 6: 4.75% on amount over $7,200 -->
+
 ok_taxable_income result.ok_bracket_5_limit gt
 {
   ok_taxable_income result.ok_bracket_5_limit sub
@@ -420,22 +405,22 @@ ok_taxable_income result.ok_bracket_5_limit gt
   ok_tax add /ok_tax xdef
 } if
 
-<!-- Store base tax before credits -->
+
 ok_tax /result.ok_base_tax xdef
 
-<!-- Calculate Personal Exemption Credit: $1,000 per exemption -->
-<!-- MFS filer: 1 exemption (taxpayer) + dependents -->
+
+
 1 result.num_dependents add
 result.ok_personal_exemption_credit mul
 dup /ok_exemption_credit xdef
 /result.ok_exemption_credit xdef
 
-<!-- Apply exemption credit (non-refundable) -->
+
 ok_tax ok_exemption_credit sub 0 max
 dup /ok_tax xdef
 /result.ok_tax xdef
 
-<!-- Store final result -->
+
 ok_tax /result.state_tax_liability xdef
 
 "Oklahoma tax (MFS) calculated: $" result.state_tax_liability cvs strconcat
@@ -444,15 +429,15 @@ ok_tax /result.state_tax_liability xdef
 ")" strconcat
 job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43601: Calculate_OK_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_OK_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -462,11 +447,11 @@ job.audit_trail swap addto
 <TABLE_NUMBER>43601</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize OK military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "OK Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -477,12 +462,12 @@ job.audit_trail swap addto
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -491,19 +476,19 @@ taxpayer.military_retirement_pay get 0 gt
 <action_number>1</action_number>
 <action_comment>Full exclusion - 100% of military retirement pay excluded from OK taxable income</action_comment>
 <action_postfix>
-<!-- Oklahoma provides full exemption for military retirement pay -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
+
+
 taxpayer.military_retirement_pay get
 /result.ok_military_retirement_exclusion xdef
 
-<!-- Add to state subtractions -->
+
 result.ok_subtractions get
 result.ok_military_retirement_exclusion get add
 /result.ok_subtractions xdef
 
 "OK Military Retirement Exclusion (Full): $" result.ok_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -513,7 +498,7 @@ result.ok_military_retirement_exclusion get add
 0 /result.ok_military_retirement_exclusion xdef
 "OK Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 

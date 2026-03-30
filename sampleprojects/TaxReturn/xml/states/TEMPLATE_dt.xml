@@ -1,25 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for [STATE NAME]
-
-  Instructions:
-  1. Copy this template to XX_dt.xml (where XX is the 2-letter state code)
-  2. Replace [STATE NAME] with full state name
-  3. Replace XX with state code in table name and number
-  4. Implement state tax calculation logic
-
-  Table Numbering Convention:
-    - 40000-49999: State tax calculations
-    - Use: 4[state_number][00-99] where state_number is alphabetical order
-    - Example: CO (6th state) = 40600, CA (5th state) = 40500
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 4XXXX: Calculate_XX_Tax - [STATE NAME] State Income Tax         -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_XX_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -29,11 +13,11 @@
 <TABLE_NUMBER>4XXXX</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize [STATE] tax calculation</action_description>
+<action_description />
 <action_postfix>
 "[STATE NAME] Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -41,7 +25,7 @@
 </initial_actions>
 
 <conditions>
-<!-- Add conditions here -->
+
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always execute</condition_comment>
@@ -49,24 +33,24 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 
 <actions>
-<!-- Add actions here -->
+
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate [STATE] tax</action_comment>
 <action_postfix>
-<!-- Example: Flat tax calculation -->
+
 result.agi result.xx_standard_deduction_single sub 0 max
 result.xx_tax_rate mul
 /result.state_tax_liability xdef
 
 "[STATE NAME] tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 

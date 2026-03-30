@@ -1,20 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Mississippi
-
-  Mississippi has a simple progressive tax structure:
-  - 0% on first $10,000 of taxable income
-  - 4.4% on income over $10,000 (2025)
-
-  Table Number: 42400 (MS is 24th state alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42400: Calculate_MS_Tax - Mississippi State Income Tax          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MS_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -25,11 +14,11 @@
 <FILE_PATH>states/MS/42400_Calculate_MS_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Mississippi tax calculation</action_description>
+<action_description />
 <action_postfix>
 "Mississippi Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -44,10 +33,10 @@
 <condition_postfix>
 result.filing_status "single" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -57,10 +46,10 @@ result.filing_status "single" strcasecmp 0 eq
 <condition_postfix>
 result.filing_status "married_filing_jointly" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -70,10 +59,10 @@ result.filing_status "married_filing_jointly" strcasecmp 0 eq
 <condition_postfix>
 result.filing_status "head_of_household" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 
 <condition_details>
@@ -83,10 +72,10 @@ result.filing_status "head_of_household" strcasecmp 0 eq
 <condition_postfix>
 result.filing_status "married_filing_separately" strcasecmp 0 eq
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 </conditions>
 
@@ -95,15 +84,15 @@ result.filing_status "married_filing_separately" strcasecmp 0 eq
 <action_number>1</action_number>
 <action_comment>Calculate MS tax - Single filer (progressive: 0% up to $10k, 4.4% above)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction and personal exemption) -->
+
 result.agi result.ms_standard_deduction_single sub result.ms_personal_exemption sub 0 max
 /ms_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ms_tax xdef
 
-<!-- Bracket 1: 0% on first $10,000 (no tax) -->
-<!-- Bracket 2: 4.4% on amount over $10,000 -->
+
+
 ms_taxable_income result.ms_bracket_1_limit gt
 {
   ms_taxable_income result.ms_bracket_1_limit sub
@@ -111,27 +100,27 @@ ms_taxable_income result.ms_bracket_1_limit gt
   ms_tax add /ms_tax xdef
 } if
 
-<!-- Store result -->
+
 ms_tax /result.state_tax_liability xdef
 
 "Mississippi tax (Single) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MS tax - MFJ (progressive: 0% up to $10k, 4.4% above)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction and personal exemptions) -->
+
 result.agi result.ms_standard_deduction_joint sub result.ms_personal_exemption 2 mul sub 0 max
 /ms_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ms_tax xdef
 
-<!-- Bracket 1: 0% on first $10,000 (no tax) -->
-<!-- Bracket 2: 4.4% on amount over $10,000 -->
+
+
 ms_taxable_income result.ms_bracket_1_limit gt
 {
   ms_taxable_income result.ms_bracket_1_limit sub
@@ -139,27 +128,27 @@ ms_taxable_income result.ms_bracket_1_limit gt
   ms_tax add /ms_tax xdef
 } if
 
-<!-- Store result -->
+
 ms_tax /result.state_tax_liability xdef
 
 "Mississippi tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate MS tax - HOH (progressive: 0% up to $10k, 4.4% above)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction and personal exemption) -->
+
 result.agi result.ms_standard_deduction_hoh sub result.ms_personal_exemption sub 0 max
 /ms_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ms_tax xdef
 
-<!-- Bracket 1: 0% on first $10,000 (no tax) -->
-<!-- Bracket 2: 4.4% on amount over $10,000 -->
+
+
 ms_taxable_income result.ms_bracket_1_limit gt
 {
   ms_taxable_income result.ms_bracket_1_limit sub
@@ -167,27 +156,27 @@ ms_taxable_income result.ms_bracket_1_limit gt
   ms_tax add /ms_tax xdef
 } if
 
-<!-- Store result -->
+
 ms_tax /result.state_tax_liability xdef
 
 "Mississippi tax (HOH) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate MS tax - MFS (progressive: 0% up to $10k, 4.4% above)</action_comment>
 <action_postfix>
-<!-- Calculate taxable income (AGI minus standard deduction and personal exemption) -->
+
 result.agi result.ms_standard_deduction_mfs sub result.ms_personal_exemption sub 0 max
 /ms_taxable_income xdef
 
-<!-- Initialize tax to 0 -->
+
 0 /ms_tax xdef
 
-<!-- Bracket 1: 0% on first $10,000 (no tax) -->
-<!-- Bracket 2: 4.4% on amount over $10,000 -->
+
+
 ms_taxable_income result.ms_bracket_1_limit gt
 {
   ms_taxable_income result.ms_bracket_1_limit sub
@@ -195,20 +184,20 @@ ms_taxable_income result.ms_bracket_1_limit gt
   ms_tax add /ms_tax xdef
 } if
 
-<!-- Store result -->
+
 ms_tax /result.state_tax_liability xdef
 
 "Mississippi tax (MFS) calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 42401: Calculate_MS_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_MS_Military_Retirement_Exclusion</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -218,11 +207,11 @@ ms_tax /result.state_tax_liability xdef
 <TABLE_NUMBER>42401</TABLE_NUMBER>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize MS military retirement exclusion calculation</action_description>
+<action_description />
 <action_postfix>
 "MS Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -233,12 +222,12 @@ ms_tax /result.state_tax_liability xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
+<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
 <condition_postfix>
 taxpayer.military_retirement_pay get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -247,19 +236,19 @@ taxpayer.military_retirement_pay get 0 gt
 <action_number>1</action_number>
 <action_comment>Full exclusion - 100% of military retirement pay excluded from MS taxable income</action_comment>
 <action_postfix>
-<!-- Mississippi provides full exemption for military retirement pay -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
+
+
 taxpayer.military_retirement_pay get
 /result.ms_military_retirement_exclusion xdef
 
-<!-- Add to state subtractions -->
+
 result.ms_subtractions get
 result.ms_military_retirement_exclusion get add
 /result.ms_subtractions xdef
 
 "MS Military Retirement Exclusion (Full): $" result.ms_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -269,7 +258,7 @@ result.ms_military_retirement_exclusion get add
 0 /result.ms_military_retirement_exclusion xdef
 "MS Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
