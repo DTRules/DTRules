@@ -189,6 +189,15 @@ type ExcelExporter interface {
 	ExportEDD(xmlPath, excelPath string) error
 }
 
+// CombinedExporter is an optional extension of ExcelExporter that supports
+// exporting both DT and EDD to a single workbook.
+type CombinedExporter interface {
+	ExcelExporter
+	// ExportCombined exports both DT and EDD XML files to a single Excel workbook.
+	// Either path may be empty if that file doesn't exist.
+	ExportCombined(dtXMLPath, eddXMLPath, excelPath string) error
+}
+
 // NewSyncer creates a new syncer for the given directories.
 func NewSyncer(xmlDir, excelDir string) *Syncer {
 	return &Syncer{
@@ -614,6 +623,12 @@ func (s *Syncer) SyncXMLToExcel() error {
 func (s *Syncer) SyncAll() (*SyncResult, error) {
 	result := &SyncResult{}
 
+	// Use combined workbook mode if enabled
+	if s.UseCombinedWorkbooks {
+		return s.syncAllCombined()
+	}
+
+	// Legacy pair-based mode
 	_, pairs, err := s.CheckSync()
 	if err != nil {
 		return result, err
@@ -661,8 +676,82 @@ func (s *Syncer) SyncAll() (*SyncResult, error) {
 	return result, nil
 }
 
+// syncAllCombined performs sync using combined workbook mode.
+// In this mode, one Excel file maps to multiple XML files (DT + EDD).
+func (s *Syncer) syncAllCombined() (*SyncResult, error) {
+	result := &SyncResult{}
+
+	_, workbooks, err := s.CheckSyncCombined()
+	if err != nil {
+		return result, err
+	}
+
+	for i := range workbooks {
+		wb := &workbooks[i]
+
+		switch wb.Direction {
+		case ExcelToXML:
+			if s.options.DryRun {
+				result.ExcelToXMLCount++
+				continue
+			}
+			if err := s.importCombinedWorkbook(wb); err != nil {
+				result.Errors = append(result.Errors, err)
+			} else {
+				result.ExcelToXMLCount++
+			}
+
+		case XMLToExcel:
+			if s.options.DryRun {
+				result.XMLToExcelCount++
+				continue
+			}
+			if err := s.exportCombinedWorkbook(wb); err != nil {
+				result.Errors = append(result.Errors, err)
+			} else {
+				result.XMLToExcelCount++
+			}
+
+		case Conflict:
+			result.ConflictCount++
+			// Handle conflict based on resolution strategy
+			switch s.options.ConflictResolution {
+			case "prefer-excel":
+				if err := s.importCombinedWorkbook(wb); err != nil {
+					result.Errors = append(result.Errors, err)
+				}
+			case "prefer-xml":
+				if err := s.exportCombinedWorkbook(wb); err != nil {
+					result.Errors = append(result.Errors, err)
+				}
+			case "skip":
+				// Skip this workbook
+			default: // "error"
+				result.Errors = append(result.Errors,
+					fmt.Errorf("conflict detected for %s", wb.ExcelPath))
+			}
+
+		case NoSync:
+			// Nothing to do
+		}
+	}
+
+	return result, nil
+}
+
 // importExcelToXML imports a single Excel file to XML.
 func (s *Syncer) importExcelToXML(pair *FilePair) error {
+	// In combined workbook mode, use the workbook importer
+	if s.UseCombinedWorkbooks && s.workbookImporter != nil {
+		// Determine the XML directory from the pair's XMLPath
+		xmlDir := filepath.Dir(pair.XMLPath)
+
+		// Import the workbook
+		_, _, err := s.workbookImporter.ImportWorkbook(pair.ExcelPath, xmlDir)
+		return err
+	}
+
+	// Fall back to legacy importer
 	if s.importer == nil {
 		return fmt.Errorf("Excel importer not configured (stub: import %s -> %s)",
 			pair.ExcelPath, pair.XMLPath)
@@ -1067,17 +1156,33 @@ func (s *Syncer) exportCombinedWorkbook(wb *CombinedWorkbook) error {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	// Export DT if it exists
-	if wb.DTExists {
-		if err := s.exporter.ExportDecisionTable(wb.DTXMLPath, wb.ExcelPath); err != nil {
-			return fmt.Errorf("failed to export DT: %w", err)
+	// Try to use combined exporter if available (preferred for combined workbooks)
+	if combined, ok := s.exporter.(CombinedExporter); ok {
+		dtPath := ""
+		eddPath := ""
+		if wb.DTExists {
+			dtPath = wb.DTXMLPath
 		}
-	}
+		if wb.EDDExists {
+			eddPath = wb.EDDXMLPath
+		}
+		if err := combined.ExportCombined(dtPath, eddPath, wb.ExcelPath); err != nil {
+			return fmt.Errorf("failed to export combined workbook: %w", err)
+		}
+	} else {
+		// Fall back to separate exports (note: EDD will overwrite DT)
+		// Export DT if it exists
+		if wb.DTExists {
+			if err := s.exporter.ExportDecisionTable(wb.DTXMLPath, wb.ExcelPath); err != nil {
+				return fmt.Errorf("failed to export DT: %w", err)
+			}
+		}
 
-	// Export EDD if it exists
-	if wb.EDDExists {
-		if err := s.exporter.ExportEDD(wb.EDDXMLPath, wb.ExcelPath); err != nil {
-			return fmt.Errorf("failed to export EDD: %w", err)
+		// Export EDD if it exists
+		if wb.EDDExists {
+			if err := s.exporter.ExportEDD(wb.EDDXMLPath, wb.ExcelPath); err != nil {
+				return fmt.Errorf("failed to export EDD: %w", err)
+			}
 		}
 	}
 

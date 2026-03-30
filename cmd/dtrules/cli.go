@@ -55,6 +55,24 @@ func (a *workbookImporterAdapter) HasEDDSheet(excelPath string) (bool, error) {
 	return a.impl.HasEDDSheet(excelPath)
 }
 
+// workbookExporterAdapter adapts excel.WorkbookExporter to sync.ExcelExporter
+// and sync.CombinedExporter interfaces.
+type workbookExporterAdapter struct {
+	impl *excel.WorkbookExporter
+}
+
+func (a *workbookExporterAdapter) ExportDecisionTable(xmlPath, excelPath string) error {
+	return a.impl.ExportDecisionTable(xmlPath, excelPath)
+}
+
+func (a *workbookExporterAdapter) ExportEDD(xmlPath, excelPath string) error {
+	return a.impl.ExportEDD(xmlPath, excelPath)
+}
+
+func (a *workbookExporterAdapter) ExportCombined(dtXMLPath, eddXMLPath, excelPath string) error {
+	return a.impl.ExportCombined(dtXMLPath, eddXMLPath, excelPath)
+}
+
 // NewCLI creates a new CLI instance.
 func NewCLI() *CLI {
 	return &CLI{}
@@ -159,9 +177,9 @@ func (c *CLI) runSync(args []string) int {
 		return 1
 	}
 
-	// Parse common flags
-	var i int
-	for i = 0; i < len(args); i++ {
+	// Parse all arguments, collecting flags and finding subcommand
+	var subcmd string
+	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--xml-dir":
 			if i+1 < len(args) {
@@ -176,11 +194,10 @@ func (c *CLI) runSync(args []string) int {
 		case "-v", "--verbose":
 			c.verbose = true
 		default:
-			// Not a flag, must be subcommand
-			break
-		}
-		if !strings.HasPrefix(args[i], "-") {
-			break
+			// Not a flag - must be the subcommand
+			if !strings.HasPrefix(args[i], "-") && subcmd == "" {
+				subcmd = args[i]
+			}
 		}
 	}
 
@@ -192,13 +209,11 @@ func (c *CLI) runSync(args []string) int {
 		c.excelDir = "./excel"
 	}
 
-	// Get subcommand
-	if i >= len(args) {
+	// Check subcommand was found
+	if subcmd == "" {
 		c.printSyncUsage()
 		return 1
 	}
-
-	subcmd := args[i]
 
 	// Initialize syncer
 	if err := c.initSyncer(); err != nil {
@@ -263,9 +278,13 @@ func (c *CLI) initSyncer() error {
 	// Set up importer (combined workbook mode)
 	c.syncer.SetUseCombinedWorkbooks(true)
 	c.importer = excel.NewWorkbookImporter()
+	c.importer.SetVerbose(c.verbose)
 	c.syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: c.importer})
 
-	// Exporter will be created when needed (requires loading rules first)
+	// Set up exporter
+	exporter := excel.NewWorkbookExporter()
+	exporter.SetVerbose(c.verbose)
+	c.syncer.SetExporter(&workbookExporterAdapter{impl: exporter})
 
 	return nil
 }
