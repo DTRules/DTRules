@@ -153,9 +153,13 @@ func getRNameWithEntity(entity *RName, name string, executable bool) *RName {
 
 // newRName creates an RName pair.
 func newRName(entity *RName, name string, executable bool, hashcode int) *RName {
+	// Build postfix with entity prefix if present
 	postfix := name
+	if entity != nil {
+		postfix = entity.name + "." + name
+	}
 	if !executable {
-		postfix = "/" + name
+		postfix = "/" + postfix
 	}
 
 	rn := &RName{
@@ -166,10 +170,13 @@ func newRName(entity *RName, name string, executable bool, hashcode int) *RName 
 		postfix:    postfix,
 	}
 
-	// Create partner
+	// Create partner with opposite executable state
 	partnerPostfix := name
+	if entity != nil {
+		partnerPostfix = entity.name + "." + name
+	}
 	if executable {
-		partnerPostfix = "/" + name
+		partnerPostfix = "/" + partnerPostfix
 	}
 	rn.partner = &RName{
 		entity:     entity,

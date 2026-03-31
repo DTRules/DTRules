@@ -29,6 +29,8 @@ func init() {
 	Register("entityname", opEntityName)
 	Register("entityid", opEntityID)
 	Register("req", opReq)
+	Register("isdefined", opIsDefined)
+	Alias("isdefined", "wheredef")
 }
 
 // opEntityPush: ( entity -- ) pushes entity onto entity stack
@@ -200,4 +202,23 @@ func opReq(state dtrules.State) error {
 	// Compare by entity ID (unique instance identifier)
 	result := entity1.GetID() == entity2.GetID()
 	return state.DataPush(dtrules.GetRBoolean(result))
+}
+
+// opIsDefined: ( /name -- boolean ) checks if a name is defined on the entity stack
+// Unlike normal name lookup, this does NOT fail if the name is not found.
+// Returns true if the name can be found on any entity in the entity stack.
+func opIsDefined(state dtrules.State) error {
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	name, err := nameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+
+	// Try to find the name on the entity stack
+	obj, _ := state.Find(name)
+	// If obj is not nil, the name is defined
+	return state.DataPush(dtrules.GetRBoolean(obj != nil))
 }

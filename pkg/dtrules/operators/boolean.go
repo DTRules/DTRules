@@ -39,6 +39,7 @@ func init() {
 	Alias("==", "eq")
 	Register("!=", opNe)
 	Alias("!=", "ne")
+	Alias("!=", "neq")
 	Register("beq", opBeq) // Boolean equals
 
 	// Null check

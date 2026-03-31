@@ -118,9 +118,7 @@ Calculate_Gross_Income
 <action_comment>Validate AGI if expected values exist (validation checkpoint); if job.expected_agi exists</action_comment>
 <action_description>perform Validate_AGI</action_description>
 <action_postfix>
-job.expected_agi isnull not if
-  Validate_AGI
-endif
+{ Validate_AGI } job.expected_agi isnull not if
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -157,9 +155,7 @@ Calculate_Taxable_Income
 <action_comment>Validate taxable income if expected values exist (validation checkpoint); if job.expected_taxable_income exists</action_comment>
 <action_description>perform Validate_Taxable_Income</action_description>
 <action_postfix>
-job.expected_taxable_income isnull not if
-  Validate_Taxable_Income
-endif
+{ Validate_Taxable_Income } job.expected_taxable_income isnull not if
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -184,9 +180,7 @@ Calculate_Tax_Liability
 <action_comment>Validate total tax if expected values exist (validation checkpoint); if job.expected_total_tax exists</action_comment>
 <action_description>perform Validate_Total_Tax</action_description>
 <action_postfix>
-job.expected_total_tax isnull not if
-  Validate_Total_Tax
-endif
+{ Validate_Total_Tax } job.expected_total_tax isnull not if
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -240,21 +234,23 @@ Calculate_Final_Balance
 <action_column column_number="2" column_value="X" />
 <action_column column_number="3" column_value="X" />
 <action_column column_number="4" column_value="X" />
+</action_details>
 <action_details>
-<action_number>12</action_number>
+<action_number>13</action_number>
 <action_comment>Calculate state income tax if applicable</action_comment>
 <action_description>perform Dispatch_State_Tax</action_description>
 <action_postfix>
-job.has_state_income_tax if
-  Dispatch_State_Tax
-  Calculate_Other_State_Tax_Credit
-endif
+{
+  /Dispatch_State_Tax executetable
+  result.total_tax result.sc_state_tax f+ /result.total_tax xdef
+}
+job.has_state_income_tax
+if
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
 <action_column column_number="3" column_value="X" />
 <action_column column_number="4" column_value="X" />
-</action_details>
 </action_details>
 
 <action_details>
@@ -426,7 +422,7 @@ Process_Foreign_Income
 <action_comment>Process installment sales (Form 6252) - gain recognized in current year per IRC 453</action_comment>
 <action_description>perform Process_Installment_Sales</action_description>
 <action_postfix>
-/Process_Installment_Sales executetable
+Process_Installment_Sales
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -435,7 +431,7 @@ Process_Foreign_Income
 <action_comment>Process like-kind exchanges (Form 8824) - recognized gain from boot per IRC 1031</action_comment>
 <action_description>perform Process_Like_Kind_Exchanges</action_description>
 <action_postfix>
-/Process_Like_Kind_Exchanges executetable
+Process_Like_Kind_Exchanges
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -1128,8 +1124,8 @@ taxpayer.se_tax_deduction result.total_adjustments f+ /result.total_adjustments 
 <action_description>perform Calculate_Standard_Deduction</action_description>
 <action_postfix>
 "DEDUCTIONS (Form 1040 Line 12)" job.audit_trail swap addto
-/Calculate_Standard_Deduction executetable
-/Calculate_Itemized_Deductions executetable
+Calculate_Standard_Deduction
+Calculate_Itemized_Deductions
 </action_postfix>
 </initial_action>
 </initial_actions>
@@ -1400,7 +1396,7 @@ Calculate_Charitable_Deduction
 <action_comment>Calculate noncash charitable contributions (Form 8283)</action_comment>
 <action_description>perform Calculate_Noncash_Charitable</action_description>
 <action_postfix>
-/Calculate_Noncash_Charitable executetable
+Calculate_Noncash_Charitable
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details><action_details>
@@ -1409,7 +1405,7 @@ Calculate_Charitable_Deduction
 <action_description>perform Process_Casualty_Losses</action_description>
 <action_postfix>
 job.casualty_losses length 0 &gt; if
-  /Process_Casualty_Losses executetable
+  Process_Casualty_Losses
   result.is_disaster_loss if
     result.total_casualty_loss result.agi casualty_loss_agi_percent f* f- 0 fmax /result.casualty_loss_deduction xdef
     result.casualty_loss_deduction result.total_itemized f+ /result.total_itemized xdef
@@ -2237,7 +2233,7 @@ Calculate_Additional_Medicare_Tax
 <action_description>perform Process_Early_Distributions</action_description>
 <action_postfix>
 job.early_distributions length 0 &gt; if
-  /Process_Early_Distributions executetable
+  Process_Early_Distributions
 endif
 </action_postfix>
 <action_column column_number="1" column_value="X" />
@@ -2787,7 +2783,7 @@ perform when called
 <action_description>perform Calculate_CTC_Phase_Out</action_description>
 <action_postfix>
 result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
-/Calculate_CTC_Phase_Out executetable
+Calculate_CTC_Phase_Out
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2796,7 +2792,7 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 <action_comment>Calculate EITC</action_comment>
 <action_description>perform Calculate_EITC</action_description>
 <action_postfix>
-/Calculate_EITC executetable
+Calculate_EITC
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2805,7 +2801,7 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 <action_comment>Calculate education credits</action_comment>
 <action_description>perform Calculate_Education_Credits</action_description>
 <action_postfix>
-/Calculate_Education_Credits executetable
+Calculate_Education_Credits
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2814,7 +2810,7 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 <action_comment>Calculate Child and Dependent Care Credit</action_comment>
 <action_description>perform Calculate_CDCC</action_description>
 <action_postfix>
-/Calculate_CDCC executetable
+Calculate_CDCC
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2823,7 +2819,7 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 <action_comment>Calculate Saver's Credit</action_comment>
 <action_description>perform Calculate_Savers_Credit</action_description>
 <action_postfix>
-/Calculate_Savers_Credit executetable
+Calculate_Savers_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2832,7 +2828,7 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 <action_comment>Calculate Energy Credits</action_comment>
 <action_description>perform Calculate_Energy_Credits</action_description>
 <action_postfix>
-/Calculate_Energy_Credits executetable
+Calculate_Energy_Credits
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2841,7 +2837,7 @@ result.total_ctc result.total_odc f+ /result.ctc_before_phaseout xdef
 <action_comment>Calculate Premium Tax Credit</action_comment>
 <action_description>perform Calculate_Premium_Tax_Credit</action_description>
 <action_postfix>
-/Calculate_Premium_Tax_Credit executetable
+Calculate_Premium_Tax_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2859,7 +2855,7 @@ Calculate_Foreign_Tax_Credit
 <action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
 <action_description>perform Calculate_DC_Homebuyer_Credit</action_description>
 <action_postfix>
-/Calculate_DC_Homebuyer_Credit executetable
+Calculate_DC_Homebuyer_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2886,7 +2882,7 @@ Calculate_Energy_Appliance_Credit
 <action_comment>Calculate General Business Credit (Form 3800)</action_comment>
 <action_description>perform Calculate_General_Business_Credit</action_description>
 <action_postfix>
-/Calculate_General_Business_Credit executetable
+Calculate_General_Business_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2895,7 +2891,7 @@ Calculate_Energy_Appliance_Credit
 <action_comment>Calculate Prior Year AMT Credit (Form 8801) - Schedule 3 Line 6b</action_comment>
 <action_description>perform Calculate_Prior_Year_AMT_Credit</action_description>
 <action_postfix>
-/Calculate_Prior_Year_AMT_Credit executetable
+Calculate_Prior_Year_AMT_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2904,7 +2900,7 @@ Calculate_Energy_Appliance_Credit
 <action_comment>Process Adoption Credit (Form 8839) - Schedule 3 Line 6c</action_comment>
 <action_description>perform Process_Adoption_Credit</action_description>
 <action_postfix>
-/Process_Adoption_Credit executetable
+Process_Adoption_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2913,7 +2909,7 @@ Calculate_Energy_Appliance_Credit
 <action_comment>Calculate Elderly/Disabled Credit (Schedule R) - Schedule 3 Line 6d</action_comment>
 <action_description>perform Calculate_Elderly_Disabled_Credit</action_description>
 <action_postfix>
-/Calculate_Elderly_Disabled_Credit executetable
+Calculate_Elderly_Disabled_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -2922,7 +2918,7 @@ Calculate_Energy_Appliance_Credit
 <action_comment>Process Clean Vehicle Credit (Form 8936) - Nonrefundable</action_comment>
 <action_description>perform Process_Clean_Vehicle_Credit</action_description>
 <action_postfix>
-/Process_Clean_Vehicle_Credit executetable
+Process_Clean_Vehicle_Credit
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -3961,12 +3957,12 @@ job.expected_agi null neq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Run all validations; Validate_AGI, Validate_Taxable_Income, Validate_Total_Tax, Validate_Summary</action_comment>
+<action_comment>Run all validations with guards for each expected value</action_comment>
 <action_description />
 <action_postfix>
-Validate_AGI
-Validate_Taxable_Income
-Validate_Total_Tax
+{ Validate_AGI } job.expected_agi isnull not if
+{ Validate_Taxable_Income } job.expected_taxable_income isnull not if
+{ Validate_Total_Tax } job.expected_total_tax isnull not if
 Validate_Summary
 </action_postfix>
 <action_column column_number="1" column_value="X" />
@@ -4213,7 +4209,7 @@ is_self_employed true beq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Process self-employed taxpayer</action_comment>
+<action_comment>Process self-employed taxpayer (uses executetable to skip context - avoids infinite recursion)</action_comment>
 <action_description>perform Process_Self_Employment</action_description>
 <action_postfix>
 /Process_Self_Employment executetable
@@ -4261,7 +4257,7 @@ taxpayer_id taxpayer.id ==
 <action_comment>Process vehicle</action_comment>
 <action_description>perform Calculate_Vehicle_Deduction</action_description>
 <action_postfix>
-/Calculate_Vehicle_Deduction executetable
+Calculate_Vehicle_Deduction
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -4306,7 +4302,7 @@ type "rental" streq
 <action_comment>Process rental</action_comment>
 <action_description>perform Process_Rental_Income</action_description>
 <action_postfix>
-/Process_Rental_Income executetable
+Process_Rental_Income
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -5260,7 +5256,8 @@ result.total_long_term_gains result.total_qualified_dividends f+ 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5271,6 +5268,7 @@ job.filing_status MFJ streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5280,6 +5278,7 @@ job.filing_status MFJ streq
 job.filing_status HOH streq
 </condition_postfix>
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -5309,6 +5308,17 @@ Apply_CG_Brackets_HOH
 Apply_CG_Brackets_Single
 </action_postfix>
 <action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>No preferential income - no capital gains tax</action_comment>
+<action_description>set result.capital_gains_tax = 0</action_description>
+<action_postfix>
+0.0 /result.capital_gains_tax xdef
+"  Capital Gains Rate: N/A - No preferential income" job.audit_trail swap addto
+deallocate pop
+</action_postfix>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
@@ -6095,8 +6105,8 @@ deallocate pop deallocate pop
 </action_details>
 <action_details>
 <action_number>7</action_number>
-<action_comment>No IRA contribution</action_comment>
-<action_description>set taxpayer.ira_deduction = 0</action_description>
+<action_comment>No IRA contribution - result.ira_deduction already initialized to 0 in context</action_comment>
+<action_description />
 <action_postfix>
 </action_postfix>
 <action_column column_number="7" column_value="X" />
@@ -6243,8 +6253,8 @@ taxpayer.hsa_contribution hsa_limit_self fmin result.hsa_deduction f+ /result.hs
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>No HSA contribution</action_comment>
-<action_description>set taxpayer.hsa_deduction = 0</action_description>
+<action_comment>No HSA contribution - result.hsa_deduction already initialized to 0 in context</action_comment>
+<action_description />
 <action_postfix>
 </action_postfix>
 <action_column column_number="5" column_value="X" />
@@ -9750,14 +9760,11 @@ endif
 <initial_action>
 <action_description />
 <action_postfix>
+{ "State Tax Calculation for " job.state strconcat job.audit_trail swap addto }
+{ "Multi-State Tax Calculation" job.audit_trail swap addto /Allocate_Income_By_State executetable }
 job.state_periods length 0 eq
-if
-  "State Tax Calculation for " job.state strconcat job.audit_trail swap addto
-else
-  "Multi-State Tax Calculation" job.audit_trail swap addto
-  Allocate_Income_By_State
-then
-{ Calculate_Part_Year_Allocation } job.state_tax_results forall
+ifelse
+{ /Calculate_Part_Year_Allocation executetable } job.state_tax_results forall
 </action_postfix>
 <action_comment>Log state tax calculation start and calculate part-year allocation</action_comment></initial_action>
 </initial_actions>
@@ -9767,12 +9774,10 @@ then
 <condition_comment>California state; state_period.state_code or job.state is equal to "CA"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code CA streq
-else
-  job.state CA streq
-then
+{ state_period.state_code /CA streq }
+{ job.state /CA streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -9792,12 +9797,10 @@ then
 <condition_comment>Illinois state; state_period.state_code or job.state is equal to "IL"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code IL streq
-else
-  job.state IL streq
-then
+{ state_period.state_code /IL streq }
+{ job.state /IL streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -9811,12 +9814,10 @@ then
 <condition_comment>New Hampshire state; state_period.state_code or job.state is equal to "NH"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code NH streq
-else
-  job.state NH streq
-then
+{ state_period.state_code /NH streq }
+{ job.state /NH streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
@@ -9830,12 +9831,10 @@ then
 <condition_comment>Colorado state; state_period.state_code or job.state is equal to "CO"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code CO streq
-else
-  job.state CO streq
-then
+{ state_period.state_code /CO streq }
+{ job.state /CO streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -9850,12 +9849,10 @@ then
 <condition_comment>Montana state; state_period.state_code or job.state is equal to "MT"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code MT streq
-else
-  job.state MT streq
-then
+{ state_period.state_code /MT streq }
+{ job.state /MT streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -9871,12 +9868,10 @@ then
 <condition_comment>Pennsylvania state; state_period.state_code or job.state is equal to "PA"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code PA streq
-else
-  job.state PA streq
-then
+{ state_period.state_code /PA streq }
+{ job.state /PA streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -9892,12 +9887,10 @@ then
 <condition_comment>Delaware state; state_period.state_code or job.state is equal to "DE"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code DE streq
-else
-  job.state DE streq
-then
+{ state_period.state_code /DE streq }
+{ job.state /DE streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -9916,12 +9909,10 @@ then
 <condition_comment>South Dakota state; state_period.state_code or job.state is equal to "SD"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code SD streq
-else
-  job.state SD streq
-then
+{ state_period.state_code /SD streq }
+{ job.state /SD streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -9942,26 +9933,26 @@ then
 <condition_comment>No state income tax (AK, FL, SD, TX, WA, WY)</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code AK streq
-  state_period.state_code FL streq or
-  state_period.state_code NV streq or
-
-  state_period.state_code SD streq or
-  state_period.state_code TX streq or
-  state_period.state_code WA streq or
-  state_period.state_code WY streq or
-else
-  job.state AK streq
-  job.state FL streq or
-  job.state NV streq or
-
-  job.state SD streq or
-  job.state TX streq or
-  job.state WA streq or
-  job.state WY streq or
-then
+{
+  state_period.state_code /AK streq
+  state_period.state_code /FL streq or
+  state_period.state_code /NV streq or
+  state_period.state_code /SD streq or
+  state_period.state_code /TX streq or
+  state_period.state_code /WA streq or
+  state_period.state_code /WY streq or
+}
+{
+  job.state /AK streq
+  job.state /FL streq or
+  job.state /NV streq or
+  job.state /SD streq or
+  job.state /TX streq or
+  job.state /WA streq or
+  job.state /WY streq or
+}
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -9980,12 +9971,10 @@ then
 <condition_comment>Missouri state; state_period.state_code or job.state is equal to "MO"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code MO streq
-else
-  job.state MO streq
-then
+{ state_period.state_code /MO streq }
+{ job.state /MO streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -10004,12 +9993,10 @@ then
 <condition_comment>Hawaii state; state_period.state_code or job.state is equal to "HI"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code HI streq
-else
-  job.state HI streq
-then
+{ state_period.state_code /HI streq }
+{ job.state /HI streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -10029,12 +10016,10 @@ then
 <condition_comment>New Jersey state; state_period.state_code or job.state is equal to "NJ"</condition_comment>
 <condition_description />
 <condition_postfix>
-state_period isnull not
-if
-  state_period.state_code NJ streq
-else
-  job.state NJ streq
-then
+{ state_period.state_code /NJ streq }
+{ job.state /NJ streq }
+/state_period isdefined
+ifelse
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -10049,6 +10034,30 @@ then
 <condition_column column_number="11" column_value="Y" />
 <condition_column column_number="12" column_value="N" />
 </condition_details>
+<condition_details>
+<condition_number>11</condition_number>
+<condition_comment>South Carolina state; state_period.state_code or job.state is equal to "SC"</condition_comment>
+<condition_description />
+<condition_postfix>
+{ state_period.state_code /SC streq }
+{ job.state /SC streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="Y" />
+</condition_details>
 </conditions>
 <actions>
 <action_details>
@@ -10056,10 +10065,9 @@ then
 <action_comment>Calculate California state tax</action_comment>
 <action_description>perform Calculate_CA_Tax</action_description>
 <action_postfix>
-
-Calculate_CA_AGI
-Calculate_CA_Military_Retirement_Exemption
-Calculate_CA_Tax
+/Calculate_CA_AGI executetable
+/Calculate_CA_Military_Retirement_Exemption executetable
+/Calculate_CA_Tax executetable
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -10135,12 +10143,10 @@ Calculate_SD_Tax
 <action_comment>No state income tax; log "No state income tax for this state"</action_comment>
 <action_description />
 <action_postfix>
-state_period isnull not
-if
-  "  No state income tax for " state_period.state_code strconcat job.audit_trail swap addto
-else
-  "  No state income tax for " job.state strconcat job.audit_trail swap addto
-then
+{ "  No state income tax for " state_period.state_code strconcat job.audit_trail swap addto }
+{ "  No state income tax for " job.state strconcat job.audit_trail swap addto }
+/state_period isdefined
+ifelse
 </action_postfix>
 <action_column column_number="8" column_value="X" />
 </action_details>
@@ -10149,19 +10155,15 @@ then
 <action_comment>Dynamically dispatch to state tax table; Construct table name Calculate_XX_Tax and execute</action_comment>
 <action_description />
 <action_postfix>
-state_period isnull not
-if
-  state_period.state_code /state_code xdef
-else
-  job.state /state_code xdef
-then
-Calculate_ state_code strconcat _Tax strconcat /table_name xdef
+{ state_period.state_code /state_code xdef }
+{ job.state /state_code xdef }
+/state_period isdefined
+ifelse
+"Calculate_" state_code strconcat "_Tax" strconcat /table_name xdef
+{ "  State tax calculation not yet implemented for " state_code strconcat job.audit_trail swap addto }
+{ table_name execute }
 table_name lookupEntity isnull
-if
-  "  State tax calculation not yet implemented for " state_code strconcat job.audit_trail swap addto
-else
-  table_name execute
-then
+ifelse
 </action_postfix>
 <action_column column_number="7" column_value="X" />
 </action_details>
@@ -10192,6 +10194,15 @@ Calculate_HI_Tax
 Calculate_NJ_Tax
 </action_postfix>
 <action_column column_number="11" column_value="X" />
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate South Carolina state tax</action_comment>
+<action_description>perform Calculate_SC_Tax</action_description>
+<action_postfix>
+Calculate_SC_Tax
+</action_postfix>
+<action_column column_number="13" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
@@ -10260,9 +10271,9 @@ Calculate_NJ_Tax
 <initial_action>
 <action_description />
 <action_postfix>
-job.territory isnull not if
-  "US Territory Tax Calculation for " job.territory strconcat job.audit_trail swap addto
-then
+{ "US Territory Tax Calculation for " job.territory strconcat job.audit_trail swap addto }
+job.territory isnull not
+if
 </action_postfix>
 <action_comment>Log territory tax calculation start</action_comment></initial_action>
 </initial_actions>
@@ -13063,11 +13074,10 @@ result.de_bracket_1_tax result.de_bracket_2_tax f+ result.de_bracket_3_tax f+ re
 0.0 /result.al_state_tax xdef
 "ALABAMA STATE TAX" job.audit_trail swap addto
 
-job.filing_status MFJ == job.filing_status HOH == or iftrue
-  result.agi al_standard_deduction_mfj f- al_personal_exemption_mfj f-
-else
-  result.agi al_standard_deduction_single f- al_personal_exemption_single f-
-then
+{ result.agi al_standard_deduction_mfj f- al_personal_exemption_mfj f- }
+{ result.agi al_standard_deduction_single f- al_personal_exemption_single f- }
+job.filing_status MFJ == job.filing_status HOH == or
+ifelse
 0 max /result.al_taxable_income xdef
 
 result.al_taxable_income "  Alabama taxable income: $" swap f$ concat job.audit_trail swap addto
@@ -13092,7 +13102,7 @@ job.filing_status MFJ == job.filing_status HOH == or
 <action_comment>Calculate AL tax using MFJ brackets; executeTable Calculate_AL_Tax_MFJ</action_comment>
 <action_description />
 <action_postfix>
-Calculate_AL_Tax_MFJ executetable
+Calculate_AL_Tax_MFJ
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -13101,7 +13111,7 @@ Calculate_AL_Tax_MFJ executetable
 <action_comment>Calculate AL tax using Single brackets; executeTable Calculate_AL_Tax_Single</action_comment>
 <action_description />
 <action_postfix>
-Calculate_AL_Tax_Single executetable
+Calculate_AL_Tax_Single
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -14282,13 +14292,14 @@ Calculate_SC_Tax_Brackets
 <context_comment>Calculate SC taxable income with standard deduction</context_comment>
 <context_description>local double sc_std_deduction = SC standard deduction based on filing status</context_description>
 <context_postfix>
-job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 { sc_standard_deduction_mfj }
 { sc_standard_deduction_single }
+job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 ifelse
-0 local!
+allocate
 result.agi 0 local@ f- 0 fmax /result.sc_taxable_income xdef
-0 local@ deallocate pop
+execute
+deallocate pop
 </context_postfix>
 </context_details>
 </contexts>
