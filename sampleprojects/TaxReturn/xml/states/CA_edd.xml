@@ -1,153 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for California (CA)
-
-  California has the highest state income tax rates in the nation with 10 brackets (1% to 13.3%).
-  Progressive tax structure with Mental Health Services Tax (1% surtax on income over $1M).
-
-  2025 Tax Year
-  Standard Deduction: $5,363 (single/MFS), $10,726 (married filing jointly/HOH)
-
-  Tax Rates: Progressive from 1% to 13.3%
-  Mental Health Services Tax: Additional 1% on taxable income > $1,000,000
-
-  Source: California Franchise Tax Board (FTB), MOAA State Report Card
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-
-    <!-- Standard Deductions (2025) -->
-    <field name="ca_standard_deduction_single" type="double" default_value="5363.0"
-           comment="CA standard deduction single/married filing separately $5,363 (2025). Source: CA FTB"/>
-    <field name="ca_standard_deduction_joint" type="double" default_value="10726.0"
-           comment="CA standard deduction married filing jointly $10,726 (2025). Source: CA FTB"/>
-    <field name="ca_standard_deduction_hoh" type="double" default_value="10726.0"
-           comment="CA standard deduction head of household $10,726 (2025). Source: CA FTB"/>
-
-    <!-- Progressive Tax Brackets - Single Filers (2025 estimates) -->
-    <!-- Bracket 1: $0 to $10,412 @ 1% -->
-    <field name="ca_bracket_1_limit_single" type="double" default_value="10412.0"
-           comment="CA tax bracket 1 upper limit single $10,412 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_1_rate" type="double" default_value="0.01"
-           comment="CA tax rate for bracket 1 - 1.0% (2025)"/>
-
-    <!-- Bracket 2: $10,413 to $24,684 @ 2% -->
-    <field name="ca_bracket_2_limit_single" type="double" default_value="24684.0"
-           comment="CA tax bracket 2 upper limit single $24,684 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_2_rate" type="double" default_value="0.02"
-           comment="CA tax rate for bracket 2 - 2.0% (2025)"/>
-
-    <!-- Bracket 3: $24,685 to $38,959 @ 4% -->
-    <field name="ca_bracket_3_limit_single" type="double" default_value="38959.0"
-           comment="CA tax bracket 3 upper limit single $38,959 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_3_rate" type="double" default_value="0.04"
-           comment="CA tax rate for bracket 3 - 4.0% (2025)"/>
-
-    <!-- Bracket 4: $38,960 to $54,081 @ 6% -->
-    <field name="ca_bracket_4_limit_single" type="double" default_value="54081.0"
-           comment="CA tax bracket 4 upper limit single $54,081 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_4_rate" type="double" default_value="0.06"
-           comment="CA tax rate for bracket 4 - 6.0% (2025)"/>
-
-    <!-- Bracket 5: $54,082 to $68,350 @ 8% -->
-    <field name="ca_bracket_5_limit_single" type="double" default_value="68350.0"
-           comment="CA tax bracket 5 upper limit single $68,350 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_5_rate" type="double" default_value="0.08"
-           comment="CA tax rate for bracket 5 - 8.0% (2025)"/>
-
-    <!-- Bracket 6: $68,351 to $349,137 @ 9.3% -->
-    <field name="ca_bracket_6_limit_single" type="double" default_value="349137.0"
-           comment="CA tax bracket 6 upper limit single $349,137 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_6_rate" type="double" default_value="0.093"
-           comment="CA tax rate for bracket 6 - 9.3% (2025)"/>
-
-    <!-- Bracket 7: $349,138 to $418,961 @ 10.3% -->
-    <field name="ca_bracket_7_limit_single" type="double" default_value="418961.0"
-           comment="CA tax bracket 7 upper limit single $418,961 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_7_rate" type="double" default_value="0.103"
-           comment="CA tax rate for bracket 7 - 10.3% (2025)"/>
-
-    <!-- Bracket 8: $418,962 to $698,271 @ 11.3% -->
-    <field name="ca_bracket_8_limit_single" type="double" default_value="698271.0"
-           comment="CA tax bracket 8 upper limit single $698,271 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_8_rate" type="double" default_value="0.113"
-           comment="CA tax rate for bracket 8 - 11.3% (2025)"/>
-
-    <!-- Bracket 9: $698,272 to $1,000,000 @ 12.3% -->
-    <field name="ca_bracket_9_limit_single" type="double" default_value="1000000.0"
-           comment="CA tax bracket 9 upper limit single $1,000,000 (2025). Source: CA FTB"/>
-    <field name="ca_bracket_9_rate" type="double" default_value="0.123"
-           comment="CA tax rate for bracket 9 - 12.3% (2025)"/>
-
-    <!-- Bracket 10: Over $1,000,000 @ 13.3% -->
-    <field name="ca_bracket_10_rate" type="double" default_value="0.133"
-           comment="CA tax rate for bracket 10 (income > $1,000,000) - 13.3% (2025). Highest state marginal rate in the nation."/>
-
-    <!-- Progressive Tax Brackets - Married Filing Jointly (2025 estimates) -->
-    <field name="ca_bracket_1_limit_joint" type="double" default_value="20824.0"
-           comment="CA tax bracket 1 upper limit joint $20,824 (2025). Approximately double single filer brackets."/>
-    <field name="ca_bracket_2_limit_joint" type="double" default_value="49368.0"
-           comment="CA tax bracket 2 upper limit joint $49,368 (2025)"/>
-    <field name="ca_bracket_3_limit_joint" type="double" default_value="77918.0"
-           comment="CA tax bracket 3 upper limit joint $77,918 (2025)"/>
-    <field name="ca_bracket_4_limit_joint" type="double" default_value="108162.0"
-           comment="CA tax bracket 4 upper limit joint $108,162 (2025)"/>
-    <field name="ca_bracket_5_limit_joint" type="double" default_value="136700.0"
-           comment="CA tax bracket 5 upper limit joint $136,700 (2025)"/>
-    <field name="ca_bracket_6_limit_joint" type="double" default_value="698274.0"
-           comment="CA tax bracket 6 upper limit joint $698,274 (2025)"/>
-    <field name="ca_bracket_7_limit_joint" type="double" default_value="837922.0"
-           comment="CA tax bracket 7 upper limit joint $837,922 (2025)"/>
-    <field name="ca_bracket_8_limit_joint" type="double" default_value="1396542.0"
-           comment="CA tax bracket 8 upper limit joint $1,396,542 (2025)"/>
-    <field name="ca_bracket_9_limit_joint" type="double" default_value="1000000.0"
-           comment="CA tax bracket 9 upper limit joint $1,000,000 (2025). Mental health surtax threshold is same for all filing statuses."/>
-
-    <!-- Mental Health Services Tax (2025) -->
-    <field name="ca_mental_health_tax_threshold" type="double" default_value="1000000.0"
-           comment="CA Mental Health Services Tax threshold $1,000,000 (2025). Additional 1% tax on taxable income > $1M. Source: CA FTB"/>
-    <field name="ca_mental_health_tax_rate" type="double" default_value="0.01"
-           comment="CA Mental Health Services Tax rate - 1.0% on income > $1M (2025)"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="ca_military_retirement_exemption_amount" type="double" default_value="20000.0"
-           comment="CA military retirement exemption amount - $20,000 (2025). Source: MOAA"/>
-    <field name="ca_military_agi_limit_single" type="double" default_value="125000.0"
-           comment="CA AGI limit for military retirement exemption - single filers (2025)"/>
-    <field name="ca_military_agi_limit_joint" type="double" default_value="250000.0"
-           comment="CA AGI limit for military retirement exemption - joint filers (2025)"/>
-    <field name="ca_military_retirement_exemption" type="double" default_value="0.0"
-           comment="CA military retirement exemption (computed based on AGI and filing status)"/>
-    <field name="ca_military_retirement_taxable" type="double" default_value="0.0"
-           comment="CA taxable military retirement after exemption (computed)"/>
-
-    <!-- Renter's Credit (2025) -->
-    <field name="ca_renter_credit_single" type="double" default_value="60.0"
-           comment="CA renter's credit for single/MFS filers (2025). Source: CA FTB"/>
-    <field name="ca_renter_credit_joint" type="double" default_value="120.0"
-           comment="CA renter's credit for joint/HOH filers (2025). Source: CA FTB"/>
-    <field name="ca_renter_credit_agi_limit_single" type="double" default_value="50746.0"
-           comment="CA renter's credit AGI limit single/MFS (2025). Source: CA FTB"/>
-    <field name="ca_renter_credit_agi_limit_joint" type="double" default_value="101492.0"
-           comment="CA renter's credit AGI limit joint/HOH (2025). Source: CA FTB"/>
-    <field name="ca_renter_credit" type="double" default_value="0.0"
-           comment="CA renter's credit amount (computed based on eligibility)"/>
-
-    <!-- SDI (State Disability Insurance) Information -->
-    <field name="ca_sdi_rate" type="double" default_value="0.012"
-           comment="CA SDI rate 1.2% (2025). No income cap. Source: CA EDD"/>
-
-    <!-- State tax result fields -->
-    <field name="ca_taxable_income" type="double" default_value="0.0"
-           comment="CA taxable income after deductions (computed)"/>
-    <field name="ca_state_tax" type="double" default_value="0.0"
-           comment="CA state income tax liability before Mental Health Services Tax (computed)"/>
-    <field name="ca_mental_health_tax" type="double" default_value="0.0"
-           comment="CA Mental Health Services Tax (1% surtax on income > $1M, computed)"/>
-    <field name="ca_total_tax" type="double" default_value="0.0"
-           comment="CA total tax liability including Mental Health Services Tax (computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="CA.xlsx" access="rw">
+		<field name="ca_bracket_10_rate" type="double" subtype="" access="r" input="" default_value="0.133" comment="CA tax rate for bracket 10 (income &gt; $1,000,000) - 13.3% (2025). Highest state marginal rate in the nation."></field>
+		<field name="ca_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20824.0" comment="CA tax bracket 1 upper limit joint $20,824 (2025). Approximately double single filer brackets."></field>
+		<field name="ca_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="10412.0" comment="CA tax bracket 1 upper limit single $10,412 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.01" comment="CA tax rate for bracket 1 - 1.0% (2025)"></field>
+		<field name="ca_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="49368.0" comment="CA tax bracket 2 upper limit joint $49,368 (2025)"></field>
+		<field name="ca_bracket_2_limit_single" type="double" subtype="" access="r" input="" default_value="24684.0" comment="CA tax bracket 2 upper limit single $24,684 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="CA tax rate for bracket 2 - 2.0% (2025)"></field>
+		<field name="ca_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="77918.0" comment="CA tax bracket 3 upper limit joint $77,918 (2025)"></field>
+		<field name="ca_bracket_3_limit_single" type="double" subtype="" access="r" input="" default_value="38959.0" comment="CA tax bracket 3 upper limit single $38,959 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="CA tax rate for bracket 3 - 4.0% (2025)"></field>
+		<field name="ca_bracket_4_limit_joint" type="double" subtype="" access="r" input="" default_value="108162.0" comment="CA tax bracket 4 upper limit joint $108,162 (2025)"></field>
+		<field name="ca_bracket_4_limit_single" type="double" subtype="" access="r" input="" default_value="54081.0" comment="CA tax bracket 4 upper limit single $54,081 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.06" comment="CA tax rate for bracket 4 - 6.0% (2025)"></field>
+		<field name="ca_bracket_5_limit_joint" type="double" subtype="" access="r" input="" default_value="136700.0" comment="CA tax bracket 5 upper limit joint $136,700 (2025)"></field>
+		<field name="ca_bracket_5_limit_single" type="double" subtype="" access="r" input="" default_value="68350.0" comment="CA tax bracket 5 upper limit single $68,350 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.08" comment="CA tax rate for bracket 5 - 8.0% (2025)"></field>
+		<field name="ca_bracket_6_limit_joint" type="double" subtype="" access="r" input="" default_value="698274.0" comment="CA tax bracket 6 upper limit joint $698,274 (2025)"></field>
+		<field name="ca_bracket_6_limit_single" type="double" subtype="" access="r" input="" default_value="349137.0" comment="CA tax bracket 6 upper limit single $349,137 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.093" comment="CA tax rate for bracket 6 - 9.3% (2025)"></field>
+		<field name="ca_bracket_7_limit_joint" type="double" subtype="" access="r" input="" default_value="837922.0" comment="CA tax bracket 7 upper limit joint $837,922 (2025)"></field>
+		<field name="ca_bracket_7_limit_single" type="double" subtype="" access="r" input="" default_value="418961.0" comment="CA tax bracket 7 upper limit single $418,961 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_7_rate" type="double" subtype="" access="r" input="" default_value="0.103" comment="CA tax rate for bracket 7 - 10.3% (2025)"></field>
+		<field name="ca_bracket_8_limit_joint" type="double" subtype="" access="r" input="" default_value="1396542.0" comment="CA tax bracket 8 upper limit joint $1,396,542 (2025)"></field>
+		<field name="ca_bracket_8_limit_single" type="double" subtype="" access="r" input="" default_value="698271.0" comment="CA tax bracket 8 upper limit single $698,271 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_8_rate" type="double" subtype="" access="r" input="" default_value="0.113" comment="CA tax rate for bracket 8 - 11.3% (2025)"></field>
+		<field name="ca_bracket_9_limit_joint" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="CA tax bracket 9 upper limit joint $1,000,000 (2025). Mental health surtax threshold is same for all filing statuses."></field>
+		<field name="ca_bracket_9_limit_single" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="CA tax bracket 9 upper limit single $1,000,000 (2025). Source: CA FTB"></field>
+		<field name="ca_bracket_9_rate" type="double" subtype="" access="r" input="" default_value="0.123" comment="CA tax rate for bracket 9 - 12.3% (2025)"></field>
+		<field name="ca_mental_health_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on income &gt; $1M, computed)"></field>
+		<field name="ca_mental_health_tax_rate" type="double" subtype="" access="r" input="" default_value="0.01" comment="CA Mental Health Services Tax rate - 1.0% on income &gt; $1M (2025)"></field>
+		<field name="ca_mental_health_tax_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="CA Mental Health Services Tax threshold $1,000,000 (2025). Additional 1% tax on taxable income &gt; $1M. Source: CA FTB"></field>
+		<field name="ca_military_agi_limit_joint" type="double" subtype="" access="r" input="" default_value="250000.0" comment="CA AGI limit for military retirement exemption - joint filers (2025)"></field>
+		<field name="ca_military_agi_limit_single" type="double" subtype="" access="r" input="" default_value="125000.0" comment="CA AGI limit for military retirement exemption - single filers (2025)"></field>
+		<field name="ca_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA military retirement exemption (computed based on AGI and filing status)"></field>
+		<field name="ca_military_retirement_exemption_amount" type="double" subtype="" access="r" input="" default_value="20000.0" comment="CA military retirement exemption amount - $20,000 (2025). Source: MOAA"></field>
+		<field name="ca_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA taxable military retirement after exemption (computed)"></field>
+		<field name="ca_renter_credit" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA renter&#39;s credit amount (computed based on eligibility)"></field>
+		<field name="ca_renter_credit_agi_limit_joint" type="double" subtype="" access="r" input="" default_value="101492.0" comment="CA renter&#39;s credit AGI limit joint/HOH (2025). Source: CA FTB"></field>
+		<field name="ca_renter_credit_agi_limit_single" type="double" subtype="" access="r" input="" default_value="50746.0" comment="CA renter&#39;s credit AGI limit single/MFS (2025). Source: CA FTB"></field>
+		<field name="ca_renter_credit_joint" type="double" subtype="" access="r" input="" default_value="120.0" comment="CA renter&#39;s credit for joint/HOH filers (2025). Source: CA FTB"></field>
+		<field name="ca_renter_credit_single" type="double" subtype="" access="r" input="" default_value="60.0" comment="CA renter&#39;s credit for single/MFS filers (2025). Source: CA FTB"></field>
+		<field name="ca_sdi_rate" type="double" subtype="" access="r" input="" default_value="0.012" comment="CA SDI rate 1.2% (2025). No income cap. Source: CA EDD"></field>
+		<field name="ca_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="10726.0" comment="CA standard deduction head of household $10,726 (2025). Source: CA FTB"></field>
+		<field name="ca_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="10726.0" comment="CA standard deduction married filing jointly $10,726 (2025). Source: CA FTB"></field>
+		<field name="ca_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="5363.0" comment="CA standard deduction single/married filing separately $5,363 (2025). Source: CA FTB"></field>
+		<field name="ca_state_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA state income tax liability before Mental Health Services Tax (computed)"></field>
+		<field name="ca_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA taxable income after deductions (computed)"></field>
+		<field name="ca_total_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA total tax liability including Mental Health Services Tax (computed)"></field>
+	</entity>
 </entity_data_dictionary>

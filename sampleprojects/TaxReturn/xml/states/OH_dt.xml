@@ -1,73 +1,31 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 43500: Calculate_OH_Military_Retirement_Exclusion -->
 <decision_table>
 <table_name>Calculate_OH_Military_Retirement_Exclusion</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>OH.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Ohio military retirement pay exclusion. Full exemption for all military retirement income (Group B). MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
 <TABLE_NUMBER>43500</TABLE_NUMBER>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
-<initial_action>
-<action_description />
-<action_postfix>
-"OH Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
-</action_postfix>
-<action_comment>Initialize OH military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
-
 <conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
-<condition_postfix>
-taxpayer.military_retirement_pay get 0 gt
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-</condition_details>
 </conditions>
-
 <actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Full exclusion - 100% of military retirement pay excluded from OH taxable income</action_comment>
-<action_postfix>
-
-
-taxpayer.military_retirement_pay get
-/result.oh_military_retirement_exclusion xdef
-
-
-result.oh_subtractions get
-result.oh_military_retirement_exclusion get add
-/result.oh_subtractions xdef
-
-"OH Military Retirement Exclusion (Full): $" result.oh_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
+<action_description>No military retirement pay - no exclusion</action_description>
 <action_postfix>
-0 /result.oh_military_retirement_exclusion xdef
-"OH Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
+
 </action_postfix>
-<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements>
+</policy_statements>
 </decision_table>
-
 </decision_tables>

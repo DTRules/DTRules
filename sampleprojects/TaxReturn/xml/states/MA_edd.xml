@@ -1,40 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Massachusetts
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/MA/42100_MA_constants</file_path>
-  </file_metadata>
-  <!-- Massachusetts state tax constants -->
-  <entity name="result">
-    <!-- Tax rates -->
-    <field name="ma_tax_rate" type="double" default_value="0.05"
-           comment="MA flat rate 5.0% (2025)"/>
-    <field name="ma_surtax_rate" type="double" default_value="0.04"
-           comment="MA surtax rate 4.0% on income over $1,083,150 (2025)"/>
-    <field name="ma_surtax_threshold" type="double" default_value="1083150.0"
-           comment="MA surtax threshold (2025)"/>
-    <field name="ma_income_threshold" type="double" default_value="8000.0"
-           comment="MA minimum income threshold for taxation (2025)"/>
-
-    <!-- Personal exemptions (MA uses exemptions, not standard deductions) -->
-    <field name="ma_exemption_single" type="double" default_value="4400.0"
-           comment="MA personal exemption single (2025)"/>
-    <field name="ma_exemption_joint" type="double" default_value="8800.0"
-           comment="MA personal exemption married filing jointly (2025)"/>
-    <field name="ma_exemption_hoh" type="double" default_value="6800.0"
-           comment="MA personal exemption head of household (2025)"/>
-
-    <!-- Additional exemptions -->
-    <field name="ma_exemption_age_65" type="double" default_value="700.0"
-           comment="MA exemption for age 65 or older (2025)"/>
-    <field name="ma_exemption_blind" type="double" default_value="2200.0"
-           comment="MA exemption for legally blind (2025)"/>
-    <field name="ma_exemption_dependent" type="double" default_value="1000.0"
-           comment="MA exemption per qualifying dependent (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="MA.xlsx" access="rw">
+		<field name="ma_exemption_age_65" type="double" subtype="" access="r" input="" default_value="700.0" comment="MA exemption for age 65 or older (2025)"></field>
+		<field name="ma_exemption_blind" type="double" subtype="" access="r" input="" default_value="2200.0" comment="MA exemption for legally blind (2025)"></field>
+		<field name="ma_exemption_dependent" type="double" subtype="" access="r" input="" default_value="1000.0" comment="MA exemption per qualifying dependent (2025)"></field>
+		<field name="ma_exemption_hoh" type="double" subtype="" access="r" input="" default_value="6800.0" comment="MA personal exemption head of household (2025)"></field>
+		<field name="ma_exemption_joint" type="double" subtype="" access="r" input="" default_value="8800.0" comment="MA personal exemption married filing jointly (2025)"></field>
+		<field name="ma_exemption_single" type="double" subtype="" access="r" input="" default_value="4400.0" comment="MA personal exemption single (2025)"></field>
+		<field name="ma_income_threshold" type="double" subtype="" access="r" input="" default_value="8000.0" comment="MA minimum income threshold for taxation (2025)"></field>
+		<field name="ma_surtax_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="MA surtax rate 4.0% on income over $1,083,150 (2025)"></field>
+		<field name="ma_surtax_threshold" type="double" subtype="" access="r" input="" default_value="1083150.0" comment="MA surtax threshold (2025)"></field>
+		<field name="ma_tax_rate" type="double" subtype="" access="r" input="" default_value="0.05" comment="MA flat rate 5.0% (2025)"></field>
+	</entity>
 </entity_data_dictionary>

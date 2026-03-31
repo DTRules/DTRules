@@ -1,68 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Nebraska
-
-  NE has progressive tax brackets (4 brackets) ranging from 2.46% to 5.20%.
-
-  2025 Tax Year (filed in 2026)
-  Standard Deduction: $8,600 (single), $17,200 (married filing jointly)
-  Personal Exemption Credit: $171 per exemption
-
-  Source: Nebraska Department of Revenue
-  https://remotelaws.com/state-income-tax/us-states/nebraska/
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/NE/42700_NE_constants</file_path>
-  </file_metadata>
-  <entity name="result">
-
-    <!-- Standard deductions -->
-    <field name="ne_standard_deduction_single" type="double" default_value="8600.0"
-           comment="NE standard deduction single (2025)"/>
-    <field name="ne_standard_deduction_joint" type="double" default_value="17200.0"
-           comment="NE standard deduction married filing jointly (2025)"/>
-    <field name="ne_standard_deduction_hoh" type="double" default_value="8600.0"
-           comment="NE standard deduction head of household (2025)"/>
-
-    <!-- Personal exemption credit -->
-    <field name="ne_personal_exemption_credit" type="double" default_value="171.0"
-           comment="NE personal exemption credit per exemption (2025)"/>
-
-    <!-- Progressive tax brackets - Single Filers -->
-    <!-- Bracket 1: $0 to $4,030 @ 2.46% -->
-    <field name="ne_bracket_1_limit" type="double" default_value="4030.0"
-           comment="NE tax bracket 1 upper limit single (2025)"/>
-    <field name="ne_bracket_1_rate" type="double" default_value="0.0246"
-           comment="NE tax rate for bracket 1 - 2.46% (2025)"/>
-
-    <!-- Bracket 2: $4,030 to $24,120 @ 3.51% -->
-    <field name="ne_bracket_2_limit" type="double" default_value="24120.0"
-           comment="NE tax bracket 2 upper limit single (2025)"/>
-    <field name="ne_bracket_2_rate" type="double" default_value="0.0351"
-           comment="NE tax rate for bracket 2 - 3.51% (2025)"/>
-
-    <!-- Bracket 3: $24,120 to $38,870 @ 5.01% -->
-    <field name="ne_bracket_3_limit" type="double" default_value="38870.0"
-           comment="NE tax bracket 3 upper limit single (2025)"/>
-    <field name="ne_bracket_3_rate" type="double" default_value="0.0501"
-           comment="NE tax rate for bracket 3 - 5.01% (2025)"/>
-
-    <!-- Bracket 4: $38,870+ @ 5.20% -->
-    <field name="ne_bracket_4_rate" type="double" default_value="0.0520"
-           comment="NE tax rate for bracket 4 - 5.20% (2025)"/>
-
-    <!-- Progressive tax brackets - Married Filing Jointly -->
-    <field name="ne_bracket_1_limit_joint" type="double" default_value="8040.0"
-           comment="NE tax bracket 1 upper limit married filing jointly (2025)"/>
-    <field name="ne_bracket_2_limit_joint" type="double" default_value="48250.0"
-           comment="NE tax bracket 2 upper limit married filing jointly (2025)"/>
-    <field name="ne_bracket_3_limit_joint" type="double" default_value="77730.0"
-           comment="NE tax bracket 3 upper limit married filing jointly (2025)"/>
-
-    <!-- State tax result field -->
-    <field name="ne_state_tax" type="double" default_value="0.0"
-           comment="NE state income tax liability (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="NE.xlsx" access="rw">
+		<field name="ne_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="4030.0" comment="NE tax bracket 1 upper limit single (2025)"></field>
+		<field name="ne_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="8040.0" comment="NE tax bracket 1 upper limit married filing jointly (2025)"></field>
+		<field name="ne_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0246" comment="NE tax rate for bracket 1 - 2.46% (2025)"></field>
+		<field name="ne_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="24120.0" comment="NE tax bracket 2 upper limit single (2025)"></field>
+		<field name="ne_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="48250.0" comment="NE tax bracket 2 upper limit married filing jointly (2025)"></field>
+		<field name="ne_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.0351" comment="NE tax rate for bracket 2 - 3.51% (2025)"></field>
+		<field name="ne_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="38870.0" comment="NE tax bracket 3 upper limit single (2025)"></field>
+		<field name="ne_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="77730.0" comment="NE tax bracket 3 upper limit married filing jointly (2025)"></field>
+		<field name="ne_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.0501" comment="NE tax rate for bracket 3 - 5.01% (2025)"></field>
+		<field name="ne_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.0520" comment="NE tax rate for bracket 4 - 5.20% (2025)"></field>
+		<field name="ne_personal_exemption_credit" type="double" subtype="" access="r" input="" default_value="171.0" comment="NE personal exemption credit per exemption (2025)"></field>
+		<field name="ne_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="8600.0" comment="NE standard deduction head of household (2025)"></field>
+		<field name="ne_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="17200.0" comment="NE standard deduction married filing jointly (2025)"></field>
+		<field name="ne_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="8600.0" comment="NE standard deduction single (2025)"></field>
+		<field name="ne_state_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NE state income tax liability (2025)"></field>
+	</entity>
 </entity_data_dictionary>

@@ -1,134 +1,43 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
-<decision_table>
-<table_name>Calculate_ME_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Maine state income tax calculation. Implements progressive tax structure per ME tax code (2025).</COMMENTS>
-<TABLE_NUMBER>42000</TABLE_NUMBER>
-</attribute_fields>
-
-<contexts />
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize Maine tax calculation</action_description>
-<action_postfix>
-"Maine Tax Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Always execute</condition_comment>
-<condition_description>true</condition_description>
-<condition_postfix>
-true
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-</condition_details>
-</conditions>
-
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Calculate Maine tax</action_comment>
-<action_postfix>
-
-
-result.agi 0.07 mul
-/result.state_tax_liability xdef
-
-"Maine tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-</actions>
-
-</decision_table>
-
-
-
-
+<!-- TABLE 42001: Calculate_ME_Military_Retirement_Exclusion -->
 <decision_table>
 <table_name>Calculate_ME_Military_Retirement_Exclusion</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>ME.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Maine military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Extended to Space Force, USPHS, and NOAA in 2026. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per 36 MRS § 5122 (2025).</COMMENTS>
 <TABLE_NUMBER>42001</TABLE_NUMBER>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
-<initial_action>
-<action_description />
-<action_postfix>
-"Maine Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
-0 /result.me_military_retirement_exclusion xdef
-0 /result.me_sbp_exclusion xdef
-</action_postfix>
-<action_comment>Initialize Maine military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
-
 <conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Taxpayer has military retirement income</condition_comment>
-<condition_description>military_retirement_pay &gt; 0</condition_description>
-<condition_postfix>
-taxpayer.military_retirement_pay 0 gt
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-</condition_details>
 </conditions>
-
 <actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Apply full exclusion for military retirement pay and SBP payments</action_comment>
-<action_postfix>
-
-taxpayer.military_retirement_pay /result.me_military_retirement_exclusion xdef
-
-
-taxpayer.sbp_payments 0 gt
-{
-  taxpayer.sbp_payments /result.me_sbp_exclusion xdef
-} if
-
-
-result.me_military_retirement_exclusion result.me_sbp_exclusion add
-/result.me_total_military_exclusion xdef
-
-
-result.agi result.me_total_military_exclusion sub 0 max
-/result.me_adjusted_agi xdef
-
-
-"Maine military retirement exclusion: $" result.me_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
-result.me_sbp_exclusion 0 gt
-{
-  "Maine SBP exclusion: $" result.me_sbp_exclusion cvs strconcat job.audit_trail swap addto
-} if
-"Maine total military exclusion: $" result.me_total_military_exclusion cvs strconcat job.audit_trail swap addto
-
-
-
-
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
 </actions>
-
+<policy_statements>
+</policy_statements>
 </decision_table>
 
+<!-- TABLE 42000: Calculate_ME_Tax -->
+<decision_table>
+<table_name>Calculate_ME_Tax</table_name>
+<xls_file>ME.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Maine state income tax calculation. Implements progressive tax structure per ME tax code (2025).</COMMENTS>
+<TABLE_NUMBER>42000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
 </decision_tables>

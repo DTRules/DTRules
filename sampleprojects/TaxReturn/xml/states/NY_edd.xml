@@ -1,134 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for New York (NY)
-
-  New York has a progressive income tax with 9 brackets.
-  Tax rates range from 4% to 10.9%
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-
-    <!-- Standard Deductions (2025) -->
-    <field name="ny_standard_deduction_single" type="double" default_value="8000.0"
-           comment="NY standard deduction single/married filing separately $8,000 (2025). New York Tax Law §614. New York IT-201 Resident Income Tax Return. Indexed annually for inflation. Source: New York State Department of Taxation and Finance"/>
-    <field name="ny_standard_deduction_joint" type="double" default_value="16050.0"
-           comment="NY standard deduction married filing jointly/surviving spouse $16,050 (2025). New York Tax Law §614. New York IT-201. Indexed annually for inflation. Source: New York State Department of Taxation and Finance"/>
-    <field name="ny_standard_deduction_hoh" type="double" default_value="11200.0"
-           comment="NY standard deduction head of household $11,200 (2025). New York Tax Law §614. New York IT-201. Indexed annually for inflation. Source: New York State Department of Taxation and Finance"/>
-
-    <!-- Tax Brackets - Single/Married Filing Separately (2025) -->
-    <!-- Based on NY tax tables and rate schedules -->
-    <field name="ny_bracket_1_limit_single" type="double" default_value="8500.0"
-           comment="NY bracket 1 upper limit single $8,500 (2025). New York Tax Law §601. New York IT-201 tax rate schedule. Income $0-$8,500. Source: NYS Tax Department"/>
-    <field name="ny_bracket_1_rate" type="double" default_value="0.04"
-           comment="NY tax rate bracket 1 - 4.0% (2025). New York Tax Law §601. Lowest marginal rate. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_2_limit_single" type="double" default_value="11700.0"
-           comment="NY bracket 2 upper limit single $11,700 (2025). New York Tax Law §601. Income $8,501-$11,700. Source: NYS Tax Department"/>
-    <field name="ny_bracket_2_rate" type="double" default_value="0.045"
-           comment="NY tax rate bracket 2 - 4.5% (2025). New York Tax Law §601. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_3_limit_single" type="double" default_value="13900.0"
-           comment="NY bracket 3 upper limit single $13,900 (2025). New York Tax Law §601. Income $11,701-$13,900. Source: NYS Tax Department"/>
-    <field name="ny_bracket_3_rate" type="double" default_value="0.0525"
-           comment="NY tax rate bracket 3 - 5.25% (2025). New York Tax Law §601. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_4_limit_single" type="double" default_value="80650.0"
-           comment="NY bracket 4 upper limit single $80,650 (2025). New York Tax Law §601. Income $13,901-$80,650. Source: NYS Tax Department"/>
-    <field name="ny_bracket_4_rate" type="double" default_value="0.055"
-           comment="NY tax rate bracket 4 - 5.5% (2025). New York Tax Law §601. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_5_limit_single" type="double" default_value="215400.0"
-           comment="NY bracket 5 upper limit single $215,400 (2025). New York Tax Law §601. Income $80,651-$215,400. Source: NYS Tax Department"/>
-    <field name="ny_bracket_5_rate" type="double" default_value="0.06"
-           comment="NY tax rate bracket 5 - 6.0% (2025). New York Tax Law §601. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_6_limit_single" type="double" default_value="1077550.0"
-           comment="NY bracket 6 upper limit single $1,077,550 (2025). New York Tax Law §601. Income $215,401-$1,077,550. Source: NYS Tax Department"/>
-    <field name="ny_bracket_6_rate" type="double" default_value="0.0685"
-           comment="NY tax rate bracket 6 - 6.85% (2025). New York Tax Law §601. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_7_limit_single" type="double" default_value="5000000.0"
-           comment="NY bracket 7 upper limit single $5,000,000 (2025). New York Tax Law §601. Income $1,077,551-$5,000,000. Millionaire's tax surcharge. Source: NYS Tax Department"/>
-    <field name="ny_bracket_7_rate" type="double" default_value="0.0965"
-           comment="NY tax rate bracket 7 - 9.65% (2025). New York Tax Law §601. Millionaire's tax rate. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_8_limit_single" type="double" default_value="25000000.0"
-           comment="NY bracket 8 upper limit single $25,000,000 (2025). New York Tax Law §601. Income $5,000,001-$25,000,000. Ultra-high earner rate. Source: NYS Tax Department"/>
-    <field name="ny_bracket_8_rate" type="double" default_value="0.103"
-           comment="NY tax rate bracket 8 - 10.3% (2025). New York Tax Law §601. Ultra-high earner surcharge. Source: NYS Tax Department"/>
-
-    <field name="ny_bracket_9_rate" type="double" default_value="0.109"
-           comment="NY tax rate bracket 9 (income > $25,000,000) - 10.9% (2025). New York Tax Law §601. Highest state marginal rate in the nation. Second highest combined rate after California (when including NYC local tax: 10.9% + 3.876% = 14.776% combined top rate for NYC residents). Source: NYS Tax Department"/>
-
-    <!-- Tax Brackets - Married Filing Jointly (2025) -->
-    <field name="ny_bracket_1_limit_joint" type="double" default_value="17150.0"
-           comment="NY bracket 1 upper limit joint (2025)"/>
-    <field name="ny_bracket_2_limit_joint" type="double" default_value="23600.0"
-           comment="NY bracket 2 upper limit joint (2025)"/>
-    <field name="ny_bracket_3_limit_joint" type="double" default_value="27900.0"
-           comment="NY bracket 3 upper limit joint (2025)"/>
-    <field name="ny_bracket_4_limit_joint" type="double" default_value="161550.0"
-           comment="NY bracket 4 upper limit joint (2025)"/>
-    <field name="ny_bracket_5_limit_joint" type="double" default_value="323200.0"
-           comment="NY bracket 5 upper limit joint (2025)"/>
-    <field name="ny_bracket_6_limit_joint" type="double" default_value="2155350.0"
-           comment="NY bracket 6 upper limit joint (2025)"/>
-    <field name="ny_bracket_7_limit_joint" type="double" default_value="5000000.0"
-           comment="NY bracket 7 upper limit joint (2025)"/>
-    <field name="ny_bracket_8_limit_joint" type="double" default_value="25000000.0"
-           comment="NY bracket 8 upper limit joint (2025)"/>
-
-    <!-- NYC Local Income Tax (Residents) -->
-    <field name="nyc_bracket_1_limit_single" type="double" default_value="12000.0"
-           comment="NYC bracket 1 upper limit single $12,000 (2025). NYC Administrative Code §11-1701. NYC IT-201 Resident City Tax Schedule. NYC residents pay both state and city tax. Income $0-$12,000. Source: NYC Department of Finance"/>
-    <field name="nyc_bracket_1_rate" type="double" default_value="0.03078"
-           comment="NYC tax rate bracket 1 - 3.078% (2025). NYC Administrative Code §11-1701. Lowest NYC marginal rate. Source: NYC Department of Finance"/>
-
-    <field name="nyc_bracket_2_limit_single" type="double" default_value="25000.0"
-           comment="NYC bracket 2 upper limit single $25,000 (2025). NYC Administrative Code §11-1701. Income $12,001-$25,000. Source: NYC Department of Finance"/>
-    <field name="nyc_bracket_2_rate" type="double" default_value="0.03762"
-           comment="NYC tax rate bracket 2 - 3.762% (2025). NYC Administrative Code §11-1701. Source: NYC Department of Finance"/>
-
-    <field name="nyc_bracket_3_limit_single" type="double" default_value="50000.0"
-           comment="NYC bracket 3 upper limit single $50,000 (2025). NYC Administrative Code §11-1701. Income $25,001-$50,000. Source: NYC Department of Finance"/>
-    <field name="nyc_bracket_3_rate" type="double" default_value="0.03819"
-           comment="NYC tax rate bracket 3 - 3.819% (2025). NYC Administrative Code §11-1701. Source: NYC Department of Finance"/>
-
-    <field name="nyc_bracket_4_rate" type="double" default_value="0.03876"
-           comment="NYC tax rate bracket 4 (income > $50,000) - 3.876% (2025). NYC Administrative Code §11-1701. Highest NYC marginal rate. Combined top rate for NYC resident: 10.9% NY + 3.876% NYC = 14.776% (highest combined state+local rate in US). Source: NYC Department of Finance"/>
-
-    <!-- NYC brackets for Joint filers -->
-    <field name="nyc_bracket_1_limit_joint" type="double" default_value="21600.0"
-           comment="NYC bracket 1 upper limit joint (2025)"/>
-    <field name="nyc_bracket_2_limit_joint" type="double" default_value="45000.0"
-           comment="NYC bracket 2 upper limit joint (2025)"/>
-    <field name="nyc_bracket_3_limit_joint" type="double" default_value="90000.0"
-           comment="NYC bracket 3 upper limit joint (2025)"/>
-
-    <!-- Yonkers Tax (Residents and Non-Residents) -->
-    <field name="yonkers_resident_rate" type="double" default_value="0.1675"
-           comment="Yonkers resident surcharge 16.75% of NY state tax (2025). New York Tax Law §1301. Yonkers is the only city in NY besides NYC with a local income tax. Calculated as percentage of state tax liability (not income). IT-201 Line 64. Source: NYS Tax Department, City of Yonkers"/>
-    <field name="yonkers_nonresident_rate" type="double" default_value="0.005"
-           comment="Yonkers non-resident wage tax 0.5% of wages (2025). New York Tax Law §1301. Applies to non-Yonkers residents who work in Yonkers. Separate from resident surcharge. IT-201 Line 65. Source: NYS Tax Department, City of Yonkers"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="ny_military_retirement_exclusion" type="double" default_value="0.0"
-           comment="NY military retirement exclusion (computed - 100% exempt). New York Tax Law §612(c)(30). IT-201 Line 28 subtraction. New York provides full exclusion for US military retirement pay and SBP payments. No AGI limits. No age restrictions. One of most generous state military tax benefits. MOAA State Report Card 2025: Grade A. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Source: NYS Tax Department, MOAA"/>
-    <field name="ny_subtractions" type="double" default_value="0.0"
-           comment="NY state subtractions from federal AGI (computed). New York Tax Law §612. IT-201 Lines 20-34. Includes military retirement exclusion, pension exclusion (up to $20,000 for age 59.5+), college tuition credit, 529 plan subtraction, and other modifications. Source: NYS Tax Department"/>
-
-    <!-- Computed Fields -->
-    <field name="ny_taxable_income" type="double" default_value="0.0"
-           comment="NY taxable income after standard deduction (computed)"/>
-    <field name="nyc_taxable_income" type="double" default_value="0.0"
-           comment="NYC taxable income (computed)"/>
-    <field name="nyc_tax" type="double" default_value="0.0"
-           comment="NYC local income tax (computed)"/>
-    <field name="yonkers_tax" type="double" default_value="0.0"
-           comment="Yonkers local income tax (computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="NY.xlsx" access="rw">
+		<field name="ny_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="17150.0" comment="NY bracket 1 upper limit joint (2025)"></field>
+		<field name="ny_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="8500.0" comment="NY bracket 1 upper limit single $8,500 (2025). New York Tax Law §601. New York IT-201 tax rate schedule. Income $0-$8,500. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="NY tax rate bracket 1 - 4.0% (2025). New York Tax Law §601. Lowest marginal rate. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="23600.0" comment="NY bracket 2 upper limit joint (2025)"></field>
+		<field name="ny_bracket_2_limit_single" type="double" subtype="" access="r" input="" default_value="11700.0" comment="NY bracket 2 upper limit single $11,700 (2025). New York Tax Law §601. Income $8,501-$11,700. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="NY tax rate bracket 2 - 4.5% (2025). New York Tax Law §601. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="27900.0" comment="NY bracket 3 upper limit joint (2025)"></field>
+		<field name="ny_bracket_3_limit_single" type="double" subtype="" access="r" input="" default_value="13900.0" comment="NY bracket 3 upper limit single $13,900 (2025). New York Tax Law §601. Income $11,701-$13,900. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.0525" comment="NY tax rate bracket 3 - 5.25% (2025). New York Tax Law §601. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_4_limit_joint" type="double" subtype="" access="r" input="" default_value="161550.0" comment="NY bracket 4 upper limit joint (2025)"></field>
+		<field name="ny_bracket_4_limit_single" type="double" subtype="" access="r" input="" default_value="80650.0" comment="NY bracket 4 upper limit single $80,650 (2025). New York Tax Law §601. Income $13,901-$80,650. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="NY tax rate bracket 4 - 5.5% (2025). New York Tax Law §601. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_5_limit_joint" type="double" subtype="" access="r" input="" default_value="323200.0" comment="NY bracket 5 upper limit joint (2025)"></field>
+		<field name="ny_bracket_5_limit_single" type="double" subtype="" access="r" input="" default_value="215400.0" comment="NY bracket 5 upper limit single $215,400 (2025). New York Tax Law §601. Income $80,651-$215,400. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.06" comment="NY tax rate bracket 5 - 6.0% (2025). New York Tax Law §601. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_6_limit_joint" type="double" subtype="" access="r" input="" default_value="2155350.0" comment="NY bracket 6 upper limit joint (2025)"></field>
+		<field name="ny_bracket_6_limit_single" type="double" subtype="" access="r" input="" default_value="1077550.0" comment="NY bracket 6 upper limit single $1,077,550 (2025). New York Tax Law §601. Income $215,401-$1,077,550. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.0685" comment="NY tax rate bracket 6 - 6.85% (2025). New York Tax Law §601. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_7_limit_joint" type="double" subtype="" access="r" input="" default_value="5000000.0" comment="NY bracket 7 upper limit joint (2025)"></field>
+		<field name="ny_bracket_7_limit_single" type="double" subtype="" access="r" input="" default_value="5000000.0" comment="NY bracket 7 upper limit single $5,000,000 (2025). New York Tax Law §601. Income $1,077,551-$5,000,000. Millionaire&#39;s tax surcharge. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_7_rate" type="double" subtype="" access="r" input="" default_value="0.0965" comment="NY tax rate bracket 7 - 9.65% (2025). New York Tax Law §601. Millionaire&#39;s tax rate. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_8_limit_joint" type="double" subtype="" access="r" input="" default_value="25000000.0" comment="NY bracket 8 upper limit joint (2025)"></field>
+		<field name="ny_bracket_8_limit_single" type="double" subtype="" access="r" input="" default_value="25000000.0" comment="NY bracket 8 upper limit single $25,000,000 (2025). New York Tax Law §601. Income $5,000,001-$25,000,000. Ultra-high earner rate. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_8_rate" type="double" subtype="" access="r" input="" default_value="0.103" comment="NY tax rate bracket 8 - 10.3% (2025). New York Tax Law §601. Ultra-high earner surcharge. Source: NYS Tax Department"></field>
+		<field name="ny_bracket_9_rate" type="double" subtype="" access="r" input="" default_value="0.109" comment="NY tax rate bracket 9 (income &gt; $25,000,000) - 10.9% (2025). New York Tax Law §601. Highest state marginal rate in the nation. Second highest combined rate after California (when including NYC local tax: 10.9% + 3.876% = 14.776% combined top rate for NYC residents). Source: NYS Tax Department"></field>
+		<field name="ny_military_retirement_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="NY military retirement exclusion (computed - 100% exempt). New York Tax Law §612(c)(30). IT-201 Line 28 subtraction. New York provides full exclusion for US military retirement pay and SBP payments. No AGI limits. No age restrictions. One of most generous state military tax benefits. MOAA State Report Card 2025: Grade A. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Source: NYS Tax Department, MOAA"></field>
+		<field name="ny_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="11200.0" comment="NY standard deduction head of household $11,200 (2025). New York Tax Law §614. New York IT-201. Indexed annually for inflation. Source: New York State Department of Taxation and Finance"></field>
+		<field name="ny_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="16050.0" comment="NY standard deduction married filing jointly/surviving spouse $16,050 (2025). New York Tax Law §614. New York IT-201. Indexed annually for inflation. Source: New York State Department of Taxation and Finance"></field>
+		<field name="ny_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="8000.0" comment="NY standard deduction single/married filing separately $8,000 (2025). New York Tax Law §614. New York IT-201 Resident Income Tax Return. Indexed annually for inflation. Source: New York State Department of Taxation and Finance"></field>
+		<field name="ny_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NY state subtractions from federal AGI (computed). New York Tax Law §612. IT-201 Lines 20-34. Includes military retirement exclusion, pension exclusion (up to $20,000 for age 59.5+), college tuition credit, 529 plan subtraction, and other modifications. Source: NYS Tax Department"></field>
+		<field name="ny_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NY taxable income after standard deduction (computed)"></field>
+		<field name="nyc_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="21600.0" comment="NYC bracket 1 upper limit joint (2025)"></field>
+		<field name="nyc_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="12000.0" comment="NYC bracket 1 upper limit single $12,000 (2025). NYC Administrative Code §11-1701. NYC IT-201 Resident City Tax Schedule. NYC residents pay both state and city tax. Income $0-$12,000. Source: NYC Department of Finance"></field>
+		<field name="nyc_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.03078" comment="NYC tax rate bracket 1 - 3.078% (2025). NYC Administrative Code §11-1701. Lowest NYC marginal rate. Source: NYC Department of Finance"></field>
+		<field name="nyc_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="45000.0" comment="NYC bracket 2 upper limit joint (2025)"></field>
+		<field name="nyc_bracket_2_limit_single" type="double" subtype="" access="r" input="" default_value="25000.0" comment="NYC bracket 2 upper limit single $25,000 (2025). NYC Administrative Code §11-1701. Income $12,001-$25,000. Source: NYC Department of Finance"></field>
+		<field name="nyc_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.03762" comment="NYC tax rate bracket 2 - 3.762% (2025). NYC Administrative Code §11-1701. Source: NYC Department of Finance"></field>
+		<field name="nyc_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="90000.0" comment="NYC bracket 3 upper limit joint (2025)"></field>
+		<field name="nyc_bracket_3_limit_single" type="double" subtype="" access="r" input="" default_value="50000.0" comment="NYC bracket 3 upper limit single $50,000 (2025). NYC Administrative Code §11-1701. Income $25,001-$50,000. Source: NYC Department of Finance"></field>
+		<field name="nyc_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.03819" comment="NYC tax rate bracket 3 - 3.819% (2025). NYC Administrative Code §11-1701. Source: NYC Department of Finance"></field>
+		<field name="nyc_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.03876" comment="NYC tax rate bracket 4 (income &gt; $50,000) - 3.876% (2025). NYC Administrative Code §11-1701. Highest NYC marginal rate. Combined top rate for NYC resident: 10.9% NY + 3.876% NYC = 14.776% (highest combined state+local rate in US). Source: NYC Department of Finance"></field>
+		<field name="nyc_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NYC local income tax (computed)"></field>
+		<field name="nyc_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NYC taxable income (computed)"></field>
+		<field name="yonkers_nonresident_rate" type="double" subtype="" access="r" input="" default_value="0.005" comment="Yonkers non-resident wage tax 0.5% of wages (2025). New York Tax Law §1301. Applies to non-Yonkers residents who work in Yonkers. Separate from resident surcharge. IT-201 Line 65. Source: NYS Tax Department, City of Yonkers"></field>
+		<field name="yonkers_resident_rate" type="double" subtype="" access="r" input="" default_value="0.1675" comment="Yonkers resident surcharge 16.75% of NY state tax (2025). New York Tax Law §1301. Yonkers is the only city in NY besides NYC with a local income tax. Calculated as percentage of state tax liability (not income). IT-201 Line 64. Source: NYS Tax Department, City of Yonkers"></field>
+		<field name="yonkers_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Yonkers local income tax (computed)"></field>
+	</entity>
 </entity_data_dictionary>

@@ -1,157 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Decision tables for American Samoa (AS) Territory Tax
-
-  American Samoa uses a "frozen" IRC as of year 2000. US nationals (not citizens)
-  from AS have special filing requirements. Bona fide residents with only AS-source
-  income file only with ASG, but must pay US self-employment tax if SE income >= $400.
-
-  FILE_PATH: sampleprojects/TaxReturn/xml/states/AS_dt.xml
--->
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 50300: Calculate_AS_Tax - American Samoa Territory Tax          -->
-<!-- Reference: AS Frozen IRC (2000), IRC Section 931                      -->
-<!-- ====================================================================== -->
+<!-- TABLE 50300: Calculate_AS_Tax -->
 <decision_table>
 <table_name>Calculate_AS_Tax</table_name>
-<xls_file>Territory.xls</xls_file>
+<xls_file>AS.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>American Samoa territory income tax calculation. AS uses frozen IRC as of year 2000. Bona fide residents with only AS-source income file only with ASG per IRC 931. SPECIAL RULE: Must pay US self-employment tax if SE income &gt;= $400, even if filing only with ASG. US nationals (not citizens) from AS have unique status.</COMMENTS>
 <TABLE_NUMBER>50300</TABLE_NUMBER>
-<FILE_PATH>sampleprojects/TaxReturn/xml/states/AS_dt.xml</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions>
-<initial_action>
-<action_description>Initialize AS tax calculation</action_description>
-<action_postfix>
-"AMERICAN SAMOA TERRITORY TAX - Frozen IRC (2000)" job.audit_trail swap addto
-"  Special SE tax rules apply" job.audit_trail swap addto
-0.0 /result.as_income_tax xdef
-0.0 /result.as_se_tax xdef
-</action_postfix>
-</initial_action>
 </initial_actions>
-
 <conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Bona fide resident of American Samoa</condition_comment>
-<condition_description>Meets bona fide residence test</condition_description>
-<condition_postfix>
-result.as_days_present 183 &gt;=
-result.as_has_tax_home and
-result.as_closer_connection and
-dup /result.as_bona_fide_resident xdef
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has only AS-source income</condition_comment>
-<condition_description>All income from American Samoa sources</condition_description>
+<condition_description>Has only AS-source income</condition_description>
 <condition_postfix>
-result.as_only_as_income
-result.as_us_source_income 0 eq and
+All income from American Samoa sources
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
-
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has self-employment income &gt;= $400</condition_comment>
-<condition_description>Subject to US self-employment tax</condition_description>
+<condition_description>Has self-employment income &gt;= $400</condition_description>
 <condition_postfix>
-result.as_self_employment_income 400 &gt;=
-dup /result.as_requires_us_se_tax xdef
+Subject to US self-employment tax
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 </condition_details>
 </conditions>
-
 <actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Bona fide resident with only AS income and SE tax requirement</action_comment>
-<action_postfix>
-true /result.as_files_with_asg xdef
-true /result.as_files_with_irs xdef
-
-result.federal_income_tax /result.as_income_tax xdef
-
-result.self_employment_tax /result.as_se_tax xdef
-
-"  Bona fide AS resident with only AS-source income" job.audit_trail swap addto
-"  Files ONLY with ASG for income tax per IRC 931" job.audit_trail swap addto
-"  SPECIAL RULE: Must pay US self-employment tax (SE income >= $400)" job.audit_trail swap addto
-"  AS income tax: $" result.as_income_tax cvs strconcat " (to ASG)" strconcat job.audit_trail swap addto
-"  US SE tax: $" result.as_se_tax cvs strconcat " (to IRS)" strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-</action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bona fide resident with only AS income, no SE tax</action_comment>
+<action_description>Bona fide resident with only AS income, no SE tax</action_description>
 <action_postfix>
-true /result.as_files_with_asg xdef
-false /result.as_files_with_irs xdef
 
-result.federal_income_tax /result.as_income_tax xdef
-0.0 /result.as_se_tax xdef
-
-"  Bona fide AS resident with only AS-source income" job.audit_trail swap addto
-"  Files ONLY with ASG (no IRS filing required)" job.audit_trail swap addto
-"  No US self-employment tax (SE income &lt; $400)" job.audit_trail swap addto
-"  AS income tax: $" result.as_income_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Not bona fide resident or has US income - files with IRS</action_comment>
+<action_description>Not bona fide resident or has US income - files with IRS</action_description>
 <action_postfix>
-false /result.as_bona_fide_resident xdef
-true /result.as_files_with_irs xdef
 
-result.federal_income_tax /result.as_income_tax xdef
-result.self_employment_tax /result.as_se_tax xdef
-
-"  Not bona fide AS resident or has US-source income" job.audit_trail swap addto
-"  Files with IRS for all income" job.audit_trail swap addto
-"  Total tax: $" result.as_income_tax result.as_se_tax f+ cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
 </action_details>
 </actions>
-
 <policy_statements>
-<policy_statement column="1">
-<policy_description>Bona fide AS resident with only AS income must pay US SE tax if SE income &gt;= $400</policy_description>
-<policy_statement_postfix>"Bona fide AS residents with only AS-source income file only with ASG per IRC 931. SPECIAL RULE: Must pay US self-employment tax to IRS if self-employment income &gt;= $400, even though exempt from US income tax. Uses frozen IRC as of 2000."</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>Bona fide AS resident with only AS income, no SE tax requirement</policy_description>
-<policy_statement_postfix>"Bona fide AS residents with only AS-source income and SE income &lt; $400 file only with ASG. No IRS filing required. Exempt from US income tax on AS-source income per IRC 931."</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>Non-bona fide resident or has US income - files with IRS</policy_description>
-<policy_statement_postfix>"Non-bona fide AS residents or those with US-source income file with IRS and pay US income tax and SE tax. Must meet bona fide residence test and have only AS-source income to qualify for IRC 931 exclusion."</policy_statement_postfix>
-</policy_statement>
 </policy_statements>
 </decision_table>
-
 </decision_tables>

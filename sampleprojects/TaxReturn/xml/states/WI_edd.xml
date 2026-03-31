@@ -1,59 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Wisconsin
-
-  Wisconsin has progressive tax brackets (4 brackets):
-  - Single: 3.5% up to $14,679 | 4.4% $14,680-$50,479 | 5.3% $50,480-$323,289 | 7.65% over $323,290
-  - MFJ: 3.5% up to $19,090 | 4.4% $19,091-$38,190 | 5.3% $38,191-$420,420 | 7.65% over $420,420
-
-  Standard deductions:
-  - Single: $14,260
-  - MFJ: $26,510
-  - HOH: $14,260 (same as single)
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/WI/44900_WI_constants</file_path>
-  </file_metadata>
-  <entity name="result">
-    <!-- Standard deductions -->
-    <field name="wi_standard_deduction_single" type="double" default_value="14260.0"
-           comment="WI standard deduction single (2025)"/>
-    <field name="wi_standard_deduction_joint" type="double" default_value="26510.0"
-           comment="WI standard deduction married filing jointly (2025)"/>
-    <field name="wi_standard_deduction_hoh" type="double" default_value="14260.0"
-           comment="WI standard deduction head of household (2025)"/>
-
-    <!-- Tax brackets for Single/MFS/HOH -->
-    <field name="wi_bracket_1_limit_single" type="double" default_value="14679.0"
-           comment="WI tax bracket 1 upper limit for single (2025)"/>
-    <field name="wi_bracket_1_rate" type="double" default_value="0.035"
-           comment="WI tax rate for bracket 1 - 3.5% (2025)"/>
-
-    <field name="wi_bracket_2_limit_single" type="double" default_value="50479.0"
-           comment="WI tax bracket 2 upper limit for single (2025)"/>
-    <field name="wi_bracket_2_rate" type="double" default_value="0.044"
-           comment="WI tax rate for bracket 2 - 4.4% (2025)"/>
-
-    <field name="wi_bracket_3_limit_single" type="double" default_value="323289.0"
-           comment="WI tax bracket 3 upper limit for single (2025)"/>
-    <field name="wi_bracket_3_rate" type="double" default_value="0.053"
-           comment="WI tax rate for bracket 3 - 5.3% (2025)"/>
-
-    <field name="wi_bracket_4_rate" type="double" default_value="0.0765"
-           comment="WI tax rate for bracket 4 - 7.65% (2025)"/>
-
-    <!-- Tax brackets for MFJ -->
-    <field name="wi_bracket_1_limit_joint" type="double" default_value="19090.0"
-           comment="WI tax bracket 1 upper limit for MFJ (2025)"/>
-
-    <field name="wi_bracket_2_limit_joint" type="double" default_value="38190.0"
-           comment="WI tax bracket 2 upper limit for MFJ (2025)"/>
-
-    <field name="wi_bracket_3_limit_joint" type="double" default_value="420420.0"
-           comment="WI tax bracket 3 upper limit for MFJ (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="WI.xlsx" access="rw">
+		<field name="wi_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="19090.0" comment="WI tax bracket 1 upper limit for MFJ (2025)"></field>
+		<field name="wi_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="14679.0" comment="WI tax bracket 1 upper limit for single (2025)"></field>
+		<field name="wi_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.035" comment="WI tax rate for bracket 1 - 3.5% (2025)"></field>
+		<field name="wi_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="38190.0" comment="WI tax bracket 2 upper limit for MFJ (2025)"></field>
+		<field name="wi_bracket_2_limit_single" type="double" subtype="" access="r" input="" default_value="50479.0" comment="WI tax bracket 2 upper limit for single (2025)"></field>
+		<field name="wi_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.044" comment="WI tax rate for bracket 2 - 4.4% (2025)"></field>
+		<field name="wi_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="420420.0" comment="WI tax bracket 3 upper limit for MFJ (2025)"></field>
+		<field name="wi_bracket_3_limit_single" type="double" subtype="" access="r" input="" default_value="323289.0" comment="WI tax bracket 3 upper limit for single (2025)"></field>
+		<field name="wi_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.053" comment="WI tax rate for bracket 3 - 5.3% (2025)"></field>
+		<field name="wi_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.0765" comment="WI tax rate for bracket 4 - 7.65% (2025)"></field>
+		<field name="wi_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="14260.0" comment="WI standard deduction head of household (2025)"></field>
+		<field name="wi_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="26510.0" comment="WI standard deduction married filing jointly (2025)"></field>
+		<field name="wi_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="14260.0" comment="WI standard deduction single (2025)"></field>
+	</entity>
 </entity_data_dictionary>

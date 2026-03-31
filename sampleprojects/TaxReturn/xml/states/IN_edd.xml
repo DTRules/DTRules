@@ -1,82 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Indiana (IN)
-
-  Indiana Income Tax (2025):
-  - Flat tax rate: 3.00% (reduced from 3.05% in 2024)
-  - Personal exemption: $1,000 per person (filer + spouse)
-  - Additional exemption: $500 for age 65+ (if AGI &lt; $40,000 single, $20,000 MFS)
-  - Starting point: Federal AGI
-  - Military retirement: 100% exclusion (extended to Space Force, USPHS, NOAA in 2025)
-  - MSRRA compliant: Military spouse income exempt if different domicile
-  - SCRA compliant: Active duty pay exempt if different state of residence
-
-  Sources:
-  - Indiana Department of Revenue (https://www.in.gov/dor/)
-  - IC 6-3-2-3.7 - Military retirement exclusion
-  - MOAA State Report Card: Grade A for military retirement tax treatment
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-
-    <!-- ====================================================================== -->
-    <!-- Indiana Tax Rate (2025)                                               -->
-    <!-- ====================================================================== -->
-    <field name="in_tax_rate" type="double" default_value="0.0300"
-           comment="Indiana flat income tax rate 3.00% (2025). Reduced from 3.05% in 2024. Source: Indiana Department of Revenue https://www.in.gov/dor/"/>
-
-    <!-- ====================================================================== -->
-    <!-- Indiana Personal Exemptions (2025)                                    -->
-    <!-- ====================================================================== -->
-    <field name="in_personal_exemption" type="double" default_value="1000.0"
-           comment="Indiana personal exemption $1,000 per person (taxpayer + spouse if MFJ). Source: IN DOR"/>
-
-    <field name="in_additional_exemption_65_plus" type="double" default_value="500.0"
-           comment="Indiana additional exemption $500 for age 65+ (if federal AGI below threshold: $40,000 single, $20,000 MFS). Source: IN DOR"/>
-
-    <field name="in_agi_threshold_single" type="double" default_value="40000.0"
-           comment="Indiana AGI threshold for age 65+ exemption - Single filers"/>
-
-    <field name="in_agi_threshold_mfs" type="double" default_value="20000.0"
-           comment="Indiana AGI threshold for age 65+ exemption - Married Filing Separately"/>
-
-    <!-- ====================================================================== -->
-    <!-- Military Retirement Provisions (2025)                                 -->
-    <!-- ====================================================================== -->
-    <field name="in_military_retirement_exclusion" type="double" default_value="0.0"
-           comment="Indiana military retirement exclusion (computed). 100% of military retirement pay exempt per IC 6-3-2-3.7. Extended to Space Force, USPHS, NOAA Corps in 2025. MOAA Grade A"/>
-
-    <field name="in_sbp_exclusion" type="double" default_value="0.0"
-           comment="Indiana Survivor Benefit Plan (SBP) exclusion (computed). 100% of SBP payments exempt"/>
-
-    <field name="in_total_military_exclusion" type="double" default_value="0.0"
-           comment="Total Indiana military income exclusion (computed). Sum of military retirement and SBP exclusions"/>
-
-    <!-- ====================================================================== -->
-    <!-- MSRRA and SCRA Compliance                                            -->
-    <!-- ====================================================================== -->
-    <field name="in_msrra_compliant" type="boolean" default_value="true"
-           comment="Indiana honors MSRRA (Military Spouses Residency Relief Act). Military spouse income exempt if different domicile"/>
-
-    <field name="in_scra_compliant" type="boolean" default_value="true"
-           comment="Indiana honors SCRA (Servicemembers Civil Relief Act). Active duty pay exempt if different state of residence"/>
-
-    <!-- ====================================================================== -->
-    <!-- Computed Fields                                                       -->
-    <!-- ====================================================================== -->
-    <field name="in_adjusted_agi" type="double" default_value="0.0"
-           comment="Indiana AGI after military exclusions (computed from federal AGI)"/>
-
-    <field name="in_total_exemptions" type="double" default_value="0.0"
-           comment="Indiana total exemptions (computed). Base exemptions + age 65+ if eligible"/>
-
-    <field name="in_taxable_income" type="double" default_value="0.0"
-           comment="Indiana taxable income (computed). AGI minus exemptions"/>
-
-    <field name="state_tax_liability" type="double" default_value="0.0"
-           comment="Indiana state tax liability (computed). IN taxable income × 3.00% flat rate"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="IN.xlsx" access="rw">
+		<field name="in_additional_exemption_65_plus" type="double" subtype="" access="r" input="" default_value="500.0" comment="Indiana additional exemption $500 for age 65+ (if federal AGI below threshold: $40,000 single, $20,000 MFS). Source: IN DOR"></field>
+		<field name="in_adjusted_agi" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana AGI after military exclusions (computed from federal AGI)"></field>
+		<field name="in_agi_threshold_mfs" type="double" subtype="" access="r" input="" default_value="20000.0" comment="Indiana AGI threshold for age 65+ exemption - Married Filing Separately"></field>
+		<field name="in_agi_threshold_single" type="double" subtype="" access="r" input="" default_value="40000.0" comment="Indiana AGI threshold for age 65+ exemption - Single filers"></field>
+		<field name="in_military_retirement_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana military retirement exclusion (computed). 100% of military retirement pay exempt per IC 6-3-2-3.7. Extended to Space Force, USPHS, NOAA Corps in 2025. MOAA Grade A"></field>
+		<field name="in_msrra_compliant" type="boolean" subtype="" access="r" input="" default_value="true" comment="Indiana honors MSRRA (Military Spouses Residency Relief Act). Military spouse income exempt if different domicile"></field>
+		<field name="in_personal_exemption" type="double" subtype="" access="r" input="" default_value="1000.0" comment="Indiana personal exemption $1,000 per person (taxpayer + spouse if MFJ). Source: IN DOR"></field>
+		<field name="in_sbp_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana Survivor Benefit Plan (SBP) exclusion (computed). 100% of SBP payments exempt"></field>
+		<field name="in_scra_compliant" type="boolean" subtype="" access="r" input="" default_value="true" comment="Indiana honors SCRA (Servicemembers Civil Relief Act). Active duty pay exempt if different state of residence"></field>
+		<field name="in_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0300" comment="Indiana flat income tax rate 3.00% (2025). Reduced from 3.05% in 2024. Source: Indiana Department of Revenue https://www.in.gov/dor/"></field>
+		<field name="in_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana taxable income (computed). AGI minus exemptions"></field>
+		<field name="in_total_exemptions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana total exemptions (computed). Base exemptions + age 65+ if eligible"></field>
+		<field name="in_total_military_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total Indiana military income exclusion (computed). Sum of military retirement and SBP exclusions"></field>
+		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana state tax liability (computed). IN taxable income × 3.00% flat rate"></field>
+	</entity>
 </entity_data_dictionary>

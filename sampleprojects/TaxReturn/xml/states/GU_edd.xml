@@ -1,44 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Territory-specific constants for Guam (GU)
-
-  Guam operates under a "mirror code" system - mirrors the US Internal Revenue Code.
-  Bona fide residents file with Guam Department of Revenue and Taxation instead of IRS.
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-    <!-- Bona fide residence test -->
-    <field name="gu_bona_fide_resident" type="boolean" default_value="false"
-           comment="True if taxpayer meets bona fide resident test for Guam"/>
-    <field name="gu_days_present" type="integer" default_value="0"
-           comment="Number of days present in Guam during tax year (183+ required)"/>
-    <field name="gu_has_tax_home" type="boolean" default_value="false"
-           comment="True if taxpayer has tax home in Guam"/>
-    <field name="gu_closer_connection" type="boolean" default_value="false"
-           comment="True if taxpayer has closer connection to Guam than US"/>
-
-    <!-- Income sourcing and allocation -->
-    <field name="gu_source_income" type="double" default_value="0.0"
-           comment="Income sourced from Guam"/>
-    <field name="gu_us_source_income" type="double" default_value="0.0"
-           comment="Income sourced from US mainland"/>
-    <field name="gu_worldwide_income" type="double" default_value="0.0"
-           comment="Total worldwide income for allocation"/>
-
-    <!-- Filing requirements -->
-    <field name="gu_requires_form_5074" type="boolean" default_value="false"
-           comment="True if taxpayer must file Form 5074 (income allocation)"/>
-    <field name="gu_files_with_drt" type="boolean" default_value="false"
-           comment="True if taxpayer files with Guam Department of Revenue and Taxation"/>
-    <field name="gu_files_with_irs" type="boolean" default_value="false"
-           comment="True if taxpayer also files with IRS (partial-year or non-resident)"/>
-
-    <!-- Mirror code - uses federal rates -->
-    <field name="gu_uses_federal_rates" type="boolean" default_value="true"
-           comment="Guam uses mirror code (same as federal tax code)"/>
-
-    <!-- Calculated tax -->
-    <field name="gu_income_tax" type="double" default_value="0.0"
-           comment="Calculated Guam income tax liability (mirrors federal)"/>
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="GU.xlsx" access="rw">
+		<field name="gu_bona_fide_resident" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer meets bona fide resident test for Guam"></field>
+		<field name="gu_closer_connection" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer has closer connection to Guam than US"></field>
+		<field name="gu_days_present" type="integer" subtype="" access="r" input="" default_value="0" comment="Number of days present in Guam during tax year (183+ required)"></field>
+		<field name="gu_files_with_drt" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer files with Guam Department of Revenue and Taxation"></field>
+		<field name="gu_files_with_irs" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer also files with IRS (partial-year or non-resident)"></field>
+		<field name="gu_has_tax_home" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer has tax home in Guam"></field>
+		<field name="gu_income_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Calculated Guam income tax liability (mirrors federal)"></field>
+		<field name="gu_requires_form_5074" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer must file Form 5074 (income allocation)"></field>
+		<field name="gu_source_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Income sourced from Guam"></field>
+		<field name="gu_us_source_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Income sourced from US mainland"></field>
+		<field name="gu_uses_federal_rates" type="boolean" subtype="" access="r" input="" default_value="true" comment="Guam uses mirror code (same as federal tax code)"></field>
+		<field name="gu_worldwide_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total worldwide income for allocation"></field>
+	</entity>
 </entity_data_dictionary>

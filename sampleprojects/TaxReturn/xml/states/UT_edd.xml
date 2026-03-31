@@ -1,72 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Utah
-
-  Utah Tax Law (2025):
-  - Flat tax rate: 4.5% (reduced from 4.55% by HB 106)
-  - Starting point: Federal AGI
-  - Taxpayer Tax Credit: 6% of deductions and exemptions (creates progressivity)
-  - Credit phases out at 1.3% of income above thresholds
-  - Social Security benefits: Exempt from state tax
-  - Personal exemption: $2,111 per dependent
-
-  Source: Utah State Tax Commission, HB 106 (2025)
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/UT/42300_UT_constants</file_path>
-  </file_metadata>
-  <!-- Utah state-specific constants -->
-  <entity name="result">
-    <!-- Tax rate -->
-    <field name="ut_tax_rate" type="double" default_value="0.045"
-           comment="UT flat rate 4.5% (2025). Reduced from 4.55% by HB 106. Source: Utah State Tax Commission"/>
-
-    <!-- Personal exemption -->
-    <field name="ut_personal_exemption" type="double" default_value="2111.0"
-           comment="UT personal exemption per dependent (2025). Source: Utah State Tax Commission"/>
-
-    <!-- Taxpayer Tax Credit (6% of deductions + exemptions) -->
-    <field name="ut_taxpayer_credit_rate" type="double" default_value="0.06"
-           comment="UT taxpayer tax credit rate - 6% of deductions and exemptions (2025). Source: Utah State Tax Commission"/>
-
-    <!-- Taxpayer Tax Credit phase-out thresholds -->
-    <field name="ut_credit_phaseout_single" type="double" default_value="15896.0"
-           comment="UT taxpayer credit phase-out threshold single (2025). Source: Utah State Tax Commission"/>
-    <field name="ut_credit_phaseout_joint" type="double" default_value="31792.0"
-           comment="UT taxpayer credit phase-out threshold married filing jointly (2025)"/>
-    <field name="ut_credit_phaseout_hoh" type="double" default_value="23844.0"
-           comment="UT taxpayer credit phase-out threshold head of household (2025)"/>
-    <field name="ut_credit_phaseout_rate" type="double" default_value="0.013"
-           comment="UT taxpayer credit phase-out rate 1.3% (2025)"/>
-
-    <!-- Social Security Exemption (2025) -->
-    <field name="ut_social_security_exempt" type="boolean" default_value="true"
-           comment="UT fully exempts Social Security benefits from state income tax (2025). Source: Utah State Tax Commission"/>
-    <field name="ut_social_security_exemption" type="double" default_value="0.0"
-           comment="UT Social Security exemption amount (computed - full amount of SS benefits)"/>
-
-    <!-- Tax calculation fields -->
-    <field name="ut_taxable_income" type="double" default_value="0.0"
-           comment="UT taxable income after adjustments (computed)"/>
-    <field name="ut_base_tax" type="double" default_value="0.0"
-           comment="UT base tax before taxpayer credit (computed)"/>
-    <field name="ut_taxpayer_credit" type="double" default_value="0.0"
-           comment="UT taxpayer tax credit amount (computed)"/>
-    <field name="ut_tax" type="double" default_value="0.0"
-           comment="UT final tax liability after credits (computed)"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="ut_military_retirement_exemption" type="double" default_value="10000.0"
-           comment="UT military retirement exemption amount (2025). Must choose between this or SS exemption. Source: MOAA State Report Card"/>
-    <field name="ut_military_exemption_agi_cap_single" type="double" default_value="50000.0"
-           comment="UT military retirement exemption AGI cap single (2025). Source: MOAA State Report Card"/>
-    <field name="ut_military_exemption_agi_cap_joint" type="double" default_value="65000.0"
-           comment="UT military retirement exemption AGI cap joint (2025). Source: MOAA State Report Card"/>
-    <field name="ut_military_retirement_taxable" type="double" default_value="0.0"
-           comment="UT taxable military retirement after exemption (computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="UT.xlsx" access="rw">
+		<field name="ut_base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT base tax before taxpayer credit (computed)"></field>
+		<field name="ut_credit_phaseout_hoh" type="double" subtype="" access="r" input="" default_value="23844.0" comment="UT taxpayer credit phase-out threshold head of household (2025)"></field>
+		<field name="ut_credit_phaseout_joint" type="double" subtype="" access="r" input="" default_value="31792.0" comment="UT taxpayer credit phase-out threshold married filing jointly (2025)"></field>
+		<field name="ut_credit_phaseout_rate" type="double" subtype="" access="r" input="" default_value="0.013" comment="UT taxpayer credit phase-out rate 1.3% (2025)"></field>
+		<field name="ut_credit_phaseout_single" type="double" subtype="" access="r" input="" default_value="15896.0" comment="UT taxpayer credit phase-out threshold single (2025). Source: Utah State Tax Commission"></field>
+		<field name="ut_military_exemption_agi_cap_joint" type="double" subtype="" access="r" input="" default_value="65000.0" comment="UT military retirement exemption AGI cap joint (2025). Source: MOAA State Report Card"></field>
+		<field name="ut_military_exemption_agi_cap_single" type="double" subtype="" access="r" input="" default_value="50000.0" comment="UT military retirement exemption AGI cap single (2025). Source: MOAA State Report Card"></field>
+		<field name="ut_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="10000.0" comment="UT military retirement exemption amount (2025). Must choose between this or SS exemption. Source: MOAA State Report Card"></field>
+		<field name="ut_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT taxable military retirement after exemption (computed)"></field>
+		<field name="ut_personal_exemption" type="double" subtype="" access="r" input="" default_value="2111.0" comment="UT personal exemption per dependent (2025). Source: Utah State Tax Commission"></field>
+		<field name="ut_social_security_exempt" type="boolean" subtype="" access="r" input="" default_value="true" comment="UT fully exempts Social Security benefits from state income tax (2025). Source: Utah State Tax Commission"></field>
+		<field name="ut_social_security_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT Social Security exemption amount (computed - full amount of SS benefits)"></field>
+		<field name="ut_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT final tax liability after credits (computed)"></field>
+		<field name="ut_tax_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="UT flat rate 4.5% (2025). Reduced from 4.55% by HB 106. Source: Utah State Tax Commission"></field>
+		<field name="ut_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT taxable income after adjustments (computed)"></field>
+		<field name="ut_taxpayer_credit" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT taxpayer tax credit amount (computed)"></field>
+		<field name="ut_taxpayer_credit_rate" type="double" subtype="" access="r" input="" default_value="0.06" comment="UT taxpayer tax credit rate - 6% of deductions and exemptions (2025). Source: Utah State Tax Commission"></field>
+	</entity>
 </entity_data_dictionary>

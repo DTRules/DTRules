@@ -1,128 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Hawaii
-
-  HI has progressive tax brackets (12 brackets) ranging from 1.40% to 11%.
-  Married filing jointly brackets are doubled.
-
-  2025 Tax Year (filed in 2026)
-  Standard Deduction: $4,400 (single), $8,800 (married filing jointly), $6,424 (head of household)
-
-  Source: Hawaii Department of Taxation
-  https://tax.hawaii.gov/tax-year-information/
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/HI/41100_HI_constants</file_path>
-  </file_metadata>
-  <entity name="result">
-
-    <!-- Standard deductions -->
-    <field name="hi_standard_deduction_single" type="double" default_value="4400.0"
-           comment="HI standard deduction single (2025)"/>
-    <field name="hi_standard_deduction_joint" type="double" default_value="8800.0"
-           comment="HI standard deduction married filing jointly (2025)"/>
-    <field name="hi_standard_deduction_hoh" type="double" default_value="6424.0"
-           comment="HI standard deduction head of household (2025)"/>
-
-    <!-- Progressive tax brackets - Single Filers -->
-    <!-- Bracket 1: $0 to $9,600 @ 1.40% -->
-    <field name="hi_bracket_1_limit" type="double" default_value="9600.0"
-           comment="HI tax bracket 1 upper limit single (2025)"/>
-    <field name="hi_bracket_1_rate" type="double" default_value="0.014"
-           comment="HI tax rate for bracket 1 - 1.40% (2025)"/>
-
-    <!-- Bracket 2: $9,600 to $14,400 @ 3.20% -->
-    <field name="hi_bracket_2_limit" type="double" default_value="14400.0"
-           comment="HI tax bracket 2 upper limit single (2025)"/>
-    <field name="hi_bracket_2_rate" type="double" default_value="0.032"
-           comment="HI tax rate for bracket 2 - 3.20% (2025)"/>
-
-    <!-- Bracket 3: $14,400 to $19,200 @ 5.50% -->
-    <field name="hi_bracket_3_limit" type="double" default_value="19200.0"
-           comment="HI tax bracket 3 upper limit single (2025)"/>
-    <field name="hi_bracket_3_rate" type="double" default_value="0.055"
-           comment="HI tax rate for bracket 3 - 5.50% (2025)"/>
-
-    <!-- Bracket 4: $19,200 to $24,000 @ 6.40% -->
-    <field name="hi_bracket_4_limit" type="double" default_value="24000.0"
-           comment="HI tax bracket 4 upper limit single (2025)"/>
-    <field name="hi_bracket_4_rate" type="double" default_value="0.064"
-           comment="HI tax rate for bracket 4 - 6.40% (2025)"/>
-
-    <!-- Bracket 5: $24,000 to $36,000 @ 6.80% -->
-    <field name="hi_bracket_5_limit" type="double" default_value="36000.0"
-           comment="HI tax bracket 5 upper limit single (2025)"/>
-    <field name="hi_bracket_5_rate" type="double" default_value="0.068"
-           comment="HI tax rate for bracket 5 - 6.80% (2025)"/>
-
-    <!-- Bracket 6: $36,000 to $48,000 @ 7.20% -->
-    <field name="hi_bracket_6_limit" type="double" default_value="48000.0"
-           comment="HI tax bracket 6 upper limit single (2025)"/>
-    <field name="hi_bracket_6_rate" type="double" default_value="0.072"
-           comment="HI tax rate for bracket 6 - 7.20% (2025)"/>
-
-    <!-- Bracket 7: $48,000 to $125,000 @ 7.60% -->
-    <field name="hi_bracket_7_limit" type="double" default_value="125000.0"
-           comment="HI tax bracket 7 upper limit single (2025)"/>
-    <field name="hi_bracket_7_rate" type="double" default_value="0.076"
-           comment="HI tax rate for bracket 7 - 7.60% (2025)"/>
-
-    <!-- Bracket 8: $125,000 to $175,000 @ 7.90% -->
-    <field name="hi_bracket_8_limit" type="double" default_value="175000.0"
-           comment="HI tax bracket 8 upper limit single (2025)"/>
-    <field name="hi_bracket_8_rate" type="double" default_value="0.079"
-           comment="HI tax rate for bracket 8 - 7.90% (2025)"/>
-
-    <!-- Bracket 9: $175,000 to $225,000 @ 8.25% -->
-    <field name="hi_bracket_9_limit" type="double" default_value="225000.0"
-           comment="HI tax bracket 9 upper limit single (2025)"/>
-    <field name="hi_bracket_9_rate" type="double" default_value="0.0825"
-           comment="HI tax rate for bracket 9 - 8.25% (2025)"/>
-
-    <!-- Bracket 10: $225,000 to $275,000 @ 9.00% -->
-    <field name="hi_bracket_10_limit" type="double" default_value="275000.0"
-           comment="HI tax bracket 10 upper limit single (2025)"/>
-    <field name="hi_bracket_10_rate" type="double" default_value="0.09"
-           comment="HI tax rate for bracket 10 - 9.00% (2025)"/>
-
-    <!-- Bracket 11: $275,000 to $325,000 @ 10.00% -->
-    <field name="hi_bracket_11_limit" type="double" default_value="325000.0"
-           comment="HI tax bracket 11 upper limit single (2025)"/>
-    <field name="hi_bracket_11_rate" type="double" default_value="0.10"
-           comment="HI tax rate for bracket 11 - 10.00% (2025)"/>
-
-    <!-- Bracket 12: Over $325,000 @ 11.00% -->
-    <field name="hi_bracket_12_rate" type="double" default_value="0.11"
-           comment="HI tax rate for bracket 12 - 11.00% (2025)"/>
-
-    <!-- Progressive tax brackets - Married Filing Jointly (doubled thresholds) -->
-    <field name="hi_bracket_1_limit_joint" type="double" default_value="19200.0"
-           comment="HI tax bracket 1 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_2_limit_joint" type="double" default_value="28800.0"
-           comment="HI tax bracket 2 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_3_limit_joint" type="double" default_value="38400.0"
-           comment="HI tax bracket 3 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_4_limit_joint" type="double" default_value="48000.0"
-           comment="HI tax bracket 4 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_5_limit_joint" type="double" default_value="72000.0"
-           comment="HI tax bracket 5 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_6_limit_joint" type="double" default_value="96000.0"
-           comment="HI tax bracket 6 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_7_limit_joint" type="double" default_value="250000.0"
-           comment="HI tax bracket 7 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_8_limit_joint" type="double" default_value="350000.0"
-           comment="HI tax bracket 8 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_9_limit_joint" type="double" default_value="450000.0"
-           comment="HI tax bracket 9 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_10_limit_joint" type="double" default_value="550000.0"
-           comment="HI tax bracket 10 upper limit married filing jointly (2025)"/>
-    <field name="hi_bracket_11_limit_joint" type="double" default_value="650000.0"
-           comment="HI tax bracket 11 upper limit married filing jointly (2025)"/>
-
-    <!-- State tax result field -->
-    <field name="hi_state_tax" type="double" default_value="0.0"
-           comment="HI state income tax liability (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="HI.xlsx" access="rw">
+		<field name="hi_bracket_10_limit" type="double" subtype="" access="r" input="" default_value="275000.0" comment="HI tax bracket 10 upper limit single (2025)"></field>
+		<field name="hi_bracket_10_limit_joint" type="double" subtype="" access="r" input="" default_value="550000.0" comment="HI tax bracket 10 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_10_rate" type="double" subtype="" access="r" input="" default_value="0.09" comment="HI tax rate for bracket 10 - 9.00% (2025)"></field>
+		<field name="hi_bracket_11_limit" type="double" subtype="" access="r" input="" default_value="325000.0" comment="HI tax bracket 11 upper limit single (2025)"></field>
+		<field name="hi_bracket_11_limit_joint" type="double" subtype="" access="r" input="" default_value="650000.0" comment="HI tax bracket 11 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_11_rate" type="double" subtype="" access="r" input="" default_value="0.10" comment="HI tax rate for bracket 11 - 10.00% (2025)"></field>
+		<field name="hi_bracket_12_rate" type="double" subtype="" access="r" input="" default_value="0.11" comment="HI tax rate for bracket 12 - 11.00% (2025)"></field>
+		<field name="hi_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="9600.0" comment="HI tax bracket 1 upper limit single (2025)"></field>
+		<field name="hi_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="19200.0" comment="HI tax bracket 1 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.014" comment="HI tax rate for bracket 1 - 1.40% (2025)"></field>
+		<field name="hi_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="14400.0" comment="HI tax bracket 2 upper limit single (2025)"></field>
+		<field name="hi_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="28800.0" comment="HI tax bracket 2 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.032" comment="HI tax rate for bracket 2 - 3.20% (2025)"></field>
+		<field name="hi_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="19200.0" comment="HI tax bracket 3 upper limit single (2025)"></field>
+		<field name="hi_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="38400.0" comment="HI tax bracket 3 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="HI tax rate for bracket 3 - 5.50% (2025)"></field>
+		<field name="hi_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="24000.0" comment="HI tax bracket 4 upper limit single (2025)"></field>
+		<field name="hi_bracket_4_limit_joint" type="double" subtype="" access="r" input="" default_value="48000.0" comment="HI tax bracket 4 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.064" comment="HI tax rate for bracket 4 - 6.40% (2025)"></field>
+		<field name="hi_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="36000.0" comment="HI tax bracket 5 upper limit single (2025)"></field>
+		<field name="hi_bracket_5_limit_joint" type="double" subtype="" access="r" input="" default_value="72000.0" comment="HI tax bracket 5 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.068" comment="HI tax rate for bracket 5 - 6.80% (2025)"></field>
+		<field name="hi_bracket_6_limit" type="double" subtype="" access="r" input="" default_value="48000.0" comment="HI tax bracket 6 upper limit single (2025)"></field>
+		<field name="hi_bracket_6_limit_joint" type="double" subtype="" access="r" input="" default_value="96000.0" comment="HI tax bracket 6 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.072" comment="HI tax rate for bracket 6 - 7.20% (2025)"></field>
+		<field name="hi_bracket_7_limit" type="double" subtype="" access="r" input="" default_value="125000.0" comment="HI tax bracket 7 upper limit single (2025)"></field>
+		<field name="hi_bracket_7_limit_joint" type="double" subtype="" access="r" input="" default_value="250000.0" comment="HI tax bracket 7 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_7_rate" type="double" subtype="" access="r" input="" default_value="0.076" comment="HI tax rate for bracket 7 - 7.60% (2025)"></field>
+		<field name="hi_bracket_8_limit" type="double" subtype="" access="r" input="" default_value="175000.0" comment="HI tax bracket 8 upper limit single (2025)"></field>
+		<field name="hi_bracket_8_limit_joint" type="double" subtype="" access="r" input="" default_value="350000.0" comment="HI tax bracket 8 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_8_rate" type="double" subtype="" access="r" input="" default_value="0.079" comment="HI tax rate for bracket 8 - 7.90% (2025)"></field>
+		<field name="hi_bracket_9_limit" type="double" subtype="" access="r" input="" default_value="225000.0" comment="HI tax bracket 9 upper limit single (2025)"></field>
+		<field name="hi_bracket_9_limit_joint" type="double" subtype="" access="r" input="" default_value="450000.0" comment="HI tax bracket 9 upper limit married filing jointly (2025)"></field>
+		<field name="hi_bracket_9_rate" type="double" subtype="" access="r" input="" default_value="0.0825" comment="HI tax rate for bracket 9 - 8.25% (2025)"></field>
+		<field name="hi_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="6424.0" comment="HI standard deduction head of household (2025)"></field>
+		<field name="hi_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="8800.0" comment="HI standard deduction married filing jointly (2025)"></field>
+		<field name="hi_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="4400.0" comment="HI standard deduction single (2025)"></field>
+		<field name="hi_state_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="HI state income tax liability (2025)"></field>
+	</entity>
 </entity_data_dictionary>

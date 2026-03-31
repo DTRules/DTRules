@@ -1,507 +1,99 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
-<decision_table>
-<table_name>Calculate_OK_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Oklahoma state income tax calculation. Implements progressive tax structure per OK tax code (2025).</COMMENTS>
-<TABLE_NUMBER>43600</TABLE_NUMBER>
-<FILE_PATH>states/OK/43600_Calculate_OK_Tax</FILE_PATH>
-</attribute_fields>
-
-<contexts />
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize Oklahoma tax calculation</action_description>
-<action_postfix>
-"Oklahoma Tax Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Single filer</condition_comment>
-<condition_description>filing_status == "Single"</condition_description>
-<condition_postfix>
-result.filing_status "Single" eq
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
-<condition_column column_number="3" column_value="" />
-<condition_column column_number="4" column_value="" />
-</condition_details>
-
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Married filing jointly</condition_comment>
-<condition_description>filing_status == "MFJ"</condition_description>
-<condition_postfix>
-result.filing_status "MFJ" eq
-</condition_postfix>
-<condition_column column_number="1" column_value="" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="" />
-<condition_column column_number="4" column_value="" />
-</condition_details>
-
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Head of household</condition_comment>
-<condition_description>filing_status == "HOH"</condition_description>
-<condition_postfix>
-result.filing_status "HOH" eq
-</condition_postfix>
-<condition_column column_number="1" column_value="" />
-<condition_column column_number="2" column_value="" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="" />
-</condition_details>
-
-<condition_details>
-<condition_number>4</condition_number>
-<condition_comment>Married filing separately</condition_comment>
-<condition_description>filing_status == "MFS"</condition_description>
-<condition_postfix>
-result.filing_status "MFS" eq
-</condition_postfix>
-<condition_column column_number="1" column_value="" />
-<condition_column column_number="2" column_value="" />
-<condition_column column_number="3" column_value="" />
-<condition_column column_number="4" column_value="Y" />
-</condition_details>
-</conditions>
-
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Calculate Oklahoma tax - Single filer (progressive brackets with personal exemption credit)</action_comment>
-<action_postfix>
-
-result.agi result.ok_standard_deduction_single sub 0 max
-dup /ok_taxable_income xdef
-/result.ok_taxable_income xdef
-
-
-0 /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit min
-result.ok_bracket_1_rate mul
-ok_tax add /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit gt
-{
-  ok_taxable_income result.ok_bracket_2_limit min
-  result.ok_bracket_1_limit sub 0 max
-  result.ok_bracket_2_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_2_limit gt
-{
-  ok_taxable_income result.ok_bracket_3_limit min
-  result.ok_bracket_2_limit sub 0 max
-  result.ok_bracket_3_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_3_limit gt
-{
-  ok_taxable_income result.ok_bracket_4_limit min
-  result.ok_bracket_3_limit sub 0 max
-  result.ok_bracket_4_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_4_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit min
-  result.ok_bracket_4_limit sub 0 max
-  result.ok_bracket_5_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_5_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit sub
-  result.ok_bracket_6_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_tax /result.ok_base_tax xdef
-
-
-
-1 result.num_dependents add
-result.ok_personal_exemption_credit mul
-dup /ok_exemption_credit xdef
-/result.ok_exemption_credit xdef
-
-
-ok_tax ok_exemption_credit sub 0 max
-dup /ok_tax xdef
-/result.ok_tax xdef
-
-
-ok_tax /result.state_tax_liability xdef
-
-"Oklahoma tax (Single) calculated: $" result.state_tax_liability cvs strconcat
-" (Base: $" strconcat result.ok_base_tax cvs strconcat
-", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
-")" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate Oklahoma tax - Married filing jointly (progressive brackets with personal exemption credit)</action_comment>
-<action_postfix>
-
-result.agi result.ok_standard_deduction_joint sub 0 max
-dup /ok_taxable_income xdef
-/result.ok_taxable_income xdef
-
-
-0 /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit min
-result.ok_bracket_1_rate mul
-ok_tax add /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit gt
-{
-  ok_taxable_income result.ok_bracket_2_limit min
-  result.ok_bracket_1_limit sub 0 max
-  result.ok_bracket_2_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_2_limit gt
-{
-  ok_taxable_income result.ok_bracket_3_limit min
-  result.ok_bracket_2_limit sub 0 max
-  result.ok_bracket_3_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_3_limit gt
-{
-  ok_taxable_income result.ok_bracket_4_limit min
-  result.ok_bracket_3_limit sub 0 max
-  result.ok_bracket_4_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_4_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit min
-  result.ok_bracket_4_limit sub 0 max
-  result.ok_bracket_5_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_5_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit sub
-  result.ok_bracket_6_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_tax /result.ok_base_tax xdef
-
-
-
-2 result.num_dependents add
-result.ok_personal_exemption_credit mul
-dup /ok_exemption_credit xdef
-/result.ok_exemption_credit xdef
-
-
-ok_tax ok_exemption_credit sub 0 max
-dup /ok_tax xdef
-/result.ok_tax xdef
-
-
-ok_tax /result.state_tax_liability xdef
-
-"Oklahoma tax (MFJ) calculated: $" result.state_tax_liability cvs strconcat
-" (Base: $" strconcat result.ok_base_tax cvs strconcat
-", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
-")" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X" />
-</action_details>
-
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate Oklahoma tax - Head of household (progressive brackets with personal exemption credit)</action_comment>
-<action_postfix>
-
-result.agi result.ok_standard_deduction_hoh sub 0 max
-dup /ok_taxable_income xdef
-/result.ok_taxable_income xdef
-
-
-0 /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit min
-result.ok_bracket_1_rate mul
-ok_tax add /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit gt
-{
-  ok_taxable_income result.ok_bracket_2_limit min
-  result.ok_bracket_1_limit sub 0 max
-  result.ok_bracket_2_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_2_limit gt
-{
-  ok_taxable_income result.ok_bracket_3_limit min
-  result.ok_bracket_2_limit sub 0 max
-  result.ok_bracket_3_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_3_limit gt
-{
-  ok_taxable_income result.ok_bracket_4_limit min
-  result.ok_bracket_3_limit sub 0 max
-  result.ok_bracket_4_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_4_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit min
-  result.ok_bracket_4_limit sub 0 max
-  result.ok_bracket_5_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_5_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit sub
-  result.ok_bracket_6_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_tax /result.ok_base_tax xdef
-
-
-
-1 result.num_dependents add
-result.ok_personal_exemption_credit mul
-dup /ok_exemption_credit xdef
-/result.ok_exemption_credit xdef
-
-
-ok_tax ok_exemption_credit sub 0 max
-dup /ok_tax xdef
-/result.ok_tax xdef
-
-
-ok_tax /result.state_tax_liability xdef
-
-"Oklahoma tax (HOH) calculated: $" result.state_tax_liability cvs strconcat
-" (Base: $" strconcat result.ok_base_tax cvs strconcat
-", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
-")" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="3" column_value="X" />
-</action_details>
-
-<action_details>
-<action_number>4</action_number>
-<action_comment>Calculate Oklahoma tax - Married filing separately (progressive brackets with personal exemption credit)</action_comment>
-<action_postfix>
-
-result.agi result.ok_standard_deduction_mfs sub 0 max
-dup /ok_taxable_income xdef
-/result.ok_taxable_income xdef
-
-
-0 /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit min
-result.ok_bracket_1_rate mul
-ok_tax add /ok_tax xdef
-
-
-ok_taxable_income result.ok_bracket_1_limit gt
-{
-  ok_taxable_income result.ok_bracket_2_limit min
-  result.ok_bracket_1_limit sub 0 max
-  result.ok_bracket_2_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_2_limit gt
-{
-  ok_taxable_income result.ok_bracket_3_limit min
-  result.ok_bracket_2_limit sub 0 max
-  result.ok_bracket_3_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_3_limit gt
-{
-  ok_taxable_income result.ok_bracket_4_limit min
-  result.ok_bracket_3_limit sub 0 max
-  result.ok_bracket_4_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_4_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit min
-  result.ok_bracket_4_limit sub 0 max
-  result.ok_bracket_5_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_taxable_income result.ok_bracket_5_limit gt
-{
-  ok_taxable_income result.ok_bracket_5_limit sub
-  result.ok_bracket_6_rate mul
-  ok_tax add /ok_tax xdef
-} if
-
-
-ok_tax /result.ok_base_tax xdef
-
-
-
-1 result.num_dependents add
-result.ok_personal_exemption_credit mul
-dup /ok_exemption_credit xdef
-/result.ok_exemption_credit xdef
-
-
-ok_tax ok_exemption_credit sub 0 max
-dup /ok_tax xdef
-/result.ok_tax xdef
-
-
-ok_tax /result.state_tax_liability xdef
-
-"Oklahoma tax (MFS) calculated: $" result.state_tax_liability cvs strconcat
-" (Base: $" strconcat result.ok_base_tax cvs strconcat
-", Exemption Credit: $" strconcat result.ok_exemption_credit cvs strconcat
-")" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="4" column_value="X" />
-</action_details>
-</actions>
-
-</decision_table>
-
-
-
-
+<!-- TABLE 43601: Calculate_OK_Military_Retirement_Exclusion -->
 <decision_table>
 <table_name>Calculate_OK_Military_Retirement_Exclusion</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>OK.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Oklahoma military retirement pay exclusion. Full exemption for all military retirement income (Group B). MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
 <TABLE_NUMBER>43601</TABLE_NUMBER>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
-<initial_action>
-<action_description />
-<action_postfix>
-"OK Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
-</action_postfix>
-<action_comment>Initialize OK military retirement exclusion calculation</action_comment></initial_action>
 </initial_actions>
-
 <conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay &gt; 0</condition_description>
-<condition_postfix>
-taxpayer.military_retirement_pay get 0 gt
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-</condition_details>
 </conditions>
-
 <actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Full exclusion - 100% of military retirement pay excluded from OK taxable income</action_comment>
-<action_postfix>
-
-
-taxpayer.military_retirement_pay get
-/result.ok_military_retirement_exclusion xdef
-
-
-result.ok_subtractions get
-result.ok_military_retirement_exclusion get add
-/result.ok_subtractions xdef
-
-"OK Military Retirement Exclusion (Full): $" result.ok_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
+<action_description>No military retirement pay - no exclusion</action_description>
 <action_postfix>
-0 /result.ok_military_retirement_exclusion xdef
-"OK Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
+
 </action_postfix>
-<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements>
+</policy_statements>
 </decision_table>
 
+<!-- TABLE 43600: Calculate_OK_Tax -->
+<decision_table>
+<table_name>Calculate_OK_Tax</table_name>
+<xls_file>OK.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Oklahoma state income tax calculation. Implements progressive tax structure per OK tax code (2025).</COMMENTS>
+<TABLE_NUMBER>43600</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Married filing jointly</condition_comment>
+<condition_description>Married filing jointly</condition_description>
+<condition_postfix>
+filing_status == &quot;MFJ&quot;
+</condition_postfix>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Head of household</condition_comment>
+<condition_description>Head of household</condition_description>
+<condition_postfix>
+filing_status == &quot;HOH&quot;
+</condition_postfix>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Married filing separately</condition_comment>
+<condition_description>Married filing separately</condition_description>
+<condition_postfix>
+filing_status == &quot;MFS&quot;
+</condition_postfix>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Oklahoma tax - Married filing jointly (progressive brackets with personal exemption credit)</action_comment>
+<action_description>Calculate Oklahoma tax - Married filing jointly (progressive brackets with personal exemption credit)</action_description>
+<action_postfix>
+
+</action_postfix>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate Oklahoma tax - Head of household (progressive brackets with personal exemption credit)</action_comment>
+<action_description>Calculate Oklahoma tax - Head of household (progressive brackets with personal exemption credit)</action_description>
+<action_postfix>
+
+</action_postfix>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate Oklahoma tax - Married filing separately (progressive brackets with personal exemption credit)</action_comment>
+<action_description>Calculate Oklahoma tax - Married filing separately (progressive brackets with personal exemption credit)</action_description>
+<action_postfix>
+
+</action_postfix>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
 </decision_tables>
