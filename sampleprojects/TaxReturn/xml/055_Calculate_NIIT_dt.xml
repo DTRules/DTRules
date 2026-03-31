@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 14000: Calculate_NIIT -->
+<decision_table>
+<table_name>Calculate_NIIT</table_name>
+<xls_file>055_Calculate_NIIT.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Net Investment Income Tax (3.8%) per Form 8960, IRC 1411. NIIT applies to lesser of NII or MAGI over threshold.</COMMENTS>
+<TABLE_NUMBER>14000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>set result.net_investment_income = sum of investment income</action_description>
+<action_postfix>
+result.total_other_income result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_rental_income f+ result.total_qualified_dividends f+ /result.net_investment_income xdef
+result.agi /result.magi_for_niit xdef
+&quot;NET INVESTMENT INCOME TAX (Form 8960, IRC 1411)&quot; job.audit_trail swap addto
+&quot;  Net Investment Income: $&quot; result.net_investment_income cvs strconcat job.audit_trail swap addto
+&quot;  MAGI: $&quot; result.magi_for_niit cvs strconcat job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has NII</condition_comment>
+<condition_description>Has NII</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>Married Filing Jointly</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Married Filing Separately</condition_comment>
+<condition_description>Married Filing Separately</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>MAGI exceeds MFJ threshold ($250k)</condition_comment>
+<condition_description>MAGI exceeds MFJ threshold ($250k)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>MAGI exceeds MFS threshold ($125k)</condition_comment>
+<condition_description>MAGI exceeds MFS threshold ($125k)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>MAGI exceeds Single threshold ($200k)</condition_comment>
+<condition_description>MAGI exceeds Single threshold ($200k)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NIIT for MFJ</action_comment>
+<action_description>Calculate NIIT for MFJ</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate NIIT for MFS</action_comment>
+<action_description>Calculate NIIT for MFS</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate NIIT for Single</action_comment>
+<action_description>Calculate NIIT for Single</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>No NIIT - below threshold</action_comment>
+<action_description>No NIIT - below threshold</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>No NII</action_comment>
+<action_description>No NII</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NIIT for MFJ - 3.8% on lesser of NII or MAGI over $250k per Form 8960</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>No NIIT - MFJ MAGI below $250k threshold</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>NIIT for MFS - 3.8% on lesser of NII or MAGI over $125k per Form 8960</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>No NIIT - MFS MAGI below $125k threshold</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>NIIT for Single - 3.8% on lesser of NII or MAGI over $200k per Form 8960</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>No NIIT - Single MAGI below $200k threshold</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="7">
+<policy_description>No NIIT - no net investment income</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

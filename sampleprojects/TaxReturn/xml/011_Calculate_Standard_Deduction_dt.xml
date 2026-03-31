@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 3100: Calculate_Standard_Deduction -->
+<decision_table>
+<table_name>Calculate_Standard_Deduction</table_name>
+<xls_file>011_Calculate_Standard_Deduction.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determines standard deduction amount based on filing status per IRC Section 63(c), Publication 17 Chapter 20. Amounts for 2025 are estimated.</COMMENTS>
+<TABLE_NUMBER>3100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_description>Married Filing Jointly or Qualifying Surviving Spouse</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Head of Household</condition_comment>
+<condition_description>Head of Household</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has seniors age 65+</condition_comment>
+<condition_description>Has seniors age 65+</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>MFJ/QSS standard deduction</action_comment>
+<action_description>MFJ/QSS standard deduction</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>HOH standard deduction</action_comment>
+<action_description>HOH standard deduction</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Single/MFS standard deduction</action_comment>
+<action_description>Single/MFS standard deduction</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Add additional standard deduction for married seniors age 65+</action_comment>
+<action_description>Add additional standard deduction for married seniors age 65+</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Add additional standard deduction for single/HOH seniors age 65+</action_comment>
+<action_description>Add additional standard deduction for single/HOH seniors age 65+</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Standard deduction for MFJ/QSS with senior(s) per IRC 63(c)(2)(A) and 63(f)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Standard deduction for MFJ/QSS per IRC 63(c)(2)(A)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Standard deduction for HOH with senior per IRC 63(c)(2)(B) and 63(f)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Standard deduction for HOH per IRC 63(c)(2)(B)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Standard deduction for Single/MFS with senior per IRC 63(c)(2)(C) and 63(f)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>Standard deduction for Single/MFS per IRC 63(c)(2)(C)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

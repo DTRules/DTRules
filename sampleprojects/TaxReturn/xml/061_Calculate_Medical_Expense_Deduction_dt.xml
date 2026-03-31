@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE : Calculate_Medical_Expense_Deduction -->
+<decision_table>
+<table_name>Calculate_Medical_Expense_Deduction</table_name>
+<xls_file>061_Calculate_Medical_Expense_Deduction.xlsx</xls_file>
+<attribute_fields>
+<Type></Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER></TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Medical expense deduction per IRC 213</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

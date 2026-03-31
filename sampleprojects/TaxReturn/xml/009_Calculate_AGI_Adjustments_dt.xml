@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 2400: Calculate_AGI_Adjustments -->
+<decision_table>
+<table_name>Calculate_AGI_Adjustments</table_name>
+<xls_file>009_Calculate_AGI_Adjustments.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates above-the-line deductions (adjustments to income) per Schedule 1 Part II, IRC Section 62. Includes SE tax deduction, health insurance for self-employed, and other adjustments.</COMMENTS>
+<TABLE_NUMBER>2400</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has SE tax to deduct</condition_comment>
+<condition_description>Has SE tax to deduct</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add SE tax deduction to adjustments</action_comment>
+<action_description>Add SE tax deduction to adjustments</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Log total adjustments</action_comment>
+<action_description>Log total adjustments</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

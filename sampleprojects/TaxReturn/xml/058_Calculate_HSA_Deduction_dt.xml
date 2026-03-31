@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 17000: Calculate_HSA_Deduction -->
+<decision_table>
+<table_name>Calculate_HSA_Deduction</table_name>
+<xls_file>058_Calculate_HSA_Deduction.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates HSA deduction per Form 8889, Publication 969, IRC 223. Limits based on coverage type.</COMMENTS>
+<TABLE_NUMBER>17000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has HSA contribution</condition_comment>
+<condition_description>Has HSA contribution</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Family coverage</condition_comment>
+<condition_description>Family coverage</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Age 55 or over (catchup eligible)</condition_comment>
+<condition_description>Age 55 or over (catchup eligible)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>HSA deduction - family coverage with catchup</action_comment>
+<action_description>HSA deduction - family coverage with catchup</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>HSA deduction - family coverage no catchup</action_comment>
+<action_description>HSA deduction - family coverage no catchup</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>HSA deduction - self coverage with catchup</action_comment>
+<action_description>HSA deduction - self coverage with catchup</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>HSA deduction - self coverage no catchup</action_comment>
+<action_description>HSA deduction - self coverage no catchup</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>No HSA contribution</action_comment>
+<action_description>No HSA contribution</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>HSA deduction - family coverage with catchup per IRC 223(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>HSA deduction - family coverage per IRC 223(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>HSA deduction - self coverage with catchup per IRC 223(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>HSA deduction - self coverage per IRC 223(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>No HSA deduction - no contribution</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

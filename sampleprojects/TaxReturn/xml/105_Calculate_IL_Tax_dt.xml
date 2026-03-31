@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 41100: Calculate_IL_Tax -->
+<decision_table>
+<table_name>Calculate_IL_Tax</table_name>
+<xls_file>105_Calculate_IL_Tax.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Illinois state income tax per Form IL-1040. Illinois uses a flat tax rate of 4.95% (2025) with personal exemptions of $2,775 per person. Starting with federal AGI, adds state bond interest, subtracts retirement income, applies personal exemptions, and calculates tax at flat rate.</COMMENTS>
+<TABLE_NUMBER>41100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize IL tax calculation</action_description>
+<action_postfix>
+&quot;ILLINOIS FORM IL-1040 - State Income Tax Calculation&quot; job.audit_trail swap addto
+0 local@ num_people &gt;
+result.agi /result.il_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Calculate number of people</condition_comment>
+<condition_description>Calculate number of people</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate IL tax with exemptions</action_comment>
+<action_description>Calculate IL tax with exemptions</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No exemptions - unlikely case</action_comment>
+<action_description>No exemptions - unlikely case</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Illinois flat tax 4.95% with personal exemptions</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Illinois tax without exemptions</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

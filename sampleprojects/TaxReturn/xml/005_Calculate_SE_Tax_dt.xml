@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 2210: Calculate_SE_Tax -->
+<decision_table>
+<table_name>Calculate_SE_Tax</table_name>
+<xls_file>005_Calculate_SE_Tax.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates self-employment tax per Schedule SE and IRC 1401. Called after net profit is computed so threshold checks work correctly.</COMMENTS>
+<TABLE_NUMBER>2210</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>SE net profit meets threshold for SE tax</condition_comment>
+<condition_description>SE net profit meets threshold for SE tax</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate SE tax with proper SS wage base cap and Medicare component</action_comment>
+<action_description>Calculate SE tax with proper SS wage base cap and Medicare component</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No SE tax required - net profit below threshold</action_comment>
+<action_description>No SE tax required - net profit below threshold</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SE tax calculated per Schedule SE, IRC 1401</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>SE tax not required (net profit below $400)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

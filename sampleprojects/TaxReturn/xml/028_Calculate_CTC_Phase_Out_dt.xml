@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 6050: Calculate_CTC_Phase_Out -->
+<decision_table>
+<table_name>Calculate_CTC_Phase_Out</table_name>
+<xls_file>028_Calculate_CTC_Phase_Out.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Applies CTC phase-out based on filing status and AGI. Phase-out threshold is $400,000 for MFJ/QSS and $200,000 for others per IRC 24(b). Reduction is $50 per $1,000 over threshold.</COMMENTS>
+<TABLE_NUMBER>6050</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_description>Married Filing Jointly or Qualifying Surviving Spouse</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>AGI exceeds MFJ phase-out threshold</condition_comment>
+<condition_description>AGI exceeds MFJ phase-out threshold</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>AGI exceeds Single phase-out threshold</condition_comment>
+<condition_description>AGI exceeds Single phase-out threshold</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Has credits to phase out</condition_comment>
+<condition_description>Has credits to phase out</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Set MFJ threshold and calculate values</action_comment>
+<action_description>Set MFJ threshold and calculate values</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Set Single threshold and calculate values</action_comment>
+<action_description>Set Single threshold and calculate values</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate phase-out reduction for MFJ with credits over threshold</action_comment>
+<action_description>Calculate phase-out reduction for MFJ with credits over threshold</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate phase-out reduction for Single with credits over threshold</action_comment>
+<action_description>Calculate phase-out reduction for Single with credits over threshold</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>AGI over threshold but no credits to reduce</action_comment>
+<action_description>AGI over threshold but no credits to reduce</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>AGI does not exceed threshold</action_comment>
+<action_description>AGI does not exceed threshold</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>MFJ/QSS with AGI over $400,000 threshold and credits - apply phase-out per IRC 24(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>MFJ/QSS with AGI over $400,000 threshold but no credits</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>MFJ/QSS with AGI under $400,000 threshold - no phase-out</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Single/Other with AGI over $200,000 threshold and credits - apply phase-out per IRC 24(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>Single/Other with AGI over $200,000 threshold but no credits</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="6">
+<policy_description>Single/Other with AGI under $200,000 threshold - no phase-out</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

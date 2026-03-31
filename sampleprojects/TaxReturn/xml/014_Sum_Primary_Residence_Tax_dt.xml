@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 3215: Sum_Primary_Residence_Tax -->
+<decision_table>
+<table_name>Sum_Primary_Residence_Tax</table_name>
+<xls_file>014_Sum_Primary_Residence_Tax.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table for SALT calculation. Adds property tax to running total if property is primary residence.</COMMENTS>
+<TABLE_NUMBER>3215</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property is primary residence</condition_comment>
+<condition_description>Property is primary residence</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add property tax to total</action_comment>
+<action_description>Add property tax to total</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-primary residence</action_comment>
+<action_description>Skip non-primary residence</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

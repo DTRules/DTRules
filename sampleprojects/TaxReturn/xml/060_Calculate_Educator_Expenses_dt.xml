@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE : Calculate_Educator_Expenses -->
+<decision_table>
+<table_name>Calculate_Educator_Expenses</table_name>
+<xls_file>060_Calculate_Educator_Expenses.xlsx</xls_file>
+<attribute_fields>
+<Type></Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER></TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Educator expense deduction per IRC 62(a)(2)(D)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

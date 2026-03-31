@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 22000: Process_Property_Sales -->
+<decision_table>
+<table_name>Process_Property_Sales</table_name>
+<xls_file>078_Process_Property_Sales.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process Form 4797 sales of business property. Calculates gain/loss, depreciation recapture (Section 1245/1250), and Section 1231 treatment.</COMMENTS>
+<TABLE_NUMBER>22000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>add &quot;PROPERTY SALE PROCESSING&quot; to job.audit_trail</action_description>
+<action_postfix>
+&quot;Processing Form 4797 Business Property Sales&quot; job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has property sale to process</condition_comment>
+<condition_description>Has property sale to process</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Is Section 1245 property (personal property)</condition_comment>
+<condition_description>Is Section 1245 property (personal property)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Is Section 1250 property (real property)</condition_comment>
+<condition_description>Is Section 1250 property (real property)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>
