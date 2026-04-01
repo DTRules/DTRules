@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 6000: Calculate_Credits -->
+<decision_table>
+<table_name>Calculate_Credits</table_name>
+<xls_file>027_Calculate_Credits.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24.</COMMENTS>
+<TABLE_NUMBER>6000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>set result.total_ctc = 0, set result.total_odc = 0, set result.total_actc = 0, set result.total_credits = 0</action_description>
+<action_postfix>
+0.0 /result.total_ctc xdef
+0.0 /result.total_odc xdef
+0.0 /result.total_actc xdef
+0.0 /result.total_credits xdef
+&quot;CREDITS (Form 1040 Lines 19-21)&quot; job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always process credits</condition_comment>
+<condition_description>Always process credits</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate child tax credits for all dependents</action_comment>
+<action_description>Calculate child tax credits for all dependents</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Apply CTC phase-out per IRC 24(b)</action_comment>
+<action_description>Apply CTC phase-out per IRC 24(b)</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Calculate EITC</action_comment>
+<action_description>Calculate EITC</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Calculate education credits</action_comment>
+<action_description>Calculate education credits</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Calculate Child and Dependent Care Credit</action_comment>
+<action_description>Calculate Child and Dependent Care Credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Calculate Saver's Credit</action_comment>
+<action_description>Calculate Saver's Credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Calculate Energy Credits</action_comment>
+<action_description>Calculate Energy Credits</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Calculate Premium Tax Credit</action_comment>
+<action_description>Calculate Premium Tax Credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>9</action_number>
+<action_comment>Calculate Foreign Tax Credit (Form 1116)</action_comment>
+<action_description>Calculate Foreign Tax Credit (Form 1116)</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>10</action_number>
+<action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
+<action_description>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>11</action_number>
+<action_comment>Calculate Mortgage Interest Credit (Form 8396)</action_comment>
+<action_description>Calculate Mortgage Interest Credit (Form 8396)</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>12</action_number>
+<action_comment>Calculate Energy Efficient Appliance Credit (Form 8909)</action_comment>
+<action_description>Calculate Energy Efficient Appliance Credit (Form 8909)</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>13</action_number>
+<action_comment>Calculate General Business Credit (Form 3800)</action_comment>
+<action_description>Calculate General Business Credit (Form 3800)</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Sum total credits</action_comment>
+<action_description>Sum total credits</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

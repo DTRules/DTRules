@@ -1,67 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Delaware (DE)
-
-  Delaware has 7 progressive tax brackets ranging from 0% to 6.6%.
-  Standard deductions: $3,250 (single), $6,500 (joint).
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/DE/40800_DE_constants</file_path>
-  </file_metadata>
-  <!-- Delaware state-specific constants -->
-  <entity name="result">
-    <!-- Standard deductions -->
-    <field name="de_standard_deduction_single" type="double" default_value="3250.0"
-           comment="DE standard deduction single (2025)"/>
-    <field name="de_standard_deduction_joint" type="double" default_value="6500.0"
-           comment="DE standard deduction married filing jointly (2025)"/>
-    <field name="de_standard_deduction_hoh" type="double" default_value="3250.0"
-           comment="DE standard deduction head of household (2025)"/>
-
-    <!-- Progressive tax brackets (7 brackets: 0%, 2.2%, 3.9%, 4.8%, 5.2%, 5.5%, 6.6%) -->
-    <field name="de_bracket_1_limit" type="double" default_value="2000.0"
-           comment="DE tax bracket 1 upper limit (2025)"/>
-    <field name="de_bracket_1_rate" type="double" default_value="0.0"
-           comment="DE tax rate for bracket 1 - 0% (2025)"/>
-
-    <field name="de_bracket_2_limit" type="double" default_value="5000.0"
-           comment="DE tax bracket 2 upper limit (2025)"/>
-    <field name="de_bracket_2_rate" type="double" default_value="0.022"
-           comment="DE tax rate for bracket 2 - 2.2% (2025)"/>
-
-    <field name="de_bracket_3_limit" type="double" default_value="10000.0"
-           comment="DE tax bracket 3 upper limit (2025)"/>
-    <field name="de_bracket_3_rate" type="double" default_value="0.039"
-           comment="DE tax rate for bracket 3 - 3.9% (2025)"/>
-
-    <field name="de_bracket_4_limit" type="double" default_value="20000.0"
-           comment="DE tax bracket 4 upper limit (2025)"/>
-    <field name="de_bracket_4_rate" type="double" default_value="0.048"
-           comment="DE tax rate for bracket 4 - 4.8% (2025)"/>
-
-    <field name="de_bracket_5_limit" type="double" default_value="25000.0"
-           comment="DE tax bracket 5 upper limit (2025)"/>
-    <field name="de_bracket_5_rate" type="double" default_value="0.052"
-           comment="DE tax rate for bracket 5 - 5.2% (2025)"/>
-
-    <field name="de_bracket_6_limit" type="double" default_value="60000.0"
-           comment="DE tax bracket 6 upper limit (2025)"/>
-    <field name="de_bracket_6_rate" type="double" default_value="0.055"
-           comment="DE tax rate for bracket 6 - 5.5% (2025)"/>
-
-    <field name="de_bracket_7_rate" type="double" default_value="0.066"
-           comment="DE tax rate for bracket 7 (over $60,000) - 6.6% (2025)"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="de_military_retirement_exemption_amount" type="double" default_value="12500.0"
-           comment="DE military retirement exemption amount - $12,500 all ages (2025). Source: MOAA"/>
-    <field name="de_military_retirement_exemption" type="double" default_value="0.0"
-           comment="DE military retirement exemption (computed)"/>
-    <field name="de_military_retirement_taxable" type="double" default_value="0.0"
-           comment="DE taxable military retirement after exemption (computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="DE.xlsx" access="rw">
+		<field name="de_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="2000.0" comment="DE tax bracket 1 upper limit (2025)"></field>
+		<field name="de_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE tax rate for bracket 1 - 0% (2025)"></field>
+		<field name="de_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="5000.0" comment="DE tax bracket 2 upper limit (2025)"></field>
+		<field name="de_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.022" comment="DE tax rate for bracket 2 - 2.2% (2025)"></field>
+		<field name="de_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="10000.0" comment="DE tax bracket 3 upper limit (2025)"></field>
+		<field name="de_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.039" comment="DE tax rate for bracket 3 - 3.9% (2025)"></field>
+		<field name="de_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="20000.0" comment="DE tax bracket 4 upper limit (2025)"></field>
+		<field name="de_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.048" comment="DE tax rate for bracket 4 - 4.8% (2025)"></field>
+		<field name="de_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="25000.0" comment="DE tax bracket 5 upper limit (2025)"></field>
+		<field name="de_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.052" comment="DE tax rate for bracket 5 - 5.2% (2025)"></field>
+		<field name="de_bracket_6_limit" type="double" subtype="" access="r" input="" default_value="60000.0" comment="DE tax bracket 6 upper limit (2025)"></field>
+		<field name="de_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="DE tax rate for bracket 6 - 5.5% (2025)"></field>
+		<field name="de_bracket_7_rate" type="double" subtype="" access="r" input="" default_value="0.066" comment="DE tax rate for bracket 7 (over $60,000) - 6.6% (2025)"></field>
+		<field name="de_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE military retirement exemption (computed)"></field>
+		<field name="de_military_retirement_exemption_amount" type="double" subtype="" access="r" input="" default_value="12500.0" comment="DE military retirement exemption amount - $12,500 all ages (2025). Source: MOAA"></field>
+		<field name="de_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE taxable military retirement after exemption (computed)"></field>
+		<field name="de_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="3250.0" comment="DE standard deduction head of household (2025)"></field>
+		<field name="de_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="6500.0" comment="DE standard deduction married filing jointly (2025)"></field>
+		<field name="de_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="3250.0" comment="DE standard deduction single (2025)"></field>
+	</entity>
 </entity_data_dictionary>

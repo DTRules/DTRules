@@ -1,34 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Georgia (GA)
-
-  Military Retirement Provisions (2025):
-  - Age-based tiered exemptions:
-    * Under 62: $17,500 base + $17,500 if earned income >= $17,500
-    * Age 62-64: $35,000
-    * Age 65+: $65,000
-  - Moving to $65,000 for all ages in 2026
-
-  Source: MOAA State Report Card, Georgia DOR (May 2025 expansion)
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-
-    <!-- Military Retirement Provisions (2025) - Age-Based Tiers -->
-    <field name="ga_military_exemption_under_62_base" type="double" default_value="17500.0"
-           comment="GA military retirement base exemption under age 62 (2025). Source: MOAA"/>
-    <field name="ga_military_exemption_under_62_earned_threshold" type="double" default_value="17500.0"
-           comment="GA earned income threshold for additional exemption under age 62 (2025)"/>
-    <field name="ga_military_exemption_62_to_64" type="double" default_value="35000.0"
-           comment="GA military retirement exemption age 62-64 (2025). Source: MOAA"/>
-    <field name="ga_military_exemption_65_plus" type="double" default_value="65000.0"
-           comment="GA military retirement exemption age 65+ (2025). Source: MOAA"/>
-    <field name="ga_military_retirement_exemption" type="double" default_value="0.0"
-           comment="GA military retirement exemption (computed based on age and earned income)"/>
-    <field name="ga_military_retirement_taxable" type="double" default_value="0.0"
-           comment="GA taxable military retirement after exemption (computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="GA.xlsx" access="rw">
+		<field name="ga_military_exemption_62_to_64" type="double" subtype="" access="r" input="" default_value="35000.0" comment="GA military retirement exemption age 62-64 (2025). Source: MOAA"></field>
+		<field name="ga_military_exemption_65_plus" type="double" subtype="" access="r" input="" default_value="65000.0" comment="GA military retirement exemption age 65+ (2025). Source: MOAA"></field>
+		<field name="ga_military_exemption_under_62_base" type="double" subtype="" access="r" input="" default_value="17500.0" comment="GA military retirement base exemption under age 62 (2025). Source: MOAA"></field>
+		<field name="ga_military_exemption_under_62_earned_threshold" type="double" subtype="" access="r" input="" default_value="17500.0" comment="GA earned income threshold for additional exemption under age 62 (2025)"></field>
+		<field name="ga_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="GA military retirement exemption (computed based on age and earned income)"></field>
+		<field name="ga_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="GA taxable military retirement after exemption (computed)"></field>
+	</entity>
 </entity_data_dictionary>

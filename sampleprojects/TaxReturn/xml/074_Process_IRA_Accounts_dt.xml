@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 20000: Process_IRA_Accounts -->
+<decision_table>
+<table_name>Process_IRA_Accounts</table_name>
+<xls_file>074_Process_IRA_Accounts.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process IRA accounts for Form 8606. Tracks non-deductible contributions (basis), calculates taxable portion of distributions and Roth conversions using the pro-rata rule.</COMMENTS>
+<TABLE_NUMBER>20000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>add &quot;IRA PROCESSING&quot; to job.audit_trail</action_description>
+<action_postfix>
+&quot;Processing IRA Accounts (Form 8606)&quot; job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has IRA account to process</condition_comment>
+<condition_description>Has IRA account to process</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Is traditional IRA</condition_comment>
+<condition_description>Is traditional IRA</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

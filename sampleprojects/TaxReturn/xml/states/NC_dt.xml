@@ -1,91 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for North Carolina
-
-  North Carolina Tax Structure (2025):
-  - Flat tax rate: 4.25% (reducing to 3.99% in 2026+)
-  - Standard deduction: $12,750 single, $25,500 MFJ, $22,500 HOH
-  - Military retirement: Full exemption for 20+ years or medical retirement
-  - MSRRA and SCRA compliant
-
-  Table Number: 43000-43099 (NC is state #30 alphabetically)
-
-  This file will be merged into TaxReturn_dt.xml by scripts/merge-states.sh
--->
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 43000: Calculate_NC_Tax - North Carolina State Income Tax      -->
-<!-- ====================================================================== -->
+<!-- TABLE 43050: Calculate_NC_Military_Retirement_Exclusion -->
+<decision_table>
+<table_name>Calculate_NC_Military_Retirement_Exclusion</table_name>
+<xls_file>NC.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>North Carolina military retirement pay exclusion. Full exemption for 20+ years of service or medical retirement (Group B). Changed from partial to full exemption in 2021. MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
+<TABLE_NUMBER>43050</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No military retirement pay - no exclusion</action_comment>
+<action_description>No military retirement pay - no exclusion</action_description>
+<action_postfix>
+
+</action_postfix>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 43000: Calculate_NC_Tax -->
 <decision_table>
 <table_name>Calculate_NC_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>NC.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>North Carolina state income tax calculation. Implements flat 4.25% tax rate with standard deductions per NC tax code (2025).</COMMENTS>
 <TABLE_NUMBER>43000</TABLE_NUMBER>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions>
-<initial_action>
-<action_description>Initialize North Carolina tax calculation</action_description>
-<action_postfix>
-"North Carolina Tax Calculation Started" job.audit_trail swap addto
-0 /result.nc_subtractions xdef
-</action_postfix>
-</initial_action>
 </initial_actions>
-
 <conditions>
-<!-- Condition 1: Filing status is Single -->
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Filing status is Single</condition_comment>
-<condition_description>result.filing_status "single" ==</condition_description>
-<condition_postfix>
-result.filing_status "single" ==
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-</condition_details>
-
-<!-- Condition 2: Filing status is Married Filing Jointly -->
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_description>result.filing_status "married_filing_jointly" ==</condition_description>
+<condition_description>Filing status is Married Filing Jointly</condition_description>
 <condition_postfix>
-result.filing_status "married_filing_jointly" ==
+result.filing_status &quot;married_filing_jointly&quot; ==
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
-
-<!-- Condition 3: Filing status is Head of Household -->
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_description>result.filing_status "head_of_household" ==</condition_description>
+<condition_description>Filing status is Head of Household</condition_description>
 <condition_postfix>
-result.filing_status "head_of_household" ==
+result.filing_status &quot;head_of_household&quot; ==
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
-
-<!-- Condition 4: Any other filing status -->
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Default case (Married Filing Separately, etc.)</condition_comment>
-<condition_description>true</condition_description>
+<condition_description>Default case (Married Filing Separately, etc.)</condition_description>
 <condition_postfix>
 true
 </condition_postfix>
@@ -95,185 +79,60 @@ true
 <condition_column column_number="4" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
-
 <actions>
-<!-- Action 1: Apply standard deduction for Single filers -->
-<action_details>
-<action_number>1</action_number>
-<action_comment>Single: Apply standard deduction $12,750</action_comment>
-<action_postfix>
-result.nc_standard_deduction_single /result.nc_total_deduction xdef
-"NC standard deduction (Single): $" result.nc_total_deduction cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
-</action_details>
-
-<!-- Action 2: Apply standard deduction for Married Filing Jointly -->
 <action_details>
 <action_number>2</action_number>
 <action_comment>Married Filing Jointly: Apply standard deduction $25,500</action_comment>
+<action_description>Married Filing Jointly: Apply standard deduction $25,500</action_description>
 <action_postfix>
-result.nc_standard_deduction_joint /result.nc_total_deduction xdef
-"NC standard deduction (MFJ): $" result.nc_total_deduction cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value=""></action_column>
-</action_details>
 
-<!-- Action 3: Apply standard deduction for Head of Household -->
+</action_postfix>
+</action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Head of Household: Apply standard deduction $22,500</action_comment>
+<action_description>Head of Household: Apply standard deduction $22,500</action_description>
 <action_postfix>
-result.nc_standard_deduction_hoh /result.nc_total_deduction xdef
-"NC standard deduction (HOH): $" result.nc_total_deduction cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value=""></action_column>
-</action_details>
 
-<!-- Action 4: Apply standard deduction for other filing statuses -->
+</action_postfix>
+</action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Other statuses: Apply single standard deduction $12,750</action_comment>
+<action_description>Other statuses: Apply single standard deduction $12,750</action_description>
 <action_postfix>
-result.nc_standard_deduction_single /result.nc_total_deduction xdef
-"NC standard deduction (Other): $" result.nc_total_deduction cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value=""></action_column>
-<action_column column_number="2" column_value=""></action_column>
-<action_column column_number="3" column_value=""></action_column>
-<action_column column_number="4" column_value="X"></action_column>
-</action_details>
 
-<!-- Action 5: Calculate NC AGI (all columns) -->
+</action_postfix>
+</action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate NC AGI (Federal AGI minus subtractions)</action_comment>
+<action_description>Calculate NC AGI (Federal AGI minus subtractions)</action_description>
 <action_postfix>
-result.agi result.nc_subtractions sub 0 max
-/result.nc_agi xdef
 
-"NC AGI (after subtractions): $" result.nc_agi cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value="X"></action_column>
 </action_details>
-
-<!-- Action 6: Calculate NC taxable income (all columns) -->
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate NC taxable income (NC AGI - standard deduction, minimum 0)</action_comment>
+<action_description>Calculate NC taxable income (NC AGI - standard deduction, minimum 0)</action_description>
 <action_postfix>
-result.nc_agi result.nc_total_deduction sub 0 max
-/result.nc_taxable_income xdef
 
-"NC taxable income: $" result.nc_taxable_income cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value="X"></action_column>
 </action_details>
-
-<!-- Action 7: Calculate NC tax liability (all columns) -->
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate NC tax: taxable income × 4.25%</action_comment>
+<action_description>Calculate NC tax: taxable income × 4.25%</action_description>
 <action_postfix>
-result.nc_taxable_income result.nc_tax_rate mul
-/result.state_tax_liability xdef
 
-"North Carolina tax calculated: $" result.state_tax_liability cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value="X"></action_column>
-</action_details>
-</actions>
-
-</decision_table>
-
-<!-- ====================================================================== -->
-<!-- TABLE 43050: Calculate_NC_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
-<decision_table>
-<table_name>Calculate_NC_Military_Retirement_Exclusion</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>North Carolina military retirement pay exclusion. Full exemption for 20+ years of service or medical retirement (Group B). Changed from partial to full exemption in 2021. MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
-<TABLE_NUMBER>43050</TABLE_NUMBER>
-</attribute_fields>
-
-<contexts></contexts>
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize NC military retirement exclusion calculation</action_description>
-<action_postfix>
-"NC Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
-0 /result.nc_military_retirement_exclusion xdef
-</action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
-<condition_postfix>
-taxpayer.military_retirement_pay 0 gt
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-</condition_details>
-</conditions>
-
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Full exclusion - 100% of military retirement pay excluded from NC taxable income. Requirement: 20+ years of service or medical retirement (changed from partial to full in 2021).</action_comment>
-<action_postfix>
-<!-- North Carolina provides full exemption for military retirement pay -->
-<!-- Requirement: 20+ years of service OR medical retirement -->
-<!-- Changed from partial to full exemption in 2021 -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
-taxpayer.military_retirement_pay
-/result.nc_military_retirement_exclusion xdef
-
-<!-- Add to state subtractions -->
-result.nc_subtractions
-result.nc_military_retirement_exclusion add
-/result.nc_subtractions xdef
-
-"NC Military Retirement Exclusion (Full for 20+ yrs or medical): $" result.nc_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>No military retirement pay - no exclusion</action_comment>
-<action_postfix>
-0 /result.nc_military_retirement_exclusion xdef
-"NC Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
-</action_details>
 </actions>
-
+<policy_statements>
+</policy_statements>
 </decision_table>
-
 </decision_tables>

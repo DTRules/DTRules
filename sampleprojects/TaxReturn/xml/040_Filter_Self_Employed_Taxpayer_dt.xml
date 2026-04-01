@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 9010: Filter_Self_Employed_Taxpayer -->
+<decision_table>
+<table_name>Filter_Self_Employed_Taxpayer</table_name>
+<xls_file>040_Filter_Self_Employed_Taxpayer.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Helper table that processes taxpayer if self-employed.</COMMENTS>
+<TABLE_NUMBER>9010</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Taxpayer is self-employed</condition_comment>
+<condition_description>Taxpayer is self-employed</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Process self-employed taxpayer</action_comment>
+<action_description>Process self-employed taxpayer</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Skip non-self-employed</action_comment>
+<action_description>Skip non-self-employed</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

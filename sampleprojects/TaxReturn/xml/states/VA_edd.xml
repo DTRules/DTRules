@@ -1,59 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Virginia (VA)
-
-  Virginia has a progressive income tax with 4 brackets:
-  - 2% on income up to $3,000
-  - 3% on income $3,001-$5,000
-  - 5% on income $5,001-$17,000
-  - 5.75% on income over $17,000
-
-  Standard deductions for 2025:
-  - Single: $8,750
-  - Joint: $17,500
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/VA/44600_VA_constants</file_path>
-  </file_metadata>
-  <!-- Virginia state tax constants -->
-  <entity name="result">
-    <!-- Standard deductions -->
-    <field name="va_standard_deduction_single" type="double" default_value="8750.0"
-           comment="VA standard deduction single (2025)"/>
-    <field name="va_standard_deduction_joint" type="double" default_value="17500.0"
-           comment="VA standard deduction married filing jointly (2025)"/>
-    <field name="va_standard_deduction_hoh" type="double" default_value="8750.0"
-           comment="VA standard deduction head of household (2025)"/>
-    <field name="va_standard_deduction_mfs" type="double" default_value="8750.0"
-           comment="VA standard deduction married filing separately (2025)"/>
-
-    <!-- Progressive tax brackets -->
-    <field name="va_bracket_1_limit" type="double" default_value="3000.0"
-           comment="VA tax bracket 1 upper limit (2025)"/>
-    <field name="va_bracket_1_rate" type="double" default_value="0.02"
-           comment="VA tax rate for bracket 1 - 2% (2025)"/>
-
-    <field name="va_bracket_2_limit" type="double" default_value="5000.0"
-           comment="VA tax bracket 2 upper limit (2025)"/>
-    <field name="va_bracket_2_rate" type="double" default_value="0.03"
-           comment="VA tax rate for bracket 2 - 3% (2025)"/>
-
-    <field name="va_bracket_3_limit" type="double" default_value="17000.0"
-           comment="VA tax bracket 3 upper limit (2025)"/>
-    <field name="va_bracket_3_rate" type="double" default_value="0.05"
-           comment="VA tax rate for bracket 3 - 5% (2025)"/>
-
-    <field name="va_bracket_4_rate" type="double" default_value="0.0575"
-           comment="VA tax rate for bracket 4 (income > $17,000) - 5.75% (2025)"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="va_military_retirement_exemption" type="double" default_value="40000.0"
-           comment="VA military retirement exemption amount (2025). Source: MOAA State Report Card"/>
-    <field name="va_military_retirement_taxable" type="double" default_value="0.0"
-           comment="VA taxable military retirement after exemption (computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="VA.xlsx" access="rw">
+		<field name="va_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3000.0" comment="VA tax bracket 1 upper limit (2025)"></field>
+		<field name="va_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="VA tax rate for bracket 1 - 2% (2025)"></field>
+		<field name="va_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="5000.0" comment="VA tax bracket 2 upper limit (2025)"></field>
+		<field name="va_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="VA tax rate for bracket 2 - 3% (2025)"></field>
+		<field name="va_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="17000.0" comment="VA tax bracket 3 upper limit (2025)"></field>
+		<field name="va_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.05" comment="VA tax rate for bracket 3 - 5% (2025)"></field>
+		<field name="va_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.0575" comment="VA tax rate for bracket 4 (income &gt; $17,000) - 5.75% (2025)"></field>
+		<field name="va_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="40000.0" comment="VA military retirement exemption amount (2025). Source: MOAA State Report Card"></field>
+		<field name="va_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="VA taxable military retirement after exemption (computed)"></field>
+		<field name="va_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="8750.0" comment="VA standard deduction head of household (2025)"></field>
+		<field name="va_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="17500.0" comment="VA standard deduction married filing jointly (2025)"></field>
+		<field name="va_standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="8750.0" comment="VA standard deduction married filing separately (2025)"></field>
+		<field name="va_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="8750.0" comment="VA standard deduction single (2025)"></field>
+	</entity>
 </entity_data_dictionary>

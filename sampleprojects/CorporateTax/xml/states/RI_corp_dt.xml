@@ -1,20 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Rhode Island
-
-  Rhode Island General Laws Title 44 Chapter 11
-  - Tax rate: 7.0% flat rate on net income
-  - Apportionment: Single-sales factor (100% sales)
-  - Economic nexus: $100,000 in gross receipts or 200 transactions
-  - Form: RI Form RI-1120C (Corporate Income Tax Return)
-
-  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54300: Determine_RI_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_RI_Filing_Requirement</table_name>
 <xls_file>RI_Corp.xls</xls_file>
@@ -25,7 +14,7 @@
 <FILE_PATH>states/RI/54300_Determine_RI_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -45,9 +34,9 @@
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "RI" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -58,9 +47,9 @@ apportionment.state_code get "RI" streq and
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "RI" streq and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -77,7 +66,7 @@ apportionment.state_code get "RI" streq and
 
 "RI filing required - physical nexus" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -93,7 +82,7 @@ apportionment.state_code get "RI" streq and
 
 "RI filing required - economic nexus" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -104,15 +93,15 @@ apportionment.state_code get "RI" streq and
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "RI - no nexus, no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54320: Calculate_RI_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_RI_Income_Adjustments</table_name>
 <xls_file>RI_Corp.xls</xls_file>
@@ -123,7 +112,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <FILE_PATH>states/RI/54320_Calculate_RI_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -137,14 +126,14 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus with RI</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Has nexus with RI; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -157,7 +146,7 @@ apportionment.has_physical_presence get true eq or
 0.0 /apportionment.state_subtractions xdef
 "RI income adjustments calculated. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction, Federal bonus depreciation not allowed by RI. Subtractions may include: Interest on Rhode Island state and municipal obligations, Capital gains on certain qualified Rhode Island investments, Rhode Island net operating loss deduction. Reference: RI Form RI-1120C Instructions, R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -169,15 +158,15 @@ apportionment.has_physical_presence get true eq or
 
 "RI - no nexus, no adjustments" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54380: Calculate_RI_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_RI_State_Tax</table_name>
 <xls_file>RI_Corp.xls</xls_file>
@@ -188,7 +177,7 @@ apportionment.has_physical_presence get true eq or
 <FILE_PATH>states/RI/54380_Calculate_RI_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 <initial_action>
@@ -202,15 +191,15 @@ apportionment.has_physical_presence get true eq or
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus with RI</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Has nexus with RI; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -220,9 +209,9 @@ apportionment.has_physical_presence get true eq or
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="" />
 </condition_details>
 </conditions>
 
@@ -236,7 +225,7 @@ apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apporti
 apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
 "RI tax calculated at 7% flat rate. Reference: R.I. Gen. Laws 44-11-2" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -247,7 +236,7 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "RI - nexus but no taxable income. RI NOL carryforward rules may apply. Reference: R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -258,7 +247,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 "RI - no nexus, no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

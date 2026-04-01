@@ -1,40 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Oregon (OR) Corporate Tax Decision Tables
-
-  Oregon Revised Statutes Chapter 317
-  - Tax rate: 6.6% flat rate on net income (7.6% for financial institutions)
-  - Minimum tax: $150 to $100,000 based on Oregon sales
-  - Apportionment: Single-sales factor (100% sales)
-  - Economic nexus: $750,000 in Oregon sales
-  - Form: Oregon Form 20 (Corporation Excise Tax Return)
-
-  Table number allocation: 54200-54299
-  - 54200: Determine_OR_Filing_Requirement
-  - 54220: Calculate_OR_Income_Adjustments
-  - 54280: Calculate_OR_State_Tax
-
-  References:
-  - ORS 317.061 (Tax rates: 6.6% standard, 7.6% financial institutions)
-  - ORS 317.090 (Minimum tax schedule based on Oregon sales)
-  - ORS 317.267 (Single-sales factor apportionment)
-  - Oregon Form 20 Instructions (Corporation Excise Tax Return)
-  - Oregon Department of Revenue Corporate Activity Tax guidance
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54200: Determine OR Corporate Tax Filing Requirement            -->
-<!-- ====================================================================== -->
-<!--
-  Determines if corporation must file OR state tax return.
 
-  Nexus types:
-  - Physical presence: Office, employees, property in Oregon
-  - Economic nexus (post-Wayfair): $750,000 in Oregon sales (higher than typical)
 
-  Oregon uses a higher economic nexus threshold than most states.
--->
+
+
 <decision_table>
 <table_name>Determine_OR_Filing_Requirement</table_name>
 <xls_file>OR_Corp.xls</xls_file>
@@ -45,7 +15,7 @@
 <FILE_PATH>states/OR/54200_Determine_OR_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -60,9 +30,9 @@ apportionment.has_physical_presence true eq
 apportionment.state_code "OR" streq
 and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -74,9 +44,9 @@ apportionment.has_economic_nexus true eq
 apportionment.state_code "OR" streq
 and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -88,29 +58,29 @@ and
 <action_postfix>
 // Physical nexus established - filing required
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>Economic nexus - filing required</action_comment>
-<action_description>Economic nexus established per Wayfair - filing required. OR threshold: $750,000 in sales</action_description>
+<action_comment>Economic nexus - filing required; Economic nexus established per Wayfair - filing required. OR threshold: $750,000 in sales</action_comment>
+<action_description />
 <action_postfix>
 // Economic nexus established per Wayfair - filing required
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No nexus - no filing required</action_comment>
-<action_description>No nexus - no filing required</action_description>
+<action_comment>No nexus - no filing required; No nexus - no filing required</action_comment>
+<action_description />
 <action_postfix>
 // No nexus - no filing required
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
@@ -139,25 +109,10 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54220: Calculate OR State-Specific Income Adjustments           -->
-<!-- ====================================================================== -->
-<!--
-  Calculates OR additions and subtractions to federal taxable income.
 
-  Common OR additions:
-  - Interest on U.S. government obligations (exempt federally, taxable to OR)
-  - State income tax refunds included in federal income
-  - IRC Section 199A qualified business income deduction (OR may require addback)
-  - Federal bonus depreciation (OR may decouple)
-  - Certain expenses related to exempt income
 
-  Common OR subtractions:
-  - Interest on Oregon state and municipal bonds (exempt for OR purposes)
-  - Oregon net operating loss deduction (if different from federal)
-  - Dividends from certain subsidiaries
-  - Federal income taxes paid (if included in federal taxable income)
--->
+
+
 <decision_table>
 <table_name>Calculate_OR_Income_Adjustments</table_name>
 <xls_file>OR_Corp.xls</xls_file>
@@ -168,7 +123,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <FILE_PATH>states/OR/54220_Calculate_OR_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -176,41 +131,41 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus</condition_comment>
-<condition_description>Must have nexus to calculate adjustments</condition_description>
+<condition_comment>Has nexus; Must have nexus to calculate adjustments</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate OR state additions and subtractions</action_comment>
-<action_description>Calculate OR state additions and subtractions to federal taxable income</action_description>
+<action_comment>Calculate OR state additions and subtractions; Calculate OR state additions and subtractions to federal taxable income</action_comment>
+<action_description />
 <action_postfix>
 // Calculate OR state additions and subtractions
 apportionment.state_additions 0.0 xdef
 apportionment.state_subtractions 0.0 xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no adjustments</action_comment>
-<action_description>No nexus - no state adjustments calculated</action_description>
+<action_comment>No nexus - no adjustments; No nexus - no state adjustments calculated</action_comment>
+<action_description />
 <action_postfix>
 // No nexus - no state adjustments
 apportionment.state_additions 0.0 xdef
 apportionment.state_subtractions 0.0 xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
@@ -232,43 +187,10 @@ apportionment.state_subtractions 0.0 xdef
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54280: Calculate OR State Tax                                   -->
-<!-- ====================================================================== -->
-<!--
-  Calculates final OR state corporate excise tax.
 
-  Oregon has TWO tax components:
-  1. Excise tax: 6.6% of apportioned taxable income (7.6% for financial institutions)
-  2. Minimum tax: $150 to $100,000 based on Oregon sales (REQUIRED)
 
-  The corporation pays the GREATER of the two amounts.
 
-  Process:
-  1. Federal taxable income apportioned to OR (done by table 7500)
-  2. Add state-specific additions (done by table 54220)
-  3. Subtract state-specific subtractions (done by table 54220)
-  4. Calculate OR state taxable income
-  5. Apply OR tax rate (6.6% or 7.6% for financial institutions)
-  6. Calculate minimum tax based on Oregon sales
-  7. Tax liability = MAX(excise tax, minimum tax)
-  8. Subtract OR state credits
-  9. Calculate refund or amount owed
 
-  Minimum Tax Schedule (ORS 317.090):
-  - Less than $500,000: $150
-  - $500,000 to $999,999: $500
-  - $1 million to $1.999 million: $1,000
-  - $2 million to $2.999 million: $1,500
-  - $3 million to $4.999 million: $2,000
-  - $5 million to $6.999 million: $4,000
-  - $7 million to $9.999 million: $7,500
-  - $10 million to $24.999 million: $15,000
-  - $25 million to $49.999 million: $30,000
-  - $50 million to $74.999 million: $50,000
-  - $75 million to $99.999 million: $75,000
-  - $100 million or more: $100,000
--->
 <decision_table>
 <table_name>Calculate_OR_State_Tax</table_name>
 <xls_file>OR_Corp.xls</xls_file>
@@ -279,7 +201,7 @@ apportionment.state_subtractions 0.0 xdef
 <FILE_PATH>states/OR/54280_Calculate_OR_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -294,10 +216,10 @@ apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 
 <condition_details>
@@ -307,31 +229,31 @@ or
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Is financial institution</condition_comment>
-<condition_description>Is financial institution subject to 7.6% rate</condition_description>
+<condition_comment>Is financial institution; Is financial institution subject to 7.6% rate</condition_comment>
+<condition_description />
 <condition_postfix>
 result.or_is_financial_institution true eq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
-<condition_column column_number="4" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="" />
+<condition_column column_number="4" column_value="" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate OR tax for financial institutions (7.6% rate)</action_comment>
-<action_description>Financial institutions use 7.6% rate instead of 6.6%</action_description>
+<action_comment>Calculate OR tax for financial institutions (7.6% rate); Financial institutions use 7.6% rate instead of 6.6%</action_comment>
+<action_description />
 <action_postfix>
 // Financial institutions use 7.6% rate
 apportionment.state_tax apportionment.state_taxable_income result.or_financial_institution_rate mul xdef
@@ -344,13 +266,13 @@ apportionment.state_tax apportionment.state_tax apportionment.state_credits sub 
 // Calculate refund or amount owed
 apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate OR tax for regular corporations (6.6% rate)</action_comment>
-<action_description>Regular corporations use 6.6% flat rate</action_description>
+<action_comment>Calculate OR tax for regular corporations (6.6% rate); Regular corporations use 6.6% flat rate</action_comment>
+<action_description />
 <action_postfix>
 // Regular corporations use 6.6% flat rate
 apportionment.state_tax apportionment.state_taxable_income apportionment.state_tax_rate mul xdef
@@ -363,26 +285,26 @@ apportionment.state_tax apportionment.state_tax apportionment.state_credits sub 
 // Calculate refund or amount owed
 apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No nexus - no tax liability</action_comment>
-<action_description>No nexus - no tax liability</action_description>
+<action_comment>No nexus - no tax liability; No nexus - no tax liability</action_comment>
+<action_description />
 <action_postfix>
 // No nexus - no tax liability
 apportionment.state_tax 0.0 xdef
 result.or_minimum_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>4</action_number>
-<action_comment>Nexus but no taxable income (still owe minimum tax!)</action_comment>
-<action_description>No excise tax, but MINIMUM TAX STILL APPLIES</action_description>
+<action_comment>Nexus but no taxable income (still owe minimum tax!); No excise tax, but MINIMUM TAX STILL APPLIES</action_comment>
+<action_description />
 <action_postfix>
 // Nexus but no taxable income - minimum tax still applies
 // Minimum tax calculated by separate table
@@ -390,7 +312,7 @@ apportionment.state_tax result.or_minimum_tax xdef
 // Calculate refund or amount owed
 apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 

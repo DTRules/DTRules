@@ -1,61 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Minnesota
-
-  Minnesota has progressive tax brackets (2025):
-  - 5.35% on income up to $32,570
-  - 6.80% on income $32,571 to $106,990
-  - 7.85% on income $106,991 to $198,630
-  - 9.85% on income over $198,631
-
-  Standard deduction: $14,950 (single), $29,900 (MFJ)
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/MN/42300_MN_constants</file_path>
-  </file_metadata>
-  <!-- Minnesota state tax constants -->
-  <entity name="result">
-    <!-- Standard deductions -->
-    <field name="mn_standard_deduction_single" type="double" default_value="14950"
-           comment="MN standard deduction single (2025)"/>
-    <field name="mn_standard_deduction_joint" type="double" default_value="29900"
-           comment="MN standard deduction married filing jointly (2025)"/>
-    <field name="mn_standard_deduction_hoh" type="double" default_value="14950"
-           comment="MN standard deduction head of household (2025)"/>
-
-    <!-- Progressive tax brackets for single filers -->
-    <field name="mn_bracket_1_limit_single" type="double" default_value="32570"
-           comment="MN tax bracket 1 upper limit single: $0-$32,570 (2025)"/>
-    <field name="mn_bracket_1_rate" type="double" default_value="0.0535"
-           comment="MN tax rate for bracket 1: 5.35% (2025)"/>
-
-    <field name="mn_bracket_2_limit_single" type="double" default_value="106990"
-           comment="MN tax bracket 2 upper limit single: $32,571-$106,990 (2025)"/>
-    <field name="mn_bracket_2_rate" type="double" default_value="0.0680"
-           comment="MN tax rate for bracket 2: 6.80% (2025)"/>
-
-    <field name="mn_bracket_3_limit_single" type="double" default_value="198630"
-           comment="MN tax bracket 3 upper limit single: $106,991-$198,630 (2025)"/>
-    <field name="mn_bracket_3_rate" type="double" default_value="0.0785"
-           comment="MN tax rate for bracket 3: 7.85% (2025)"/>
-
-    <field name="mn_bracket_4_rate" type="double" default_value="0.0985"
-           comment="MN tax rate for bracket 4 (over $198,630): 9.85% (2025)"/>
-
-    <!-- Progressive tax brackets for married filing jointly -->
-    <field name="mn_bracket_1_limit_joint" type="double" default_value="47620"
-           comment="MN tax bracket 1 upper limit MFJ: $0-$47,620 (2025)"/>
-    <field name="mn_bracket_2_limit_joint" type="double" default_value="189180"
-           comment="MN tax bracket 2 upper limit MFJ: $47,621-$189,180 (2025)"/>
-    <field name="mn_bracket_3_limit_joint" type="double" default_value="330410"
-           comment="MN tax bracket 3 upper limit MFJ: $189,181-$330,410 (2025)"/>
-
-    <!-- Calculated fields -->
-    <field name="mn_taxable_income" type="double" default_value="0.0"
-           comment="MN taxable income after standard deduction"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="MN.xlsx" access="rw">
+		<field name="mn_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="47620" comment="MN tax bracket 1 upper limit MFJ: $0-$47,620 (2025)"></field>
+		<field name="mn_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="32570" comment="MN tax bracket 1 upper limit single: $0-$32,570 (2025)"></field>
+		<field name="mn_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0535" comment="MN tax rate for bracket 1: 5.35% (2025)"></field>
+		<field name="mn_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="189180" comment="MN tax bracket 2 upper limit MFJ: $47,621-$189,180 (2025)"></field>
+		<field name="mn_bracket_2_limit_single" type="double" subtype="" access="r" input="" default_value="106990" comment="MN tax bracket 2 upper limit single: $32,571-$106,990 (2025)"></field>
+		<field name="mn_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.0680" comment="MN tax rate for bracket 2: 6.80% (2025)"></field>
+		<field name="mn_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="330410" comment="MN tax bracket 3 upper limit MFJ: $189,181-$330,410 (2025)"></field>
+		<field name="mn_bracket_3_limit_single" type="double" subtype="" access="r" input="" default_value="198630" comment="MN tax bracket 3 upper limit single: $106,991-$198,630 (2025)"></field>
+		<field name="mn_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.0785" comment="MN tax rate for bracket 3: 7.85% (2025)"></field>
+		<field name="mn_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.0985" comment="MN tax rate for bracket 4 (over $198,630): 9.85% (2025)"></field>
+		<field name="mn_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="14950" comment="MN standard deduction head of household (2025)"></field>
+		<field name="mn_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="29900" comment="MN standard deduction married filing jointly (2025)"></field>
+		<field name="mn_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="14950" comment="MN standard deduction single (2025)"></field>
+		<field name="mn_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="MN taxable income after standard deduction"></field>
+	</entity>
 </entity_data_dictionary>

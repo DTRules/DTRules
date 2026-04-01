@@ -1,55 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Territory-specific constants for US Virgin Islands (VI)
-
-  USVI operates under a "mirror code" system - mirrors the US Internal Revenue Code.
-  Bona fide residents file with VI Bureau of Internal Revenue instead of IRS,
-  but use same tax rates and rules as federal system.
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-    <!-- Bona fide residence test -->
-    <field name="vi_bona_fide_resident" type="boolean" default_value="false"
-           comment="True if taxpayer meets bona fide resident test for USVI"/>
-    <field name="vi_days_present" type="integer" default_value="0"
-           comment="Number of days present in USVI during tax year (183+ required)"/>
-    <field name="vi_has_tax_home" type="boolean" default_value="false"
-           comment="True if taxpayer has tax home in USVI"/>
-    <field name="vi_closer_connection" type="boolean" default_value="false"
-           comment="True if taxpayer has closer connection to VI than US"/>
-
-    <!-- Economic Development Commission (EDC) benefits -->
-    <field name="vi_has_edc_benefits" type="boolean" default_value="false"
-           comment="True if taxpayer qualifies for EDC tax benefits"/>
-    <field name="vi_edc_reduction_rate" type="double" default_value="0.90"
-           comment="EDC tax reduction rate (up to 90% reduction on qualified income)"/>
-    <field name="vi_edc_qualified_income" type="double" default_value="0.0"
-           comment="Income qualifying for EDC benefits"/>
-
-    <!-- Income sourcing and allocation -->
-    <field name="vi_source_income" type="double" default_value="0.0"
-           comment="Income sourced from USVI"/>
-    <field name="vi_us_source_income" type="double" default_value="0.0"
-           comment="Income sourced from US mainland"/>
-    <field name="vi_worldwide_income" type="double" default_value="0.0"
-           comment="Total worldwide income for allocation"/>
-
-    <!-- Filing requirements -->
-    <field name="vi_requires_form_8689" type="boolean" default_value="false"
-           comment="True if taxpayer must file Form 8689 (income allocation)"/>
-    <field name="vi_files_with_irb" type="boolean" default_value="false"
-           comment="True if taxpayer files with VI Bureau of Internal Revenue"/>
-    <field name="vi_files_with_irs" type="boolean" default_value="false"
-           comment="True if taxpayer also files with IRS (partial-year or non-resident)"/>
-
-    <!-- Mirror code - uses federal rates -->
-    <field name="vi_uses_federal_rates" type="boolean" default_value="true"
-           comment="USVI uses mirror code (same as federal tax code)"/>
-
-    <!-- Calculated tax -->
-    <field name="vi_income_tax" type="double" default_value="0.0"
-           comment="Calculated USVI income tax liability (mirrors federal)"/>
-    <field name="vi_income_tax_after_edc" type="double" default_value="0.0"
-           comment="USVI tax after EDC benefits applied"/>
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="VI.xlsx" access="rw">
+		<field name="vi_bona_fide_resident" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer meets bona fide resident test for USVI"></field>
+		<field name="vi_closer_connection" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer has closer connection to VI than US"></field>
+		<field name="vi_days_present" type="integer" subtype="" access="r" input="" default_value="0" comment="Number of days present in USVI during tax year (183+ required)"></field>
+		<field name="vi_edc_qualified_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Income qualifying for EDC benefits"></field>
+		<field name="vi_edc_reduction_rate" type="double" subtype="" access="r" input="" default_value="0.90" comment="EDC tax reduction rate (up to 90% reduction on qualified income)"></field>
+		<field name="vi_files_with_irb" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer files with VI Bureau of Internal Revenue"></field>
+		<field name="vi_files_with_irs" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer also files with IRS (partial-year or non-resident)"></field>
+		<field name="vi_has_edc_benefits" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer qualifies for EDC tax benefits"></field>
+		<field name="vi_has_tax_home" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer has tax home in USVI"></field>
+		<field name="vi_income_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Calculated USVI income tax liability (mirrors federal)"></field>
+		<field name="vi_income_tax_after_edc" type="double" subtype="" access="r" input="" default_value="0.0" comment="USVI tax after EDC benefits applied"></field>
+		<field name="vi_requires_form_8689" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer must file Form 8689 (income allocation)"></field>
+		<field name="vi_source_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Income sourced from USVI"></field>
+		<field name="vi_us_source_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Income sourced from US mainland"></field>
+		<field name="vi_uses_federal_rates" type="boolean" subtype="" access="r" input="" default_value="true" comment="USVI uses mirror code (same as federal tax code)"></field>
+		<field name="vi_worldwide_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total worldwide income for allocation"></field>
+	</entity>
 </entity_data_dictionary>

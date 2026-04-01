@@ -1,52 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Mississippi
-
-  Mississippi has a simple progressive tax structure:
-  - 0% on first $10,000 of taxable income
-  - 4.4% on income over $10,000 (2025)
-
-  Standard deductions:
-  - Single: $2,300
-  - MFJ: $4,600
-  - HOH: $3,400
-  - MFS: $2,300
-
-  Personal exemptions:
-  - $6,000 per person
-  - $1,500 per dependent
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/MS/42400_MS_constants</file_path>
-  </file_metadata>
-  <entity name="result">
-    <!-- Standard deductions -->
-    <field name="ms_standard_deduction_single" type="double" default_value="2300.0"
-           comment="MS standard deduction single (2025)"/>
-    <field name="ms_standard_deduction_joint" type="double" default_value="4600.0"
-           comment="MS standard deduction married filing jointly (2025)"/>
-    <field name="ms_standard_deduction_hoh" type="double" default_value="3400.0"
-           comment="MS standard deduction head of household (2025)"/>
-    <field name="ms_standard_deduction_mfs" type="double" default_value="2300.0"
-           comment="MS standard deduction married filing separately (2025)"/>
-
-    <!-- Personal exemptions -->
-    <field name="ms_personal_exemption" type="double" default_value="6000.0"
-           comment="MS personal exemption (2025)"/>
-    <field name="ms_dependent_exemption" type="double" default_value="1500.0"
-           comment="MS dependent exemption per dependent (2025)"/>
-
-    <!-- Progressive tax brackets -->
-    <field name="ms_bracket_1_limit" type="double" default_value="10000.0"
-           comment="MS tax bracket 1 upper limit - 0% rate applies (2025)"/>
-    <field name="ms_bracket_1_rate" type="double" default_value="0.0"
-           comment="MS tax rate for bracket 1 - 0% (2025)"/>
-
-    <field name="ms_bracket_2_rate" type="double" default_value="0.044"
-           comment="MS tax rate for bracket 2 - 4.4% on income over $10,000 (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="MS.xlsx" access="rw">
+		<field name="ms_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="10000.0" comment="MS tax bracket 1 upper limit - 0% rate applies (2025)"></field>
+		<field name="ms_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="MS tax rate for bracket 1 - 0% (2025)"></field>
+		<field name="ms_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.044" comment="MS tax rate for bracket 2 - 4.4% on income over $10,000 (2025)"></field>
+		<field name="ms_dependent_exemption" type="double" subtype="" access="r" input="" default_value="1500.0" comment="MS dependent exemption per dependent (2025)"></field>
+		<field name="ms_personal_exemption" type="double" subtype="" access="r" input="" default_value="6000.0" comment="MS personal exemption (2025)"></field>
+		<field name="ms_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="3400.0" comment="MS standard deduction head of household (2025)"></field>
+		<field name="ms_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="4600.0" comment="MS standard deduction married filing jointly (2025)"></field>
+		<field name="ms_standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="2300.0" comment="MS standard deduction married filing separately (2025)"></field>
+		<field name="ms_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="2300.0" comment="MS standard deduction single (2025)"></field>
+	</entity>
 </entity_data_dictionary>

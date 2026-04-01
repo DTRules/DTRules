@@ -1,28 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Missouri Corporate Tax Decision Tables
-
-  Missouri corporate tax structure:
-  - Flat rate: 4.0% (Mo. Rev. Stat. § 143.071)
-  - Single-sales apportionment (100% sales factor)
-  - Economic nexus: $100,000 in gross receipts
-  - UNIQUE FEATURE: Missouri allows deduction of 50% of federal income tax paid
-
-  Table Number Range: 53300-53399 (Missouri corporate allocation)
-
-  References:
-  - Mo. Rev. Stat. § 143.071 (Tax rate: 4.0%)
-  - Mo. Rev. Stat. § 143.121 (50% federal tax deduction)
-  - Mo. Rev. Stat. § 32.200 (Single-sales apportionment)
-  - MO Form MO-1120 (Corporation Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 53300: Determine MO Corporate Tax Filing Requirement
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Determine_MO_Corporate_Filing_Requirement</table_name>
     <xls_file>MO_Corp.xls</xls_file>
@@ -31,7 +10,7 @@
       <COMMENTS>Determine if corporation must file Missouri corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
       <TABLE_NUMBER>53300</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Missouri filing requirement check</action_description>
@@ -49,20 +28,20 @@ false result.mo_has_nexus xdef
         <condition_postfix>
 result.has_physical_presence_mo true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Meets economic nexus threshold ($100K gross receipts)</condition_comment>
-        <condition_description>result.mo_gross_receipts is greater than or equal to result.mo_economic_nexus_threshold</condition_description>
+        <condition_comment>Meets economic nexus threshold ($100K gross receipts); result.mo_gross_receipts is greater than or equal to result.mo_economic_nexus_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.mo_gross_receipts result.mo_economic_nexus_threshold >=
+result.mo_gross_receipts result.mo_economic_nexus_threshold &gt;=
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
@@ -75,7 +54,7 @@ result.mo_gross_receipts result.mo_economic_nexus_threshold >=
 true result.mo_has_nexus xdef
 "Missouri filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -86,7 +65,7 @@ true result.mo_has_nexus xdef
 true result.mo_has_nexus xdef
 "Missouri filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -98,16 +77,12 @@ false result.mo_has_nexus xdef
 0.0 result.mo_tax_liability xdef
 "Missouri filing not required: No nexus with state" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 53320: Calculate MO Corporate Income Adjustments
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_MO_Corporate_Income_Adjustments</table_name>
     <xls_file>MO_Corp.xls</xls_file>
@@ -116,7 +91,7 @@ false result.mo_has_nexus xdef
       <COMMENTS>Calculate Missouri state-specific additions and subtractions to federal taxable income. UNIQUE FEATURE: Missouri allows deduction of 50% of federal income tax paid.</COMMENTS>
       <TABLE_NUMBER>53320</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Missouri income adjustments</action_description>
@@ -135,15 +110,15 @@ false result.mo_has_nexus xdef
         <condition_postfix>
 result.mo_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Missouri state additions and subtractions (including 50% federal tax deduction)</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_comment>Calculate Missouri state additions and subtractions (including 50% federal tax deduction); Calculate state-specific income adjustments</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Missouri state additions
 0.0 /mo_additions xdef
@@ -183,7 +158,7 @@ mo_subtractions result.mo_state_subtractions xdef
 "Missouri additions: $" result.mo_state_additions cvs strconcat ", subtractions: $" strconcat result.mo_state_subtractions cvs strconcat job.audit_trail swap addto
 "Missouri 50% federal tax deduction: $" mo_federal_tax_deduction cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -194,16 +169,12 @@ mo_subtractions result.mo_state_subtractions xdef
 0.0 result.mo_state_subtractions xdef
 "Missouri adjustments not calculated: No nexus" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 53380: Calculate MO Corporate Tax
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_MO_Corporate_Tax</table_name>
     <xls_file>MO_Corp.xls</xls_file>
@@ -212,7 +183,7 @@ mo_subtractions result.mo_state_subtractions xdef
       <COMMENTS>Calculate Missouri corporate income tax. Applies Missouri flat rate (4.0%) to apportioned and adjusted taxable income. The 50% federal tax deduction significantly reduces effective tax burden.</COMMENTS>
       <TABLE_NUMBER>53380</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Missouri tax calculation</action_description>
@@ -231,27 +202,27 @@ mo_subtractions result.mo_state_subtractions xdef
         <condition_postfix>
 result.mo_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Has positive taxable income</condition_comment>
-        <condition_description>result.mo_apportioned_income is greater than 0</condition_description>
+        <condition_comment>Has positive taxable income; result.mo_apportioned_income is greater than 0</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.mo_apportioned_income 0.0 >
+result.mo_apportioned_income 0.0 &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="-" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Missouri corporate tax (flat rate 4.0%)</action_comment>
-        <action_description>Apply Missouri 4.0% flat rate</action_description>
+        <action_comment>Calculate Missouri corporate tax (flat rate 4.0%); Apply Missouri 4.0% flat rate</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Missouri taxable income
 // Federal taxable income apportioned to MO + additions - subtractions
@@ -277,7 +248,7 @@ result.mo_refund_or_owed xdef
 "Missouri taxable income: $" result.mo_taxable_income cvs strconcat job.audit_trail swap addto
 "Missouri tax liability (4.0%, effective ~3.6% after 50% federal tax deduction): $" result.mo_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -291,7 +262,7 @@ result.mo_refund_or_owed xdef
 result.mo_estimated_payments result.mo_refund_or_owed xdef
 "Missouri tax liability: $0 (no taxable income)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -304,7 +275,7 @@ result.mo_estimated_payments result.mo_refund_or_owed xdef
 result.mo_estimated_payments result.mo_refund_or_owed xdef
 "Missouri tax liability: $0 (no nexus)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>

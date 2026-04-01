@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 18000: Calculate_Student_Loan_Deduction -->
+<decision_table>
+<table_name>Calculate_Student_Loan_Deduction</table_name>
+<xls_file>059_Calculate_Student_Loan_Deduction.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates student loan interest deduction per Publication 970, IRC 221. Maximum $2,500 with AGI phase-out.</COMMENTS>
+<TABLE_NUMBER>18000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has student loan interest</condition_comment>
+<condition_description>Has student loan interest</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>Married Filing Jointly</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>MFJ AGI below phase-out start</condition_comment>
+<condition_description>MFJ AGI below phase-out start</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Single AGI below phase-out start</condition_comment>
+<condition_description>Single AGI below phase-out start</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Full student loan deduction</action_comment>
+<action_description>Full student loan deduction</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Student loan deduction with MFJ phase-out</action_comment>
+<action_description>Student loan deduction with MFJ phase-out</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Student loan deduction with Single phase-out</action_comment>
+<action_description>Student loan deduction with Single phase-out</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>No student loan interest</action_comment>
+<action_description>No student loan interest</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Full MFJ student loan interest deduction per IRC 221</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>MFJ student loan interest deduction with phase-out per IRC 221(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Full Single student loan interest deduction per IRC 221</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="4">
+<policy_description>Single student loan interest deduction with phase-out per IRC 221(b)</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="5">
+<policy_description>No student loan interest deduction - no interest paid</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for New Mexico
-
-  NM Corporate Income Tax Overview:
-  - Tax rate: 5.9% flat rate (effective 2025)
-  - Apportionment: Single-sales factor
-  - Economic nexus: $100,000 gross receipts threshold
-
-  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53900: Determine_NM_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_NM_Filing_Requirement</table_name>
 <xls_file>NM_Corp.xls</xls_file>
@@ -24,7 +14,7 @@
 <FILE_PATH>states/NM/53900_Determine_NM_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -39,9 +29,9 @@ apportionment.has_physical_presence true eq
 apportionment.state_code "NM" streq
 and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -53,9 +43,9 @@ apportionment.has_economic_nexus true eq
 apportionment.state_code "NM" streq
 and
 </condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -67,7 +57,7 @@ and
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -77,7 +67,7 @@ and
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -88,15 +78,15 @@ and
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53920: Calculate_NM_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NM_Income_Adjustments</table_name>
 <xls_file>NM_Corp.xls</xls_file>
@@ -107,7 +97,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <FILE_PATH>states/NM/53920_Calculate_NM_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -115,15 +105,15 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus with NM</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Has nexus with NM; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -138,7 +128,7 @@ or
 apportionment.state_additions additions xdef
 apportionment.state_subtractions subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -149,15 +139,15 @@ apportionment.state_subtractions subtractions xdef
 apportionment.state_additions 0.0 xdef
 apportionment.state_subtractions 0.0 xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 53980: Calculate_NM_State_Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_NM_State_Tax</table_name>
 <xls_file>NM_Corp.xls</xls_file>
@@ -168,7 +158,7 @@ apportionment.state_subtractions 0.0 xdef
 <FILE_PATH>states/NM/53980_Calculate_NM_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
 <initial_actions>
 </initial_actions>
@@ -176,28 +166,28 @@ apportionment.state_subtractions 0.0 xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has nexus with NM</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_description>
+<condition_comment>Has nexus with NM; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
 or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="" />
 </condition_details>
 </conditions>
 
@@ -219,7 +209,7 @@ state_tax_before_credits apportionment.state_credits sub
 apportionment.state_payments apportionment.state_tax sub
 /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -230,7 +220,7 @@ apportionment.state_payments apportionment.state_tax sub
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
@@ -241,7 +231,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 apportionment.state_tax 0.0 xdef
 apportionment.state_refund_or_owed apportionment.state_payments xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

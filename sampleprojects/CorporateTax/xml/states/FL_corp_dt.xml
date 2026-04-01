@@ -1,27 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    Florida Corporate Income Tax Decision Tables
+  
 
-    Florida imposes a 5.5% flat corporate income tax (FL Statute Section 220.11).
-    Uses single-sales factor apportionment.
-    Economic nexus threshold: $50,000 (lower than typical $100K).
-
-    Table numbering: 50300-50399 (FL allocation)
-  -->
-
-  <!--
-    ============================================================================
-    TABLE 50300: Determine FL Corporate Tax Filing Requirement
-    ============================================================================
-
-    Determines if corporation must file Florida state tax return.
-
-    Nexus types:
-    - Physical presence: Office, employees, property in FL
-    - Economic nexus: $50,000 gross receipts OR 200 transactions
-  -->
+  
   <decision_table>
     <table_name>Determine_FL_Filing_Requirement</table_name>
     <xls_file>FL_Corp.xls</xls_file>
@@ -30,8 +12,8 @@
       <COMMENTS>Determine if corporation must file Florida state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
       <TABLE_NUMBER>50300</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
-    <initial_actions></initial_actions>
+    <contexts />
+    <initial_actions />
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
@@ -40,9 +22,9 @@
         <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "FL" streq } over if
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
@@ -51,9 +33,9 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "FL"
         <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" streq } over if
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
@@ -63,7 +45,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" st
         <action_description>// Physical nexus established - filing required</action_description>
         <action_postfix>
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -71,16 +53,16 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" st
         <action_description>// Economic nexus established per Wayfair - filing required</action_description>
         <action_postfix>
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
-        <action_comment>No nexus - no filing required</action_comment>
-        <action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+        <action_comment>No nexus - no filing required; // No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+        <action_description />
         <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
     <policy_statements>
@@ -96,23 +78,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" st
     </policy_statements>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 50320: Calculate FL State-Specific Income Adjustments
-    ============================================================================
-
-    Calculates Florida additions and subtractions to federal taxable income.
-
-    Common Florida additions:
-    - Interest on U.S. government obligations (exempt federally, taxable to FL)
-    - State income tax refunds if included in federal income
-    - IRC Section 78 gross-up for foreign tax credit
-
-    Common Florida subtractions:
-    - Interest on state/municipal bonds (from states other than FL)
-    - Certain dividend income under FL law
-    - FL net operating loss deduction (separate from federal NOL)
-  -->
+  
   <decision_table>
     <table_name>Calculate_FL_Income_Adjustments</table_name>
     <xls_file>FL_Corp.xls</xls_file>
@@ -121,38 +87,38 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" st
       <COMMENTS>Calculate Florida state-specific additions and subtractions to federal taxable income.</COMMENTS>
       <TABLE_NUMBER>50320</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
-    <initial_actions></initial_actions>
+    <contexts />
+    <initial_actions />
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_comment>Must have nexus to calculate adjustments</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+        <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
+        <condition_description />
         <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Florida state additions and subtractions</action_comment>
-        <action_description>// Calculate Florida state additions and subtractions - placeholder; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+        <action_comment>Calculate Florida state additions and subtractions; // Calculate Florida state additions and subtractions - placeholder; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
+        <action_description />
         <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
-        <action_comment>No nexus - no Florida state adjustments</action_comment>
-        <action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+        <action_comment>No nexus - no Florida state adjustments; // No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
+        <action_description />
         <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
     <policy_statements>
@@ -165,24 +131,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
     </policy_statements>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 50380: Calculate FL State Tax
-    ============================================================================
-
-    Calculates final Florida state corporate income tax.
-
-    Florida uses a flat 5.5% tax rate (FL Statute Section 220.11).
-
-    Process:
-    1. Federal taxable income apportioned to FL (done by table 7500)
-    2. Add FL-specific additions (done by table 50320)
-    3. Subtract FL-specific subtractions (done by table 50320)
-    4. Calculate FL state taxable income
-    5. Apply FL 5.5% flat tax rate
-    6. Subtract FL state credits
-    7. Calculate refund or amount owed
-  -->
+  
   <decision_table>
     <table_name>Calculate_FL_State_Tax</table_name>
     <xls_file>FL_Corp.xls</xls_file>
@@ -191,59 +140,59 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
       <COMMENTS>Calculate Florida state corporate income tax. Applies FL 5.5% flat rate to apportioned and adjusted taxable income.</COMMENTS>
       <TABLE_NUMBER>50380</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
-    <initial_actions></initial_actions>
+    <contexts />
+    <initial_actions />
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_comment>Must have nexus to owe tax</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+        <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
+        <condition_description />
         <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="Y"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="Y" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive state taxable income</condition_comment>
-        <condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+        <condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
         <condition_postfix>
-apportionment.state_taxable_income 0.0 f>
+apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="-"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="-" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Florida 5.5% flat rate calculation</action_comment>
-        <action_description>// Florida uses 5.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+        <action_comment>Florida 5.5% flat rate calculation; // Florida uses 5.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
+        <action_description />
         <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
-        <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>// No nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+        <action_comment>No nexus - no tax liability; // No nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+        <action_description />
         <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
-        <action_comment>No taxable income - no tax liability</action_comment>
-        <action_description>// No taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+        <action_comment>No taxable income - no tax liability; // No taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+        <action_description />
         <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
     <policy_statements>

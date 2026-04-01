@@ -55,6 +55,7 @@ func init() {
 	Alias("ignore", "nop")
 	Alias("ignore", "performaliased")
 	Register("executetable", opExecuteTable)
+	Register("performtable", opPerformTable)
 	Register("performcatcherror", opPerformCatchError)
 }
 
@@ -623,6 +624,31 @@ func opExecuteTable(state dtrules.State) error {
 	}
 	// Call ExecuteTable which runs the decision tree directly without context
 	return dtObj.ExecuteTable(state)
+}
+
+// opPerformTable: ( name -- ) executes a decision table WITH its context
+// This is the operator to use when calling a table from outside, as it runs
+// the table's context setup (e.g., forall loops over entities).
+// Use executetable when calling a table from within its own context (to avoid recursion).
+func opPerformTable(state dtrules.State) error {
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	name, err := nameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+	// Get the decision table from the entity factory
+	dtObj, err := state.GetSession().GetEntityFactory().GetDecisionTable(name)
+	if err != nil {
+		return err
+	}
+	if dtObj == nil {
+		return dtrules.UndefinedError("PerformTable", "Decision table not found: "+name.StringValue())
+	}
+	// Call Execute which runs the context first (if any), then the decision tree
+	return dtObj.Execute(state)
 }
 
 // opPerformCatchError: ( table error_table error_entity -- )

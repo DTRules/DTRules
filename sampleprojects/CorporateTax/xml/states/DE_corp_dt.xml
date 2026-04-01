@@ -1,18 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Delaware Corporate Income Tax Decision Tables
-
-  Delaware imposes an 8.8% flat corporate income tax (DE Code Title 30 Section 1902).
-  Uses single-sales factor apportionment.
-  Economic nexus threshold: $100,000.
-
-  Table numbering: 52400-52499 (Delaware allocation)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52400: Determine DE Corporate Tax Filing Requirement            -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_DE_Filing_Requirement</table_name>
 <xls_file>DE_Corp.xls</xls_file>
@@ -23,9 +14,9 @@
 <FILE_PATH>states/DE/52400_Determine_DE_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
@@ -35,9 +26,9 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "DE" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -47,9 +38,9 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "DE"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -60,7 +51,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <action_description>// Physical nexus established - filing required</action_description>
 <action_postfix>
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -69,25 +60,25 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <action_description>// Economic nexus established per Wayfair - filing required</action_description>
 <action_postfix>
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No nexus - no filing required</action_comment>
-<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_comment>No nexus - no filing required; // No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52420: Calculate DE State-Specific Income Adjustments           -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_DE_Income_Adjustments</table_name>
 <xls_file>DE_Corp.xls</xls_file>
@@ -98,50 +89,50 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <FILE_PATH>states/DE/52420_Calculate_DE_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to calculate adjustments</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Delaware state additions and subtractions</action_comment>
-<action_description>// Calculate Delaware state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_comment>Calculate Delaware state additions and subtractions; // Calculate Delaware state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no adjustments</action_comment>
-<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_comment>No nexus - no adjustments; // No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52480: Calculate DE State Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_DE_State_Tax</table_name>
 <xls_file>DE_Corp.xls</xls_file>
@@ -152,65 +143,65 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <FILE_PATH>states/DE/52480_Calculate_DE_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to owe tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
 <condition_postfix>
-apportionment.state_taxable_income 0.0 f>
+apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Delaware tax at 8.8% flat rate</action_comment>
-<action_description>// Delaware uses 8.8% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_comment>Calculate Delaware tax at 8.8% flat rate; // Delaware uses 8.8% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
+<action_description />
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no tax liability</action_comment>
-<action_description>// No Delaware nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_comment>No nexus - no tax liability; // No Delaware nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No taxable income - no tax liability</action_comment>
-<action_description>// No Delaware taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_comment>No taxable income - no tax liability; // No Delaware taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

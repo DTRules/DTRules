@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables name="CorporateTax_Core_Tables">
 
-  <!--
-    ================================================================
-    INCOME CALCULATION TABLES (2000-2999)
-    ================================================================
-  -->
+  
 
-  <!--
-    Table 2000: Calculate Net Receipts
-
-    Calculates net receipts (Form 1120 line 1c = 1a - 1b)
-
-    Reference: Form 1120 Line 1a-1c
-  -->
+  
   <decision_table name="Calculate_Net_Receipts" number="2000">
     <description>
       Calculate net receipts from gross receipts minus returns and allowances.
@@ -22,7 +12,7 @@
 
     <conditions>
       <condition name="has_gross_receipts">
-        <expression>revenue.gross_receipts > 0</expression>
+        <expression>revenue.gross_receipts &gt; 0</expression>
         <comment>Has gross receipts from sales</comment>
       </condition>
     </conditions>
@@ -59,13 +49,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 2100: Calculate Gross Profit
-
-    Calculates gross profit (Form 1120 line 3 = 1c - 2)
-
-    Reference: Form 1120 Line 3, Schedule A (Cost of Goods Sold)
-  -->
+  
   <decision_table name="Calculate_Gross_Profit" number="2100">
     <description>
       Calculate gross profit from net receipts minus cost of goods sold.
@@ -74,7 +58,7 @@
 
     <conditions>
       <condition name="has_net_receipts">
-        <expression>revenue.net_receipts > 0</expression>
+        <expression>revenue.net_receipts &gt; 0</expression>
         <comment>Has net receipts from sales</comment>
       </condition>
     </conditions>
@@ -112,14 +96,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 2600: Calculate Total Income
-
-    Calculates total income (Form 1120 line 11)
-    Sum of: gross profit + dividends + interest + rents + royalties + capital gains + other
-
-    Reference: Form 1120 Line 11
-  -->
+  
   <decision_table name="Calculate_Total_Income" number="2600">
     <description>
       Calculate total income (sum of all income sources).
@@ -164,19 +141,9 @@
     </rules>
   </decision_table>
 
-  <!--
-    ================================================================
-    DEDUCTION CALCULATION TABLES (3000-3999)
-    ================================================================
-  -->
+  
 
-  <!--
-    Table 3000: Calculate Compensation Deduction
-
-    Deduction for compensation of officers (Form 1120 line 12)
-
-    Reference: Form 1120 Line 12, Schedule E
-  -->
+  
   <decision_table name="Calculate_Compensation_Deduction" number="3000">
     <description>
       Calculate deduction for officer compensation.
@@ -185,7 +152,7 @@
 
     <conditions>
       <condition name="has_officer_compensation">
-        <expression>result.compensation > 0</expression>
+        <expression>result.compensation &gt; 0</expression>
         <comment>Has officer compensation expense</comment>
       </condition>
     </conditions>
@@ -226,16 +193,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 3200: Calculate Interest Deduction with IRC 163(j) Limitation
-
-    Business interest expense deduction limited to:
-    - Business interest income +
-    - 30% of adjusted taxable income (ATI) +
-    - Floor plan financing interest
-
-    Reference: Form 1120 Line 18, IRC Section 163(j), Form 8990
-  -->
+  
   <decision_table name="Calculate_Interest_Deduction" number="3200">
     <description>
       Calculate interest expense deduction with IRC 163(j) limitation.
@@ -244,12 +202,12 @@
 
     <conditions>
       <condition name="has_interest_expense">
-        <expression>result.interest_expense > 0</expression>
+        <expression>result.interest_expense &gt; 0</expression>
         <comment>Has interest expense</comment>
       </condition>
 
       <condition name="exceeds_30pct_ati">
-        <expression>result.interest_expense > (0.30 * result.taxable_income)</expression>
+        <expression>result.interest_expense &gt; (0.30 * result.taxable_income)</expression>
         <comment>Interest expense exceeds 30% of adjusted taxable income</comment>
       </condition>
     </conditions>
@@ -310,14 +268,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 3500: Calculate Charitable Contributions with 10% Limitation
-
-    Charitable contributions limited to 10% of taxable income (computed without
-    regard to charitable contributions deduction, NOL, capital loss carryback, etc.)
-
-    Reference: Form 1120 Line 19, IRC Section 170(b)(2)
-  -->
+  
   <decision_table name="Calculate_Charitable_Contributions" number="3500">
     <description>
       Calculate charitable contributions deduction with 10% limitation.
@@ -326,12 +277,12 @@
 
     <conditions>
       <condition name="has_charitable_contributions">
-        <expression>result.charitable_contributions > 0</expression>
+        <expression>result.charitable_contributions &gt; 0</expression>
         <comment>Has charitable contributions</comment>
       </condition>
 
       <condition name="exceeds_10pct_limit">
-        <expression>result.charitable_contributions > (0.10 * result.taxable_income)</expression>
+        <expression>result.charitable_contributions &gt; (0.10 * result.taxable_income)</expression>
         <comment>Contributions exceed 10% of taxable income</comment>
       </condition>
     </conditions>
@@ -391,13 +342,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 3600: Calculate Total Deductions
-
-    Sum all deductions (Form 1120 line 27)
-
-    Reference: Form 1120 Line 27
-  -->
+  
   <decision_table name="Calculate_Total_Deductions" number="3600">
     <description>
       Calculate total deductions (sum of all deduction line items).
@@ -443,20 +388,9 @@
     </rules>
   </decision_table>
 
-  <!--
-    ================================================================
-    TAX CALCULATION TABLES (4000-4999)
-    ================================================================
-  -->
+  
 
-  <!--
-    Table 4000: Calculate Taxable Income
-
-    Taxable income = Total income - Total deductions
-    (Form 1120 line 28 = line 11 - line 27)
-
-    Reference: Form 1120 Line 28
-  -->
+  
   <decision_table name="Calculate_Taxable_Income" number="4000">
     <description>
       Calculate taxable income (total income minus total deductions).
@@ -465,7 +399,7 @@
 
     <conditions>
       <condition name="has_positive_income">
-        <expression>result.total_income > result.total_deductions</expression>
+        <expression>result.total_income &gt; result.total_deductions</expression>
         <comment>Income exceeds deductions</comment>
       </condition>
     </conditions>
@@ -506,14 +440,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 4100: Apply Corporate Tax Rate
-
-    Federal corporate tax is a flat 21% rate per IRC Section 11 (TCJA 2017).
-    No brackets, no AMT for corporations (repealed by TCJA).
-
-    Reference: Form 1120 Line 31, IRC Section 11(b)
-  -->
+  
   <decision_table name="Apply_Corporate_Tax_Rate" number="4100">
     <description>
       Calculate federal corporate income tax at 21% flat rate.
@@ -522,7 +449,7 @@
 
     <conditions>
       <condition name="has_taxable_income">
-        <expression>result.taxable_income > 0</expression>
+        <expression>result.taxable_income &gt; 0</expression>
         <comment>Has positive taxable income</comment>
       </condition>
     </conditions>
@@ -562,13 +489,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 4300: Calculate Refund or Amount Owed
-
-    Final calculation: payments + credits - tax = refund (positive) or owed (negative)
-
-    Reference: Form 1120 Lines 32-35
-  -->
+  
   <decision_table name="Calculate_Refund_Or_Owed" number="4300">
     <description>
       Calculate final refund or amount owed.
@@ -609,22 +530,9 @@
     </rules>
   </decision_table>
 
-  <!--
-    ================================================================
-    CREDIT CALCULATION TABLES (5000-5999)
-    ================================================================
-  -->
+  
 
-  <!--
-    Table 5100: Calculate Research &amp; Development Credit
-
-    Calculates R&amp;D tax credit under IRC Section 41.
-
-    Simplified calculation: 20% of qualified research expenses (QREs)
-    exceeding a base amount.
-
-    Reference: Form 6765, IRC Section 41
-  -->
+  
   <decision_table name="Calculate_RD_Credit" number="5100">
     <description>
       Calculate research and development tax credit.
@@ -633,7 +541,7 @@
 
     <conditions>
       <condition name="has_rd_expenses">
-        <expression>result.research_development_credit > 0</expression>
+        <expression>result.research_development_credit &gt; 0</expression>
         <comment>Has qualified research expenses (QREs)</comment>
       </condition>
     </conditions>
@@ -683,13 +591,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 5300: Calculate General Business Credit
-
-    Aggregates all business credits and applies general business credit limitation.
-
-    Reference: Form 3800, IRC Section 38
-  -->
+  
   <decision_table name="Calculate_General_Business_Credit" number="5300">
     <description>
       Calculate general business credit (aggregate of all credits).
@@ -698,7 +600,7 @@
 
     <conditions>
       <condition name="has_any_credits">
-        <expression>result.research_development_credit > 0 || result.work_opportunity_credit > 0</expression>
+        <expression>result.research_development_credit &gt; 0 || result.work_opportunity_credit &gt; 0</expression>
         <comment>Has at least one business credit</comment>
       </condition>
     </conditions>
@@ -755,27 +657,9 @@
     </rules>
   </decision_table>
 
-  <!--
-    ================================================================
-    DEPRECIATION TABLES (6000-6999)
-    ================================================================
-  -->
+  
 
-  <!--
-    Table 6000: Determine Asset Class and Recovery Period
-
-    Determines MACRS asset class and recovery period based on asset type.
-
-    Common MACRS Classes:
-    - 3-year: Tractor units, racehorses over 2 years old
-    - 5-year: Automobiles, computers, office equipment
-    - 7-year: Office furniture, most machinery and equipment
-    - 15-year: Land improvements, gas stations
-    - 27.5-year: Residential rental property
-    - 39-year: Nonresidential real property
-
-    Reference: Publication 946 Table B-1
-  -->
+  
   <decision_table name="Determine_Asset_Class" number="6000">
     <description>
       Determine MACRS asset class and recovery period for depreciable property.
@@ -840,18 +724,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 6100: Calculate Section 179 Deduction
-
-    Section 179 allows immediate expensing of qualifying property up to annual limits.
-
-    2025 Limits:
-    - Maximum deduction: $1,220,000
-    - Phaseout threshold: $3,050,000
-    - Dollar-for-dollar phaseout above threshold
-
-    Reference: IRC Section 179, Form 4562 Part I
-  -->
+  
   <decision_table name="Calculate_Section_179" number="6100">
     <description>
       Calculate Section 179 expense deduction for qualifying property.
@@ -870,7 +743,7 @@
       </condition>
 
       <condition name="has_remaining_basis">
-        <expression>asset.cost_basis > 0</expression>
+        <expression>asset.cost_basis &gt; 0</expression>
         <comment>Has remaining basis to expense</comment>
       </condition>
     </conditions>
@@ -901,7 +774,7 @@
           - Tangible personal property (machinery, equipment, furniture, computers)
           - Off-the-shelf software
           - Qualified improvement property (QIP)
-          - Must be used > 50% for business
+          - Must be used &gt; 50% for business
 
           Nonqualifying property:
           - Buildings and structural components
@@ -949,21 +822,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 6200: Calculate Bonus Depreciation
-
-    Bonus depreciation allows additional first-year depreciation for qualifying property.
-
-    Historical rates:
-    - 2022: 100%
-    - 2023: 80%
-    - 2024: 60%
-    - 2025: 40%
-    - 2026: 20%
-    - 2027: 0%
-
-    Reference: IRC Section 168(k), Form 4562 Part II
-  -->
+  
   <decision_table name="Calculate_Bonus_Depreciation" number="6200">
     <description>
       Calculate bonus depreciation for qualifying property.
@@ -977,12 +836,12 @@
       </condition>
 
       <condition name="has_bonus_rate">
-        <expression>result.bonus_depreciation_rate > 0</expression>
+        <expression>result.bonus_depreciation_rate &gt; 0</expression>
         <comment>Bonus depreciation rate is greater than zero</comment>
       </condition>
 
       <condition name="has_remaining_basis">
-        <expression>asset.cost_basis > 0</expression>
+        <expression>asset.cost_basis &gt; 0</expression>
         <comment>Has remaining basis after Section 179</comment>
       </condition>
     </conditions>
@@ -1064,13 +923,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 6300: Calculate MACRS Depreciation
-
-    Calculates regular MACRS depreciation using IRS percentage tables.
-
-    Reference: Publication 946 Appendix A, IRC Section 168
-  -->
+  
   <decision_table name="Calculate_MACRS_Depreciation" number="6300">
     <description>
       Calculate MACRS depreciation for property.
@@ -1079,7 +932,7 @@
 
     <conditions>
       <condition name="has_remaining_basis">
-        <expression>asset.cost_basis > 0</expression>
+        <expression>asset.cost_basis &gt; 0</expression>
         <comment>Has remaining basis after Section 179 and bonus</comment>
       </condition>
 
@@ -1112,7 +965,7 @@
 
           Conventions:
           - Half-year: Property placed in service mid-year (most property)
-          - Mid-quarter: If > 40% of property placed in service in Q4
+          - Mid-quarter: If &gt; 40% of property placed in service in Q4
           - Mid-month: Residential/nonresidential real property
 
           First-year rates (half-year convention):
@@ -1147,13 +1000,7 @@
     </rules>
   </decision_table>
 
-  <!--
-    Table 6900: Aggregate Depreciation Deduction
-
-    Aggregates Section 179, bonus, and MACRS depreciation for Form 1120 line 20.
-
-    Reference: Form 4562, Form 1120 line 20
-  -->
+  
   <decision_table name="Aggregate_Depreciation" number="6900">
     <description>
       Aggregate all depreciation deductions for Form 1120.
@@ -1195,16 +1042,12 @@
     </rules>
   </decision_table>
 
-  <!--
-    ================================================================
-    ORCHESTRATION TABLE (1000-1999)
-    ================================================================
-  -->
+  
 
-<!-- ====================================================================== -->
-<!-- TABLE 1000: Compute_Corporate_Tax_Return - Entry Point                -->
-<!-- IRS Reference: Form 1120 - U.S. Corporation Income Tax Return         -->
-<!-- ====================================================================== -->
+
+
+
+
 <decision_table>
 <table_name>Compute_Corporate_Tax_Return</table_name>
 <xls_file>CorporateTax.xls</xls_file>
@@ -1225,12 +1068,12 @@
 </contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize result entity and set federal tax rate</action_description>
+<action_description />
 <action_postfix>
 0.21 cvd /result.federal_tax_rate xdef
 "Corporate Tax Calculation Started - Form 1120" result.audit_trail swap addto
 </action_postfix>
-</initial_action>
+<action_comment>Initialize result entity and set federal tax rate</action_comment></initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
@@ -1240,7 +1083,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -1251,7 +1094,7 @@ true
 <action_postfix>
 Calculate_Net_Receipts
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1260,7 +1103,7 @@ Calculate_Net_Receipts
 <action_postfix>
 Calculate_Gross_Profit
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -1269,7 +1112,7 @@ Calculate_Gross_Profit
 <action_postfix>
 Calculate_Total_Income
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -1278,7 +1121,7 @@ Calculate_Total_Income
 <action_postfix>
 Aggregate_Depreciation
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -1287,7 +1130,7 @@ Aggregate_Depreciation
 <action_postfix>
 Calculate_Compensation_Deduction
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -1296,7 +1139,7 @@ Calculate_Compensation_Deduction
 <action_postfix>
 Calculate_Interest_Deduction
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -1305,7 +1148,7 @@ Calculate_Interest_Deduction
 <action_postfix>
 Calculate_Charitable_Contributions
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -1314,7 +1157,7 @@ Calculate_Charitable_Contributions
 <action_postfix>
 Calculate_Total_Deductions
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>9</action_number>
@@ -1323,7 +1166,7 @@ Calculate_Total_Deductions
 <action_postfix>
 Calculate_Taxable_Income
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>10</action_number>
@@ -1332,7 +1175,7 @@ Calculate_Taxable_Income
 <action_postfix>
 Apply_Corporate_Tax_Rate
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>11</action_number>
@@ -1341,7 +1184,7 @@ Apply_Corporate_Tax_Rate
 <action_postfix>
 Calculate_RD_Credit
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>12</action_number>
@@ -1350,7 +1193,7 @@ Calculate_RD_Credit
 <action_postfix>
 Calculate_General_Business_Credit
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>13</action_number>
@@ -1359,7 +1202,7 @@ Calculate_General_Business_Credit
 <action_postfix>
 Calculate_Refund_Or_Owed
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>14</action_number>
@@ -1368,7 +1211,7 @@ Calculate_Refund_Or_Owed
 <action_postfix>
 "Corporate Tax Calculation Complete - Form 1120" result.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
@@ -1380,23 +1223,9 @@ Calculate_Refund_Or_Owed
 </decision_table>
 
 
-  <!--
-    ================================================================
-    APPORTIONMENT TABLES (7000-7999)
-    ================================================================
-  -->
+  
 
-  <!--
-    Table 7000: Determine State Nexus
-
-    Determines if corporation has nexus (tax obligation) in a state.
-
-    Nexus types:
-    - Physical: Office, employees, property in state
-    - Economic: Post-Wayfair ($100K sales or 200 transactions typical)
-
-    Reference: South Dakota v. Wayfair (2018), State revenue dept guidance
-  -->
+  
   <decision_table name="Determine_State_Nexus" number="7000">
     <description>
       Determine if corporation has nexus requiring state tax filing.
@@ -1410,8 +1239,8 @@ Calculate_Refund_Or_Owed
       </condition>
 
       <condition name="exceeds_economic_threshold">
-        <expression>apportionment.gross_receipts_in_state >= apportionment.economic_nexus_threshold ||
-                    apportionment.transactions_in_state >= apportionment.transaction_threshold</expression>
+        <expression>apportionment.gross_receipts_in_state &gt;= apportionment.economic_nexus_threshold ||
+                    apportionment.transactions_in_state &gt;= apportionment.transaction_threshold</expression>
         <comment>Meets economic nexus threshold</comment>
       </condition>
     </conditions>
@@ -1470,18 +1299,7 @@ Calculate_Refund_Or_Owed
     </rules>
   </decision_table>
 
-  <!--
-    Table 7100: Calculate Property Factor
-
-    Property factor = Average property in state / Average property everywhere
-
-    Property includes:
-    - Real property (land, buildings)
-    - Tangible personal property (machinery, equipment, inventory)
-    - Rented property (8× annual rent)
-
-    Reference: UDITPA Section 10-11, MTC Regulations
-  -->
+  
   <decision_table name="Calculate_Property_Factor" number="7100">
     <description>
       Calculate property factor for apportionment.
@@ -1495,7 +1313,7 @@ Calculate_Refund_Or_Owed
       </condition>
 
       <condition name="has_property">
-        <expression>apportionment.property_total_average > 0</expression>
+        <expression>apportionment.property_total_average &gt; 0</expression>
         <comment>Has property to apportion</comment>
       </condition>
     </conditions>
@@ -1563,19 +1381,7 @@ Calculate_Refund_Or_Owed
     </rules>
   </decision_table>
 
-  <!--
-    Table 7200: Calculate Payroll Factor
-
-    Payroll factor = Compensation in state / Total compensation
-
-    Compensation includes:
-    - Wages, salaries, commissions, bonuses
-    - Payments to independent contractors (some states)
-
-    Sourcing: Where services performed, not where paid
-
-    Reference: UDITPA Section 13-14, MTC Regulations
-  -->
+  
   <decision_table name="Calculate_Payroll_Factor" number="7200">
     <description>
       Calculate payroll factor for apportionment.
@@ -1589,7 +1395,7 @@ Calculate_Refund_Or_Owed
       </condition>
 
       <condition name="has_payroll">
-        <expression>apportionment.payroll_total > 0</expression>
+        <expression>apportionment.payroll_total &gt; 0</expression>
         <comment>Has payroll to apportion</comment>
       </condition>
     </conditions>
@@ -1654,18 +1460,7 @@ Calculate_Refund_Or_Owed
     </rules>
   </decision_table>
 
-  <!--
-    Table 7300: Calculate Sales Factor
-
-    Sales factor = Sales in state / Total sales
-
-    Sourcing methods:
-    - Tangible goods: Destination state (where delivered)
-    - Services: Market-based sourcing (where benefit received)
-    - Intangibles: Varies by state
-
-    Reference: UDITPA Section 15-17, MTC Market-Based Sourcing
-  -->
+  
   <decision_table name="Calculate_Sales_Factor" number="7300">
     <description>
       Calculate sales factor for apportionment.
@@ -1679,7 +1474,7 @@ Calculate_Refund_Or_Owed
       </condition>
 
       <condition name="has_sales">
-        <expression>apportionment.sales_total > 0</expression>
+        <expression>apportionment.sales_total &gt; 0</expression>
         <comment>Has sales to apportion</comment>
       </condition>
     </conditions>
@@ -1752,18 +1547,7 @@ Calculate_Refund_Or_Owed
     </rules>
   </decision_table>
 
-  <!--
-    Table 7400: Calculate Apportionment Percentage
-
-    Combines property, payroll, and sales factors based on state formula.
-
-    Common formulas:
-    - Three-factor: (Property + Payroll + Sales) / 3
-    - Single-sales: Sales factor only
-    - Double-weighted sales: (Property + Payroll + 2×Sales) / 4
-
-    Reference: State statutes, UDITPA
-  -->
+  
   <decision_table name="Calculate_Apportionment_Percentage" number="7400">
     <description>
       Calculate final apportionment percentage using state formula.
@@ -1882,14 +1666,7 @@ Calculate_Refund_Or_Owed
     </rules>
   </decision_table>
 
-  <!--
-    Table 7500: Apply Apportionment and Calculate State Tax
-
-    Applies apportionment percentage to federal taxable income,
-    makes state-specific adjustments, and calculates state tax.
-
-    Reference: State corporate income tax forms
-  -->
+  
   <decision_table name="Apply_Apportionment_Calculate_State_Tax" number="7500">
     <description>
       Apply apportionment to federal taxable income and calculate state tax.
@@ -1902,7 +1679,7 @@ Calculate_Refund_Or_Owed
       </condition>
 
       <condition name="has_taxable_income">
-        <expression>result.taxable_income > 0</expression>
+        <expression>result.taxable_income &gt; 0</expression>
         <comment>Has federal taxable income</comment>
       </condition>
     </conditions>

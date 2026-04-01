@@ -1,29 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Mississippi Corporate Tax Decision Tables
-
-  Mississippi corporate tax structure:
-  - Graduated rates: 3% to 5%
-    - 3% on first $5,000
-    - 4% on $5,001 to $10,000
-    - 5% on income over $10,000
-  - Three-factor apportionment (property, payroll, double-weighted sales)
-  - Economic nexus: $250,000 in gross receipts
-
-  Table Number Range: 53400-53499 (Mississippi corporate allocation)
-
-  References:
-  - Miss. Code Ann. § 27-7-5 (Tax rates)
-  - Miss. Code Ann. § 27-7-19 (Apportionment)
-  - MS Form 83-100 (Corporate Income and Franchise Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 53400: Determine MS Corporate Tax Filing Requirement
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Determine_MS_Corporate_Filing_Requirement</table_name>
     <xls_file>MS_Corp.xls</xls_file>
@@ -32,7 +10,7 @@
       <COMMENTS>Determine if corporation must file Mississippi corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
       <TABLE_NUMBER>53400</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Mississippi filing requirement check</action_description>
@@ -50,20 +28,20 @@ false result.ms_has_nexus xdef
         <condition_postfix>
 result.has_physical_presence_ms true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Meets economic nexus threshold ($250K gross receipts)</condition_comment>
-        <condition_description>result.ms_gross_receipts is greater than or equal to result.ms_economic_nexus_threshold</condition_description>
+        <condition_comment>Meets economic nexus threshold ($250K gross receipts); result.ms_gross_receipts is greater than or equal to result.ms_economic_nexus_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ms_gross_receipts result.ms_economic_nexus_threshold >=
+result.ms_gross_receipts result.ms_economic_nexus_threshold &gt;=
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
@@ -76,7 +54,7 @@ result.ms_gross_receipts result.ms_economic_nexus_threshold >=
 true result.ms_has_nexus xdef
 "Mississippi filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -87,7 +65,7 @@ true result.ms_has_nexus xdef
 true result.ms_has_nexus xdef
 "Mississippi filing required: Economic nexus (exceeds $250,000 gross receipts threshold)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -99,16 +77,12 @@ false result.ms_has_nexus xdef
 0.0 result.ms_tax_liability xdef
 "Mississippi filing not required: No nexus with state" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 53420: Calculate MS Corporate Income Adjustments
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_MS_Corporate_Income_Adjustments</table_name>
     <xls_file>MS_Corp.xls</xls_file>
@@ -117,7 +91,7 @@ false result.ms_has_nexus xdef
       <COMMENTS>Calculate Mississippi state-specific additions and subtractions to federal taxable income.</COMMENTS>
       <TABLE_NUMBER>53420</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Mississippi income adjustments</action_description>
@@ -136,15 +110,15 @@ false result.ms_has_nexus xdef
         <condition_postfix>
 result.ms_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Mississippi state additions and subtractions</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_comment>Calculate Mississippi state additions and subtractions; Calculate state-specific income adjustments</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Mississippi state additions
 0.0 /ms_additions xdef
@@ -178,7 +152,7 @@ ms_subtractions result.ms_state_subtractions xdef
 
 "Mississippi additions: $" result.ms_state_additions cvs strconcat ", subtractions: $" strconcat result.ms_state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -189,16 +163,12 @@ ms_subtractions result.ms_state_subtractions xdef
 0.0 result.ms_state_subtractions xdef
 "Mississippi adjustments not calculated: No nexus" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 53480: Calculate MS Corporate Tax
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_MS_Corporate_Tax</table_name>
     <xls_file>MS_Corp.xls</xls_file>
@@ -207,7 +177,7 @@ ms_subtractions result.ms_state_subtractions xdef
       <COMMENTS>Calculate Mississippi corporate income tax. Applies graduated rates (3%, 4%, 5%) to apportioned and adjusted taxable income.</COMMENTS>
       <TABLE_NUMBER>53480</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Mississippi tax calculation</action_description>
@@ -226,27 +196,27 @@ ms_subtractions result.ms_state_subtractions xdef
         <condition_postfix>
 result.ms_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Has positive taxable income</condition_comment>
-        <condition_description>result.ms_apportioned_income is greater than 0</condition_description>
+        <condition_comment>Has positive taxable income; result.ms_apportioned_income is greater than 0</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ms_apportioned_income 0.0 >
+result.ms_apportioned_income 0.0 &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="-" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Mississippi corporate tax (graduated rates 3%, 4%, 5%)</action_comment>
-        <action_description>Apply Mississippi graduated rates</action_description>
+        <action_comment>Calculate Mississippi corporate tax (graduated rates 3%, 4%, 5%); Apply Mississippi graduated rates</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Mississippi taxable income
 // Federal taxable income apportioned to MS + additions - subtractions
@@ -265,7 +235,7 @@ result.ms_taxable_income 5000.0 min result.ms_corp_tax_rate_tier1 mul
 ms_tax ms_tier1_tax add /ms_tax xdef
 
 // Tier 2: 4% on $5,001 to $10,000
-result.ms_taxable_income 5000.0 >
+result.ms_taxable_income 5000.0 &gt;
 {
   result.ms_taxable_income 10000.0 min 5000.0 sub
   result.ms_corp_tax_rate_tier2 mul
@@ -274,7 +244,7 @@ result.ms_taxable_income 5000.0 >
 } if
 
 // Tier 3: 5% on income over $10,000
-result.ms_taxable_income 10000.0 >
+result.ms_taxable_income 10000.0 &gt;
 {
   result.ms_taxable_income 10000.0 sub
   result.ms_corp_tax_rate_tier3 mul
@@ -293,7 +263,7 @@ result.ms_refund_or_owed xdef
 "Mississippi taxable income: $" result.ms_taxable_income cvs strconcat job.audit_trail swap addto
 "Mississippi tax liability (graduated rates 3%-5%): $" result.ms_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -306,7 +276,7 @@ result.ms_refund_or_owed xdef
 result.ms_estimated_payments result.ms_refund_or_owed xdef
 "Mississippi tax liability: $0 (no taxable income)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -319,7 +289,7 @@ result.ms_estimated_payments result.ms_refund_or_owed xdef
 result.ms_estimated_payments result.ms_refund_or_owed xdef
 "Mississippi tax liability: $0 (no nexus)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>

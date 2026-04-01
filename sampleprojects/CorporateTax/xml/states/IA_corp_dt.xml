@@ -1,26 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Iowa Corporate Tax Decision Tables
-
-  Iowa corporate tax structure:
-  - Graduated rates: 5.5% on first $100,000, 7.1% over $100,000
-  - Single-sales apportionment (100% sales factor)
-  - Economic nexus: $100,000 in gross receipts (no transaction count as of 7/1/2023)
-
-  Table Number Range: 52600-52699 (Iowa corporate allocation)
-
-  References:
-  - Iowa Code § 422.33 (Tax rates: 5.5% on first $100K, 7.1% over $100K)
-  - Iowa Code § 422.32 (Apportionment - single sales factor)
-  - Iowa Form IA 1120 (Corporation Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52600: Determine IA Corporate Tax Filing Requirement
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Determine_IA_Corporate_Filing_Requirement</table_name>
     <xls_file>IA_Corp.xls</xls_file>
@@ -29,7 +10,7 @@
       <COMMENTS>Determine if corporation must file Iowa corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
       <TABLE_NUMBER>52600</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Iowa filing requirement check</action_description>
@@ -47,20 +28,20 @@ false result.ia_has_nexus xdef
         <condition_postfix>
 result.has_physical_presence_ia true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Meets economic nexus threshold ($100K gross receipts)</condition_comment>
-        <condition_description>result.ia_gross_receipts is greater than or equal to result.ia_economic_nexus_threshold</condition_description>
+        <condition_comment>Meets economic nexus threshold ($100K gross receipts); result.ia_gross_receipts is greater than or equal to result.ia_economic_nexus_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ia_gross_receipts result.ia_economic_nexus_threshold >=
+result.ia_gross_receipts result.ia_economic_nexus_threshold &gt;=
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
@@ -73,7 +54,7 @@ result.ia_gross_receipts result.ia_economic_nexus_threshold >=
 true result.ia_has_nexus xdef
 "Iowa filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -84,7 +65,7 @@ true result.ia_has_nexus xdef
 true result.ia_has_nexus xdef
 "Iowa filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -96,16 +77,12 @@ false result.ia_has_nexus xdef
 0.0 result.ia_tax_liability xdef
 "Iowa filing not required: No nexus with state" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 52620: Calculate IA Corporate Income Adjustments
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_IA_Corporate_Income_Adjustments</table_name>
     <xls_file>IA_Corp.xls</xls_file>
@@ -114,7 +91,7 @@ false result.ia_has_nexus xdef
       <COMMENTS>Calculate Iowa state-specific additions and subtractions to federal taxable income. IA requires addback of state taxes deducted federally and allows subtraction of federal interest income.</COMMENTS>
       <TABLE_NUMBER>52620</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Iowa income adjustments</action_description>
@@ -133,15 +110,15 @@ false result.ia_has_nexus xdef
         <condition_postfix>
 result.ia_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Iowa state additions and subtractions</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_comment>Calculate Iowa state additions and subtractions; Calculate state-specific income adjustments</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Iowa state additions
 0.0 /ia_additions xdef
@@ -180,7 +157,7 @@ ia_subtractions result.ia_state_subtractions xdef
 
 "Iowa additions: $" result.ia_state_additions cvs strconcat ", subtractions: $" strconcat result.ia_state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -191,16 +168,12 @@ ia_subtractions result.ia_state_subtractions xdef
 0.0 result.ia_state_subtractions xdef
 "Iowa adjustments not calculated: No nexus" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 52680: Calculate IA Corporate Tax
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_IA_Corporate_Tax</table_name>
     <xls_file>IA_Corp.xls</xls_file>
@@ -209,7 +182,7 @@ ia_subtractions result.ia_state_subtractions xdef
       <COMMENTS>Calculate Iowa corporate income tax. Applies Iowa graduated rates (5.5% on first $100K, 7.1% over $100K) to apportioned and adjusted taxable income.</COMMENTS>
       <TABLE_NUMBER>52680</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Iowa tax calculation</action_description>
@@ -230,41 +203,41 @@ ia_subtractions result.ia_state_subtractions xdef
         <condition_postfix>
 result.ia_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="Y"></condition_column>
-        <condition_column column_number="4" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="Y" />
+        <condition_column column_number="4" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Has positive taxable income</condition_comment>
-        <condition_description>result.ia_apportioned_income is greater than 0</condition_description>
+        <condition_comment>Has positive taxable income; result.ia_apportioned_income is greater than 0</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ia_apportioned_income 0.0 >
+result.ia_apportioned_income 0.0 &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
-        <condition_column column_number="4" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
+        <condition_column column_number="4" column_value="-" />
       </condition_details>
       <condition_details>
         <condition_number>3</condition_number>
-        <condition_comment>Income exceeds $100,000 bracket threshold</condition_comment>
-        <condition_description>result.ia_taxable_income is greater than result.ia_tax_bracket_threshold</condition_description>
+        <condition_comment>Income exceeds $100,000 bracket threshold; result.ia_taxable_income is greater than result.ia_tax_bracket_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ia_taxable_income result.ia_tax_bracket_threshold >
+result.ia_taxable_income result.ia_tax_bracket_threshold &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="-"></condition_column>
-        <condition_column column_number="4" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="-" />
+        <condition_column column_number="4" column_value="-" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Iowa tax with graduated rates - income over $100K</action_comment>
-        <action_description>Apply graduated rates: 5.5% on first $100K, 7.1% on excess</action_description>
+        <action_comment>Calculate Iowa tax with graduated rates - income over $100K; Apply graduated rates: 5.5% on first $100K, 7.1% on excess</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Iowa taxable income
 // Federal taxable income apportioned to IA + additions - subtractions
@@ -301,12 +274,12 @@ result.ia_refund_or_owed xdef
 "Iowa tax bracket 2 (7.1% on excess): $" result.ia_tax_bracket_2 cvs strconcat job.audit_trail swap addto
 "Iowa tax liability: $" result.ia_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
-        <action_comment>Calculate Iowa tax - income $100K or less (only 5.5% rate)</action_comment>
-        <action_description>Apply only 5.5% rate for income under $100K</action_description>
+        <action_comment>Calculate Iowa tax - income $100K or less (only 5.5% rate); Apply only 5.5% rate for income under $100K</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Iowa taxable income
 result.ia_apportioned_income
@@ -332,7 +305,7 @@ result.ia_refund_or_owed xdef
 "Iowa taxable income: $" result.ia_taxable_income cvs strconcat job.audit_trail swap addto
 "Iowa tax liability (5.5%): $" result.ia_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -345,7 +318,7 @@ result.ia_refund_or_owed xdef
 result.ia_estimated_payments result.ia_refund_or_owed xdef
 "Iowa tax liability: $0 (no taxable income)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
       <action_details>
         <action_number>4</action_number>
@@ -358,7 +331,7 @@ result.ia_estimated_payments result.ia_refund_or_owed xdef
 result.ia_estimated_payments result.ia_refund_or_owed xdef
 "Iowa tax liability: $0 (no nexus)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="4" column_value="X"></action_column>
+        <action_column column_number="4" column_value="X" />
       </action_details>
     </actions>
   </decision_table>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 23000: Process_Foreign_Income -->
+<decision_table>
+<table_name>Process_Foreign_Income</table_name>
+<xls_file>080_Process_Foreign_Income.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Process foreign income for Form 1116 Foreign Tax Credit. Categorizes income by type (passive, general) and tracks foreign taxes paid.</COMMENTS>
+<TABLE_NUMBER>23000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>add &quot;FOREIGN INCOME PROCESSING&quot; to job.audit_trail</action_description>
+<action_postfix>
+&quot;Processing Form 1116 Foreign Income (IRC 901)&quot; job.audit_trail swap addto
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has foreign income to process</condition_comment>
+<condition_description>Has foreign income to process</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

@@ -134,6 +134,23 @@ Execute another table:
     perform Calculate_Deductions
     perform Validate_Input
 
+Tables call tables directly - no external orchestration needed:
+    perform Calculate_Gross_Income;
+    perform Calculate_Deductions;
+    perform Calculate_Tax_Liability
+
+
+Context Statements (for iteration)
+----------------------------------
+Context statements set up iteration over entity arrays.
+Place in the Contexts row (row 6) of Excel, or <context> element in XML:
+
+    for all dependents
+    for all job.taxpayers
+    for all accounts where account.active is true
+
+The table executes once per entity, with that entity in context.
+
 
 Arithmetic
 ----------
@@ -524,11 +541,39 @@ XML Structure
 
 Calling Other Tables
 --------------------
-Use the 'perform' operator to call another decision table:
+Use 'perform' in an action to call another decision table:
 
-    <column_header>Calculate Details</column_header>
-    <column_type>EXECUTE</column_type>
-    <action_value>Calculate_Tax_Details perform</action_value>
+    perform Calculate_Tax_Details
+
+In EL syntax (action column):
+    perform Calculate_Deductions;
+    perform Validate_Input;
+
+Tables call tables - there is no external orchestration needed. The entry point
+table calls other tables, which can call more tables, forming a call graph:
+
+    Compute_Tax_Return (entry point)
+    ├── perform Calculate_Gross_Income
+    │   ├── perform Process_W2_Income
+    │   └── perform Process_Self_Employment
+    ├── perform Calculate_Deductions
+    └── perform Calculate_Tax_Liability
+
+
+Context Statements for Iteration
+--------------------------------
+Use context statements to iterate over entity arrays. The context row (row 6 in
+Excel) specifies entities to iterate over:
+
+    Contexts: for all job.dependents
+
+This executes the table once for each dependent, with that dependent available
+in the entity context.
+
+Context patterns:
+    for all dependents              Iterate over dependents array
+    for all job.taxpayers           Iterate with entity path
+    for all accounts where active   Iterate with filter
 
 
 Best Practices

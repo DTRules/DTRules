@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 5120: Apply_Tax_Brackets_Single -->
+<decision_table>
+<table_name>Apply_Tax_Brackets_Single</table_name>
+<xls_file>026_Apply_Tax_Brackets_Single.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates regular tax using Single brackets. Each column represents a bracket range.</COMMENTS>
+<TABLE_NUMBER>5120</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>In bracket 1 only</condition_comment>
+<condition_description>In bracket 1 only</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>In bracket 2</condition_comment>
+<condition_description>In bracket 2</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>In bracket 3</condition_comment>
+<condition_description>In bracket 3</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>In bracket 4</condition_comment>
+<condition_description>In bracket 4</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>In bracket 5</condition_comment>
+<condition_description>In bracket 5</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="Y"></condition_column>
+<condition_column column_number="6" column_value="N"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>In bracket 6</condition_comment>
+<condition_description>In bracket 6</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="-"></condition_column>
+<condition_column column_number="2" column_value="-"></condition_column>
+<condition_column column_number="3" column_value="-"></condition_column>
+<condition_column column_number="4" column_value="-"></condition_column>
+<condition_column column_number="5" column_value="-"></condition_column>
+<condition_column column_number="6" column_value="Y"></condition_column>
+<condition_column column_number="7" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket 1 tax</action_comment>
+<action_description>Bracket 1 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket 2 tax</action_comment>
+<action_description>Bracket 2 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Bracket 3 tax</action_comment>
+<action_description>Bracket 3 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Bracket 4 tax</action_comment>
+<action_description>Bracket 4 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Bracket 5 tax</action_comment>
+<action_description>Bracket 5 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="5" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Bracket 6 tax</action_comment>
+<action_description>Bracket 6 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="6" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Bracket 7 tax</action_comment>
+<action_description>Bracket 7 tax</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="7" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

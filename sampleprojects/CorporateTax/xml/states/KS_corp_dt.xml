@@ -1,26 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Kansas Corporate Tax Decision Tables
-
-  Kansas corporate tax structure:
-  - Two-tier rate: 4.0% base + 3.0% surtax on income over $50,000 (effective 7.0%)
-  - Apportionment: Three-factor (property, payroll, sales) with optional two-factor
-  - Future: Single-sales factor for tax years beginning after Dec. 31, 2026
-  - Economic nexus: $100,000 in gross receipts or 200 transactions
-
-  Table Number Range: 52900-52999 (Kansas corporate allocation)
-
-  References:
-  - K.S.A. 79-32,110 (Tax rate: 4.0% + 3.0% surtax over $50K)
-  - Kansas Form K-120 (Corporation Income Tax Return)
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-  <!--
-    ============================================================================
-    TABLE 52900: Determine KS Corporate Tax Filing Requirement
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Determine_KS_Corporate_Filing_Requirement</table_name>
     <xls_file>KS_Corp.xls</xls_file>
@@ -29,7 +10,7 @@
       <COMMENTS>Determine if corporation must file Kansas corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
       <TABLE_NUMBER>52900</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Kansas filing requirement check</action_description>
@@ -47,20 +28,20 @@ false result.ks_has_nexus xdef
         <condition_postfix>
 result.has_physical_presence_ks true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions)</condition_comment>
-        <condition_description>result.ks_gross_receipts is greater than or equal to result.ks_economic_nexus_threshold</condition_description>
+        <condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions); result.ks_gross_receipts is greater than or equal to result.ks_economic_nexus_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ks_gross_receipts result.ks_economic_nexus_threshold >=
+result.ks_gross_receipts result.ks_economic_nexus_threshold &gt;=
 </condition_postfix>
-        <condition_column column_number="1" column_value="-"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="-" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
@@ -73,7 +54,7 @@ result.ks_gross_receipts result.ks_economic_nexus_threshold >=
 true result.ks_has_nexus xdef
 "Kansas filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -84,7 +65,7 @@ true result.ks_has_nexus xdef
 true result.ks_has_nexus xdef
 "Kansas filing required: Economic nexus (exceeds $100,000 gross receipts or 200 transactions)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -96,16 +77,12 @@ false result.ks_has_nexus xdef
 0.0 result.ks_tax_liability xdef
 "Kansas filing not required: No nexus with state" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 52920: Calculate KS Corporate Income Adjustments
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_KS_Corporate_Income_Adjustments</table_name>
     <xls_file>KS_Corp.xls</xls_file>
@@ -114,7 +91,7 @@ false result.ks_has_nexus xdef
       <COMMENTS>Calculate Kansas state-specific additions and subtractions to federal taxable income. KS requires addback of federal interest income and state income tax refunds, with subtraction of Kansas municipal bond interest.</COMMENTS>
       <TABLE_NUMBER>52920</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Kansas income adjustments</action_description>
@@ -133,15 +110,15 @@ false result.ks_has_nexus xdef
         <condition_postfix>
 result.ks_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Kansas state additions and subtractions</action_comment>
-        <action_description>Calculate state-specific income adjustments</action_description>
+        <action_comment>Calculate Kansas state additions and subtractions; Calculate state-specific income adjustments</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Kansas state additions
 0.0 /ks_additions xdef
@@ -185,7 +162,7 @@ ks_subtractions result.ks_state_subtractions xdef
 
 "Kansas additions: $" result.ks_state_additions cvs strconcat ", subtractions: $" strconcat result.ks_state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
@@ -196,16 +173,12 @@ ks_subtractions result.ks_state_subtractions xdef
 0.0 result.ks_state_subtractions xdef
 "Kansas adjustments not calculated: No nexus" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
     </actions>
   </decision_table>
 
-  <!--
-    ============================================================================
-    TABLE 52980: Calculate KS Corporate Tax
-    ============================================================================
-  -->
+  
   <decision_table>
     <table_name>Calculate_KS_Corporate_Tax</table_name>
     <xls_file>KS_Corp.xls</xls_file>
@@ -214,7 +187,7 @@ ks_subtractions result.ks_state_subtractions xdef
       <COMMENTS>Calculate Kansas corporate income tax. Applies Kansas two-tier rate (4.0% base + 3.0% surtax on income over $50K) to apportioned and adjusted taxable income.</COMMENTS>
       <TABLE_NUMBER>52980</TABLE_NUMBER>
     </attribute_fields>
-    <contexts></contexts>
+    <contexts />
     <initial_actions>
       <initial_action>
         <action_description>Initialize Kansas tax calculation</action_description>
@@ -235,41 +208,41 @@ ks_subtractions result.ks_state_subtractions xdef
         <condition_postfix>
 result.ks_has_nexus true eq
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="Y"></condition_column>
-        <condition_column column_number="4" column_value="N"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="Y" />
+        <condition_column column_number="4" column_value="N" />
       </condition_details>
       <condition_details>
         <condition_number>2</condition_number>
-        <condition_comment>Has positive taxable income</condition_comment>
-        <condition_description>result.ks_apportioned_income is greater than 0</condition_description>
+        <condition_comment>Has positive taxable income; result.ks_apportioned_income is greater than 0</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ks_apportioned_income 0.0 >
+result.ks_apportioned_income 0.0 &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="Y"></condition_column>
-        <condition_column column_number="3" column_value="N"></condition_column>
-        <condition_column column_number="4" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="Y" />
+        <condition_column column_number="3" column_value="N" />
+        <condition_column column_number="4" column_value="-" />
       </condition_details>
       <condition_details>
         <condition_number>3</condition_number>
-        <condition_comment>Income exceeds $50,000 surtax threshold</condition_comment>
-        <condition_description>result.ks_taxable_income is greater than result.ks_surtax_threshold</condition_description>
+        <condition_comment>Income exceeds $50,000 surtax threshold; result.ks_taxable_income is greater than result.ks_surtax_threshold</condition_comment>
+        <condition_description />
         <condition_postfix>
-result.ks_taxable_income result.ks_surtax_threshold >
+result.ks_taxable_income result.ks_surtax_threshold &gt;
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y"></condition_column>
-        <condition_column column_number="2" column_value="N"></condition_column>
-        <condition_column column_number="3" column_value="-"></condition_column>
-        <condition_column column_number="4" column_value="-"></condition_column>
+        <condition_column column_number="1" column_value="Y" />
+        <condition_column column_number="2" column_value="N" />
+        <condition_column column_number="3" column_value="-" />
+        <condition_column column_number="4" column_value="-" />
       </condition_details>
     </conditions>
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_comment>Calculate Kansas tax with base rate + surtax (income over $50K)</action_comment>
-        <action_description>Apply 4.0% base + 3.0% surtax on income over $50K</action_description>
+        <action_comment>Calculate Kansas tax with base rate + surtax (income over $50K); Apply 4.0% base + 3.0% surtax on income over $50K</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Kansas taxable income
 result.ks_apportioned_income
@@ -304,12 +277,12 @@ result.ks_refund_or_owed xdef
 "Kansas surtax (3.0% on excess over $50K): $" result.ks_surtax cvs strconcat job.audit_trail swap addto
 "Kansas tax liability: $" result.ks_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="1" column_value="X"></action_column>
+        <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
-        <action_comment>Calculate Kansas tax - income $50K or less (base rate only)</action_comment>
-        <action_description>Apply only 4.0% base rate</action_description>
+        <action_comment>Calculate Kansas tax - income $50K or less (base rate only); Apply only 4.0% base rate</action_comment>
+        <action_description />
         <action_postfix>
 // Calculate Kansas taxable income
 result.ks_apportioned_income
@@ -335,7 +308,7 @@ result.ks_refund_or_owed xdef
 "Kansas taxable income: $" result.ks_taxable_income cvs strconcat job.audit_trail swap addto
 "Kansas tax liability (4.0%): $" result.ks_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="2" column_value="X"></action_column>
+        <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
         <action_number>3</action_number>
@@ -348,7 +321,7 @@ result.ks_refund_or_owed xdef
 result.ks_estimated_payments result.ks_refund_or_owed xdef
 "Kansas tax liability: $0 (no taxable income)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="3" column_value="X"></action_column>
+        <action_column column_number="3" column_value="X" />
       </action_details>
       <action_details>
         <action_number>4</action_number>
@@ -361,7 +334,7 @@ result.ks_estimated_payments result.ks_refund_or_owed xdef
 result.ks_estimated_payments result.ks_refund_or_owed xdef
 "Kansas tax liability: $0 (no nexus)" job.audit_trail swap addto
 </action_postfix>
-        <action_column column_number="4" column_value="X"></action_column>
+        <action_column column_number="4" column_value="X" />
       </action_details>
     </actions>
   </decision_table>

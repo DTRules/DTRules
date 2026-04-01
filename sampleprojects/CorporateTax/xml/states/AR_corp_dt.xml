@@ -1,17 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Arkansas Corporate Tax Decision Tables
-
-  Table Numbering: 52100-52199 (Arkansas allocation)
-  Tax Rate: 5.5% flat rate (AR Code Section 26-51-205)
-  Apportionment: Single-sales factor
-  Economic Nexus: $100,000 gross receipts threshold
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52100: Determine AR Corporate Tax Filing Requirement            -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Determine_AR_Filing_Requirement</table_name>
 <xls_file>AR_Corp.xls</xls_file>
@@ -22,9 +14,9 @@
 <FILE_PATH>states/AR/52100_Determine_AR_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
@@ -34,9 +26,9 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "AR" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 
 <condition_details>
@@ -46,9 +38,9 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "AR"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "AR" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
@@ -59,7 +51,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AR" st
 <action_description>// Physical nexus established - filing required</action_description>
 <action_postfix>
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
@@ -68,25 +60,25 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AR" st
 <action_description>// Economic nexus established per Wayfair - filing required</action_description>
 <action_postfix>
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No nexus - no filing required</action_comment>
-<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_comment>No nexus - no filing required; // No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52120: Calculate AR State-Specific Income Adjustments           -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_AR_Income_Adjustments</table_name>
 <xls_file>AR_Corp.xls</xls_file>
@@ -97,50 +89,50 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AR" st
 <FILE_PATH>states/AR/52120_Calculate_AR_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to calculate adjustments</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate state additions and subtractions</action_comment>
-<action_description>// Calculate state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_comment>Calculate state additions and subtractions; // Calculate state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no adjustments</action_comment>
-<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_comment>No nexus - no adjustments; // No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 52180: Calculate AR State Tax                                   -->
-<!-- ====================================================================== -->
+
+
+
 <decision_table>
 <table_name>Calculate_AR_State_Tax</table_name>
 <xls_file>AR_Corp.xls</xls_file>
@@ -151,65 +143,65 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <FILE_PATH>states/AR/52180_Calculate_AR_State_Tax</FILE_PATH>
 </attribute_fields>
 
-<contexts></contexts>
+<contexts />
 
-<initial_actions></initial_actions>
+<initial_actions />
 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Must have nexus to owe tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
+<condition_description />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
 <condition_postfix>
-apportionment.state_taxable_income 0.0 f>
+apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Flat rate calculation</action_comment>
-<action_description>// Arkansas uses 5.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_comment>Flat rate calculation; // Arkansas uses 5.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
+<action_description />
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>No nexus - no tax liability</action_comment>
-<action_description>// No Arkansas nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_comment>No nexus - no tax liability; // No Arkansas nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>3</action_number>
-<action_comment>No taxable income - no tax liability</action_comment>
-<action_description>// No Arkansas taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_comment>No taxable income - no tax liability; // No Arkansas taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
+<action_description />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 

@@ -1,106 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for New Jersey (NJ)
-
-  New Jersey has a progressive income tax with 7 tax brackets.
-  Tax rates: 1.4%, 1.75%, 3.5%, 5.525%, 6.37%, 8.97%, and 10.75%
-
-  Single filer brackets (2025):
-  - $0 - $20,000: 1.4%
-  - $20,001 - $35,000: 1.75%
-  - $35,001 - $40,000: 3.5%
-  - $40,001 - $75,000: 5.525%
-  - $75,001 - $500,000: 6.37%
-  - $500,001 - $1,000,000: 8.97%
-  - Over $1,000,000: 10.75%
-
-  Married filing jointly brackets (2025):
-  - $0 - $20,000: 1.4%
-  - $20,001 - $50,000: 1.75%
-  - $50,001 - $70,000: 2.45%
-  - $70,001 - $80,000: 3.5%
-  - $80,001 - $150,000: 5.525%
-  - $150,001 - $500,000: 6.37%
-  - $500,001 - $1,000,000: 8.97%
-  - Over $1,000,000: 10.75%
-
-  Personal exemptions:
-  - Personal exemption: $1,000
-  - Dependent exemption: $1,500 per dependent
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/NJ/43000_NJ_constants</file_path>
-  </file_metadata>
-  <!-- New Jersey state tax constants -->
-  <entity name="result">
-    <!-- Personal exemptions (NJ uses exemptions instead of standard deduction) -->
-    <field name="nj_personal_exemption" type="double" default_value="1000.0"
-           comment="NJ personal exemption (2025)"/>
-    <field name="nj_dependent_exemption" type="double" default_value="1500.0"
-           comment="NJ dependent exemption per dependent (2025)"/>
-
-    <!-- Progressive tax brackets - Single filers -->
-    <field name="nj_bracket_1_limit_single" type="double" default_value="20000.0"
-           comment="NJ bracket 1 upper limit single ($0 - $20,000)"/>
-    <field name="nj_bracket_2_limit_single" type="double" default_value="35000.0"
-           comment="NJ bracket 2 upper limit single ($20,001 - $35,000)"/>
-    <field name="nj_bracket_3_limit_single" type="double" default_value="40000.0"
-           comment="NJ bracket 3 upper limit single ($35,001 - $40,000)"/>
-    <field name="nj_bracket_4_limit_single" type="double" default_value="75000.0"
-           comment="NJ bracket 4 upper limit single ($40,001 - $75,000)"/>
-    <field name="nj_bracket_5_limit_single" type="double" default_value="500000.0"
-           comment="NJ bracket 5 upper limit single ($75,001 - $500,000)"/>
-    <field name="nj_bracket_6_limit_single" type="double" default_value="1000000.0"
-           comment="NJ bracket 6 upper limit single ($500,001 - $1,000,000)"/>
-
-    <!-- Progressive tax brackets - Married filing jointly -->
-    <field name="nj_bracket_1_limit_joint" type="double" default_value="20000.0"
-           comment="NJ bracket 1 upper limit joint ($0 - $20,000)"/>
-    <field name="nj_bracket_2_limit_joint" type="double" default_value="50000.0"
-           comment="NJ bracket 2 upper limit joint ($20,001 - $50,000)"/>
-    <field name="nj_bracket_3_limit_joint" type="double" default_value="70000.0"
-           comment="NJ bracket 3 upper limit joint ($50,001 - $70,000)"/>
-    <field name="nj_bracket_4_limit_joint" type="double" default_value="80000.0"
-           comment="NJ bracket 4 upper limit joint ($70,001 - $80,000)"/>
-    <field name="nj_bracket_5_limit_joint" type="double" default_value="150000.0"
-           comment="NJ bracket 5 upper limit joint ($80,001 - $150,000)"/>
-    <field name="nj_bracket_6_limit_joint" type="double" default_value="500000.0"
-           comment="NJ bracket 6 upper limit joint ($150,001 - $500,000)"/>
-    <field name="nj_bracket_7_limit_joint" type="double" default_value="1000000.0"
-           comment="NJ bracket 7 upper limit joint ($500,001 - $1,000,000)"/>
-
-    <!-- Tax rates for all brackets -->
-    <field name="nj_bracket_1_rate" type="double" default_value="0.014"
-           comment="NJ tax rate bracket 1: 1.4% (2025)"/>
-    <field name="nj_bracket_2_rate_single" type="double" default_value="0.0175"
-           comment="NJ tax rate bracket 2 single: 1.75% (2025)"/>
-    <field name="nj_bracket_2_rate_joint" type="double" default_value="0.0175"
-           comment="NJ tax rate bracket 2 joint: 1.75% (2025)"/>
-    <field name="nj_bracket_3_rate_single" type="double" default_value="0.035"
-           comment="NJ tax rate bracket 3 single: 3.5% (2025)"/>
-    <field name="nj_bracket_3_rate_joint" type="double" default_value="0.0245"
-           comment="NJ tax rate bracket 3 joint: 2.45% (2025)"/>
-    <field name="nj_bracket_4_rate_single" type="double" default_value="0.05525"
-           comment="NJ tax rate bracket 4 single: 5.525% (2025)"/>
-    <field name="nj_bracket_4_rate_joint" type="double" default_value="0.035"
-           comment="NJ tax rate bracket 4 joint: 3.5% (2025)"/>
-    <field name="nj_bracket_5_rate_single" type="double" default_value="0.0637"
-           comment="NJ tax rate bracket 5 single: 6.37% (2025)"/>
-    <field name="nj_bracket_5_rate_joint" type="double" default_value="0.05525"
-           comment="NJ tax rate bracket 5 joint: 5.525% (2025)"/>
-    <field name="nj_bracket_6_rate_single" type="double" default_value="0.0897"
-           comment="NJ tax rate bracket 6 single: 8.97% (2025)"/>
-    <field name="nj_bracket_6_rate_joint" type="double" default_value="0.0637"
-           comment="NJ tax rate bracket 6 joint: 6.37% (2025)"/>
-    <field name="nj_bracket_7_rate" type="double" default_value="0.1075"
-           comment="NJ tax rate bracket 7: 10.75% (2025)"/>
-    <field name="nj_bracket_7_rate_joint" type="double" default_value="0.0897"
-           comment="NJ tax rate bracket 7 joint: 8.97% (2025)"/>
-    <field name="nj_bracket_8_rate_joint" type="double" default_value="0.1075"
-           comment="NJ tax rate bracket 8 joint: 10.75% (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="NJ.xlsx" access="rw">
+		<field name="nj_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NJ bracket 1 upper limit joint ($0 - $20,000)"></field>
+		<field name="nj_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NJ bracket 1 upper limit single ($0 - $20,000)"></field>
+		<field name="nj_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.014" comment="NJ tax rate bracket 1: 1.4% (2025)"></field>
+		<field name="nj_bracket_2_limit_joint" type="double" subtype="" access="r" input="" default_value="50000.0" comment="NJ bracket 2 upper limit joint ($20,001 - $50,000)"></field>
+		<field name="nj_bracket_2_limit_single" type="double" subtype="" access="r" input="" default_value="35000.0" comment="NJ bracket 2 upper limit single ($20,001 - $35,000)"></field>
+		<field name="nj_bracket_2_rate_joint" type="double" subtype="" access="r" input="" default_value="0.0175" comment="NJ tax rate bracket 2 joint: 1.75% (2025)"></field>
+		<field name="nj_bracket_2_rate_single" type="double" subtype="" access="r" input="" default_value="0.0175" comment="NJ tax rate bracket 2 single: 1.75% (2025)"></field>
+		<field name="nj_bracket_3_limit_joint" type="double" subtype="" access="r" input="" default_value="70000.0" comment="NJ bracket 3 upper limit joint ($50,001 - $70,000)"></field>
+		<field name="nj_bracket_3_limit_single" type="double" subtype="" access="r" input="" default_value="40000.0" comment="NJ bracket 3 upper limit single ($35,001 - $40,000)"></field>
+		<field name="nj_bracket_3_rate_joint" type="double" subtype="" access="r" input="" default_value="0.0245" comment="NJ tax rate bracket 3 joint: 2.45% (2025)"></field>
+		<field name="nj_bracket_3_rate_single" type="double" subtype="" access="r" input="" default_value="0.035" comment="NJ tax rate bracket 3 single: 3.5% (2025)"></field>
+		<field name="nj_bracket_4_limit_joint" type="double" subtype="" access="r" input="" default_value="80000.0" comment="NJ bracket 4 upper limit joint ($70,001 - $80,000)"></field>
+		<field name="nj_bracket_4_limit_single" type="double" subtype="" access="r" input="" default_value="75000.0" comment="NJ bracket 4 upper limit single ($40,001 - $75,000)"></field>
+		<field name="nj_bracket_4_rate_joint" type="double" subtype="" access="r" input="" default_value="0.035" comment="NJ tax rate bracket 4 joint: 3.5% (2025)"></field>
+		<field name="nj_bracket_4_rate_single" type="double" subtype="" access="r" input="" default_value="0.05525" comment="NJ tax rate bracket 4 single: 5.525% (2025)"></field>
+		<field name="nj_bracket_5_limit_joint" type="double" subtype="" access="r" input="" default_value="150000.0" comment="NJ bracket 5 upper limit joint ($80,001 - $150,000)"></field>
+		<field name="nj_bracket_5_limit_single" type="double" subtype="" access="r" input="" default_value="500000.0" comment="NJ bracket 5 upper limit single ($75,001 - $500,000)"></field>
+		<field name="nj_bracket_5_rate_joint" type="double" subtype="" access="r" input="" default_value="0.05525" comment="NJ tax rate bracket 5 joint: 5.525% (2025)"></field>
+		<field name="nj_bracket_5_rate_single" type="double" subtype="" access="r" input="" default_value="0.0637" comment="NJ tax rate bracket 5 single: 6.37% (2025)"></field>
+		<field name="nj_bracket_6_limit_joint" type="double" subtype="" access="r" input="" default_value="500000.0" comment="NJ bracket 6 upper limit joint ($150,001 - $500,000)"></field>
+		<field name="nj_bracket_6_limit_single" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="NJ bracket 6 upper limit single ($500,001 - $1,000,000)"></field>
+		<field name="nj_bracket_6_rate_joint" type="double" subtype="" access="r" input="" default_value="0.0637" comment="NJ tax rate bracket 6 joint: 6.37% (2025)"></field>
+		<field name="nj_bracket_6_rate_single" type="double" subtype="" access="r" input="" default_value="0.0897" comment="NJ tax rate bracket 6 single: 8.97% (2025)"></field>
+		<field name="nj_bracket_7_limit_joint" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="NJ bracket 7 upper limit joint ($500,001 - $1,000,000)"></field>
+		<field name="nj_bracket_7_rate" type="double" subtype="" access="r" input="" default_value="0.1075" comment="NJ tax rate bracket 7: 10.75% (2025)"></field>
+		<field name="nj_bracket_7_rate_joint" type="double" subtype="" access="r" input="" default_value="0.0897" comment="NJ tax rate bracket 7 joint: 8.97% (2025)"></field>
+		<field name="nj_bracket_8_rate_joint" type="double" subtype="" access="r" input="" default_value="0.1075" comment="NJ tax rate bracket 8 joint: 10.75% (2025)"></field>
+		<field name="nj_dependent_exemption" type="double" subtype="" access="r" input="" default_value="1500.0" comment="NJ dependent exemption per dependent (2025)"></field>
+		<field name="nj_personal_exemption" type="double" subtype="" access="r" input="" default_value="1000.0" comment="NJ personal exemption (2025)"></field>
+	</entity>
 </entity_data_dictionary>

@@ -26,6 +26,7 @@
    <filing_status>Single</filing_status>
    <state>SC</state>
    <city>Charleston</city>
+   <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
    <!-- AGI: $18,000 -->

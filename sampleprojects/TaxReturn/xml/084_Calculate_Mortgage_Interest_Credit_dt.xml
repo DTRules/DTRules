@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 8400: Calculate_Mortgage_Interest_Credit -->
+<decision_table>
+<table_name>Calculate_Mortgage_Interest_Credit</table_name>
+<xls_file>084_Calculate_Mortgage_Interest_Credit.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates Mortgage Interest Credit for holders of Mortgage Credit Certificates (MCC). Credit = mortgage interest paid x MCC rate. Limited to $2,000. Reduces Schedule A mortgage interest deduction. Excess carries forward per Form 8396.</COMMENTS>
+<TABLE_NUMBER>8400</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize mortgage interest credit</action_description>
+<action_postfix>
+0.0 /result.mortgage_interest_credit xdef
+0.0 /result.carryforward_mortgage_credit xdef
+0.0 /result.mortgage_interest_deduction_reduction xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Property has MCC</condition_comment>
+<condition_description>Property has MCC</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>MCC rate is valid</condition_comment>
+<condition_description>MCC rate is valid</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Has mortgage interest paid</condition_comment>
+<condition_description>Has mortgage interest paid</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate mortgage interest credit</action_comment>
+<action_description>Calculate mortgage interest credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No MCC credit</action_comment>
+<action_description>No MCC credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

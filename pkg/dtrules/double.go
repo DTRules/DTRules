@@ -122,6 +122,10 @@ func (r *RDouble) IsExecutable() bool {
 
 // Equals compares this double with another object.
 func (r *RDouble) Equals(o Object) (bool, error) {
+	// Null is never equal to a double
+	if o.Type() == TypeNull {
+		return false, nil
+	}
 	v, err := o.DoubleValue()
 	if err != nil {
 		return false, err

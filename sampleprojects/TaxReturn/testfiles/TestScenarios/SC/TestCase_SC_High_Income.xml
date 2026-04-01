@@ -28,6 +28,7 @@
    <filing_status>MFJ</filing_status>
    <state>SC</state>
    <city>Greenville</city>
+   <has_state_income_tax>true</has_state_income_tax>
 
    <!-- Expected values for validation -->
    <!-- AGI: $100,000 -->

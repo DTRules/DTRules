@@ -19,11 +19,11 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/xuri/excelize/v2"
 
-	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
@@ -47,6 +47,7 @@ func NewExporter(rs *session.RuleSet) *Exporter {
 }
 
 // ExportDecisionTables exports all decision tables to a single Excel file.
+// Tables are ordered by TABLE_NUMBER to match execution order.
 func (e *Exporter) ExportDecisionTables(filename string) error {
 	f := excelize.NewFile()
 	defer f.Close()
@@ -54,13 +55,11 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 	// Delete the default sheet
 	defaultSheet := f.GetSheetName(0)
 
-	// Get all decision table names and sort them
-	tableNames := e.ruleSet.GetDecisionTableNames()
-	sortedNames := make([]string, len(tableNames))
-	for i, name := range tableNames {
-		sortedNames[i] = name.StringValue()
-	}
-	sort.Strings(sortedNames)
+	// Get all decision tables
+	tables := e.getAllDecisionTables()
+
+	// Sort by TABLE_NUMBER
+	sortTablesByTableNumber(tables)
 
 	// Create styles
 	styles, err := e.createStyles(f)
@@ -69,19 +68,9 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 	}
 
 	// Export each decision table
-	for _, name := range sortedNames {
-		rname := dtrules.GetRName(name)
-		dtObj := e.ruleSet.GetEntityFactory().FindDecisionTable(rname)
-		if dtObj == nil {
-			continue
-		}
-		dt, ok := dtObj.(*decisiontable.RDecisionTable)
-		if !ok {
-			continue
-		}
-
+	for _, dt := range tables {
 		if err := e.writeDecisionTable(f, dt, styles); err != nil {
-			return fmt.Errorf("failed to write table %s: %w", name, err)
+			return fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
 		}
 	}
 
@@ -92,6 +81,56 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 	}
 
 	return f.SaveAs(filename)
+}
+
+// getAllDecisionTables returns all decision tables from the ruleset.
+func (e *Exporter) getAllDecisionTables() []*decisiontable.RDecisionTable {
+	tableNames := e.ruleSet.GetDecisionTableNames()
+	tables := make([]*decisiontable.RDecisionTable, 0, len(tableNames))
+
+	for _, rname := range tableNames {
+		dtObj := e.ruleSet.GetEntityFactory().FindDecisionTable(rname)
+		if dtObj == nil {
+			continue
+		}
+		dt, ok := dtObj.(*decisiontable.RDecisionTable)
+		if !ok {
+			continue
+		}
+		tables = append(tables, dt)
+	}
+	return tables
+}
+
+// sortTablesByTableNumber sorts decision tables by their TABLE_NUMBER field.
+// Tables without a TABLE_NUMBER are sorted alphabetically after numbered tables.
+func sortTablesByTableNumber(tables []*decisiontable.RDecisionTable) {
+	sort.Slice(tables, func(i, j int) bool {
+		numI := tables[i].GetField("TABLE_NUMBER")
+		numJ := tables[j].GetField("TABLE_NUMBER")
+
+		// Parse as integers for proper numeric sorting
+		intI, errI := strconv.Atoi(numI)
+		intJ, errJ := strconv.Atoi(numJ)
+
+		// Both have valid numbers: sort numerically
+		if errI == nil && errJ == nil {
+			return intI < intJ
+		}
+
+		// Only i has a valid number: i comes first
+		if errI == nil {
+			return true
+		}
+
+		// Only j has a valid number: j comes first
+		if errJ == nil {
+			return false
+		}
+
+		// Neither has a valid number: sort alphabetically by name
+		return tables[i].GetName() < tables[j].GetName()
+	})
 }
 
 // ExportDecisionTablesToDir exports decision tables grouped by xls_file to a directory.
@@ -124,11 +163,9 @@ func (e *Exporter) ExportDecisionTablesToDir(dir string) error {
 		groups[xlsFile] = append(groups[xlsFile], dt)
 	}
 
-	// Sort tables within each group by name
+	// Sort tables within each group by TABLE_NUMBER
 	for _, tables := range groups {
-		sort.Slice(tables, func(i, j int) bool {
-			return tables[i].GetName() < tables[j].GetName()
-		})
+		sortTablesByTableNumber(tables)
 	}
 
 	// Write each group to a separate file
@@ -405,27 +442,14 @@ func (e *Exporter) ExportCombinedWorkbook(filename string) error {
 		return fmt.Errorf("failed to create styles: %w", err)
 	}
 
+	// Get and sort decision tables by TABLE_NUMBER
+	tables := e.getAllDecisionTables()
+	sortTablesByTableNumber(tables)
+
 	// Export each decision table to its own sheet
-	tableNames := e.ruleSet.GetDecisionTableNames()
-	sortedNames := make([]string, len(tableNames))
-	for i, name := range tableNames {
-		sortedNames[i] = name.StringValue()
-	}
-	sort.Strings(sortedNames)
-
-	for _, name := range sortedNames {
-		rname := dtrules.GetRName(name)
-		dtObj := e.ruleSet.GetEntityFactory().FindDecisionTable(rname)
-		if dtObj == nil {
-			continue
-		}
-		dt, ok := dtObj.(*decisiontable.RDecisionTable)
-		if !ok {
-			continue
-		}
-
+	for _, dt := range tables {
 		if err := e.writeDecisionTable(f, dt, styles); err != nil {
-			return fmt.Errorf("failed to write table %s: %w", name, err)
+			return fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
 		}
 	}
 

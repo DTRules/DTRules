@@ -1,91 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Oklahoma
-
-  Oklahoma has progressive tax brackets (2025):
-  - $0 to $1,000: 0.25%
-  - $1,000 to $2,500: 0.75%
-  - $2,500 to $3,750: 1.75%
-  - $3,750 to $4,900: 2.75%
-  - $4,900 to $7,200: 3.75%
-  - Over $7,200: 4.75%
-
-  Standard deductions (2025):
-  - Single: $6,350
-  - MFJ: $12,700
-  - HOH: $9,350
-
-  Personal Exemption Credits (2025):
-  - $1,000 credit per exemption
-  - Exemptions: taxpayer, spouse (if MFJ), each dependent
-
-  Note: Beginning in 2026, top rate drops to 4.5% and brackets restructured to 3.
-
-  Source: Oklahoma Tax Commission, Oklahoma Legislature HB 3277
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/OK/43600_OK_constants</file_path>
-  </file_metadata>
-  <entity name="result">
-    <!-- Standard deductions -->
-    <field name="ok_standard_deduction_single" type="double" default_value="6350.0"
-           comment="OK standard deduction single (2025). Source: Oklahoma Tax Commission"/>
-    <field name="ok_standard_deduction_joint" type="double" default_value="12700.0"
-           comment="OK standard deduction married filing jointly (2025). Source: Oklahoma Tax Commission"/>
-    <field name="ok_standard_deduction_hoh" type="double" default_value="9350.0"
-           comment="OK standard deduction head of household (2025). Source: Oklahoma Tax Commission"/>
-    <field name="ok_standard_deduction_mfs" type="double" default_value="6350.0"
-           comment="OK standard deduction married filing separately (2025). Source: Oklahoma Tax Commission"/>
-
-    <!-- Personal Exemption Credit (2025) -->
-    <field name="ok_personal_exemption_credit" type="double" default_value="1000.0"
-           comment="OK personal exemption credit per exemption (2025). Includes taxpayer, spouse (if MFJ), and dependents. Source: Oklahoma Tax Commission"/>
-
-    <!-- Progressive tax brackets (same for all filing statuses) -->
-    <field name="ok_bracket_1_limit" type="double" default_value="1000.0"
-           comment="OK tax bracket 1 upper limit (2025). Source: Oklahoma Tax Commission"/>
-    <field name="ok_bracket_1_rate" type="double" default_value="0.0025"
-           comment="OK tax rate for bracket 1 - 0.25% (2025)"/>
-
-    <field name="ok_bracket_2_limit" type="double" default_value="2500.0"
-           comment="OK tax bracket 2 upper limit (2025)"/>
-    <field name="ok_bracket_2_rate" type="double" default_value="0.0075"
-           comment="OK tax rate for bracket 2 - 0.75% (2025)"/>
-
-    <field name="ok_bracket_3_limit" type="double" default_value="3750.0"
-           comment="OK tax bracket 3 upper limit (2025)"/>
-    <field name="ok_bracket_3_rate" type="double" default_value="0.0175"
-           comment="OK tax rate for bracket 3 - 1.75% (2025)"/>
-
-    <field name="ok_bracket_4_limit" type="double" default_value="4900.0"
-           comment="OK tax bracket 4 upper limit (2025)"/>
-    <field name="ok_bracket_4_rate" type="double" default_value="0.0275"
-           comment="OK tax rate for bracket 4 - 2.75% (2025)"/>
-
-    <field name="ok_bracket_5_limit" type="double" default_value="7200.0"
-           comment="OK tax bracket 5 upper limit (2025)"/>
-    <field name="ok_bracket_5_rate" type="double" default_value="0.0375"
-           comment="OK tax rate for bracket 5 - 3.75% (2025)"/>
-
-    <field name="ok_bracket_6_rate" type="double" default_value="0.0475"
-           comment="OK tax rate for bracket 6 - 4.75% (2025). Top marginal rate."/>
-
-    <!-- Tax calculation fields -->
-    <field name="ok_taxable_income" type="double" default_value="0.0"
-           comment="OK taxable income after deductions (computed)"/>
-    <field name="ok_base_tax" type="double" default_value="0.0"
-           comment="OK base tax before credits (computed)"/>
-    <field name="ok_exemption_credit" type="double" default_value="0.0"
-           comment="OK total personal exemption credit (computed)"/>
-    <field name="ok_tax" type="double" default_value="0.0"
-           comment="OK final tax liability after credits (computed)"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="ok_military_retirement_exemption" type="double" default_value="0.0"
-           comment="OK military retirement exemption - FULL exemption (computed). Oklahoma fully exempts military retirement. Source: MOAA State Report Card"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="OK.xlsx" access="rw">
+		<field name="ok_base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="OK base tax before credits (computed)"></field>
+		<field name="ok_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="1000.0" comment="OK tax bracket 1 upper limit (2025). Source: Oklahoma Tax Commission"></field>
+		<field name="ok_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0025" comment="OK tax rate for bracket 1 - 0.25% (2025)"></field>
+		<field name="ok_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="2500.0" comment="OK tax bracket 2 upper limit (2025)"></field>
+		<field name="ok_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.0075" comment="OK tax rate for bracket 2 - 0.75% (2025)"></field>
+		<field name="ok_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="3750.0" comment="OK tax bracket 3 upper limit (2025)"></field>
+		<field name="ok_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.0175" comment="OK tax rate for bracket 3 - 1.75% (2025)"></field>
+		<field name="ok_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="4900.0" comment="OK tax bracket 4 upper limit (2025)"></field>
+		<field name="ok_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.0275" comment="OK tax rate for bracket 4 - 2.75% (2025)"></field>
+		<field name="ok_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="7200.0" comment="OK tax bracket 5 upper limit (2025)"></field>
+		<field name="ok_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.0375" comment="OK tax rate for bracket 5 - 3.75% (2025)"></field>
+		<field name="ok_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.0475" comment="OK tax rate for bracket 6 - 4.75% (2025). Top marginal rate."></field>
+		<field name="ok_exemption_credit" type="double" subtype="" access="r" input="" default_value="0.0" comment="OK total personal exemption credit (computed)"></field>
+		<field name="ok_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="OK military retirement exemption - FULL exemption (computed). Oklahoma fully exempts military retirement. Source: MOAA State Report Card"></field>
+		<field name="ok_personal_exemption_credit" type="double" subtype="" access="r" input="" default_value="1000.0" comment="OK personal exemption credit per exemption (2025). Includes taxpayer, spouse (if MFJ), and dependents. Source: Oklahoma Tax Commission"></field>
+		<field name="ok_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="9350.0" comment="OK standard deduction head of household (2025). Source: Oklahoma Tax Commission"></field>
+		<field name="ok_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="12700.0" comment="OK standard deduction married filing jointly (2025). Source: Oklahoma Tax Commission"></field>
+		<field name="ok_standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="6350.0" comment="OK standard deduction married filing separately (2025). Source: Oklahoma Tax Commission"></field>
+		<field name="ok_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="6350.0" comment="OK standard deduction single (2025). Source: Oklahoma Tax Commission"></field>
+		<field name="ok_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="OK final tax liability after credits (computed)"></field>
+		<field name="ok_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="OK taxable income after deductions (computed)"></field>
+	</entity>
 </entity_data_dictionary>

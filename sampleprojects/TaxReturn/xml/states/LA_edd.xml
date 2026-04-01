@@ -1,39 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Louisiana
-
-  Louisiana implements a flat 3% tax rate for 2025 (effective Jan 1, 2025).
-  This replaced the previous progressive bracket system.
-
-  Standard deductions were significantly increased:
-  - Single/MFS: $12,500
-  - MFJ/HOH: $25,000
-
-  Additional exemption for seniors (age 65+): $12,000 per person
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/LA/41900_LA_constants</file_path>
-  </file_metadata>
-  <!-- Louisiana state tax constants (2025) -->
-  <entity name="result">
-    <!-- Tax rate -->
-    <field name="la_tax_rate" type="double" default_value="0.03"
-           comment="LA flat rate 3% (2025)"/>
-
-    <!-- Standard deductions -->
-    <field name="la_standard_deduction_single" type="double" default_value="12500"
-           comment="LA standard deduction single/MFS (2025)"/>
-    <field name="la_standard_deduction_joint" type="double" default_value="25000"
-           comment="LA standard deduction married filing jointly (2025)"/>
-    <field name="la_standard_deduction_hoh" type="double" default_value="25000"
-           comment="LA standard deduction head of household (2025)"/>
-
-    <!-- Senior exemption -->
-    <field name="la_senior_exemption" type="double" default_value="12000"
-           comment="LA additional exemption for taxpayers age 65+ (2025)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="LA.xlsx" access="rw">
+		<field name="la_senior_exemption" type="double" subtype="" access="r" input="" default_value="12000" comment="LA additional exemption for taxpayers age 65+ (2025)"></field>
+		<field name="la_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="25000" comment="LA standard deduction head of household (2025)"></field>
+		<field name="la_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="25000" comment="LA standard deduction married filing jointly (2025)"></field>
+		<field name="la_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="12500" comment="LA standard deduction single/MFS (2025)"></field>
+		<field name="la_tax_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="LA flat rate 3% (2025)"></field>
+	</entity>
 </entity_data_dictionary>

@@ -1,80 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Illinois (IL)
-
-  Illinois Income Tax (2025):
-  - Flat tax rate: 4.95%
-  - Personal exemption: $2,850 (2025)
-  - No state standard deduction (uses federal taxable income as starting point)
-  - Illinois uses federal AGI as base, with specific modifications
-  - Military retirement: 100% exclusion (no age limits, no dollar caps)
-  - Survivor Benefit Plan (SBP): 100% exclusion
-  - MSRRA compliant: Military spouse income exempt if different domicile
-  - SCRA compliant: Active duty pay exempt if different state of residence
-
-  Sources:
-  - 35 ILCS 5/201(b) - Tax rate
-  - 35 ILCS 5/203 - Base income modifications and exemptions
-  - 35 ILCS 5/203(a)(2)(K) - Military retirement exclusion
-  - Illinois Department of Revenue IL-1040 Instructions (2025)
-  - Tax rate confirmed: https://tax.illinois.gov/research/taxrates/income.html
-  - MOAA State Report Card: Grade A for military retirement tax treatment
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-
-    <!-- ====================================================================== -->
-    <!-- Illinois Tax Rate (2025)                                              -->
-    <!-- ====================================================================== -->
-    <field name="il_tax_rate" type="double" default_value="0.0495"
-           comment="Illinois flat income tax rate 4.95% (2025). Unchanged since 2017. 35 ILCS 5/201(b). Source: Illinois Department of Revenue https://tax.illinois.gov/research/taxrates/income.html"/>
-
-    <!-- ====================================================================== -->
-    <!-- Illinois Personal Exemption (2025)                                    -->
-    <!-- ====================================================================== -->
-    <field name="il_personal_exemption" type="double" default_value="2850.0"
-           comment="Illinois personal exemption amount $2,850 (2025). Source: IL-1040 Instructions, Illinois Department of Revenue"/>
-
-    <!-- ====================================================================== -->
-    <!-- Illinois Tax Base Calculation                                         -->
-    <!-- ====================================================================== -->
-    <field name="il_uses_federal_taxable" type="boolean" default_value="true"
-           comment="Illinois uses federal adjusted gross income as starting point, with specific additions and subtractions per 35 ILCS 5/203(b)(1). Illinois does not have a state standard deduction."/>
-
-    <!-- ====================================================================== -->
-    <!-- Military Retirement Provisions (2025)                                 -->
-    <!-- ====================================================================== -->
-    <field name="il_military_retirement_exclusion" type="double" default_value="0.0"
-           comment="Illinois military retirement exclusion amount (computed). 100% of military retirement pay is exempt from Illinois income tax per 35 ILCS 5/203(a)(2)(K). No age limits, no dollar caps. MOAA State Report Card: Grade A. Source: https://turbotax.intuit.com/tax-tips/military/states-that-dont-tax-military-retirement/"/>
-
-    <field name="il_sbp_exclusion" type="double" default_value="0.0"
-           comment="Illinois Survivor Benefit Plan (SBP) exclusion (computed). 100% of SBP payments exempt per 35 ILCS 5/203(a)(2)(K). Illinois does not tax pension income. MOAA Grade A"/>
-
-    <field name="il_total_military_exclusion" type="double" default_value="0.0"
-           comment="Total Illinois military income exclusion (computed). Sum of military retirement and SBP exclusions. Illinois is one of 28 states that don't tax military retirement benefits."/>
-
-    <!-- ====================================================================== -->
-    <!-- MSRRA and SCRA Compliance                                            -->
-    <!-- ====================================================================== -->
-    <field name="il_msrra_compliant" type="boolean" default_value="true"
-           comment="Illinois honors MSRRA (Military Spouses Residency Relief Act). Military spouse income is exempt if spouse maintains different domicile. Federal law compliance."/>
-
-    <field name="il_scra_compliant" type="boolean" default_value="true"
-           comment="Illinois honors SCRA (Servicemembers Civil Relief Act). Active duty military pay is exempt if service member maintains different state of residence. Federal law compliance."/>
-
-    <!-- ====================================================================== -->
-    <!-- Computed Fields                                                       -->
-    <!-- ====================================================================== -->
-    <field name="il_adjusted_agi" type="double" default_value="0.0"
-           comment="Illinois AGI after military exclusions (computed from federal AGI). Base for Illinois tax calculation after subtractions per 35 ILCS 5/203"/>
-
-    <field name="il_taxable_income" type="double" default_value="0.0"
-           comment="Illinois taxable income (computed). Federal AGI minus military exclusions and other subtractions, plus any additions. Used as base for applying 4.95% flat rate."/>
-
-    <field name="state_tax_liability" type="double" default_value="0.0"
-           comment="Illinois state tax liability (computed). IL taxable income × 4.95% flat rate per 35 ILCS 5/201(b)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="IL.xlsx" access="rw">
+		<field name="il_adjusted_agi" type="double" subtype="" access="r" input="" default_value="0.0" comment="Illinois AGI after military exclusions (computed from federal AGI). Base for Illinois tax calculation after subtractions per 35 ILCS 5/203"></field>
+		<field name="il_military_retirement_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Illinois military retirement exclusion amount (computed). 100% of military retirement pay is exempt from Illinois income tax per 35 ILCS 5/203(a)(2)(K). No age limits, no dollar caps. MOAA State Report Card: Grade A. Source: https://turbotax.intuit.com/tax-tips/military/states-that-dont-tax-military-retirement/"></field>
+		<field name="il_msrra_compliant" type="boolean" subtype="" access="r" input="" default_value="true" comment="Illinois honors MSRRA (Military Spouses Residency Relief Act). Military spouse income is exempt if spouse maintains different domicile. Federal law compliance."></field>
+		<field name="il_personal_exemption" type="double" subtype="" access="r" input="" default_value="2850.0" comment="Illinois personal exemption amount $2,850 (2025). Source: IL-1040 Instructions, Illinois Department of Revenue"></field>
+		<field name="il_sbp_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Illinois Survivor Benefit Plan (SBP) exclusion (computed). 100% of SBP payments exempt per 35 ILCS 5/203(a)(2)(K). Illinois does not tax pension income. MOAA Grade A"></field>
+		<field name="il_scra_compliant" type="boolean" subtype="" access="r" input="" default_value="true" comment="Illinois honors SCRA (Servicemembers Civil Relief Act). Active duty military pay is exempt if service member maintains different state of residence. Federal law compliance."></field>
+		<field name="il_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0495" comment="Illinois flat income tax rate 4.95% (2025). Unchanged since 2017. 35 ILCS 5/201(b). Source: Illinois Department of Revenue https://tax.illinois.gov/research/taxrates/income.html"></field>
+		<field name="il_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Illinois taxable income (computed). Federal AGI minus military exclusions and other subtractions, plus any additions. Used as base for applying 4.95% flat rate."></field>
+		<field name="il_total_military_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total Illinois military income exclusion (computed). Sum of military retirement and SBP exclusions. Illinois is one of 28 states that don&#39;t tax military retirement benefits."></field>
+		<field name="il_uses_federal_taxable" type="boolean" subtype="" access="r" input="" default_value="true" comment="Illinois uses federal adjusted gross income as starting point, with specific additions and subtractions per 35 ILCS 5/203(b)(1). Illinois does not have a state standard deduction."></field>
+		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Illinois state tax liability (computed). IL taxable income × 4.95% flat rate per 35 ILCS 5/201(b)"></field>
+	</entity>
 </entity_data_dictionary>

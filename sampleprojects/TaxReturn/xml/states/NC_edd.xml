@@ -1,61 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for North Carolina (NC)
-
-  North Carolina Income Tax (2025):
-  - Flat tax rate: 4.25% (reducing to 3.99% in 2026+)
-  - Standard deduction: $12,750 single, $25,500 MFJ, $22,500 HOH
-  - Limited itemized deductions allowed (see NC_dt.xml for details)
-  - Military retirement: Full exemption for 20+ years or medical retirement
-
-  Sources: NC DOR, Tax Foundation, MOAA State Report Card
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <entity name="result">
-
-    <!-- North Carolina Tax Rate (2025) -->
-    <field name="nc_tax_rate" type="double" default_value="0.0425"
-           comment="NC flat income tax rate - 4.25% for 2025 (reducing to 3.99% in 2026). Source: NC DOR"/>
-
-    <!-- North Carolina Standard Deductions (2025) -->
-    <field name="nc_standard_deduction_single" type="double" default_value="12750.0"
-           comment="NC standard deduction for single filers (2025)"/>
-    <field name="nc_standard_deduction_joint" type="double" default_value="25500.0"
-           comment="NC standard deduction for married filing jointly (2025)"/>
-    <field name="nc_standard_deduction_hoh" type="double" default_value="22500.0"
-           comment="NC standard deduction for head of household (2025)"/>
-
-    <!-- North Carolina Limited Itemized Deductions (2025) -->
-    <field name="nc_mortgage_property_tax_limit" type="double" default_value="20000.0"
-           comment="NC combined limit for mortgage interest and property taxes (2025)"/>
-    <field name="nc_property_tax_limit_single" type="double" default_value="10000.0"
-           comment="NC property tax deduction limit for single/joint/HOH (2025)"/>
-    <field name="nc_medical_expense_agi_threshold" type="double" default_value="0.075"
-           comment="NC medical expense threshold - 7.5% of federal AGI (2025)"/>
-
-    <!-- North Carolina Child Deduction -->
-    <field name="nc_child_deduction" type="double" default_value="2500.0"
-           comment="NC child deduction per qualifying child under 17 (subject to phase-out)"/>
-    <field name="nc_child_deduction_phase_out_start" type="double" default_value="60000.0"
-           comment="NC child deduction phase-out starts at $60k AGI (approximate)"/>
-
-    <!-- Military Retirement Provisions (2025) -->
-    <field name="nc_military_retirement_exclusion" type="double" default_value="0.0"
-           comment="NC military retirement exclusion (full exemption for 20+ yrs or medical, computed)"/>
-    <field name="nc_subtractions" type="double" default_value="0.0"
-           comment="NC total subtractions from federal AGI (computed)"/>
-
-    <!-- Computed Fields -->
-    <field name="nc_agi" type="double" default_value="0.0"
-           comment="NC adjusted gross income (federal AGI with NC adjustments, computed)"/>
-    <field name="nc_taxable_income" type="double" default_value="0.0"
-           comment="NC taxable income after deductions (computed)"/>
-    <field name="nc_itemized_deductions" type="double" default_value="0.0"
-           comment="NC allowed itemized deductions (computed)"/>
-    <field name="nc_total_deduction" type="double" default_value="0.0"
-           comment="NC total deduction (greater of standard or itemized, computed)"/>
-
-  </entity>
+<entity_data_dictionary version="2">
+	<entity name="result" xls_file="NC.xlsx" access="rw">
+		<field name="nc_agi" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC adjusted gross income (federal AGI with NC adjustments, computed)"></field>
+		<field name="nc_child_deduction" type="double" subtype="" access="r" input="" default_value="2500.0" comment="NC child deduction per qualifying child under 17 (subject to phase-out)"></field>
+		<field name="nc_child_deduction_phase_out_start" type="double" subtype="" access="r" input="" default_value="60000.0" comment="NC child deduction phase-out starts at $60k AGI (approximate)"></field>
+		<field name="nc_itemized_deductions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC allowed itemized deductions (computed)"></field>
+		<field name="nc_medical_expense_agi_threshold" type="double" subtype="" access="r" input="" default_value="0.075" comment="NC medical expense threshold - 7.5% of federal AGI (2025)"></field>
+		<field name="nc_military_retirement_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC military retirement exclusion (full exemption for 20+ yrs or medical, computed)"></field>
+		<field name="nc_mortgage_property_tax_limit" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NC combined limit for mortgage interest and property taxes (2025)"></field>
+		<field name="nc_property_tax_limit_single" type="double" subtype="" access="r" input="" default_value="10000.0" comment="NC property tax deduction limit for single/joint/HOH (2025)"></field>
+		<field name="nc_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="22500.0" comment="NC standard deduction for head of household (2025)"></field>
+		<field name="nc_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="25500.0" comment="NC standard deduction for married filing jointly (2025)"></field>
+		<field name="nc_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="12750.0" comment="NC standard deduction for single filers (2025)"></field>
+		<field name="nc_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC total subtractions from federal AGI (computed)"></field>
+		<field name="nc_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0425" comment="NC flat income tax rate - 4.25% for 2025 (reducing to 3.99% in 2026). Source: NC DOR"></field>
+		<field name="nc_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC taxable income after deductions (computed)"></field>
+		<field name="nc_total_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC total deduction (greater of standard or itemized, computed)"></field>
+	</entity>
 </entity_data_dictionary>

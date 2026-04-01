@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 42700: Calculate_NH_Tax -->
+<decision_table>
+<table_name>Calculate_NH_Tax</table_name>
+<xls_file>106_Calculate_NH_Tax.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates New Hampshire state income tax per hypothetical Form NH-1040. New Hampshire uses progressive tax brackets: 3% on first $75,000, 5% on $75,000-$150,000, 7.5% above $150,000. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets with div/int arithmetic only.</COMMENTS>
+<TABLE_NUMBER>42700</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize NH tax calculation</action_description>
+<action_postfix>
+&quot;NEW HAMPSHIRE FORM NH-1040 - State Income Tax Calculation&quot; job.audit_trail swap addto
+result.agi /result.nh_agi xdef
+0 /result.nh_bracket_1_tax xdef
+0 /result.nh_bracket_2_tax xdef
+0 /result.nh_bracket_3_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_description>Married Filing Jointly</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate NH tax MFJ</action_comment>
+<action_description>Calculate NH tax MFJ</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate NH tax Single/other</action_comment>
+<action_description>Calculate NH tax Single/other</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>NH progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>NH progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

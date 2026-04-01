@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 3232: Calculate_Noncash_Charitable -->
+<decision_table>
+<table_name>Calculate_Noncash_Charitable</table_name>
+<xls_file>020_Calculate_Noncash_Charitable.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Calculates noncash charitable contribution deductions per Form 8283, Publication 526, IRC Section 170. Handles Section A (under $5,000) and Section B (over $5,000 requiring appraisal). Applies AGI limitations (30% or 50%).</COMMENTS>
+<TABLE_NUMBER>3232</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has noncash contributions</condition_comment>
+<condition_description>Has noncash contributions</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Log total noncash charitable</action_comment>
+<action_description>Log total noncash charitable</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No noncash contributions</action_comment>
+<action_description>No noncash contributions</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Noncash charitable deduction allowed per Form 8283, IRC 170</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

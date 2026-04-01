@@ -1,184 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for West Virginia
-
-  WV implements progressive tax with 5 brackets (2.16% to 4.67%).
-  WV uses personal exemptions ($2,000/exemption) instead of standard deductions.
-  Same brackets apply to all filing statuses.
-
-  Table Number: 44850 (WV is state #48, VT uses 44800)
--->
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 44850: Calculate_WV_Tax - West Virginia State Income Tax       -->
-<!-- ====================================================================== -->
-<decision_table>
-<table_name>Calculate_WV_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>West Virginia state income tax calculation. Implements progressive tax structure with 5 brackets per WV Tax Division (2025).</COMMENTS>
-<TABLE_NUMBER>44850</TABLE_NUMBER>
-<FILE_PATH>states/WV/44850_Calculate_WV_Tax</FILE_PATH>
-</attribute_fields>
-
-<contexts></contexts>
-
-<initial_actions>
-<initial_action>
-<action_description>Initialize West Virginia tax calculation</action_description>
-<action_postfix>
-"West Virginia Tax Calculation Started" job.audit_trail swap addto
-0.0 /result.wv_state_tax xdef
-</action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-<!-- Condition 1: Always execute (WV has same brackets for all filing statuses) -->
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Always execute</condition_comment>
-<condition_description>true</condition_description>
-<condition_postfix>
-true
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-</condition_details>
-</conditions>
-
-<actions>
-<!-- Action 1: Calculate WV tax using progressive brackets -->
-<action_details>
-<action_number>1</action_number>
-<action_comment>Calculate WV tax using progressive brackets (same for all filing statuses)</action_comment>
-<action_postfix>
-<!-- Calculate taxable income: AGI - personal exemptions -->
-<!-- For now, use 1 exemption as default; this should come from return data -->
-result.agi result.wv_personal_exemption sub 0 max
-dup /wv_taxable_income xdef
-
-<!-- Initialize tax to 0 -->
-0.0 /wv_tax xdef
-
-<!-- Bracket 1: First $10,000 @ 2.16% -->
-wv_taxable_income result.wv_bracket_1_limit min
-result.wv_bracket_1_rate mul
-/wv_tax xdef
-
-<!-- Bracket 2: $10,000 to $25,000 @ 2.87% -->
-wv_taxable_income result.wv_bracket_1_limit gt
-{
-  wv_taxable_income result.wv_bracket_2_limit min result.wv_bracket_1_limit sub
-  result.wv_bracket_2_rate mul
-  wv_tax add /wv_tax xdef
-} if
-
-<!-- Bracket 3: $25,000 to $40,000 @ 3.23% -->
-wv_taxable_income result.wv_bracket_2_limit gt
-{
-  wv_taxable_income result.wv_bracket_3_limit min result.wv_bracket_2_limit sub
-  result.wv_bracket_3_rate mul
-  wv_tax add /wv_tax xdef
-} if
-
-<!-- Bracket 4: $40,000 to $60,000 @ 4.30% -->
-wv_taxable_income result.wv_bracket_3_limit gt
-{
-  wv_taxable_income result.wv_bracket_4_limit min result.wv_bracket_3_limit sub
-  result.wv_bracket_4_rate mul
-  wv_tax add /wv_tax xdef
-} if
-
-<!-- Bracket 5: Over $60,000 @ 4.67% -->
-wv_taxable_income result.wv_bracket_4_limit gt
-{
-  wv_taxable_income result.wv_bracket_4_limit sub
-  result.wv_bracket_5_rate mul
-  wv_tax add /wv_tax xdef
-} if
-
-<!-- Store result -->
-wv_tax /result.wv_state_tax xdef
-wv_tax /result.state_tax_liability xdef
-
-"West Virginia tax calculated: $" result.wv_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-</action_details>
-</actions>
-
-</decision_table>
-
-<!-- ====================================================================== -->
-<!-- TABLE 44851: Calculate_WV_Military_Retirement_Exclusion               -->
-<!-- ====================================================================== -->
+<!-- TABLE 44851: Calculate_WV_Military_Retirement_Exclusion -->
 <decision_table>
 <table_name>Calculate_WV_Military_Retirement_Exclusion</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<xls_file>WV.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>West Virginia military retirement pay exclusion. Full exemption since 2019 (Group B). All uniformed services including National Guard. MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
 <TABLE_NUMBER>44851</TABLE_NUMBER>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions>
-<initial_action>
-<action_description>Initialize WV military retirement exclusion calculation</action_description>
-<action_postfix>
-"WV Military Retirement Exclusion Calculation Started" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
 </initial_actions>
-
 <conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Taxpayer has military retirement pay</condition_comment>
-<condition_description>taxpayer.military_retirement_pay > 0</condition_description>
-<condition_postfix>
-taxpayer.military_retirement_pay get 0 gt
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-</condition_details>
 </conditions>
-
 <actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Full exclusion - 100% of military retirement pay excluded from WV taxable income (since 2019). All uniformed services including National Guard.</action_comment>
-<action_postfix>
-<!-- West Virginia provides full exemption for military retirement pay since 2019 -->
-<!-- Covers all uniformed services including National Guard -->
-<!-- Store full amount as exclusion (subtract from state AGI) -->
-taxpayer.military_retirement_pay get
-/result.wv_military_retirement_exclusion xdef
-
-<!-- Add to state subtractions -->
-result.wv_subtractions get
-result.wv_military_retirement_exclusion get add
-/result.wv_subtractions xdef
-
-"WV Military Retirement Exclusion (Full since 2019, all uniformed services): $" result.wv_military_retirement_exclusion get cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-</action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
+<action_description>No military retirement pay - no exclusion</action_description>
 <action_postfix>
-0 /result.wv_military_retirement_exclusion xdef
-"WV Military Retirement Exclusion: None (no military retirement pay)" job.audit_trail swap addto
+
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
 </action_details>
 </actions>
-
+<policy_statements>
+</policy_statements>
 </decision_table>
 
+<!-- TABLE 44850: Calculate_WV_Tax -->
+<decision_table>
+<table_name>Calculate_WV_Tax</table_name>
+<xls_file>WV.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>West Virginia state income tax calculation. Implements progressive tax structure with 5 brackets per WV Tax Division (2025).</COMMENTS>
+<TABLE_NUMBER>44850</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
 </decision_tables>

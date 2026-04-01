@@ -120,6 +120,10 @@ func (f *DTAttributeFields) GetType() string {
 // DTContexts represents the context section
 type DTContexts struct {
 	Contexts []DTContextDetail `xml:"context_details" json:"context_details"`
+	// Note: <context_entity> element is intentionally not parsed here.
+	// The context_entity pattern (forall over entity arrays) doesn't handle
+	// empty arrays well. Tables using context_entity should be converted to
+	// use initial_actions with explicit forall loops that handle empty cases.
 }
 
 // DTContextDetail represents a single context entry
@@ -132,15 +136,15 @@ type DTContextDetail struct {
 
 // DTInitialActions represents the initial actions section
 type DTInitialActions struct {
-	Actions []DTInitialAction `xml:"initial_action_details" json:"initial_action_details"`
+	Actions []DTInitialAction `xml:"initial_action" json:"initial_action"`
 }
 
 // DTInitialAction represents a single initial action
 type DTInitialAction struct {
-	Number      int    `xml:"initial_action_number" json:"initial_action_number"`
-	Comment     string `xml:"initial_action_comment" json:"initial_action_comment,omitempty"`
-	Description string `xml:"initial_action_description" json:"initial_action_description"`
-	Postfix     string `xml:"initial_action_postfix" json:"initial_action_postfix"`
+	Number      int    `xml:"action_number" json:"action_number"`
+	Comment     string `xml:"action_comment" json:"action_comment,omitempty"`
+	Description string `xml:"action_description" json:"action_description"`
+	Postfix     string `xml:"action_postfix" json:"action_postfix"`
 }
 
 // DTConditions represents the conditions section
@@ -298,6 +302,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		contextsPostfix[i] = postfix
 		contextsComment[i] = ctx.Comment
 	}
+
 	builder.SetContexts(contexts)
 
 	// Process initial actions
@@ -495,6 +500,8 @@ func (l *DTLoader) compilePostfixExpressions(expressions []string) ([]dtrules.Ob
 			}
 			result[i] = compiled
 		} else {
+			// Transform legacy if...endif syntax to { body } condition if syntax
+			expr = transformIfEndif(expr)
 			compiled, err := l.compiler.CompilePostfix(expr)
 			if err != nil {
 				return nil, fmt.Errorf("expression %d ('%s'): %w", i+1, expr, err)
@@ -504,6 +511,268 @@ func (l *DTLoader) compilePostfixExpressions(expressions []string) ([]dtrules.Ob
 	}
 
 	return result, nil
+}
+
+// transformIfEndif converts legacy if syntax to Go-style syntax.
+// It handles:
+// - "condition if body endif" -> "{ body } condition if"
+// - "condition if truebody else falsebody endif" -> "{ truebody } { falsebody } condition ifelse"
+// - "condition if body then" -> "{ body } condition if" (then is alias for endif)
+// - "condition if truebody else falsebody then" -> "{ truebody } { falsebody } condition ifelse"
+// - "condition iftrue body then" -> "{ body } condition if"
+// - "condition iftrue truebody else falsebody then" -> "{ truebody } { falsebody } condition ifelse"
+func transformIfEndif(postfix string) string {
+	// Quick check - if no "endif" or "then", nothing to transform
+	if !strings.Contains(postfix, "endif") && !strings.Contains(postfix, "then") {
+		return postfix
+	}
+
+	tokens := tokenizePostfix(postfix)
+
+	// Transform iftrue/then patterns first (they use "then" as terminator)
+	tokens = transformIftrueTokens(tokens)
+
+	// Normalize "then" to "endif" for if...then patterns (when paired with "if", not "iftrue")
+	tokens = normalizeIfThen(tokens)
+
+	// Transform if/endif patterns
+	tokens = transformIfEndifTokens(tokens)
+
+	return strings.Join(tokens, " ")
+}
+
+// normalizeIfThen converts "then" tokens to "endif" when they are paired with "if" (not "iftrue").
+// This handles the legacy "if...else...then" pattern.
+func normalizeIfThen(tokens []string) []string {
+	// Find if...then pairs and convert then to endif
+	for i := 0; i < len(tokens); i++ {
+		if tokens[i] == "if" {
+			// Find matching then or endif
+			depth := 1
+			for j := i + 1; j < len(tokens); j++ {
+				switch tokens[j] {
+				case "if", "iftrue":
+					depth++
+				case "endif":
+					depth--
+					if depth == 0 {
+						// Already using endif, nothing to do
+						break
+					}
+				case "then":
+					depth--
+					if depth == 0 {
+						// Convert then to endif
+						tokens[j] = "endif"
+						break
+					}
+				}
+				if depth == 0 {
+					break
+				}
+			}
+		}
+	}
+	return tokens
+}
+
+// tokenizePostfix splits postfix into tokens, preserving string literals.
+func tokenizePostfix(postfix string) []string {
+	var tokens []string
+	var current strings.Builder
+	inString := false
+	stringChar := byte(0)
+
+	for i := 0; i < len(postfix); i++ {
+		ch := postfix[i]
+
+		if inString {
+			current.WriteByte(ch)
+			if ch == stringChar {
+				inString = false
+				tokens = append(tokens, current.String())
+				current.Reset()
+			}
+		} else if ch == '"' || ch == '\'' {
+			if current.Len() > 0 {
+				tokens = append(tokens, current.String())
+				current.Reset()
+			}
+			inString = true
+			stringChar = ch
+			current.WriteByte(ch)
+		} else if ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' {
+			if current.Len() > 0 {
+				tokens = append(tokens, current.String())
+				current.Reset()
+			}
+		} else {
+			current.WriteByte(ch)
+		}
+	}
+	if current.Len() > 0 {
+		tokens = append(tokens, current.String())
+	}
+	return tokens
+}
+
+// transformIfEndifTokens transforms if/endif patterns in token slice.
+func transformIfEndifTokens(tokens []string) []string {
+	// Find innermost if...endif pairs and transform them from inside out
+	for {
+		ifIdx, elseIdx, endifIdx := findInnermostIfEndif(tokens)
+		if ifIdx == -1 {
+			break
+		}
+
+		if elseIdx != -1 {
+			// if...else...endif -> { truebody } { falsebody } condition ifelse
+			condition := tokens[:ifIdx]
+			truebody := tokens[ifIdx+1 : elseIdx]
+			falsebody := tokens[elseIdx+1 : endifIdx]
+			rest := tokens[endifIdx+1:]
+
+			// Build new token list
+			var newTokens []string
+			newTokens = append(newTokens, "{")
+			newTokens = append(newTokens, truebody...)
+			newTokens = append(newTokens, "}")
+			newTokens = append(newTokens, "{")
+			newTokens = append(newTokens, falsebody...)
+			newTokens = append(newTokens, "}")
+			newTokens = append(newTokens, condition...)
+			newTokens = append(newTokens, "ifelse")
+			newTokens = append(newTokens, rest...)
+			tokens = newTokens
+		} else {
+			// if...endif -> { body } condition if
+			condition := tokens[:ifIdx]
+			body := tokens[ifIdx+1 : endifIdx]
+			rest := tokens[endifIdx+1:]
+
+			// Build new token list
+			var newTokens []string
+			newTokens = append(newTokens, "{")
+			newTokens = append(newTokens, body...)
+			newTokens = append(newTokens, "}")
+			newTokens = append(newTokens, condition...)
+			newTokens = append(newTokens, "if")
+			newTokens = append(newTokens, rest...)
+			tokens = newTokens
+		}
+	}
+	return tokens
+}
+
+// findInnermostIfEndif finds the innermost if...endif pair.
+// Returns ifIdx, elseIdx (-1 if no else), endifIdx.
+// Returns -1, -1, -1 if no if...endif found.
+func findInnermostIfEndif(tokens []string) (int, int, int) {
+	// Find the last "if" that has a matching "endif"
+	for i := len(tokens) - 1; i >= 0; i-- {
+		if tokens[i] == "if" {
+			// Find matching endif (and optional else)
+			depth := 1
+			elseIdx := -1
+			for j := i + 1; j < len(tokens); j++ {
+				switch tokens[j] {
+				case "if":
+					depth++
+				case "endif":
+					depth--
+					if depth == 0 {
+						return i, elseIdx, j
+					}
+				case "else":
+					if depth == 1 {
+						elseIdx = j
+					}
+				}
+			}
+		}
+	}
+	return -1, -1, -1
+}
+
+// transformIftrueTokens transforms iftrue/then patterns in token slice.
+// Converts:
+// - "condition iftrue body then" -> "{ body } condition if"
+// - "condition iftrue truebody else falsebody then" -> "{ truebody } { falsebody } condition ifelse"
+func transformIftrueTokens(tokens []string) []string {
+	// Find innermost iftrue...then pairs and transform them from inside out
+	for {
+		iftrueIdx, elseIdx, thenIdx := findInnermostIftrue(tokens)
+		if iftrueIdx == -1 {
+			break
+		}
+
+		if elseIdx != -1 {
+			// iftrue...else...then -> { truebody } { falsebody } condition ifelse
+			condition := tokens[:iftrueIdx]
+			truebody := tokens[iftrueIdx+1 : elseIdx]
+			falsebody := tokens[elseIdx+1 : thenIdx]
+			rest := tokens[thenIdx+1:]
+
+			// Build new token list
+			var newTokens []string
+			newTokens = append(newTokens, "{")
+			newTokens = append(newTokens, truebody...)
+			newTokens = append(newTokens, "}")
+			newTokens = append(newTokens, "{")
+			newTokens = append(newTokens, falsebody...)
+			newTokens = append(newTokens, "}")
+			newTokens = append(newTokens, condition...)
+			newTokens = append(newTokens, "ifelse")
+			newTokens = append(newTokens, rest...)
+			tokens = newTokens
+		} else {
+			// iftrue...then -> { body } condition if
+			condition := tokens[:iftrueIdx]
+			body := tokens[iftrueIdx+1 : thenIdx]
+			rest := tokens[thenIdx+1:]
+
+			// Build new token list
+			var newTokens []string
+			newTokens = append(newTokens, "{")
+			newTokens = append(newTokens, body...)
+			newTokens = append(newTokens, "}")
+			newTokens = append(newTokens, condition...)
+			newTokens = append(newTokens, "if")
+			newTokens = append(newTokens, rest...)
+			tokens = newTokens
+		}
+	}
+	return tokens
+}
+
+// findInnermostIftrue finds the innermost iftrue...then pair.
+// Returns iftrueIdx, elseIdx (-1 if no else), thenIdx.
+// Returns -1, -1, -1 if no iftrue...then found.
+func findInnermostIftrue(tokens []string) (int, int, int) {
+	// Find the last "iftrue" that has a matching "then"
+	for i := len(tokens) - 1; i >= 0; i-- {
+		if tokens[i] == "iftrue" {
+			// Find matching then (and optional else)
+			depth := 1
+			elseIdx := -1
+			for j := i + 1; j < len(tokens); j++ {
+				switch tokens[j] {
+				case "iftrue":
+					depth++
+				case "then":
+					depth--
+					if depth == 0 {
+						return i, elseIdx, j
+					}
+				case "else":
+					if depth == 1 {
+						elseIdx = j
+					}
+				}
+			}
+		}
+	}
+	return -1, -1, -1
 }
 
 // compileContextsPostfix compiles context postfix expressions into a single code block.

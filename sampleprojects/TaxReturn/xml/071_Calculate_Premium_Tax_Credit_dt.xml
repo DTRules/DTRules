@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 6100: Calculate_Premium_Tax_Credit -->
+<decision_table>
+<table_name>Calculate_Premium_Tax_Credit</table_name>
+<xls_file>071_Calculate_Premium_Tax_Credit.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Premium Tax Credit per Form 8962, IRC 36B</COMMENTS>
+<TABLE_NUMBER>6100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>set result.premium_tax_credit = max_ptc - required_contribution</action_description>
+<action_postfix>
+0.0 /result.premium_tax_credit xdef
+0.0 /result.ptc_repayment xdef
+0.0 /result.max_ptc xdef
+0.0 /result.net_ptc xdef
+&quot;PREMIUM TAX CREDIT (Form 8962, IRC 36B)&quot; job.audit_trail swap addto
+constants.fpl_1_person job.household_size 1 - constants.fpl_additional_person f* f+ /result.fpl_amount xdef
+result.agi result.fpl_amount fdiv 100 f* /result.fpl_percentage xdef
+job.slcsp_premium result.agi 0.085 f* f- 0 fmax /result.max_ptc xdef
+result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has marketplace coverage</condition_comment>
+<condition_description>Has marketplace coverage</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="4" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Eligible for PTC (FPL 100-400%)</condition_comment>
+<condition_description>Eligible for PTC (FPL 100-400%)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="3" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Net PTC is positive (credit owed)</condition_comment>
+<condition_description>Net PTC is positive (credit owed)</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="3" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment></action_comment>
+<action_description></action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="4" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>PTC credit calculated per IRC 36B</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>PTC repayment required per IRC 36B</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Not eligible for PTC - income outside range</policy_description>
+<policy_statement_postfix></policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

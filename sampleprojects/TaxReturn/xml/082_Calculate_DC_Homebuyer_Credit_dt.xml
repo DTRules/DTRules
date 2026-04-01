@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 8300: Calculate_DC_Homebuyer_Credit -->
+<decision_table>
+<table_name>Calculate_DC_Homebuyer_Credit</table_name>
+<xls_file>082_Calculate_DC_Homebuyer_Credit.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates DC First-Time Homebuyer Credit. Credit is lesser of $5,000 or purchase price. Subject to phase-out at higher income levels. Must be first-time homebuyer in DC during qualified period per Form 8859.</COMMENTS>
+<TABLE_NUMBER>8300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<action_description>Initialize DC homebuyer credit</action_description>
+<action_postfix>
+0.0 /result.dc_homebuyer_credit xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Purchased DC home as first-time buyer</condition_comment>
+<condition_description>Purchased DC home as first-time buyer</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Purchase price is greater than zero</condition_comment>
+<condition_description>Purchase price is greater than zero</condition_description>
+<condition_postfix>
+
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate DC homebuyer credit</action_comment>
+<action_description>Calculate DC homebuyer credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No DC homebuyer credit</action_comment>
+<action_description>No DC homebuyer credit</action_description>
+<action_postfix>
+
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+</decision_tables>

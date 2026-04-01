@@ -118,6 +118,10 @@ func (r *RInteger) IsExecutable() bool {
 
 // Equals compares this integer with another object.
 func (r *RInteger) Equals(o Object) (bool, error) {
+	// Null is never equal to an integer
+	if o.Type() == TypeNull {
+		return false, nil
+	}
 	v, err := o.IntValue()
 	if err != nil {
 		return false, err
