@@ -96,9 +96,11 @@ type DecisionTableXML struct {
 
 // AttributeFieldsXML holds metadata fields for the table.
 type AttributeFieldsXML struct {
-	Type        string `xml:"Type"`
-	Comments    string `xml:"COMMENTS"`
-	TableNumber string `xml:"TABLE_NUMBER"`
+	Type         string            `xml:"Type"`
+	Comments     string            `xml:"COMMENTS"`
+	TableNumber  string            `xml:"TABLE_NUMBER"`
+	FilePath     string            `xml:"FILE_PATH,omitempty"`
+	CustomFields map[string]string `xml:"-"` // Custom fields preserved during round-trips
 }
 
 // InitialActionXML represents an initial action.
@@ -296,6 +298,20 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscape(table.AttributeFields.Type)))
 	f.WriteString(fmt.Sprintf("<COMMENTS>%s</COMMENTS>\n", xmlEscape(table.AttributeFields.Comments)))
 	f.WriteString(fmt.Sprintf("<TABLE_NUMBER>%s</TABLE_NUMBER>\n", xmlEscape(table.AttributeFields.TableNumber)))
+	if table.AttributeFields.FilePath != "" {
+		f.WriteString(fmt.Sprintf("<FILE_PATH>%s</FILE_PATH>\n", xmlEscape(table.AttributeFields.FilePath)))
+	}
+	// Write custom fields (sorted for deterministic output)
+	if len(table.AttributeFields.CustomFields) > 0 {
+		customKeys := make([]string, 0, len(table.AttributeFields.CustomFields))
+		for k := range table.AttributeFields.CustomFields {
+			customKeys = append(customKeys, k)
+		}
+		sort.Strings(customKeys)
+		for _, k := range customKeys {
+			f.WriteString(fmt.Sprintf("<%s>%s</%s>\n", xmlEscape(k), xmlEscape(table.AttributeFields.CustomFields[k]), xmlEscape(k)))
+		}
+	}
 	f.WriteString("</attribute_fields>\n")
 
 	// Contexts
@@ -465,6 +481,11 @@ func (i *DTImporter) parseDT2ExcelFormat(rows [][]string, table *DecisionTableXM
 				table.AttributeFields.Comments = strings.TrimSpace(row[1])
 			}
 
+		case firstCellLower == "file_path":
+			if len(row) > 1 {
+				table.AttributeFields.FilePath = strings.TrimSpace(row[1])
+			}
+
 		case firstCellLower == "initial actions":
 			currentSection = "initial_actions"
 
@@ -605,6 +626,13 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 			num = strings.TrimPrefix(num, "table_number: ")
 			table.AttributeFields.TableNumber = strings.TrimSpace(num)
 
+		case strings.HasPrefix(firstCellLower, "file_path:"):
+			// File path field
+			path := strings.TrimPrefix(firstCell, "FILE_PATH: ")
+			path = strings.TrimPrefix(path, "File_path: ")
+			path = strings.TrimPrefix(path, "file_path: ")
+			table.AttributeFields.FilePath = strings.TrimSpace(path)
+
 		case firstCellLower == "contexts:":
 			currentSection = "contexts"
 
@@ -621,6 +649,22 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 			currentSection = "policy_header"
 
 		default:
+			// Check for custom field in "FIELD_NAME: value" format (before entering a section)
+			if currentSection == "" && strings.Contains(firstCell, ": ") {
+				colonIdx := strings.Index(firstCell, ": ")
+				if colonIdx > 0 {
+					fieldName := strings.TrimSpace(firstCell[:colonIdx])
+					fieldValue := strings.TrimSpace(firstCell[colonIdx+2:])
+					// Only capture if it looks like a field name (uppercase or mixed case, no spaces in name)
+					if fieldName != "" && !strings.Contains(fieldName, " ") {
+						if table.AttributeFields.CustomFields == nil {
+							table.AttributeFields.CustomFields = make(map[string]string)
+						}
+						table.AttributeFields.CustomFields[fieldName] = fieldValue
+					}
+				}
+			}
+
 			switch currentSection {
 			case "contexts":
 				// Context row: number, comment, expression (merged)

@@ -284,3 +284,110 @@ func TestMergeTables(t *testing.T) {
 		t.Errorf("Expected 3 tables, got %d", len(merged.Tables))
 	}
 }
+
+// TestCustomFieldPreservation tests that custom fields are preserved during round-trips.
+func TestCustomFieldPreservation(t *testing.T) {
+	// Create a table with custom fields
+	table := &DecisionTableXML{
+		TableName: "Test_Custom_Fields",
+		XLSFile:   "test.xlsx",
+		AttributeFields: AttributeFieldsXML{
+			Type:        "FIRST",
+			Comments:    "Test table",
+			TableNumber: "100",
+			FilePath:    "custom/path.xlsx",
+			CustomFields: map[string]string{
+				"AUTHOR":   "Test Author",
+				"VERSION":  "1.0",
+				"CATEGORY": "Testing",
+			},
+		},
+	}
+
+	// Write to XML
+	tables := &DecisionTablesXML{Tables: []DecisionTableXML{*table}}
+	tmpFile := filepath.Join(t.TempDir(), "custom_fields_test.xml")
+	importer := NewDTImporter()
+	err := importer.WriteXML(tables, tmpFile)
+	if err != nil {
+		t.Fatalf("Failed to write XML: %v", err)
+	}
+
+	// Read the XML content
+	content, err := os.ReadFile(tmpFile)
+	if err != nil {
+		t.Fatalf("Failed to read XML: %v", err)
+	}
+	xmlContent := string(content)
+
+	// Verify custom fields are in the XML
+	if !strings.Contains(xmlContent, "<AUTHOR>Test Author</AUTHOR>") {
+		t.Error("AUTHOR custom field not found in XML")
+	}
+	if !strings.Contains(xmlContent, "<VERSION>1.0</VERSION>") {
+		t.Error("VERSION custom field not found in XML")
+	}
+	if !strings.Contains(xmlContent, "<CATEGORY>Testing</CATEGORY>") {
+		t.Error("CATEGORY custom field not found in XML")
+	}
+	if !strings.Contains(xmlContent, "<FILE_PATH>custom/path.xlsx</FILE_PATH>") {
+		t.Error("FILE_PATH not found in XML")
+	}
+}
+
+// TestExporterFormatCustomFieldParsing tests parsing custom fields from exporter format.
+func TestExporterFormatCustomFieldParsing(t *testing.T) {
+	// Create a test Excel file in exporter format with custom fields
+	f := excelize.NewFile()
+	sheet := "Test Table"
+	f.SetSheetName("Sheet1", sheet)
+
+	// Write test data in exporter format
+	f.SetCellValue(sheet, "A1", "Name: Test_Table")
+	f.SetCellValue(sheet, "A2", "Type: FIRST")
+	f.SetCellValue(sheet, "A3", "TABLE_NUMBER: 100")
+	f.SetCellValue(sheet, "A4", "COMMENTS: Test comments")
+	f.SetCellValue(sheet, "A5", "FILE_PATH: custom/path.xlsx")
+	f.SetCellValue(sheet, "A6", "CUSTOM_FIELD: custom value")
+	f.SetCellValue(sheet, "A7", "AUTHOR: Test Author")
+	f.SetCellValue(sheet, "A8", "Contexts:")
+
+	// Save to temp file
+	tmpFile := filepath.Join(t.TempDir(), "exporter_format_test.xlsx")
+	if err := f.SaveAs(tmpFile); err != nil {
+		t.Fatalf("Failed to save test file: %v", err)
+	}
+	f.Close()
+
+	// Import the file
+	importer := NewDTImporter()
+	tables, err := importer.ImportDecisionTables(tmpFile)
+	if err != nil {
+		t.Fatalf("Failed to import: %v", err)
+	}
+
+	if len(tables.Tables) != 1 {
+		t.Fatalf("Expected 1 table, got %d", len(tables.Tables))
+	}
+
+	table := tables.Tables[0]
+
+	// Verify standard fields
+	if table.TableName != "Test_Table" {
+		t.Errorf("Expected table name 'Test_Table', got '%s'", table.TableName)
+	}
+	if table.AttributeFields.FilePath != "custom/path.xlsx" {
+		t.Errorf("Expected FILE_PATH 'custom/path.xlsx', got '%s'", table.AttributeFields.FilePath)
+	}
+
+	// Verify custom fields
+	if table.AttributeFields.CustomFields == nil {
+		t.Fatal("CustomFields map is nil")
+	}
+	if table.AttributeFields.CustomFields["CUSTOM_FIELD"] != "custom value" {
+		t.Errorf("Expected CUSTOM_FIELD 'custom value', got '%s'", table.AttributeFields.CustomFields["CUSTOM_FIELD"])
+	}
+	if table.AttributeFields.CustomFields["AUTHOR"] != "Test Author" {
+		t.Errorf("Expected AUTHOR 'Test Author', got '%s'", table.AttributeFields.CustomFields["AUTHOR"])
+	}
+}
