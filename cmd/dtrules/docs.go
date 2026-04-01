@@ -140,16 +140,56 @@ Tables call tables directly - no external orchestration needed:
     perform Calculate_Tax_Liability
 
 
-Context Statements (for iteration)
-----------------------------------
-Context statements set up iteration over entity arrays.
-Place in the Contexts row (row 6) of Excel, or <context> element in XML:
+Context Statements
+------------------
+Context statements configure how a decision table executes. They can set up
+iteration, declare local variables, add entities to context, or output debug info.
+Place in the Contexts row (row 6) of Excel, or <contexts> element in XML.
 
+1. FOR ALL (iterate over arrays):
     for all dependents
     for all job.taxpayers
     for all accounts where account.active is true
+    for all items allowing array to be removed
 
-The table executes once per entity, with that entity in context.
+   The table executes once per entity, with that entity in context.
+
+2. FOR FIRST (find first matching):
+    for first of dependents where dependent.age < 18
+    for first of accounts where account.balance > 0
+    for first of items and its details where details.valid is true
+
+   Finds the first matching entity and executes the table with it in context.
+
+3. FOR LOOP (Java-style iteration):
+    for i = 0; i < 10; increment i
+
+   Traditional counter-based loop for numeric iteration.
+
+4. LOCAL VARIABLES (declare table-scoped variables):
+    local entity tempCustomer
+    local entity current = input.customer
+    local long counter = 0
+    local double total = 0.0
+    local boolean found = false
+    local string message = "processing"
+    local date startDate = current date
+    local array items
+
+   Declares variables scoped to the table execution. Supported types:
+   entity, long, double, boolean, string, date, array.
+
+5. ADD TO CONTEXT (push entity to context stack):
+    add customer to context of this table
+    add order.customer to context for this table
+
+   Pushes an entity onto the context stack for field resolution.
+
+6. DEBUG (output before processing):
+    debug "Starting table execution"
+    debug input.customer
+
+   Outputs debug information before the table processes.
 
 
 Arithmetic
@@ -273,6 +313,12 @@ Decision Table XML Structure (EL Format - REQUIRED)
     <decision_table name="Table_Name" number="1000">
         <description>What this table does</description>
 
+        <contexts>
+            <context_details>
+                <context_description>for all dependents</context_description>
+            </context_details>
+        </contexts>
+
         <conditions>
             <condition name="condition_name">
                 <expression>taxpayer.income > 50000</expression>
@@ -296,6 +342,14 @@ Decision Table XML Structure (EL Format - REQUIRED)
         </rules>
     </decision_table>
 </decision_tables>
+
+Context Statement Types (in <contexts>):
+  - for all array                   Iterate over entity array
+  - for first of array where cond   Find first matching entity
+  - for i = 0; i < n; increment i   Counter-based loop
+  - local type varname = value      Declare local variable
+  - add entity to context of this table   Push to context
+  - debug "message"                 Debug output
 
 Key Elements:
   - name attribute on <decision_table>: Table identifier
@@ -560,20 +614,38 @@ table calls other tables, which can call more tables, forming a call graph:
     └── perform Calculate_Tax_Liability
 
 
-Context Statements for Iteration
---------------------------------
-Use context statements to iterate over entity arrays. The context row (row 6 in
-Excel) specifies entities to iterate over:
+Context Statements
+------------------
+Context statements control table execution behavior. The context row (row 6 in
+Excel, or <contexts> element in XML) supports six statement types:
 
-    Contexts: for all job.dependents
-
-This executes the table once for each dependent, with that dependent available
-in the entity context.
-
-Context patterns:
-    for all dependents              Iterate over dependents array
+FOR ALL - Iteration:
+    for all dependents              Iterate over array
     for all job.taxpayers           Iterate with entity path
-    for all accounts where active   Iterate with filter
+    for all accounts where active   Iterate with filter condition
+    for all items allowing array to be removed
+
+FOR FIRST - Find First Match:
+    for first of dependents where dependent.age < 18
+    for first of accounts and its owner where owner.active is true
+
+FOR LOOP - Counter-Based:
+    for i = 0; i < count; increment i
+
+LOCAL VARIABLES - Table-Scoped Variables:
+    local entity temp
+    local long counter = 0
+    local double sum = 0.0
+    local boolean found = false
+    local string msg = ""
+    local date start = current date
+    local array results
+
+ADD TO CONTEXT - Push Entity:
+    add customer to context of this table
+
+DEBUG - Output Before Processing:
+    debug "Starting execution"
 
 
 Best Practices
