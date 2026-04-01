@@ -388,8 +388,8 @@ func TestDTLoaderELAutoCompileError(t *testing.T) {
 	t.Logf("Got expected error: %v", err)
 }
 
-// TestCustomFieldLoading tests that custom XML fields are loaded and stored.
-func TestCustomFieldLoading(t *testing.T) {
+// TestFilePathLoading tests that FILE_PATH is loaded and stored on the decision table.
+func TestFilePathLoading(t *testing.T) {
 	factory := entity.NewFactory(nil)
 	session := &mockSession{factory: factory}
 	loader := NewDTLoader(session, factory)
@@ -397,15 +397,12 @@ func TestCustomFieldLoading(t *testing.T) {
 	xml := `<?xml version="1.0"?>
 <decision_tables>
     <decision_table>
-        <table_name>Test_Custom_Fields</table_name>
+        <table_name>Test_FilePath</table_name>
         <attribute_fields>
             <Type>FIRST</Type>
             <COMMENTS>Test table</COMMENTS>
             <TABLE_NUMBER>100</TABLE_NUMBER>
-            <FILE_PATH>custom/path.xlsx</FILE_PATH>
-            <AUTHOR>Test Author</AUTHOR>
-            <VERSION>1.0</VERSION>
-            <CATEGORY>Testing</CATEGORY>
+            <FILE_PATH>income/wages.xlsx</FILE_PATH>
         </attribute_fields>
         <contexts></contexts>
         <initial_actions></initial_actions>
@@ -421,7 +418,7 @@ func TestCustomFieldLoading(t *testing.T) {
 	}
 
 	// Find the loaded table
-	rname := dtrules.GetRName("Test_Custom_Fields")
+	rname := dtrules.GetRName("Test_FilePath")
 	if rname == nil {
 		t.Fatal("Failed to create RName")
 	}
@@ -431,17 +428,10 @@ func TestCustomFieldLoading(t *testing.T) {
 		t.Fatal("Decision table not found")
 	}
 
-	// Verify custom fields were stored
-	// Note: GetField returns the field value if it exists
-	dt := dtObj.(interface{ GetField(string) string })
+	// Verify FILE_PATH was stored via GetFilePath
+	dt := dtObj.(interface{ GetFilePath() string })
 
-	if v := dt.GetField("AUTHOR"); v != "Test Author" {
-		t.Errorf("Expected AUTHOR 'Test Author', got '%s'", v)
-	}
-	if v := dt.GetField("VERSION"); v != "1.0" {
-		t.Errorf("Expected VERSION '1.0', got '%s'", v)
-	}
-	if v := dt.GetField("CATEGORY"); v != "Testing" {
-		t.Errorf("Expected CATEGORY 'Testing', got '%s'", v)
+	if v := dt.GetFilePath(); v != "income/wages.xlsx" {
+		t.Errorf("Expected FILE_PATH 'income/wages.xlsx', got '%s'", v)
 	}
 }

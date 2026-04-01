@@ -104,15 +104,6 @@ type DTAttributeFields struct {
 	FileName      string `xml:"File_Name" json:"file_name,omitempty"`
 	TableNumber   string `xml:"TABLE_NUMBER" json:"table_number,omitempty"`
 	FilePath      string `xml:"FILE_PATH" json:"file_path,omitempty"`
-	// CustomFields captures any XML elements not explicitly mapped above.
-	// This enables round-trip preservation of custom metadata.
-	CustomFields []CustomField `xml:",any" json:"custom_fields,omitempty"`
-}
-
-// CustomField represents an arbitrary XML element for metadata preservation.
-type CustomField struct {
-	XMLName xml.Name `json:"-"`
-	Value   string   `xml:",chardata" json:"value"`
 }
 
 // GetType returns the type field, checking all case variants
@@ -290,13 +281,6 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Set FILE_PATH if present (with fallback to xls_file)
 	if table.AttributeFields.FilePath != "" {
 		builder.SetFilePath(table.AttributeFields.FilePath)
-	}
-
-	// Store custom fields for round-trip preservation
-	for _, cf := range table.AttributeFields.CustomFields {
-		if cf.XMLName.Local != "" && cf.Value != "" {
-			builder.SetField(cf.XMLName.Local, cf.Value)
-		}
 	}
 
 	// Process contexts - use postfix if available
