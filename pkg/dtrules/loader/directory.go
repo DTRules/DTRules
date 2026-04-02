@@ -96,10 +96,12 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 		return nil, fmt.Errorf("failed to read %s: %w", filePath, err)
 	}
 
-	// Quick validation - check if file looks like it contains decision_tables or entity_data_dictionary
+	// Quick validation - check if file looks like it contains decision_tables or entity dictionary
 	dataStr := string(data)
 	hasDecisionTables := strings.Contains(dataStr, "<decision_tables")
-	hasEntityDict := strings.Contains(dataStr, "<entity_data_dictionary")
+	// Support both <entity_data_dictionary> and <entity_dictionary>
+	hasEntityDict := strings.Contains(dataStr, "<entity_data_dictionary") ||
+		strings.Contains(dataStr, "<entity_dictionary")
 
 	if !hasDecisionTables && !hasEntityDict {
 		return nil, fmt.Errorf("file %s does not appear to be a DTRules XML file", filePath)
@@ -176,25 +178,37 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 
 	// Try parsing as EDD
 	if hasEntityDict {
+		var entityCount int
+		var filePathStr string
+
+		// Try standard entity_data_dictionary format first
 		var eddFile EDDFile
-		if err := xml.Unmarshal(data, &eddFile); err == nil {
+		if err := xml.Unmarshal(data, &eddFile); err == nil && len(eddFile.Entities) > 0 {
+			entityCount = len(eddFile.Entities)
+			filePathStr = strings.TrimSpace(eddFile.FileMetadata.FilePath)
+		} else {
+			// Try legacy entity_dictionary format
+			var legacyFile EDDFileLegacy
+			if err := xml.Unmarshal(data, &legacyFile); err == nil && len(legacyFile.Entities) > 0 {
+				entityCount = len(legacyFile.Entities)
+				// Legacy format doesn't have file metadata
+			}
+		}
+
+		if entityCount > 0 {
 			// It's an EDD file
 			info.IsDecisionTable = false
-
-			// Extract file_path from metadata
-			filePathStr := strings.TrimSpace(eddFile.FileMetadata.FilePath)
 			info.FilePath = filePathStr
 
 			// If file_path is missing, try to derive from filename
-			// This allows loading individual EDD files that were split but don't have file_path metadata
 			if filePathStr == "" {
 				// Derive from filename (e.g., "CO_edd.xml" -> "CO_edd")
 				base := filepath.Base(filePath)
 				base = strings.TrimSuffix(base, filepath.Ext(base))
 
 				// Check if file looks like an individual EDD file (e.g., state EDDs)
-				// Skip if it looks like a merged file (e.g., TaxReturn_edd.xml, contains many entities)
-				if len(eddFile.Entities) > 10 {
+				// Skip if it looks like a merged file with many entities and no file_path
+				if entityCount > 10 {
 					// Likely a merged file with many entities
 					return nil, fmt.Errorf("EDD file missing file_path (likely a merged/generated file)")
 				}

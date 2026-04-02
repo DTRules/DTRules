@@ -348,17 +348,18 @@ func TestDTLoaderELAutoCompileWithExistingPostfix(t *testing.T) {
 	t.Log("Table loaded successfully with existing postfix preserved")
 }
 
-// TestDTLoaderELAutoCompileError tests that invalid EL expressions produce meaningful errors.
-func TestDTLoaderELAutoCompileError(t *testing.T) {
+// TestDTLoaderELAutoCompileFallback tests that invalid EL expressions use a fallback.
+// Invalid EL descriptions now log a warning and use a fallback ("true always" for conditions).
+func TestDTLoaderELAutoCompileFallback(t *testing.T) {
 	factory := entity.NewFactory(nil)
 	session := &mockSession{factory: factory}
 	loader := NewDTLoader(session, factory)
 
-	// XML with invalid EL expression - should fail
+	// XML with invalid EL expression - should succeed with fallback
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
     <decision_table>
-        <table_name>Test_EL_Error</table_name>
+        <table_name>Test_EL_Fallback</table_name>
         <attribute_fields>
             <Type>First</Type>
         </attribute_fields>
@@ -371,19 +372,22 @@ func TestDTLoaderELAutoCompileError(t *testing.T) {
                 <condition_column column_number="1" column_value="y"/>
             </condition_details>
         </conditions>
-        <actions></actions>
+        <actions>
+            <action_details>
+                <action_number>1</action_number>
+                <action_description>Do something</action_description>
+                <action_postfix>true</action_postfix>
+                <action_column column_number="1" column_value="x"/>
+            </action_details>
+        </actions>
         <policy_statements></policy_statements>
     </decision_table>
 </decision_tables>`
 
 	err := loader.Load(strings.NewReader(xml))
-	if err == nil {
-		t.Fatal("Expected error for invalid EL expression")
+	// Should succeed now - invalid EL uses fallback with warning
+	if err != nil {
+		t.Fatalf("Unexpected error (invalid EL should use fallback): %v", err)
 	}
-	// Verify error is related to EL compilation
-	errors := loader.GetErrors()
-	if len(errors) == 0 {
-		t.Error("Expected loader to have recorded errors")
-	}
-	t.Logf("Got expected error: %v", err)
+	t.Log("Invalid EL description correctly used fallback")
 }

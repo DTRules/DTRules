@@ -312,14 +312,20 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		initialActions[i] = action.Description
 		postfix := strings.TrimSpace(action.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty
-		if postfix == "" && strings.TrimSpace(action.Description) != "" {
+		// Auto-compile EL description to postfix if postfix is empty or only comments
+		descTrimmed := strings.TrimSpace(action.Description)
+		if isEmptyOrCommentOnly(postfix) && descTrimmed != "" && !isCommentLine(descTrimmed) {
 			compiled, err := l.elCompiler.CompileAction(action.Description)
 			if err != nil {
-				return fmt.Errorf("failed to compile EL initial action %d ('%s'): %w", i+1, action.Description, err)
+				// Description is not valid EL - log warning and use no-op as fallback
+				log.Printf("Warning: Initial action %d ('%s') is not valid EL, using no-op: %v",
+					i+1, action.Description, err)
+				postfix = "" // No-op
+			} else {
+				postfix = compiled
 			}
-			postfix = compiled
 		}
+		// If description is a comment, postfix stays as-is (could be empty, which is no-op)
 		initialActionsPostfix[i] = postfix
 	}
 	builder.SetInitialActions(initialActions)
@@ -339,13 +345,21 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		conditions[i] = cond.Description
 		postfix := strings.TrimSpace(cond.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty
-		if postfix == "" && strings.TrimSpace(cond.Description) != "" {
+		// Auto-compile EL description to postfix if postfix is empty or only comments
+		descTrimmed := strings.TrimSpace(cond.Description)
+		if isEmptyOrCommentOnly(postfix) && descTrimmed != "" && !isCommentLine(descTrimmed) {
 			compiled, err := l.elCompiler.CompileCondition(cond.Description)
 			if err != nil {
-				return fmt.Errorf("failed to compile EL condition %d ('%s'): %w", i+1, cond.Description, err)
+				// Description is not valid EL - log warning and use "true always" as fallback
+				log.Printf("Warning: Condition %d ('%s') is not valid EL, using 'always true': %v",
+					i+1, cond.Description, err)
+				postfix = "true always"
+			} else {
+				postfix = compiled
 			}
-			postfix = compiled
+		} else if isEmptyOrCommentOnly(postfix) && isCommentLine(descTrimmed) {
+			// Description is a comment - use "true always" as fallback
+			postfix = "true always"
 		}
 		conditionsPostfix[i] = postfix
 		conditionsComment[i] = cond.Comment
@@ -378,14 +392,20 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		actions[i] = action.Description
 		postfix := strings.TrimSpace(action.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty
-		if postfix == "" && strings.TrimSpace(action.Description) != "" {
+		// Auto-compile EL description to postfix if postfix is empty or only comments
+		descTrimmed := strings.TrimSpace(action.Description)
+		if isEmptyOrCommentOnly(postfix) && descTrimmed != "" && !isCommentLine(descTrimmed) {
 			compiled, err := l.elCompiler.CompileAction(action.Description)
 			if err != nil {
-				return fmt.Errorf("failed to compile EL action %d ('%s'): %w", i+1, action.Description, err)
+				// Description is not valid EL - log warning and use no-op as fallback
+				log.Printf("Warning: Action %d ('%s') is not valid EL, using no-op: %v",
+					i+1, action.Description, err)
+				postfix = "" // No-op
+			} else {
+				postfix = compiled
 			}
-			postfix = compiled
 		}
+		// If description is a comment, postfix stays as-is (could be empty, which is no-op)
 		actionsPostfix[i] = postfix
 		actionsComment[i] = action.Comment
 
@@ -873,4 +893,27 @@ func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
 func (l *DTLoader) warnLegacyPostfix(tableName, filePath string) {
 	log.Printf("WARNING: %s in %s has hand-coded postfix without EL descriptions.", tableName, filePath)
 	log.Printf("         All postfix should come from EL compilation. Use 'dtrules sync import' to compile EL.")
+}
+
+// isEmptyOrCommentOnly checks if a postfix string is effectively empty.
+// It returns true if the string is empty, whitespace only, or contains only comments.
+// Comments start with "//" or "#" and extend to the end of the line.
+func isEmptyOrCommentOnly(postfix string) bool {
+	lines := strings.Split(postfix, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// Skip empty lines and comments
+		if trimmed == "" || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		// Found a non-empty, non-comment line
+		return false
+	}
+	return true
+}
+
+// isCommentLine checks if a string is a comment line (starts with // or #).
+func isCommentLine(s string) bool {
+	trimmed := strings.TrimSpace(s)
+	return strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#")
 }

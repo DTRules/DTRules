@@ -67,6 +67,27 @@ type EDDFile struct {
 	Entities     []EDDEntity  `xml:"entity" json:"entities"`
 }
 
+// EDDFileLegacy represents the legacy entity_dictionary format (used by CorporateTax)
+type EDDFileLegacy struct {
+	XMLName  xml.Name         `xml:"entity_dictionary"`
+	Name     string           `xml:"name,attr"`
+	Entities []EDDEntityShort `xml:"entity"`
+}
+
+// EDDEntityShort represents an entity in the legacy format with simpler field structure
+type EDDEntityShort struct {
+	Name   string          `xml:"name,attr"`
+	Fields []EDDFieldShort `xml:"field"`
+}
+
+// EDDFieldShort represents a field in the legacy format
+type EDDFieldShort struct {
+	Name         string `xml:"name,attr"`
+	Type         string `xml:"type,attr"`
+	DefaultValue string `xml:"default_value,attr"`
+	Comment      string `xml:"comment,attr"`
+}
+
 // EDDEntity represents an entity definition
 type EDDEntity struct {
 	Name    string     `xml:"name,attr" json:"name"`
@@ -114,14 +135,41 @@ func (l *EDDLoader) Load(r io.Reader) error {
 	}
 
 	var edd EDDFile
+	var usedLegacy bool
+
 	switch format {
 	case FormatJSON:
 		if err := json.Unmarshal(data, &edd); err != nil {
 			return fmt.Errorf("failed to parse EDD JSON: %w", err)
 		}
 	case FormatXML:
-		if err := xml.Unmarshal(data, &edd); err != nil {
-			return fmt.Errorf("failed to parse EDD XML: %w", err)
+		// Try standard entity_data_dictionary format first
+		if err := xml.Unmarshal(data, &edd); err != nil || len(edd.Entities) == 0 {
+			// Try legacy entity_dictionary format
+			var legacyEdd EDDFileLegacy
+			if legacyErr := xml.Unmarshal(data, &legacyEdd); legacyErr == nil && len(legacyEdd.Entities) > 0 {
+				// Convert legacy format to standard format
+				edd = EDDFile{}
+				for _, legacyEnt := range legacyEdd.Entities {
+					ent := EDDEntity{
+						Name:   legacyEnt.Name,
+						Access: "rw",
+						Fields: make([]EDDField, len(legacyEnt.Fields)),
+					}
+					for i, f := range legacyEnt.Fields {
+						ent.Fields[i] = EDDField{
+							Name:         f.Name,
+							Type:         f.Type,
+							DefaultValue: f.DefaultValue,
+							Comment:      f.Comment,
+						}
+					}
+					edd.Entities = append(edd.Entities, ent)
+				}
+				usedLegacy = true
+			} else if err != nil {
+				return fmt.Errorf("failed to parse EDD XML: %w", err)
+			}
 		}
 	default:
 		return fmt.Errorf("unknown EDD format: %s", format)
@@ -129,6 +177,7 @@ func (l *EDDLoader) Load(r io.Reader) error {
 
 	// Capture file-level path from metadata
 	fileLevelPath := edd.FileMetadata.FilePath
+	_ = usedLegacy // We may use this for logging later
 
 	// Process each entity
 	for _, ent := range edd.Entities {

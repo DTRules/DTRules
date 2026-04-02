@@ -283,6 +283,21 @@ func (dt *RDecisionTable) IsExecutable() bool {
 	return true
 }
 
+// isColumnAllStars checks if all conditions in a column have star (*) or dash (-) values.
+// Returns true only if the column is a true "otherwise" column where no conditions are tested.
+func (dt *RDecisionTable) isColumnAllStars(col int) bool {
+	for row := 0; row < len(dt.conditionTable); row++ {
+		if col >= len(dt.conditionTable[row]) {
+			continue
+		}
+		v := strings.ToUpper(strings.TrimSpace(dt.conditionTable[row][col]))
+		if v != "*" && v != DASH && v != "" {
+			return false
+		}
+	}
+	return true
+}
+
 // ArrayExecute executes this decision table when it appears in a code block.
 func (dt *RDecisionTable) ArrayExecute(state dtrules.State) error {
 	return dt.Execute(state)
@@ -534,28 +549,26 @@ func (dt *RDecisionTable) buildUnbalanced(state dtrules.State, executeAll bool) 
 
 // processCol builds a path through the decision tree for a particular column
 func (dt *RDecisionTable) processCol(executeAll bool, here DTNode, row, col, istar int) DTNode {
-	// Check star column constraints
-	if dt.starColumn >= 0 && col > dt.starColumn {
-		dt.errors = append(dt.errors,
-			fmt.Errorf("only one star column is allowed, and it must be the last"))
-	}
+	// Note: We no longer enforce strict "one star column must be last" constraint.
+	// Stars in individual cells are treated as "don't care" for that condition.
+	// Only a true "otherwise" column (all conditions are stars) becomes the star column.
 
 	// End of column - create action node
 	if row >= len(dt.conditions) {
 		thisCol := NewANodeForColumn(dt, col)
-		thisCol.SetStar(istar >= 0)
 
-		if istar >= 0 {
+		// Check if this is a true "star column" (all conditions evaluated via star)
+		// by checking if istar was set AND it's the first row (meaning all rows had stars)
+		isFullStarColumn := istar == 0 && dt.isColumnAllStars(col)
+		thisCol.SetStar(isFullStarColumn)
+
+		if isFullStarColumn {
 			dt.starColumn = col
 
 			condition := strings.TrimSpace(strings.ToLower(dt.conditions[istar]))
-			otherwise := condition == "otherwise" || condition == "default"
 			always := condition == "always"
-
-			if !always && !otherwise {
-				dt.errors = append(dt.errors,
-					fmt.Errorf("star condition must be 'default', 'otherwise', or 'always'"))
-			}
+			// Treat any non-"always" star condition as "otherwise" (default behavior)
+			otherwise := !always
 
 			if here == nil {
 				return thisCol
