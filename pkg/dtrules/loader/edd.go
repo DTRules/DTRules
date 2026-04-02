@@ -19,6 +19,7 @@
 package loader
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -60,35 +61,64 @@ type FileMetadata struct {
 
 // EDDFile represents the root entity_data_dictionary element
 type EDDFile struct {
-	XMLName      xml.Name     `xml:"entity_data_dictionary"`
-	Version      string       `xml:"version,attr"`
-	FileMetadata FileMetadata `xml:"file_metadata"`
-	Entities     []EDDEntity  `xml:"entity"`
+	XMLName      xml.Name     `xml:"entity_data_dictionary" json:"-"`
+	Version      string       `xml:"version,attr" json:"version"`
+	FileMetadata FileMetadata `xml:"file_metadata" json:"file_metadata,omitempty"`
+	Entities     []EDDEntity  `xml:"entity" json:"entities"`
 }
 
-// EDDEntity represents an entity definition
-type EDDEntity struct {
-	Name    string     `xml:"name,attr"`
-	Access  string     `xml:"access,attr"`
-	Comment string     `xml:"comment,attr"`
-	XlsFile string     `xml:"xls_file,attr"`
-	Fields  []EDDField `xml:"field"`
+// EDDFileLegacy represents the legacy entity_dictionary format (used by CorporateTax)
+type EDDFileLegacy struct {
+	XMLName  xml.Name         `xml:"entity_dictionary"`
+	Name     string           `xml:"name,attr"`
+	Entities []EDDEntityShort `xml:"entity"`
 }
 
-// EDDField represents a field/attribute in an entity
-type EDDField struct {
+// EDDEntityShort represents an entity in the legacy format with simpler field structure
+type EDDEntityShort struct {
+	Name   string          `xml:"name,attr"`
+	Fields []EDDFieldShort `xml:"field"`
+}
+
+// EDDFieldShort represents a field in the legacy format
+type EDDFieldShort struct {
 	Name         string `xml:"name,attr"`
 	Type         string `xml:"type,attr"`
-	SubType      string `xml:"subtype,attr"`
-	Access       string `xml:"access,attr"`
-	Input        string `xml:"input,attr"`
 	DefaultValue string `xml:"default_value,attr"`
 	Comment      string `xml:"comment,attr"`
 }
 
+// EDDEntity represents an entity definition
+type EDDEntity struct {
+	Name    string     `xml:"name,attr" json:"name"`
+	Access  string     `xml:"access,attr" json:"access"`
+	Comment string     `xml:"comment,attr" json:"comment,omitempty"`
+	XlsFile string     `xml:"xls_file,attr" json:"xls_file,omitempty"`
+	Fields  []EDDField `xml:"field" json:"fields"`
+}
+
+// EDDField represents a field/attribute in an entity
+type EDDField struct {
+	Name         string `xml:"name,attr" json:"name"`
+	Type         string `xml:"type,attr" json:"type"`
+	SubType      string `xml:"subtype,attr" json:"subtype,omitempty"`
+	Access       string `xml:"access,attr" json:"access,omitempty"`
+	Input        string `xml:"input,attr" json:"input,omitempty"`
+	DefaultValue string `xml:"default_value,attr" json:"default_value,omitempty"`
+	Comment      string `xml:"comment,attr" json:"comment,omitempty"`
+}
+
 // Load loads an EDD from an io.Reader.
 // The input size is limited by MaxXMLSize (default 10 MB) to prevent memory exhaustion.
+// The format (XML or JSON) is auto-detected based on the first non-whitespace character.
 func (l *EDDLoader) Load(r io.Reader) error {
+	// Detect format first
+	format, newReader, err := DetectFormat(r)
+	if err != nil {
+		return fmt.Errorf("failed to detect EDD format: %w", err)
+	}
+	r = newReader
+
 	// Apply size limit if configured
 	if MaxXMLSize > 0 {
 		r = io.LimitReader(r, MaxXMLSize+1) // +1 to detect overflow
@@ -101,16 +131,53 @@ func (l *EDDLoader) Load(r io.Reader) error {
 
 	// Check if we hit the size limit
 	if MaxXMLSize > 0 && int64(len(data)) > MaxXMLSize {
-		return fmt.Errorf("EDD XML exceeds maximum size limit of %d bytes", MaxXMLSize)
+		return fmt.Errorf("EDD exceeds maximum size limit of %d bytes", MaxXMLSize)
 	}
 
 	var edd EDDFile
-	if err := xml.Unmarshal(data, &edd); err != nil {
-		return fmt.Errorf("failed to parse EDD XML: %w", err)
+	var usedLegacy bool
+
+	switch format {
+	case FormatJSON:
+		if err := json.Unmarshal(data, &edd); err != nil {
+			return fmt.Errorf("failed to parse EDD JSON: %w", err)
+		}
+	case FormatXML:
+		// Try standard entity_data_dictionary format first
+		if err := xml.Unmarshal(data, &edd); err != nil || len(edd.Entities) == 0 {
+			// Try legacy entity_dictionary format
+			var legacyEdd EDDFileLegacy
+			if legacyErr := xml.Unmarshal(data, &legacyEdd); legacyErr == nil && len(legacyEdd.Entities) > 0 {
+				// Convert legacy format to standard format
+				edd = EDDFile{}
+				for _, legacyEnt := range legacyEdd.Entities {
+					ent := EDDEntity{
+						Name:   legacyEnt.Name,
+						Access: "rw",
+						Fields: make([]EDDField, len(legacyEnt.Fields)),
+					}
+					for i, f := range legacyEnt.Fields {
+						ent.Fields[i] = EDDField{
+							Name:         f.Name,
+							Type:         f.Type,
+							DefaultValue: f.DefaultValue,
+							Comment:      f.Comment,
+						}
+					}
+					edd.Entities = append(edd.Entities, ent)
+				}
+				usedLegacy = true
+			} else if err != nil {
+				return fmt.Errorf("failed to parse EDD XML: %w", err)
+			}
+		}
+	default:
+		return fmt.Errorf("unknown EDD format: %s", format)
 	}
 
 	// Capture file-level path from metadata
 	fileLevelPath := edd.FileMetadata.FilePath
+	_ = usedLegacy // We may use this for logging later
 
 	// Process each entity
 	for _, ent := range edd.Entities {
@@ -271,6 +338,10 @@ func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType)
 			if arr, err := dtrules.NewArray(l.session, true, false); err == nil {
 				return arr
 			}
+		}
+	case dtrules.TypeBigInt:
+		if v, err := dtrules.GetRBigIntFromString(defaultStr); err == nil {
+			return v
 		}
 	}
 

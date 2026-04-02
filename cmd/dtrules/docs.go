@@ -220,6 +220,14 @@ Boolean Logic
     NOT a         Negation
 
 
+BigInt Operations
+------------------
+BigInt values support arbitrary-precision integer arithmetic:
+    context local bigint amount = (bigint) input.amount_string
+    set result.total = amount * 2
+    amount > 1000000000000
+
+
 XML Structure (EL Format)
 -------------------------
 <decision_table name="Calculate_Tax" number="1000">
@@ -396,6 +404,7 @@ integer   0          Whole numbers                  42, -7, 1000000
 double    0.0        Decimal numbers                3.14, -0.5, 100.0
 boolean   false      True/false values              true, false
 date      null       Date values                    2024-01-15
+bigint    0          Arbitrary-precision integer    123456789012345678901234567890
 entity    null       Reference to another entity    (see below)
 array     []         List of values                 (see below)
 
@@ -812,6 +821,26 @@ tostring        (a -- string)             Convert to string
 tointeger       (a -- int)                Convert to integer
 todouble        (a -- double)             Convert to double
 toboolean       (a -- bool)               Convert to boolean
+cvbi            (a -- bigint)             Convert to bigint
+
+
+BigInt Operators
+----------------
+Operator        Stack Effect              Description
+--------------  ---------------------     -----------------------
+b+              (a b -- sum)              Add two bigint values
+b-              (a b -- difference)       Subtract two bigint values
+b*              (a b -- product)          Multiply two bigint values
+b/              (a b -- quotient)         Integer division of two bigint values
+bmod            (a b -- remainder)        Modulo of two bigint values
+babs            (a -- |a|)                Absolute value
+bnegate         (a -- -a)                 Negate a bigint value
+b=              (a b -- bool)             Equal comparison
+b!=, b<>        (a b -- bool)             Not equal comparison
+b>              (a b -- bool)             Greater than comparison
+b>=             (a b -- bool)             Greater than or equal comparison
+b<              (a b -- bool)             Less than comparison
+b<=             (a b -- bool)             Less than or equal comparison
 
 
 Date Operators

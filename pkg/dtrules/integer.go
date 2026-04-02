@@ -194,6 +194,11 @@ func (r *RInteger) RStringValue() *RString {
 	return NewRString(r.StringValue())
 }
 
+// RBigIntValue returns an RBigInt for this value.
+func (r *RInteger) RBigIntValue() (*RBigInt, error) {
+	return GetRBigIntFromInt64(r.value), nil
+}
+
 // Value returns the underlying int64 value.
 func (r *RInteger) Value() int64 {
 	return r.value

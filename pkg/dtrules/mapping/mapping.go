@@ -86,6 +86,7 @@ const (
 	TypeEntity
 	TypeArray
 	TypeXMLValue
+	TypeBigInt
 )
 
 // ParseAttributeType converts a string type to AttributeType.
@@ -107,6 +108,8 @@ func ParseAttributeType(s string) AttributeType {
 		return TypeArray
 	case "xmlvalue":
 		return TypeXMLValue
+	case "bigint", "biginteger":
+		return TypeBigInt
 	default:
 		return TypeNone
 	}

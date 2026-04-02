@@ -136,6 +136,7 @@ var (
 	TypeEntity        *RType
 	TypeDecisionTable *RType
 	TypeMark          *RType
+	TypeBigInt        *RType
 )
 
 func init() {
@@ -154,6 +155,7 @@ func init() {
 	TypeEntity = NewType("entity")
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
+	TypeBigInt = NewType("bigint")
 
 	// Register common type aliases
 	registerTypeAlias("float", TypeDouble)
@@ -168,6 +170,7 @@ func init() {
 	registerTypeAlias("dictionary", TypeTable)
 	registerTypeAlias("hash", TypeTable)
 	registerTypeAlias("object", TypeEntity)
+	registerTypeAlias("biginteger", TypeBigInt)
 }
 
 // registerTypeAlias registers an alias name that maps to an existing type.

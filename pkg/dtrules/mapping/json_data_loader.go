@@ -284,6 +284,20 @@ func (l *jsonDataLoader) convertToAttributeType(attrType AttributeType, body str
 		}
 		return dtrules.NewRString(body)
 
+	case TypeBigInt:
+		// BigInt values should be passed as strings in JSON to preserve precision
+		if v, err := dtrules.GetRBigIntFromString(body); err == nil {
+			return v
+		}
+		// Try parsing from float64 if it was a JSON number
+		if f, ok := goValue.(float64); ok {
+			// Check if it's a whole number
+			if f == float64(int64(f)) {
+				return dtrules.GetRBigIntFromInt64(int64(f))
+			}
+		}
+		return dtrules.GetRBigIntFromInt64(0)
+
 	default:
 		return dtrules.NewRString(body)
 	}

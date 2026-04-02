@@ -301,6 +301,9 @@ func TestAttributeTypes(t *testing.T) {
 		{"array", TypeArray},
 		{"list", TypeArray},
 		{"xmlvalue", TypeXMLValue},
+		{"bigint", TypeBigInt},
+		{"biginteger", TypeBigInt},
+		{"BIGINT", TypeBigInt},
 		{"unknown", TypeNone},
 		{"", TypeNone},
 	}
@@ -312,5 +315,155 @@ func TestAttributeTypes(t *testing.T) {
 				t.Errorf("ParseAttributeType(%q) = %v, want %v", tt.input, result, tt.expected)
 			}
 		})
+	}
+}
+
+// =============================================================================
+// BigInt Mapping Tests
+// =============================================================================
+
+func TestBigIntAttributeMapping(t *testing.T) {
+	session := newMockSession()
+
+	// Create reference entity with bigint field
+	factory := session.factory
+	blockchainName := dtrules.GetRName("blockchain")
+	blockchainRef, _ := factory.FindCreateRefEntity(false, blockchainName)
+
+	// Add BigInt attribute
+	blockchainRef.AddAttribute(dtrules.GetRName("balance"), "", dtrules.GetRBigIntFromInt64(0),
+		true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	// Create mapping
+	m := NewMapping(session)
+
+	mapXML := `
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='balance' RAttribute='balance' enclosure='blockchain' type='bigint'/>
+			<createentity entity='blockchain' tag='blockchain' id='id'/>
+		</map>
+		<entities>
+			<entity name='blockchain' number='1'/>
+		</entities>
+	</XMLtoEDD>
+</mapping>
+`
+
+	err := m.LoadMapping(strings.NewReader(mapXML))
+	if err != nil {
+		t.Fatalf("LoadMapping failed: %v", err)
+	}
+
+	// Verify attribute info was loaded with BigInt type
+	aInfo := m.GetAttributeInfo("balance")
+	if aInfo == nil {
+		t.Fatal("Expected attribute info for 'balance'")
+	}
+	attrib := aInfo.Lookup("blockchain")
+	if attrib == nil {
+		t.Fatal("Expected attrib for 'blockchain' enclosure")
+	}
+	if attrib.Type != TypeBigInt {
+		t.Errorf("Expected TypeBigInt, got %v", attrib.Type)
+	}
+}
+
+func TestBigIntJSONDataLoading(t *testing.T) {
+	session := newMockSession()
+
+	// Create reference entity with bigint field
+	factory := session.factory
+	walletName := dtrules.GetRName("wallet")
+	walletRef, _ := factory.FindCreateRefEntity(false, walletName)
+
+	// Add fields including BigInt
+	walletRef.AddAttribute(dtrules.GetRName("id"), "", dtrules.GetRIntegerValue(0),
+		true, true, dtrules.TypeInteger, "", "", "", "")
+	walletRef.AddAttribute(dtrules.GetRName("balance"), "", dtrules.GetRBigIntFromInt64(0),
+		true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	// Create mapping
+	m := NewMapping(session)
+
+	mapXML := `
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='id' RAttribute='id' enclosure='wallet' type='integer'/>
+			<setattribute tag='balance' RAttribute='balance' enclosure='wallet' type='bigint'/>
+			<createentity entity='wallet' tag='wallet' id='id'/>
+		</map>
+		<entities>
+			<entity name='wallet' number='*'/>
+		</entities>
+	</XMLtoEDD>
+</mapping>
+`
+
+	err := m.LoadMapping(strings.NewReader(mapXML))
+	if err != nil {
+		t.Fatalf("LoadMapping failed: %v", err)
+	}
+
+	// Load JSON data with a large number as string (to preserve precision)
+	dataJSON := `{
+		"wallet": {
+			"id": 1,
+			"balance": "123456789012345678901234567890"
+		}
+	}`
+
+	err = m.LoadDataJSON(strings.NewReader(dataJSON))
+	if err != nil {
+		t.Fatalf("LoadDataJSON failed: %v", err)
+	}
+}
+
+func TestBigIntConversionFromString(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"small number", "42", "42"},
+		{"large number", "123456789012345678901234567890", "123456789012345678901234567890"},
+		{"negative large", "-999999999999999999999", "-999999999999999999999"},
+		{"max int64", "9223372036854775807", "9223372036854775807"},
+		{"beyond int64", "9223372036854775808", "9223372036854775808"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bi, err := dtrules.GetRBigIntFromString(tt.input)
+			if err != nil {
+				t.Fatalf("Failed to parse %q: %v", tt.input, err)
+			}
+			if bi.StringValue() != tt.expected {
+				t.Errorf("Expected %s, got %s", tt.expected, bi.StringValue())
+			}
+		})
+	}
+}
+
+func TestBigIntSerializesToString(t *testing.T) {
+	// Verify that BigInt values serialize to strings that preserve full precision
+	largeNum := "123456789012345678901234567890"
+	bi, err := dtrules.GetRBigIntFromString(largeNum)
+	if err != nil {
+		t.Fatalf("Failed to create BigInt: %v", err)
+	}
+
+	// StringValue() is what would be used for JSON output
+	serialized := bi.StringValue()
+	if serialized != largeNum {
+		t.Errorf("Serialization lost precision: expected %s, got %s", largeNum, serialized)
+	}
+
+	// PostFix() should also return the string representation
+	postfix := bi.PostFix()
+	if postfix != largeNum {
+		t.Errorf("PostFix() lost precision: expected %s, got %s", largeNum, postfix)
 	}
 }

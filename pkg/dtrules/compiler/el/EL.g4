@@ -123,6 +123,9 @@ localvariables
     | LOCAL STRING undefinedIdent                           # localStringUndef
     | LOCAL STRING undefinedIdent ASSIGN strexpr            # localStringInit
     | LOCAL STRING typedString                              # localStringDefined
+    | LOCAL BIGINT undefinedIdent                           # localBigIntUndef
+    | LOCAL BIGINT undefinedIdent ASSIGN bigexpr            # localBigIntInit
+    | LOCAL BIGINT typedBigInt                              # localBigIntDefined
     ;
 
 ifstatement
@@ -214,6 +217,11 @@ leftTexpr
     | colonRef leftTexpr                                    # leftTexprColon
     ;
 
+leftBigexpr
+    : typedBigInt                                           # leftBigexprSimple
+    | colonRef leftBigexpr                                  # leftBigexprColon
+    ;
+
 leftArrayRef
     : typedArray                                            # leftArraySimple
     | colonRef leftArrayRef                                 # leftArrayColon
@@ -238,6 +246,7 @@ setstatement
     | SET leftArrayRef ASSIGN iexpr                         # setArrayInt
     | SET leftArrayRef ASSIGN dexpr                         # setArrayDate
     | SET leftArrayRef ASSIGN arrayExpr                     # setArrayArray
+    | SET leftBigexpr ASSIGN bigexpr                        # setBigInt
     | INCREMENT typedLong                                   # incrementLong
     | INCREMENT typedDouble                                 # incrementDouble
     | DECREMENT typedLong                                   # decrementLong
@@ -611,6 +620,22 @@ iexpr
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
     ;
 
+bigexpr
+    : bigexpr TIMES bigexpr                                 # bigMul
+    | bigexpr DIVIDE bigexpr                                # bigDiv
+    | bigexpr PLUS bigexpr                                  # bigAdd
+    | bigexpr MINUS bigexpr                                 # bigSub
+    | MINUS bigexpr                                         # bigNegate
+    | LPAREN bigexpr RPAREN                                 # bigParen
+    | typedBigInt                                           # bigTyped
+    | colonRef typedBigInt                                  # bigColonRef
+    | LPAREN BIGINT RPAREN strexpr                          # bigFromStr
+    | LPAREN BIGINT RPAREN iexpr                            # bigFromInt
+    | LPAREN BIGINT RPAREN fexpr                            # bigFromFloat
+    | USING eexpr LPAREN bigexpr RPAREN                     # bigUsing
+    | ABSOLUTEVALUE OF bigexpr                              # bigAbs
+    ;
+
 includeSearch
     : VALUE number                                          # includeNumber
     | DATE dexpr                                            # includeDate
@@ -699,6 +724,14 @@ bexpr
     | fexpr LTE iexpr                                       # boolFloatLteInt
     | iexpr LTE fexpr                                       # boolIntLteFloat
     | fexpr LTE fexpr                                       # boolFloatLte
+
+    // BigInt comparisons
+    | bigexpr EQ bigexpr                                    # boolBigEq
+    | bigexpr NEQ bigexpr                                   # boolBigNeq
+    | bigexpr GT bigexpr                                    # boolBigGt
+    | bigexpr GTE bigexpr                                   # boolBigGte
+    | bigexpr LT bigexpr                                    # boolBigLt
+    | bigexpr LTE bigexpr                                   # boolBigLte
 
     // Boolean reference
     | typedBoolean                                          # boolTyped
@@ -817,6 +850,7 @@ typedXmlValue       : IDENT ;
 typedNull           : IDENT ;
 typedInvalid        : IDENT ;
 typedBoolFunction   : IDENT ;
+typedBigInt         : IDENT ;
 undefinedIdent      : IDENT ;
 
 // ============================================================================
@@ -842,6 +876,7 @@ STRING              : 'string' ;
 ENTITY              : 'entity' ;
 ARRAY               : 'array' ;
 TABLE               : 'table' ;
+BIGINT              : 'bigint' | 'biginteger' ;
 
 // Current date/time
 CURRENT_TIMESTAMP   : 'current' WS+ 'timestamp' ;

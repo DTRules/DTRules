@@ -42,6 +42,8 @@ func NewCompiler(session dtrules.Session, factory *entity.Factory) *Compiler {
 // Compile compiles a postfix expression string into executable code.
 // The expression is expected to be in postfix notation (like PostScript).
 func (c *Compiler) Compile(expr string) (dtrules.Object, error) {
+	// Strip comments before processing
+	expr = stripComments(expr)
 	expr = strings.TrimSpace(expr)
 	if expr == "" {
 		// Empty expression - return a no-op array
@@ -215,4 +217,53 @@ func (c *Compiler) compileToken(token string) (dtrules.Object, error) {
 // This is used when loading pre-compiled decision tables.
 func (c *Compiler) CompilePostfix(postfix string) (dtrules.Object, error) {
 	return c.Compile(postfix)
+}
+
+// stripComments removes line comments (starting with // or #) from the expression.
+// Comments extend from // or # to the end of the line.
+func stripComments(expr string) string {
+	lines := strings.Split(expr, "\n")
+	var result []string
+	for _, line := range lines {
+		// Find comment start (// or #) that's not inside a string
+		idx := findCommentStart(line)
+		if idx >= 0 {
+			line = line[:idx]
+		}
+		line = strings.TrimSpace(line)
+		if line != "" {
+			result = append(result, line)
+		}
+	}
+	return strings.Join(result, "\n")
+}
+
+// findCommentStart finds the start of a line comment (// or #), respecting strings.
+// Returns -1 if no comment is found.
+func findCommentStart(line string) int {
+	inString := false
+	stringDelim := byte(0)
+	for i := 0; i < len(line); i++ {
+		ch := line[i]
+		if inString {
+			if ch == stringDelim && (i == 0 || line[i-1] != '\\') {
+				inString = false
+			}
+			continue
+		}
+		if ch == '"' || ch == '\'' {
+			inString = true
+			stringDelim = ch
+			continue
+		}
+		// Check for // style comment
+		if ch == '/' && i+1 < len(line) && line[i+1] == '/' {
+			return i
+		}
+		// Check for # style comment (only at start of line or after whitespace)
+		if ch == '#' && (i == 0 || line[i-1] == ' ' || line[i-1] == '\t') {
+			return i
+		}
+	}
+	return -1
 }

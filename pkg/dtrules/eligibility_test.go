@@ -179,7 +179,9 @@ func TestDTEligibility(t *testing.T) {
 				t.Fatalf("Failed to open EDD: %v", err)
 			}
 			defer eddFile.Close()
-			rs.LoadEDD(eddFile)
+			if err := rs.LoadEDD(eddFile); err != nil {
+				t.Fatalf("Failed to load EDD: %v", err)
+			}
 
 			dtPath := filepath.Join(xmlDir, "eligibility_dt.xml")
 			dtFile, err := os.Open(dtPath)
@@ -187,7 +189,9 @@ func TestDTEligibility(t *testing.T) {
 				t.Fatalf("Failed to open DT: %v", err)
 			}
 			defer dtFile.Close()
-			rs.LoadDecisionTables(dtFile)
+			if err := rs.LoadDecisionTables(dtFile); err != nil {
+				t.Fatalf("Failed to load decision tables: %v", err)
+			}
 		}
 
 		sess, err := rs.NewSession()
@@ -223,7 +227,9 @@ func TestDTEligibility(t *testing.T) {
 				t.Fatalf("Failed to open EDD: %v", err)
 			}
 			defer eddFile.Close()
-			rs.LoadEDD(eddFile)
+			if err := rs.LoadEDD(eddFile); err != nil {
+				t.Fatalf("Failed to load EDD: %v", err)
+			}
 
 			dtPath := filepath.Join(xmlDir, "eligibility_dt.xml")
 			dtFile, err := os.Open(dtPath)
@@ -231,7 +237,9 @@ func TestDTEligibility(t *testing.T) {
 				t.Fatalf("Failed to open DT: %v", err)
 			}
 			defer dtFile.Close()
-			rs.LoadDecisionTables(dtFile)
+			if err := rs.LoadDecisionTables(dtFile); err != nil {
+				t.Fatalf("Failed to load decision tables: %v", err)
+			}
 		}
 
 		sess, err := rs.NewSession()
@@ -354,13 +362,19 @@ func TestKidAid(t *testing.T) {
 		rs := session.NewRuleSet("KidAid")
 		err := rs.LoadFromDirectory(xmlDir)
 		if err != nil {
+			t.Logf("LoadFromDirectory failed (expected for files without FILE_PATH): %v", err)
+			t.Log("Falling back to individual file loading...")
+
 			eddPath := filepath.Join(xmlDir, "kidaid_edd.xml")
 			eddFile, err := os.Open(eddPath)
 			if err != nil {
 				t.Fatalf("Failed to open EDD: %v", err)
 			}
 			defer eddFile.Close()
-			rs.LoadEDD(eddFile)
+			if err := rs.LoadEDD(eddFile); err != nil {
+				t.Fatalf("Failed to load EDD: %v", err)
+			}
+			t.Log("EDD loaded successfully")
 
 			dtPath := filepath.Join(xmlDir, "kidaid_dt.xml")
 			dtFile, err := os.Open(dtPath)
@@ -368,7 +382,12 @@ func TestKidAid(t *testing.T) {
 				t.Fatalf("Failed to open DT: %v", err)
 			}
 			defer dtFile.Close()
-			rs.LoadDecisionTables(dtFile)
+			if err := rs.LoadDecisionTables(dtFile); err != nil {
+				t.Fatalf("Failed to load decision tables: %v", err)
+			}
+			t.Log("Decision tables loaded successfully")
+		} else {
+			t.Log("LoadFromDirectory succeeded")
 		}
 
 		sess, err := rs.NewSession()
@@ -417,8 +436,16 @@ func TestKidAid(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to get Compute_Eligibility table: %v", err)
 			}
+			if dtObj == nil {
+				t.Fatal("Compute_Eligibility decision table is nil")
+			}
 
-			err = dtObj.Execute(sess.GetState())
+			state := sess.GetState()
+			if state == nil {
+				t.Fatal("Session state is nil")
+			}
+
+			err = dtObj.Execute(state)
 			if err != nil {
 				t.Fatalf("Failed to execute Compute_Eligibility: %v", err)
 			}

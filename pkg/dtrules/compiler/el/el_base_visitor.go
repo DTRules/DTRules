@@ -1,6 +1,7 @@
-// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
 
 package el // EL
+
 import "github.com/antlr4-go/antlr/v4"
 
 type BaseELVisitor struct {
@@ -219,6 +220,18 @@ func (v *BaseELVisitor) VisitLocalStringDefined(ctx *LocalStringDefinedContext) 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIfThen(ctx *IfThenContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -395,6 +408,14 @@ func (v *BaseELVisitor) VisitLeftTexprColon(ctx *LeftTexprColonContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLeftBigexprColon(ctx *LeftBigexprColonContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitLeftArraySimple(ctx *LeftArraySimpleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -472,6 +493,10 @@ func (v *BaseELVisitor) VisitSetArrayDate(ctx *SetArrayDateContext) interface{} 
 }
 
 func (v *BaseELVisitor) VisitSetArrayArray(ctx *SetArrayArrayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitSetBigInt(ctx *SetBigIntContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1551,6 +1576,58 @@ func (v *BaseELVisitor) VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBigAbs(ctx *BigAbsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigDiv(ctx *BigDivContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigColonRef(ctx *BigColonRefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigFromFloat(ctx *BigFromFloatContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigNegate(ctx *BigNegateContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigUsing(ctx *BigUsingContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigSub(ctx *BigSubContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigParen(ctx *BigParenContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigAdd(ctx *BigAddContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigFromStr(ctx *BigFromStrContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigFromInt(ctx *BigFromIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigMul(ctx *BigMulContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBigTyped(ctx *BigTypedContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIncludeNumber(ctx *IncludeNumberContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1631,6 +1708,10 @@ func (v *BaseELVisitor) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEnti
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolBigLt(ctx *BoolBigLtContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolArrayIsNull(ctx *BoolArrayIsNullContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1644,6 +1725,10 @@ func (v *BaseELVisitor) VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContext
 }
 
 func (v *BaseELVisitor) VisitBoolStrEqList(ctx *BoolStrEqListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolBigNeq(ctx *BoolBigNeqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1791,6 +1876,10 @@ func (v *BaseELVisitor) VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolBigLte(ctx *BoolBigLteContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolStrEqIc(ctx *BoolStrEqIcContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1832,6 +1921,10 @@ func (v *BaseELVisitor) VisitBoolValueOfOp(ctx *BoolValueOfOpContext) interface{
 }
 
 func (v *BaseELVisitor) VisitBoolColonRef(ctx *BoolColonRefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolBigGt(ctx *BoolBigGtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1903,6 +1996,10 @@ func (v *BaseELVisitor) VisitBoolEntityNotHas(ctx *BoolEntityNotHasContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolBigGte(ctx *BoolBigGteContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolDateEq(ctx *BoolDateEqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1956,6 +2053,10 @@ func (v *BaseELVisitor) VisitBoolIntLtFloat(ctx *BoolIntLtFloatContext) interfac
 }
 
 func (v *BaseELVisitor) VisitBoolBoolEq(ctx *BoolBoolEqContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolBigEq(ctx *BoolBigEqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2096,6 +2197,10 @@ func (v *BaseELVisitor) VisitTypedInvalid(ctx *TypedInvalidContext) interface{} 
 }
 
 func (v *BaseELVisitor) VisitTypedBoolFunction(ctx *TypedBoolFunctionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitTypedBigInt(ctx *TypedBigIntContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

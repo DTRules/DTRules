@@ -1170,7 +1170,7 @@ func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecis
 	_ = idx
 
 	// Set column widths
-	f.SetColWidth(sheetName, "A", "A", 4)
+	f.SetColWidth(sheetName, "A", "A", 20)
 	f.SetColWidth(sheetName, "B", "B", wideColWidth)
 	f.SetColWidth(sheetName, "C", "C", wideColWidth)
 
@@ -1266,12 +1266,14 @@ func (e *Exporter) writeFields(f *excelize.File, sheet string, dt *decisiontable
 }
 
 func (e *Exporter) writeContexts(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header
-	startCell := cellName(1, row)
-	endCell := cellName(3+numCols, row)
-	f.MergeCell(sheet, startCell, endCell)
-	f.SetCellValue(sheet, startCell, "Contexts:")
-	f.SetCellStyle(sheet, startCell, endCell, styles.header)
+	// Header row: "CONTEXTS: COMMENTS" in A+B, "DSL: CONTEXTS" in C
+	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
+	f.SetCellValue(sheet, cellName(1, row), "CONTEXTS: COMMENTS")
+	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
+
+	f.MergeCell(sheet, cellName(3, row), cellName(3+numCols, row))
+	f.SetCellValue(sheet, cellName(3, row), "DSL: CONTEXTS")
+	f.SetCellStyle(sheet, cellName(3, row), cellName(3+numCols, row), styles.header)
 	row++
 
 	contexts := dt.GetContexts()
@@ -1305,13 +1307,13 @@ func (e *Exporter) writeContexts(f *excelize.File, sheet string, dt *decisiontab
 }
 
 func (e *Exporter) writeInitialActions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row
+	// Header row: "INITIAL ACTIONS: COMMENTS" in A+B, "DSL: INITIAL ACTIONS" in C
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "Initial Actions:")
+	f.SetCellValue(sheet, cellName(1, row), "INITIAL ACTIONS: COMMENTS")
 	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
 
 	f.MergeCell(sheet, cellName(3, row), cellName(3+numCols, row))
-	f.SetCellValue(sheet, cellName(3, row), "Initial Actions")
+	f.SetCellValue(sheet, cellName(3, row), "DSL: INITIAL ACTIONS")
 	f.SetCellStyle(sheet, cellName(3, row), cellName(3+numCols, row), styles.header)
 	row++
 
@@ -1346,12 +1348,12 @@ func (e *Exporter) writeInitialActions(f *excelize.File, sheet string, dt *decis
 }
 
 func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row
+	// Header row: "CONDITIONS: COMMENTS" in A+B, "DSL: CONDITIONS" in C, then column numbers
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "Conditions:")
+	f.SetCellValue(sheet, cellName(1, row), "CONDITIONS: COMMENTS")
 	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
 
-	f.SetCellValue(sheet, cellName(3, row), "Conditions")
+	f.SetCellValue(sheet, cellName(3, row), "DSL: CONDITIONS")
 	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.header)
 
 	// Column numbers
@@ -1404,12 +1406,12 @@ func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiont
 }
 
 func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row
+	// Header row: "ACTIONS: COMMENTS" in A+B, "DSL: ACTIONS" in C, then column numbers
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "Actions:")
+	f.SetCellValue(sheet, cellName(1, row), "ACTIONS: COMMENTS")
 	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
 
-	f.SetCellValue(sheet, cellName(3, row), "Actions")
+	f.SetCellValue(sheet, cellName(3, row), "DSL: ACTIONS")
 	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.header)
 
 	// Column numbers

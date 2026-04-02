@@ -959,3 +959,222 @@ func TestJSONEDDMatchesXMLEDD(t *testing.T) {
 		}
 	}
 }
+
+// =============================================================================
+// BigInt JSON Serialization/Deserialization Tests
+// =============================================================================
+
+// TestJSONEDDLoaderBigIntField tests that BigInt fields can be defined in JSON EDD
+func TestJSONEDDLoaderBigIntField(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "blockchain",
+				"access": "rw",
+				"fields": [
+					{"name": "block_number", "type": "bigint", "access": "rw"},
+					{"name": "balance", "type": "biginteger", "access": "rw"},
+					{"name": "hash_value", "type": "bigint", "access": "rw", "defaultValue": "12345678901234567890"}
+				]
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("Failed to load JSON EDD with bigint fields: %v", err)
+	}
+
+	ent, _ := factory.GetReferenceEntity(dtrules.GetRName("blockchain"))
+	if ent == nil {
+		t.Fatal("Expected blockchain entity")
+	}
+
+	// Check that BigInt fields are present
+	if !ent.ContainsAttribute(dtrules.GetRName("block_number")) {
+		t.Error("Expected 'block_number' attribute")
+	}
+	if !ent.ContainsAttribute(dtrules.GetRName("balance")) {
+		t.Error("Expected 'balance' attribute (using biginteger alias)")
+	}
+	if !ent.ContainsAttribute(dtrules.GetRName("hash_value")) {
+		t.Error("Expected 'hash_value' attribute")
+	}
+}
+
+// TestJSONEDDLoaderBigIntDefaultValue tests that BigInt default values are parsed correctly
+func TestJSONEDDLoaderBigIntDefaultValue(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	// Test with a large number that exceeds int64
+	largeValue := "123456789012345678901234567890"
+	jsonData := `{
+		"entities": [
+			{
+				"name": "bigtest",
+				"access": "rw",
+				"fields": [
+					{"name": "large_num", "type": "bigint", "access": "rw", "defaultValue": "` + largeValue + `"}
+				]
+			}
+		]
+	}`
+
+	err := loader.Load(strings.NewReader(jsonData))
+	if err != nil {
+		t.Fatalf("Failed to load JSON EDD with bigint default value: %v", err)
+	}
+
+	ent, _ := factory.GetReferenceEntity(dtrules.GetRName("bigtest"))
+	if ent == nil {
+		t.Fatal("Expected bigtest entity")
+	}
+
+	if !ent.ContainsAttribute(dtrules.GetRName("large_num")) {
+		t.Error("Expected 'large_num' attribute")
+	}
+}
+
+// TestGoValueToDTRulesObjectLargeNumber tests that large numeric strings
+// that exceed float64 precision are handled appropriately
+func TestGoValueToDTRulesObjectLargeNumber(t *testing.T) {
+	// JSON numbers decode to float64, which has limited precision
+	// A very large integer like 123456789012345678901234567890 would lose precision
+	// when parsed as float64
+
+	// Test: float64 that fits in int64
+	obj := goValueToDTRulesObject(float64(9007199254740991)) // Max safe integer in JS
+	v, err := obj.LongValue()
+	if err != nil {
+		t.Fatalf("Expected integer value, got error: %v", err)
+	}
+	if v != 9007199254740991 {
+		t.Errorf("Expected 9007199254740991, got %d", v)
+	}
+
+	// Test: large float64 should become double if it has decimal part
+	obj = goValueToDTRulesObject(float64(1e20))
+	// 1e20 is an exact integer, so it should be converted to integer
+	// However, it exceeds max int64 (9223372036854775807), so goValueToDTRulesObject
+	// will try to make it an integer but it won't fit
+
+	// Actually, float64(1e20) == float64(int64(1e20)) is true because
+	// 1e20 can be represented as an integer in float64 (no fractional part)
+	// But converting to int64 would overflow. Let's verify behavior:
+	f := float64(1e20)
+	if f != float64(int64(f)) {
+		// This means 1e20 has fractional representation loss, so it becomes double
+		_, doubleErr := obj.DoubleValue()
+		if doubleErr != nil {
+			t.Errorf("Expected double value for 1e20, got error: %v", doubleErr)
+		}
+	}
+}
+
+// TestBigIntStringInput documents that large numbers passed as strings
+// can be converted to BigInt properly
+func TestBigIntStringInput(t *testing.T) {
+	largeNum := "123456789012345678901234567890"
+
+	// Convert string to RBigInt
+	bi, err := dtrules.GetRBigIntFromString(largeNum)
+	if err != nil {
+		t.Fatalf("Failed to parse large number string: %v", err)
+	}
+
+	// Verify it maintains full precision
+	if bi.StringValue() != largeNum {
+		t.Errorf("Expected %s, got %s", largeNum, bi.StringValue())
+	}
+
+	// Verify it can't be converted to int64 (overflow)
+	_, err = bi.LongValue()
+	if err == nil {
+		t.Error("Expected overflow error when converting large BigInt to int64")
+	}
+}
+
+// TestBigIntJSONSerialization documents that BigInt serializes to string
+// to preserve precision in JSON
+func TestBigIntJSONSerialization(t *testing.T) {
+	largeNum := "123456789012345678901234567890"
+	bi, err := dtrules.GetRBigIntFromString(largeNum)
+	if err != nil {
+		t.Fatalf("Failed to create BigInt: %v", err)
+	}
+
+	// When converted to string for JSON output, precision is preserved
+	serialized := bi.StringValue()
+	if serialized != largeNum {
+		t.Errorf("Expected %s, got %s", largeNum, serialized)
+	}
+
+	// Can be round-tripped
+	roundTripped, err := dtrules.GetRBigIntFromString(serialized)
+	if err != nil {
+		t.Fatalf("Failed to round-trip BigInt: %v", err)
+	}
+
+	eq, err := bi.Equals(roundTripped)
+	if err != nil {
+		t.Fatalf("Equals failed: %v", err)
+	}
+	if !eq {
+		t.Error("Round-tripped BigInt not equal to original")
+	}
+}
+
+// TestBigIntFromVariousTypes documents BigInt conversion from various input types
+func TestBigIntFromVariousTypes(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    interface{}
+		expected string
+	}{
+		{"from int64 string", "42", "42"},
+		{"from large string", "99999999999999999999", "99999999999999999999"},
+		{"from negative string", "-12345678901234567890", "-12345678901234567890"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bi, err := dtrules.GetRBigIntFromString(tt.input.(string))
+			if err != nil {
+				t.Fatalf("Unexpected error: %v", err)
+			}
+			if bi.StringValue() != tt.expected {
+				t.Errorf("Expected %s, got %s", tt.expected, bi.StringValue())
+			}
+		})
+	}
+}
+
+// TestJSONNumberPrecisionLoss documents that JSON numbers (float64) can lose precision
+// for very large integers, motivating the use of strings for BigInt values
+func TestJSONNumberPrecisionLoss(t *testing.T) {
+	// This is a known limitation of JSON: numbers are float64
+	// Integers larger than 2^53-1 (9007199254740991) may lose precision
+
+	// Example: 9007199254740993 loses precision when parsed as float64
+	// float64(9007199254740993) == float64(9007199254740992)
+	f := float64(9007199254740993)
+	if f == float64(9007199254740992) {
+		// This demonstrates precision loss
+		t.Log("As expected: float64 loses precision for integers > 2^53-1")
+	}
+
+	// When receiving large numbers from JSON, they should be sent as strings
+	// to preserve precision, then converted to BigInt
+	largeAsString := "9007199254740993"
+	bi, err := dtrules.GetRBigIntFromString(largeAsString)
+	if err != nil {
+		t.Fatalf("Failed to parse: %v", err)
+	}
+	if bi.StringValue() != largeAsString {
+		t.Errorf("Expected %s, got %s", largeAsString, bi.StringValue())
+	}
+}
