@@ -824,3 +824,157 @@ func TestValueBigIntCrossTypeEquality(t *testing.T) {
 		t.Error("Expected BigInt(42) == Double(42.0)")
 	}
 }
+
+func TestValueBigIntLess(t *testing.T) {
+	// Test same-tag BigInt comparisons
+	v1 := NewValueBigInt(big.NewInt(10))
+	v2 := NewValueBigInt(big.NewInt(20))
+	v3 := NewValueBigInt(big.NewInt(10))
+
+	if !v1.Less(v2) {
+		t.Error("Expected BigInt(10) < BigInt(20)")
+	}
+
+	if v2.Less(v1) {
+		t.Error("Expected BigInt(20) NOT < BigInt(10)")
+	}
+
+	if v1.Less(v3) {
+		t.Error("Expected BigInt(10) NOT < BigInt(10) (equal values)")
+	}
+
+	// Test with negative values
+	vNeg := NewValueBigInt(big.NewInt(-5))
+	if !vNeg.Less(v1) {
+		t.Error("Expected BigInt(-5) < BigInt(10)")
+	}
+
+	if v1.Less(vNeg) {
+		t.Error("Expected BigInt(10) NOT < BigInt(-5)")
+	}
+}
+
+func TestValueBigIntLessCrossType(t *testing.T) {
+	// BigInt vs Integer
+	vBigInt := NewValueBigInt(big.NewInt(42))
+	vInteger := NewValueInteger(50)
+
+	if !vBigInt.Less(vInteger) {
+		t.Error("Expected BigInt(42) < Integer(50)")
+	}
+
+	if vInteger.Less(vBigInt) {
+		t.Error("Expected Integer(50) NOT < BigInt(42)")
+	}
+
+	// Test equal values
+	vInteger42 := NewValueInteger(42)
+	if vBigInt.Less(vInteger42) {
+		t.Error("Expected BigInt(42) NOT < Integer(42) (equal values)")
+	}
+
+	// BigInt vs Double
+	vDouble := NewValueDouble(100.0)
+
+	if !vBigInt.Less(vDouble) {
+		t.Error("Expected BigInt(42) < Double(100.0)")
+	}
+
+	if vDouble.Less(vBigInt) {
+		t.Error("Expected Double(100.0) NOT < BigInt(42)")
+	}
+
+	// Double vs BigInt (reverse order)
+	vDouble30 := NewValueDouble(30.0)
+	vBigInt50 := NewValueBigInt(big.NewInt(50))
+
+	if !vDouble30.Less(vBigInt50) {
+		t.Error("Expected Double(30.0) < BigInt(50)")
+	}
+
+	if vBigInt50.Less(vDouble30) {
+		t.Error("Expected BigInt(50) NOT < Double(30.0)")
+	}
+
+	// Integer vs BigInt
+	vIntSmall := NewValueInteger(5)
+	vBigLarge := NewValueBigInt(big.NewInt(100))
+
+	if !vIntSmall.Less(vBigLarge) {
+		t.Error("Expected Integer(5) < BigInt(100)")
+	}
+
+	if vBigLarge.Less(vIntSmall) {
+		t.Error("Expected BigInt(100) NOT < Integer(5)")
+	}
+}
+
+func TestValueBigIntLessLargeValues(t *testing.T) {
+	// Test with values exceeding int64 range
+	// MaxInt64 = 9223372036854775807
+	maxInt64 := big.NewInt(math.MaxInt64)
+	maxInt64Plus1 := new(big.Int).Add(maxInt64, big.NewInt(1))
+	maxInt64Plus100 := new(big.Int).Add(maxInt64, big.NewInt(100))
+
+	v1 := NewValueBigInt(maxInt64)
+	v2 := NewValueBigInt(maxInt64Plus1)
+	v3 := NewValueBigInt(maxInt64Plus100)
+
+	// MaxInt64 < MaxInt64 + 1
+	if !v1.Less(v2) {
+		t.Error("Expected MaxInt64 < MaxInt64+1")
+	}
+
+	// MaxInt64 + 1 < MaxInt64 + 100
+	if !v2.Less(v3) {
+		t.Error("Expected MaxInt64+1 < MaxInt64+100")
+	}
+
+	// MaxInt64 + 100 NOT < MaxInt64
+	if v3.Less(v1) {
+		t.Error("Expected MaxInt64+100 NOT < MaxInt64")
+	}
+
+	// Test very large values (10^50 range)
+	large1, _ := new(big.Int).SetString("100000000000000000000000000000000000000000000000000", 10) // 10^50
+	large2, _ := new(big.Int).SetString("100000000000000000000000000000000000000000000000001", 10) // 10^50 + 1
+
+	vLarge1 := NewValueBigInt(large1)
+	vLarge2 := NewValueBigInt(large2)
+
+	if !vLarge1.Less(vLarge2) {
+		t.Error("Expected 10^50 < 10^50+1")
+	}
+
+	if vLarge2.Less(vLarge1) {
+		t.Error("Expected 10^50+1 NOT < 10^50")
+	}
+
+	// Large BigInt vs Integer - BigInt should be greater
+	vInt := NewValueInteger(1000)
+	if vLarge1.Less(vInt) {
+		t.Error("Expected 10^50 NOT < Integer(1000)")
+	}
+
+	if !vInt.Less(vLarge1) {
+		t.Error("Expected Integer(1000) < 10^50")
+	}
+
+	// Test negative large values
+	negLarge, _ := new(big.Int).SetString("-100000000000000000000000000000000000000000000000000", 10)
+	vNegLarge := NewValueBigInt(negLarge)
+
+	if !vNegLarge.Less(vLarge1) {
+		t.Error("Expected -10^50 < 10^50")
+	}
+
+	if vLarge1.Less(vNegLarge) {
+		t.Error("Expected 10^50 NOT < -10^50")
+	}
+
+	// Negative large BigInt vs negative Integer
+	vNegInt := NewValueInteger(-1000)
+	if !vNegLarge.Less(vNegInt) {
+		t.Error("Expected -10^50 < Integer(-1000)")
+	}
+}

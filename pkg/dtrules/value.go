@@ -338,6 +338,29 @@ func (v Value) Less(other Value) bool {
 	if v.tag == VTagInteger && other.tag == VTagInteger {
 		return v.num < other.num
 	}
+	// Handle BigInt comparison with precision
+	if v.tag == VTagBigInt || other.tag == VTagBigInt {
+		var vBig, oBig *big.Int
+		if v.tag == VTagBigInt {
+			vBig = v.AsBigInt()
+		} else if v.tag == VTagInteger {
+			vBig = big.NewInt(v.num)
+		} else {
+			// VTagDouble - convert via float
+			vBig = new(big.Int)
+			vBig.SetInt64(int64(v.AsDouble()))
+		}
+		if other.tag == VTagBigInt {
+			oBig = other.AsBigInt()
+		} else if other.tag == VTagInteger {
+			oBig = big.NewInt(other.num)
+		} else {
+			// VTagDouble - convert via float
+			oBig = new(big.Int)
+			oBig.SetInt64(int64(other.AsDouble()))
+		}
+		return vBig.Cmp(oBig) < 0
+	}
 	return v.AsDouble() < other.AsDouble()
 }
 

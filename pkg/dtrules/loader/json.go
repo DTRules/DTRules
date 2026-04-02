@@ -228,6 +228,10 @@ func (l *JSONEDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RT
 				return d
 			}
 		}
+	case dtrules.TypeBigInt:
+		if v, err := dtrules.GetRBigIntFromString(defaultStr); err == nil {
+			return v
+		}
 	}
 
 	return dtrules.GetRNull()
