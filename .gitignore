@@ -60,3 +60,11 @@ testfiles/
 
 # Sync manifest (local state)
 .dtrules-manifest.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# DTRules sync manifest (local state)
+.sync-manifest.json
