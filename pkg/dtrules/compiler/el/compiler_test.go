@@ -231,3 +231,45 @@ func TestEmptyExpression(t *testing.T) {
 		t.Errorf("Compile empty string got %q, want empty", result)
 	}
 }
+
+// =============================================================================
+// BigInt Expression Tests
+// =============================================================================
+
+// TestCompileBigIntKeywordRecognized tests that the BIGINT keyword is recognized
+func TestCompileBigIntKeywordRecognized(t *testing.T) {
+	c := NewCompiler()
+
+	// Test that cvbi (convert to bigint) is generated for type casts
+	tests := []struct {
+		name     string
+		el       string
+		contains string
+	}{
+		{
+			name:     "bigint type cast with cvbi",
+			el:       `set x = (bigint) "12345";`,
+			contains: "cvbi",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := c.CompileAction(tt.el)
+			if err != nil {
+				t.Fatalf("CompileAction(%q) error: %v", tt.el, err)
+			}
+
+			if !strings.Contains(result, tt.contains) {
+				t.Errorf("CompileAction(%q) = %q, expected to contain %q", tt.el, result, tt.contains)
+			}
+		})
+	}
+}
+
+// TestCompileBigIntTypeConstant tests that the TypeBigInt constant is defined
+func TestCompileBigIntTypeConstant(t *testing.T) {
+	if TypeBigInt != "bigint" {
+		t.Errorf("TypeBigInt = %q, want \"bigint\"", TypeBigInt)
+	}
+}

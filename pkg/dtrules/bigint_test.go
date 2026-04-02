@@ -18,6 +18,7 @@ import (
 	"math"
 	"math/big"
 	"testing"
+	"time"
 )
 
 // =============================================================================
@@ -638,5 +639,188 @@ func TestBigIntRDoubleValue(t *testing.T) {
 	val, _ := rd.DoubleValue()
 	if val != 42.0 {
 		t.Errorf("Expected 42.0, got %f", val)
+	}
+}
+
+// =============================================================================
+// RDate and RInterval RBigIntValue tests
+// =============================================================================
+
+func TestRDateRBigIntValue(t *testing.T) {
+	// Create a date using time.Time
+	testTime := time.Date(2024, 6, 15, 12, 30, 0, 0, time.UTC)
+	date := GetRTime(testTime)
+
+	bi, err := date.RBigIntValue()
+	if err != nil {
+		t.Fatalf("RDate.RBigIntValue() error: %v", err)
+	}
+
+	// Should convert to Unix milliseconds
+	expectedMs := testTime.UnixMilli()
+	actualMs, _ := bi.LongValue()
+
+	if actualMs != expectedMs {
+		t.Errorf("Expected %d ms, got %d ms", expectedMs, actualMs)
+	}
+}
+
+func TestRIntervalRBigIntValue(t *testing.T) {
+	// Create intervals
+	tests := []struct {
+		name     string
+		interval *RInterval
+		expected int64
+	}{
+		{"days", NewRInterval(30, IntervalDays), 30},
+		{"months", NewRInterval(12, IntervalMonths), 12},
+		{"years", NewRInterval(5, IntervalYears), 5},
+		{"zero", NewRInterval(0, IntervalDays), 0},
+		{"negative", NewRInterval(-10, IntervalDays), -10},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bi, err := tt.interval.RBigIntValue()
+			if err != nil {
+				t.Fatalf("RInterval.RBigIntValue() error: %v", err)
+			}
+
+			val, _ := bi.LongValue()
+			if val != tt.expected {
+				t.Errorf("Expected %d, got %d", tt.expected, val)
+			}
+		})
+	}
+}
+
+// =============================================================================
+// Value type tests for VTagBigInt
+// =============================================================================
+
+func TestValueBigInt(t *testing.T) {
+	t.Run("NewValueBigInt creates correct value", func(t *testing.T) {
+		bigVal := big.NewInt(12345)
+		v := NewValueBigInt(bigVal)
+
+		if v.Tag() != VTagBigInt {
+			t.Errorf("Expected VTagBigInt, got %d", v.Tag())
+		}
+
+		if !v.IsBigInt() {
+			t.Error("Expected IsBigInt() to return true")
+		}
+
+		bi := v.AsBigInt()
+		if bi.Cmp(bigVal) != 0 {
+			t.Errorf("Expected %s, got %s", bigVal.String(), bi.String())
+		}
+	})
+
+	t.Run("Value.AsObject returns RBigInt", func(t *testing.T) {
+		bigVal := big.NewInt(99999)
+		v := NewValueBigInt(bigVal)
+
+		obj := v.AsObject()
+		if obj.Type() != TypeBigInt {
+			t.Errorf("Expected TypeBigInt, got %v", obj.Type())
+		}
+
+		rbi, err := obj.RBigIntValue()
+		if err != nil {
+			t.Fatalf("RBigIntValue error: %v", err)
+		}
+
+		if rbi.StringValue() != "99999" {
+			t.Errorf("Expected 99999, got %s", rbi.StringValue())
+		}
+	})
+
+	t.Run("ValueFromObject converts RBigInt to Value", func(t *testing.T) {
+		rbi := GetRBigIntFromInt64(54321)
+		v := ValueFromObject(rbi)
+
+		if v.Tag() != VTagBigInt {
+			t.Errorf("Expected VTagBigInt, got %d", v.Tag())
+		}
+
+		bi := v.AsBigInt()
+		if bi.Int64() != 54321 {
+			t.Errorf("Expected 54321, got %d", bi.Int64())
+		}
+	})
+
+	t.Run("Value.String for BigInt", func(t *testing.T) {
+		v := NewValueBigInt(big.NewInt(123456789))
+		str := v.String()
+
+		if str != "123456789" {
+			t.Errorf("Expected '123456789', got '%s'", str)
+		}
+	})
+
+	t.Run("Value.IsNumeric includes BigInt", func(t *testing.T) {
+		v := NewValueBigInt(big.NewInt(100))
+
+		if !v.IsNumeric() {
+			t.Error("Expected IsNumeric() to return true for BigInt")
+		}
+	})
+}
+
+func TestValueBigIntLargeValue(t *testing.T) {
+	// Test with value larger than int64
+	largeVal, _ := new(big.Int).SetString("123456789012345678901234567890", 10)
+	v := NewValueBigInt(largeVal)
+
+	if v.Tag() != VTagBigInt {
+		t.Errorf("Expected VTagBigInt, got %d", v.Tag())
+	}
+
+	// Round-trip through Object
+	obj := v.AsObject()
+	rbi, _ := obj.RBigIntValue()
+
+	if rbi.StringValue() != "123456789012345678901234567890" {
+		t.Errorf("Expected 123456789012345678901234567890, got %s", rbi.StringValue())
+	}
+
+	// Round-trip back to Value
+	v2 := ValueFromObject(rbi)
+	bi := v2.AsBigInt()
+
+	if bi.Cmp(largeVal) != 0 {
+		t.Errorf("Round-trip failed: expected %s, got %s", largeVal.String(), bi.String())
+	}
+}
+
+func TestValueBigIntEquality(t *testing.T) {
+	v1 := NewValueBigInt(big.NewInt(42))
+	v2 := NewValueBigInt(big.NewInt(42))
+	v3 := NewValueBigInt(big.NewInt(43))
+
+	if !v1.Equal(v2) {
+		t.Error("Expected v1 == v2")
+	}
+
+	if v1.Equal(v3) {
+		t.Error("Expected v1 != v3")
+	}
+}
+
+func TestValueBigIntCrossTypeEquality(t *testing.T) {
+	// BigInt 42 should equal Integer 42
+	vBigInt := NewValueBigInt(big.NewInt(42))
+	vInteger := NewValueInteger(42)
+
+	if !vBigInt.Equal(vInteger) {
+		t.Error("Expected BigInt(42) == Integer(42)")
+	}
+
+	// BigInt 42 should equal Double 42.0
+	vDouble := NewValueDouble(42.0)
+
+	if !vBigInt.Equal(vDouble) {
+		t.Error("Expected BigInt(42) == Double(42.0)")
 	}
 }

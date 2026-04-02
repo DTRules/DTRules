@@ -297,3 +297,187 @@ func TestEntityGetName(t *testing.T) {
 		t.Errorf("Expected name 'myentity', got '%s'", instance.GetName().StringValue())
 	}
 }
+
+// =============================================================================
+// BigInt Field Tests
+// =============================================================================
+
+func TestEntityBigIntField(t *testing.T) {
+	factory := NewFactory(nil)
+	session := &mockSession{}
+
+	// Create reference entity with bigint attribute
+	entityName := dtrules.GetRName("budget")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	balanceAttr := dtrules.GetRName("balance")
+	refEntity.AddAttribute(balanceAttr, "0", dtrules.GetRBigIntFromInt64(0), true, true, dtrules.TypeBigInt, "", "Balance in nanoUnits", "", "")
+
+	// Create instance
+	instance, err := factory.CreateEntity(session, entityName)
+	if err != nil {
+		t.Fatalf("CreateEntity failed: %v", err)
+	}
+
+	// Set a BigInt value
+	bigValue := dtrules.GetRBigIntFromInt64(1000000000000)
+	err = instance.Put(balanceAttr, bigValue)
+	if err != nil {
+		t.Fatalf("Put BigInt failed: %v", err)
+	}
+
+	// Get and verify
+	value, err := instance.Get(balanceAttr)
+	if err != nil {
+		t.Fatalf("Get BigInt failed: %v", err)
+	}
+
+	bi, err := value.RBigIntValue()
+	if err != nil {
+		t.Fatalf("RBigIntValue failed: %v", err)
+	}
+
+	if bi.StringValue() != "1000000000000" {
+		t.Errorf("Expected 1000000000000, got %s", bi.StringValue())
+	}
+}
+
+func TestEntityBigIntFieldLargeValue(t *testing.T) {
+	factory := NewFactory(nil)
+	session := &mockSession{}
+
+	entityName := dtrules.GetRName("budget")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	supplyAttr := dtrules.GetRName("supply_limit")
+	refEntity.AddAttribute(supplyAttr, "0", dtrules.GetRBigIntFromInt64(0), true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	instance, _ := factory.CreateEntity(session, entityName)
+
+	// Set a very large BigInt value (larger than int64)
+	largeValue, _ := dtrules.GetRBigIntFromString("50000000000000000000")
+	err := instance.Put(supplyAttr, largeValue)
+	if err != nil {
+		t.Fatalf("Put large BigInt failed: %v", err)
+	}
+
+	value, _ := instance.Get(supplyAttr)
+	bi, _ := value.RBigIntValue()
+
+	if bi.StringValue() != "50000000000000000000" {
+		t.Errorf("Expected 50000000000000000000, got %s", bi.StringValue())
+	}
+}
+
+func TestEntityBigIntCoercionFromInteger(t *testing.T) {
+	factory := NewFactory(nil)
+	session := &mockSession{}
+
+	entityName := dtrules.GetRName("account")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	amountAttr := dtrules.GetRName("amount")
+	refEntity.AddAttribute(amountAttr, "0", dtrules.GetRBigIntFromInt64(0), true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	instance, _ := factory.CreateEntity(session, entityName)
+
+	// Put an RInteger - should be coerced to BigInt
+	intValue := dtrules.GetRIntegerValue(12345)
+	err := instance.Put(amountAttr, intValue)
+	if err != nil {
+		t.Fatalf("Put RInteger to BigInt field failed: %v", err)
+	}
+
+	value, _ := instance.Get(amountAttr)
+
+	// Should be a BigInt now
+	if value.Type() != dtrules.TypeBigInt {
+		t.Errorf("Expected TypeBigInt, got %v", value.Type())
+	}
+
+	bi, _ := value.RBigIntValue()
+	if bi.StringValue() != "12345" {
+		t.Errorf("Expected 12345, got %s", bi.StringValue())
+	}
+}
+
+func TestEntityBigIntCoercionFromString(t *testing.T) {
+	factory := NewFactory(nil)
+	session := &mockSession{}
+
+	entityName := dtrules.GetRName("account")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	amountAttr := dtrules.GetRName("amount")
+	refEntity.AddAttribute(amountAttr, "0", dtrules.GetRBigIntFromInt64(0), true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	instance, _ := factory.CreateEntity(session, entityName)
+
+	// Put an RString - should be coerced to BigInt
+	strValue := dtrules.NewRString("99999999999999999999")
+	err := instance.Put(amountAttr, strValue)
+	if err != nil {
+		t.Fatalf("Put RString to BigInt field failed: %v", err)
+	}
+
+	value, _ := instance.Get(amountAttr)
+	bi, _ := value.RBigIntValue()
+
+	if bi.StringValue() != "99999999999999999999" {
+		t.Errorf("Expected 99999999999999999999, got %s", bi.StringValue())
+	}
+}
+
+func TestEntityBigIntCoercionFromDouble(t *testing.T) {
+	factory := NewFactory(nil)
+	session := &mockSession{}
+
+	entityName := dtrules.GetRName("account")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	amountAttr := dtrules.GetRName("amount")
+	refEntity.AddAttribute(amountAttr, "0", dtrules.GetRBigIntFromInt64(0), true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	instance, _ := factory.CreateEntity(session, entityName)
+
+	// Put an RDouble - should be coerced to BigInt (truncated)
+	doubleValue := dtrules.GetRDoubleValue(123.99)
+	err := instance.Put(amountAttr, doubleValue)
+	if err != nil {
+		t.Fatalf("Put RDouble to BigInt field failed: %v", err)
+	}
+
+	value, _ := instance.Get(amountAttr)
+	bi, _ := value.RBigIntValue()
+
+	// Should be truncated to 123
+	if bi.StringValue() != "123" {
+		t.Errorf("Expected 123 (truncated), got %s", bi.StringValue())
+	}
+}
+
+func TestEntityBigIntDefaultValue(t *testing.T) {
+	factory := NewFactory(nil)
+	session := &mockSession{}
+
+	entityName := dtrules.GetRName("budget")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	// Set a default value
+	defaultValue, _ := dtrules.GetRBigIntFromString("1000000000000000000")
+	limitAttr := dtrules.GetRName("limit")
+	refEntity.AddAttribute(limitAttr, "1000000000000000000", defaultValue, true, true, dtrules.TypeBigInt, "", "", "", "")
+
+	// Create instance - should have default value
+	instance, _ := factory.CreateEntity(session, entityName)
+
+	value, err := instance.Get(limitAttr)
+	if err != nil {
+		t.Fatalf("Get failed: %v", err)
+	}
+
+	bi, _ := value.RBigIntValue()
+	if bi.StringValue() != "1000000000000000000" {
+		t.Errorf("Expected default 1000000000000000000, got %s", bi.StringValue())
+	}
+}

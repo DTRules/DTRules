@@ -346,6 +346,29 @@ func (v Value) Equal(other Value) bool {
 	if v.tag != other.tag {
 		// Cross-type numeric comparison
 		if v.IsNumeric() && other.IsNumeric() {
+			// For BigInt cross-type comparison, convert both to BigInt for precision
+			if v.tag == VTagBigInt || other.tag == VTagBigInt {
+				var vBig, oBig *big.Int
+				if v.tag == VTagBigInt {
+					vBig = v.AsBigInt()
+				} else if v.tag == VTagInteger {
+					vBig = big.NewInt(v.num)
+				} else {
+					// VTagDouble - convert via float
+					vBig = new(big.Int)
+					vBig.SetInt64(int64(v.AsDouble()))
+				}
+				if other.tag == VTagBigInt {
+					oBig = other.AsBigInt()
+				} else if other.tag == VTagInteger {
+					oBig = big.NewInt(other.num)
+				} else {
+					// VTagDouble - convert via float
+					oBig = new(big.Int)
+					oBig.SetInt64(int64(other.AsDouble()))
+				}
+				return vBig.Cmp(oBig) == 0
+			}
 			return v.AsDouble() == other.AsDouble()
 		}
 		return false
@@ -361,6 +384,8 @@ func (v Value) Equal(other Value) bool {
 		return v.AsString() == other.AsString()
 	case VTagName:
 		return v.ptr == other.ptr // Names are interned
+	case VTagBigInt:
+		return v.AsBigInt().Cmp(other.AsBigInt()) == 0
 	default:
 		return v.ptr == other.ptr
 	}

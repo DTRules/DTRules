@@ -403,3 +403,132 @@ func TestEDDLoaderXMLSizeLimitDisabled(t *testing.T) {
 		t.Fatalf("Expected no error with size limit disabled: %v", err)
 	}
 }
+
+// =============================================================================
+// BigInt Field Tests
+// =============================================================================
+
+func TestEDDLoaderBigIntField(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <entity name="budget" access="rw">
+    <field name="supply_limit" type="bigint" access="rw"/>
+    <field name="amount_issued" type="biginteger" access="rw"/>
+  </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Failed to load EDD with bigint fields: %v", err)
+	}
+
+	// Verify entity was created
+	budgetEntity, _ := factory.GetReferenceEntity(dtrules.GetRName("budget"))
+	if budgetEntity == nil {
+		t.Fatal("Expected budget entity to be created")
+	}
+
+	// Verify bigint attributes exist
+	if !budgetEntity.ContainsAttribute(dtrules.GetRName("supply_limit")) {
+		t.Error("Expected 'supply_limit' bigint attribute")
+	}
+
+	if !budgetEntity.ContainsAttribute(dtrules.GetRName("amount_issued")) {
+		t.Error("Expected 'amount_issued' biginteger attribute")
+	}
+}
+
+func TestEDDLoaderBigIntDefaultValue(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <entity name="budget" access="rw">
+    <field name="small_value" type="bigint" access="rw" default_value="12345"/>
+    <field name="large_value" type="bigint" access="rw" default_value="99999999999999999999999999999999"/>
+    <field name="negative_value" type="bigint" access="rw" default_value="-50000000000000000000"/>
+    <field name="zero_value" type="bigint" access="rw" default_value="0"/>
+  </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Failed to load EDD with bigint default values: %v", err)
+	}
+
+	budgetEntity, _ := factory.GetReferenceEntity(dtrules.GetRName("budget"))
+	if budgetEntity == nil {
+		t.Fatal("Expected budget entity to be created")
+	}
+
+	// Verify all fields were created
+	fields := []string{"small_value", "large_value", "negative_value", "zero_value"}
+	for _, f := range fields {
+		if !budgetEntity.ContainsAttribute(dtrules.GetRName(f)) {
+			t.Errorf("Expected '%s' bigint attribute", f)
+		}
+	}
+}
+
+func TestEDDLoaderBigIntInvalidDefaultValue(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <entity name="test" access="rw">
+    <field name="bad_value" type="bigint" access="rw" default_value="not-a-number"/>
+  </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	// The loader should still succeed but may log a warning or use default
+	// Check that the entity was created even with invalid default
+	if err != nil {
+		// If error is returned, that's also acceptable behavior
+		return
+	}
+
+	testEntity, _ := factory.GetReferenceEntity(dtrules.GetRName("test"))
+	if testEntity == nil {
+		t.Fatal("Expected test entity to be created")
+	}
+}
+
+func TestEDDLoaderBigIntWithOtherTypes(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <entity name="mixed" access="rw">
+    <field name="name" type="string" access="rw" default_value="test"/>
+    <field name="count" type="integer" access="rw" default_value="42"/>
+    <field name="balance" type="bigint" access="rw" default_value="50000000000000000000"/>
+    <field name="rate" type="double" access="rw" default_value="3.14"/>
+    <field name="active" type="boolean" access="rw" default_value="true"/>
+  </entity>
+</entity_data_dictionary>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Failed to load EDD with mixed types including bigint: %v", err)
+	}
+
+	mixedEntity, _ := factory.GetReferenceEntity(dtrules.GetRName("mixed"))
+	if mixedEntity == nil {
+		t.Fatal("Expected mixed entity to be created")
+	}
+
+	// Verify all fields exist
+	fields := []string{"name", "count", "balance", "rate", "active"}
+	for _, f := range fields {
+		if !mixedEntity.ContainsAttribute(dtrules.GetRName(f)) {
+			t.Errorf("Expected '%s' attribute", f)
+		}
+	}
+}
