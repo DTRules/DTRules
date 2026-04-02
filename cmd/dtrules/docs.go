@@ -22,6 +22,7 @@ import (
 
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
+	"bigint":           docBigInt,
 	"el":               docEL,
 	"xml-format":       docXMLFormat,
 	"edd":              docEDD,
@@ -65,6 +66,7 @@ func printDocIndex() {
 	sort.Strings(topics)
 
 	descriptions := map[string]string{
+		"bigint":          "Arbitrary-precision integer support for financial calculations",
 		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
 		"edd":             "Entity Data Dictionary - defining entities and fields",
@@ -1714,4 +1716,130 @@ Best Practices
 3. Always run 'dtrules sync import' after editing Excel
 4. Run 'dtrules validate' before committing
 5. Use --strict in CI to catch any hand-coded postfix
+`
+
+const docBigInt = `BigInt - Arbitrary-Precision Integers
+=====================================
+
+BigInt provides arbitrary-precision integer arithmetic for financial calculations
+where standard 64-bit integers are insufficient.
+
+
+Use Cases
+---------
+- Token amounts in cryptocurrency (nanoACME: 10^8 precision, values > 10^18)
+- Financial calculations requiring exact precision
+- Large integer math without overflow concerns
+
+
+Declaring BigInt Fields (EDD)
+-----------------------------
+<entity name="budget" readonly="false">
+    <field name="supply_limit" type="bigint" default_value="0"/>
+    <field name="amount_issued" type="bigint" default_value="0"/>
+    <field name="weekly_budget" type="bigint" default_value="0"/>
+</entity>
+
+
+EL Syntax
+---------
+BigInt values are created from strings or by casting:
+
+    context local bigint amount = "12345678901234567890"
+    context local bigint total = (bigint) input.amount_string
+    set result.balance = amount + total
+
+
+Arithmetic Operators
+--------------------
+All standard arithmetic operators work with bigint:
+
+    amount + other           Addition
+    amount - other           Subtraction
+    amount * multiplier      Multiplication
+    amount / divisor         Integer division
+    amount % divisor         Modulo (remainder)
+
+
+Comparison Operators
+--------------------
+Standard comparison operators:
+
+    amount > threshold       Greater than
+    amount >= minimum        Greater than or equal
+    amount < maximum         Less than
+    amount <= limit          Less than or equal
+    amount == expected       Equal
+    amount != forbidden      Not equal
+
+
+Type Conversions
+----------------
+Convert between types:
+
+    (bigint) "123456789"     String to bigint
+    (bigint) 42              Integer to bigint
+    (string) amount          BigInt to string (for display/storage)
+
+
+Postfix Operators (Reference)
+-----------------------------
+These are the compiled postfix operators (generated from EL):
+
+    b+        Add two bigint values
+    b-        Subtract two bigint values
+    b*        Multiply two bigint values
+    b/        Integer division
+    bmod      Modulo (remainder)
+    babs      Absolute value
+    bnegate   Negate a value
+    b=        Equal comparison
+    b!=, b<>  Not equal comparison
+    b>        Greater than
+    b>=       Greater than or equal
+    b<        Less than
+    b<=       Less than or equal
+    cvbi      Convert to bigint
+
+
+Example: Staking Rewards
+------------------------
+<entity name="staking" readonly="false">
+    <field name="supply_limit" type="bigint" default_value="50000000000000000000"/>
+    <field name="acme_issued" type="bigint" default_value="0"/>
+    <field name="weekly_budget" type="bigint" default_value="0"/>
+</entity>
+
+Decision table condition:
+    staking.acme_issued < staking.supply_limit
+
+Decision table action:
+    set staking.weekly_budget = (staking.supply_limit - staking.acme_issued) * 16 / 100 * 7 / 365
+
+
+JSON Input/Output
+-----------------
+BigInt values are represented as strings in JSON to preserve precision:
+
+{
+    "staking": {
+        "supply_limit": "50000000000000000000",
+        "acme_issued": "12345678901234567890"
+    }
+}
+
+
+Best Practices
+--------------
+1. Use bigint for any value that might exceed 2^63 (9.2 quintillion)
+2. Store amounts as strings in JSON/databases to preserve precision
+3. Use integer division (/) - there is no floating-point bigint
+4. Convert to string for display: (string) amount
+
+
+See Also
+--------
+  dtrules docs el          EL syntax reference
+  dtrules docs edd         Entity field definitions
+  dtrules docs operators   All operators including bigint
 `

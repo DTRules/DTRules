@@ -131,12 +131,11 @@ Sync Commands:
 
 Documentation:
   dtrules docs                     List available documentation topics
-  dtrules docs xml-format          XML file format specification
+  dtrules docs bigint              Arbitrary-precision integer support
+  dtrules docs el                  Expression Language syntax
   dtrules docs decision-tables     How to write decision tables
   dtrules docs operators           All operators with examples
-  dtrules docs expressions         Postfix expression syntax
   dtrules docs sdk                 Embedding DTRules in applications
-  dtrules docs examples            Complete working examples
 
 Options:
   --xml-dir      Directory containing XML files (default: ./xml)
