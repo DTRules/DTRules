@@ -150,6 +150,14 @@ func (r *RBoolean) RStringValue() *RString {
 	return NewRString(r.StringValue())
 }
 
+// RBigIntValue returns an RBigInt (1 for true, 0 for false).
+func (r *RBoolean) RBigIntValue() (*RBigInt, error) {
+	if r.value {
+		return GetRBigIntFromInt64(1), nil
+	}
+	return GetRBigIntFromInt64(0), nil
+}
+
 // Value returns the underlying boolean value.
 func (r *RBoolean) Value() bool {
 	return r.value

@@ -158,6 +158,11 @@ func (r *RDate) RStringValue() *RString {
 	return NewRString(r.StringValue())
 }
 
+// RBigIntValue returns an RBigInt for the Unix timestamp in milliseconds.
+func (r *RDate) RBigIntValue() (*RBigInt, error) {
+	return GetRBigIntFromInt64(r.time.UnixMilli()), nil
+}
+
 // Time returns the underlying time.Time value.
 func (r *RDate) Time() time.Time {
 	return r.time

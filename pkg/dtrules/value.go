@@ -17,6 +17,7 @@ package dtrules
 import (
 	"fmt"
 	"math"
+	"math/big"
 	"unsafe"
 )
 
@@ -47,6 +48,7 @@ const (
 	VTagArray   uint8 = 6
 	VTagEntity  uint8 = 7
 	VTagObject  uint8 = 8 // Fallback to Object interface
+	VTagBigInt  uint8 = 9
 )
 
 // Null value singleton
@@ -96,6 +98,11 @@ func NewValueArray(a *RArray) Value {
 func NewValueEntity(e Entity) Value {
 	// Store as interface (uses Object fallback)
 	return NewValueObject(e.(Object))
+}
+
+// NewValueBigInt creates a big.Int value.
+func NewValueBigInt(v *big.Int) Value {
+	return Value{tag: VTagBigInt, ptr: unsafe.Pointer(v)}
 }
 
 // NewValueObject wraps any Object in a Value.
@@ -159,9 +166,14 @@ func (v Value) IsName() bool {
 	return v.tag == VTagName
 }
 
-// IsNumeric returns true if this is an integer or double.
+// IsNumeric returns true if this is an integer, double, or bigint.
 func (v Value) IsNumeric() bool {
-	return v.tag == VTagInteger || v.tag == VTagDouble
+	return v.tag == VTagInteger || v.tag == VTagDouble || v.tag == VTagBigInt
+}
+
+// IsBigInt returns true if this is a big.Int value.
+func (v Value) IsBigInt() bool {
+	return v.tag == VTagBigInt
 }
 
 // AsInteger returns the integer value.
@@ -200,6 +212,11 @@ func (v Value) AsArray() *RArray {
 	return (*RArray)(v.ptr)
 }
 
+// AsBigInt returns the big.Int value.
+func (v Value) AsBigInt() *big.Int {
+	return (*big.Int)(v.ptr)
+}
+
 // AsObject converts the value to an Object interface.
 func (v Value) AsObject() Object {
 	switch v.tag {
@@ -217,6 +234,9 @@ func (v Value) AsObject() Object {
 		return (*RName)(v.ptr)
 	case VTagArray:
 		return (*RArray)(v.ptr)
+	case VTagBigInt:
+		bi := (*big.Int)(v.ptr)
+		return GetRBigIntValue(bi)
 	case VTagObject:
 		// Reconstruct the interface from its two-word representation.
 		// This is the inverse of NewValueObject which stores the interface
@@ -261,6 +281,8 @@ func (v Value) String() string {
 		return (*RName)(v.ptr).StringValue()
 	case VTagArray:
 		return (*RArray)(v.ptr).String()
+	case VTagBigInt:
+		return (*big.Int)(v.ptr).String()
 	case VTagObject:
 		return v.AsObject().StringValue()
 	default:
@@ -369,6 +391,11 @@ func ValueFromObject(o Object) Value {
 	case TypeArray:
 		a, _ := o.RArrayValue()
 		return NewValueArray(a)
+	case TypeBigInt:
+		if rb, ok := o.(*RBigInt); ok {
+			return NewValueBigInt(rb.value)
+		}
+		return NewValueObject(o)
 	default:
 		return NewValueObject(o)
 	}

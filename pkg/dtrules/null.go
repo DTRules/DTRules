@@ -105,6 +105,11 @@ func (r *RNull) RStringValue() *RString {
 	return NewRString("")
 }
 
+// RBigIntValue returns an RBigInt with value 0.
+func (r *RNull) RBigIntValue() (*RBigInt, error) {
+	return GetRBigIntFromInt64(0), nil
+}
+
 // String implements the Stringer interface.
 func (r *RNull) String() string {
 	return ""

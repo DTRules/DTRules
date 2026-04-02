@@ -1,6 +1,7 @@
-// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
 
 package el // EL
+
 import "github.com/antlr4-go/antlr/v4"
 
 // A complete Visitor for a parse tree produced by ELParser.
@@ -166,6 +167,15 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#localStringDefined.
 	VisitLocalStringDefined(ctx *LocalStringDefinedContext) interface{}
 
+	// Visit a parse tree produced by ELParser#localBigIntUndef.
+	VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localBigIntInit.
+	VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localBigIntDefined.
+	VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{}
+
 	// Visit a parse tree produced by ELParser#ifThen.
 	VisitIfThen(ctx *IfThenContext) interface{}
 
@@ -298,6 +308,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#leftTexprColon.
 	VisitLeftTexprColon(ctx *LeftTexprColonContext) interface{}
 
+	// Visit a parse tree produced by ELParser#leftBigexprSimple.
+	VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) interface{}
+
+	// Visit a parse tree produced by ELParser#leftBigexprColon.
+	VisitLeftBigexprColon(ctx *LeftBigexprColonContext) interface{}
+
 	// Visit a parse tree produced by ELParser#leftArraySimple.
 	VisitLeftArraySimple(ctx *LeftArraySimpleContext) interface{}
 
@@ -357,6 +373,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#setArrayArray.
 	VisitSetArrayArray(ctx *SetArrayArrayContext) interface{}
+
+	// Visit a parse tree produced by ELParser#setBigInt.
+	VisitSetBigInt(ctx *SetBigIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#incrementLong.
 	VisitIncrementLong(ctx *IncrementLongContext) interface{}
@@ -1165,6 +1184,45 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intMonthsBetween.
 	VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) interface{}
 
+	// Visit a parse tree produced by ELParser#bigAbs.
+	VisitBigAbs(ctx *BigAbsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigDiv.
+	VisitBigDiv(ctx *BigDivContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigColonRef.
+	VisitBigColonRef(ctx *BigColonRefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigFromFloat.
+	VisitBigFromFloat(ctx *BigFromFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigNegate.
+	VisitBigNegate(ctx *BigNegateContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigUsing.
+	VisitBigUsing(ctx *BigUsingContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigSub.
+	VisitBigSub(ctx *BigSubContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigParen.
+	VisitBigParen(ctx *BigParenContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigAdd.
+	VisitBigAdd(ctx *BigAddContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigFromStr.
+	VisitBigFromStr(ctx *BigFromStrContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigFromInt.
+	VisitBigFromInt(ctx *BigFromIntContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigMul.
+	VisitBigMul(ctx *BigMulContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bigTyped.
+	VisitBigTyped(ctx *BigTypedContext) interface{}
+
 	// Visit a parse tree produced by ELParser#includeNumber.
 	VisitIncludeNumber(ctx *IncludeNumberContext) interface{}
 
@@ -1225,6 +1283,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolThereIsNoInEntityWhere.
 	VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEntityWhereContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolBigLt.
+	VisitBoolBigLt(ctx *BoolBigLtContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolArrayIsNull.
 	VisitBoolArrayIsNull(ctx *BoolArrayIsNullContext) interface{}
 
@@ -1236,6 +1297,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolStrEqList.
 	VisitBoolStrEqList(ctx *BoolStrEqListContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolBigNeq.
+	VisitBoolBigNeq(ctx *BoolBigNeqContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolIntLt.
 	VisitBoolIntLt(ctx *BoolIntLtContext) interface{}
@@ -1345,6 +1409,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolFloatLte.
 	VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolBigLte.
+	VisitBoolBigLte(ctx *BoolBigLteContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolStrEqIc.
 	VisitBoolStrEqIc(ctx *BoolStrEqIcContext) interface{}
 
@@ -1377,6 +1444,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolColonRef.
 	VisitBoolColonRef(ctx *BoolColonRefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolBigGt.
+	VisitBoolBigGt(ctx *BoolBigGtContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolFloatGt.
 	VisitBoolFloatGt(ctx *BoolFloatGtContext) interface{}
@@ -1429,6 +1499,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolEntityNotHas.
 	VisitBoolEntityNotHas(ctx *BoolEntityNotHasContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolBigGte.
+	VisitBoolBigGte(ctx *BoolBigGteContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolDateEq.
 	VisitBoolDateEq(ctx *BoolDateEqContext) interface{}
 
@@ -1470,6 +1543,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolBoolEq.
 	VisitBoolBoolEq(ctx *BoolBoolEqContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolBigEq.
+	VisitBoolBigEq(ctx *BoolBigEqContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolPlusOrMinus.
 	VisitBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) interface{}
@@ -1575,6 +1651,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#typedBoolFunction.
 	VisitTypedBoolFunction(ctx *TypedBoolFunctionContext) interface{}
+
+	// Visit a parse tree produced by ELParser#typedBigInt.
+	VisitTypedBigInt(ctx *TypedBigIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#undefinedIdent.
 	VisitUndefinedIdent(ctx *UndefinedIdentContext) interface{}

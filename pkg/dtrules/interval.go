@@ -212,6 +212,11 @@ func (i *RInterval) RDoubleValue() (*RDouble, error) {
 	return GetRDoubleValue(float64(i.amount)), nil
 }
 
+// RBigIntValue returns the amount as an RBigInt.
+func (i *RInterval) RBigIntValue() (*RBigInt, error) {
+	return GetRBigIntFromInt64(int64(i.amount)), nil
+}
+
 // RBooleanValue returns False.
 func (i *RInterval) RBooleanValue() (*RBoolean, error) {
 	return False, nil

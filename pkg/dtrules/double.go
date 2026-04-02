@@ -199,6 +199,11 @@ func (r *RDouble) RStringValue() *RString {
 	return NewRString(r.StringValue())
 }
 
+// RBigIntValue returns an RBigInt for this value.
+func (r *RDouble) RBigIntValue() (*RBigInt, error) {
+	return GetRBigIntFromInt64(int64(r.value)), nil
+}
+
 // Value returns the underlying float64 value.
 func (r *RDouble) Value() float64 {
 	return r.value

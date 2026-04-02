@@ -126,6 +126,9 @@ type Object interface {
 
 	// REntityValue returns the Entity representation of this object.
 	REntityValue() (Entity, error)
+
+	// RBigIntValue returns the RBigInt representation of this object.
+	RBigIntValue() (*RBigInt, error)
 }
 
 // State flags

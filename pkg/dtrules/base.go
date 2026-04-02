@@ -156,3 +156,8 @@ func (b *BaseObject) RTimeValue() (*RDate, error) {
 func (b *BaseObject) REntityValue() (Entity, error) {
 	return nil, ConversionError("REntityValue", "No Entity value exists for this type")
 }
+
+// RBigIntValue returns an error by default.
+func (b *BaseObject) RBigIntValue() (*RBigInt, error) {
+	return nil, ConversionError("RBigIntValue", "cannot convert to bigint")
+}

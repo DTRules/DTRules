@@ -272,6 +272,10 @@ func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType)
 				return arr
 			}
 		}
+	case dtrules.TypeBigInt:
+		if v, err := dtrules.GetRBigIntFromString(defaultStr); err == nil {
+			return v
+		}
 	}
 
 	return dtrules.GetRNull()

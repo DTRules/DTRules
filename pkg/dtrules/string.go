@@ -269,6 +269,11 @@ func (r *RString) RStringValue() *RString {
 	return r
 }
 
+// RBigIntValue returns an RBigInt parsed from this string.
+func (r *RString) RBigIntValue() (*RBigInt, error) {
+	return GetRBigIntFromString(r.value)
+}
+
 // RNameValue returns an RName for this string value.
 // Returns an error if the string has invalid name syntax.
 func (r *RString) RNameValue() (*RName, error) {

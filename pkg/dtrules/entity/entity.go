@@ -307,6 +307,8 @@ func (e *REntity) Put(name *dtrules.RName, value dtrules.Object) error {
 			value = value.RStringValue()
 		case dtrules.TypeDate.GetID():
 			value, err = value.RTimeValue()
+		case dtrules.TypeBigInt.GetID():
+			value, err = value.RBigIntValue()
 		}
 		if err != nil {
 			return err

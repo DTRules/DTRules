@@ -130,6 +130,8 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 		return "cve"
 	case TypeDate:
 		return "cvd"
+	case TypeBigInt:
+		return "cvbi"
 	case TypeArray, TypeName, TypeTable, TypeXmlValue:
 		return "" // No conversion needed
 	default:
@@ -2277,5 +2279,211 @@ func (e *PostfixEmitter) VisitColonRef(ctx *ColonRefContext) interface{} {
 
 func (e *PostfixEmitter) VisitArrayPolicyStatements(ctx *ArrayPolicyStatementsContext) interface{} {
 	e.emit("policystatements")
+	return nil
+}
+
+// ============================================================================
+// BigInt Expression Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitBigMul(ctx *BigMulContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b*")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigDiv(ctx *BigDivContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b/")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigAdd(ctx *BigAddContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b+")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigSub(ctx *BigSubContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b-")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigNegate(ctx *BigNegateContext) interface{} {
+	e.Visit(ctx.Bigexpr())
+	e.emit("bnegate")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigParen(ctx *BigParenContext) interface{} {
+	e.Visit(ctx.Bigexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigTyped(ctx *BigTypedContext) interface{} {
+	e.Visit(ctx.TypedBigInt())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigColonRef(ctx *BigColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedBigInt())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigFromStr(ctx *BigFromStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvbi")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigFromInt(ctx *BigFromIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("cvbi")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigFromFloat(ctx *BigFromFloatContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("cvbi")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigUsing(ctx *BigUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Bigexpr())
+	e.emit("entitypop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigAbs(ctx *BigAbsContext) interface{} {
+	e.Visit(ctx.Bigexpr())
+	e.emit("babs")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitTypedBigInt(ctx *TypedBigIntContext) interface{} {
+	name := ctx.GetText()
+	// Check if this is a local variable - emit stack frame access
+	if !e.emitLocalRef(name) {
+		e.emit(name)
+	}
+	return nil
+}
+
+// ============================================================================
+// BigInt Local Variable Declaration Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) interface{} {
+	name := ctx.UndefinedIdent().GetText()
+	e.declareLocal(name, TypeBigInt)
+	e.emit("null")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interface{} {
+	name := ctx.UndefinedIdent().GetText()
+	e.declareLocal(name, TypeBigInt)
+	e.Visit(ctx.Bigexpr())
+	e.emit("cvbi")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{} {
+	e.emit(ctx.TypedBigInt().GetText())
+	return nil
+}
+
+// ============================================================================
+// BigInt Assignment Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitSetBigInt(ctx *SetBigIntContext) interface{} {
+	e.Visit(ctx.Bigexpr())
+	// Look up the target field type, default to bigint from grammar context
+	leftField := ctx.LeftBigexpr().GetText()
+	fieldType := e.lookupType(leftField)
+	if fieldType == "" {
+		fieldType = TypeBigInt
+	}
+	if conv := e.typeConverter(fieldType); conv != "" {
+		e.emit(conv)
+	}
+	e.Visit(ctx.LeftBigexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) interface{} {
+	// Emit left value format: /<fieldname> xdef
+	e.emit("/" + ctx.TypedBigInt().GetText())
+	e.emit("xdef")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLeftBigexprColon(ctx *LeftBigexprColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftBigexpr())
+	return nil
+}
+
+// ============================================================================
+// BigInt Comparison Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitBoolBigEq(ctx *BoolBigEqContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b==")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBigNeq(ctx *BoolBigNeqContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b==")
+	e.emit("not")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBigGt(ctx *BoolBigGtContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b>")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBigGte(ctx *BoolBigGteContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b>=")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBigLt(ctx *BoolBigLtContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b<")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBigLte(ctx *BoolBigLteContext) interface{} {
+	e.Visit(ctx.Bigexpr(0))
+	e.Visit(ctx.Bigexpr(1))
+	e.emit("b<=")
 	return nil
 }
