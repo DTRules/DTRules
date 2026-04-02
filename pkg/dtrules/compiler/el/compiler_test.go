@@ -336,9 +336,8 @@ func TestBigIntArithmeticOperators(t *testing.T) {
 }
 
 // TestBigIntArithmeticWithLocalVariables tests arithmetic operations on local bigint variables.
-// Due to grammar limitations, local bigint variables in arithmetic expressions are parsed
-// as integer expressions (using +, -, *, /) rather than bigint expressions (b+, b-, b*, b/).
-// The local variable reference correctly uses the local@ operator.
+// The emitter is now type-aware and emits bigint operators (b+, b-, b*, b/) when
+// operands are known to be bigint type, with automatic type promotion for mixed expressions.
 func TestBigIntArithmeticWithLocalVariables(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -347,18 +346,17 @@ func TestBigIntArithmeticWithLocalVariables(t *testing.T) {
 		expected string
 	}{
 		{
-			// Note: This uses integer operators because the grammar can't determine
-			// the type of local variables at parse time.
-			name:     "local bigint variables use integer operators",
+			// The emitter detects that x is bigint and emits b+ operator
+			name:     "local bigint variables use bigint operators",
 			context:  "local bigint x = (bigint) 10;",
 			action:   "set result = x + x;",
-			expected: "0 local@ 0 local@ + cvi /result xdef",
+			expected: "0 local@ 0 local@ b+ cvi /result xdef",
 		},
 		{
 			name:     "local bigint variables multiplication",
 			context:  "local bigint x = (bigint) 10;",
 			action:   "set result = x * x;",
-			expected: "0 local@ 0 local@ * cvi /result xdef",
+			expected: "0 local@ 0 local@ b* cvi /result xdef",
 		},
 	}
 
@@ -453,8 +451,8 @@ func TestBigIntComparisonOperators(t *testing.T) {
 }
 
 // TestBigIntComparisonWithLocalVariables tests comparison operations on local bigint variables.
-// Due to grammar limitations, local bigint variables in comparisons are parsed as integer/string
-// expressions rather than bigint expressions.
+// The emitter is now type-aware and emits bigint operators when operands are known to be bigint.
+// Note: Equality uses streq when parsed as string comparison (depends on grammar rule match).
 func TestBigIntComparisonWithLocalVariables(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -471,10 +469,11 @@ func TestBigIntComparisonWithLocalVariables(t *testing.T) {
 			expected:  "0 local@ 0 local@ streq",
 		},
 		{
-			name:      "local bigint greater than uses integer >",
+			// The emitter detects that x is bigint and emits b> operator
+			name:      "local bigint greater than uses bigint b>",
 			context:   "local bigint x = (bigint) 10;",
 			condition: "x > x",
-			expected:  "0 local@ 0 local@ >",
+			expected:  "0 local@ 0 local@ b>",
 		},
 	}
 
@@ -772,7 +771,7 @@ func TestBigIntAbsoluteValue(t *testing.T) {
 // =============================================================================
 
 // TestBigIntMultipleLocalVariables tests that multiple bigint local variables get correct indices.
-// Note: The arithmetic uses integer operators because of grammar limitations.
+// The emitter is type-aware and emits bigint operators when operands are known to be bigint.
 func TestBigIntMultipleLocalVariables(t *testing.T) {
 	c := NewCompiler()
 
@@ -802,8 +801,8 @@ func TestBigIntMultipleLocalVariables(t *testing.T) {
 		t.Errorf("CompileAction('set result = x + y') = %q, expected to contain '1 local@' for y", result)
 	}
 
-	// Uses integer '+' operator because grammar parses this as iexpr
-	expected := "0 local@ 1 local@ + cvi /result xdef"
+	// Uses bigint 'b+' operator because emitter detects x and y are bigint
+	expected := "0 local@ 1 local@ b+ cvi /result xdef"
 	result = strings.TrimSpace(result)
 	if result != expected {
 		t.Errorf("CompileAction('set result = x + y')\n  got:  %q\n  want: %q", result, expected)
@@ -833,7 +832,7 @@ func TestBigIntParenthesizedExpression(t *testing.T) {
 }
 
 // TestBigIntParenthesizedWithLocalVariables tests parentheses with local variables.
-// Due to grammar limitations, local variables are parsed as integer expressions.
+// The emitter is type-aware and emits bigint operators when operands are known to be bigint.
 func TestBigIntParenthesizedWithLocalVariables(t *testing.T) {
 	c := NewCompiler()
 
@@ -848,16 +847,85 @@ func TestBigIntParenthesizedWithLocalVariables(t *testing.T) {
 		t.Fatalf("CompileContext(y) error: %v", err)
 	}
 
-	// Test (x + y) * x - parsed as integer expression
+	// Test (x + y) * x - emitter detects bigint types
 	result, err := c.CompileAction("set result = (x + y) * x;")
 	if err != nil {
 		t.Fatalf("CompileAction error: %v", err)
 	}
 
-	// Uses integer operators due to grammar limitations
-	expected := "0 local@ 1 local@ + 0 local@ * cvi /result xdef"
+	// Uses bigint operators because emitter detects x and y are bigint
+	expected := "0 local@ 1 local@ b+ 0 local@ b* cvi /result xdef"
 	result = strings.TrimSpace(result)
 	if result != expected {
 		t.Errorf("CompileAction('set result = (x + y) * x')\n  got:  %q\n  want: %q", result, expected)
+	}
+}
+
+// TestBigIntMixedTypePromotion tests that mixing int and bigint auto-promotes int to bigint.
+func TestBigIntMixedTypePromotion(t *testing.T) {
+	tests := []struct {
+		name     string
+		contexts []string
+		action   string
+		expected string
+	}{
+		{
+			// When mixing int and bigint, the int should be promoted to bigint
+			name:     "int + bigint promotes int to bigint",
+			contexts: []string{"local int x = 10;", "local bigint y = (bigint) 20;"},
+			action:   "set result = x + y;",
+			expected: "0 local@ cvbi 1 local@ b+ cvi /result xdef",
+		},
+		{
+			name:     "bigint + int promotes int to bigint",
+			contexts: []string{"local bigint x = (bigint) 10;", "local int y = 20;"},
+			action:   "set result = x + y;",
+			expected: "0 local@ 1 local@ cvbi b+ cvi /result xdef",
+		},
+		{
+			name:     "int * bigint promotes int to bigint",
+			contexts: []string{"local int x = 10;", "local bigint y = (bigint) 20;"},
+			action:   "set result = x * y;",
+			expected: "0 local@ cvbi 1 local@ b* cvi /result xdef",
+		},
+		{
+			name:     "int - bigint promotes int to bigint",
+			contexts: []string{"local int x = 10;", "local bigint y = (bigint) 20;"},
+			action:   "set result = x - y;",
+			expected: "0 local@ cvbi 1 local@ b- cvi /result xdef",
+		},
+		{
+			name:     "int / bigint promotes int to bigint",
+			contexts: []string{"local int x = 10;", "local bigint y = (bigint) 20;"},
+			action:   "set result = x / y;",
+			expected: "0 local@ cvbi 1 local@ b/ cvi /result xdef",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+
+			// Compile all contexts
+			for _, ctx := range tt.contexts {
+				_, err := c.CompileContext(ctx)
+				if err != nil {
+					t.Fatalf("CompileContext(%q) error: %v", ctx, err)
+				}
+			}
+
+			// Compile the action
+			result, err := c.CompileAction(tt.action)
+			if err != nil {
+				t.Fatalf("CompileAction(%q) error: %v", tt.action, err)
+			}
+
+			result = strings.TrimSpace(result)
+			expected := strings.TrimSpace(tt.expected)
+
+			if result != expected {
+				t.Errorf("CompileAction(%q)\n  got:  %q\n  want: %q", tt.action, result, expected)
+			}
+		})
 	}
 }
