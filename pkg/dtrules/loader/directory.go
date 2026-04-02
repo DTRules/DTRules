@@ -132,15 +132,42 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 				info.Number = num
 			}
 
+			// If TABLE_NUMBER is empty, try to extract from filename (e.g., "060_Calculate_..." -> 60)
+			if info.Number == 0 {
+				base := filepath.Base(filePath)
+				numStr := ""
+				for _, ch := range base {
+					if ch >= '0' && ch <= '9' {
+						numStr += string(ch)
+					} else {
+						break
+					}
+				}
+				if numStr != "" {
+					if num, err := strconv.Atoi(numStr); err == nil {
+						info.Number = num
+					}
+				}
+			}
+
 			// Extract FILE_PATH
 			filePathStr := strings.TrimSpace(dtFile.Tables[0].AttributeFields.FilePath)
 			info.FilePath = filePathStr
 
-			// Skip merged/monolithic files that don't have FILE_PATH
-			// These are typically generated files like TaxReturn_dt.xml
-			// Individual table files should always have a FILE_PATH
+			// If FILE_PATH is missing, derive path from filename.
+			// This allows loading files that don't have FILE_PATH metadata.
 			if filePathStr == "" {
-				return nil, fmt.Errorf("decision table file missing FILE_PATH (likely a merged/generated file)")
+				// Derive from filename (e.g., "001_Compute_Tax_Return_dt.xml" -> "001_Compute_Tax_Return")
+				base := filepath.Base(filePath)
+				base = strings.TrimSuffix(base, filepath.Ext(base))
+				base = strings.TrimSuffix(base, "_dt")
+				info.FilePath = base
+
+				// If no number was found, assign a default (sort at end)
+				// This handles project files like "kidaid_dt.xml" that have no number
+				if info.Number == 0 {
+					info.Number = 99999 // Sort at end
+				}
 			}
 
 			return info, nil
@@ -158,11 +185,23 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 			filePathStr := strings.TrimSpace(eddFile.FileMetadata.FilePath)
 			info.FilePath = filePathStr
 
-			// Skip merged/monolithic files that don't have file_path
-			// These are typically generated files like TaxReturn_edd.xml
-			// Individual EDD files should always have a file_path
+			// If file_path is missing, try to derive from filename
+			// This allows loading individual EDD files that were split but don't have file_path metadata
 			if filePathStr == "" {
-				return nil, fmt.Errorf("EDD file missing file_path (likely a merged/generated file)")
+				// Derive from filename (e.g., "CO_edd.xml" -> "CO_edd")
+				base := filepath.Base(filePath)
+				base = strings.TrimSuffix(base, filepath.Ext(base))
+
+				// Check if file looks like an individual EDD file (e.g., state EDDs)
+				// Skip if it looks like a merged file (e.g., TaxReturn_edd.xml, contains many entities)
+				if len(eddFile.Entities) > 10 {
+					// Likely a merged file with many entities
+					return nil, fmt.Errorf("EDD file missing file_path (likely a merged/generated file)")
+				}
+
+				// Use derived path
+				filePathStr = base
+				info.FilePath = filePathStr
 			}
 
 			// Parse number from file_path (e.g., "states/AL/40100_AL_constants" -> 40100)
